@@ -1,0 +1,12 @@
+C:\Users\steve\Documents\Projets\Flutter\xelis_wallet_app\rust\target\aarch64-linux-android\debug\deps\fern-04539cda25667468.rmeta: C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\lib.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\builders.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\errors.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\log_impl.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\colors.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\meta.rs
+
+C:\Users\steve\Documents\Projets\Flutter\xelis_wallet_app\rust\target\aarch64-linux-android\debug\deps\libfern-04539cda25667468.rlib: C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\lib.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\builders.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\errors.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\log_impl.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\colors.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\meta.rs
+
+C:\Users\steve\Documents\Projets\Flutter\xelis_wallet_app\rust\target\aarch64-linux-android\debug\deps\fern-04539cda25667468.d: C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\lib.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\builders.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\errors.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\log_impl.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\colors.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\meta.rs
+
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\lib.rs:
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\builders.rs:
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\errors.rs:
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\log_impl.rs:
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\colors.rs:
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\fern-0.6.1\src\meta.rs:

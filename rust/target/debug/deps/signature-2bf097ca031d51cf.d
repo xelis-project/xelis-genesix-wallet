@@ -1,0 +1,11 @@
+C:\Users\steve\Documents\Projets\Flutter\xelis_wallet_app\rust\target\debug\deps\signature-2bf097ca031d51cf.rmeta: C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\signature-1.6.4\src\lib.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\signature-1.6.4\src\error.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\signature-1.6.4\src\keypair.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\signature-1.6.4\src\signature.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\signature-1.6.4\src\signer.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\signature-1.6.4\src\verifier.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\signature-1.6.4\src\../README.md
+
+C:\Users\steve\Documents\Projets\Flutter\xelis_wallet_app\rust\target\debug\deps\signature-2bf097ca031d51cf.d: C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\signature-1.6.4\src\lib.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\signature-1.6.4\src\error.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\signature-1.6.4\src\keypair.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\signature-1.6.4\src\signature.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\signature-1.6.4\src\signer.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\signature-1.6.4\src\verifier.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\signature-1.6.4\src\../README.md
+
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\signature-1.6.4\src\lib.rs:
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\signature-1.6.4\src\error.rs:
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\signature-1.6.4\src\keypair.rs:
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\signature-1.6.4\src\signature.rs:
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\signature-1.6.4\src\signer.rs:
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\signature-1.6.4\src\verifier.rs:
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\signature-1.6.4\src\../README.md:

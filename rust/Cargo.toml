@@ -1,0 +1,15 @@
+[package]
+name = "rust"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["lib", "staticlib", "cdylib"]
+
+[dependencies]
+anyhow = "1"
+flutter_rust_bridge = "1"
+xelis_wallet = { git = "https://github.com/xelis-project/xelis-blockchain", branch = "dev", package = "xelis_wallet"}
+#xelis_common = { git = "https://github.com/xelis-project/xelis-blockchain", branch = "dev", package = "xelis_common"}

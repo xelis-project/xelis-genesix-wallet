@@ -1,0 +1,11 @@
+C:\Users\steve\Documents\Projets\Flutter\xelis_wallet_app\rust\target\armv7-linux-androideabi\debug\deps\crc32fast-9b380630e022a51c.rmeta: C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\crc32fast-1.3.2\src\lib.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\crc32fast-1.3.2\src\baseline.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\crc32fast-1.3.2\src\combine.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\crc32fast-1.3.2\src\specialized\mod.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\crc32fast-1.3.2\src\table.rs
+
+C:\Users\steve\Documents\Projets\Flutter\xelis_wallet_app\rust\target\armv7-linux-androideabi\debug\deps\libcrc32fast-9b380630e022a51c.rlib: C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\crc32fast-1.3.2\src\lib.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\crc32fast-1.3.2\src\baseline.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\crc32fast-1.3.2\src\combine.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\crc32fast-1.3.2\src\specialized\mod.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\crc32fast-1.3.2\src\table.rs
+
+C:\Users\steve\Documents\Projets\Flutter\xelis_wallet_app\rust\target\armv7-linux-androideabi\debug\deps\crc32fast-9b380630e022a51c.d: C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\crc32fast-1.3.2\src\lib.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\crc32fast-1.3.2\src\baseline.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\crc32fast-1.3.2\src\combine.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\crc32fast-1.3.2\src\specialized\mod.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\crc32fast-1.3.2\src\table.rs
+
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\crc32fast-1.3.2\src\lib.rs:
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\crc32fast-1.3.2\src\baseline.rs:
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\crc32fast-1.3.2\src\combine.rs:
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\crc32fast-1.3.2\src\specialized\mod.rs:
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\crc32fast-1.3.2\src\table.rs:

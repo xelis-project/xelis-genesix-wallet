@@ -1,0 +1,3 @@
+cargo:rustc-cfg=has_try_from
+cargo:rustc-cfg=use_addcarry
+cargo:rerun-if-changed=build.rs

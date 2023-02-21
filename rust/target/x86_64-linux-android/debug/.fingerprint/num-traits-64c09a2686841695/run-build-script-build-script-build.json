@@ -1,0 +1,1 @@
+{"rustc":7821584855021947355,"features":"","target":0,"profile":0,"path":0,"deps":[[8121635694596382552,"build_script_build",false,17707533198342842743]],"local":[{"RerunIfChanged":{"output":"x86_64-linux-android\\debug\\build\\num-traits-64c09a2686841695\\output","paths":["build.rs"]}}],"rustflags":[],"metadata":0,"config":0,"compile_kind":0}

@@ -1,0 +1,34 @@
+TARGET = Some("armv7-linux-androideabi")
+OPT_LEVEL = Some("0")
+HOST = Some("x86_64-pc-windows-msvc")
+cargo:rerun-if-env-changed=CC_armv7-linux-androideabi
+CC_armv7-linux-androideabi = Some("C:/Users/steve/AppData/Local/Android/Sdk/ndk\\25.2.9519653\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\armv7a-linux-androideabi21-clang.cmd")
+cargo:rerun-if-env-changed=CFLAGS_armv7-linux-androideabi
+CFLAGS_armv7-linux-androideabi = None
+cargo:rerun-if-env-changed=CFLAGS_armv7_linux_androideabi
+CFLAGS_armv7_linux_androideabi = None
+cargo:rerun-if-env-changed=TARGET_CFLAGS
+TARGET_CFLAGS = None
+cargo:rerun-if-env-changed=CFLAGS
+CFLAGS = None
+cargo:rerun-if-env-changed=CRATE_CC_NO_DEFAULTS
+CRATE_CC_NO_DEFAULTS = None
+DEBUG = Some("true")
+running: "C:/Users/steve/AppData/Local/Android/Sdk/ndk\\25.2.9519653\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe" "--target=armv7a-linux-androideabi21" "-O0" "-DANDROID" "-ffunction-sections" "-fdata-sections" "-fPIC" "-gdwarf-2" "-fno-omit-frame-pointer" "--target=armv7-linux-androideabi" "-I" "C:\\Users\\steve\\.cargo\\registry\\src\\github.com-1ecc6299db9ec823\\dart-sys-4.0.2\\dart-sdk\\include" "-Wall" "-Wextra" "-o" "C:\\Users\\steve\\Documents\\Projets\\Flutter\\xelis_wallet_app\\rust\\target\\armv7-linux-androideabi\\debug\\build\\dart-sys-1ec97ebb3266014a\\out\\f041c25ffb6f640b-dart_api_dl.o" "-c" "C:\\Users\\steve\\.cargo\\registry\\src\\github.com-1ecc6299db9ec823\\dart-sys-4.0.2\\dart-sdk\\include\\dart_api_dl.c"
+exit code: 0
+cargo:rerun-if-env-changed=AR_armv7-linux-androideabi
+AR_armv7-linux-androideabi = Some("C:/Users/steve/AppData/Local/Android/Sdk/ndk\\25.2.9519653\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\llvm-ar")
+cargo:rerun-if-env-changed=ARFLAGS_armv7-linux-androideabi
+ARFLAGS_armv7-linux-androideabi = None
+cargo:rerun-if-env-changed=ARFLAGS_armv7_linux_androideabi
+ARFLAGS_armv7_linux_androideabi = None
+cargo:rerun-if-env-changed=TARGET_ARFLAGS
+TARGET_ARFLAGS = None
+cargo:rerun-if-env-changed=ARFLAGS
+ARFLAGS = None
+running: "C:/Users/steve/AppData/Local/Android/Sdk/ndk\\25.2.9519653\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\llvm-ar" "cq" "C:\\Users\\steve\\Documents\\Projets\\Flutter\\xelis_wallet_app\\rust\\target\\armv7-linux-androideabi\\debug\\build\\dart-sys-1ec97ebb3266014a\\out\\libdart_api_dl.a" "C:\\Users\\steve\\Documents\\Projets\\Flutter\\xelis_wallet_app\\rust\\target\\armv7-linux-androideabi\\debug\\build\\dart-sys-1ec97ebb3266014a\\out\\f041c25ffb6f640b-dart_api_dl.o"
+exit code: 0
+running: "C:/Users/steve/AppData/Local/Android/Sdk/ndk\\25.2.9519653\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\llvm-ar" "s" "C:\\Users\\steve\\Documents\\Projets\\Flutter\\xelis_wallet_app\\rust\\target\\armv7-linux-androideabi\\debug\\build\\dart-sys-1ec97ebb3266014a\\out\\libdart_api_dl.a"
+exit code: 0
+cargo:rustc-link-lib=static=dart_api_dl
+cargo:rustc-link-search=native=C:\Users\steve\Documents\Projets\Flutter\xelis_wallet_app\rust\target\armv7-linux-androideabi\debug\build\dart-sys-1ec97ebb3266014a\out

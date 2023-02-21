@@ -1,0 +1,76 @@
+error[E0658]: use of unstable library feature 'integer_atomics'
+ --> <anon>:1:26
+  |
+1 | pub fn probe() { let _ = core::sync::atomic::AtomicU128::compare_exchange; }
+  |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: see issue #99069 <https://github.com/rust-lang/rust/issues/99069> for more information
+
+error[E0658]: use of unstable library feature 'integer_atomics'
+ --> <anon>:1:26
+  |
+1 | pub fn probe() { let _ = core::sync::atomic::AtomicU128::compare_exchange; }
+  |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: see issue #99069 <https://github.com/rust-lang/rust/issues/99069> for more information
+
+error: aborting due to 2 previous errors
+
+For more information about this error, try `rustc --explain E0658`.
+error[E0658]: use of unstable library feature 'integer_atomics'
+ --> <anon>:1:26
+  |
+1 | pub fn probe() { let _ = core::sync::atomic::AtomicI128::compare_exchange; }
+  |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: see issue #99069 <https://github.com/rust-lang/rust/issues/99069> for more information
+
+error[E0658]: use of unstable library feature 'integer_atomics'
+ --> <anon>:1:26
+  |
+1 | pub fn probe() { let _ = core::sync::atomic::AtomicI128::compare_exchange; }
+  |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: see issue #99069 <https://github.com/rust-lang/rust/issues/99069> for more information
+
+error: aborting due to 2 previous errors
+
+For more information about this error, try `rustc --explain E0658`.
+error[E0658]: use of unstable library feature 'integer_atomics'
+ --> <anon>:1:26
+  |
+1 | pub fn probe() { let _ = std::sync::atomic::AtomicU128::compare_exchange; }
+  |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: see issue #99069 <https://github.com/rust-lang/rust/issues/99069> for more information
+
+error[E0658]: use of unstable library feature 'integer_atomics'
+ --> <anon>:1:26
+  |
+1 | pub fn probe() { let _ = std::sync::atomic::AtomicU128::compare_exchange; }
+  |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: see issue #99069 <https://github.com/rust-lang/rust/issues/99069> for more information
+
+error: aborting due to 2 previous errors
+
+For more information about this error, try `rustc --explain E0658`.
+error[E0658]: use of unstable library feature 'integer_atomics'
+ --> <anon>:1:26
+  |
+1 | pub fn probe() { let _ = std::sync::atomic::AtomicI128::compare_exchange; }
+  |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: see issue #99069 <https://github.com/rust-lang/rust/issues/99069> for more information
+
+error[E0658]: use of unstable library feature 'integer_atomics'
+ --> <anon>:1:26
+  |
+1 | pub fn probe() { let _ = std::sync::atomic::AtomicI128::compare_exchange; }
+  |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: see issue #99069 <https://github.com/rust-lang/rust/issues/99069> for more information
+
+error: aborting due to 2 previous errors
+
+For more information about this error, try `rustc --explain E0658`.
