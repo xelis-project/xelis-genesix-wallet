@@ -1,0 +1,11 @@
+C:\Users\steve\Documents\Projets\Flutter\xelis_wallet_app\rust\target\armv7-linux-androideabi\debug\deps\socket2-a467c0c2f0c06e7c.rmeta: C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\socket2-0.4.7\src\lib.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\socket2-0.4.7\src\sockaddr.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\socket2-0.4.7\src\socket.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\socket2-0.4.7\src\sockref.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\socket2-0.4.7\src\sys\unix.rs
+
+C:\Users\steve\Documents\Projets\Flutter\xelis_wallet_app\rust\target\armv7-linux-androideabi\debug\deps\libsocket2-a467c0c2f0c06e7c.rlib: C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\socket2-0.4.7\src\lib.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\socket2-0.4.7\src\sockaddr.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\socket2-0.4.7\src\socket.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\socket2-0.4.7\src\sockref.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\socket2-0.4.7\src\sys\unix.rs
+
+C:\Users\steve\Documents\Projets\Flutter\xelis_wallet_app\rust\target\armv7-linux-androideabi\debug\deps\socket2-a467c0c2f0c06e7c.d: C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\socket2-0.4.7\src\lib.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\socket2-0.4.7\src\sockaddr.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\socket2-0.4.7\src\socket.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\socket2-0.4.7\src\sockref.rs C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\socket2-0.4.7\src\sys\unix.rs
+
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\socket2-0.4.7\src\lib.rs:
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\socket2-0.4.7\src\sockaddr.rs:
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\socket2-0.4.7\src\socket.rs:
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\socket2-0.4.7\src\sockref.rs:
+C:\Users\steve\.cargo\registry\src\github.com-1ecc6299db9ec823\socket2-0.4.7\src\sys\unix.rs:
