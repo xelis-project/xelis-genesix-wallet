@@ -1,3 +1,0 @@
-cargo:rerun-if-changed=build/main.rs
-cargo:rustc-env=TYPENUM_BUILD_CONSTS=C:\Users\steve\Documents\Projets\Flutter\xelis_wallet_app\rust\target\debug\build\typenum-3265597039d3d5bf\out\consts.rs
-cargo:rustc-env=TYPENUM_BUILD_OP=C:\Users\steve\Documents\Projets\Flutter\xelis_wallet_app\rust\target\debug\build\typenum-3265597039d3d5bf\out\op.rs
