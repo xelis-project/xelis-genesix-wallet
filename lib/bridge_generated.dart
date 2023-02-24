@@ -23,39 +23,6 @@ class RustImpl implements Rust {
   factory RustImpl.wasm(FutureOr<WasmModule> module) =>
       RustImpl(module as ExternalLibrary);
   RustImpl.raw(this._platform);
-  Future<KeyPair> createKeyPair({dynamic hint}) {
-    return _platform.executeNormal(FlutterRustBridgeTask(
-      callFfi: (port_) => _platform.inner.wire_create_key_pair(port_),
-      parseSuccessData: _wire2api_KeyPair,
-      constMeta: kCreateKeyPairConstMeta,
-      argValues: [],
-      hint: hint,
-    ));
-  }
-
-  FlutterRustBridgeTaskConstMeta get kCreateKeyPairConstMeta =>
-      const FlutterRustBridgeTaskConstMeta(
-        debugName: "create_key_pair",
-        argNames: [],
-      );
-
-  Future<String> getAddress({required KeyPair keyPair, dynamic hint}) {
-    var arg0 = _platform.api2wire_KeyPair(keyPair);
-    return _platform.executeNormal(FlutterRustBridgeTask(
-      callFfi: (port_) => _platform.inner.wire_get_address(port_, arg0),
-      parseSuccessData: _wire2api_String,
-      constMeta: kGetAddressConstMeta,
-      argValues: [keyPair],
-      hint: hint,
-    ));
-  }
-
-  FlutterRustBridgeTaskConstMeta get kGetAddressConstMeta =>
-      const FlutterRustBridgeTaskConstMeta(
-        debugName: "get_address",
-        argNames: ["keyPair"],
-      );
-
   Future<bool> rustReleaseMode({dynamic hint}) {
     return _platform.executeNormal(FlutterRustBridgeTask(
       callFfi: (port_) => _platform.inner.wire_rust_release_mode(port_),
@@ -72,33 +39,13 @@ class RustImpl implements Rust {
         argNames: [],
       );
 
-  DropFnType get dropOpaqueKeyPair => _platform.inner.drop_opaque_KeyPair;
-  ShareFnType get shareOpaqueKeyPair => _platform.inner.share_opaque_KeyPair;
-  OpaqueTypeFinalizer get KeyPairFinalizer => _platform.KeyPairFinalizer;
-
   void dispose() {
     _platform.dispose();
   }
 // Section: wire2api
 
-  KeyPair _wire2api_KeyPair(dynamic raw) {
-    return KeyPair.fromRaw(raw[0], raw[1], this);
-  }
-
-  String _wire2api_String(dynamic raw) {
-    return raw as String;
-  }
-
   bool _wire2api_bool(dynamic raw) {
     return raw as bool;
-  }
-
-  int _wire2api_u8(dynamic raw) {
-    return raw as int;
-  }
-
-  Uint8List _wire2api_uint_8_list(dynamic raw) {
-    return raw as Uint8List;
   }
 }
 
@@ -111,22 +58,9 @@ class RustPlatform extends FlutterRustBridgeBase<RustWire> {
 
 // Section: api2wire
 
-  @protected
-  wire_KeyPair api2wire_KeyPair(KeyPair raw) {
-    final ptr = inner.new_KeyPair();
-    _api_fill_to_wire_KeyPair(raw, ptr);
-    return ptr;
-  }
 // Section: finalizer
 
-  late final OpaqueTypeFinalizer _KeyPairFinalizer =
-      OpaqueTypeFinalizer(inner._drop_opaque_KeyPairPtr);
-  OpaqueTypeFinalizer get KeyPairFinalizer => _KeyPairFinalizer;
 // Section: api_fill_to_wire
-
-  void _api_fill_to_wire_KeyPair(KeyPair apiObj, wire_KeyPair wireObj) {
-    wireObj.ptr = apiObj.shareOrMove();
-  }
 }
 
 // ignore_for_file: camel_case_types, non_constant_identifier_names, avoid_positional_boolean_parameters, annotate_overrides, constant_identifier_names
@@ -223,36 +157,6 @@ class RustWire implements FlutterRustBridgeWireBase {
   late final _init_frb_dart_api_dl = _init_frb_dart_api_dlPtr
       .asFunction<int Function(ffi.Pointer<ffi.Void>)>();
 
-  void wire_create_key_pair(
-    int port_,
-  ) {
-    return _wire_create_key_pair(
-      port_,
-    );
-  }
-
-  late final _wire_create_key_pairPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
-          'wire_create_key_pair');
-  late final _wire_create_key_pair =
-      _wire_create_key_pairPtr.asFunction<void Function(int)>();
-
-  void wire_get_address(
-    int port_,
-    wire_KeyPair key_pair,
-  ) {
-    return _wire_get_address(
-      port_,
-      key_pair,
-    );
-  }
-
-  late final _wire_get_addressPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, wire_KeyPair)>>(
-          'wire_get_address');
-  late final _wire_get_address =
-      _wire_get_addressPtr.asFunction<void Function(int, wire_KeyPair)>();
-
   void wire_rust_release_mode(
     int port_,
   ) {
@@ -266,44 +170,6 @@ class RustWire implements FlutterRustBridgeWireBase {
           'wire_rust_release_mode');
   late final _wire_rust_release_mode =
       _wire_rust_release_modePtr.asFunction<void Function(int)>();
-
-  wire_KeyPair new_KeyPair() {
-    return _new_KeyPair();
-  }
-
-  late final _new_KeyPairPtr =
-      _lookup<ffi.NativeFunction<wire_KeyPair Function()>>('new_KeyPair');
-  late final _new_KeyPair =
-      _new_KeyPairPtr.asFunction<wire_KeyPair Function()>();
-
-  void drop_opaque_KeyPair(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _drop_opaque_KeyPair(
-      ptr,
-    );
-  }
-
-  late final _drop_opaque_KeyPairPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-          'drop_opaque_KeyPair');
-  late final _drop_opaque_KeyPair = _drop_opaque_KeyPairPtr
-      .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
-  ffi.Pointer<ffi.Void> share_opaque_KeyPair(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _share_opaque_KeyPair(
-      ptr,
-    );
-  }
-
-  late final _share_opaque_KeyPairPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Void> Function(
-              ffi.Pointer<ffi.Void>)>>('share_opaque_KeyPair');
-  late final _share_opaque_KeyPair = _share_opaque_KeyPairPtr
-      .asFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>)>();
 
   void free_WireSyncReturn(
     WireSyncReturn ptr,
@@ -321,10 +187,6 @@ class RustWire implements FlutterRustBridgeWireBase {
 }
 
 class _Dart_Handle extends ffi.Opaque {}
-
-class wire_KeyPair extends ffi.Struct {
-  external ffi.Pointer<ffi.Void> ptr;
-}
 
 typedef DartPostCObjectFnType = ffi.Pointer<
     ffi.NativeFunction<ffi.Bool Function(DartPort, ffi.Pointer<ffi.Void>)>>;

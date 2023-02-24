@@ -21,32 +21,6 @@ use std::sync::Arc;
 
 // Section: wire functions
 
-fn wire_create_key_pair_impl(port_: MessagePort) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
-        WrapInfo {
-            debug_name: "create_key_pair",
-            port: Some(port_),
-            mode: FfiCallMode::Normal,
-        },
-        move || move |task_callback| Ok(create_key_pair()),
-    )
-}
-fn wire_get_address_impl(
-    port_: MessagePort,
-    key_pair: impl Wire2Api<RustOpaque<KeyPair>> + UnwindSafe,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
-        WrapInfo {
-            debug_name: "get_address",
-            port: Some(port_),
-            mode: FfiCallMode::Normal,
-        },
-        move || {
-            let api_key_pair = key_pair.wire2api();
-            move |task_callback| get_address(api_key_pair)
-        },
-    )
-}
 fn wire_rust_release_mode_impl(port_: MessagePort) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
@@ -79,7 +53,6 @@ where
         (!self.is_null()).then(|| self.wire2api())
     }
 }
-
 // Section: impl IntoDart
 
 // Section: executor

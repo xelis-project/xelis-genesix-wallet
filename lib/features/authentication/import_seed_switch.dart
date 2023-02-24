@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:xelis_wallet_app/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 
 class ImportSeedSwitch extends StatefulWidget {
   const ImportSeedSwitch({super.key});

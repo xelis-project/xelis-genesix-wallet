@@ -8,33 +8,7 @@ import 'package:meta/meta.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 
 abstract class Rust {
-  Future<KeyPair> createKeyPair({dynamic hint});
-
-  FlutterRustBridgeTaskConstMeta get kCreateKeyPairConstMeta;
-
-  Future<String> getAddress({required KeyPair keyPair, dynamic hint});
-
-  FlutterRustBridgeTaskConstMeta get kGetAddressConstMeta;
-
   Future<bool> rustReleaseMode({dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kRustReleaseModeConstMeta;
-
-  DropFnType get dropOpaqueKeyPair;
-  ShareFnType get shareOpaqueKeyPair;
-  OpaqueTypeFinalizer get KeyPairFinalizer;
-}
-
-@sealed
-class KeyPair extends FrbOpaque {
-  final Rust bridge;
-  KeyPair.fromRaw(int ptr, int size, this.bridge) : super.unsafe(ptr, size);
-  @override
-  DropFnType get dropFn => bridge.dropOpaqueKeyPair;
-
-  @override
-  ShareFnType get shareFn => bridge.shareOpaqueKeyPair;
-
-  @override
-  OpaqueTypeFinalizer get staticFinalizer => bridge.KeyPairFinalizer;
 }

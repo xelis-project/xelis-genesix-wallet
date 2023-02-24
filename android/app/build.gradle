@@ -91,7 +91,6 @@ dependencies {
             -o ../android/app/src/main/jniLibs build $profileMode"""
 
         workingDir "../../rust"
-        environment "ANDROID_NDK_HOME", "$ANDROID_NDK"
         if (org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem.isWindows()) {
             commandLine 'cmd', '/C', ndk_command
         } else {

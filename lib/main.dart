@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:xelis_wallet_app/features/router/app_router.dart';
-import 'package:xelis_wallet_app/ffi.dart';
-import 'package:xelis_wallet_app/shared/colors/color_schemes.g.dart';
-import 'package:xelis_wallet_app/shared/logger.dart';
-import 'package:xelis_wallet_app/shared/providers/providers.dart';
-import 'package:xelis_wallet_app/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/features/router/app_router.dart';
+import 'package:xelis_mobile_wallet/ffi.dart';
+import 'package:xelis_mobile_wallet/shared/colors/color_schemes.g.dart';
+import 'package:xelis_mobile_wallet/shared/logger.dart';
+import 'package:xelis_mobile_wallet/shared/providers/providers.dart';
+import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 
 Future<void> main() async {
   initLogging();
-  final keyPair = await api.createKeyPair();
-  final address = await api.getAddress(keyPair: keyPair);
-  logger.info('Xelis Address: $address');
+  // final wallet = await api.newWallet(name: 'name', password: 'password');
+  // final address = await api.getAddress(wallet: wallet);
+  // logger.info('Xelis Address: $address');
+  // wallet.dispose();
   runApp(const ProviderScope(child: MyApp()));
 }
 

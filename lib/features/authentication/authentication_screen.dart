@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:xelis_wallet_app/features/authentication/import_seed_switch.dart';
-import 'package:xelis_wallet_app/features/authentication/providers/authentication_service.dart';
-import 'package:xelis_wallet_app/shared/logger.dart';
-import 'package:xelis_wallet_app/shared/ressources/app_ressources.dart';
-import 'package:xelis_wallet_app/shared/views/brightness_toggle.dart';
-import 'package:xelis_wallet_app/shared/views/dropdown_wallet_name_menu.dart';
-import 'package:xelis_wallet_app/shared/views/popup_menu.dart';
+import 'package:xelis_mobile_wallet/features/authentication/import_seed_switch.dart';
+import 'package:xelis_mobile_wallet/features/authentication/providers/authentication_service.dart';
+import 'package:xelis_mobile_wallet/shared/logger.dart';
+import 'package:xelis_mobile_wallet/shared/ressources/app_ressources.dart';
+import 'package:xelis_mobile_wallet/shared/views/brightness_toggle.dart';
+import 'package:xelis_mobile_wallet/shared/views/dropdown_wallet_name_menu.dart';
+import 'package:xelis_mobile_wallet/shared/views/popup_menu.dart';
 
 class AuthenticationScreen extends StatelessWidget {
   const AuthenticationScreen({super.key});
