@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:xelis_wallet_app/features/authentication/providers/authentication_service.dart';
+import 'package:xelis_mobile_wallet/features/authentication/providers/authentication_service.dart';
 
 class RouterNotifier extends ChangeNotifier {
   RouterNotifier(this._ref) {

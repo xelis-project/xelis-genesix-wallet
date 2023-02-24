@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:xelis_wallet_app/shared/ressources/app_ressources.dart';
-import 'package:xelis_wallet_app/shared/views/brightness_toggle.dart';
-import 'package:xelis_wallet_app/shared/views/popup_menu.dart';
+import 'package:xelis_mobile_wallet/shared/ressources/app_ressources.dart';
+import 'package:xelis_mobile_wallet/shared/views/brightness_toggle.dart';
+import 'package:xelis_mobile_wallet/shared/views/popup_menu.dart';
 
 class HubScreen extends StatefulWidget {
   const HubScreen({super.key});

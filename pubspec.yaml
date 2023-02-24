@@ -1,5 +1,5 @@
-name: xelis_wallet_app
-description: Xelis Wallet Mobile App
+name: xelis_mobile_wallet
+description: Xelis Mobile Wallet
 publish_to: 'none'
 
 version: 0.0.1+1

@@ -1,18 +1,47 @@
 use anyhow::Error;
-use flutter_rust_bridge::RustOpaque;
-use std::sync::Arc;
+use flutter_rust_bridge::*;
+use std::fmt::Debug;
+pub use std::panic::{RefUnwindSafe, UnwindSafe};
+use std::sync::{Arc, Mutex, RwLock};
+use xelis_common::crypto::key::KeyPair;
+use xelis_wallet::network_handler::SharedNetworkHandler;
+use xelis_wallet::storage::EncryptedStorage;
 pub use xelis_wallet::wallet::Wallet;
 // pub use xelis_common::crypto::key::{KeyPair, PrivateKey, PublicKey};
 
-pub fn new_wallet(
-    name: String,
-    password: String,
-    seed: Option<String>,
-) -> Result<Arc<Wallet>, Error> {
-    let wallet = Wallet::create(name, password, seed)?;
-    let opaque_wallet = RustOpaque::new(wallet);
-    Ok(wallet)
+/*#[frb(mirror(Wallet))]
+pub struct _Wallet {
+    // Encrypted Wallet Storage
+    storage: RwLock<EncryptedStorage>,
+    // Private & Public key linked for this wallet
+    keypair: KeyPair,
+    // network handler for online mode to keep wallet synced
+    network_handler: Mutex<Option<SharedNetworkHandler>>,
+    // network: Network
+}*/
+/*
+pub struct XelisWallet {
+    pub wallet: Arc<Wallet>,
 }
+
+impl XelisWallet {
+    pub fn create(name: String,
+                  password: String,
+                  seed: Option<String>, ) -> Self {
+        Self {
+            wallet: Wallet::create(name, password, seed).unwrap()
+        }
+    }
+}*/
+
+pub fn new_wallet(name: String, password: String, seed: Option<String>) -> RustOpaque<Arc<Wallet>> {
+    let wallet = Wallet::create(name, password, seed).unwrap();
+    RustOpaque::new(wallet)
+}
+
+// pub fn get_address(wallet: RustOpaque<Arc<Wallet>>) -> Result<String, Error> {
+//     Ok(wallet.lock().unwrap().get_address().as_string()?)
+// }
 
 /*pub fn create_key_pair() -> RustOpaque<KeyPair> {
     RustOpaque::new(KeyPair::new())

@@ -1,6 +1,6 @@
-# xelis_wallet_app
+# Xelis Mobile Wallet
 
-Xelis Wallet Mobile App
+Xelis Wallet for Android/IOS, powered by Flutter and Rust.
 
 ## Getting Started
 

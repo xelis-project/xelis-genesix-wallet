@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:xelis_wallet_app/shared/providers/providers.dart';
+import 'package:xelis_mobile_wallet/shared/providers/providers.dart';
 
 class BrightnessToggle extends ConsumerWidget {
   const BrightnessToggle({super.key});
