@@ -1,11 +1,9 @@
-use anyhow::Error;
-use flutter_rust_bridge::*;
-use std::fmt::Debug;
-pub use std::panic::{RefUnwindSafe, UnwindSafe};
-use std::sync::{Arc, Mutex, RwLock};
-use xelis_common::crypto::key::KeyPair;
-use xelis_wallet::network_handler::SharedNetworkHandler;
-use xelis_wallet::storage::EncryptedStorage;
+// use anyhow::Error;
+// use flutter_rust_bridge::*;
+// pub use std::panic::{RefUnwindSafe, UnwindSafe};
+// use std::sync::{Arc, Mutex, RwLock};
+// use xelis_wallet::network_handler::SharedNetworkHandler;
+// use xelis_wallet::storage::EncryptedStorage;
 pub use xelis_wallet::wallet::Wallet;
 // pub use xelis_common::crypto::key::{KeyPair, PrivateKey, PublicKey};
 
@@ -34,10 +32,10 @@ impl XelisWallet {
     }
 }*/
 
-pub fn new_wallet(name: String, password: String, seed: Option<String>) -> RustOpaque<Arc<Wallet>> {
+/*pub fn new_wallet(name: String, password: String, seed: Option<String>) -> RustOpaque<Arc<Wallet>> {
     let wallet = Wallet::create(name, password, seed).unwrap();
     RustOpaque::new(wallet)
-}
+}*/
 
 // pub fn get_address(wallet: RustOpaque<Arc<Wallet>>) -> Result<String, Error> {
 //     Ok(wallet.lock().unwrap().get_address().as_string()?)
