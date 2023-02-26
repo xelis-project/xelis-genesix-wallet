@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.xelis.app.xelis_wallet_app">
+    package="io.xelis.app.xelis_mobile_wallet">
    <application
-        android:label="xelis_wallet_app"
+        android:label="xelis_mobile_wallet"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

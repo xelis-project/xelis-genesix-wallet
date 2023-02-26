@@ -40,15 +40,13 @@ class _ImportSeedSwitchState extends State<ImportSeedSwitch> {
             setState(() {
               importSeed = value;
             });
-            // if (value) {
-            //   _dialogBuilder(context);
-            // }
           },
         ),
       ],
     );
 
     final seedInput = TextFormField(
+      style: context.bodyMedium,
       decoration: const InputDecoration(
         labelText: 'Seed',
         border: OutlineInputBorder(),
@@ -67,47 +65,4 @@ class _ImportSeedSwitchState extends State<ImportSeedSwitch> {
       ],
     );
   }
-
-/*Future<void> _dialogBuilder(BuildContext context) {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Seed'),
-          content: Padding(
-            padding: const EdgeInsets.all(8),
-            child: TextFormField(
-              decoration: const InputDecoration(
-                // labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  importSeed = false;
-                });
-              },
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }*/
 }

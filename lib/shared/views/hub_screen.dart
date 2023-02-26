@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:xelis_mobile_wallet/shared/ressources/app_ressources.dart';
+import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/views/brightness_toggle.dart';
 import 'package:xelis_mobile_wallet/shared/views/popup_menu.dart';
 
