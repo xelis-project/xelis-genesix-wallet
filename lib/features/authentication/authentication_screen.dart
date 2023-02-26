@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:xelis_mobile_wallet/features/authentication/import_seed_switch.dart';
 import 'package:xelis_mobile_wallet/features/authentication/providers/authentication_service.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
-import 'package:xelis_mobile_wallet/shared/ressources/app_ressources.dart';
+import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
+import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/views/brightness_toggle.dart';
 import 'package:xelis_mobile_wallet/shared/views/dropdown_wallet_name_menu.dart';
 import 'package:xelis_mobile_wallet/shared/views/popup_menu.dart';
@@ -56,6 +57,7 @@ class AuthenticationScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(8),
                       child: TextFormField(
                         obscureText: true,
+                        style: context.bodyMedium,
                         decoration: const InputDecoration(
                           labelText: 'Password',
                           border: OutlineInputBorder(),
@@ -80,12 +82,6 @@ class AuthenticationScreen extends StatelessWidget {
                             child: const Text('Open wallet'),
                           );
                         },
-                        // child: OutlinedButton(
-                        //   onPressed: () {
-                        //     logger.info('Open wallet');
-                        //   },
-                        //   child: const Text('Open wallet'),
-                        // ),
                       ),
                     ),
                   ],
@@ -100,13 +96,6 @@ class AuthenticationScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Hero(
-                    //   tag: 'logo',
-                    //   child: SizedBox(
-                    //     height: 150,
-                    //     child: AppResources.logoXelis,
-                    //   ),
-                    // ),
                     const Padding(
                       padding: EdgeInsets.all(8),
                       child: ImportSeedSwitch(),
@@ -114,6 +103,7 @@ class AuthenticationScreen extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(8),
                       child: TextFormField(
+                        style: context.bodyMedium,
                         decoration: const InputDecoration(
                           labelText: 'Wallet Name',
                           border: OutlineInputBorder(),
@@ -124,6 +114,7 @@ class AuthenticationScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(8),
                       child: TextFormField(
                         obscureText: true,
+                        style: context.bodyMedium,
                         decoration: const InputDecoration(
                           labelText: 'Password',
                           border: OutlineInputBorder(),
@@ -148,12 +139,6 @@ class AuthenticationScreen extends StatelessWidget {
                             child: const Text('Create wallet'),
                           );
                         },
-                        // child: OutlinedButton(
-                        //   onPressed: () {
-                        //     logger.info('Create wallet');
-                        //   },
-                        //   child: const Text('Create wallet'),
-                        // ),
                       ),
                     ),
                   ],

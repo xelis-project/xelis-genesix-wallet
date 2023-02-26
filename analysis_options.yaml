@@ -4,8 +4,8 @@ analyzer:
   exclude:
     - "lib/bridge_definitions.dart"
     - "lib/bridge_generated.dart"
-#    - "**/*.g.dart"
-#    - "**/*.freezed.dart"
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
   plugins:
     - custom_lint
   language:
@@ -33,7 +33,7 @@ linter:
     - avoid_js_rounded_ints
     - avoid_multiple_declarations_per_line
     - avoid_null_checks_in_equality_operators
-#    - avoid_positional_boolean_parameters
+    #    - avoid_positional_boolean_parameters
     - avoid_print
     - avoid_private_typedef_functions
     - avoid_redundant_argument_values
@@ -74,7 +74,7 @@ linter:
     - eol_at_end_of_file
     - exhaustive_cases
     - file_names
-    - flutter_style_todos
+#    - flutter_style_todos
     - hash_and_equals
     - implementation_imports
     - iterable_contains_unrelated_type
@@ -141,7 +141,7 @@ linter:
     - prefer_typing_uninitialized_variables
     - prefer_void_to_null
     - provide_deprecation_message
-#    - public_member_api_docs
+    #    - public_member_api_docs
     - recursive_getters
     - require_trailing_commas
     - secure_pubspec_urls
