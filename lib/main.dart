@@ -1,13 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:xelis_mobile_wallet/features/router/app_router.dart';
+import 'package:xelis_mobile_wallet/features/settings/application/settings_providers.dart';
+import 'package:xelis_mobile_wallet/features/settings/data/shared_preferences.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/shared/theme/app_themes.dart';
-import 'package:xelis_mobile_wallet/shared/theme/theme_mode.dart';
 
-void main() {
+Future<void> main() async {
   initLogging();
-  runApp(const ProviderScope(child: MyApp()));
+  logger.info('Starting Xelis Mobile Wallet ...');
+  WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await SharedPreferences.getInstance();
+  runApp(
+    ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends ConsumerWidget {
@@ -15,25 +27,13 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeModeProvider);
-    final router = ref.watch(routerProvider);
     final themeProvider = ThemeProvider();
-    /*return themeMode.when(
-      data: (data) => MaterialApp.router(
-        title: 'Xelis Wallet',
-        debugShowCheckedModeBanner: false,
-        themeMode: data,
-        theme: themeProvider.light(context),
-        darkTheme: themeProvider.dark(context),
-        routerConfig: router,
-      ),
-      error: (err, stack) => Text('Error: $err'),
-      loading: () => const CircularProgressIndicator(),
-    );*/
+    final router = ref.watch(routerProvider);
+    final isDark = ref.watch(darkModeProvider);
     return MaterialApp.router(
       title: 'Xelis Wallet',
       debugShowCheckedModeBanner: false,
-      themeMode: themeMode,
+      themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
       theme: themeProvider.light(context),
       darkTheme: themeProvider.dark(context),
       routerConfig: router,
