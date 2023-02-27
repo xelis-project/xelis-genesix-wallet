@@ -35,22 +35,22 @@ class SharedPreferencesRepository {
   }
 
   Future<void> setIsDarkMode(bool isDarkMode) async {
-    logger.info('set darkMode preference');
+    logger.info('set darkMode preference: $isDarkMode');
     await prefs.setBool(_isDarkModeKey, isDarkMode);
   }
 
   Future<void> setLanguageSelected(String language) async {
-    logger.info('set Selected Language preference');
+    logger.info('set Selected Language preference: $language');
     await prefs.setString(_languageSelectedKey, language);
   }
 
   Future<void> setDaemonAddressSelected(String daemonAddress) async {
-    logger.info('set daemonAddressSelected preference');
+    logger.info('set daemonAddressSelected preference: $daemonAddress');
     await prefs.setString(_daemonAddressSelected, daemonAddress);
   }
 
   Future<void> setDaemonAddresses(List<String> addresses) async {
-    logger.info('set DaemonAddresses preference');
+    logger.info('set DaemonAddresses preference: $addresses');
     await prefs.setStringList(_daemonAddresses, addresses);
   }
 

@@ -15,7 +15,7 @@ class AppResources {
     officialTestnetNode,
   ];
 
-  static List<String> languages = ['English', 'French'];
+  static List<String> languages = ['english', 'french'];
 
   static Image logoXelis = Image.asset(
     'assets/xelis_logo_pastille_01.png',

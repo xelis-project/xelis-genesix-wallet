@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:xelis_mobile_wallet/features/settings/presentation/daemon_addresses_widget.dart';
+import 'package:xelis_mobile_wallet/features/settings/presentation/language_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/views/brightness_toggle.dart';
 
@@ -16,12 +18,30 @@ class SettingsScreen extends StatelessWidget {
           },
           icon: const Icon(Icons.arrow_back_outlined),
         ),
-        actions: const [BrightnessToggle()],
+        actions: const [
+          Padding(
+            padding: EdgeInsets.all(8),
+            child: BrightnessToggle(),
+          )
+        ],
       ),
-      body: Center(
-        child: Text(
-          'SETTINGS',
-          style: context.bodyLarge,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Text(
+                  'Settings',
+                  style: context.headlineLarge,
+                ),
+              ),
+              const LanguageWidget(),
+              const DaemonAddressesWidget(),
+            ],
+          ),
         ),
       ),
     );

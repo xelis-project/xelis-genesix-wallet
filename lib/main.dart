@@ -12,6 +12,9 @@ Future<void> main() async {
   logger.info('Starting Xelis Mobile Wallet ...');
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
+
+  /// TODO: to remove
+  await prefs.clear();
   runApp(
     ProviderScope(
       overrides: [
