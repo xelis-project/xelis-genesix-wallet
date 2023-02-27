@@ -53,7 +53,7 @@ final daemonAddressSelectedProvider =
 );
 
 typedef _$DaemonAddressSelected = AutoDisposeNotifier<String>;
-String _$daemonAddressesHash() => r'fedbd5313e77438a983465557d5dca641b0161af';
+String _$daemonAddressesHash() => r'9dc6a25f754fbfb77ef86b6bc6391f30cd6b2100';
 
 /// See also [DaemonAddresses].
 @ProviderFor(DaemonAddresses)

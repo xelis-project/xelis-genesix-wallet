@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/languages.dart';
 import 'package:xelis_mobile_wallet/features/settings/data/shared_preferences.dart';
+import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 
 part 'settings_providers.g.dart';
 
@@ -102,6 +103,9 @@ class DaemonAddresses extends _$DaemonAddresses {
     final prefs = ref.watch(sharedPreferencesProvider);
     final prefsRepository = SharedPreferencesRepository(prefs);
     final currentValue = prefsRepository.getDaemonAddresses();
+    if (currentValue.isEmpty) {
+      currentValue.addAll(AppResources.builtInDaemonAddresses);
+    }
     ref.listenSelf((prev, curr) {
       prefsRepository.setDaemonAddresses(curr);
     });
