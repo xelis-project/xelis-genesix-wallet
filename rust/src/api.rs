@@ -4,39 +4,38 @@
 // use std::sync::{Arc, Mutex, RwLock};
 // use xelis_wallet::network_handler::SharedNetworkHandler;
 // use xelis_wallet::storage::EncryptedStorage;
-pub use xelis_wallet::wallet::Wallet;
-// pub use xelis_common::crypto::key::{KeyPair, PrivateKey, PublicKey};
-
-/*#[frb(mirror(Wallet))]
-pub struct _Wallet {
-    // Encrypted Wallet Storage
-    storage: RwLock<EncryptedStorage>,
-    // Private & Public key linked for this wallet
-    keypair: KeyPair,
-    // network handler for online mode to keep wallet synced
-    network_handler: Mutex<Option<SharedNetworkHandler>>,
-    // network: Network
-}*/
-/*
-pub struct XelisWallet {
-    pub wallet: Arc<Wallet>,
-}
-
-impl XelisWallet {
-    pub fn create(name: String,
-                  password: String,
-                  seed: Option<String>, ) -> Self {
-        Self {
-            wallet: Wallet::create(name, password, seed).unwrap()
-        }
-    }
-}*/
-
-/*pub fn new_wallet(name: String, password: String, seed: Option<String>) -> RustOpaque<Arc<Wallet>> {
-    let wallet = Wallet::create(name, password, seed).unwrap();
-    RustOpaque::new(wallet)
-}*/
-
+// pub use xelis_wallet::wallet::Wallet;
+// // pub use xelis_common::crypto::key::{KeyPair, PrivateKey, PublicKey};
+//
+// /*#[frb(mirror(Wallet))]
+// pub struct _Wallet {
+//     // Encrypted Wallet Storage
+//     storage: RwLock<EncryptedStorage>,
+//     // Private & Public key linked for this wallet
+//     keypair: KeyPair,
+//     // network handler for online mode to keep wallet synced
+//     network_handler: Mutex<Option<SharedNetworkHandler>>,
+//     // network: Network
+// }*/
+// /*
+// pub struct XelisWallet {
+//     pub wallet: Arc<Wallet>,
+// }
+//
+// impl XelisWallet {
+//     pub fn create(name: String,
+//                   password: String,
+//                   seed: Option<String>, ) -> Self {
+//         Self {
+//             wallet: Wallet::create(name, password, seed).unwrap()
+//         }
+//     }
+// }*/
+//
+// /*pub fn new_wallet(name: String, password: String, seed: Option<String>) -> RustOpaque<Arc<Wallet>> {
+//     let wallet = Wallet::create(name, password, seed).unwrap();
+//     RustOpaque::new(wallet)
+// }*/
 // pub fn get_address(wallet: RustOpaque<Arc<Wallet>>) -> Result<String, Error> {
 //     Ok(wallet.lock().unwrap().get_address().as_string()?)
 // }

@@ -1,53 +1,61 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:xelis_mobile_wallet/shared/logger.dart';
 
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 
+final sharedPreferencesProvider =
+    Provider<SharedPreferences>((ref) => throw UnimplementedError());
+
 class SharedPreferencesRepository {
-  const SharedPreferencesRepository();
+  const SharedPreferencesRepository(this.prefs);
+
+  final SharedPreferences prefs;
 
   static const _isDarkModeKey = 'is_dark_mode';
   static const _languageSelectedKey = 'language_selected';
   static const _daemonAddressSelected = 'daemon_address_selected';
   static const _daemonAddresses = 'daemon_addresses';
 
-  Future<bool> getIsDarkMode() async {
-    final prefs = await SharedPreferences.getInstance();
+  bool getIsDarkMode() {
     return prefs.getBool(_isDarkModeKey) ?? false;
   }
 
-  Future<String> getLanguageSelected() async {
-    final prefs = await SharedPreferences.getInstance();
+  String getLanguageSelected() {
     return prefs.getString(_languageSelectedKey) ?? AppResources.languages[0];
   }
 
-  Future<String> getDaemonAddressSelected() async {
-    final prefs = await SharedPreferences.getInstance();
+  String getDaemonAddressSelected() {
     return prefs.getString(_daemonAddressSelected) ??
         AppResources.localDaemonAddress;
   }
 
-  Future<List<String>> getDaemonAddresses() async {
-    final prefs = await SharedPreferences.getInstance();
+  List<String> getDaemonAddresses() {
     return prefs.getStringList(_daemonAddresses) ?? [];
   }
 
   Future<void> setIsDarkMode(bool isDarkMode) async {
-    final prefs = await SharedPreferences.getInstance();
+    logger.info('set darkMode preference');
     await prefs.setBool(_isDarkModeKey, isDarkMode);
   }
 
   Future<void> setLanguageSelected(String language) async {
-    final prefs = await SharedPreferences.getInstance();
+    logger.info('set Selected Language preference');
     await prefs.setString(_languageSelectedKey, language);
   }
 
   Future<void> setDaemonAddressSelected(String daemonAddress) async {
-    final prefs = await SharedPreferences.getInstance();
+    logger.info('set daemonAddressSelected preference');
     await prefs.setString(_daemonAddressSelected, daemonAddress);
   }
 
-  Future<void> addDaemonAddress(String daemonAddress) async {
-    final prefs = await SharedPreferences.getInstance();
+  Future<void> setDaemonAddresses(List<String> addresses) async {
+    logger.info('set DaemonAddresses preference');
+    await prefs.setStringList(_daemonAddresses, addresses);
+  }
+
+/*  Future<void> addDaemonAddress(String daemonAddress) async {
+    logger.info('add new daemon address');
     final daemonAddresses = prefs.getStringList(_daemonAddresses) ?? [];
     if (!daemonAddresses.contains(daemonAddress)) {
       daemonAddresses.add(daemonAddress);
@@ -56,10 +64,10 @@ class SharedPreferencesRepository {
   }
 
   Future<void> removeDaemonAddress(String daemonAddress) async {
-    final prefs = await SharedPreferences.getInstance();
+    logger.info('remove a daemon address');
     final daemonAddresses = prefs.getStringList(_daemonAddresses) ?? [];
     if (daemonAddresses.remove(daemonAddress)) {
       await prefs.setStringList(_daemonAddresses, daemonAddresses);
     }
-  }
+  }*/
 }
