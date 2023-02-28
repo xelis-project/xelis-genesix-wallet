@@ -73,7 +73,7 @@ class _DaemonAddressesWidgetState extends ConsumerState<DaemonAddressesWidget> {
         content: FormBuilder(
           key: formKey,
           child: FormBuilderTextField(
-            name: 'Address',
+            name: 'address',
             style: context.bodyMedium,
             autocorrect: false,
             decoration: const InputDecoration(

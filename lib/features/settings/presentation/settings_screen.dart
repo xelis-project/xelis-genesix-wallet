@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:xelis_mobile_wallet/features/settings/presentation/daemon_addresses_widget.dart';
 import 'package:xelis_mobile_wallet/features/settings/presentation/language_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/views/brightness_toggle.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/brightness_toggle.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});

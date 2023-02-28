@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
-import 'package:xelis_mobile_wallet/shared/views/brightness_toggle.dart';
-import 'package:xelis_mobile_wallet/shared/views/popup_menu.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/brightness_toggle.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/popup_menu.dart';
 
 class HubScreen extends StatefulWidget {
   const HubScreen({super.key});
@@ -43,7 +42,6 @@ class _HubScreenState extends State<HubScreen> {
             label: 'History',
           ),
           NavigationDestination(
-            // selectedIcon: Icon(Icons.account_balance_wallet),
             icon: Icon(Icons.account_balance_wallet_outlined),
             label: 'Assets',
           ),

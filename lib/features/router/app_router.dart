@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:xelis_mobile_wallet/features/authentication/authentication_screen.dart';
-import 'package:xelis_mobile_wallet/features/authentication/providers/authentication_service.dart';
+import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
+import 'package:xelis_mobile_wallet/features/authentication/presentation/authentication_screen.dart';
 import 'package:xelis_mobile_wallet/features/router/route_utils.dart';
 import 'package:xelis_mobile_wallet/features/router/router_notifier.dart';
 import 'package:xelis_mobile_wallet/features/settings/presentation/settings_screen.dart';
-import 'package:xelis_mobile_wallet/shared/views/hub_screen.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/hub_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
