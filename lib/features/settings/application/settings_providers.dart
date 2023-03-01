@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/languages.dart';
 import 'package:xelis_mobile_wallet/features/settings/data/shared_preferences.dart';
+import 'package:xelis_mobile_wallet/features/settings/domain/languages.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 
 part 'settings_providers.g.dart';
@@ -79,46 +79,46 @@ final selectedLanguageProvider =
 });*/
 
 @riverpod
-class DaemonAddressSelected extends _$DaemonAddressSelected {
+class NodeAddressSelected extends _$NodeAddressSelected {
   @override
   String build() {
     final prefs = ref.watch(sharedPreferencesProvider);
     final prefsRepository = SharedPreferencesRepository(prefs);
-    final currentValue = prefsRepository.getDaemonAddressSelected();
+    final currentValue = prefsRepository.getNodeAddressSelected();
     ref.listenSelf((prev, curr) {
-      prefsRepository.setDaemonAddressSelected(curr);
+      prefsRepository.setNodeAddressSelected(curr);
     });
     return currentValue;
   }
 
-  void selectDaemonAddress(String address) {
+  void selectNodeAddress(String address) {
     state = address;
   }
 }
 
 @riverpod
-class DaemonAddresses extends _$DaemonAddresses {
+class NodeAddresses extends _$NodeAddresses {
   @override
   List<String> build() {
     final prefs = ref.watch(sharedPreferencesProvider);
     final prefsRepository = SharedPreferencesRepository(prefs);
-    final currentValue = prefsRepository.getDaemonAddresses();
+    final currentValue = prefsRepository.getNodeAddresses();
     if (currentValue.isEmpty) {
-      currentValue.addAll(AppResources.builtInDaemonAddresses);
+      currentValue.addAll(AppResources.builtInNodeAddresses);
     }
     ref.listenSelf((prev, curr) {
-      prefsRepository.setDaemonAddresses(curr);
+      prefsRepository.setNodeAddresses(curr);
     });
     return currentValue;
   }
 
-  void addDaemonAddress(String address) {
+  void addNodeAddress(String address) {
     if (!state.contains(address)) {
       state = [...state, address];
     }
   }
 
-  void removeDaemonAddress(String address) {
+  void removeNodeAddress(String address) {
     if (state.contains(address)) {
       state = [
         for (final element in state)

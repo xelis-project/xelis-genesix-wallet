@@ -12,31 +12,31 @@ class SharedPreferencesRepository {
 
   final SharedPreferences prefs;
 
-  static const _isDarkModeKey = 'is_dark_mode';
+  static const _darkModeKey = 'is_dark_mode';
   static const _languageSelectedKey = 'language_selected';
-  static const _daemonAddressSelected = 'daemon_address_selected';
-  static const _daemonAddresses = 'daemon_addresses';
+  static const _nodeAddressSelectedKey = 'node_address_selected';
+  static const _nodeAddressesKey = 'node_addresses';
 
   bool getIsDarkMode() {
-    return prefs.getBool(_isDarkModeKey) ?? false;
+    return prefs.getBool(_darkModeKey) ?? false;
   }
 
   String getLanguageSelected() {
     return prefs.getString(_languageSelectedKey) ?? AppResources.languages[0];
   }
 
-  String getDaemonAddressSelected() {
-    return prefs.getString(_daemonAddressSelected) ??
-        AppResources.localDaemonAddress;
+  String getNodeAddressSelected() {
+    return prefs.getString(_nodeAddressSelectedKey) ??
+        AppResources.localNodeAddress;
   }
 
-  List<String> getDaemonAddresses() {
-    return prefs.getStringList(_daemonAddresses) ?? [];
+  List<String> getNodeAddresses() {
+    return prefs.getStringList(_nodeAddressesKey) ?? [];
   }
 
   Future<void> setIsDarkMode(bool isDarkMode) async {
     logger.info('set darkMode preference: $isDarkMode');
-    await prefs.setBool(_isDarkModeKey, isDarkMode);
+    await prefs.setBool(_darkModeKey, isDarkMode);
   }
 
   Future<void> setLanguageSelected(String language) async {
@@ -44,30 +44,13 @@ class SharedPreferencesRepository {
     await prefs.setString(_languageSelectedKey, language);
   }
 
-  Future<void> setDaemonAddressSelected(String daemonAddress) async {
-    logger.info('set daemonAddressSelected preference: $daemonAddress');
-    await prefs.setString(_daemonAddressSelected, daemonAddress);
+  Future<void> setNodeAddressSelected(String nodeAddress) async {
+    logger.info('set nodeAddressSelected preference: $nodeAddress');
+    await prefs.setString(_nodeAddressSelectedKey, nodeAddress);
   }
 
-  Future<void> setDaemonAddresses(List<String> addresses) async {
-    logger.info('set DaemonAddresses preference: $addresses');
-    await prefs.setStringList(_daemonAddresses, addresses);
+  Future<void> setNodeAddresses(List<String> addresses) async {
+    logger.info('set NodeAddresses preference: $addresses');
+    await prefs.setStringList(_nodeAddressesKey, addresses);
   }
-
-/*  Future<void> addDaemonAddress(String daemonAddress) async {
-    logger.info('add new daemon address');
-    final daemonAddresses = prefs.getStringList(_daemonAddresses) ?? [];
-    if (!daemonAddresses.contains(daemonAddress)) {
-      daemonAddresses.add(daemonAddress);
-      await prefs.setStringList(_daemonAddresses, daemonAddresses);
-    }
-  }
-
-  Future<void> removeDaemonAddress(String daemonAddress) async {
-    logger.info('remove a daemon address');
-    final daemonAddresses = prefs.getStringList(_daemonAddresses) ?? [];
-    if (daemonAddresses.remove(daemonAddress)) {
-      await prefs.setStringList(_daemonAddresses, daemonAddresses);
-    }
-  }*/
 }

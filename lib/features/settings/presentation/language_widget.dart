@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/languages.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/settings_providers.dart';
+import 'package:xelis_mobile_wallet/features/settings/domain/languages.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 
