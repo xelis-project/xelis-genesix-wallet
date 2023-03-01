@@ -5,7 +5,7 @@ import 'package:xelis_mobile_wallet/features/authentication/application/authenti
 import 'package:xelis_mobile_wallet/features/router/route_utils.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
 
-enum MenuItem {
+enum MenuItems {
   settings,
   help,
   logout,
@@ -16,31 +16,31 @@ class PopupMenu extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return PopupMenuButton<MenuItem>(
-      onSelected: (MenuItem item) {
+    return PopupMenuButton<MenuItems>(
+      onSelected: (MenuItems item) {
         switch (item) {
-          case MenuItem.settings:
+          case MenuItems.settings:
             _settings(context);
             break;
-          case MenuItem.help:
+          case MenuItems.help:
             logger.info('help');
             break;
-          case MenuItem.logout:
+          case MenuItems.logout:
             _logout(ref);
             break;
         }
       },
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<MenuItem>>[
-        const PopupMenuItem<MenuItem>(
-          value: MenuItem.settings,
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<MenuItems>>[
+        const PopupMenuItem<MenuItems>(
+          value: MenuItems.settings,
           child: Text('Settings'),
         ),
-        const PopupMenuItem<MenuItem>(
-          value: MenuItem.help,
+        const PopupMenuItem<MenuItems>(
+          value: MenuItems.help,
           child: Text('Help'),
         ),
-        const PopupMenuItem<MenuItem>(
-          value: MenuItem.logout,
+        const PopupMenuItem<MenuItems>(
+          value: MenuItems.logout,
           child: Text('Logout'),
         ),
       ],

@@ -7,55 +7,52 @@ import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 // import 'package:form_builder_validators/form_builder_validators.dart';
 
-class DaemonAddressesWidget extends ConsumerStatefulWidget {
-  const DaemonAddressesWidget({
+class NodeAddressesWidget extends ConsumerStatefulWidget {
+  const NodeAddressesWidget({
     super.key,
   });
 
   @override
-  ConsumerState createState() => _DaemonAddressesWidgetState();
+  ConsumerState createState() => NodeAddressesWidgetState();
 }
 
-class _DaemonAddressesWidgetState extends ConsumerState<DaemonAddressesWidget> {
-  String? _selectedDaemonAddress;
-  late List<String> _daemonAddresses;
+class NodeAddressesWidgetState extends ConsumerState<NodeAddressesWidget> {
+  String? _selectedNodeAddress;
+  late List<String> _nodeAddresses;
 
   @override
   void initState() {
     super.initState();
-    _selectedDaemonAddress = ref.read(daemonAddressSelectedProvider);
-    _daemonAddresses = ref.read(daemonAddressesProvider);
+    _selectedNodeAddress = ref.read(nodeAddressSelectedProvider);
+    _nodeAddresses = ref.read(nodeAddressesProvider);
   }
 
   void _onDismissed(int index) {
-    if (!AppResources.builtInDaemonAddresses
-        .contains(_daemonAddresses[index])) {
+    if (!AppResources.builtInNodeAddresses.contains(_nodeAddresses[index])) {
       ref
-          .read(daemonAddressesProvider.notifier)
-          .removeDaemonAddress(_daemonAddresses[index]);
+          .read(nodeAddressesProvider.notifier)
+          .removeNodeAddress(_nodeAddresses[index]);
       setState(() {
-        _daemonAddresses.removeAt(index);
+        _nodeAddresses.removeAt(index);
       });
     }
   }
 
-  void _onDaemonAddressSelected(String? value) {
+  void _onNodeAddressSelected(String? value) {
     setState(() {
-      _selectedDaemonAddress = value;
+      _selectedNodeAddress = value;
     });
     if (value != null) {
-      ref
-          .read(daemonAddressSelectedProvider.notifier)
-          .selectDaemonAddress(value);
+      ref.read(nodeAddressSelectedProvider.notifier).selectNodeAddress(value);
     }
   }
 
-  void _onAddingNewAddressDone(String? value) {
+  void _onAddingNewAddress(String? value) {
     if (value != null) {
-      if (!AppResources.builtInDaemonAddresses.contains(value)) {
-        ref.read(daemonAddressesProvider.notifier).addDaemonAddress(value);
+      if (!AppResources.builtInNodeAddresses.contains(value)) {
+        ref.read(nodeAddressesProvider.notifier).addNodeAddress(value);
         setState(() {
-          _daemonAddresses.add(value);
+          _nodeAddresses.add(value);
         });
       }
     }
@@ -67,7 +64,7 @@ class _DaemonAddressesWidgetState extends ConsumerState<DaemonAddressesWidget> {
       context: context,
       builder: (BuildContext context) => AlertDialog(
         title: Text(
-          'New Daemon Address',
+          'New Node Address',
           style: context.titleLarge,
         ),
         content: FormBuilder(
@@ -80,7 +77,7 @@ class _DaemonAddressesWidgetState extends ConsumerState<DaemonAddressesWidget> {
               labelText: 'Address',
               border: OutlineInputBorder(),
             ),
-            onSaved: _onAddingNewAddressDone,
+            onSaved: _onAddingNewAddress,
             onEditingComplete: () {
               formKey.currentState?.save();
               context.pop();
@@ -107,34 +104,34 @@ class _DaemonAddressesWidgetState extends ConsumerState<DaemonAddressesWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final daemonAddress = ref.watch(daemonAddressSelectedProvider);
-    // final daemonAddresses = ref.watch(daemonAddressesProvider);
+    final nodeAddress = ref.watch(nodeAddressSelectedProvider);
+    // final nodeAddresses = ref.watch(nodeAddressesProvider);
     return ExpansionTile(
       title: Text(
-        'Daemon Address',
+        'Node Address',
         style: context.titleLarge,
       ),
       subtitle: Text(
-        daemonAddress,
+        nodeAddress,
         style: context.titleMedium,
       ),
       children: [
         ...List<Dismissible>.generate(
-          _daemonAddresses.length,
+          _nodeAddresses.length,
           (int index) => Dismissible(
-            key: ValueKey<String>(_daemonAddresses[index]),
+            key: ValueKey<String>(_nodeAddresses[index]),
             onDismissed: (direction) {
               _onDismissed(index);
             },
             child: ListTile(
               title: Text(
-                _daemonAddresses[index],
+                _nodeAddresses[index],
                 style: context.titleMedium,
               ),
               leading: Radio<String>(
-                value: _daemonAddresses[index],
-                groupValue: _selectedDaemonAddress,
-                onChanged: _onDaemonAddressSelected,
+                value: _nodeAddresses[index],
+                groupValue: _selectedNodeAddress,
+                onChanged: _onNodeAddressSelected,
               ),
             ),
           ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:xelis_mobile_wallet/features/settings/presentation/daemon_addresses_widget.dart';
 import 'package:xelis_mobile_wallet/features/settings/presentation/language_widget.dart';
+import 'package:xelis_mobile_wallet/features/settings/presentation/node_addresses_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/brightness_toggle.dart';
 
@@ -39,7 +39,7 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
               const LanguageWidget(),
-              const DaemonAddressesWidget(),
+              const NodeAddressesWidget(),
             ],
           ),
         ),

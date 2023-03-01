@@ -36,37 +36,37 @@ final languageSelectedProvider =
 );
 
 typedef _$LanguageSelected = AutoDisposeNotifier<Languages>;
-String _$daemonAddressSelectedHash() =>
-    r'8238f348849f665da4d17ee48fd768df1b69fbbd';
+String _$nodeAddressSelectedHash() =>
+    r'a57825905444e963075cc6c77dd09b29e287c6e3';
 
-/// See also [DaemonAddressSelected].
-@ProviderFor(DaemonAddressSelected)
-final daemonAddressSelectedProvider =
-    AutoDisposeNotifierProvider<DaemonAddressSelected, String>.internal(
-  DaemonAddressSelected.new,
-  name: r'daemonAddressSelectedProvider',
+/// See also [NodeAddressSelected].
+@ProviderFor(NodeAddressSelected)
+final nodeAddressSelectedProvider =
+    AutoDisposeNotifierProvider<NodeAddressSelected, String>.internal(
+  NodeAddressSelected.new,
+  name: r'nodeAddressSelectedProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$daemonAddressSelectedHash,
+      : _$nodeAddressSelectedHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$DaemonAddressSelected = AutoDisposeNotifier<String>;
-String _$daemonAddressesHash() => r'9dc6a25f754fbfb77ef86b6bc6391f30cd6b2100';
+typedef _$NodeAddressSelected = AutoDisposeNotifier<String>;
+String _$nodeAddressesHash() => r'eeabfdefa079257d02d21176d3303f17b4744184';
 
-/// See also [DaemonAddresses].
-@ProviderFor(DaemonAddresses)
-final daemonAddressesProvider =
-    AutoDisposeNotifierProvider<DaemonAddresses, List<String>>.internal(
-  DaemonAddresses.new,
-  name: r'daemonAddressesProvider',
+/// See also [NodeAddresses].
+@ProviderFor(NodeAddresses)
+final nodeAddressesProvider =
+    AutoDisposeNotifierProvider<NodeAddresses, List<String>>.internal(
+  NodeAddresses.new,
+  name: r'nodeAddressesProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$daemonAddressesHash,
+      : _$nodeAddressesHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$DaemonAddresses = AutoDisposeNotifier<List<String>>;
+typedef _$NodeAddresses = AutoDisposeNotifier<List<String>>;
 // ignore_for_file: unnecessary_raw_strings, subtype_of_sealed_class, invalid_use_of_internal_member, do_not_use_environment, prefer_const_constructors, public_member_api_docs, avoid_private_typedef_functions
