@@ -12,6 +12,6 @@ AppLocalizations appLocalizations(AppLocalizationsRef ref) {
 }*/
 
 final appLocalizationsProvider = Provider.autoDispose<AppLocalizations>((ref) {
-  final localeState = ref.watch(localProvider);
+  final localeState = ref.watch(localizationProvider);
   return lookupAppLocalizations(localeState.locale);
 });
