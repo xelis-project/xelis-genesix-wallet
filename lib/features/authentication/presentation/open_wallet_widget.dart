@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
+import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 
@@ -23,12 +24,13 @@ class OpenWalletWidget extends ConsumerStatefulWidget {
 }
 
 class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
-  final _openFormKey = GlobalKey<FormBuilderState>();
+  final _openFormKey = GlobalKey<FormBuilderState>(debugLabel: '_openFormKey');
   String selectedValue = walletNamesExample.first;
   bool _hidePassword = true;
 
   @override
   Widget build(BuildContext context) {
+    final loc = ref.watch(appLocalizationsProvider);
     return Row(
       children: [
         const Spacer(),
@@ -76,7 +78,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
                     autocorrect: false,
                     obscureText: _hidePassword,
                     decoration: InputDecoration(
-                      labelText: 'Password',
+                      labelText: loc.password,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -121,7 +123,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
                               )
                               .login();
                         },
-                        child: const Text('Open wallet'),
+                        child: Text(loc.open_wallet_button),
                       );
                     },
                   ),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
 import 'package:xelis_mobile_wallet/features/router/route_utils.dart';
+import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
 
 enum MenuItems {
@@ -23,27 +24,30 @@ class PopupMenu extends ConsumerWidget {
             _settings(context);
             break;
           case MenuItems.help:
-            logger.info('help');
+            logger.info('help section');
             break;
           case MenuItems.logout:
             _logout(ref);
             break;
         }
       },
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<MenuItems>>[
-        const PopupMenuItem<MenuItems>(
-          value: MenuItems.settings,
-          child: Text('Settings'),
-        ),
-        const PopupMenuItem<MenuItems>(
-          value: MenuItems.help,
-          child: Text('Help'),
-        ),
-        const PopupMenuItem<MenuItems>(
-          value: MenuItems.logout,
-          child: Text('Logout'),
-        ),
-      ],
+      itemBuilder: (BuildContext context) {
+        final loc = ref.watch(appLocalizationsProvider);
+        return <PopupMenuEntry<MenuItems>>[
+          PopupMenuItem<MenuItems>(
+            value: MenuItems.settings,
+            child: Text(loc.settings),
+          ),
+          PopupMenuItem<MenuItems>(
+            value: MenuItems.help,
+            child: Text(loc.help),
+          ),
+          PopupMenuItem<MenuItems>(
+            value: MenuItems.logout,
+            child: Text(loc.logout),
+          ),
+        ];
+      },
     );
   }
 
