@@ -1,0 +1,28 @@
+import 'package:flutter/material.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:xelis_mobile_wallet/features/settings/data/theme_mode_state_repository.dart';
+import 'package:xelis_mobile_wallet/features/settings/domain/theme_mode_state.dart';
+import 'package:xelis_mobile_wallet/shared/storage/shared_preferences_provider.dart';
+
+import 'package:xelis_mobile_wallet/shared/storage/shared_preferences_sync.dart';
+
+part 'theme_mode_state_provider.g.dart';
+
+@riverpod
+class UserThemeMode extends _$UserThemeMode {
+  @override
+  ThemeModeState build() {
+    final prefs = ref.watch(sharedPreferencesProvider);
+    final themModeStateRepository =
+        ThemeModeStateRepository(SharedPreferencesSync(prefs));
+    return themModeStateRepository.fromStorage();
+  }
+
+  void setThemeMode(ThemeMode themeMode) {
+    final prefs = ref.read(sharedPreferencesProvider);
+    final themModeStateRepository =
+        ThemeModeStateRepository(SharedPreferencesSync(prefs));
+    state = state.copyWith(themeMode: themeMode);
+    themModeStateRepository.localSave(state);
+  }
+}

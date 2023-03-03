@@ -8,21 +8,21 @@ import 'package:xelis_mobile_wallet/shared/storage/shared_preferences_sync.dart'
 part 'locale_state_provider.g.dart';
 
 @riverpod
-class Local extends _$Local {
+class Localization extends _$Localization {
   @override
   LocaleState build() {
     final prefs = ref.watch(sharedPreferencesProvider);
-    final localStateRepository =
+    final localeStateRepository =
         LocaleStateRepository(SharedPreferencesSync(prefs));
-    final localeState = localStateRepository.fromStorage();
+    final localeState = localeStateRepository.fromStorage();
     return localeState;
   }
 
   void setLocale(Locale locale) {
     final prefs = ref.read(sharedPreferencesProvider);
-    final localStateRepository =
+    final localeStateRepository =
         LocaleStateRepository(SharedPreferencesSync(prefs));
     state = state.copyWith(locale: locale);
-    localStateRepository.localSave(state);
+    localeStateRepository.localSave(state);
   }
 }

@@ -13,7 +13,7 @@ class LanguageWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentLocale = ref.watch(localProvider);
+    final currentLocale = ref.watch(localizationProvider);
     final loc = ref.watch(appLocalizationsProvider);
     return ExpansionTile(
       title: Text(
@@ -36,7 +36,7 @@ class LanguageWidget extends ConsumerWidget {
             groupValue: currentLocale.locale,
             onChanged: (value) {
               if (value != null) {
-                ref.read(localProvider.notifier).setLocale(value);
+                ref.read(localizationProvider.notifier).setLocale(value);
               }
             },
           ),

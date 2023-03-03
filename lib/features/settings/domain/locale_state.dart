@@ -7,8 +7,6 @@ part 'locale_state.freezed.dart';
 
 part 'locale_state.g.dart';
 
-
-
 @freezed
 class LocaleState with _$LocaleState {
   const factory LocaleState(
