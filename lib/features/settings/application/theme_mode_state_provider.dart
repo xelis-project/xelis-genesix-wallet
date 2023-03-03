@@ -3,7 +3,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_mobile_wallet/features/settings/data/theme_mode_state_repository.dart';
 import 'package:xelis_mobile_wallet/features/settings/domain/theme_mode_state.dart';
 import 'package:xelis_mobile_wallet/shared/storage/shared_preferences_provider.dart';
-
 import 'package:xelis_mobile_wallet/shared/storage/shared_preferences_sync.dart';
 
 part 'theme_mode_state_provider.g.dart';
@@ -13,16 +12,16 @@ class UserThemeMode extends _$UserThemeMode {
   @override
   ThemeModeState build() {
     final prefs = ref.watch(sharedPreferencesProvider);
-    final themModeStateRepository =
+    final themeModeStateRepository =
         ThemeModeStateRepository(SharedPreferencesSync(prefs));
-    return themModeStateRepository.fromStorage();
+    return themeModeStateRepository.fromStorage();
   }
 
   void setThemeMode(ThemeMode themeMode) {
     final prefs = ref.read(sharedPreferencesProvider);
-    final themModeStateRepository =
+    final themeModeStateRepository =
         ThemeModeStateRepository(SharedPreferencesSync(prefs));
     state = state.copyWith(themeMode: themeMode);
-    themModeStateRepository.localSave(state);
+    themeModeStateRepository.localSave(state);
   }
 }
