@@ -21,7 +21,7 @@ class LocaleStateRepository extends PersistentState<LocaleState> {
       if (value == null) {
         if (AppLocalizations.supportedLocales
             .contains(Locale(window.locale.languageCode))) {
-          return LocaleState(window.locale);
+          return LocaleState(Locale(window.locale.languageCode));
         } else {
           return const LocaleState(fallbackLocale);
         }
