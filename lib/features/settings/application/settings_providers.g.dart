@@ -20,22 +20,6 @@ final darkModeProvider = AutoDisposeNotifierProvider<DarkMode, bool>.internal(
 );
 
 typedef _$DarkMode = AutoDisposeNotifier<bool>;
-String _$languageSelectedHash() => r'a9f24b75dc52a61db133c9054bec0c13f8065020';
-
-/// See also [LanguageSelected].
-@ProviderFor(LanguageSelected)
-final languageSelectedProvider =
-    AutoDisposeNotifierProvider<LanguageSelected, Languages>.internal(
-  LanguageSelected.new,
-  name: r'languageSelectedProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$languageSelectedHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-typedef _$LanguageSelected = AutoDisposeNotifier<Languages>;
 String _$nodeAddressSelectedHash() =>
     r'a57825905444e963075cc6c77dd09b29e287c6e3';
 

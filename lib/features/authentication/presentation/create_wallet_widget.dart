@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
+import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 
@@ -15,12 +16,14 @@ class CreateWalletWidget extends ConsumerStatefulWidget {
 }
 
 class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
-  final _openFormKey = GlobalKey<FormBuilderState>();
+  final _createFormKey =
+      GlobalKey<FormBuilderState>(debugLabel: '_createFormKey');
   bool _seedRequired = false;
   bool _hidePassword = true;
 
   @override
   Widget build(BuildContext context) {
+    final loc = ref.watch(appLocalizationsProvider);
     return Row(
       children: [
         const Spacer(),
@@ -39,7 +42,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
                     ),
                     initialValue: _seedRequired,
                     title: Text(
-                      ' Import your seed :',
+                      loc.seed_option,
                       style: context.bodyLarge,
                     ),
                     onChanged: (value) {
@@ -58,7 +61,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
                       style: context.bodyLarge,
                       autocorrect: false,
                       decoration: InputDecoration(
-                        labelText: 'Seed',
+                        labelText: loc.seed,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -75,7 +78,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
                     style: context.bodyLarge,
                     autocorrect: false,
                     decoration: InputDecoration(
-                      labelText: 'Wallet Name',
+                      labelText: loc.wallet_name,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -92,7 +95,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
                     autocorrect: false,
                     obscureText: _hidePassword,
                     decoration: InputDecoration(
-                      labelText: 'Password',
+                      labelText: loc.password,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -134,7 +137,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
                               )
                               .login();
                         },
-                        child: const Text('Create wallet'),
+                        child: Text(loc.create_wallet_button),
                       );
                     },
                   ),

@@ -1,0 +1,23 @@
+{
+  "password": "Password",
+
+  "open_wallet_tab": "Open",
+  "open_wallet_button": "Open wallet",
+
+  "create_wallet_tab": "Create",
+  "seed_option": "Import your seed",
+  "seed": "Seed",
+  "create_wallet_button": "Create wallet",
+  "wallet_name": "Wallet name",
+
+  "help": "Help",
+  "logout": "Logout",
+  "settings": "Settings",
+  "language": "Language",
+  "node_address": "Node Address",
+  "add_node_button": "Add",
+
+  "explore_bottom_app_bar": "Explore",
+  "history_bottom_app_bar": "History",
+  "assets_bottom_app_bar": "Assets"
+}

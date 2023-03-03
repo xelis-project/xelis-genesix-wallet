@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/brightness_toggle.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/popup_menu.dart';
@@ -25,27 +27,32 @@ class _HubScreenState extends State<HubScreen> {
           PopupMenu(),
         ],
       ),
-      bottomNavigationBar: NavigationBar(
-        onDestinationSelected: (int index) {
-          setState(() {
-            currentPageIndex = index;
-          });
+      bottomNavigationBar: Consumer(
+        builder: (context, ref, child) {
+          final loc = ref.watch(appLocalizationsProvider);
+          return NavigationBar(
+            onDestinationSelected: (int index) {
+              setState(() {
+                currentPageIndex = index;
+              });
+            },
+            selectedIndex: currentPageIndex,
+            destinations: <Widget>[
+              NavigationDestination(
+                icon: const Icon(Icons.explore_outlined),
+                label: loc.explore_bottom_app_bar,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.manage_search_outlined),
+                label: loc.history_bottom_app_bar,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.account_balance_wallet_outlined),
+                label: loc.assets_bottom_app_bar,
+              ),
+            ],
+          );
         },
-        selectedIndex: currentPageIndex,
-        destinations: const <Widget>[
-          NavigationDestination(
-            icon: Icon(Icons.explore_outlined),
-            label: 'Explore',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.manage_search_outlined),
-            label: 'History',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.account_balance_wallet_outlined),
-            label: 'Assets',
-          ),
-        ],
       ),
       body: <Widget>[
         Container(

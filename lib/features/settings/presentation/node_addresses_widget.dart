@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/settings_providers.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
@@ -59,7 +60,8 @@ class NodeAddressesWidgetState extends ConsumerState<NodeAddressesWidget> {
   }
 
   void _showNewAddressDialog(BuildContext context) {
-    final formKey = GlobalKey<FormBuilderState>();
+    final formKey =
+        GlobalKey<FormBuilderState>(debugLabel: '_nodeAddressFormKey');
     showDialog<void>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -105,10 +107,10 @@ class NodeAddressesWidgetState extends ConsumerState<NodeAddressesWidget> {
   @override
   Widget build(BuildContext context) {
     final nodeAddress = ref.watch(nodeAddressSelectedProvider);
-    // final nodeAddresses = ref.watch(nodeAddressesProvider);
+    final loc = ref.watch(appLocalizationsProvider);
     return ExpansionTile(
       title: Text(
-        'Node Address',
+        loc.node_address,
         style: context.titleLarge,
       ),
       subtitle: Text(
@@ -140,7 +142,7 @@ class NodeAddressesWidgetState extends ConsumerState<NodeAddressesWidget> {
           padding: const EdgeInsets.all(8),
           child: OutlinedButton(
             onPressed: () => _showNewAddressDialog(context),
-            child: const Text('Add'),
+            child: Text(loc.add_node_button),
           ),
         )
       ],

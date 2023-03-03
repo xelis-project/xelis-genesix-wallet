@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:xelis_mobile_wallet/features/router/app_router.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/settings_providers.dart';
-import 'package:xelis_mobile_wallet/features/settings/data/shared_preferences.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
+import 'package:xelis_mobile_wallet/shared/storage/shared_preferences_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/app_themes.dart';
 
 Future<void> main() async {
   initLogging();
   logger.info('Starting Xelis Mobile Wallet ...');
-  WidgetsFlutterBinding.ensureInitialized();
-  final prefs = await SharedPreferences.getInstance();
 
-  /// TODO: to remove
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final prefs = await SharedPreferences.getInstance();
+  /// TODO: to be removed
   await prefs.clear();
+
   runApp(
     ProviderScope(
       overrides: [
@@ -40,9 +43,8 @@ class MyApp extends ConsumerWidget {
       theme: themeProvider.light(context),
       darkTheme: themeProvider.dark(context),
       routerConfig: router,
-      // routeInformationProvider: router.routeInformationProvider,
-      // routeInformationParser: router.routeInformationParser,
-      // routerDelegate: router.routerDelegate,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
     );
   }
 }

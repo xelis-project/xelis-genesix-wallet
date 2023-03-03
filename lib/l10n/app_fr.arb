@@ -1,0 +1,25 @@
+{
+  "password": "Mot de passe",
+
+  "open_wallet_tab": "Ouvrir",
+  "open_wallet_button": "Ouvrir portefeuille",
+
+  "create_wallet_tab": "Créer",
+  "seed_option": "Importer votre graine",
+  "seed": "Graine",
+  "create_wallet_button": "Créer portefeuille",
+  "wallet_name": "Nom du portefeuille",
+
+  "help": "Aide",
+  "logout": "Se déconnecter",
+  "settings": "Réglages",
+  "language": "Langage",
+  "node_address": "Adresse du Noeud",
+  "add_node_button": "Ajouter",
+
+  "explore_bottom_app_bar": "Explorer",
+  "history_bottom_app_bar": "Historique",
+  "assets_bottom_app_bar": "Actifs"
+
+
+}
