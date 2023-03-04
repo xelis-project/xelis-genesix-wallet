@@ -1,3 +1,5 @@
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -26,8 +28,8 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    compileSdkVersion flutter.compileSdkVersion
-    ndkVersion flutter.ndkVersion
+    compileSdk 33
+    ndkVersion '25.2.9519653'
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -60,6 +62,7 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+    namespace 'io.xelis.app.xelis_mobile_wallet'
 }
 
 flutter {
@@ -75,8 +78,8 @@ dependencies {
         new Tuple2('Profile', '--release'),
         new Tuple2('Release', '--release')
 ].each {
-    def taskPostfix = it.first
-    def profileMode = it.second
+    def taskPostfix = it.getV1()
+    def profileMode = it.getV2()
     tasks.whenTaskAdded { task ->
         if (task.name == "javaPreCompile$taskPostfix") {
             task.dependsOn "cargoBuild$taskPostfix"
@@ -91,7 +94,7 @@ dependencies {
             -o ../android/app/src/main/jniLibs build $profileMode"""
 
         workingDir "../../rust"
-        if (org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem.isWindows()) {
+        if (DefaultNativePlatform.currentOperatingSystem.isWindows()) {
             commandLine 'cmd', '/C', ndk_command
         } else {
             commandLine 'sh', '-c', ndk_command
