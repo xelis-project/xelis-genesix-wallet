@@ -16,10 +16,13 @@
   "language": "Langage",
   "node_address": "Adresse du Noeud",
   "add_node_button": "Ajouter",
+  "new_node_address": "Nouvelle Adresse du Noeud",
+  "address": "Adresse",
 
   "explore_bottom_app_bar": "Explorer",
   "history_bottom_app_bar": "Historique",
-  "assets_bottom_app_bar": "Actifs"
+  "assets_bottom_app_bar": "Actifs",
 
-
+  "cancel_button": "Annuler",
+  "ok_button": "Valider"
 }

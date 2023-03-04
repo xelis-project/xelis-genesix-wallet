@@ -3,15 +3,15 @@ import 'package:flutter/widgets.dart';
 class AppResources {
   static String localNodeAddress = '127.0.0.1:8080';
 
-  /// TODO: ws and/or json_rpc
-  static String officialRemoteNodeAddress = 'https://node.xelis.io';
-  static String officialDevNode = 'https://dev-node.xelis.io/';
-  static String officialTestnetNode = 'https://testnet-node.xelis.io/';
+  static String officialNodeURL = 'https://node.xelis.io';
+  static String officialDevNodeURL = 'https://dev-node.xelis.io/';
+  static String officialTestnetNodeURL = 'https://testnet-node.xelis.io/';
 
   static List<String> builtInNodeAddresses = [
     localNodeAddress,
-    officialDevNode,
-    officialTestnetNode,
+    officialNodeURL,
+    officialDevNodeURL,
+    officialTestnetNodeURL,
   ];
 
   static Image logoXelis = Image.asset(

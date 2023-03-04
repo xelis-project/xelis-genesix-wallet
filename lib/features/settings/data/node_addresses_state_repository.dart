@@ -1,26 +1,23 @@
-import 'package:flutter/material.dart';
 import 'package:xelis_mobile_wallet/features/settings/data/persistent_state.dart';
-import 'package:xelis_mobile_wallet/features/settings/domain/theme_mode_state.dart';
+import 'package:xelis_mobile_wallet/features/settings/domain/node_addresses_state.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
+import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/storage/shared_preferences_sync.dart';
 
-// Fallback ThemeMode
-const ThemeMode fallbackThemeMode = ThemeMode.system;
-
-class ThemeModeStateRepository extends PersistentState<ThemeModeState> {
-  ThemeModeStateRepository(this.sharedPreferencesSync);
+class NodeAddressesStateRepository extends PersistentState<NodeAddressesState> {
+  NodeAddressesStateRepository(this.sharedPreferencesSync);
 
   SharedPreferencesSync sharedPreferencesSync;
-  static const _themeModeStorageKey = 'persistentThemeMode';
+  static const _themeModeStorageKey = 'persistentNodeAddresses';
 
   @override
-  ThemeModeState fromStorage() {
+  NodeAddressesState fromStorage() {
     try {
       final value = sharedPreferencesSync.get(key: _themeModeStorageKey);
       if (value == null) {
-        return const ThemeModeState(fallbackThemeMode);
+        return NodeAddressesState(favorite: AppResources.localNodeAddress);
       }
-      return ThemeModeState.fromJson(value as Map<String, dynamic>);
+      return NodeAddressesState.fromJson(value as Map<String, dynamic>);
     } catch (e) {
       logger.severe(e);
       rethrow;
@@ -33,7 +30,7 @@ class ThemeModeStateRepository extends PersistentState<ThemeModeState> {
   }
 
   @override
-  Future<bool> localSave(ThemeModeState state) async {
+  Future<bool> localSave(NodeAddressesState state) async {
     final value = state.toJson();
     return sharedPreferencesSync.save(
       key: _themeModeStorageKey,

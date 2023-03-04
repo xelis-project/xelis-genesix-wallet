@@ -16,8 +16,13 @@
   "language": "Language",
   "node_address": "Node Address",
   "add_node_button": "Add",
+  "new_node_address": "New Node Address",
+  "address": "Address",
 
   "explore_bottom_app_bar": "Explore",
   "history_bottom_app_bar": "History",
-  "assets_bottom_app_bar": "Assets"
+  "assets_bottom_app_bar": "Assets",
+
+  "cancel_button": "Cancel",
+  "ok_button": "Ok"
 }
