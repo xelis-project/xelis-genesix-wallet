@@ -33,6 +33,7 @@ class SharedPreferencesSync {
   }
 
   Future<bool> delete({required String key}) async {
+    logger.info('remove key: $key');
     return prefs.remove(key);
   }
 }

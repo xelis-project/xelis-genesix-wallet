@@ -30,7 +30,11 @@ class NodeAddresses extends _$NodeAddresses {
 
   void addNodeAddress(String address) {
     if (!state.nodeAddresses.contains(address)) {
+      final prefs = ref.read(sharedPreferencesProvider);
+      final nodeAddressesStateRepository =
+          NodeAddressesStateRepository(SharedPreferencesSync(prefs));
       state = state.copyWith(nodeAddresses: [...state.nodeAddresses, address]);
+      nodeAddressesStateRepository.localSave(state);
     }
   }
 
@@ -40,7 +44,11 @@ class NodeAddresses extends _$NodeAddresses {
         for (final item in state.nodeAddresses)
           if (item != address) item
       ];
+      final prefs = ref.read(sharedPreferencesProvider);
+      final nodeAddressesStateRepository =
+          NodeAddressesStateRepository(SharedPreferencesSync(prefs));
       state = state.copyWith(nodeAddresses: newNodeAddresses);
+      nodeAddressesStateRepository.localSave(state);
     }
   }
 }
