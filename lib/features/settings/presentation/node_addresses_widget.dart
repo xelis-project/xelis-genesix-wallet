@@ -3,10 +3,9 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/settings_providers.dart';
+import 'package:xelis_mobile_wallet/features/settings/application/node_addresses_state_provider.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-// import 'package:form_builder_validators/form_builder_validators.dart';
 
 class NodeAddressesWidget extends ConsumerStatefulWidget {
   const NodeAddressesWidget({
@@ -18,33 +17,16 @@ class NodeAddressesWidget extends ConsumerStatefulWidget {
 }
 
 class NodeAddressesWidgetState extends ConsumerState<NodeAddressesWidget> {
-  String? _selectedNodeAddress;
-  late List<String> _nodeAddresses;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedNodeAddress = ref.read(nodeAddressSelectedProvider);
-    _nodeAddresses = ref.read(nodeAddressesProvider);
-  }
-
   void _onDismissed(int index) {
-    if (!AppResources.builtInNodeAddresses.contains(_nodeAddresses[index])) {
-      ref
-          .read(nodeAddressesProvider.notifier)
-          .removeNodeAddress(_nodeAddresses[index]);
-      setState(() {
-        _nodeAddresses.removeAt(index);
-      });
-    }
+    final state = ref.read(nodeAddressesProvider);
+    ref
+        .read(nodeAddressesProvider.notifier)
+        .removeNodeAddress(state.nodeAddresses[index]);
   }
 
   void _onNodeAddressSelected(String? value) {
-    setState(() {
-      _selectedNodeAddress = value;
-    });
     if (value != null) {
-      ref.read(nodeAddressSelectedProvider.notifier).selectNodeAddress(value);
+      ref.read(nodeAddressesProvider.notifier).setFavoriteAddress(value);
     }
   }
 
@@ -52,22 +34,24 @@ class NodeAddressesWidgetState extends ConsumerState<NodeAddressesWidget> {
     if (value != null) {
       if (!AppResources.builtInNodeAddresses.contains(value)) {
         ref.read(nodeAddressesProvider.notifier).addNodeAddress(value);
-        setState(() {
-          _nodeAddresses.add(value);
-        });
       }
     }
   }
 
   void _showNewAddressDialog(BuildContext context) {
+    ///TODO: add validator with constraints like 'address already exist' etc.
     final formKey =
         GlobalKey<FormBuilderState>(debugLabel: '_nodeAddressFormKey');
+    final loc = ref.read(appLocalizationsProvider);
     showDialog<void>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title: Text(
-          'New Node Address',
-          style: context.titleLarge,
+        title: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Text(
+            loc.new_node_address,
+            style: context.titleLarge,
+          ),
         ),
         content: FormBuilder(
           key: formKey,
@@ -75,29 +59,28 @@ class NodeAddressesWidgetState extends ConsumerState<NodeAddressesWidget> {
             name: 'address',
             style: context.bodyMedium,
             autocorrect: false,
-            decoration: const InputDecoration(
-              labelText: 'Address',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: loc.address,
+              border: const OutlineInputBorder(),
             ),
             onSaved: _onAddingNewAddress,
             onEditingComplete: () {
               formKey.currentState?.save();
               context.pop();
             },
-            // validator: FormBuilderValidators.ip(),
           ),
         ),
         actions: <Widget>[
           TextButton(
             onPressed: () => context.pop(),
-            child: const Text('Cancel'),
+            child: Text(loc.cancel_button),
           ),
           TextButton(
             onPressed: () {
               formKey.currentState?.save();
               context.pop();
             },
-            child: const Text('OK'),
+            child: Text(loc.ok_button),
           ),
         ],
       ),
@@ -106,7 +89,7 @@ class NodeAddressesWidgetState extends ConsumerState<NodeAddressesWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final nodeAddress = ref.watch(nodeAddressSelectedProvider);
+    final state = ref.watch(nodeAddressesProvider);
     final loc = ref.watch(appLocalizationsProvider);
     return ExpansionTile(
       title: Text(
@@ -114,25 +97,39 @@ class NodeAddressesWidgetState extends ConsumerState<NodeAddressesWidget> {
         style: context.titleLarge,
       ),
       subtitle: Text(
-        nodeAddress,
+        state.favorite,
         style: context.titleMedium,
       ),
       children: [
+        ...List<ListTile>.generate(
+          AppResources.builtInNodeAddresses.length,
+          (index) => ListTile(
+            title: Text(
+              AppResources.builtInNodeAddresses[index],
+              style: context.titleMedium,
+            ),
+            leading: Radio<String>(
+              value: AppResources.builtInNodeAddresses[index],
+              groupValue: state.favorite,
+              onChanged: _onNodeAddressSelected,
+            ),
+          ),
+        ),
         ...List<Dismissible>.generate(
-          _nodeAddresses.length,
-          (int index) => Dismissible(
-            key: ValueKey<String>(_nodeAddresses[index]),
+          state.nodeAddresses.length,
+          (index) => Dismissible(
+            key: ValueKey<String>(state.nodeAddresses[index]),
             onDismissed: (direction) {
               _onDismissed(index);
             },
             child: ListTile(
               title: Text(
-                _nodeAddresses[index],
+                state.nodeAddresses[index],
                 style: context.titleMedium,
               ),
               leading: Radio<String>(
-                value: _nodeAddresses[index],
-                groupValue: _selectedNodeAddress,
+                value: state.nodeAddresses[index],
+                groupValue: state.favorite,
                 onChanged: _onNodeAddressSelected,
               ),
             ),

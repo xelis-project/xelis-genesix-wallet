@@ -1,25 +1,25 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'theme_mode_state_provider.dart';
+part of 'node_addresses_state_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$userThemeModeHash() => r'c82ee924d28ed4183a033039d269588cd1f553f1';
+String _$nodeAddressesHash() => r'257d0abc3250d022e80791e34c7beb528517fafa';
 
-/// See also [UserThemeMode].
-@ProviderFor(UserThemeMode)
-final userThemeModeProvider =
-    AutoDisposeNotifierProvider<UserThemeMode, ThemeModeState>.internal(
-  UserThemeMode.new,
-  name: r'userThemeModeProvider',
+/// See also [NodeAddresses].
+@ProviderFor(NodeAddresses)
+final nodeAddressesProvider =
+    AutoDisposeNotifierProvider<NodeAddresses, NodeAddressesState>.internal(
+  NodeAddresses.new,
+  name: r'nodeAddressesProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$userThemeModeHash,
+      : _$nodeAddressesHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$UserThemeMode = AutoDisposeNotifier<ThemeModeState>;
+typedef _$NodeAddresses = AutoDisposeNotifier<NodeAddressesState>;
 // ignore_for_file: unnecessary_raw_strings, subtype_of_sealed_class, invalid_use_of_internal_member, do_not_use_environment, prefer_const_constructors, public_member_api_docs, avoid_private_typedef_functions

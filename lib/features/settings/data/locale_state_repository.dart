@@ -25,9 +25,9 @@ class LocaleStateRepository extends PersistentState<LocaleState> {
         } else {
           return const LocaleState(fallbackLocale);
         }
+      } else {
+        return LocaleState.fromJson(value as Map<String, dynamic>);
       }
-      final data = LocaleState.fromJson(value as Map<String, dynamic>);
-      return data;
     } catch (e) {
       logger.severe(e);
       rethrow;
