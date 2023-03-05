@@ -33,6 +33,7 @@ class PopupMenu extends ConsumerWidget {
       },
       itemBuilder: (BuildContext context) {
         final loc = ref.watch(appLocalizationsProvider);
+        final auth = ref.watch(authenticationNotifierProvider);
         return <PopupMenuEntry<MenuItems>>[
           PopupMenuItem<MenuItems>(
             value: MenuItems.settings,
@@ -43,6 +44,7 @@ class PopupMenu extends ConsumerWidget {
             child: Text(loc.help),
           ),
           PopupMenuItem<MenuItems>(
+            enabled: auth,
             value: MenuItems.logout,
             child: Text(loc.logout),
           ),
