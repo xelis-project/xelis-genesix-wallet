@@ -6,7 +6,7 @@ part of 'node_addresses_state_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$nodeAddressesHash() => r'257d0abc3250d022e80791e34c7beb528517fafa';
+String _$nodeAddressesHash() => r'bbc33b581a072758602b37b4ca3f13a26e970ac4';
 
 /// See also [NodeAddresses].
 @ProviderFor(NodeAddresses)
