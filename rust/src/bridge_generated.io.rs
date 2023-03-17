@@ -240,6 +240,12 @@ impl NewWithNullPtr for wire_XelisKeyPair {
     }
 }
 
+impl Default for wire_XelisKeyPair {
+    fn default() -> Self {
+        Self::new_with_null_ptr()
+    }
+}
+
 // Section: sync execution mode utility
 
 #[no_mangle]
