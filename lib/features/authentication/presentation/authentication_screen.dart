@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:xelis_mobile_wallet/features/authentication/presentation/create_wallet_widget.dart';
 import 'package:xelis_mobile_wallet/features/authentication/presentation/open_wallet_widget.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
+import 'package:xelis_mobile_wallet/features/settings/application/theme_mode_state_provider.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
+import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/brightness_toggle.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/popup_menu.dart';
 
@@ -17,7 +19,23 @@ class AuthenticationScreen extends ConsumerWidget {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: AppResources.logoXelisHorizontal,
+          title: Consumer(
+            builder: (BuildContext context, WidgetRef ref, Widget? child) {
+              final userThemeMode = ref.watch(userThemeModeProvider);
+              switch (userThemeMode.themeMode) {
+                case ThemeMode.system:
+                  if (context.isDarkMode) {
+                    return AppResources.logoXelisDark;
+                  } else {
+                    return AppResources.logoXelisLight;
+                  }
+                case ThemeMode.light:
+                  return AppResources.logoXelisLight;
+                case ThemeMode.dark:
+                  return AppResources.logoXelisDark;
+              }
+            },
+          ),
           automaticallyImplyLeading: false,
           actions: const [
             BrightnessToggle(),
