@@ -6,6 +6,7 @@ extension TypographyUtils on BuildContext {
 
   TextTheme get textTheme =>
       GoogleFonts.notoSansDisplayTextTheme(theme.textTheme);
+
   // GoogleFonts.montserratTextTheme(theme.textTheme);
 
   ColorScheme get colors => theme.colorScheme;
@@ -69,6 +70,11 @@ extension TypographyUtils on BuildContext {
   TextStyle? get bodySmall => textTheme.bodySmall?.copyWith(
         color: colors.onSurface,
       );
+
+  bool get isDarkMode {
+    final brightness = MediaQuery.of(this).platformBrightness;
+    return brightness == Brightness.dark;
+  }
 }
 
 extension BreakpointUtils on BoxConstraints {

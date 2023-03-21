@@ -14,14 +14,20 @@ class AppResources {
     officialTestnetNodeURL,
   ];
 
-  static Image logoXelis = Image.asset(
-    'assets/xelis_logo_pastille_01.png',
+  static Image logoXelisLight = Image.asset(
+    'assets/black_background_green_logo.png',
     fit: BoxFit.cover,
-    height: 60,
+    height: 40,
+  );
+
+  static Image logoXelisDark = Image.asset(
+    'assets/green_background_black_logo.png',
+    fit: BoxFit.cover,
+    height: 40,
   );
 
   static Image logoXelisHorizontal = Image.asset(
-    'assets/xelis_logo_horizontal_color.png',
+    'assets/transparent_background_green_logo.png',
     fit: BoxFit.cover,
     height: 32,
   );

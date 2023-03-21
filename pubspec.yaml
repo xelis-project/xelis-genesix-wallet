@@ -8,6 +8,8 @@ environment:
   sdk: '>=2.19.4 <3.0.0'
 
 dependencies:
+  cryptography: ^2.5.0
+  cryptography_flutter: ^2.3.0
   cupertino_icons: ^1.0.5
   ffi: ^2.0.1
   flutter:
@@ -17,16 +19,20 @@ dependencies:
     sdk: flutter
   flutter_riverpod: ^2.3.2
   flutter_rust_bridge: ^1.71.1
+  flutter_secure_storage: ^8.0.0
   form_builder_validators: ^8.5.0
   freezed_annotation: ^2.2.0
-  go_router: ^6.2.0
+  go_router: ^6.3.0
   google_fonts: ^4.0.3
   intl: any
+  isar: ^3.0.5
+  isar_flutter_libs: ^3.0.5
   json_annotation: ^4.8.0
   logging: ^1.1.1
+  path_provider: ^2.0.14
   riverpod_annotation: ^2.0.2
   shared_preferences: ^2.0.18
-  xelis_dart_sdk: ^0.0.3
+  xelis_dart_sdk: ^0.0.5
 
 
 dev_dependencies:
@@ -37,6 +43,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   freezed: ^2.3.2
+  isar_generator: ^3.0.5
   json_serializable: ^6.6.1
   riverpod_generator: ^2.1.4
   riverpod_lint:
@@ -48,5 +55,12 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/xelis_logo_pastille_01.png
-    - assets/xelis_logo_horizontal_color.png
+    - assets/black_background_green_logo.png
+    - assets/black_background_white_logo.png
+    - assets/green_background_black_logo.png
+    - assets/green_background_white_logo.png
+    - assets/transparent_background_black_logo.png
+    - assets/transparent_background_green_logo.png
+    - assets/transparent_background_white_logo.png
+    - assets/white_background_black_logo.png
+    - assets/white_background_green_logo.png
