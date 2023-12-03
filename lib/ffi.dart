@@ -1,13 +1,22 @@
-import 'dart:io';
+import 'dart:ffi';
+import 'dart:io' as io;
 
-import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:xelis_mobile_wallet/bridge_definitions.dart';
 import 'package:xelis_mobile_wallet/bridge_generated.dart';
 
-export 'package:xelis_mobile_wallet/bridge_definitions.dart';
-export 'package:xelis_mobile_wallet/bridge_generated.dart';
+export 'bridge_definitions.dart';
 
-const base = 'rust';
-final path = Platform.isWindows ? '$base.dll' : 'lib$base.so';
-final dylib = loadDylib(path);
-final Rust api = RustImpl(dylib);
+// Re-export the bridge so it is only necessary to import this file.
+export 'bridge_generated.dart';
+
+const _base = 'xelis_native';
+
+// On MacOS, the dynamic library is not bundled with the binary,
+// but rather directly **linked** against the binary.
+final _dylib = io.Platform.isWindows ? '$_base.dll' : 'lib$_base.so';
+
+final XelisNative api = XelisNativeImpl(
+  io.Platform.isIOS || io.Platform.isMacOS
+      ? DynamicLibrary.executable()
+      : DynamicLibrary.open(_dylib),
+);

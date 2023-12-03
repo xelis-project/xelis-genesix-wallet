@@ -62,22 +62,22 @@ class _$ThemeModeStateCopyWithImpl<$Res, $Val extends ThemeModeState>
 }
 
 /// @nodoc
-abstract class _$$_ThemeModeStateCopyWith<$Res>
+abstract class _$$ThemeModeStateImplCopyWith<$Res>
     implements $ThemeModeStateCopyWith<$Res> {
-  factory _$$_ThemeModeStateCopyWith(
-          _$_ThemeModeState value, $Res Function(_$_ThemeModeState) then) =
-      __$$_ThemeModeStateCopyWithImpl<$Res>;
+  factory _$$ThemeModeStateImplCopyWith(_$ThemeModeStateImpl value,
+          $Res Function(_$ThemeModeStateImpl) then) =
+      __$$ThemeModeStateImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({ThemeMode themeMode});
 }
 
 /// @nodoc
-class __$$_ThemeModeStateCopyWithImpl<$Res>
-    extends _$ThemeModeStateCopyWithImpl<$Res, _$_ThemeModeState>
-    implements _$$_ThemeModeStateCopyWith<$Res> {
-  __$$_ThemeModeStateCopyWithImpl(
-      _$_ThemeModeState _value, $Res Function(_$_ThemeModeState) _then)
+class __$$ThemeModeStateImplCopyWithImpl<$Res>
+    extends _$ThemeModeStateCopyWithImpl<$Res, _$ThemeModeStateImpl>
+    implements _$$ThemeModeStateImplCopyWith<$Res> {
+  __$$ThemeModeStateImplCopyWithImpl(
+      _$ThemeModeStateImpl _value, $Res Function(_$ThemeModeStateImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -85,7 +85,7 @@ class __$$_ThemeModeStateCopyWithImpl<$Res>
   $Res call({
     Object? themeMode = null,
   }) {
-    return _then(_$_ThemeModeState(
+    return _then(_$ThemeModeStateImpl(
       null == themeMode
           ? _value.themeMode
           : themeMode // ignore: cast_nullable_to_non_nullable
@@ -96,11 +96,11 @@ class __$$_ThemeModeStateCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$_ThemeModeState implements _ThemeModeState {
-  const _$_ThemeModeState(this.themeMode);
+class _$ThemeModeStateImpl implements _ThemeModeState {
+  const _$ThemeModeStateImpl(this.themeMode);
 
-  factory _$_ThemeModeState.fromJson(Map<String, dynamic> json) =>
-      _$$_ThemeModeStateFromJson(json);
+  factory _$ThemeModeStateImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ThemeModeStateImplFromJson(json);
 
   @override
   final ThemeMode themeMode;
@@ -114,7 +114,7 @@ class _$_ThemeModeState implements _ThemeModeState {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$_ThemeModeState &&
+            other is _$ThemeModeStateImpl &&
             (identical(other.themeMode, themeMode) ||
                 other.themeMode == themeMode));
   }
@@ -126,27 +126,29 @@ class _$_ThemeModeState implements _ThemeModeState {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$_ThemeModeStateCopyWith<_$_ThemeModeState> get copyWith =>
-      __$$_ThemeModeStateCopyWithImpl<_$_ThemeModeState>(this, _$identity);
+  _$$ThemeModeStateImplCopyWith<_$ThemeModeStateImpl> get copyWith =>
+      __$$ThemeModeStateImplCopyWithImpl<_$ThemeModeStateImpl>(
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_ThemeModeStateToJson(
+    return _$$ThemeModeStateImplToJson(
       this,
     );
   }
 }
 
 abstract class _ThemeModeState implements ThemeModeState {
-  const factory _ThemeModeState(final ThemeMode themeMode) = _$_ThemeModeState;
+  const factory _ThemeModeState(final ThemeMode themeMode) =
+      _$ThemeModeStateImpl;
 
   factory _ThemeModeState.fromJson(Map<String, dynamic> json) =
-      _$_ThemeModeState.fromJson;
+      _$ThemeModeStateImpl.fromJson;
 
   @override
   ThemeMode get themeMode;
   @override
   @JsonKey(ignore: true)
-  _$$_ThemeModeStateCopyWith<_$_ThemeModeState> get copyWith =>
+  _$$ThemeModeStateImplCopyWith<_$ThemeModeStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

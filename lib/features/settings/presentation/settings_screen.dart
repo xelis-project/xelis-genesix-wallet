@@ -24,7 +24,7 @@ class SettingsScreen extends StatelessWidget {
           Padding(
             padding: EdgeInsets.all(8),
             child: BrightnessToggle(),
-          )
+          ),
         ],
       ),
       body: Padding(

@@ -1,9 +1,10 @@
 import 'dart:ui';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_mobile_wallet/features/settings/data/locale_state_repository.dart';
 import 'package:xelis_mobile_wallet/features/settings/domain/locale_state.dart';
-import 'package:xelis_mobile_wallet/shared/storage/shared_preferences_provider.dart';
-import 'package:xelis_mobile_wallet/shared/storage/shared_preferences_sync.dart';
+import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_provider.dart';
+import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_sync.dart';
 
 part 'locale_state_provider.g.dart';
 

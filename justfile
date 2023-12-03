@@ -1,20 +1,19 @@
 default: gen lint
 
-gen:
+gen: gen_flutter
+    flutter_rust_bridge_codegen
+
+gen_flutter:
     flutter pub get
-    flutter_rust_bridge_codegen \
-        --rust-input rust/src/api.rs \
-        --dart-output lib/bridge_generated.dart \
-        --c-output ios/Runner/bridge_generated.h \
-        --dart-decl-output lib/bridge_definitions.dart \
+    dart run build_runner build
 
 lint:
-    cd rust && cargo fmt
+    cd native && cargo fmt
     dart format .
 
 clean:
     flutter clean
-    cd rust && cargo clean
+    cd native && cargo clean
     
 serve *args='':
     flutter pub run flutter_rust_bridge:serve {{args}}

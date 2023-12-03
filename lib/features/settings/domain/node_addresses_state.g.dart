@@ -6,9 +6,9 @@ part of 'node_addresses_state.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$_NodeAddressesState _$$_NodeAddressesStateFromJson(
+_$NodeAddressesStateImpl _$$NodeAddressesStateImplFromJson(
         Map<String, dynamic> json) =>
-    _$_NodeAddressesState(
+    _$NodeAddressesStateImpl(
       favorite: json['favorite'] as String,
       nodeAddresses: (json['nodeAddresses'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -16,8 +16,8 @@ _$_NodeAddressesState _$$_NodeAddressesStateFromJson(
           const [],
     );
 
-Map<String, dynamic> _$$_NodeAddressesStateToJson(
-        _$_NodeAddressesState instance) =>
+Map<String, dynamic> _$$NodeAddressesStateImplToJson(
+        _$NodeAddressesStateImpl instance) =>
     <String, dynamic>{
       'favorite': instance.favorite,
       'nodeAddresses': instance.nodeAddresses,

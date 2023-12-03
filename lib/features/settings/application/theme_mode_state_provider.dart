@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_mobile_wallet/features/settings/data/theme_mode_state_repository.dart';
 import 'package:xelis_mobile_wallet/features/settings/domain/theme_mode_state.dart';
-import 'package:xelis_mobile_wallet/shared/storage/shared_preferences_provider.dart';
-import 'package:xelis_mobile_wallet/shared/storage/shared_preferences_sync.dart';
+import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_provider.dart';
+import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_sync.dart';
 
 part 'theme_mode_state_provider.g.dart';
 

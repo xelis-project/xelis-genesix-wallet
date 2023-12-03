@@ -6,12 +6,13 @@ part of 'theme_mode_state.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$_ThemeModeState _$$_ThemeModeStateFromJson(Map<String, dynamic> json) =>
-    _$_ThemeModeState(
+_$ThemeModeStateImpl _$$ThemeModeStateImplFromJson(Map<String, dynamic> json) =>
+    _$ThemeModeStateImpl(
       $enumDecode(_$ThemeModeEnumMap, json['themeMode']),
     );
 
-Map<String, dynamic> _$$_ThemeModeStateToJson(_$_ThemeModeState instance) =>
+Map<String, dynamic> _$$ThemeModeStateImplToJson(
+        _$ThemeModeStateImpl instance) =>
     <String, dynamic>{
       'themeMode': _$ThemeModeEnumMap[instance.themeMode]!,
     };

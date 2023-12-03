@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:xelis_mobile_wallet/features/settings/data/persistent_state.dart';
 import 'package:xelis_mobile_wallet/features/settings/domain/theme_mode_state.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
-import 'package:xelis_mobile_wallet/shared/storage/shared_preferences_sync.dart';
+import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_sync.dart';
 
 // Fallback ThemeMode
 const ThemeMode fallbackThemeMode = ThemeMode.system;
@@ -22,7 +22,7 @@ class ThemeModeStateRepository extends PersistentState<ThemeModeState> {
       }
       return ThemeModeState.fromJson(value as Map<String, dynamic>);
     } catch (e) {
-      logger.severe(e);
+      logger.severe('ThemeModeStateRepository: $e');
       rethrow;
     }
   }

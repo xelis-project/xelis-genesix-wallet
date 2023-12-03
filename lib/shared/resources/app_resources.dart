@@ -2,10 +2,9 @@ import 'package:flutter/widgets.dart';
 
 class AppResources {
   static String localNodeAddress = '127.0.0.1:8080';
-
-  static String officialNodeURL = 'https://node.xelis.io';
-  static String officialDevNodeURL = 'https://dev-node.xelis.io/';
-  static String officialTestnetNodeURL = 'https://testnet-node.xelis.io/';
+  static String officialNodeURL = 'node.xelis.io';
+  static String officialDevNodeURL = 'dev-node.xelis.io';
+  static String officialTestnetNodeURL = 'testnet-node.xelis.io';
 
   static List<String> builtInNodeAddresses = [
     localNodeAddress,

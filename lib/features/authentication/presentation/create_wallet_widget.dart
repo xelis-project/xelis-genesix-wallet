@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
@@ -30,6 +31,8 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
         Expanded(
           flex: 4,
           child: FormBuilder(
+            key: _createFormKey,
+            onChanged: () => _createFormKey.currentState!.save(),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -66,8 +69,15 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      onSaved: (value) {},
-                      onEditingComplete: () {},
+                      validator: FormBuilderValidators.compose([
+                        // TODO better add seed validator
+                        FormBuilderValidators.match(
+                          '(?:[a-zA-Z]+ ){24}[a-zA-Z]+',
+                          errorText: 'Invalid seed',
+                        ),
+                        // FormBuilderValidators.minWordsCount(25),
+                        // FormBuilderValidators.maxWordsCount(25),
+                      ]),
                     ),
                   ),
                 ),
@@ -83,8 +93,12 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    onSaved: (value) {},
-                    onEditingComplete: () {},
+                    validator: FormBuilderValidators.compose([
+                      // TODO check if wallet name already exists
+                      FormBuilderValidators.required(),
+                      FormBuilderValidators.minLength(1),
+                      FormBuilderValidators.maxLength(64),
+                    ]),
                   ),
                 ),
                 Padding(
@@ -130,12 +144,23 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
                     ) {
                       return OutlinedButton(
                         onPressed: () {
-                          logger.info('Create wallet');
-                          ref
-                              .read(
-                                authenticationNotifierProvider.notifier,
-                              )
-                              .login();
+                          if (_createFormKey.currentState?.saveAndValidate() ??
+                              false) {
+                            logger.info(
+                              _createFormKey.currentState?.value.toString(),
+                            );
+                            final walletName = _createFormKey
+                                .currentState?.value['wallet_name'] as String?;
+                            final password = _createFormKey
+                                .currentState?.value['password'] as String?;
+                            final seed = _createFormKey
+                                .currentState?.value['seed'] as String?;
+                            if (walletName != null && password != null) {
+                              ref
+                                  .read(authenticationProvider.notifier)
+                                  .createWallet(walletName, password, seed);
+                            }
+                          }
                         },
                         child: Text(loc.create_wallet_button),
                       );
@@ -146,7 +171,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
             ),
           ),
         ),
-        const Spacer()
+        const Spacer(),
       ],
     );
   }
