@@ -55,23 +55,18 @@ class BlockchainData extends StatelessWidget {
                               return topoHeight.when(
                                 skipLoadingOnReload: true,
                                 data: (data) {
-                                  return Text(
-                                    data.toString(),
-                                    style: context.bodyLarge,
+                                  return AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 200),
+                                    child: Text(
+                                      data.toString(),
+                                      key: ValueKey<String>(
+                                        data.toString(),
+                                      ),
+                                      style: context.bodyLarge,
+                                    ),
                                   );
-                                  // return AnimatedSwitcher(
-                                  //   duration: const Duration(milliseconds: 200),
-                                  //   child: Text(
-                                  //     data.toString(),
-                                  //     key: ValueKey<String>(
-                                  //       data.toString(),
-                                  //     ),
-                                  //     style: context.bodyLarge,
-                                  //   ),
-                                  // );
                                 },
                                 error: (err, stack) => Text(
-                                  // 'Error: $err',
                                   '/',
                                   style: context.bodyLarge,
                                 ),
@@ -113,16 +108,6 @@ class BlockchainData extends StatelessWidget {
                                 '$timer s',
                                 style: context.bodyLarge,
                               );
-                              // return AnimatedSwitcher(
-                              //   duration: const Duration(milliseconds: 400),
-                              //   child: Text(
-                              //     '$timer s',
-                              //     key: ValueKey<String>(
-                              //       '$timer s',
-                              //     ),
-                              //     style: context.bodyLarge,
-                              //   ),
-                              // );
                             },
                           ),
                         ),
@@ -162,20 +147,16 @@ class BlockchainData extends StatelessWidget {
                               return syncedHeight.when(
                                 skipLoadingOnReload: true,
                                 data: (data) {
-                                  return Text(
-                                    '${NumberFormat.compact().format(data / 15)}H/s',
-                                    style: context.bodyLarge,
+                                  return AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 200),
+                                    child: Text(
+                                      '${NumberFormat.compact().format(data / 15)}H/s',
+                                      key: ValueKey<String>(
+                                        '${NumberFormat.compact().format(data / 15)}H/s',
+                                      ),
+                                      style: context.bodyLarge,
+                                    ),
                                   );
-                                  // return AnimatedSwitcher(
-                                  //   duration: const Duration(milliseconds: 200),
-                                  //   child: Text(
-                                  //     '${NumberFormat.compact().format(data / 15)}H/s',
-                                  //     key: ValueKey<String>(
-                                  //       '${NumberFormat.compact().format(data / 15)}H/s',
-                                  //     ),
-                                  //     style: context.bodyLarge,
-                                  //   ),
-                                  // );
                                 },
                                 error: (err, stack) => Text(
                                   // 'Error: $err',
@@ -221,25 +202,17 @@ class BlockchainData extends StatelessWidget {
                               return syncedHeight.when(
                                 skipLoadingOnReload: true,
                                 data: (data) {
-                                  return Text(
-                                    // data.toStringAsPrecision(5),
-                                    (data / pow(10, 5)).toStringAsFixed(2),
-                                    key: ValueKey<String>(
+                                  return AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 200),
+                                    child: Text(
+                                      // data.toStringAsPrecision(5),
                                       (data / pow(10, 5)).toStringAsFixed(2),
+                                      key: ValueKey<String>(
+                                        (data / pow(10, 5)).toStringAsFixed(2),
+                                      ),
+                                      style: context.bodyLarge,
                                     ),
-                                    style: context.bodyLarge,
                                   );
-                                  // return AnimatedSwitcher(
-                                  //   duration: const Duration(milliseconds: 200),
-                                  //   child: Text(
-                                  //     // data.toStringAsPrecision(5),
-                                  //     (data / pow(10, 5)).toStringAsFixed(2),
-                                  //     key: ValueKey<String>(
-                                  //       (data / pow(10, 5)).toStringAsFixed(2),
-                                  //     ),
-                                  //     style: context.bodyLarge,
-                                  //   ),
-                                  // );
                                 },
                                 error: (err, stack) => Text(
                                   // 'Error: $err',
@@ -286,20 +259,16 @@ class BlockchainData extends StatelessWidget {
                         return mempool.when(
                           skipLoadingOnReload: true,
                           data: (data) {
-                            return Text(
-                              data.toString(),
-                              style: context.bodyLarge,
+                            return AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              child: Text(
+                                data.toString(),
+                                key: ValueKey<String>(
+                                  data.toString(),
+                                ),
+                                style: context.bodyLarge,
+                              ),
                             );
-                            // return AnimatedSwitcher(
-                            //   duration: const Duration(milliseconds: 200),
-                            //   child: Text(
-                            //     data.toString(),
-                            //     key: ValueKey<String>(
-                            //       data.toString(),
-                            //     ),
-                            //     style: context.bodyLarge,
-                            //   ),
-                            // );
                           },
                           error: (err, stack) => Text(
                             '/',

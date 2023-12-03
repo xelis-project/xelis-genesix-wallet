@@ -19,6 +19,7 @@ class AssetRow extends ConsumerWidget {
     var name = asset.hash;
 
     return data.when(
+      skipLoadingOnReload: true,
       data: (versionedBalance) {
         var balance = versionedBalance.balance!.toDouble();
         if (asset.hash == xelisAsset) {

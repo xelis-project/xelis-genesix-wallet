@@ -19,13 +19,6 @@ class WalletService {
   final StorageManager storageManager;
   final List<int> secretKey;
 
-  // Future<void> startSyncing() async {
-  //   await sync();
-  //   daemonClientRepository.onNewBlock((block) async {
-  //     await sync();
-  //   });
-  // }
-
   Future<dynamic> sendTransaction(
     String destination,
     String asset,
@@ -109,23 +102,6 @@ class WalletService {
     return '';
   }
 
-  // Sync wallet data from this topoHeight
-  // Future<void> syncFromTopoHeight(int topoHeight) async {
-  //   try {
-  //     final walletSnapshot = await storageManager.getWalletSnapshot();
-  //     if (walletSnapshot != null &&
-  //         topoHeight > 0 &&
-  //         topoHeight < walletSnapshot.syncedTopoheight!) {
-  //       await storageManager.deleteVersionedBalanceTillTopoHeight(topoHeight);
-  //       await storageManager.deleteHistoryTillTopoHeight(topoHeight);
-  //       await storageManager.setSyncedTopoHeight(topoHeight);
-  //       await sync();
-  //     }
-  //   } catch (e) {
-  //     logger.warning('syncFromTopoHeight: $e');
-  //   }
-  // }
-
   Future<void> _updateNonce(String address) async {
     int? nonce;
     try {
@@ -185,7 +161,6 @@ class WalletService {
       }
     } catch (e) {
       logger.warning('init: $e');
-      // rethrow;
     }
   }
 

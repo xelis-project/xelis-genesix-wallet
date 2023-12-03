@@ -48,13 +48,18 @@ class NodeData extends StatelessWidget {
                         return connectionState.when(
                           skipLoadingOnReload: true,
                           data: (socketState) {
-                            return Text(
-                              socketState,
-                              style: context.bodyLarge,
+                            return AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              child: Text(
+                                socketState,
+                                key: ValueKey<String>(
+                                  socketState,
+                                ),
+                                style: context.bodyLarge,
+                              ),
                             );
                           },
                           error: (err, stack) => Text(
-                            // 'Error: $err',
                             '/',
                             style: context.bodyLarge,
                           ),
@@ -133,13 +138,18 @@ class NodeData extends StatelessWidget {
                         return currentEndpoint.when(
                           skipLoadingOnReload: true,
                           data: (data) {
-                            return Text(
-                              data,
-                              style: context.bodyLarge,
+                            return AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              child: Text(
+                                data,
+                                key: ValueKey<String>(
+                                  data,
+                                ),
+                                style: context.bodyLarge,
+                              ),
                             );
                           },
                           error: (err, stack) => Text(
-                            // 'Error: $err',
                             '/',
                             style: context.bodyLarge,
                           ),
@@ -180,13 +190,18 @@ class NodeData extends StatelessWidget {
                         return networkType.when(
                           skipLoadingOnReload: true,
                           data: (data) {
-                            return Text(
-                              data,
-                              style: context.bodyLarge,
+                            return AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              child: Text(
+                                data,
+                                key: ValueKey<String>(
+                                  data,
+                                ),
+                                style: context.bodyLarge,
+                              ),
                             );
                           },
                           error: (err, stack) => Text(
-                            // 'Error: $err',
                             '/',
                             style: context.bodyLarge,
                           ),

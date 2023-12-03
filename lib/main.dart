@@ -10,61 +10,7 @@ import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/app_themes.dart';
 
-import 'ffi.dart';
-
 Future<void> main() async {
-  // try {
-  // await api.setNetworkToTestnet();
-  // await api.setNetworkToDev();
-  // await api.setNetworkToMainnet();
-  // final xelisKeyPair = await api.createKeyPair();
-  //
-  // final address = await xelisKeyPair.getAddress();
-  //
-  // print(address);
-
-  // final xelisKeyPair = await api.createKeyPair(seed: customSeed);
-
-  // final daemonRepository = DaemonClientRepository(endPoint: testnetNodeURL)
-  //   ..connect();
-  //
-  // final nonce = await daemonRepository.getNonce(
-  //   const GetNonceParams(
-  //     address: myTestnetAddress,
-  //   ),
-  // );
-  // print('nonce : $nonce');
-
-  // final fees = await xelisKeyPair.getEstimatedFees(
-  //   address: testAddress,
-  //   amount: 100000,
-  //   asset: xelisAsset,
-  //   nonce: nonce,
-  // );
-  //
-  // print('fees : $fees');
-  //
-  // final tx = await xelisKeyPair.createTx(
-  //   address: testAddress,
-  //   amount: 100000,
-  //   asset: xelisAsset,
-  //   balance: 688402218,
-  //   nonce: nonce,
-  // );
-  //
-  // print('tx hex : $tx');
-  //
-  // final ok = await daemonRepository.submitTransaction(
-  //   SubmitTransactionParams(hex: tx),
-  // );
-  //
-  // print('transfer ok : $ok');
-
-  // xelisKeyPair.keyPair.dispose();
-  // } catch (e) {
-  //   print(e);
-  // }
-
   WidgetsFlutterBinding.ensureInitialized();
 
   initLogging();

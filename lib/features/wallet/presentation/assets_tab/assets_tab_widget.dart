@@ -12,6 +12,7 @@ class Assets extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncData = ref.watch(walletAssetsProvider);
     return asyncData.when(
+      skipLoadingOnReload: true,
       data: (assets) {
         return ListView.builder(
           itemCount: assets.length,

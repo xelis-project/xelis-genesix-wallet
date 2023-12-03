@@ -23,15 +23,6 @@ class StorageManager {
       final walletName = wallet.name;
       if (walletName != null) yield walletName;
     }
-
-    // final query =
-    //     isar.walletSnapshots.where().idEqualTo(walletId).nameProperty().build();
-
-    // await for (final results in query.watch()) {
-    //   if (results.first != null) {
-    //     yield results.first!;
-    //   }
-    // }
   }
 
   Stream<String> watchWalletAddress() async* {
@@ -40,19 +31,6 @@ class StorageManager {
       final address = wallet.address;
       if (address != null) yield address;
     }
-
-    // final query = isar.walletSnapshots
-    //     .where()
-    //     .idEqualTo(walletId)
-    //     .addressProperty()
-    //     .build();
-    //
-    // await for (final results in query.watch()) {
-    //   debugPrint(results.toString());
-    //   if (results.first != null) {
-    //     yield results.first!;
-    //   }
-    // }
   }
 
   Stream<int> watchWalletTopoHeight() async* {
@@ -228,32 +206,6 @@ class StorageManager {
       await saveWalletSnapshot(snapshot);
     }
   }
-
-  // Future<void> deleteVersionedBalanceTillTopoHeight(int topoHeight) async {
-  //   final snapshot = await getWalletSnapshot();
-  //   if (snapshot != null) {
-  //     for (final asset in snapshot.assets) {
-  //       await isar.writeTxn(() async {
-  //         await asset.balance
-  //             .filter()
-  //             .topoHeightGreaterThan(topoHeight, include: true)
-  //             .deleteAll();
-  //       });
-  //     }
-  //   }
-  // }
-  //
-  // Future<void> deleteHistoryTillTopoHeight(int topoHeight) async {
-  //   final snapshot = await getWalletSnapshot();
-  //   if (snapshot != null) {
-  //     await isar.writeTxn(() async {
-  //       await snapshot.history
-  //           .filter()
-  //           .topoHeightGreaterThan(topoHeight, include: true)
-  //           .deleteAll();
-  //     });
-  //   }
-  // }
 
   Future<void> setNonce(int nonce) async {
     final snapshot = await getWalletSnapshot();
