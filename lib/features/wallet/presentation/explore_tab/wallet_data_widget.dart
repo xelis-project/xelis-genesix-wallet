@@ -54,9 +54,15 @@ class WalletData extends StatelessWidget {
                         return walletName.when(
                           skipLoadingOnReload: true,
                           data: (data) {
-                            return Text(
-                              data,
-                              style: context.bodyLarge,
+                            return AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              child: Text(
+                                data.toString(),
+                                key: ValueKey<String>(
+                                  data.toString(),
+                                ),
+                                style: context.bodyLarge,
+                              ),
                             );
                           },
                           error: (err, stack) => Text(
@@ -98,13 +104,18 @@ class WalletData extends StatelessWidget {
                         return topoHeight.when(
                           skipLoadingOnReload: true,
                           data: (data) {
-                            return Text(
-                              data.toString(),
-                              style: context.bodyLarge,
+                            return AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              child: Text(
+                                data.toString(),
+                                key: ValueKey<String>(
+                                  data.toString(),
+                                ),
+                                style: context.bodyLarge,
+                              ),
                             );
                           },
                           error: (err, stack) => Text(
-                            // 'Error: $err',
                             '/',
                             style: context.bodyLarge,
                           ),
@@ -141,13 +152,18 @@ class WalletData extends StatelessWidget {
                         return walletAddress.when(
                           skipLoadingOnReload: true,
                           data: (data) {
-                            return Text(
-                              data,
-                              style: context.bodyLarge,
+                            return AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              child: Text(
+                                data.toString(),
+                                key: ValueKey<String>(
+                                  data.toString(),
+                                ),
+                                style: context.bodyLarge,
+                              ),
                             );
                           },
                           error: (err, stack) => Text(
-                            // 'Error: $err',
                             '/',
                             style: context.bodyMedium,
                           ),
@@ -189,9 +205,15 @@ class WalletData extends StatelessWidget {
                             final balance = data.balance != null
                                 ? '${(data.balance!) / pow(10, 5)} XEL'
                                 : '0 XEL';
-                            return Text(
-                              balance,
-                              style: context.bodyLarge,
+                            return AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              child: Text(
+                                balance,
+                                key: ValueKey<String>(
+                                  balance,
+                                ),
+                                style: context.bodyLarge,
+                              ),
                             );
                           },
                           error: (err, stack) => Text(
@@ -220,10 +242,7 @@ class WalletData extends StatelessWidget {
                       // const Spacer(),
                       OutlinedButton(
                         onPressed: () {
-                          // TODO change this behavior
-                          // ref.read(walletServicePodProvider.future).then(
-                          //       (wallet) => wallet.syncFromTopoHeight(1),
-                          //     );
+                          // TODO rework
                         },
                         child: const Text('Rescan'),
                       ),
