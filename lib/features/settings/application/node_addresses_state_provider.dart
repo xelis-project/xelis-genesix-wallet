@@ -1,8 +1,8 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_mobile_wallet/features/settings/data/node_addresses_state_repository.dart';
 import 'package:xelis_mobile_wallet/features/settings/domain/node_addresses_state.dart';
-import 'package:xelis_mobile_wallet/shared/storage/shared_preferences_provider.dart';
-import 'package:xelis_mobile_wallet/shared/storage/shared_preferences_sync.dart';
+import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_provider.dart';
+import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_sync.dart';
 
 part 'node_addresses_state_provider.g.dart';
 
@@ -25,7 +25,11 @@ class NodeAddresses extends _$NodeAddresses {
   }
 
   void setFavoriteAddress(String address) {
+    final prefs = ref.read(sharedPreferencesProvider);
+    final nodeAddressesStateRepository =
+        NodeAddressesStateRepository(SharedPreferencesSync(prefs));
     state = state.copyWith(favorite: address);
+    nodeAddressesStateRepository.localSave(state);
   }
 
   void addNodeAddress(String address) {
@@ -42,7 +46,7 @@ class NodeAddresses extends _$NodeAddresses {
     if (state.nodeAddresses.contains(address)) {
       final newNodeAddresses = [
         for (final item in state.nodeAddresses)
-          if (item != address) item
+          if (item != address) item,
       ];
       final prefs = ref.read(sharedPreferencesProvider);
       final nodeAddressesStateRepository =

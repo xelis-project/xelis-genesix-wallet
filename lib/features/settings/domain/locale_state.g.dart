@@ -6,12 +6,12 @@ part of 'locale_state.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$_LocaleState _$$_LocaleStateFromJson(Map<String, dynamic> json) =>
-    _$_LocaleState(
+_$LocaleStateImpl _$$LocaleStateImplFromJson(Map<String, dynamic> json) =>
+    _$LocaleStateImpl(
       const LocaleJsonConverter().fromJson(json['locale'] as String),
     );
 
-Map<String, dynamic> _$$_LocaleStateToJson(_$_LocaleState instance) =>
+Map<String, dynamic> _$$LocaleStateImplToJson(_$LocaleStateImpl instance) =>
     <String, dynamic>{
       'locale': const LocaleJsonConverter().toJson(instance.locale),
     };

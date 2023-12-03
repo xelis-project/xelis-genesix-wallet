@@ -68,22 +68,22 @@ class _$NodeAddressesStateCopyWithImpl<$Res, $Val extends NodeAddressesState>
 }
 
 /// @nodoc
-abstract class _$$_NodeAddressesStateCopyWith<$Res>
+abstract class _$$NodeAddressesStateImplCopyWith<$Res>
     implements $NodeAddressesStateCopyWith<$Res> {
-  factory _$$_NodeAddressesStateCopyWith(_$_NodeAddressesState value,
-          $Res Function(_$_NodeAddressesState) then) =
-      __$$_NodeAddressesStateCopyWithImpl<$Res>;
+  factory _$$NodeAddressesStateImplCopyWith(_$NodeAddressesStateImpl value,
+          $Res Function(_$NodeAddressesStateImpl) then) =
+      __$$NodeAddressesStateImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({String favorite, List<String> nodeAddresses});
 }
 
 /// @nodoc
-class __$$_NodeAddressesStateCopyWithImpl<$Res>
-    extends _$NodeAddressesStateCopyWithImpl<$Res, _$_NodeAddressesState>
-    implements _$$_NodeAddressesStateCopyWith<$Res> {
-  __$$_NodeAddressesStateCopyWithImpl(
-      _$_NodeAddressesState _value, $Res Function(_$_NodeAddressesState) _then)
+class __$$NodeAddressesStateImplCopyWithImpl<$Res>
+    extends _$NodeAddressesStateCopyWithImpl<$Res, _$NodeAddressesStateImpl>
+    implements _$$NodeAddressesStateImplCopyWith<$Res> {
+  __$$NodeAddressesStateImplCopyWithImpl(_$NodeAddressesStateImpl _value,
+      $Res Function(_$NodeAddressesStateImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -92,7 +92,7 @@ class __$$_NodeAddressesStateCopyWithImpl<$Res>
     Object? favorite = null,
     Object? nodeAddresses = null,
   }) {
-    return _then(_$_NodeAddressesState(
+    return _then(_$NodeAddressesStateImpl(
       favorite: null == favorite
           ? _value.favorite
           : favorite // ignore: cast_nullable_to_non_nullable
@@ -107,13 +107,13 @@ class __$$_NodeAddressesStateCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$_NodeAddressesState implements _NodeAddressesState {
-  const _$_NodeAddressesState(
+class _$NodeAddressesStateImpl implements _NodeAddressesState {
+  const _$NodeAddressesStateImpl(
       {required this.favorite, final List<String> nodeAddresses = const []})
       : _nodeAddresses = nodeAddresses;
 
-  factory _$_NodeAddressesState.fromJson(Map<String, dynamic> json) =>
-      _$$_NodeAddressesStateFromJson(json);
+  factory _$NodeAddressesStateImpl.fromJson(Map<String, dynamic> json) =>
+      _$$NodeAddressesStateImplFromJson(json);
 
   @override
   final String favorite;
@@ -135,7 +135,7 @@ class _$_NodeAddressesState implements _NodeAddressesState {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$_NodeAddressesState &&
+            other is _$NodeAddressesStateImpl &&
             (identical(other.favorite, favorite) ||
                 other.favorite == favorite) &&
             const DeepCollectionEquality()
@@ -150,13 +150,13 @@ class _$_NodeAddressesState implements _NodeAddressesState {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$_NodeAddressesStateCopyWith<_$_NodeAddressesState> get copyWith =>
-      __$$_NodeAddressesStateCopyWithImpl<_$_NodeAddressesState>(
+  _$$NodeAddressesStateImplCopyWith<_$NodeAddressesStateImpl> get copyWith =>
+      __$$NodeAddressesStateImplCopyWithImpl<_$NodeAddressesStateImpl>(
           this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_NodeAddressesStateToJson(
+    return _$$NodeAddressesStateImplToJson(
       this,
     );
   }
@@ -165,10 +165,10 @@ class _$_NodeAddressesState implements _NodeAddressesState {
 abstract class _NodeAddressesState implements NodeAddressesState {
   const factory _NodeAddressesState(
       {required final String favorite,
-      final List<String> nodeAddresses}) = _$_NodeAddressesState;
+      final List<String> nodeAddresses}) = _$NodeAddressesStateImpl;
 
   factory _NodeAddressesState.fromJson(Map<String, dynamic> json) =
-      _$_NodeAddressesState.fromJson;
+      _$NodeAddressesStateImpl.fromJson;
 
   @override
   String get favorite;
@@ -176,6 +176,6 @@ abstract class _NodeAddressesState implements NodeAddressesState {
   List<String> get nodeAddresses;
   @override
   @JsonKey(ignore: true)
-  _$$_NodeAddressesStateCopyWith<_$_NodeAddressesState> get copyWith =>
+  _$$NodeAddressesStateImplCopyWith<_$NodeAddressesStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

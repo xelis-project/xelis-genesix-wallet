@@ -9,7 +9,7 @@ extension AppScreenExtension on AppScreen {
   String get toPath {
     switch (this) {
       case AppScreen.auth:
-        return '/';
+        return '/login';
       case AppScreen.hub:
         return '/hub';
       case AppScreen.settings:

@@ -1,29 +1,36 @@
-use anyhow::{Context, Error, Result};
-use flutter_rust_bridge::*;
 use std::collections::HashMap;
-use xelis_common::api::DataType;
-use xelis_common::config::XELIS_ASSET;
-use xelis_common::crypto::address::{Address, AddressType};
-use xelis_common::crypto::hash::Hash;
+
+use anyhow::{Context, Result};
+use flutter_rust_bridge::RustOpaque;
 pub use xelis_common::crypto::key::{KeyPair, PrivateKey, PublicKey, Signature};
-use xelis_common::globals::set_network_to;
-use xelis_common::network::Network;
-use xelis_common::serializer::{Serializer, Writer};
-use xelis_common::transaction::{Transaction, TransactionType, Transfer, EXTRA_DATA_LIMIT_SIZE};
-pub use xelis_wallet::mnemonics;
-use xelis_wallet::transaction_builder::TransactionBuilder;
-use xelis_wallet::wallet::WalletError;
+use xelis_common::{
+    api::{wallet::FeeBuilder, DataElement},
+    config::XELIS_ASSET,
+    crypto::{
+        address::{Address, AddressType},
+        hash::Hash,
+    },
+    network::Network,
+    serializer::{Serializer, Writer},
+    transaction::{Transaction, TransactionType, Transfer, EXTRA_DATA_LIMIT_SIZE},
+    utils::{get_network, set_network_to},
+};
+use xelis_wallet::{mnemonics, transaction_builder::TransactionBuilder, wallet::WalletError};
 
 pub struct XelisKeyPair {
     pub key_pair: RustOpaque<KeyPair>,
 }
 
 impl XelisKeyPair {
-    pub fn get_address(&self) -> Result<String, Error> {
-        Ok(self.key_pair.get_public_key().to_address().as_string()?)
+    pub fn get_address(&self) -> Result<String, anyhow::Error> {
+        Ok(self
+            .key_pair
+            .get_public_key()
+            .to_address(get_network().is_mainnet())
+            .as_string()?)
     }
 
-    pub fn get_seed(&self, language_index: usize) -> Result<String, Error> {
+    pub fn get_seed(&self, language_index: usize) -> Result<String, anyhow::Error> {
         let words = mnemonics::key_to_words(self.key_pair.get_private_key(), language_index)?;
         Ok(words.join(" "))
     }
@@ -44,7 +51,7 @@ impl XelisKeyPair {
         amount: u64,
         asset: String,
         nonce: u64,
-    ) -> Result<u64, Error> {
+    ) -> Result<u64, anyhow::Error> {
         let _address: Address = Address::from_string(&address).context("Invalid address")?;
         let _asset: Hash = Hash::from_hex(asset)?;
 
@@ -68,7 +75,7 @@ impl XelisKeyPair {
         asset: String,
         balance: u64,
         nonce: u64,
-    ) -> Result<String, Error> {
+    ) -> Result<String, anyhow::Error> {
         let _address: Address = Address::from_string(&address).context("Invalid address")?;
         let _asset: Hash = Hash::from_hex(asset)?;
 
@@ -90,9 +97,9 @@ impl XelisKeyPair {
         &self,
         asset: Hash,
         key: PublicKey,
-        extra_data: Option<DataType>,
+        extra_data: Option<DataElement>,
         amount: u64,
-    ) -> Result<Transfer, Error> {
+    ) -> Result<Transfer, anyhow::Error> {
         let extra_data = if let Some(data) = extra_data {
             let mut writer = Writer::new();
             data.write(&mut writer);
@@ -120,12 +127,12 @@ impl XelisKeyPair {
         balance: u64,
         nonce: u64,
         transaction_type: TransactionType,
-    ) -> Result<Transaction, Error> {
+    ) -> Result<Transaction, anyhow::Error> {
         let builder = TransactionBuilder::new(
             self.key_pair.get_public_key().clone(),
             transaction_type,
             nonce,
-            1f64,
+            FeeBuilder::Multiplier(1f64),
         );
         let assets_spent: HashMap<&Hash, u64> = builder.total_spent();
 
@@ -143,13 +150,13 @@ impl XelisKeyPair {
             self.key_pair.get_public_key().clone(),
             transaction_type,
             nonce,
-            1f64,
+            FeeBuilder::Multiplier(1f64),
         );
         builder.estimate_fees()
     }
 }
 
-pub fn create_key_pair(seed: Option<String>) -> Result<XelisKeyPair, Error> {
+pub fn create_key_pair(seed: Option<String>) -> Result<XelisKeyPair, anyhow::Error> {
     let keypair = if let Some(seed) = seed {
         let words: Vec<String> = seed.split_whitespace().map(str::to_string).collect();
         let key = mnemonics::words_to_key(words)?;

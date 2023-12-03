@@ -63,22 +63,22 @@ class _$LocaleStateCopyWithImpl<$Res, $Val extends LocaleState>
 }
 
 /// @nodoc
-abstract class _$$_LocaleStateCopyWith<$Res>
+abstract class _$$LocaleStateImplCopyWith<$Res>
     implements $LocaleStateCopyWith<$Res> {
-  factory _$$_LocaleStateCopyWith(
-          _$_LocaleState value, $Res Function(_$_LocaleState) then) =
-      __$$_LocaleStateCopyWithImpl<$Res>;
+  factory _$$LocaleStateImplCopyWith(
+          _$LocaleStateImpl value, $Res Function(_$LocaleStateImpl) then) =
+      __$$LocaleStateImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({@LocaleJsonConverter() Locale locale});
 }
 
 /// @nodoc
-class __$$_LocaleStateCopyWithImpl<$Res>
-    extends _$LocaleStateCopyWithImpl<$Res, _$_LocaleState>
-    implements _$$_LocaleStateCopyWith<$Res> {
-  __$$_LocaleStateCopyWithImpl(
-      _$_LocaleState _value, $Res Function(_$_LocaleState) _then)
+class __$$LocaleStateImplCopyWithImpl<$Res>
+    extends _$LocaleStateCopyWithImpl<$Res, _$LocaleStateImpl>
+    implements _$$LocaleStateImplCopyWith<$Res> {
+  __$$LocaleStateImplCopyWithImpl(
+      _$LocaleStateImpl _value, $Res Function(_$LocaleStateImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -86,7 +86,7 @@ class __$$_LocaleStateCopyWithImpl<$Res>
   $Res call({
     Object? locale = null,
   }) {
-    return _then(_$_LocaleState(
+    return _then(_$LocaleStateImpl(
       null == locale
           ? _value.locale
           : locale // ignore: cast_nullable_to_non_nullable
@@ -97,11 +97,11 @@ class __$$_LocaleStateCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$_LocaleState implements _LocaleState {
-  const _$_LocaleState(@LocaleJsonConverter() this.locale);
+class _$LocaleStateImpl implements _LocaleState {
+  const _$LocaleStateImpl(@LocaleJsonConverter() this.locale);
 
-  factory _$_LocaleState.fromJson(Map<String, dynamic> json) =>
-      _$$_LocaleStateFromJson(json);
+  factory _$LocaleStateImpl.fromJson(Map<String, dynamic> json) =>
+      _$$LocaleStateImplFromJson(json);
 
   @override
   @LocaleJsonConverter()
@@ -116,7 +116,7 @@ class _$_LocaleState implements _LocaleState {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$_LocaleState &&
+            other is _$LocaleStateImpl &&
             (identical(other.locale, locale) || other.locale == locale));
   }
 
@@ -127,12 +127,12 @@ class _$_LocaleState implements _LocaleState {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$_LocaleStateCopyWith<_$_LocaleState> get copyWith =>
-      __$$_LocaleStateCopyWithImpl<_$_LocaleState>(this, _$identity);
+  _$$LocaleStateImplCopyWith<_$LocaleStateImpl> get copyWith =>
+      __$$LocaleStateImplCopyWithImpl<_$LocaleStateImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_LocaleStateToJson(
+    return _$$LocaleStateImplToJson(
       this,
     );
   }
@@ -140,16 +140,16 @@ class _$_LocaleState implements _LocaleState {
 
 abstract class _LocaleState implements LocaleState {
   const factory _LocaleState(@LocaleJsonConverter() final Locale locale) =
-      _$_LocaleState;
+      _$LocaleStateImpl;
 
   factory _LocaleState.fromJson(Map<String, dynamic> json) =
-      _$_LocaleState.fromJson;
+      _$LocaleStateImpl.fromJson;
 
   @override
   @LocaleJsonConverter()
   Locale get locale;
   @override
   @JsonKey(ignore: true)
-  _$$_LocaleStateCopyWith<_$_LocaleState> get copyWith =>
+  _$$LocaleStateImplCopyWith<_$LocaleStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

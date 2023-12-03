@@ -126,8 +126,6 @@ class ThemeProvider {
       tabBarTheme: tabBarTheme(lightColors),
       drawerTheme: drawerTheme(lightColors),
       scaffoldBackgroundColor: lightColors.background,
-      // iconButtonTheme: iconTheme(lightColors),
-      useMaterial3: true,
     );
   }
 
@@ -145,8 +143,6 @@ class ThemeProvider {
       tabBarTheme: tabBarTheme(darkColors),
       drawerTheme: drawerTheme(darkColors),
       scaffoldBackgroundColor: darkColors.background,
-      // iconButtonTheme: iconTheme(darkColors),
-      useMaterial3: true,
     );
   }
 }

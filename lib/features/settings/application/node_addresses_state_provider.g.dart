@@ -6,7 +6,7 @@ part of 'node_addresses_state_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$nodeAddressesHash() => r'bbc33b581a072758602b37b4ca3f13a26e970ac4';
+String _$nodeAddressesHash() => r'a6f55539dc6e57fda0d5d1140fa23f7592ae5a1d';
 
 /// See also [NodeAddresses].
 @ProviderFor(NodeAddresses)
@@ -22,4 +22,5 @@ final nodeAddressesProvider =
 );
 
 typedef _$NodeAddresses = AutoDisposeNotifier<NodeAddressesState>;
-// ignore_for_file: unnecessary_raw_strings, subtype_of_sealed_class, invalid_use_of_internal_member, do_not_use_environment, prefer_const_constructors, public_member_api_docs, avoid_private_typedef_functions
+// ignore_for_file: type=lint
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

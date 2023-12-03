@@ -19,7 +19,7 @@ class LocaleJsonConverter implements JsonConverter<Locale, String> {
   String toJson(Locale locale) {
     return jsonEncode({
       'languageCode': locale.languageCode,
-      'countryCode': locale.countryCode
+      'countryCode': locale.countryCode,
     });
   }
 }

@@ -1,4 +1,8 @@
-import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
 
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
@@ -6,11 +10,6 @@ if (localPropertiesFile.exists()) {
     localPropertiesFile.withReader('UTF-8') { reader ->
         localProperties.load(reader)
     }
-}
-
-def flutterRoot = localProperties.getProperty('flutter.sdk')
-if (flutterRoot == null) {
-    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
 }
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
@@ -23,23 +22,12 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
-def flutterMinSdkVersion = localProperties.getProperty('flutter.minSdkVersion')
-if (flutterMinSdkVersion == null) {
-    flutterMinSdkVersion = '24'
-}
-
-def flutterTargetSdkVersion = localProperties.getProperty('flutter.targetSdkVersion')
-if (flutterTargetSdkVersion == null) {
-    flutterTargetSdkVersion = '31'
-}
-
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+//def ndkDir = localProperties.getProperty('ndk.dir') + '\\' + ndkVersion
 
 android {
-    compileSdk 33
-    ndkVersion '25.2.9519653'
+    namespace "io.xelis.app.xelis_mobile_wallet"
+    compileSdkVersion flutter.compileSdkVersion
+    ndkVersion ndkVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -59,8 +47,8 @@ android {
         applicationId "io.xelis.app.xelis_mobile_wallet"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion flutterMinSdkVersion.toInteger()
-        targetSdkVersion flutterTargetSdkVersion.toInteger()
+        minSdkVersion defaultMinSdkVersion
+        targetSdkVersion flutter.compileSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -72,42 +60,41 @@ android {
             signingConfig signingConfigs.debug
         }
     }
-    namespace 'io.xelis.app.xelis_mobile_wallet'
 }
 
 flutter {
     source '../..'
 }
 
-dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-}
+dependencies {}
 
 [
-        new Tuple2('Debug', ''),
-        new Tuple2('Profile', '--release'),
-        new Tuple2('Release', '--release')
+        Debug  : null,
+        Profile: '--release',
+        Release: '--release'
 ].each {
-    def taskPostfix = it.getV1()
-    def profileMode = it.getV2()
+    def taskPostfix = it.key
+    def profileMode = it.value
     tasks.whenTaskAdded { task ->
         if (task.name == "javaPreCompile$taskPostfix") {
             task.dependsOn "cargoBuild$taskPostfix"
         }
     }
     tasks.register("cargoBuild$taskPostfix", Exec) {
-        // Until https://github.com/bbqsrc/cargo-ndk/pull/13 is merged,
-        // this workaround is necessary.
-
-        def ndk_command = """cargo ndk \
-            -t armeabi-v7a -t arm64-v8a -t x86_64 -t x86 \
-            -o ../android/app/src/main/jniLibs build $profileMode"""
-
-        workingDir "../../rust"
-        if (DefaultNativePlatform.currentOperatingSystem.isWindows()) {
-            commandLine 'cmd', '/C', ndk_command
-        } else {
-            commandLine 'sh', '-c', ndk_command
+        workingDir "../../native"
+        environment ANDROID_NDK_HOME: "$ANDROID_NDK"
+//        environment ANDROID_NDK_HOME: ndkDir
+        commandLine 'cargo', 'ndk',
+                // the 2 ABIs below are used by real Android devices
+                '-t', 'armeabi-v7a',
+                '-t', 'arm64-v8a',
+                // the below 2 ABIs are usually used for Android simulators,
+                // add or remove these ABIs as needed.
+                '-t', 'x86',
+                '-t', 'x86_64',
+                '-o', '../android/app/src/main/jniLibs', 'build'
+        if (profileMode != null) {
+            args profileMode
         }
     }
 }

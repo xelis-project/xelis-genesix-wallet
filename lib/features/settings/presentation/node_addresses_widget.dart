@@ -141,7 +141,7 @@ class NodeAddressesWidgetState extends ConsumerState<NodeAddressesWidget> {
             onPressed: () => _showNewAddressDialog(context),
             child: Text(loc.add_node_button),
           ),
-        )
+        ),
       ],
     );
   }
