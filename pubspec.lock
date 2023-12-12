@@ -125,10 +125,10 @@ packages:
     dependency: transitive
     description:
       name: built_value
-      sha256: "69acb7007eb2a31dc901512bfe0f7b767168be34cb734835d54c070bfa74c1b2"
+      sha256: c9aabae0718ec394e5bc3c7272e6bb0dc0b32201a08fe185ec1d8401d3e39309
       url: "https://pub.dev"
     source: hosted
-    version: "8.8.0"
+    version: "8.8.1"
   change_app_package_name:
     dependency: "direct main"
     description:
@@ -351,10 +351,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_rust_bridge
-      sha256: "7c5e94d037ccb0de7b5f7de3ff2491548d292b5aad01b01f5a5703f8aac9389b"
+      sha256: ab049242043fd1f5df25534774a2dfa586286d0577b090c22d4f5ed30c366143
       url: "https://pub.dev"
     source: hosted
-    version: "1.82.4"
+    version: "1.82.5"
   flutter_secure_storage:
     dependency: "direct main"
     description:
@@ -457,18 +457,18 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: c247a4f76071c3b97bb5ae8912968870d5565644801c5e09f3bc961b4d874895
+      sha256: c5fa45fa502ee880839e3b2152d987c44abae26d064a2376d4aad434cf0f7b15
       url: "https://pub.dev"
     source: hosted
-    version: "12.1.1"
+    version: "12.1.3"
   go_router_builder:
     dependency: "direct dev"
     description:
       name: go_router_builder
-      sha256: a4820cf40c647d674aa9305cdac2eaa6d03a795bb8f6b30c0469939417f7c4d8
+      sha256: c1a643f7efafe01ac0a19be5297e414c5f65aede38b83b203f7f420d8c911471
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.4"
+    version: "2.4.0"
   google_fonts:
     dependency: "direct main"
     description:

@@ -11,7 +11,7 @@ class LocaleJsonConverter implements JsonConverter<Locale, String> {
     final jsonLocale = jsonDecode(json) as Map<String, dynamic>;
     return Locale.fromSubtags(
       languageCode: jsonLocale['languageCode'] as String,
-      countryCode: jsonLocale['countryCode'] as String,
+      countryCode: jsonLocale['countryCode'] as String?,
     );
   }
 

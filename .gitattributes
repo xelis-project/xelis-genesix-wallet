@@ -1,5 +1,3 @@
-* text=auto
-
 *.freezed.dart linguist-generated
 *.g.dart linguist-generated
 lib/bridge_definitions.dart -linguist-generated
