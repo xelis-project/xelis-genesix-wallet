@@ -9,5 +9,5 @@ crate-type = ["staticlib", "cdylib"]
 [dependencies]
 anyhow = "1"
 flutter_rust_bridge = "1"
-xelis_wallet = { git = "https://github.com/xelis-project/xelis-blockchain", branch = "dev", package = "xelis_wallet" }
-xelis_common = { git = "https://github.com/xelis-project/xelis-blockchain", branch = "dev", package = "xelis_common" }
+xelis_wallet = { git = "https://github.com/xelis-project/xelis-blockchain", package = "xelis_wallet" }
+xelis_common = { git = "https://github.com/xelis-project/xelis-blockchain", package = "xelis_common" }
