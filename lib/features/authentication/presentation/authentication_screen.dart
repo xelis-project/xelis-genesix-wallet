@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jovial_svg/jovial_svg.dart';
 import 'package:xelis_mobile_wallet/features/authentication/presentation/create_wallet_widget.dart';
 import 'package:xelis_mobile_wallet/features/authentication/presentation/open_wallet_widget.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
@@ -25,14 +26,14 @@ class AuthenticationScreen extends ConsumerWidget {
               switch (userThemeMode.themeMode) {
                 case ThemeMode.system:
                   if (context.isDarkMode) {
-                    return AppResources.logoXelisDark;
+                    return AppResources.svgIconWhiteWidget;
                   } else {
-                    return AppResources.logoXelisLight;
+                    return AppResources.svgIconGreenWidget;
                   }
                 case ThemeMode.light:
-                  return AppResources.logoXelisLight;
+                  return AppResources.svgIconGreenWidget;
                 case ThemeMode.dark:
-                  return AppResources.logoXelisDark;
+                  return AppResources.svgIconWhiteWidget;
               }
             },
           ),

@@ -32,14 +32,14 @@ class _HubScreenState extends State<HubScreen> {
               switch (userThemeMode.themeMode) {
                 case ThemeMode.system:
                   if (context.isDarkMode) {
-                    return AppResources.logoXelisDark;
+                    return AppResources.svgIconWhiteWidget;
                   } else {
-                    return AppResources.logoXelisLight;
+                    return AppResources.svgIconGreenWidget;
                   }
                 case ThemeMode.light:
-                  return AppResources.logoXelisLight;
+                  return AppResources.svgIconGreenWidget;
                 case ThemeMode.dark:
-                  return AppResources.logoXelisDark;
+                  return AppResources.svgIconWhiteWidget;
               }
             },
           ),

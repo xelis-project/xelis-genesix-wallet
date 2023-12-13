@@ -28,6 +28,7 @@ dependencies:
   intl: any
   isar: ^3.1.0+1
   isar_flutter_libs: ^3.1.0+1
+  jovial_svg: ^1.1.19
   json_annotation: ^4.8.1
   loading_animation_widget: ^1.2.0+4
   logging: ^1.2.0
@@ -38,7 +39,6 @@ dependencies:
 
 
 dev_dependencies:
-  #  analyzer: ^6.3.0
   build_runner: ^2.4.7
   go_router_builder: ^2.4.0
   ffigen: ^8.0.2
@@ -54,16 +54,4 @@ dev_dependencies:
 
 flutter:
   generate: true
-
   uses-material-design: true
-
-  assets:
-    - assets/black_background_green_logo.png
-    - assets/black_background_white_logo.png
-    - assets/green_background_black_logo.png
-    - assets/green_background_white_logo.png
-    - assets/transparent_background_black_logo.png
-    - assets/transparent_background_green_logo.png
-    - assets/transparent_background_white_logo.png
-    - assets/white_background_black_logo.png
-    - assets/white_background_green_logo.png
