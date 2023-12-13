@@ -1,3 +1,4 @@
+/*
 import 'package:flutter/material.dart';
 
 import 'package:xelis_mobile_wallet/shared/colors/color_schemes.g.dart';
@@ -86,32 +87,6 @@ class ThemeProvider {
     );
   }
 
-  /*IconButtonThemeData iconTheme(ColorScheme colors) {
-    return IconButtonThemeData(
-      style: IconButton.styleFrom(
-        foregroundColor: colors.onSecondaryContainer,
-        backgroundColor: colors.secondaryContainer,
-        disabledBackgroundColor: colors.onSurface.withOpacity(0.12),
-        hoverColor: colors.onSecondaryContainer.withOpacity(0.08),
-        focusColor: colors.onSecondaryContainer.withOpacity(0.12),
-        highlightColor: colors.onSecondaryContainer.withOpacity(0.12),
-      ),
-        // style: IconButton.styleFrom(
-        //   focusColor: colors.onSurfaceVariant.withOpacity(0.12),
-        //   highlightColor: colors.onSurface.withOpacity(0.12),
-        //   side: BorderSide(color: colors.outline),
-        // ).copyWith(
-        //   foregroundColor: MaterialStateProperty.resolveWith(
-        //           (Set<MaterialState> states) {
-        //         if (states.contains(MaterialState.pressed)) {
-        //           return colors.onSurface;
-        //         }
-        //         return null;
-        //       }),
-        // ),
-    );
-  }*/
-
   ThemeData light(BuildContext context) {
     return ThemeData.light().copyWith(
       textTheme: context.textTheme,
@@ -146,3 +121,4 @@ class ThemeProvider {
     );
   }
 }
+*/

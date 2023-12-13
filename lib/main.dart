@@ -11,6 +11,7 @@ import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/app_themes.dart';
 import 'package:jovial_svg/jovial_svg.dart';
+import 'package:xelis_mobile_wallet/shared/theme/flex_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,8 +59,8 @@ class MyApp extends ConsumerWidget {
       title: 'Xelis Wallet',
       debugShowCheckedModeBanner: false,
       themeMode: userThemeMode.themeMode,
-      theme: themeProvider.light(context),
-      darkTheme: themeProvider.dark(context),
+      theme: themeProvider.light(),
+      darkTheme: themeProvider.dark(),
       routerConfig: router,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
