@@ -7,11 +7,24 @@ import 'package:xelis_mobile_wallet/features/authentication/data/secure_storage_
 import 'package:xelis_mobile_wallet/features/router/router.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/theme_mode_state_provider.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
+import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/app_themes.dart';
+import 'package:jovial_svg/jovial_svg.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Preload Assets
+  AppResources.svgIconGreen = await ScalableImage.fromSvgHttpUrl(
+      Uri.parse(AppResources.svgIconGreenTarget),
+      compact: true);
+  AppResources.svgIconBlack = await ScalableImage.fromSvgHttpUrl(
+      Uri.parse(AppResources.svgIconBlackTarget),
+      compact: true);
+  AppResources.svgIconWhite = await ScalableImage.fromSvgHttpUrl(
+      Uri.parse(AppResources.svgIconWhiteTarget),
+      compact: true);
 
   initLogging();
   logger.info('Starting Xelis Mobile Wallet ...');
