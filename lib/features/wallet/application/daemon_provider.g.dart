@@ -157,6 +157,21 @@ final daemonNetworkProvider = AutoDisposeFutureProvider<String>.internal(
 );
 
 typedef DaemonNetworkRef = AutoDisposeFutureProviderRef<String>;
+String _$nodeInfoHash() => r'02c4a548b7f724f0056433e8901859e03853295c';
+
+/// See also [NodeInfo].
+@ProviderFor(NodeInfo)
+final nodeInfoProvider =
+    AutoDisposeAsyncNotifierProvider<NodeInfo, NodeSnapshot>.internal(
+  NodeInfo.new,
+  name: r'nodeInfoProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$nodeInfoHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$NodeInfo = AutoDisposeAsyncNotifier<NodeSnapshot>;
 String _$lastBlockTimerHash() => r'5e63cbfafd60332d133c3885294f610312709945';
 
 /// See also [LastBlockTimer].
