@@ -49,23 +49,19 @@ class BlockchainData extends StatelessWidget {
                               WidgetRef ref,
                               Widget? child,
                             ) {
-                              final topoHeight = ref.watch(
-                                networkTopoHeightProvider,
-                              );
-                              return topoHeight.when(
-                                skipLoadingOnReload: true,
-                                data: (data) {
-                                  return AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 200),
-                                    child: Text(
-                                      data.toString(),
-                                      key: ValueKey<String>(
-                                        data.toString(),
-                                      ),
-                                      style: context.bodyLarge,
+                              final data = ref.watch(nodeInfoProvider);
+
+                              return data.when(
+                                data: (data) => AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 200),
+                                  child: Text(
+                                    data.topoHeight.toString(),
+                                    key: ValueKey<String>(
+                                      data.topoHeight.toString(),
                                     ),
-                                  );
-                                },
+                                    style: context.bodyLarge,
+                                  ),
+                                ),
                                 error: (err, stack) => Text(
                                   '/',
                                   style: context.bodyLarge,
@@ -75,6 +71,34 @@ class BlockchainData extends StatelessWidget {
                                   size: 20,
                                 ),
                               );
+
+                              // final topoHeight = ref.watch(
+                              //   networkTopoHeightProvider,
+                              // );
+
+                              // return topoHeight.when(
+                              //   skipLoadingOnReload: true,
+                              //   data: (data) {
+                              //     return AnimatedSwitcher(
+                              //       duration: const Duration(milliseconds: 200),
+                              //       child: Text(
+                              //         data.toString(),
+                              //         key: ValueKey<String>(
+                              //           data.toString(),
+                              //         ),
+                              //         style: context.bodyLarge,
+                              //       ),
+                              //     );
+                              //   },
+                              //   error: (err, stack) => Text(
+                              //     '/',
+                              //     style: context.bodyLarge,
+                              //   ),
+                              //   loading: () => LoadingAnimationWidget.waveDots(
+                              //     color: context.colors.primary,
+                              //     size: 20,
+                              //   ),
+                              // );
                             },
                           ),
                         ),
@@ -142,17 +166,16 @@ class BlockchainData extends StatelessWidget {
                               WidgetRef ref,
                               Widget? child,
                             ) {
-                              final syncedHeight =
-                                  ref.watch(networkHashrateProvider);
-                              return syncedHeight.when(
+                              final data = ref.watch(nodeInfoProvider);
+                              return data.when(
                                 skipLoadingOnReload: true,
                                 data: (data) {
                                   return AnimatedSwitcher(
                                     duration: const Duration(milliseconds: 200),
                                     child: Text(
-                                      '${NumberFormat.compact().format(data / 15)}H/s',
+                                      '${NumberFormat.compact().format(data.difficulty! / 15)}H/s',
                                       key: ValueKey<String>(
-                                        '${NumberFormat.compact().format(data / 15)}H/s',
+                                        '${NumberFormat.compact().format(data.difficulty! / 15)}H/s',
                                       ),
                                       style: context.bodyLarge,
                                     ),
@@ -168,6 +191,33 @@ class BlockchainData extends StatelessWidget {
                                   size: 20,
                                 ),
                               );
+
+                              // final syncedHeight =
+                              //     ref.watch(networkHashrateProvider);
+                              // return syncedHeight.when(
+                              //   skipLoadingOnReload: true,
+                              //   data: (data) {
+                              //     return AnimatedSwitcher(
+                              //       duration: const Duration(milliseconds: 200),
+                              //       child: Text(
+                              //         '${NumberFormat.compact().format(data / 15)}H/s',
+                              //         key: ValueKey<String>(
+                              //           '${NumberFormat.compact().format(data / 15)}H/s',
+                              //         ),
+                              //         style: context.bodyLarge,
+                              //       ),
+                              //     );
+                              //   },
+                              //   error: (err, stack) => Text(
+                              //     // 'Error: $err',
+                              //     '/',
+                              //     style: context.bodyLarge,
+                              //   ),
+                              //   loading: () => LoadingAnimationWidget.waveDots(
+                              //     color: context.colors.primary,
+                              //     size: 20,
+                              //   ),
+                              // );
                             },
                           ),
                         ),
@@ -196,19 +246,18 @@ class BlockchainData extends StatelessWidget {
                               WidgetRef ref,
                               Widget? child,
                             ) {
-                              final syncedHeight = ref.watch(
-                                networkNativeSupplyProvider,
-                              );
-                              return syncedHeight.when(
+                              final data = ref.watch(nodeInfoProvider);
+
+                              return data.when(
                                 skipLoadingOnReload: true,
                                 data: (data) {
                                   return AnimatedSwitcher(
                                     duration: const Duration(milliseconds: 200),
                                     child: Text(
                                       // data.toStringAsPrecision(5),
-                                      (data / pow(10, 5)).toStringAsFixed(2),
+                                      (data.supply! / pow(10, 5)).toStringAsFixed(2),
                                       key: ValueKey<String>(
-                                        (data / pow(10, 5)).toStringAsFixed(2),
+                                        (data.supply! / pow(10, 5)).toStringAsFixed(2),
                                       ),
                                       style: context.bodyLarge,
                                     ),
@@ -224,6 +273,35 @@ class BlockchainData extends StatelessWidget {
                                   size: 20,
                                 ),
                               );
+
+                              // final syncedHeight = ref.watch(
+                              //   networkNativeSupplyProvider,
+                              // );
+                              // return syncedHeight.when(
+                              //   skipLoadingOnReload: true,
+                              //   data: (data) {
+                              //     return AnimatedSwitcher(
+                              //       duration: const Duration(milliseconds: 200),
+                              //       child: Text(
+                              //         // data.toStringAsPrecision(5),
+                              //         (data / pow(10, 5)).toStringAsFixed(2),
+                              //         key: ValueKey<String>(
+                              //           (data / pow(10, 5)).toStringAsFixed(2),
+                              //         ),
+                              //         style: context.bodyLarge,
+                              //       ),
+                              //     );
+                              //   },
+                              //   error: (err, stack) => Text(
+                              //     // 'Error: $err',
+                              //     '/',
+                              //     style: context.bodyLarge,
+                              //   ),
+                              //   loading: () => LoadingAnimationWidget.waveDots(
+                              //     color: context.colors.primary,
+                              //     size: 20,
+                              //   ),
+                              // );
                             },
                           ),
                         ),

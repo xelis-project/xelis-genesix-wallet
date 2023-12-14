@@ -7,6 +7,7 @@ import 'package:xelis_mobile_wallet/features/wallet/application/daemon_provider.
 import 'package:xelis_mobile_wallet/features/wallet/application/storage_manager.dart';
 import 'package:xelis_mobile_wallet/features/wallet/application/wallet_service.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/wallet_snapshot.dart';
+import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/shared/storage/isar/isar_provider.dart';
 
 part 'wallet_provider.g.dart';
@@ -28,16 +29,20 @@ Future<WalletService> walletServicePod(WalletServicePodRef ref) async {
 
   daemonClientRepository
     ..onOpen(() async {
-      ref.invalidate(daemonInfoProvider);
+      // ref.invalidate(daemonInfoProvider);
       await walletService.sync();
     })
     ..onNewBlock((block) async {
-      ref.invalidate(daemonInfoProvider);
+      // ref.invalidate(daemonInfoProvider);
       ref.invalidate(lastBlockTimerProvider);
+
+      ref
+          .read(nodeInfoProvider.notifier)
+          .updateOnNewBlock(block.topoHeight, block.difficulty, block.supply);
+
       await walletService.sync();
     })
     ..onTransactionAddedInMempool((transaction) async {
-      // ref.invalidate(daemonInfoProvider);
       await walletService.sync();
     });
 
