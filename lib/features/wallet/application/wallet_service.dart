@@ -145,14 +145,13 @@ class WalletService {
               await NativeWalletRepository.getAddress(seed);
         }
 
-        if (walletSnapshot.assets.isEmpty) {
-          needUpdate = true;
-          await _updateAssets(walletSnapshot.address!);
-        }
-
         if (walletSnapshot.syncedTopoheight == null) {
           needUpdate = true;
           walletSnapshot.syncedTopoheight = getInfoResult.topoHeight;
+        }
+
+        if (needUpdate && walletSnapshot.assets.isEmpty) {
+          await _updateAssets(walletSnapshot.address!);
         }
 
         if (needUpdate) {
