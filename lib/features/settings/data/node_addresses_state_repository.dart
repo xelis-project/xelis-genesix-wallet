@@ -16,8 +16,7 @@ class NodeAddressesStateRepository extends PersistentState<NodeAddressesState> {
       final value = sharedPreferencesSync.get(key: _nodeAddressesStorageKey);
       if (value == null) {
         return NodeAddressesState(
-          // TODO temp testnet address
-          favorite: AppResources.officialTestnetNodeURL,
+          favorite: AppResources.builtInNodeAddresses.first,
         );
       }
       return NodeAddressesState.fromJson(value as Map<String, dynamic>);

@@ -1,17 +1,12 @@
-import 'package:flutter/widgets.dart';
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:jovial_svg/jovial_svg.dart';
 
 class AppResources {
-  static String localNodeAddress = '127.0.0.1:8080';
-  static String officialNodeURL = 'node.xelis.io';
-  static String officialDevNodeURL = 'dev-node.xelis.io';
-  static String officialTestnetNodeURL = 'testnet-node.xelis.io';
-
   static List<String> builtInNodeAddresses = [
-    localNodeAddress,
-    officialNodeURL,
-    officialDevNodeURL,
-    officialTestnetNodeURL,
+    mainnetNodeURL,
+    testnetNodeURL,
+    devNodeURL,
+    localhostAddress,
   ];
 
   static String svgIconGreenTarget =
