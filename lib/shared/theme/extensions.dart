@@ -36,9 +36,15 @@ extension TypographyUtils on BuildContext {
   TextStyle? get bodyMedium => textTheme.bodyMedium;
 
   TextStyle? get bodySmall => textTheme.bodySmall;
+}
+
+extension DisplayUtils on BuildContext {
+  MediaQueryData get mediaQueryData => MediaQuery.of(this);
+
+  Size get mediaSize => MediaQuery.sizeOf(this);
 
   bool get isDarkMode {
-    final brightness = MediaQuery.of(this).platformBrightness;
+    final brightness = mediaQueryData.platformBrightness;
     return brightness == Brightness.dark;
   }
 }
