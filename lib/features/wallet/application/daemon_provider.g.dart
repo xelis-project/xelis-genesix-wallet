@@ -157,7 +157,7 @@ final daemonNetworkProvider = AutoDisposeFutureProvider<String>.internal(
 );
 
 typedef DaemonNetworkRef = AutoDisposeFutureProviderRef<String>;
-String _$nodeInfoHash() => r'02c4a548b7f724f0056433e8901859e03853295c';
+String _$nodeInfoHash() => r'2eae9fa9f637dbde6e3c5f62c0db8c8714b8e45b';
 
 /// See also [NodeInfo].
 @ProviderFor(NodeInfo)

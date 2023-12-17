@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:xelis_mobile_wallet/features/authentication/domain/login_action_enum.dart';
 import 'package:xelis_mobile_wallet/features/router/routes.dart';
-
-import '../authentication/application/authentication_service.dart';
+import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
 
 part 'router.g.dart';
 
@@ -11,6 +11,7 @@ part 'router.g.dart';
 GoRouter router(RouterRef ref) {
   final routerKey = GlobalKey<NavigatorState>(debugLabel: 'routerKey');
   final isAuth = ValueNotifier<bool>(false);
+
   ref
     ..onDispose(isAuth.dispose)
     ..listen(
@@ -26,6 +27,7 @@ GoRouter router(RouterRef ref) {
     initialLocation: const LoginRoute().location,
     debugLogDiagnostics: true,
     routes: $appRoutes,
+    extraCodec: const MyExtraCodec(),
     redirect: (context, state) {
       final isSettings = state.uri.path == const SettingsRoute().location;
       if (isSettings) {
@@ -41,6 +43,7 @@ GoRouter router(RouterRef ref) {
       return null;
     },
   );
+
   ref.onDispose(router.dispose);
 
   return router;
