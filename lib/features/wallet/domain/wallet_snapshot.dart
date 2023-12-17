@@ -9,7 +9,7 @@ class WalletSnapshot {
   String? name;
   bool imported = false;
   String? network;
-  int? syncedTopoheight;
+  int? syncedTopoHeight;
   String? address;
   int? nonce;
   List<int>? encryptedSeed;
@@ -20,7 +20,7 @@ class WalletSnapshot {
 
   @override
   String toString() {
-    return 'WalletSnapshot{name: $name, imported: $imported, network: $network, syncedTopoheight: $syncedTopoheight, address: $address, nonce: $nonce}';
+    return 'WalletSnapshot{name: $name, imported: $imported, network: $network, syncedTopoHeight: $syncedTopoHeight, address: $address, nonce: $nonce}';
   }
 }
 
@@ -30,16 +30,16 @@ class AssetEntry {
   @Backlink(to: 'assets')
   final wallet = IsarLink<WalletSnapshot>();
   String? hash;
-  int? lastBalanceTopoheight;
+  int? lastBalanceTopoHeight;
 
-  int? firstBalanceTopoheight;
+  int? firstBalanceTopoHeight;
 
   bool syncedSinceBeginning = false;
   final balance = IsarLinks<VersionedBalance>();
 
   @override
   String toString() {
-    return 'AssetEntry{id: $id, hash: $hash, lastBalanceTopoheight: $lastBalanceTopoheight, firstBalanceTopoheight: $firstBalanceTopoheight, syncedSinceBeginning: $syncedSinceBeginning}';
+    return 'AssetEntry{id: $id, hash: $hash, lastBalanceTopoHeight: $lastBalanceTopoHeight, firstBalanceTopoHeight: $firstBalanceTopoHeight, syncedSinceBeginning: $syncedSinceBeginning}';
   }
 }
 
@@ -73,7 +73,7 @@ class TransactionEntry {
 
   @override
   String toString() {
-    return '{hash: $hash - topoheight: $topoHeight '
+    return '{hash: $hash - topoHeight: $topoHeight '
         '- executedInBlock: $executedInBlock - owner: $owner '
         '- signature: $signature - fees: $fees'
         '- nonce: $nonce - entryData: $entryData}';

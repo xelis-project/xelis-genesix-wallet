@@ -34,7 +34,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
     final ScalableImageWidget banner =
         getBanner(context, userThemeMode.themeMode);
 
-    final wallets = ref.watch(existingWalletsProvider);
+    final wallets = ref.watch(existingWalletNamesProvider);
     return wallets.when(
       data: (data) => FormBuilder(
         key: _openFormKey,
@@ -141,12 +141,14 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
                                           _openFormKey.currentState?.value
                                               .toString(),
                                         );
+
                                         final walletName = _openFormKey
                                             .currentState
                                             ?.value['wallet_name'] as String?;
                                         final password = _openFormKey
                                             .currentState
                                             ?.value['password'] as String?;
+
                                         if (walletName != null &&
                                             password != null) {
                                           ref
@@ -181,7 +183,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
       // TODO: temp
       error: (err, stack) => Center(child: Text('Error: $err')),
       // TODO: temp
-      loading: () => const CircularProgressIndicator(),
+      loading: () => const Center(child: CircularProgressIndicator()),
     );
   }
 }

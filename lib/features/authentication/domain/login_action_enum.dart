@@ -18,7 +18,6 @@ LoginAction? fromStr(String value) {
 
 /// A codec that can serialize [LoginAction] for GoRouter.
 class MyExtraCodec extends Codec<Object?, Object?> {
-  /// Create a codec.
   const MyExtraCodec();
 
   @override

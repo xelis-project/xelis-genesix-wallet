@@ -255,9 +255,11 @@ class BlockchainData extends StatelessWidget {
                                     duration: const Duration(milliseconds: 200),
                                     child: Text(
                                       // data.toStringAsPrecision(5),
-                                      (data.supply! / pow(10, 5)).toStringAsFixed(2),
+                                      (data.supply! / pow(10, 5))
+                                          .toStringAsFixed(2),
                                       key: ValueKey<String>(
-                                        (data.supply! / pow(10, 5)).toStringAsFixed(2),
+                                        (data.supply! / pow(10, 5))
+                                            .toStringAsFixed(2),
                                       ),
                                       style: context.bodyLarge,
                                     ),
