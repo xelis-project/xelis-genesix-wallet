@@ -1,12 +1,17 @@
 {
   "password": "Password",
 
-  "open_wallet_tab": "Open",
+  "wallet": "Wallet",
+  "sign_in": "Sign In",
+  "no_wallet": "No Wallet?",
   "open_wallet_button": "Open wallet",
 
-  "create_wallet_tab": "Create",
   "seed_option": "Import your seed",
   "seed": "Seed",
+  "invalid_seed": "Invalid seed.",
+  "create": "Create",
+  "already_wallet": "Already a wallet?",
+  "wallet_name_already_exists": "This wallet name already exists.",
   "create_wallet_button": "Create wallet",
   "wallet_name": "Wallet name",
 

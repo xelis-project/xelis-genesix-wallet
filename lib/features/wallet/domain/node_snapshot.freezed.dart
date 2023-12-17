@@ -202,7 +202,7 @@ class _$NodeSnapshotImpl implements _NodeSnapshot {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$NodeSnapshotImpl &&

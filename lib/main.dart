@@ -9,23 +9,33 @@ import 'package:xelis_mobile_wallet/features/settings/application/theme_mode_sta
 import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_provider.dart';
-import 'package:xelis_mobile_wallet/shared/theme/app_themes.dart';
 import 'package:jovial_svg/jovial_svg.dart';
 import 'package:xelis_mobile_wallet/shared/theme/flex_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Preload Assets
-  AppResources.svgIconGreen = await ScalableImage.fromSvgHttpUrl(
-      Uri.parse(AppResources.svgIconGreenTarget),
+  //-------------------------- PRELOAD ASSETS ----------------------------------
+  // AppResources.svgIconGreen = await ScalableImage.fromSvgHttpUrl(
+  //     Uri.parse(AppResources.svgIconGreenTarget),
+  //     compact: true);
+  // AppResources.svgIconBlack = await ScalableImage.fromSvgHttpUrl(
+  //     Uri.parse(AppResources.svgIconBlackTarget),
+  //     compact: true);
+  // AppResources.svgIconWhite = await ScalableImage.fromSvgHttpUrl(
+  //     Uri.parse(AppResources.svgIconWhiteTarget),
+  //     compact: true);
+
+  AppResources.svgBannerGreen = await ScalableImage.fromSvgHttpUrl(
+      Uri.parse(AppResources.svgBannerGreenTarget),
       compact: true);
-  AppResources.svgIconBlack = await ScalableImage.fromSvgHttpUrl(
-      Uri.parse(AppResources.svgIconBlackTarget),
+  AppResources.svgBannerBlack = await ScalableImage.fromSvgHttpUrl(
+      Uri.parse(AppResources.svgBannerBlackTarget),
       compact: true);
-  AppResources.svgIconWhite = await ScalableImage.fromSvgHttpUrl(
-      Uri.parse(AppResources.svgIconWhiteTarget),
+  AppResources.svgBannerWhite = await ScalableImage.fromSvgHttpUrl(
+      Uri.parse(AppResources.svgBannerWhiteTarget),
       compact: true);
+  //----------------------------------------------------------------------------
 
   initLogging();
   logger.info('Starting Xelis Mobile Wallet ...');
@@ -52,15 +62,15 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeProvider = ThemeProvider();
+    final flexTheme = FlexTheme();
     final router = ref.watch(routerProvider);
     final userThemeMode = ref.watch(userThemeModeProvider);
     return MaterialApp.router(
       title: 'Xelis Wallet',
       debugShowCheckedModeBanner: false,
       themeMode: userThemeMode.themeMode,
-      theme: themeProvider.light(),
-      darkTheme: themeProvider.dark(),
+      theme: flexTheme.light(),
+      darkTheme: flexTheme.dark(),
       routerConfig: router,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,

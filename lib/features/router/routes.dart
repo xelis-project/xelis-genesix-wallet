@@ -1,22 +1,29 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:xelis_mobile_wallet/features/authentication/domain/login_action_enum.dart';
 import 'package:xelis_mobile_wallet/features/authentication/presentation/authentication_screen.dart';
 import 'package:xelis_mobile_wallet/features/settings/presentation/settings_screen.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/hub_screen.dart';
 
 part 'routes.g.dart';
 
-@TypedGoRoute<LoginRoute>(path: "/login")
+@TypedGoRoute<LoginRoute>(path: '/login')
 class LoginRoute extends GoRouteData {
   const LoginRoute();
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const AuthenticationScreen();
+    if (state.extra is LoginAction) {
+      return AuthenticationScreen(
+        loginAction: state.extra as LoginAction,
+      );
+    } else {
+      return const AuthenticationScreen();
+    }
   }
 }
 
-@TypedGoRoute<HubRoute>(path: "/hub")
+@TypedGoRoute<HubRoute>(path: '/hub')
 class HubRoute extends GoRouteData {
   const HubRoute();
 
@@ -26,7 +33,7 @@ class HubRoute extends GoRouteData {
   }
 }
 
-@TypedGoRoute<SettingsRoute>(path: "/settings")
+@TypedGoRoute<SettingsRoute>(path: '/settings')
 class SettingsRoute extends GoRouteData {
   const SettingsRoute();
 

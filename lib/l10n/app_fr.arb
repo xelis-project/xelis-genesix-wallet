@@ -1,12 +1,17 @@
 {
   "password": "Mot de passe",
 
-  "open_wallet_tab": "Ouvrir",
+  "wallet": "Portefeuille",
+  "sign_in": "Se Connecter",
+  "no_wallet": "Pas de portefeuille ?",
   "open_wallet_button": "Ouvrir portefeuille",
 
-  "create_wallet_tab": "Créer",
   "seed_option": "Importer votre graine",
   "seed": "Graine",
+  "invalid_seed": "Graines non valides.",
+  "create": "Créer",
+  "already_wallet": "Déjà un portefeuille ?",
+  "wallet_name_already_exists": "Ce nom de portefeuille existe déjà.",
   "create_wallet_button": "Créer portefeuille",
   "wallet_name": "Nom du portefeuille",
 
