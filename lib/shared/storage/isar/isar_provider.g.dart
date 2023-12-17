@@ -20,21 +20,22 @@ final isarPodProvider = AutoDisposeFutureProvider<Isar>.internal(
 );
 
 typedef IsarPodRef = AutoDisposeFutureProviderRef<Isar>;
-String _$existingWalletsHash() => r'7cb17bd2369046446e89a4d61b04348dba056f28';
+String _$existingWalletNamesHash() =>
+    r'eb5ea6643f43e4f915a2855607b266310ff49b6a';
 
-/// See also [existingWallets].
-@ProviderFor(existingWallets)
-final existingWalletsProvider =
+/// See also [existingWalletNames].
+@ProviderFor(existingWalletNames)
+final existingWalletNamesProvider =
     AutoDisposeFutureProvider<List<String?>>.internal(
-  existingWallets,
-  name: r'existingWalletsProvider',
+  existingWalletNames,
+  name: r'existingWalletNamesProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$existingWalletsHash,
+      : _$existingWalletNamesHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef ExistingWalletsRef = AutoDisposeFutureProviderRef<List<String?>>;
+typedef ExistingWalletNamesRef = AutoDisposeFutureProviderRef<List<String?>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

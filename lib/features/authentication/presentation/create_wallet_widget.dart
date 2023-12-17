@@ -35,7 +35,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
     final ScalableImageWidget banner =
         getBanner(context, userThemeMode.themeMode);
 
-    final existingWallets = ref.watch(existingWalletsProvider);
+    final existingWallets = ref.watch(existingWalletNamesProvider);
 
     return existingWallets.when(
       data: (wallets) => FormBuilder(
@@ -227,7 +227,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
       // TODO: temp
       error: (err, stack) => Center(child: Text('Error: $err')),
       // TODO: temp
-      loading: () => const CircularProgressIndicator(),
+      loading: () => const Center(child: CircularProgressIndicator()),
     );
   }
 }

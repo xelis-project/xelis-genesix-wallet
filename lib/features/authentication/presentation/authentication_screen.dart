@@ -5,8 +5,7 @@ import 'package:xelis_mobile_wallet/features/authentication/presentation/create_
 import 'package:xelis_mobile_wallet/shared/storage/isar/isar_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/brightness_toggle.dart';
-
-import 'open_wallet_widget.dart';
+import 'package:xelis_mobile_wallet/features/authentication/presentation/open_wallet_widget.dart';
 
 class AuthenticationScreen extends ConsumerWidget {
   const AuthenticationScreen({super.key, LoginAction? loginAction})
@@ -38,14 +37,14 @@ class AuthenticationScreen extends ConsumerWidget {
       case LoginAction.open:
         return _getScaffold(context, const OpenWalletWidget());
       case null:
-        return ref.watch(existingWalletsProvider).when(
+        return ref.watch(existingWalletNamesProvider).when(
               data: (data) => data.isNotEmpty
                   ? _getScaffold(context, const OpenWalletWidget())
                   : _getScaffold(context, const CreateWalletWidget()),
               // TODO: temp
               error: (err, stack) => Center(child: Text('Error: $err')),
               // TODO: temp
-              loading: () => const CircularProgressIndicator(),
+              loading: () => const Center(child: CircularProgressIndicator()),
             );
     }
   }

@@ -77,7 +77,7 @@ class WalletService {
       await _init(info);
       final walletSnapshot = await storageManager.getWalletSnapshot();
       if (walletSnapshot != null) {
-        var walletTopoHeight = walletSnapshot.syncedTopoheight!;
+        var walletTopoHeight = walletSnapshot.syncedTopoHeight!;
 
         if (walletTopoHeight < info.topoHeight) {
           await _updateAssets(walletSnapshot.address!);
@@ -145,9 +145,9 @@ class WalletService {
               await NativeWalletRepository.getAddress(seed);
         }
 
-        if (walletSnapshot.syncedTopoheight == null) {
+        if (walletSnapshot.syncedTopoHeight == null) {
           needUpdate = true;
-          walletSnapshot.syncedTopoheight = getInfoResult.topoHeight;
+          walletSnapshot.syncedTopoHeight = getInfoResult.topoHeight;
         }
 
         if (needUpdate && walletSnapshot.assets.isEmpty) {
@@ -181,8 +181,8 @@ class WalletService {
           );
 
           if (getLastBalanceResult.topoHeight >
-              assetEntry.lastBalanceTopoheight!) {
-            var previousTopoheight =
+              assetEntry.lastBalanceTopoHeight!) {
+            var previousTopoHeight =
                 getLastBalanceResult.balance.previousTopoHeight;
 
             await _updateAsset(
@@ -190,18 +190,18 @@ class WalletService {
               hash,
               getLastBalanceResult.balance.balance,
               getLastBalanceResult.topoHeight,
-              previousTopoheight == null ? true : false,
+              previousTopoHeight == null ? true : false,
             );
 
             _updateAssetHistory(address, getLastBalanceResult.topoHeight);
 
-            while (previousTopoheight! > assetEntry.lastBalanceTopoheight!) {
+            while (previousTopoHeight! > assetEntry.lastBalanceTopoHeight!) {
               final getBalanceResult =
                   await daemonClientRepository.getBalanceAtTopoHeight(
                 GetBalanceAtTopoHeightParams(
                   address: address,
                   asset: hash,
-                  topoHeight: previousTopoheight,
+                  topoHeight: previousTopoHeight,
                 ),
               );
 
@@ -209,13 +209,13 @@ class WalletService {
                 address,
                 hash,
                 getBalanceResult.balance,
-                previousTopoheight,
+                previousTopoHeight,
                 getBalanceResult.previousTopoHeight == null ? true : false,
               );
 
-              _updateAssetHistory(address, previousTopoheight);
+              _updateAssetHistory(address, previousTopoHeight);
 
-              previousTopoheight = getBalanceResult.previousTopoHeight;
+              previousTopoHeight = getBalanceResult.previousTopoHeight;
             }
           }
         } else {
@@ -227,7 +227,7 @@ class WalletService {
             GetLastBalanceParams(address: address, asset: hash),
           );
 
-          var previousTopoheight =
+          var previousTopoHeight =
               getLastBalanceResult.balance.previousTopoHeight;
 
           await _updateAsset(
@@ -235,18 +235,18 @@ class WalletService {
             hash,
             getLastBalanceResult.balance.balance,
             getLastBalanceResult.topoHeight,
-            previousTopoheight == null ? true : false,
+            previousTopoHeight == null ? true : false,
           );
 
           _updateAssetHistory(address, getLastBalanceResult.topoHeight);
 
-          while (previousTopoheight != null) {
+          while (previousTopoHeight != null) {
             final getBalanceResult =
                 await daemonClientRepository.getBalanceAtTopoHeight(
               GetBalanceAtTopoHeightParams(
                 address: address,
                 asset: hash,
-                topoHeight: previousTopoheight,
+                topoHeight: previousTopoHeight,
               ),
             );
 
@@ -254,13 +254,13 @@ class WalletService {
               address,
               hash,
               getBalanceResult.balance,
-              previousTopoheight,
+              previousTopoHeight,
               getBalanceResult.previousTopoHeight == null ? true : false,
             );
 
-            _updateAssetHistory(address, previousTopoheight);
+            _updateAssetHistory(address, previousTopoHeight);
 
-            previousTopoheight = getBalanceResult.previousTopoHeight;
+            previousTopoHeight = getBalanceResult.previousTopoHeight;
           }
         }
       }
@@ -278,7 +278,7 @@ class WalletService {
   ) async {
     try {
       logger.info(
-          'updateAsset: Asset($assetHash) - Topoheight($topoHeight) - Balance($balance)');
+          'updateAsset: Asset($assetHash) - TopoHeight($topoHeight) - Balance($balance)');
 
       await storageManager.addVersionedBalance(
         assetHash,

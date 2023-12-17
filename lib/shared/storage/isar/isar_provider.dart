@@ -23,7 +23,7 @@ Future<Isar> isarPod(IsarPodRef ref) async {
 }
 
 @riverpod
-Future<List<String?>> existingWallets(ExistingWalletsRef ref) async {
+Future<List<String?>> existingWalletNames(ExistingWalletNamesRef ref) async {
   final isar = await ref.watch(isarPodProvider.future);
   final wallets = isar.walletSnapshots;
   return wallets.where().nameProperty().findAll();

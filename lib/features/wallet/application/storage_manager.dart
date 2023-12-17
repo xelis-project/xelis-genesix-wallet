@@ -37,7 +37,7 @@ class StorageManager {
     final query = isar.walletSnapshots
         .where()
         .idEqualTo(walletId)
-        .syncedTopoheightProperty()
+        .syncedTopoHeightProperty()
         .build();
 
     await for (final results in query.watch(fireImmediately: true)) {
@@ -155,10 +155,10 @@ class StorageManager {
     final assetEntry = await getAsset(assetHash);
 
     if (assetEntry != null) {
-      if (topoHeight > assetEntry.lastBalanceTopoheight!) {
-        assetEntry.lastBalanceTopoheight = topoHeight;
-      } else if (topoHeight < assetEntry.firstBalanceTopoheight!) {
-        assetEntry.firstBalanceTopoheight = topoHeight;
+      if (topoHeight > assetEntry.lastBalanceTopoHeight!) {
+        assetEntry.lastBalanceTopoHeight = topoHeight;
+      } else if (topoHeight < assetEntry.firstBalanceTopoHeight!) {
+        assetEntry.firstBalanceTopoHeight = topoHeight;
       }
 
       if (synced) assetEntry.syncedSinceBeginning = synced;
@@ -173,8 +173,8 @@ class StorageManager {
     } else {
       final newAssetEntry = AssetEntry()
         ..hash = assetHash
-        ..lastBalanceTopoheight = topoHeight
-        ..firstBalanceTopoheight = topoHeight;
+        ..lastBalanceTopoHeight = topoHeight
+        ..firstBalanceTopoHeight = topoHeight;
 
       await addAsset(newAssetEntry);
 
@@ -202,7 +202,7 @@ class StorageManager {
   Future<void> setSyncedTopoHeight(int topoHeight) async {
     final snapshot = await getWalletSnapshot();
     if (snapshot != null) {
-      snapshot.syncedTopoheight = topoHeight;
+      snapshot.syncedTopoHeight = topoHeight;
       await saveWalletSnapshot(snapshot);
     }
   }

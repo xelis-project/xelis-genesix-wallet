@@ -53,9 +53,9 @@ const WalletSnapshotSchema = CollectionSchema(
       name: r'nonce',
       type: IsarType.long,
     ),
-    r'syncedTopoheight': PropertySchema(
+    r'syncedTopoHeight': PropertySchema(
       id: 7,
-      name: r'syncedTopoheight',
+      name: r'syncedTopoHeight',
       type: IsarType.long,
     )
   },
@@ -160,7 +160,7 @@ void _walletSnapshotSerialize(
   writer.writeString(offsets[4], object.name);
   writer.writeString(offsets[5], object.network);
   writer.writeLong(offsets[6], object.nonce);
-  writer.writeLong(offsets[7], object.syncedTopoheight);
+  writer.writeLong(offsets[7], object.syncedTopoHeight);
 }
 
 WalletSnapshot _walletSnapshotDeserialize(
@@ -184,7 +184,7 @@ WalletSnapshot _walletSnapshotDeserialize(
   object.name = reader.readStringOrNull(offsets[4]);
   object.network = reader.readStringOrNull(offsets[5]);
   object.nonce = reader.readLongOrNull(offsets[6]);
-  object.syncedTopoheight = reader.readLongOrNull(offsets[7]);
+  object.syncedTopoHeight = reader.readLongOrNull(offsets[7]);
   return object;
 }
 
@@ -1296,63 +1296,63 @@ extension WalletSnapshotQueryFilter
   }
 
   QueryBuilder<WalletSnapshot, WalletSnapshot, QAfterFilterCondition>
-      syncedTopoheightIsNull() {
+      syncedTopoHeightIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'syncedTopoheight',
+        property: r'syncedTopoHeight',
       ));
     });
   }
 
   QueryBuilder<WalletSnapshot, WalletSnapshot, QAfterFilterCondition>
-      syncedTopoheightIsNotNull() {
+      syncedTopoHeightIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'syncedTopoheight',
+        property: r'syncedTopoHeight',
       ));
     });
   }
 
   QueryBuilder<WalletSnapshot, WalletSnapshot, QAfterFilterCondition>
-      syncedTopoheightEqualTo(int? value) {
+      syncedTopoHeightEqualTo(int? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'syncedTopoheight',
+        property: r'syncedTopoHeight',
         value: value,
       ));
     });
   }
 
   QueryBuilder<WalletSnapshot, WalletSnapshot, QAfterFilterCondition>
-      syncedTopoheightGreaterThan(
+      syncedTopoHeightGreaterThan(
     int? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'syncedTopoheight',
+        property: r'syncedTopoHeight',
         value: value,
       ));
     });
   }
 
   QueryBuilder<WalletSnapshot, WalletSnapshot, QAfterFilterCondition>
-      syncedTopoheightLessThan(
+      syncedTopoHeightLessThan(
     int? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'syncedTopoheight',
+        property: r'syncedTopoHeight',
         value: value,
       ));
     });
   }
 
   QueryBuilder<WalletSnapshot, WalletSnapshot, QAfterFilterCondition>
-      syncedTopoheightBetween(
+      syncedTopoHeightBetween(
     int? lower,
     int? upper, {
     bool includeLower = true,
@@ -1360,7 +1360,7 @@ extension WalletSnapshotQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'syncedTopoheight',
+        property: r'syncedTopoHeight',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -1571,16 +1571,16 @@ extension WalletSnapshotQuerySortBy
   }
 
   QueryBuilder<WalletSnapshot, WalletSnapshot, QAfterSortBy>
-      sortBySyncedTopoheight() {
+      sortBySyncedTopoHeight() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'syncedTopoheight', Sort.asc);
+      return query.addSortBy(r'syncedTopoHeight', Sort.asc);
     });
   }
 
   QueryBuilder<WalletSnapshot, WalletSnapshot, QAfterSortBy>
-      sortBySyncedTopoheightDesc() {
+      sortBySyncedTopoHeightDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'syncedTopoheight', Sort.desc);
+      return query.addSortBy(r'syncedTopoHeight', Sort.desc);
     });
   }
 }
@@ -1663,16 +1663,16 @@ extension WalletSnapshotQuerySortThenBy
   }
 
   QueryBuilder<WalletSnapshot, WalletSnapshot, QAfterSortBy>
-      thenBySyncedTopoheight() {
+      thenBySyncedTopoHeight() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'syncedTopoheight', Sort.asc);
+      return query.addSortBy(r'syncedTopoHeight', Sort.asc);
     });
   }
 
   QueryBuilder<WalletSnapshot, WalletSnapshot, QAfterSortBy>
-      thenBySyncedTopoheightDesc() {
+      thenBySyncedTopoHeightDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'syncedTopoheight', Sort.desc);
+      return query.addSortBy(r'syncedTopoHeight', Sort.desc);
     });
   }
 }
@@ -1720,9 +1720,9 @@ extension WalletSnapshotQueryWhereDistinct
   }
 
   QueryBuilder<WalletSnapshot, WalletSnapshot, QDistinct>
-      distinctBySyncedTopoheight() {
+      distinctBySyncedTopoHeight() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'syncedTopoheight');
+      return query.addDistinctBy(r'syncedTopoHeight');
     });
   }
 }
@@ -1780,9 +1780,9 @@ extension WalletSnapshotQueryProperty
   }
 
   QueryBuilder<WalletSnapshot, int?, QQueryOperations>
-      syncedTopoheightProperty() {
+      syncedTopoHeightProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'syncedTopoheight');
+      return query.addPropertyName(r'syncedTopoHeight');
     });
   }
 }
@@ -1798,9 +1798,9 @@ const AssetEntrySchema = CollectionSchema(
   name: r'AssetEntry',
   id: -7671908208671073793,
   properties: {
-    r'firstBalanceTopoheight': PropertySchema(
+    r'firstBalanceTopoHeight': PropertySchema(
       id: 0,
-      name: r'firstBalanceTopoheight',
+      name: r'firstBalanceTopoHeight',
       type: IsarType.long,
     ),
     r'hash': PropertySchema(
@@ -1808,9 +1808,9 @@ const AssetEntrySchema = CollectionSchema(
       name: r'hash',
       type: IsarType.string,
     ),
-    r'lastBalanceTopoheight': PropertySchema(
+    r'lastBalanceTopoHeight': PropertySchema(
       id: 2,
-      name: r'lastBalanceTopoheight',
+      name: r'lastBalanceTopoHeight',
       type: IsarType.long,
     ),
     r'syncedSinceBeginning': PropertySchema(
@@ -1868,9 +1868,9 @@ void _assetEntrySerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeLong(offsets[0], object.firstBalanceTopoheight);
+  writer.writeLong(offsets[0], object.firstBalanceTopoHeight);
   writer.writeString(offsets[1], object.hash);
-  writer.writeLong(offsets[2], object.lastBalanceTopoheight);
+  writer.writeLong(offsets[2], object.lastBalanceTopoHeight);
   writer.writeBool(offsets[3], object.syncedSinceBeginning);
 }
 
@@ -1881,10 +1881,10 @@ AssetEntry _assetEntryDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = AssetEntry();
-  object.firstBalanceTopoheight = reader.readLongOrNull(offsets[0]);
+  object.firstBalanceTopoHeight = reader.readLongOrNull(offsets[0]);
   object.hash = reader.readStringOrNull(offsets[1]);
   object.id = id;
-  object.lastBalanceTopoheight = reader.readLongOrNull(offsets[2]);
+  object.lastBalanceTopoHeight = reader.readLongOrNull(offsets[2]);
   object.syncedSinceBeginning = reader.readBool(offsets[3]);
   return object;
 }
@@ -2005,63 +2005,63 @@ extension AssetEntryQueryWhere
 extension AssetEntryQueryFilter
     on QueryBuilder<AssetEntry, AssetEntry, QFilterCondition> {
   QueryBuilder<AssetEntry, AssetEntry, QAfterFilterCondition>
-      firstBalanceTopoheightIsNull() {
+      firstBalanceTopoHeightIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'firstBalanceTopoheight',
+        property: r'firstBalanceTopoHeight',
       ));
     });
   }
 
   QueryBuilder<AssetEntry, AssetEntry, QAfterFilterCondition>
-      firstBalanceTopoheightIsNotNull() {
+      firstBalanceTopoHeightIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'firstBalanceTopoheight',
+        property: r'firstBalanceTopoHeight',
       ));
     });
   }
 
   QueryBuilder<AssetEntry, AssetEntry, QAfterFilterCondition>
-      firstBalanceTopoheightEqualTo(int? value) {
+      firstBalanceTopoHeightEqualTo(int? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'firstBalanceTopoheight',
+        property: r'firstBalanceTopoHeight',
         value: value,
       ));
     });
   }
 
   QueryBuilder<AssetEntry, AssetEntry, QAfterFilterCondition>
-      firstBalanceTopoheightGreaterThan(
+      firstBalanceTopoHeightGreaterThan(
     int? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'firstBalanceTopoheight',
+        property: r'firstBalanceTopoHeight',
         value: value,
       ));
     });
   }
 
   QueryBuilder<AssetEntry, AssetEntry, QAfterFilterCondition>
-      firstBalanceTopoheightLessThan(
+      firstBalanceTopoHeightLessThan(
     int? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'firstBalanceTopoheight',
+        property: r'firstBalanceTopoHeight',
         value: value,
       ));
     });
   }
 
   QueryBuilder<AssetEntry, AssetEntry, QAfterFilterCondition>
-      firstBalanceTopoheightBetween(
+      firstBalanceTopoHeightBetween(
     int? lower,
     int? upper, {
     bool includeLower = true,
@@ -2069,7 +2069,7 @@ extension AssetEntryQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'firstBalanceTopoheight',
+        property: r'firstBalanceTopoHeight',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -2278,63 +2278,63 @@ extension AssetEntryQueryFilter
   }
 
   QueryBuilder<AssetEntry, AssetEntry, QAfterFilterCondition>
-      lastBalanceTopoheightIsNull() {
+      lastBalanceTopoHeightIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'lastBalanceTopoheight',
+        property: r'lastBalanceTopoHeight',
       ));
     });
   }
 
   QueryBuilder<AssetEntry, AssetEntry, QAfterFilterCondition>
-      lastBalanceTopoheightIsNotNull() {
+      lastBalanceTopoHeightIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'lastBalanceTopoheight',
+        property: r'lastBalanceTopoHeight',
       ));
     });
   }
 
   QueryBuilder<AssetEntry, AssetEntry, QAfterFilterCondition>
-      lastBalanceTopoheightEqualTo(int? value) {
+      lastBalanceTopoHeightEqualTo(int? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'lastBalanceTopoheight',
+        property: r'lastBalanceTopoHeight',
         value: value,
       ));
     });
   }
 
   QueryBuilder<AssetEntry, AssetEntry, QAfterFilterCondition>
-      lastBalanceTopoheightGreaterThan(
+      lastBalanceTopoHeightGreaterThan(
     int? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'lastBalanceTopoheight',
+        property: r'lastBalanceTopoHeight',
         value: value,
       ));
     });
   }
 
   QueryBuilder<AssetEntry, AssetEntry, QAfterFilterCondition>
-      lastBalanceTopoheightLessThan(
+      lastBalanceTopoHeightLessThan(
     int? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'lastBalanceTopoheight',
+        property: r'lastBalanceTopoHeight',
         value: value,
       ));
     });
   }
 
   QueryBuilder<AssetEntry, AssetEntry, QAfterFilterCondition>
-      lastBalanceTopoheightBetween(
+      lastBalanceTopoHeightBetween(
     int? lower,
     int? upper, {
     bool includeLower = true,
@@ -2342,7 +2342,7 @@ extension AssetEntryQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'lastBalanceTopoheight',
+        property: r'lastBalanceTopoHeight',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -2444,16 +2444,16 @@ extension AssetEntryQueryLinks
 extension AssetEntryQuerySortBy
     on QueryBuilder<AssetEntry, AssetEntry, QSortBy> {
   QueryBuilder<AssetEntry, AssetEntry, QAfterSortBy>
-      sortByFirstBalanceTopoheight() {
+      sortByFirstBalanceTopoHeight() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'firstBalanceTopoheight', Sort.asc);
+      return query.addSortBy(r'firstBalanceTopoHeight', Sort.asc);
     });
   }
 
   QueryBuilder<AssetEntry, AssetEntry, QAfterSortBy>
-      sortByFirstBalanceTopoheightDesc() {
+      sortByFirstBalanceTopoHeightDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'firstBalanceTopoheight', Sort.desc);
+      return query.addSortBy(r'firstBalanceTopoHeight', Sort.desc);
     });
   }
 
@@ -2470,16 +2470,16 @@ extension AssetEntryQuerySortBy
   }
 
   QueryBuilder<AssetEntry, AssetEntry, QAfterSortBy>
-      sortByLastBalanceTopoheight() {
+      sortByLastBalanceTopoHeight() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'lastBalanceTopoheight', Sort.asc);
+      return query.addSortBy(r'lastBalanceTopoHeight', Sort.asc);
     });
   }
 
   QueryBuilder<AssetEntry, AssetEntry, QAfterSortBy>
-      sortByLastBalanceTopoheightDesc() {
+      sortByLastBalanceTopoHeightDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'lastBalanceTopoheight', Sort.desc);
+      return query.addSortBy(r'lastBalanceTopoHeight', Sort.desc);
     });
   }
 
@@ -2501,16 +2501,16 @@ extension AssetEntryQuerySortBy
 extension AssetEntryQuerySortThenBy
     on QueryBuilder<AssetEntry, AssetEntry, QSortThenBy> {
   QueryBuilder<AssetEntry, AssetEntry, QAfterSortBy>
-      thenByFirstBalanceTopoheight() {
+      thenByFirstBalanceTopoHeight() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'firstBalanceTopoheight', Sort.asc);
+      return query.addSortBy(r'firstBalanceTopoHeight', Sort.asc);
     });
   }
 
   QueryBuilder<AssetEntry, AssetEntry, QAfterSortBy>
-      thenByFirstBalanceTopoheightDesc() {
+      thenByFirstBalanceTopoHeightDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'firstBalanceTopoheight', Sort.desc);
+      return query.addSortBy(r'firstBalanceTopoHeight', Sort.desc);
     });
   }
 
@@ -2539,16 +2539,16 @@ extension AssetEntryQuerySortThenBy
   }
 
   QueryBuilder<AssetEntry, AssetEntry, QAfterSortBy>
-      thenByLastBalanceTopoheight() {
+      thenByLastBalanceTopoHeight() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'lastBalanceTopoheight', Sort.asc);
+      return query.addSortBy(r'lastBalanceTopoHeight', Sort.asc);
     });
   }
 
   QueryBuilder<AssetEntry, AssetEntry, QAfterSortBy>
-      thenByLastBalanceTopoheightDesc() {
+      thenByLastBalanceTopoHeightDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'lastBalanceTopoheight', Sort.desc);
+      return query.addSortBy(r'lastBalanceTopoHeight', Sort.desc);
     });
   }
 
@@ -2570,9 +2570,9 @@ extension AssetEntryQuerySortThenBy
 extension AssetEntryQueryWhereDistinct
     on QueryBuilder<AssetEntry, AssetEntry, QDistinct> {
   QueryBuilder<AssetEntry, AssetEntry, QDistinct>
-      distinctByFirstBalanceTopoheight() {
+      distinctByFirstBalanceTopoHeight() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'firstBalanceTopoheight');
+      return query.addDistinctBy(r'firstBalanceTopoHeight');
     });
   }
 
@@ -2584,9 +2584,9 @@ extension AssetEntryQueryWhereDistinct
   }
 
   QueryBuilder<AssetEntry, AssetEntry, QDistinct>
-      distinctByLastBalanceTopoheight() {
+      distinctByLastBalanceTopoHeight() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'lastBalanceTopoheight');
+      return query.addDistinctBy(r'lastBalanceTopoHeight');
     });
   }
 
@@ -2607,9 +2607,9 @@ extension AssetEntryQueryProperty
   }
 
   QueryBuilder<AssetEntry, int?, QQueryOperations>
-      firstBalanceTopoheightProperty() {
+      firstBalanceTopoHeightProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'firstBalanceTopoheight');
+      return query.addPropertyName(r'firstBalanceTopoHeight');
     });
   }
 
@@ -2620,9 +2620,9 @@ extension AssetEntryQueryProperty
   }
 
   QueryBuilder<AssetEntry, int?, QQueryOperations>
-      lastBalanceTopoheightProperty() {
+      lastBalanceTopoHeightProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'lastBalanceTopoheight');
+      return query.addPropertyName(r'lastBalanceTopoHeight');
     });
   }
 
