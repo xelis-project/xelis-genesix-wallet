@@ -56,6 +56,11 @@ class Authentication extends _$Authentication {
     final wallets = isar.walletSnapshots;
     await isar.writeTxn(() async => wallets.put(walletEntry));
 
+    await SecureStorageRepository.save(
+      key: 'xelis_wallet_currently_used',
+      value: account.toJson(),
+    );
+
     state = AuthenticationState.signedIn(
       walletId: walletEntry.id,
       secretKey: bytesSecretKey,
@@ -70,6 +75,7 @@ class Authentication extends _$Authentication {
       );
       return;
     }
+
     final account = Account.fromJson(data as Map<String, dynamic>);
     if (password == account.password) {
       final isar = await ref.read(isarPodProvider.future);
@@ -81,6 +87,11 @@ class Authentication extends _$Authentication {
         return;
       }
 
+      await SecureStorageRepository.save(
+        key: 'xelis_wallet_currently_used',
+        value: account.toJson(),
+      );
+
       state = AuthenticationState.signedIn(
         walletId: wallet.id,
         secretKey: account.secretKey,
@@ -88,8 +99,33 @@ class Authentication extends _$Authentication {
     }
   }
 
+  Future<String> getWalletNameCurrentlyUsed() async {
+    final data =
+        await SecureStorageRepository.get(key: 'xelis_wallet_currently_used');
+    if (data == null) {
+      logger.warning(
+        'This key does not exist in secure storage: xelis_wallet_currently_used',
+      );
+      return '';
+    }
+
+    final account = Account.fromJson(data as Map<String, dynamic>);
+
+    return account.name;
+  }
+
   void logout() {
     state = const AuthenticationState.signedOut();
     ref.read(daemonClientRepositoryPodProvider).disconnect();
   }
+}
+
+@riverpod
+Future<Map<String, dynamic>> openWalletData(OpenWalletDataRef ref) async {
+  List<WalletSnapshot> walletSnapshots =
+      await ref.watch(walletSnapshotsProvider.future);
+  String walletCurrentlyUsed = await ref
+      .watch(authenticationProvider.notifier)
+      .getWalletNameCurrentlyUsed();
+  return {'walletSnapshots': walletSnapshots, 'walletCurrentlyUsed': walletCurrentlyUsed};
 }
