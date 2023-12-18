@@ -5,8 +5,8 @@ import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.
 import 'package:xelis_mobile_wallet/features/wallet/presentation/assets_tab/asset_entry_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 
-class Assets extends ConsumerWidget {
-  const Assets({super.key});
+class AssetsTab extends ConsumerWidget {
+  const AssetsTab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

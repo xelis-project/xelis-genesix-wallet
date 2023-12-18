@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:xelis_mobile_wallet/features/authentication/domain/login_action_enum.dart';
 import 'package:xelis_mobile_wallet/features/authentication/presentation/authentication_screen.dart';
-import 'package:xelis_mobile_wallet/features/settings/presentation/settings_screen.dart';
+import 'package:xelis_mobile_wallet/features/settings/presentation/settings_tab_widget.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/hub_screen.dart';
 
 part 'routes.g.dart';
@@ -39,6 +39,6 @@ class SettingsRoute extends GoRouteData {
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const SettingsScreen();
+    return const SettingsTab();
   }
 }

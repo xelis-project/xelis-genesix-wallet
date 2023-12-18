@@ -24,9 +24,11 @@
   "new_node_address": "Nouvelle Adresse du Noeud",
   "address": "Adresse",
 
-  "explore_bottom_app_bar": "Explorer",
+  "node_bottom_app_bar": "Noeud",
+  "wallet_bottom_app_bar": "Portefeuille",
   "history_bottom_app_bar": "Historique",
   "assets_bottom_app_bar": "Actifs",
+  "settings_bottom_app_bar": "Réglages",
 
   "cancel_button": "Annuler",
   "ok_button": "Valider"
