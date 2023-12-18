@@ -29,10 +29,6 @@ GoRouter router(RouterRef ref) {
     routes: $appRoutes,
     extraCodec: const MyExtraCodec(),
     redirect: (context, state) {
-      final isSettings = state.uri.path == const SettingsRoute().location;
-      if (isSettings) {
-        return const SettingsRoute().location;
-      }
 
       final loggingIn = state.fullPath == const LoginRoute().location;
 

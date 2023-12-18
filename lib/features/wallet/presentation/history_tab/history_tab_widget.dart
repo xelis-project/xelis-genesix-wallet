@@ -5,8 +5,8 @@ import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.
 import 'package:xelis_mobile_wallet/features/wallet/presentation/history_tab/history_entry_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 
-class History extends ConsumerWidget {
-  const History({super.key});
+class HistoryTab extends ConsumerWidget {
+  const HistoryTab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

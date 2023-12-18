@@ -24,9 +24,11 @@
   "new_node_address": "New Node Address",
   "address": "Address",
 
-  "explore_bottom_app_bar": "Explore",
+  "node_bottom_app_bar": "Node",
+  "wallet_bottom_app_bar": "Wallet",
   "history_bottom_app_bar": "History",
   "assets_bottom_app_bar": "Assets",
+  "settings_bottom_app_bar": "Settings",
 
   "cancel_button": "Cancel",
   "ok_button": "Ok"
