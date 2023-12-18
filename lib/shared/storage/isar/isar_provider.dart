@@ -28,3 +28,10 @@ Future<List<String?>> existingWalletNames(ExistingWalletNamesRef ref) async {
   final wallets = isar.walletSnapshots;
   return wallets.where().nameProperty().findAll();
 }
+
+@riverpod
+Future<List<WalletSnapshot>> walletSnapshots(WalletSnapshotsRef ref) async {
+  final isar = await ref.watch(isarPodProvider.future);
+  final wallets = isar.walletSnapshots;
+  return wallets.where().findAll();
+}
