@@ -20,7 +20,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_riverpod: ^2.4.9
-  flutter_rust_bridge: ^1.82.5
+  flutter_rust_bridge: ^1.82.6
   flutter_secure_storage: ^9.0.0
   form_builder_validators: ^9.1.0
   freezed_annotation: ^2.4.1
