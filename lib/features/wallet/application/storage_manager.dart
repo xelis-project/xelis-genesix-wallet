@@ -56,8 +56,8 @@ class StorageManager {
     }
   }
 
-  Stream<List<TransactionEntry>> watchWalletHistory() async* {
-    final history = isar.transactionEntrys
+  Stream<List<TxEntry>> watchWalletHistory() async* {
+    final history = isar.txEntrys
         .filter()
         .wallet((q) => q.idEqualTo(walletId))
         .sortByTopoHeightDesc()
@@ -187,13 +187,13 @@ class StorageManager {
     }
   }
 
-  Future<void> addTransaction(TransactionEntry newTx) async {
+  Future<void> addTransaction(TxEntry newTx) async {
     final walletSnapshot = await getWalletSnapshot();
     if (walletSnapshot != null) {
       walletSnapshot.history.add(newTx);
 
       await isar.writeTxn(() async {
-        await isar.transactionEntrys.put(newTx);
+        await isar.txEntrys.put(newTx);
         await walletSnapshot.history.save();
       });
     }

@@ -9,11 +9,11 @@ import 'package:xelis_mobile_wallet/shared/logger.dart';
 part 'daemon_provider.g.dart';
 
 @riverpod
-DaemonClientRepository daemonClientRepositoryPod(
+DaemonClient daemonClientRepositoryPod(
   DaemonClientRepositoryPodRef ref,
 ) {
   final nodeAddresses = ref.watch(nodeAddressesProvider);
-  final daemonClientRepository = DaemonClientRepository(
+  final daemonClientRepository = DaemonClient(
     endPoint: nodeAddresses.favorite,
     // secureWebSocket: false,
     // logger: logger,

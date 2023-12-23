@@ -5,9 +5,9 @@ import 'package:xelis_mobile_wallet/features/wallet/domain/wallet_snapshot.dart'
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 
 class HistoryEntry extends StatelessWidget {
-  const HistoryEntry({super.key, required this.transactionEntry});
+  const HistoryEntry({super.key, required this.txEntry});
 
-  final TransactionEntry transactionEntry;
+  final TxEntry txEntry;
 
   String _getTitle(EntryData entryData) {
     if (entryData.coinbase != null) {
@@ -98,7 +98,7 @@ class HistoryEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = _getTitle(transactionEntry.entryData!);
+    final title = _getTitle(txEntry.entryData!);
     return Card(
       child: ListTile(
         title: Text(
@@ -109,14 +109,14 @@ class HistoryEntry extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Hash: ${transactionEntry.hash}',
+              'Hash: ${txEntry.hash}',
               style: context.bodyMedium,
             ),
             Text(
-              'Topoheight: ${transactionEntry.topoHeight}',
+              'Topoheight: ${txEntry.topoHeight}',
               style: context.bodyMedium,
             ),
-            _getDetails(context, transactionEntry.entryData!),
+            _getDetails(context, txEntry.entryData!),
           ],
         ),
       ),

@@ -15,7 +15,7 @@ class WalletService {
     this.secretKey,
   );
 
-  final DaemonClientRepository daemonClientRepository;
+  final DaemonClient daemonClientRepository;
   final StorageManager storageManager;
   final List<int> secretKey;
 
@@ -299,7 +299,7 @@ class WalletService {
 
       if (block.miner == address) {
         final coinbase = EntryData()..coinbase = block.reward;
-        final txEntry = TransactionEntry()
+        final txEntry = TxEntry()
           ..hash = block.hash
           ..topoHeight = block.topoHeight
           ..entryData = coinbase;
@@ -313,7 +313,7 @@ class WalletService {
           );
           final isOwner = tx.owner == address;
 
-          final txEntry = TransactionEntry()
+          final txEntry = TxEntry()
             ..hash = tx.hash
             ..topoHeight = block.topoHeight
             ..fees = isOwner ? tx.fee : null

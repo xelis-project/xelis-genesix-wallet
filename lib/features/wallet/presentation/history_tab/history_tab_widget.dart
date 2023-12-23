@@ -19,7 +19,7 @@ class HistoryTab extends ConsumerWidget {
           itemCount: history.length,
           itemBuilder: (context, index) {
             return HistoryEntry(
-              transactionEntry: history[index],
+              txEntry: history[index],
             );
           },
         );

@@ -14,7 +14,7 @@ class WalletSnapshot {
   int? nonce;
   List<int>? encryptedSeed;
   final assets = IsarLinks<AssetEntry>();
-  final history = IsarLinks<TransactionEntry>();
+  final history = IsarLinks<TxEntry>();
 
   List<AddressBookEntry> addressBook = <AddressBookEntry>[];
 
@@ -58,7 +58,7 @@ class VersionedBalance {
 }
 
 @collection
-class TransactionEntry {
+class TxEntry {
   Id id = Isar.autoIncrement;
   @Backlink(to: 'history')
   final wallet = IsarLink<WalletSnapshot>();
