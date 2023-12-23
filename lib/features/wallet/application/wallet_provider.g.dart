@@ -100,12 +100,11 @@ final walletXelisBalanceProvider =
 );
 
 typedef WalletXelisBalanceRef = AutoDisposeStreamProviderRef<VersionedBalance>;
-String _$walletHistoryHash() => r'19b8b20ff9331358ebaab4ca1c8048ccdf6d5a84';
+String _$walletHistoryHash() => r'a3f67868650714e897b3349afbbc9bc4b32582b7';
 
 /// See also [walletHistory].
 @ProviderFor(walletHistory)
-final walletHistoryProvider =
-    AutoDisposeStreamProvider<List<TransactionEntry>>.internal(
+final walletHistoryProvider = AutoDisposeStreamProvider<List<TxEntry>>.internal(
   walletHistory,
   name: r'walletHistoryProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -115,7 +114,7 @@ final walletHistoryProvider =
   allTransitiveDependencies: null,
 );
 
-typedef WalletHistoryRef = AutoDisposeStreamProviderRef<List<TransactionEntry>>;
+typedef WalletHistoryRef = AutoDisposeStreamProviderRef<List<TxEntry>>;
 String _$walletAssetsHash() => r'5a4a7f8b13ae6c1bdd487e07d4b7ba37f6f7819f';
 
 /// See also [walletAssets].

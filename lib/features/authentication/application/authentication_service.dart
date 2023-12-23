@@ -127,5 +127,8 @@ Future<Map<String, dynamic>> openWalletData(OpenWalletDataRef ref) async {
   String walletCurrentlyUsed = await ref
       .watch(authenticationProvider.notifier)
       .getWalletNameCurrentlyUsed();
-  return {'walletSnapshots': walletSnapshots, 'walletCurrentlyUsed': walletCurrentlyUsed};
+  return {
+    'walletSnapshots': walletSnapshots,
+    'walletCurrentlyUsed': walletCurrentlyUsed
+  };
 }

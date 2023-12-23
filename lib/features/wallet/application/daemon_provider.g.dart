@@ -7,12 +7,12 @@ part of 'daemon_provider.dart';
 // **************************************************************************
 
 String _$daemonClientRepositoryPodHash() =>
-    r'1dba10de17aafdb6e04f724c513d28b85d42dbe4';
+    r'25d8c10c54bb22468de937b90ffae2da3947d0b9';
 
 /// See also [daemonClientRepositoryPod].
 @ProviderFor(daemonClientRepositoryPod)
 final daemonClientRepositoryPodProvider =
-    AutoDisposeProvider<DaemonClientRepository>.internal(
+    AutoDisposeProvider<DaemonClient>.internal(
   daemonClientRepositoryPod,
   name: r'daemonClientRepositoryPodProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -22,8 +22,7 @@ final daemonClientRepositoryPodProvider =
   allTransitiveDependencies: null,
 );
 
-typedef DaemonClientRepositoryPodRef
-    = AutoDisposeProviderRef<DaemonClientRepository>;
+typedef DaemonClientRepositoryPodRef = AutoDisposeProviderRef<DaemonClient>;
 String _$daemonStateHash() => r'dda7d844838ad7957b22a4ff8efce9d338df1c46';
 
 /// See also [daemonState].

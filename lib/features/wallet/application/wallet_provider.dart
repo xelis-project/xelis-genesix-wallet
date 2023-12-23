@@ -85,7 +85,7 @@ Stream<VersionedBalance> walletXelisBalance(WalletXelisBalanceRef ref) async* {
 }
 
 @riverpod
-Stream<List<TransactionEntry>> walletHistory(WalletHistoryRef ref) async* {
+Stream<List<TxEntry>> walletHistory(WalletHistoryRef ref) async* {
   final walletService = await ref.watch(walletServicePodProvider.future);
   yield* walletService.storageManager.watchWalletHistory();
 }

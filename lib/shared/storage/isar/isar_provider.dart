@@ -14,7 +14,7 @@ Future<Isar> isarPod(IsarPodRef ref) async {
       WalletSnapshotSchema,
       AssetEntrySchema,
       VersionedBalanceSchema,
-      TransactionEntrySchema,
+      TxEntrySchema,
     ],
     directory: dir.path,
   );
