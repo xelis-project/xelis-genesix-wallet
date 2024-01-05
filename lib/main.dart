@@ -2,18 +2,42 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jovial_svg/jovial_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:xelis_mobile_wallet/features/authentication/data/secure_storage_repository.dart';
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:xelis_mobile_wallet/features/router/router.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/theme_mode_state_provider.dart';
+import 'package:xelis_mobile_wallet/features/wallet/data/native_wallet_repository.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_provider.dart';
-import 'package:jovial_svg/jovial_svg.dart';
 import 'package:xelis_mobile_wallet/shared/theme/flex_theme.dart';
+import 'package:xelis_mobile_wallet/src/rust/api/api.dart';
+import 'package:xelis_mobile_wallet/src/rust/frb_generated.dart';
+
+import 'features/authentication/data/secure_storage_repository.dart';
 
 Future<void> main() async {
+  initFlutterLogging();
+  logger.info('Starting Xelis Mobile Wallet ...');
+  logger.info('initializing Rust lib ...');
+  await RustLib.init();
+  await initRustLogging();
+  logger.info('initializing Flutter bindings ...');
   WidgetsFlutterBinding.ensureInitialized();
+  logger.info('initialisation done!');
+
+  /*await startTokioRuntimeForRust();
+  final wallet =
+      await NativeWalletRepository.open('test', 'test', Network.testnet);
+  final address = await wallet.humanReadableAddress;
+  logger.info(address);
+
+  await wallet.setOnline(daemonAddress: 'http://10.0.2.2:8080');
+  // await wallet.setOffline();
+
+  final res = await wallet.isOnline;
+  logger.info(res);*/
 
   //-------------------------- PRELOAD ASSETS ----------------------------------
   // AppResources.svgIconGreen = await ScalableImage.fromSvgHttpUrl(
@@ -37,14 +61,11 @@ Future<void> main() async {
       compact: true);
   //----------------------------------------------------------------------------
 
-  initLogging();
-  logger.info('Starting Xelis Mobile Wallet ...');
-
   final prefs = await SharedPreferences.getInstance();
 
   /// TODO: to be removed
-  // await SecureStorageRepository.deleteAll();
-  // await prefs.clear();
+  await SecureStorageRepository.deleteAll();
+  await prefs.clear();
 
   runApp(
     ProviderScope(

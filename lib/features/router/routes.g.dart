@@ -14,6 +14,7 @@ List<RouteBase> get $appRoutes => [
 
 RouteBase get $loginRoute => GoRouteData.$route(
       path: '/login',
+      name: 'login',
       factory: $LoginRouteExtension._fromState,
     );
 
@@ -36,6 +37,7 @@ extension $LoginRouteExtension on LoginRoute {
 
 RouteBase get $hubRoute => GoRouteData.$route(
       path: '/hub',
+      name: 'hub',
       factory: $HubRouteExtension._fromState,
     );
 
@@ -58,6 +60,7 @@ extension $HubRouteExtension on HubRoute {
 
 RouteBase get $settingsRoute => GoRouteData.$route(
       path: '/settings',
+      name: 'settings',
       factory: $SettingsRouteExtension._fromState,
     );
 

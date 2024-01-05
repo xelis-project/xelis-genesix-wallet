@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:xelis_mobile_wallet/features/wallet/application/storage_manager.dart';
-import 'package:xelis_mobile_wallet/features/wallet/data/native_wallet_repository.dart';
+import 'package:xelis_mobile_wallet/features/wallet/data/native_keypair_repository.dart';
+import 'package:xelis_mobile_wallet/features/wallet/data/xelis_network.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/wallet_snapshot.dart';
-import 'package:xelis_mobile_wallet/ffi.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/shared/utils/cypher.dart';
 
@@ -31,7 +31,7 @@ class WalletService {
         walletSnapshot.encryptedSeed!,
       );
       final balance = await storageManager.getLastBalance(asset);
-      final tx = await NativeWalletRepository.createTransaction(
+      final tx = await NativeKeyPairRepository.createTransaction(
         seed,
         destination,
         balance?.balance ?? 0,
@@ -57,7 +57,7 @@ class WalletService {
         secretKey,
         walletSnapshot.encryptedSeed!,
       );
-      final fees = await NativeWalletRepository.getEstimatedFees(
+      final fees = await NativeKeyPairRepository.getEstimatedFees(
         seed,
         destination,
         amount,
@@ -113,21 +113,6 @@ class WalletService {
     await storageManager.setNonce(nonce ?? 0);
   }
 
-  // set network version
-  Future<void> _setNetworkVersion(Network network) async {
-    switch (network) {
-      case Network.mainnet:
-        await api.setNetworkToMainnet();
-        break;
-      case Network.testnet:
-        await api.setNetworkToTestnet();
-        break;
-      case Network.dev:
-        await api.setNetworkToDev();
-        break;
-    }
-  }
-
   Future<void> _init(GetInfoResult getInfoResult) async {
     try {
       final walletSnapshot = await storageManager.getWalletSnapshot();
@@ -135,14 +120,15 @@ class WalletService {
         var needUpdate = false;
         if (walletSnapshot.network == null) {
           needUpdate = true;
-          await _setNetworkVersion(getInfoResult.network);
+          await setNetwork(getInfoResult.network);
           walletSnapshot.network = getInfoResult.network.name;
         }
         if (walletSnapshot.address == null) {
           needUpdate = true;
           final seed = await getSeed();
-          walletSnapshot.address =
-              await NativeWalletRepository.getAddress(seed);
+
+          walletSnapshot.address = '';
+          await NativeKeyPairRepository.getAddress(seed);
         }
 
         if (walletSnapshot.syncedTopoHeight == null) {

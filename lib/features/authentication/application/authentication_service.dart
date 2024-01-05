@@ -3,7 +3,7 @@ import 'package:xelis_mobile_wallet/features/authentication/data/secure_storage_
 import 'package:xelis_mobile_wallet/features/authentication/domain/account.dart';
 import 'package:xelis_mobile_wallet/features/authentication/domain/authentication_state.dart';
 import 'package:xelis_mobile_wallet/features/wallet/application/daemon_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/data/native_wallet_repository.dart';
+import 'package:xelis_mobile_wallet/features/wallet/data/native_keypair_repository.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/wallet_snapshot.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/shared/storage/isar/isar_provider.dart';
@@ -47,7 +47,7 @@ class Authentication extends _$Authentication {
         ..encryptedSeed = encryptedSeed
         ..imported = true;
     } else {
-      final newSeed = await NativeWalletRepository.generateNewSeed();
+      final newSeed = await NativeKeyPairRepository.generateNewSeed();
       final encryptedSeed = await encrypt(bytesSecretKey, newSeed);
       walletEntry.encryptedSeed = encryptedSeed;
     }

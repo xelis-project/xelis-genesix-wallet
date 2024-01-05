@@ -22,7 +22,7 @@ final openWalletDataProvider =
 );
 
 typedef OpenWalletDataRef = AutoDisposeFutureProviderRef<Map<String, dynamic>>;
-String _$authenticationHash() => r'bbb8da046d6966fdf40802361bf5dc3095a74f38';
+String _$authenticationHash() => r'10996ec605bafa132b55709072d364c34dfb27e3';
 
 /// See also [Authentication].
 @ProviderFor(Authentication)
