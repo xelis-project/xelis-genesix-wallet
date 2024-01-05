@@ -7,7 +7,7 @@ import 'package:xelis_mobile_wallet/shared/widgets/hub_screen.dart';
 
 part 'routes.g.dart';
 
-@TypedGoRoute<LoginRoute>(path: '/login')
+@TypedGoRoute<LoginRoute>(name: 'login', path: '/login')
 class LoginRoute extends GoRouteData {
   const LoginRoute();
 
@@ -23,7 +23,7 @@ class LoginRoute extends GoRouteData {
   }
 }
 
-@TypedGoRoute<HubRoute>(path: '/hub')
+@TypedGoRoute<HubRoute>(name: 'hub', path: '/hub')
 class HubRoute extends GoRouteData {
   const HubRoute();
 
@@ -33,7 +33,7 @@ class HubRoute extends GoRouteData {
   }
 }
 
-@TypedGoRoute<SettingsRoute>(path: '/settings')
+@TypedGoRoute<SettingsRoute>(name: 'settings', path: '/settings')
 class SettingsRoute extends GoRouteData {
   const SettingsRoute();
 

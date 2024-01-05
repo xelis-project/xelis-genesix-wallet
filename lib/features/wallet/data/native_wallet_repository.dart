@@ -1,60 +1,64 @@
-import 'package:xelis_mobile_wallet/ffi.dart';
-import 'package:xelis_mobile_wallet/shared/resources/mnemonics_languages.dart';
+import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:xelis_mobile_wallet/features/wallet/data/xelis_network.dart';
+import 'package:xelis_mobile_wallet/src/rust/api/wallet.dart';
 
 class NativeWalletRepository {
-  NativeWalletRepository._();
+  NativeWalletRepository._internal(this._xelisWallet);
 
-  static Future<String> generateNewSeed() async {
-    final xelisKeyPair = await api.createKeyPair();
-    final seed = await xelisKeyPair.getSeed(
-      languageIndex: MnemonicsLanguages.english.index,
-    );
-    xelisKeyPair.keyPair.dispose();
+  final XelisWallet _xelisWallet;
+
+  static Future<NativeWalletRepository> create(
+      String name, String pwd, Network network,
+      {String? seed}) async {
+    await setNetwork(network);
+    final dir = await getApplicationDocumentsDirectory();
+    final xelisWallet = await createXelisWallet(
+        name: '${dir.path}/$name', password: pwd, seed: seed);
+    return NativeWalletRepository._internal(xelisWallet);
+  }
+
+  static Future<NativeWalletRepository> open(
+      String name, String pwd, Network network) async {
+    await setNetwork(network);
+    final dir = await getApplicationDocumentsDirectory();
+    final xelisWallet =
+        await openXelisWallet(name: '${dir.path}/$name', password: pwd);
+    return NativeWalletRepository._internal(xelisWallet);
+  }
+
+  void dispose() {
+    _xelisWallet.dispose();
+    // _xelisWallet.wallet.dispose();
+  }
+
+  Future<String> get humanReadableAddress => _xelisWallet.getAddressStr();
+
+  Future<int> get nonce => _xelisWallet.getNonce();
+
+  Future<bool> get isOnline => _xelisWallet.isOnline();
+
+  Future<String> getSeed(int languageIndex) async {
+    String seed = await _xelisWallet.getSeed(languageIndex: languageIndex);
     return seed;
   }
 
-  static Future<String> getAddress(String seed) async {
-    final xelisKeyPair = await api.createKeyPair(seed: seed);
-    final address = await xelisKeyPair.getAddress();
-    xelisKeyPair.keyPair.dispose();
-    return address;
+  Future<void> setOnline({required String daemonAddress}) async {
+    try {
+      await _xelisWallet.setOnlineMode(daemonAddress: daemonAddress);
+    } catch (e) {
+      // TODO better error handling
+      debugPrint(e.toString());
+    }
   }
 
-  static Future<int> getEstimatedFees(
-    String seed,
-    String destination,
-    int amount,
-    String asset,
-    int nonce,
-  ) async {
-    final xelisKeyPair = await api.createKeyPair(seed: seed);
-    final fees = await xelisKeyPair.getEstimatedFees(
-      address: destination,
-      amount: amount,
-      asset: asset,
-      nonce: nonce,
-    );
-    xelisKeyPair.keyPair.dispose();
-    return fees;
-  }
-
-  static Future<String> createTransaction(
-    String seed,
-    String destination,
-    int balance,
-    int amount,
-    String asset,
-    int nonce,
-  ) async {
-    final xelisKeyPair = await api.createKeyPair(seed: seed);
-    final tx = await xelisKeyPair.createTx(
-      address: destination,
-      amount: amount,
-      asset: asset,
-      nonce: nonce,
-      balance: balance,
-    );
-    xelisKeyPair.keyPair.dispose();
-    return tx;
+  Future<void> setOffline() async {
+    try {
+      await _xelisWallet.setOfflineMode();
+    } catch (e) {
+      // TODO better error handling
+      debugPrint(e.toString());
+    }
   }
 }
