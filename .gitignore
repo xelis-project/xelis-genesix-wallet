@@ -45,3 +45,9 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /android/app/src/main/jniLibs
+
+# Flutter Rust Bridge
+lib/src/rust/api
+lib/src/rust/frb_generated.*
+
+# TODO: add Freezed related files
