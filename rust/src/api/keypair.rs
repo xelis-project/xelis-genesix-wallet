@@ -2,18 +2,18 @@ use std::collections::HashMap;
 
 use anyhow::{Context, Result};
 use flutter_rust_bridge::frb;
+use xelis_common::crypto::key::{KeyPair, PublicKey};
 use xelis_common::{
-    api::{DataElement, wallet::FeeBuilder},
+    api::{wallet::FeeBuilder, DataElement},
     config::XELIS_ASSET,
     crypto::{
         address::{Address, AddressType},
         hash::Hash,
     },
     serializer::{Serializer, Writer},
-    transaction::{EXTRA_DATA_LIMIT_SIZE, Transaction, TransactionType, Transfer},
+    transaction::{Transaction, TransactionType, Transfer, EXTRA_DATA_LIMIT_SIZE},
     utils::get_network,
 };
-use xelis_common::crypto::key::{KeyPair, PublicKey};
 use xelis_wallet::{mnemonics, transaction_builder::TransactionBuilder, wallet::WalletError};
 
 #[frb(opaque)]
@@ -165,7 +165,5 @@ pub fn create_key_pair(seed: Option<String>) -> Result<XelisKeyPair> {
     } else {
         KeyPair::new()
     };
-    Ok(XelisKeyPair {
-        key_pair: keypair,
-    })
+    Ok(XelisKeyPair { key_pair: keypair })
 }
