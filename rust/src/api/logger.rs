@@ -2,7 +2,7 @@ use std::sync::Once;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use lazy_static::lazy_static;
-use log::{error, LevelFilter, Log, Metadata, Record, warn};
+use log::{error, warn, LevelFilter, Log, Metadata, Record};
 use simplelog::{CombinedLogger, Config, SharedLogger};
 
 use crate::frb_generated::StreamSink;
@@ -14,7 +14,6 @@ lazy_static! {
 
 static INIT_LOGGER_ONCE: Once = Once::new();
 
-
 pub fn init_logger() {
     INIT_LOGGER_ONCE.call_once(|| {
         CombinedLogger::init(vec![
@@ -23,9 +22,9 @@ pub fn init_logger() {
             }),
             // Box::new(SendToDartLogger { level: LevelFilter::Info }),
         ])
-            .unwrap_or_else(|e| {
-                error!("init_logger (inside 'once') has error: {:?}", e);
-            });
+        .unwrap_or_else(|e| {
+            error!("init_logger (inside 'once') has error: {:?}", e);
+        });
     });
 }
 

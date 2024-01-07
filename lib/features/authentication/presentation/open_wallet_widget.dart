@@ -90,7 +90,6 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
                           const SizedBox(height: 8),
                           DropdownMenu<String>(
                             expandedInsets: EdgeInsets.zero,
-                            // enabled: data.isNotEmpty,
                             label: Text(
                               loc.wallet,
                               style: context.bodyLarge,
