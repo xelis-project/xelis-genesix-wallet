@@ -50,4 +50,6 @@ app.*.map.json
 lib/src/rust/api
 lib/src/rust/frb_generated.*
 
-# TODO: add Freezed related files
+# Dart generated files (Freezed, Riverpod, GoRouter etc..)
+lib/**/*.g.dart
+lib/**/*.freezed.dart
