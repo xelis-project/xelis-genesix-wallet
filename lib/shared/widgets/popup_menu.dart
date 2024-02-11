@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
@@ -18,10 +19,11 @@ class PopupMenu extends ConsumerWidget {
       onSelected: (MenuItems item) {
         switch (item) {
           case MenuItems.help:
+            // TODO
             logger.info('help section');
             break;
           case MenuItems.logout:
-            _logout(ref);
+            _logout(context, ref);
             break;
         }
       },
@@ -41,8 +43,10 @@ class PopupMenu extends ConsumerWidget {
     );
   }
 
-  void _logout(WidgetRef ref) {
-    logger.info('logout');
-    ref.read(authenticationProvider.notifier).logout();
+  Future<void> _logout(BuildContext context, WidgetRef ref) async {
+    context.loaderOverlay.show();
+    await ref.read(authenticationProvider.notifier).logout();
+    if (!context.mounted) return;
+    context.loaderOverlay.hide();
   }
 }

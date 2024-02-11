@@ -2,33 +2,33 @@ import 'dart:convert';
 
 enum LoginAction {
   create,
-  open,
-}
+  open;
 
-LoginAction? fromStr(String value) {
-  switch (value) {
-    case 'create':
-      return LoginAction.create;
-    case 'open':
-      return LoginAction.open;
-    default:
-      return null;
+  factory LoginAction.fromStr(String value) {
+    switch (value) {
+      case 'create':
+        return LoginAction.create;
+      case 'open':
+        return LoginAction.open;
+      default:
+        throw Exception('Unknown login action: $value');
+    }
   }
 }
 
 /// A codec that can serialize [LoginAction] for GoRouter.
-class MyExtraCodec extends Codec<Object?, Object?> {
-  const MyExtraCodec();
+class LoginActionCodec extends Codec<Object?, Object?> {
+  const LoginActionCodec();
 
   @override
-  Converter<Object?, Object?> get decoder => const _MyExtraDecoder();
+  Converter<Object?, Object?> get decoder => const _LoginActionDecoder();
 
   @override
-  Converter<Object?, Object?> get encoder => const _MyExtraEncoder();
+  Converter<Object?, Object?> get encoder => const _LoginActionEncoder();
 }
 
-class _MyExtraDecoder extends Converter<Object?, Object?> {
-  const _MyExtraDecoder();
+class _LoginActionDecoder extends Converter<Object?, Object?> {
+  const _LoginActionDecoder();
 
   @override
   Object? convert(Object? input) {
@@ -37,14 +37,14 @@ class _MyExtraDecoder extends Converter<Object?, Object?> {
     }
     final List<Object?> inputAsList = input as List<Object?>;
     if (inputAsList[0] == 'LoginAction') {
-      return fromStr(inputAsList[1] as String) as LoginAction;
+      return LoginAction.fromStr(inputAsList[1] as String);
     }
     throw FormatException('Unable to parse input: $input');
   }
 }
 
-class _MyExtraEncoder extends Converter<Object?, Object?> {
-  const _MyExtraEncoder();
+class _LoginActionEncoder extends Converter<Object?, Object?> {
+  const _LoginActionEncoder();
 
   @override
   Object? convert(Object? input) {

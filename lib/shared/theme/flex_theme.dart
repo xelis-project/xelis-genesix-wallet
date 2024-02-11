@@ -68,8 +68,8 @@ class FlexTheme {
       tones: FlexTones.oneHue(Brightness.light),
       visualDensity: FlexColorScheme.comfortablePlatformDensity,
       useMaterial3: true,
-      fontFamily: GoogleFonts.notoSans().fontFamily,
-      // fontFamily: GoogleFonts.montserrat().fontFamily,
+      // fontFamily: GoogleFonts.notoSans().fontFamily,
+      fontFamily: GoogleFonts.notoSansDisplay().fontFamily,
     );
   }
 
@@ -94,6 +94,7 @@ class FlexTheme {
         blendTextTheme: true,
         useTextTheme: true,
         useM2StyleDividerInM3: true,
+        splashType: FlexSplashType.instantSplash,
         elevatedButtonSchemeColor: SchemeColor.onPrimaryContainer,
         elevatedButtonSecondarySchemeColor: SchemeColor.primaryContainer,
         segmentedButtonSchemeColor: SchemeColor.primary,
@@ -135,8 +136,8 @@ class FlexTheme {
       tones: FlexTones.oneHue(Brightness.dark),
       visualDensity: FlexColorScheme.comfortablePlatformDensity,
       useMaterial3: true,
-      fontFamily: GoogleFonts.notoSans().fontFamily,
-      // fontFamily: GoogleFonts.montserrat().fontFamily,
+      // fontFamily: GoogleFonts.notoSans().fontFamily,
+      fontFamily: GoogleFonts.notoSansDisplay().fontFamily,
     );
   }
 }

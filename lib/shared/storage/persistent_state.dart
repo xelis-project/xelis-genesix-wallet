@@ -3,5 +3,5 @@ abstract class PersistentState<T> {
 
   Future<bool> localDelete();
 
-  T? fromStorage();
+  T fromStorage();
 }

@@ -3,110 +3,147 @@ import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
-import 'package:xelis_mobile_wallet/features/wallet/application/daemon_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/application/storage_manager.dart';
-import 'package:xelis_mobile_wallet/features/wallet/application/wallet_service.dart';
+import 'package:xelis_mobile_wallet/features/authentication/application/open_wallet_state_provider.dart';
+import 'package:xelis_mobile_wallet/features/authentication/domain/authentication_state.dart';
+import 'package:xelis_mobile_wallet/features/settings/application/node_addresses_state_provider.dart';
+import 'package:xelis_mobile_wallet/features/wallet/domain/event.dart';
+import 'package:xelis_mobile_wallet/features/wallet/domain/node_address.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/wallet_snapshot.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
-import 'package:xelis_mobile_wallet/shared/storage/isar/isar_provider.dart';
 
 part 'wallet_provider.g.dart';
 
 @riverpod
-Future<WalletService> walletServicePod(WalletServicePodRef ref) async {
-  final secretKey =
-      ref.watch(authenticationProvider.select((value) => value.secretKey));
-  final daemonClientRepository = ref.watch(daemonClientRepositoryPodProvider);
-  final storageManager = await ref.watch(storageManagerPodProvider.future);
+class WalletState extends _$WalletState {
+  @override
+  WalletSnapshot build() {
+    final authenticationState = ref.watch(authenticationProvider);
+    final name = ref
+        .watch(openWalletProvider.select((value) => value.walletCurrentlyUsed));
 
-  final walletService = WalletService(
-    daemonClientRepository,
-    storageManager,
-    secretKey!,
-  );
+    switch (authenticationState) {
+      case SignedIn(:final nativeWallet):
+        return WalletSnapshot(
+            name: name ?? '', nativeWalletRepository: nativeWallet);
+      case SignedOut():
+        return WalletSnapshot(name: name ?? '');
+    }
+  }
 
-  if (secretKey.isEmpty) ref.invalidateSelf();
+  Future<void> connect() async {
+    if (state.nativeWalletRepository != null) {
+      if (state.address.isEmpty) {
+        state = state.copyWith(
+            address: state.nativeWalletRepository!.humanReadableAddress);
+      }
 
-  daemonClientRepository
-    ..onOpen(() async {
-      // ref.invalidate(daemonInfoProvider);
-      await walletService.sync();
-    })
-    ..onNewBlock((block) async {
-      // ref.invalidate(daemonInfoProvider);
-      ref.invalidate(lastBlockTimerProvider);
+      state.nativeWalletRepository!.convertRawEvents().listen((event) async {
+        switch (event) {
+          case NewTopoHeight():
+            state = state.copyWith(topoheight: event.topoHeight);
 
-      ref
-          .read(nodeInfoProvider.notifier)
-          .updateOnNewBlock(block.topoHeight, block.difficulty, block.supply);
+          case NewTransaction():
+            logger.info(event);
+          // final nonce = await state.nativeWalletRepository!.nonce;
+          // state = state.copyWith(nonce: nonce);
+          // TODO: Handle with toast
 
-      await walletService.sync();
-    })
-    ..onTransactionAddedInMempool((transaction) async {
-      await walletService.sync();
-    });
+          case BalanceChanged():
+            logger.info(event);
+            final nonce = await state.nativeWalletRepository!.nonce;
 
-  return walletService;
-}
+            var updatedAssets = <String, int>{};
+            if (state.assets == null) {
+              updatedAssets = {
+                event.balanceChanged.assetHash: event.balanceChanged.balance
+              };
+            } else {
+              final updatedAssets = Map<String, int>.from(state.assets!);
+              updatedAssets[event.balanceChanged.assetHash] =
+                  event.balanceChanged.balance;
+            }
 
-@riverpod
-Future<StorageManager> storageManagerPod(StorageManagerPodRef ref) async {
-  final isar = await ref.watch(isarPodProvider.future);
-  final walletId =
-      ref.watch(authenticationProvider.select((value) => value.walletId));
+            if (event.balanceChanged.assetHash == xelisAsset) {
+              final xelisBalance =
+                  await state.nativeWalletRepository!.getXelisBalance();
+              state = state.copyWith(
+                  nonce: nonce,
+                  assets: updatedAssets,
+                  xelisBalance: xelisBalance);
+            } else {
+              state = state.copyWith(nonce: nonce, assets: updatedAssets);
+            }
 
-  if (walletId == null) ref.invalidateSelf();
+          case NewAsset():
+            logger.info(event);
+          // TODO: Handle this case.
 
-  return StorageManager(isar, walletId!);
-}
+          case Rescan():
+            logger.info(event);
+          // TODO: Handle this case.
 
-@riverpod
-Stream<String> walletName(WalletNameRef ref) async* {
-  final walletService = await ref.watch(walletServicePodProvider.future);
-  yield* walletService.storageManager.watchWalletName();
-}
+          case Online():
+            state = state.copyWith(isOnline: true);
 
-@riverpod
-Stream<int> walletCurrentTopoHeight(WalletCurrentTopoHeightRef ref) async* {
-  final walletService = await ref.watch(walletServicePodProvider.future);
-  yield* walletService.storageManager.watchWalletTopoHeight();
-}
+          case Offline():
+            state = state.copyWith(isOnline: false);
+        }
+      });
 
-@riverpod
-Stream<String> walletAddress(WalletAddressRef ref) async* {
-  final walletService = await ref.watch(walletServicePodProvider.future);
-  yield* walletService.storageManager.watchWalletAddress();
-}
+      if (await state.nativeWalletRepository!.isOnline) {
+        await state.nativeWalletRepository!.setOffline();
+      }
 
-@riverpod
-Stream<VersionedBalance> walletXelisBalance(WalletXelisBalanceRef ref) async* {
-  final walletService = await ref.watch(walletServicePodProvider.future);
-  yield* walletService.storageManager.watchAssetLastBalance(xelisAsset);
-}
+      final address = ref.read(nodeAddressesProvider);
+      await state.nativeWalletRepository!
+          .setOnline(daemonAddress: address.favorite.url);
 
-@riverpod
-Stream<List<TxEntry>> walletHistory(WalletHistoryRef ref) async* {
-  final walletService = await ref.watch(walletServicePodProvider.future);
-  yield* walletService.storageManager.watchWalletHistory();
-}
+      if (await state.nativeWalletRepository!.isOnline) {
+        final xelisBalance =
+            await state.nativeWalletRepository!.getXelisBalance();
+        state = state.copyWith(xelisBalance: xelisBalance);
 
-@riverpod
-Stream<List<AssetEntry>> walletAssets(WalletAssetsRef ref) async* {
-  final walletService = await ref.watch(walletServicePodProvider.future);
-  yield* walletService.storageManager.watchWalletAssets();
-}
+        state.nativeWalletRepository!.getDaemonInfo().listen((daemonInfoEvent) {
+          final newState = state.copyWith(
+              daemonInfo: state.daemonInfo.copyWith(
+                  height: daemonInfoEvent.height,
+                  topoHeight: daemonInfoEvent.topoHeight,
+                  pruned:
+                      daemonInfoEvent.prunedTopoHeight != null ? true : false,
+                  circulatingSupply: daemonInfoEvent.circulatingSupply,
+                  mempoolSize: daemonInfoEvent.mempoolSize,
+                  version: daemonInfoEvent.version,
+                  network: daemonInfoEvent.network));
+          if (state != newState) {
+            state = newState;
+          }
+        });
+      }
+    }
+  }
 
-@riverpod
-Stream<VersionedBalance> walletAssetLastBalance(
-  WalletAssetLastBalanceRef ref, {
-  required String hash,
-}) async* {
-  final walletService = await ref.watch(walletServicePodProvider.future);
-  yield* walletService.storageManager.watchAssetLastBalance(hash);
-}
+  Future<void> disconnect() async {
+    state = state.copyWith(isOnline: false);
+    await state.nativeWalletRepository?.setOffline();
+    await state.nativeWalletRepository?.close();
+  }
 
-@riverpod
-Future<String> walletSeed(WalletSeedRef ref) async {
-  final walletService = await ref.watch(walletServicePodProvider.future);
-  return walletService.getSeed();
+  Future<void> reconnect(NodeAddress nodeAddress) async {
+    ref.read(nodeAddressesProvider.notifier).setFavoriteAddress(nodeAddress);
+    await disconnect();
+    unawaited(connect());
+  }
+
+  Future<String?> send(
+      {required double amount,
+      required String address,
+      String? assetHash}) async {
+    if (state.nativeWalletRepository != null) {
+      return state.nativeWalletRepository!
+          .transfer(amount: amount, address: address);
+    } else {
+      // TODO throw error for toast system
+    }
+    return null;
+  }
 }

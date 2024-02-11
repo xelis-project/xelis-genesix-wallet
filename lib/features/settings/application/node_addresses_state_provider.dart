@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_mobile_wallet/features/settings/data/node_addresses_state_repository.dart';
-import 'package:xelis_mobile_wallet/features/settings/domain/node_addresses_state.dart';
+import 'package:xelis_mobile_wallet/features/wallet/domain/node_addresses_state.dart';
+import 'package:xelis_mobile_wallet/features/wallet/domain/node_address.dart';
 import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_provider.dart';
 import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_sync.dart';
 
@@ -24,7 +25,7 @@ class NodeAddresses extends _$NodeAddresses {
     nodeAddressesStateRepository.localSave(state);
   }
 
-  void setFavoriteAddress(String address) {
+  void setFavoriteAddress(NodeAddress address) {
     final prefs = ref.read(sharedPreferencesProvider);
     final nodeAddressesStateRepository =
         NodeAddressesStateRepository(SharedPreferencesSync(prefs));
@@ -32,21 +33,22 @@ class NodeAddresses extends _$NodeAddresses {
     nodeAddressesStateRepository.localSave(state);
   }
 
-  void addNodeAddress(String address) {
-    if (!state.nodeAddresses.contains(address)) {
+  void addNodeAddress(NodeAddress nodeAddress) {
+    if (!state.nodeAddresses.contains(nodeAddress)) {
       final prefs = ref.read(sharedPreferencesProvider);
       final nodeAddressesStateRepository =
           NodeAddressesStateRepository(SharedPreferencesSync(prefs));
-      state = state.copyWith(nodeAddresses: [...state.nodeAddresses, address]);
+      state =
+          state.copyWith(nodeAddresses: [...state.nodeAddresses, nodeAddress]);
       nodeAddressesStateRepository.localSave(state);
     }
   }
 
-  void removeNodeAddress(String address) {
-    if (state.nodeAddresses.contains(address)) {
+  void removeNodeAddress(NodeAddress nodeAddress) {
+    if (state.nodeAddresses.contains(nodeAddress)) {
       final newNodeAddresses = [
         for (final item in state.nodeAddresses)
-          if (item != address) item,
+          if (item != nodeAddress) item,
       ];
       final prefs = ref.read(sharedPreferencesProvider);
       final nodeAddressesStateRepository =

@@ -19,17 +19,44 @@
   "logout": "Se déconnecter",
   "settings": "Réglages",
   "language": "Langage",
-  "node_address": "Adresse du Noeud",
   "add_node_button": "Ajouter",
-  "new_node_address": "Nouvelle Adresse du Noeud",
-  "address": "Adresse",
+  "add_new_node_title": "Nouveau Noeud",
+  "url": "url",
+  "url_already_exists": "Cette url existe déjà.",
+  "name": "name",
+  "name_already_exists": "Ce nom existe déjà.",
 
   "node_bottom_app_bar": "Noeud",
+  "remote_node": "Noeud Distant",
+
   "wallet_bottom_app_bar": "Portefeuille",
+  "balance": "Balance",
+  "send": "Envoyer",
+  "receive": "Recevoir",
+  "topoheight": "Topoheight",
+  "transfer_to": "Transfert vers",
+  "remaining_balance": "Balance restante",
+  "amount": "montant",
+  "receiver_address": "adresse du destinataire",
+
+  "field_required_error": "Ce champ ne peut pas être vide.",
+  "must_be_numeric_error": "La valeur doit être numérique.",
+  "invalid_address_format_error": "Le format de l'adresse n'est pas valide.",
+
+  "tx_hash": "Hash de la transaction",
+
   "history_bottom_app_bar": "Historique",
   "assets_bottom_app_bar": "Actifs",
   "settings_bottom_app_bar": "Réglages",
 
   "cancel_button": "Annuler",
-  "ok_button": "Valider"
+  "ok_button": "Ok",
+  "confirm_button": "Confirmer",
+
+  "dark_mode_setting": "Mode Sombre",
+
+  "connected" : "Connecté",
+  "disconnected" : "Deconnecté",
+  "loading": "Chargement ...",
+  "oups": "Oups, quelque chose s'est mal passé ..."
 }

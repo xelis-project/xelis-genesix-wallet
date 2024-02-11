@@ -1,5 +1,5 @@
-import 'package:xelis_mobile_wallet/features/settings/data/persistent_state.dart';
-import 'package:xelis_mobile_wallet/features/settings/domain/node_addresses_state.dart';
+import 'package:xelis_mobile_wallet/shared/storage/persistent_state.dart';
+import 'package:xelis_mobile_wallet/features/wallet/domain/node_addresses_state.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_sync.dart';

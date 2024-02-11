@@ -1,8 +1,21 @@
-import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
+import 'dart:convert';
+
+import 'package:flutter/cupertino.dart';
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
-import 'package:xelis_mobile_wallet/features/wallet/data/xelis_network.dart';
+import 'package:xelis_mobile_wallet/features/wallet/domain/event.dart';
+import 'package:xelis_mobile_wallet/shared/logger.dart';
+import 'package:xelis_mobile_wallet/src/rust/api/network.dart';
 import 'package:xelis_mobile_wallet/src/rust/api/wallet.dart';
+
+Future<void> setNetwork(Network network) async {
+  switch (network) {
+    case Network.mainnet:
+      await setNetworkToMainnet();
+    case Network.testnet:
+      await setNetworkToTestnet();
+  }
+}
 
 class NativeWalletRepository {
   NativeWalletRepository._internal(this._xelisWallet);
@@ -10,36 +23,42 @@ class NativeWalletRepository {
   final XelisWallet _xelisWallet;
 
   static Future<NativeWalletRepository> create(
-      String name, String pwd, Network network) async {
+      String walletPath, String pwd, sdk.Network network) async {
     await setNetwork(network);
-    final dir = await getApplicationDocumentsDirectory();
     final xelisWallet =
-        await createXelisWallet(name: '${dir.path}/$name', password: pwd);
+        await createXelisWallet(name: walletPath, password: pwd);
+    logger.info('new Xelis Wallet created: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }
 
   static Future<NativeWalletRepository> recover(
-      String name, String pwd, Network network,
+      String walletPath, String pwd, sdk.Network network,
       {required String seed}) async {
     await setNetwork(network);
-    final dir = await getApplicationDocumentsDirectory();
-    final xelisWallet = await createXelisWallet(
-        name: '${dir.path}/$name', password: pwd, seed: seed);
+    final xelisWallet =
+        await createXelisWallet(name: walletPath, password: pwd, seed: seed);
+    logger.info('Xelis Wallet recovered from seed: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }
 
   static Future<NativeWalletRepository> open(
-      String name, String pwd, Network network) async {
+      String walletPath, String pwd, sdk.Network network) async {
     await setNetwork(network);
-    final dir = await getApplicationDocumentsDirectory();
-    final xelisWallet =
-        await openXelisWallet(name: '${dir.path}/$name', password: pwd);
+    final xelisWallet = await openXelisWallet(name: walletPath, password: pwd);
+    logger.info('Xelis Wallet open: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
+  }
+
+  Future<void> close() async {
+    await _xelisWallet.close();
   }
 
   void dispose() {
     _xelisWallet.dispose();
+    if (_xelisWallet.isDisposed) logger.info('Rust Wallet disposed');
   }
+
+  XelisWallet get nativeWallet => _xelisWallet;
 
   String get humanReadableAddress => _xelisWallet.getAddressStr();
 
@@ -59,6 +78,8 @@ class NativeWalletRepository {
   }
 
   Future<String> getXelisBalance() async {
+    final balance = await _xelisWallet.getXelisBalance();
+    debugPrint(balance);
     return _xelisWallet.getXelisBalance();
   }
 
@@ -86,32 +107,68 @@ class NativeWalletRepository {
   Future<void> setOnline({required String daemonAddress}) async {
     try {
       await _xelisWallet.onlineMode(daemonAddress: daemonAddress);
+      logger.info('Xelis Wallet connected to: $daemonAddress');
     } catch (e) {
       // TODO better error handling
-      debugPrint(e.toString());
+      logger.severe(e.toString());
     }
   }
 
   Future<void> setOffline() async {
     try {
       await _xelisWallet.offlineMode();
+      logger.info('Xelis Wallet offline');
     } catch (e) {
       // TODO better error handling
-      debugPrint(e.toString());
+      logger.severe(e.toString());
     }
   }
 
-  void getMainData() {
-    // TODO deserialize and yield event
-    _xelisWallet.mainDataStream().listen((event) {
-      debugPrint(event);
-    });
+  Stream<Event> convertRawEvents() async* {
+    final rawEventStream = _xelisWallet.eventsStream();
+
+    await for (final rawData in rawEventStream) {
+      final json = jsonDecode(rawData);
+      final eventType = sdk.WalletEvent.fromStr(json['event'] as String);
+      switch (eventType) {
+        case sdk.WalletEvent.newTopoHeight:
+          final newTopoheight =
+              Event.newTopoHeight(json['data']['topoheight'] as int);
+          yield newTopoheight;
+        case sdk.WalletEvent.newAsset:
+          final newAsset = Event.newAsset(
+              sdk.AssetWithData.fromJson(json['data'] as Map<String, dynamic>));
+          yield newAsset;
+        case sdk.WalletEvent.newTransaction:
+          final newTransaction = Event.newTransaction(
+              sdk.TransactionEntry.fromJson(
+                  json['data'] as Map<String, dynamic>));
+          yield newTransaction;
+        case sdk.WalletEvent.balanceChanged:
+          final balanceChanged = Event.balanceChanged(
+              sdk.BalanceChangedEvent.fromJson(
+                  json['data'] as Map<String, dynamic>));
+          yield balanceChanged;
+        case sdk.WalletEvent.rescan:
+          final rescan = Event.rescan(json['data']['start_topoheight'] as int);
+          yield rescan;
+        case sdk.WalletEvent.online:
+          yield const Event.online();
+        case sdk.WalletEvent.offline:
+          yield const Event.offline();
+      }
+    }
   }
 
-  void getDaemonInfo() {
-    // TODO deserialize and yield event
-    _xelisWallet.daemonInfoStream().listen((event) {
-      debugPrint(event);
-    });
+  Stream<sdk.GetInfoResult> getDaemonInfo() async* {
+    try {
+      await for (final rawData in _xelisWallet.daemonInfoStream()) {
+        final json = jsonDecode(rawData);
+        debugPrint(json.toString());
+        yield sdk.GetInfoResult.fromJson(json as Map<String, dynamic>);
+      }
+    } catch (e) {
+      logger.severe(e);
+    }
   }
 }

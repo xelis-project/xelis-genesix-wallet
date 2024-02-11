@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:xelis_mobile_wallet/features/authentication/domain/login_action_enum.dart';
+import 'package:xelis_mobile_wallet/features/authentication/application/open_wallet_state_provider.dart';
+import 'package:xelis_mobile_wallet/features/router/login_action_codec.dart';
 import 'package:xelis_mobile_wallet/features/authentication/presentation/create_wallet_widget.dart';
-import 'package:xelis_mobile_wallet/shared/storage/isar/isar_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/widgets/brightness_toggle.dart';
 import 'package:xelis_mobile_wallet/features/authentication/presentation/open_wallet_widget.dart';
 
 class AuthenticationScreen extends ConsumerWidget {
@@ -15,9 +14,6 @@ class AuthenticationScreen extends ConsumerWidget {
 
   Widget _getScaffold(BuildContext context, Widget child) {
     return Scaffold(
-      appBar: AppBar(
-        actions: const [BrightnessToggle()],
-      ),
       body: SafeArea(
           child: SingleChildScrollView(
               physics: const ClampingScrollPhysics(),
@@ -37,15 +33,10 @@ class AuthenticationScreen extends ConsumerWidget {
       case LoginAction.open:
         return _getScaffold(context, const OpenWalletWidget());
       case null:
-        return ref.watch(existingWalletNamesProvider).when(
-              data: (data) => data.isNotEmpty
-                  ? _getScaffold(context, const OpenWalletWidget())
-                  : _getScaffold(context, const CreateWalletWidget()),
-              // TODO: temp
-              error: (err, stack) => Center(child: Text('Error: $err')),
-              // TODO: temp
-              loading: () => const Center(child: CircularProgressIndicator()),
-            );
+        final data = ref.watch(openWalletProvider);
+        return data.wallets.isNotEmpty
+            ? _getScaffold(context, const OpenWalletWidget())
+            : _getScaffold(context, const CreateWalletWidget());
     }
   }
 }

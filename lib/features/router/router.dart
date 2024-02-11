@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:xelis_mobile_wallet/features/authentication/domain/login_action_enum.dart';
+import 'package:xelis_mobile_wallet/features/router/login_action_codec.dart';
 import 'package:xelis_mobile_wallet/features/router/routes.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
 
@@ -27,7 +27,7 @@ GoRouter router(RouterRef ref) {
     initialLocation: const LoginRoute().location,
     debugLogDiagnostics: true,
     routes: $appRoutes,
-    extraCodec: const MyExtraCodec(),
+    extraCodec: const LoginActionCodec(),
     redirect: (context, state) {
       final loggingIn = state.fullPath == const LoginRoute().location;
 

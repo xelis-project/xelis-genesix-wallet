@@ -47,7 +47,7 @@ app.*.map.json
 /android/app/src/main/jniLibs
 
 # Flutter Rust Bridge
-lib/src/rust/api
+lib/src/rust/api/**
 lib/src/rust/frb_generated.*
 
 # Dart generated files (Freezed, Riverpod, GoRouter etc..)

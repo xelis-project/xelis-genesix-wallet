@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,12 +7,11 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jovial_svg/jovial_svg.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
-import 'package:xelis_mobile_wallet/features/authentication/domain/login_action_enum.dart';
+import 'package:xelis_mobile_wallet/features/authentication/application/open_wallet_state_provider.dart';
+import 'package:xelis_mobile_wallet/features/router/login_action_codec.dart';
 import 'package:xelis_mobile_wallet/features/router/route_utils.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/theme_mode_state_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/domain/wallet_snapshot.dart';
-import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/banner_widget.dart';
 
@@ -26,7 +27,9 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
 
   bool _hidePassword = true;
 
-  String? selectedWallet;
+  String? _selectedWallet;
+
+  Future<void>? _pendingLogIn;
 
   @override
   Widget build(BuildContext context) {
@@ -36,17 +39,23 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
     final ScalableImageWidget banner =
         getBanner(context, userThemeMode.themeMode);
 
-    final openWalletData = ref.watch(openWalletDataProvider);
-    return openWalletData.when(
-      data: (data) {
-        selectedWallet ??= data['walletCurrentlyUsed'] as String;
+    final openWalletState = ref.watch(openWalletProvider);
 
-        return FormBuilder(
-          key: _openFormKey,
-          onChanged: () => _openFormKey.currentState!.save(),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints.tightFor(width: 600),
+    _selectedWallet = openWalletState.walletCurrentlyUsed;
+
+    return FutureBuilder(
+        future: _pendingLogIn,
+        builder: (context, snapshot) {
+          // TODO: handle with toast
+          // final isErrored = snapshot.hasError &&
+          //     snapshot.connectionState != ConnectionState.waiting;
+
+          final isWaiting = snapshot.connectionState == ConnectionState.waiting;
+
+          return FormBuilder(
+            key: _openFormKey,
+            onChanged: () => _openFormKey.currentState!.save(),
+            child: Center(
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Row(
@@ -96,16 +105,14 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
                             ),
                             requestFocusOnTap: true,
                             initialSelection:
-                                data['walletCurrentlyUsed'] as String,
-                            dropdownMenuEntries: (data['walletSnapshots']
-                                    as List<WalletSnapshot>)
-                                .map<DropdownMenuEntry<String>>((entry) {
-                              return DropdownMenuEntry<String>(
-                                  value: entry.name!, label: entry.name!);
-                            }).toList(),
+                                openWalletState.walletCurrentlyUsed,
+                            dropdownMenuEntries: openWalletState.wallets.entries
+                                .map((entry) => DropdownMenuEntry<String>(
+                                    value: entry.key, label: entry.key))
+                                .toList(),
                             onSelected: (v) {
                               setState(() {
-                                selectedWallet = v;
+                                _selectedWallet = v;
                               });
                             },
                           ),
@@ -141,24 +148,30 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
                             child: SizedBox(
                               width: 200,
                               child: FilledButton(
-                                onPressed: () {
-                                  if (_openFormKey.currentState
-                                          ?.saveAndValidate() ??
-                                      false) {
-                                    final password = _openFormKey.currentState
-                                        ?.value['password'] as String?;
+                                onPressed: isWaiting
+                                    ? null
+                                    : () async {
+                                        if (_openFormKey.currentState
+                                                ?.saveAndValidate() ??
+                                            false) {
+                                          final password = _openFormKey
+                                              .currentState
+                                              ?.value['password'] as String?;
 
-                                    if (selectedWallet != null &&
-                                        password != null) {
-                                      // logger
-                                      //     .info('$selectedWallet : $password');
-                                      ref
-                                          .read(authenticationProvider.notifier)
-                                          .openWallet(
-                                              selectedWallet!, password);
-                                    }
-                                  }
-                                },
+                                          if (_selectedWallet != null &&
+                                              password != null) {
+                                            final future = ref
+                                                .read(authenticationProvider
+                                                    .notifier)
+                                                .openWallet(
+                                                    _selectedWallet!, password);
+
+                                            setState(() {
+                                              _pendingLogIn = future;
+                                            });
+                                          }
+                                        }
+                                      },
                                 child: Text(
                                   loc.open_wallet_button,
                                   style: context.titleMedium!.copyWith(
@@ -167,6 +180,10 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
                               ),
                             ),
                           ),
+                          if (isWaiting) ...[
+                            const SizedBox(height: 16),
+                            const Center(child: CircularProgressIndicator()),
+                          ],
                           const Spacer(
                             flex: 3,
                           ),
@@ -177,13 +194,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
                 ),
               ),
             ),
-          ),
-        );
-      },
-      // TODO: temp
-      error: (err, stack) => Center(child: Text('Error: $err')),
-      // TODO: temp
-      loading: () => const Center(child: CircularProgressIndicator()),
-    );
+          );
+        });
   }
 }
