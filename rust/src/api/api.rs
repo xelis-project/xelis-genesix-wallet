@@ -8,6 +8,6 @@ pub fn create_log_stream(s: StreamSink<LogEntry>) -> anyhow::Result<()> {
 }
 
 pub fn set_up_rust_logger() {
-    // flutter_rust_bridge::setup_default_user_utils();
     logger::init_logger();
+    // flutter_rust_bridge::setup_default_user_utils();
 }

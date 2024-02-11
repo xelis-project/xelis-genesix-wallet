@@ -25,7 +25,7 @@ if (flutterVersionName == null) {
 android {
     namespace "io.xelis.app.xelis_mobile_wallet"
     compileSdkVersion flutter.compileSdkVersion
-    ndkVersion '26.1.10909125'
+    ndkVersion flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -45,8 +45,8 @@ android {
         applicationId "io.xelis.app.xelis_mobile_wallet"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion 21
-//        targetSdkVersion flutter.compileSdkVersion
+//        minSdkVersion 24
+        minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName

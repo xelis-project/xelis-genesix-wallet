@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:xelis_mobile_wallet/features/settings/data/persistent_state.dart';
+import 'package:xelis_mobile_wallet/shared/storage/persistent_state.dart';
 import 'package:xelis_mobile_wallet/features/settings/domain/theme_mode_state.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_sync.dart';

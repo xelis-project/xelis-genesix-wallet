@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:xelis_mobile_wallet/features/settings/data/persistent_state.dart';
+import 'package:xelis_mobile_wallet/shared/storage/persistent_state.dart';
 import 'package:xelis_mobile_wallet/features/settings/domain/locale_state.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_sync.dart';

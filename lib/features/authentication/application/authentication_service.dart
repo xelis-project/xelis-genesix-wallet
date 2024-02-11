@@ -1,13 +1,13 @@
+import 'dart:io';
+
+import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:xelis_mobile_wallet/features/authentication/data/secure_storage_repository.dart';
-import 'package:xelis_mobile_wallet/features/authentication/domain/account.dart';
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:xelis_mobile_wallet/features/authentication/application/open_wallet_state_provider.dart';
 import 'package:xelis_mobile_wallet/features/authentication/domain/authentication_state.dart';
-import 'package:xelis_mobile_wallet/features/wallet/application/daemon_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/data/native_keypair_repository.dart';
-import 'package:xelis_mobile_wallet/features/wallet/domain/wallet_snapshot.dart';
+import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
+import 'package:xelis_mobile_wallet/features/wallet/data/native_wallet_repository.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
-import 'package:xelis_mobile_wallet/shared/storage/isar/isar_provider.dart';
-import 'package:xelis_mobile_wallet/shared/utils/cypher.dart';
 
 part 'authentication_service.g.dart';
 
@@ -23,112 +23,73 @@ class Authentication extends _$Authentication {
     String password, [
     String? seed,
   ]) async {
-    if (await SecureStorageRepository.contain(key: 'xelis_$name')) {
-      logger.warning(
-        'A wallet with this name already exists : $name',
-      );
-      return;
-    }
-    final secretKey = await newSecretKey();
-    final bytesSecretKey = await secretKey.extractBytes();
-    final account =
-        Account(name: name, password: password, secretKey: bytesSecretKey);
+    final dir = await getApplicationDocumentsDirectory();
+    final walletPath = '${dir.path}/wallets/$name';
 
-    await SecureStorageRepository.save(
-      key: 'xelis_$name',
-      value: account.toJson(),
-    );
-
-    final walletEntry = WalletSnapshot()..name = name;
-
-    if (seed != null) {
-      final encryptedSeed = await encrypt(bytesSecretKey, seed);
-      walletEntry
-        ..encryptedSeed = encryptedSeed
-        ..imported = true;
+    if (await Directory(walletPath).exists()) {
+      logger.severe('This wallet already exists: $name');
+      // throw Exception('This wallet already exists: $name');
     } else {
-      final newSeed = await NativeKeyPairRepository.generateNewSeed();
-      final encryptedSeed = await encrypt(bytesSecretKey, newSeed);
-      walletEntry.encryptedSeed = encryptedSeed;
-    }
+      NativeWalletRepository walletRepository;
 
-    final isar = await ref.read(isarPodProvider.future);
-    final wallets = isar.walletSnapshots;
-    await isar.writeTxn(() async => wallets.put(walletEntry));
-
-    await SecureStorageRepository.save(
-      key: 'xelis_wallet_currently_used',
-      value: account.toJson(),
-    );
-
-    state = AuthenticationState.signedIn(
-      walletId: walletEntry.id,
-      secretKey: bytesSecretKey,
-    );
-  }
-
-  Future<void> openWallet(String name, String password) async {
-    final data = await SecureStorageRepository.get(key: 'xelis_$name');
-    if (data == null) {
-      logger.warning(
-        'This key does not exist in secure storage: $name',
-      );
-      return;
-    }
-
-    final account = Account.fromJson(data as Map<String, dynamic>);
-    if (password == account.password) {
-      final isar = await ref.read(isarPodProvider.future);
-      final wallet = await isar.walletSnapshots.getByName(name);
-      if (wallet == null) {
-        logger.warning(
-          'Wallet not found in Isar db: $name',
-        );
+      try {
+        if (seed != null) {
+          walletRepository = await NativeWalletRepository.recover(
+              walletPath, password, Network.testnet,
+              seed: seed);
+        } else {
+          walletRepository = await NativeWalletRepository.create(
+              walletPath, password, Network.testnet);
+        }
+      } catch (e) {
+        // TODO: better error handling
+        logger.severe('Creating wallet failed: $e');
         return;
       }
 
-      await SecureStorageRepository.save(
-        key: 'xelis_wallet_currently_used',
-        value: account.toJson(),
-      );
+      ref.read(openWalletProvider.notifier).saveOpenWalletState(name,
+          address: walletRepository.humanReadableAddress);
 
-      state = AuthenticationState.signedIn(
-        walletId: wallet.id,
-        secretKey: account.secretKey,
-      );
+      state = AuthenticationState.signedIn(nativeWallet: walletRepository);
+
+      ref.read(walletStateProvider.notifier).connect();
     }
   }
 
-  Future<String> getWalletNameCurrentlyUsed() async {
-    final data =
-        await SecureStorageRepository.get(key: 'xelis_wallet_currently_used');
-    if (data == null) {
-      logger.warning(
-        'This key does not exist in secure storage: xelis_wallet_currently_used',
-      );
-      return '';
+  Future<void> openWallet(String name, String password) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final walletPath = '${dir.path}/wallets/$name';
+
+    if (await Directory(walletPath).exists()) {
+      NativeWalletRepository walletRepository;
+      try {
+        walletRepository = await NativeWalletRepository.open(
+            walletPath, password, Network.testnet);
+      } catch (e) {
+        // TODO: better error handling
+        logger.severe('Opening wallet failed: $e');
+        return;
+      }
+
+      ref.read(openWalletProvider.notifier).saveOpenWalletState(name);
+
+      state = AuthenticationState.signedIn(nativeWallet: walletRepository);
+
+      ref.read(walletStateProvider.notifier).connect();
+    } else {
+      logger.severe('This wallet does not exist: $name');
+      // throw Exception('This wallet does not exist: $name');
     }
-
-    final account = Account.fromJson(data as Map<String, dynamic>);
-
-    return account.name;
   }
 
-  void logout() {
-    state = const AuthenticationState.signedOut();
-    ref.read(daemonClientRepositoryPodProvider).disconnect();
+  Future<void> logout() async {
+    switch (state) {
+      case SignedIn(:final nativeWallet):
+        await ref.read(walletStateProvider.notifier).disconnect();
+        nativeWallet.dispose();
+        state = const AuthenticationState.signedOut();
+      case SignedOut():
+        return;
+    }
   }
-}
-
-@riverpod
-Future<Map<String, dynamic>> openWalletData(OpenWalletDataRef ref) async {
-  List<WalletSnapshot> walletSnapshots =
-      await ref.watch(walletSnapshotsProvider.future);
-  String walletCurrentlyUsed = await ref
-      .watch(authenticationProvider.notifier)
-      .getWalletNameCurrentlyUsed();
-  return {
-    'walletSnapshots': walletSnapshots,
-    'walletCurrentlyUsed': walletCurrentlyUsed
-  };
 }

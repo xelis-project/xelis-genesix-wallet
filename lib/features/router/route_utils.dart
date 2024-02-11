@@ -2,7 +2,6 @@ enum AppScreen {
   // splash,
   auth,
   hub,
-  settings,
 }
 
 extension AppScreenExtension on AppScreen {
@@ -12,8 +11,6 @@ extension AppScreenExtension on AppScreen {
         return '/login';
       case AppScreen.hub:
         return '/hub';
-      case AppScreen.settings:
-        return '/settings';
     }
   }
 
@@ -23,8 +20,6 @@ extension AppScreenExtension on AppScreen {
         return 'authentication';
       case AppScreen.hub:
         return 'hub';
-      case AppScreen.settings:
-        return 'settings';
     }
   }
 
@@ -34,8 +29,6 @@ extension AppScreenExtension on AppScreen {
         return 'Xelis Wallet Authentication';
       case AppScreen.hub:
         return 'Xelis Wallet';
-      case AppScreen.settings:
-        return 'Settings';
     }
   }
 }

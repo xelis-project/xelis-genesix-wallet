@@ -52,6 +52,15 @@ impl XelisWallet {
         self.wallet.get_address().to_string()
     }
 
+    #[frb(sync)]
+    pub fn get_network(&self) -> String {
+        self.wallet.get_network().to_string()
+    }
+
+    pub async fn close(&self) {
+        self.wallet.close().await;
+    }
+
     pub async fn get_seed(
         &self,
         password: String,
@@ -212,31 +221,22 @@ impl XelisWallet {
         self.wallet.is_online().await
     }
 
-    const ONE_HUNDRED_MILLIS: Duration = Duration::from_millis(100);
-    pub async fn main_data_stream(&self, sink: StreamSink<String>) {
+    pub async fn events_stream(&self, sink: StreamSink<String>) {
+        let mut rx = self.wallet.subscribe_events().await;
+
         loop {
-            let storage = self.wallet.get_storage().read().await;
-
-            let address = self.wallet.get_address().to_string();
-            let network = self.wallet.get_network().to_string();
-            let topoheight = storage.get_daemon_topoheight().unwrap_or_default();
-            let xelis_balance =
-                format_xelis(storage.get_balance_for(&XELIS_ASSET).unwrap_or_default());
-            let is_online = self.wallet.is_online().await;
-
-            let json_data = json!({
-                "address": address,
-                "topoheight": topoheight,
-                "balance": xelis_balance,
-                "network": network,
-                "is_online": is_online,
-            })
-            .to_string();
-
-            sink.add(json_data)
-                .expect("Unable to send main wallet data through stream");
-
-            sleep(XelisWallet::ONE_HUNDRED_MILLIS);
+            let result = rx.recv().await;
+            match result {
+                Ok(event) => {
+                    let json_event = json!({"event": event.kind(), "data": event}).to_string();
+                    sink.add(json_event)
+                        .expect("Unable to send event data through stream");
+                }
+                Err(e) => {
+                    debug!("Error with events stream: {}", e);
+                    break;
+                }
+            }
         }
     }
 
@@ -244,24 +244,50 @@ impl XelisWallet {
     pub async fn daemon_info_stream(&self, sink: StreamSink<String>) {
         loop {
             let mutex = self.wallet.get_network_handler().await;
-            let network_handler = mutex.lock().await;
-            let api = network_handler.as_ref().unwrap().get_api();
+            let lock = mutex.lock().await;
 
-            let info = match api.get_info().await {
-                Ok(info) => info,
-                Err(e) => {
-                    debug!("Impossible to call get_info RPC method: {}", e);
-                    continue;
+            match lock.as_ref() {
+                None => {
+                    break;
                 }
-            };
+                Some(network_handler) => {
+                    let api = network_handler.get_api();
 
-            let json_info =
-                serde_json::to_string(&info).expect("GetInfoResult serialization failed");
+                    let info = match api.get_info().await {
+                        Ok(info) => info,
+                        Err(e) => {
+                            debug!("Impossible to call get_info RPC method: {}", e);
+                            break;
+                        }
+                    };
 
-            sink.add(json_info)
-                .expect("Unable to send GetInfoResult through stream");
+                    let json_info =
+                        serde_json::to_string(&info).expect("GetInfoResult serialization failed");
 
+                    sink.add(json_info)
+                        .expect("Unable to send GetInfoResult through stream");
+                }
+            }
             sleep(XelisWallet::FIVE_SECONDS);
         }
+    }
+
+    pub async fn format_coin(
+        &self,
+        atomic_amount: u64,
+        asset_hash: Option<String>,
+    ) -> Result<String> {
+        let asset = match asset_hash {
+            None => XELIS_ASSET,
+            Some(value) => Hash::from_hex(value).unwrap_or(XELIS_ASSET),
+        };
+
+        let decimals = {
+            let storage = self.wallet.get_storage().read().await;
+            let decimals = storage.get_asset_decimals(&asset).unwrap_or(COIN_DECIMALS);
+            decimals
+        };
+
+        Ok(format_coin(atomic_amount, decimals))
     }
 }

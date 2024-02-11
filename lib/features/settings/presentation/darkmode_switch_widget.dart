@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/theme_mode_state_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 
-class BrightnessToggle extends ConsumerWidget {
-  const BrightnessToggle({super.key});
+class DarkModeSwitchWidget extends ConsumerWidget {
+  const DarkModeSwitchWidget({super.key});
 
-  Icon _getIcon(BuildContext context, ThemeMode themeMode) {
+  bool _isDarkMode(BuildContext context, ThemeMode themeMode) {
+    final isDark = context.theme.brightness == Brightness.dark;
+
     switch (themeMode) {
       case ThemeMode.system:
-        if (context.theme.brightness == Brightness.dark) {
-          return const Icon(Icons.light_mode_outlined);
+        if (isDark) {
+          return true;
         } else {
-          return const Icon(Icons.dark_mode_outlined);
+          return false;
         }
       case ThemeMode.light:
-        return const Icon(Icons.dark_mode_outlined);
+        return false;
       case ThemeMode.dark:
-        return const Icon(Icons.light_mode_outlined);
+        return true;
     }
   }
 
@@ -31,10 +34,16 @@ class BrightnessToggle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = ref.watch(appLocalizationsProvider);
     final userThemeMode = ref.watch(userThemeModeProvider);
-    return IconButton(
-      onPressed: () => _changeThemeMode(context, ref),
-      icon: _getIcon(context, userThemeMode.themeMode),
+
+    return SwitchListTile(
+      title: Text(
+        loc.dark_mode_setting,
+        style: context.titleLarge,
+      ),
+      value: _isDarkMode(context, userThemeMode.themeMode),
+      onChanged: (_) => _changeThemeMode(context, ref),
     );
   }
 }

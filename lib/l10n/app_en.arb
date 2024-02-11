@@ -19,17 +19,44 @@
   "logout": "Logout",
   "settings": "Settings",
   "language": "Language",
-  "node_address": "Node Address",
   "add_node_button": "Add",
-  "new_node_address": "New Node Address",
-  "address": "Address",
+  "add_new_node_title": "New Node",
+  "url": "url",
+  "url_already_exists": "This url already exists.",
+  "name": "name",
+  "name_already_exists": "This name already exists.",
 
   "node_bottom_app_bar": "Node",
+  "remote_node": "Remote Node",
+
   "wallet_bottom_app_bar": "Wallet",
+  "balance": "Balance",
+  "send": "Send",
+  "receive": "Receive",
+  "topoheight": "Topoheight",
+  "transfer_to": "Transfer to",
+  "remaining_balance": "Remaining balance",
+  "amount": "amount",
+  "receiver_address": "receiver address",
+
+  "field_required_error": "This field cannot be empty.",
+  "must_be_numeric_error": "Value must be numeric.",
+  "invalid_address_format_error": "The address format is invalid.",
+
+  "tx_hash": "Transaction hash",
+
   "history_bottom_app_bar": "History",
   "assets_bottom_app_bar": "Assets",
   "settings_bottom_app_bar": "Settings",
 
   "cancel_button": "Cancel",
-  "ok_button": "Ok"
+  "ok_button": "Ok",
+  "confirm_button": "Confirm",
+
+  "dark_mode_setting": "Dark Mode",
+
+  "connected" : "Connected",
+  "disconnected" : "Disconnected",
+  "loading": "Loading...",
+  "oups": "Oops, something went wrong..."
 }
