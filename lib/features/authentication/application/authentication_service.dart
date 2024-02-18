@@ -5,9 +5,12 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/open_wallet_state_provider.dart';
 import 'package:xelis_mobile_wallet/features/authentication/domain/authentication_state.dart';
+import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/data/native_wallet_repository.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
+import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
+import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
 
 part 'authentication_service.g.dart';
 
@@ -28,7 +31,7 @@ class Authentication extends _$Authentication {
 
     if (await Directory(walletPath).exists()) {
       logger.severe('This wallet already exists: $name');
-      // throw Exception('This wallet already exists: $name');
+      throw Exception('This wallet already exists: $name');
     } else {
       NativeWalletRepository walletRepository;
 
@@ -42,9 +45,12 @@ class Authentication extends _$Authentication {
               walletPath, password, Network.testnet);
         }
       } catch (e) {
-        // TODO: better error handling
         logger.severe('Creating wallet failed: $e');
-        return;
+        final loc = ref.read(appLocalizationsProvider);
+        ref.read(snackbarContentProvider.notifier).setContent(
+            SnackbarEvent.error(
+                message: loc.wallet_creation_failed_toast_error));
+        rethrow;
       }
 
       ref.read(openWalletProvider.notifier).saveOpenWalletState(name,
@@ -66,9 +72,12 @@ class Authentication extends _$Authentication {
         walletRepository = await NativeWalletRepository.open(
             walletPath, password, Network.testnet);
       } catch (e) {
-        // TODO: better error handling
         logger.severe('Opening wallet failed: $e');
-        return;
+        final loc = ref.read(appLocalizationsProvider);
+        ref.read(snackbarContentProvider.notifier).setContent(
+            SnackbarEvent.error(
+                message: loc.wallet_opening_failed_toast_error));
+        rethrow;
       }
 
       ref.read(openWalletProvider.notifier).saveOpenWalletState(name);
@@ -78,7 +87,7 @@ class Authentication extends _$Authentication {
       ref.read(walletStateProvider.notifier).connect();
     } else {
       logger.severe('This wallet does not exist: $name');
-      // throw Exception('This wallet does not exist: $name');
+      throw Exception('This wallet does not exist: $name');
     }
   }
 

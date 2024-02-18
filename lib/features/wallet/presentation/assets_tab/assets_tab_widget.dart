@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 
 class AssetsTab extends ConsumerWidget {
@@ -7,9 +8,10 @@ class AssetsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = ref.watch(appLocalizationsProvider);
     return Center(
       child: Text(
-        'ASSETS TAB',
+        loc.coming_soon,
         style: context.displayMedium,
       ),
     );

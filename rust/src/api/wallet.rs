@@ -1,13 +1,10 @@
-use anyhow::{anyhow, Context, Result};
-use std::collections::HashMap;
-use std::sync::Arc;
-use std::thread::sleep;
-use std::time::Duration;
-
 use crate::frb_generated::StreamSink;
+use anyhow::{anyhow, Context, Result};
 use flutter_rust_bridge::frb;
 use log::{debug, info};
 use serde_json::json;
+use std::collections::HashMap;
+use std::sync::Arc;
 use xelis_common::api::wallet::FeeBuilder;
 use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
 use xelis_common::crypto::address::{Address, AddressType};
@@ -160,7 +157,41 @@ impl XelisWallet {
         Ok(tx.hash().to_hex())
     }
 
-    // TODO: Burn fct
+    pub async fn burn(&self, float_amount: f64, asset_hash: String) -> Result<String> {
+        let asset = Hash::from_hex(asset_hash)?;
+
+        let (_max_balance, decimals) = {
+            let storage = self.wallet.get_storage().read().await;
+            let balance = storage.get_balance_for(&asset).unwrap_or(0);
+            let decimals = storage.get_asset_decimals(&asset).unwrap_or(COIN_DECIMALS);
+            (balance, decimals)
+        };
+
+        let amount = (float_amount * 10u32.pow(decimals as u32) as f64) as u64;
+
+        let tx = {
+            let storage = self.wallet.get_storage().read().await;
+            info!("Burning {} of {}", format_coin(amount, decimals), asset);
+            self.wallet
+                .create_transaction(
+                    &storage,
+                    TransactionType::Burn { asset, amount },
+                    FeeBuilder::Multiplier(1f64),
+                )
+                .context("Error while creating transaction")?
+        };
+
+        if self.wallet.is_online().await {
+            self.wallet.submit_transaction(&tx).await?;
+            info!("Transaction submitted successfully!");
+        } else {
+            return Err(anyhow!(
+                "Wallet is offline, transaction cannot be submitted"
+            ));
+        }
+
+        Ok(tx.hash().to_hex())
+    }
 
     const TXS_PER_PAGE: usize = 10;
     pub async fn history(&self, requested_page: Option<usize>) -> Result<Vec<String>> {
@@ -240,36 +271,20 @@ impl XelisWallet {
         }
     }
 
-    const FIVE_SECONDS: Duration = Duration::from_secs(5);
-    pub async fn daemon_info_stream(&self, sink: StreamSink<String>) {
-        loop {
-            let mutex = self.wallet.get_network_handler().await;
-            let lock = mutex.lock().await;
+    pub async fn get_daemon_info(&self) -> Result<String> {
+        let mutex = self.wallet.get_network_handler().await;
+        let lock = mutex.lock().await;
+        let network_handler = lock.as_ref().unwrap();
+        let api = network_handler.get_api();
 
-            match lock.as_ref() {
-                None => {
-                    break;
-                }
-                Some(network_handler) => {
-                    let api = network_handler.get_api();
-
-                    let info = match api.get_info().await {
-                        Ok(info) => info,
-                        Err(e) => {
-                            debug!("Impossible to call get_info RPC method: {}", e);
-                            break;
-                        }
-                    };
-
-                    let json_info =
-                        serde_json::to_string(&info).expect("GetInfoResult serialization failed");
-
-                    sink.add(json_info)
-                        .expect("Unable to send GetInfoResult through stream");
-                }
+        let info = match api.get_info().await {
+            Ok(info) => info,
+            Err(e) => {
+                return Err(e);
             }
-            sleep(XelisWallet::FIVE_SECONDS);
-        }
+        };
+
+        Ok(serde_json::to_string(&info).expect("GetInfoResult serialization failed"))
     }
 
     pub async fn format_coin(

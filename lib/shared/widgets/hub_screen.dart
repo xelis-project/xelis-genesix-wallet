@@ -17,7 +17,7 @@ class HubScreen extends ConsumerStatefulWidget {
 }
 
 class _HubScreenState extends ConsumerState<HubScreen> {
-  int currentPageIndex = 2; // Default wallet tab
+  int _currentPageIndex = 2; // Default wallet tab
 
   Widget _getScaffoldBodyShape(BuildContext context, Widget child) {
     return SafeArea(
@@ -33,46 +33,45 @@ class _HubScreenState extends ConsumerState<HubScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    return SelectionArea(
-      child: Scaffold(
-        appBar: const HubAppBar(),
-        bottomNavigationBar: NavigationBar(
-          onDestinationSelected: (int index) {
-            setState(() {
-              currentPageIndex = index;
-            });
-          },
-          selectedIndex: currentPageIndex,
-          destinations: <Widget>[
-            NavigationDestination(
-              icon: const Icon(Icons.explore_outlined),
-              label: loc.node_bottom_app_bar,
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.manage_search_outlined),
-              label: loc.history_bottom_app_bar,
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.account_balance_wallet_outlined),
-              label: loc.wallet_bottom_app_bar,
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.assessment_outlined),
-              label: loc.assets_bottom_app_bar,
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.settings_outlined),
-              label: loc.settings_bottom_app_bar,
-            ),
-          ],
-        ),
-        body: <Widget>[
-          _getScaffoldBodyShape(context, const NodeTab()),
-          _getScaffoldBodyShape(context, const HistoryTab()),
-          _getScaffoldBodyShape(context, const WalletTab()),
-          _getScaffoldBodyShape(context, const AssetsTab()),
-          _getScaffoldBodyShape(context, const SettingsTab()),
-        ][currentPageIndex],
+    return Scaffold(
+      appBar: const HubAppBar(),
+      body: <Widget>[
+        _getScaffoldBodyShape(context, const NodeTab()),
+        _getScaffoldBodyShape(context, const HistoryTab()),
+        _getScaffoldBodyShape(context, const WalletTab()),
+        _getScaffoldBodyShape(context, const AssetsTab()),
+        _getScaffoldBodyShape(context, const SettingsTab()),
+      ][_currentPageIndex],
+      bottomNavigationBar: NavigationBar(
+        animationDuration: Duration.zero,
+        onDestinationSelected: (int index) {
+          setState(() {
+            _currentPageIndex = index;
+          });
+        },
+        selectedIndex: _currentPageIndex,
+        destinations: <Widget>[
+          NavigationDestination(
+            icon: const Icon(Icons.explore_outlined),
+            label: loc.node_bottom_app_bar,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.manage_search_outlined),
+            label: loc.history_bottom_app_bar,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.account_balance_wallet_outlined),
+            label: loc.wallet_bottom_app_bar,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.assessment_outlined),
+            label: loc.assets_bottom_app_bar,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.settings_outlined),
+            label: loc.settings_bottom_app_bar,
+          ),
+        ],
       ),
     );
   }

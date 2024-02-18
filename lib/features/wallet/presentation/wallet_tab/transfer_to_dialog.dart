@@ -119,6 +119,18 @@ class _TransferToDialogState extends ConsumerState<TransferToDialog> {
                                   errorText: loc.field_required_error),
                               FormBuilderValidators.numeric(
                                   errorText: loc.must_be_numeric_error),
+                              (val) {
+                                if (_remainingBalance < 0) {
+                                  return loc.insufficient_funds_error;
+                                }
+                                if (val != null) {
+                                  final amount = double.tryParse(val);
+                                  if (amount == 0) {
+                                    return loc.invalid_amount_error;
+                                  }
+                                }
+                                return null;
+                              }
                             ]),
                           ),
                           const SizedBox(height: 16),

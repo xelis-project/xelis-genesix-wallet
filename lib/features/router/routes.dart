@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:xelis_mobile_wallet/features/router/login_action_codec.dart';
 import 'package:xelis_mobile_wallet/features/authentication/presentation/authentication_screen.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/hub_screen.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/snackbar_initializer_widget.dart';
 
 part 'routes.g.dart';
 
@@ -17,7 +18,7 @@ class LoginRoute extends GoRouteData {
         loginAction: state.extra as LoginAction,
       );
     } else {
-      return const AuthenticationScreen();
+      return const SnackBarInitializerWidget(child: AuthenticationScreen());
     }
   }
 }
@@ -28,6 +29,6 @@ class HubRoute extends GoRouteData {
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const HubScreen();
+    return const SnackBarInitializerWidget(child: HubScreen());
   }
 }

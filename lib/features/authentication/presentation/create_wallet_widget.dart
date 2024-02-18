@@ -43,7 +43,6 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
     return FutureBuilder(
         future: _pendingLogIn,
         builder: (context, snapshot) {
-          // TODO: handle with toast
           // final isErrored = snapshot.hasError &&
           //     snapshot.connectionState != ConnectionState.waiting;
 
@@ -98,9 +97,6 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
                           const SizedBox(height: 8),
                           FormBuilderSwitch(
                             name: 'seed_switch',
-                            // decoration: const InputDecoration(
-                            //   border: InputBorder.none,
-                            // ),
                             initialValue: _seedRequired,
                             title: Text(
                               loc.seed_option,

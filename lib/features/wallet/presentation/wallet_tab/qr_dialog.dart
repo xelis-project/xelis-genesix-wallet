@@ -15,7 +15,8 @@ class QrDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
     final walletSnapshot = ref.watch(walletStateProvider);
-    final userThemeMode = ref.watch(userThemeModeProvider);
+
+    // final userThemeMode = ref.watch(userThemeModeProvider);
 
     // var iconTarget = '';
     // switch (userThemeMode.themeMode) {

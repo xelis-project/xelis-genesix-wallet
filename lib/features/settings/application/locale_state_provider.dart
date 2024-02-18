@@ -15,8 +15,7 @@ class Localization extends _$Localization {
     final prefs = ref.watch(sharedPreferencesProvider);
     final localeStateRepository =
         LocaleStateRepository(SharedPreferencesSync(prefs));
-    final localeState = localeStateRepository.fromStorage();
-    return localeState;
+    return localeStateRepository.fromStorage();
   }
 
   void setLocale(Locale locale) {
