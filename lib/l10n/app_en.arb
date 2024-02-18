@@ -73,6 +73,8 @@
   "cannot_connect_toast_error": "Cannot connect to the node.",
   "rescan_limitation_toast_error": "You must be connected to a full node to perform a rescan.",
   "disconnecting_toast_error": "Something went wrong during disconnection...",
-  "transfer_failed": "The transfer has failed."
+  "transfer_failed": "The transfer has failed.",
+
+  "my_seed": "My Seed"
 
 }

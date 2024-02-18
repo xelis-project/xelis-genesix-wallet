@@ -73,5 +73,7 @@
   "cannot_connect_toast_error": "Impossible de se connecter au nœud.",
   "rescan_limitation_toast_error": "Vous devez être connecté à un nœud complet pour effectuer un rescan.",
   "disconnecting_toast_error": "Quelque chose s'est mal passé lors de la déconnexion...",
-  "transfer_failed": "Le transfert n'a pas abouti."
+  "transfer_failed": "Le transfert n'a pas abouti.",
+
+  "my_seed": "Ma Graine"
 }
