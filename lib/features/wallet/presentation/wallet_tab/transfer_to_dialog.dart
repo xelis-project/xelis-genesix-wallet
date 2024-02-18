@@ -33,7 +33,6 @@ class _TransferToDialogState extends ConsumerState<TransferToDialog> {
     return FutureBuilder(
       future: _pendingTransfer,
       builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
-        // TODO
         // final isErrored = snapshot.hasError &&
         //     snapshot.connectionState != ConnectionState.waiting;
         final isWaiting = snapshot.connectionState == ConnectionState.waiting;

@@ -130,6 +130,10 @@ class WalletState extends _$WalletState {
     }
   }
 
+  Future<String?> getSeed(String password) async {
+    return await state.nativeWalletRepository?.getSeed(password: password);
+  }
+
   Future<void> disconnect() async {
     state = state.copyWith(isOnline: false);
     try {

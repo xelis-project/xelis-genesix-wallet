@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +9,7 @@ import 'package:xelis_mobile_wallet/features/wallet/application/balance_mode_pro
 import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/balance_mode_state.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/qr_dialog.dart';
+import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/seed_dialog.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/transfer_to_dialog.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
@@ -34,6 +34,13 @@ class _WalletTabState extends ConsumerState<WalletTab> {
     showDialog<void>(
       context: context,
       builder: (_) => const QrDialog(),
+    );
+  }
+
+  void _showSeedDialog(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => const MySeedDialog(),
     );
   }
 
@@ -111,7 +118,7 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                     children: [
                       IconButton.outlined(
                         onPressed: () {
-                          debugPrint('SEED');
+                          _showSeedDialog(context);
                         },
                         icon: const Icon(Icons.pattern),
                         color: context.colors.primary,
