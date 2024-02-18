@@ -36,7 +36,10 @@ class HubAppBar extends ConsumerWidget implements PreferredSizeWidget {
         // const PopupMenu(),
         IconButton(
             onPressed: () => _logout(context, ref),
-            icon: const Icon(Icons.logout_rounded)),
+            icon: const Icon(
+              Icons.logout_rounded,
+              size: 18,
+            )),
       ],
     );
   }

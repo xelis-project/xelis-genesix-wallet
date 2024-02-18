@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:xelis_mobile_wallet/features/router/router.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/theme_mode_state_provider.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
+import 'package:xelis_mobile_wallet/shared/providers/scaffold_messenger_provider.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
@@ -75,6 +76,8 @@ class _MyAppState extends ConsumerState<MyApp> {
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
     final userThemeMode = ref.watch(userThemeModeProvider);
+    final scaffoldMessengerKey = ref.watch(scaffoldMessengerKeyProvider);
+
     return WalletInitializerWidget(
       child: GlobalLoaderOverlay(
         useDefaultLoading: false,
@@ -100,6 +103,7 @@ class _MyAppState extends ConsumerState<MyApp> {
         },
         child: MaterialApp.router(
           title: 'Xelis Wallet',
+          scaffoldMessengerKey: scaffoldMessengerKey,
           debugShowCheckedModeBanner: false,
           themeMode: userThemeMode.themeMode,
           theme: _lightTheme,

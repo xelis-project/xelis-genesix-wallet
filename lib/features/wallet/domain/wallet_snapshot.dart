@@ -4,7 +4,6 @@ import 'package:xelis_mobile_wallet/features/wallet/domain/daemon_info_snapshot.
 
 part 'wallet_snapshot.freezed.dart';
 
-// @Freezed(makeCollectionsUnmodifiable: false)
 @freezed
 class WalletSnapshot with _$WalletSnapshot {
   const factory WalletSnapshot({

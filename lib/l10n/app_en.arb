@@ -42,6 +42,8 @@
   "field_required_error": "This field cannot be empty.",
   "must_be_numeric_error": "Value must be numeric.",
   "invalid_address_format_error": "The address format is invalid.",
+  "insufficient_funds_error": "Insufficient funds.",
+  "invalid_amount_error": "Invalid amount.",
 
   "tx_hash": "Transaction hash",
 
@@ -58,5 +60,19 @@
   "connected" : "Connected",
   "disconnected" : "Disconnected",
   "loading": "Loading...",
-  "oups": "Oops, something went wrong..."
+  "oups": "Oops, something went wrong...",
+  "coming_soon": "Coming soon...",
+
+  "wallet_creation_failed_toast_error": "Wallet creation has failed.",
+  "wallet_opening_failed_toast_error": "Wallet opening has failed.",
+
+  "copied": "Copied!",
+  "rescan_done": "Rescan complete!",
+
+  "new_transaction_toast_info": "New transaction:",
+  "cannot_connect_toast_error": "Cannot connect to the node.",
+  "rescan_limitation_toast_error": "You must be connected to a full node to perform a rescan.",
+  "disconnecting_toast_error": "Something went wrong during disconnection...",
+  "transfer_failed": "The transfer has failed."
+
 }

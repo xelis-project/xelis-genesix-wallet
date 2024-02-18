@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/event.dart';
@@ -79,7 +78,6 @@ class NativeWalletRepository {
 
   Future<String> getXelisBalance() async {
     final balance = await _xelisWallet.getXelisBalance();
-    debugPrint(balance);
     return _xelisWallet.getXelisBalance();
   }
 
@@ -99,29 +97,33 @@ class NativeWalletRepository {
         floatAmount: amount, strAddress: address, assetHash: assetHash);
   }
 
-  Future<List<String>> history({required int page}) async {
-    // TODO deserialize history entry
-    return _xelisWallet.history(requestedPage: page);
+  Future<String> burn(
+      {required double amount, required String assetHash}) async {
+    return _xelisWallet.burn(floatAmount: amount, assetHash: assetHash);
+  }
+
+  Future<List<sdk.TransactionEntry>> history({required int page}) async {
+    var jsonTransactionsList = await _xelisWallet.history(requestedPage: page);
+    return jsonTransactionsList
+        .map((entry) =>
+            sdk.TransactionEntry.fromJson(entry as Map<String, dynamic>))
+        .toList();
   }
 
   Future<void> setOnline({required String daemonAddress}) async {
-    try {
-      await _xelisWallet.onlineMode(daemonAddress: daemonAddress);
-      logger.info('Xelis Wallet connected to: $daemonAddress');
-    } catch (e) {
-      // TODO better error handling
-      logger.severe(e.toString());
-    }
+    await _xelisWallet.onlineMode(daemonAddress: daemonAddress);
+    logger.info('Xelis Wallet connected to: $daemonAddress');
   }
 
   Future<void> setOffline() async {
-    try {
-      await _xelisWallet.offlineMode();
-      logger.info('Xelis Wallet offline');
-    } catch (e) {
-      // TODO better error handling
-      logger.severe(e.toString());
-    }
+    await _xelisWallet.offlineMode();
+    logger.info('Xelis Wallet offline');
+  }
+
+  Future<sdk.GetInfoResult> getDaemonInfo() async {
+    var rawData = await _xelisWallet.getDaemonInfo();
+    final json = jsonDecode(rawData);
+    return sdk.GetInfoResult.fromJson(json as Map<String, dynamic>);
   }
 
   Stream<Event> convertRawEvents() async* {
@@ -157,18 +159,6 @@ class NativeWalletRepository {
         case sdk.WalletEvent.offline:
           yield const Event.offline();
       }
-    }
-  }
-
-  Stream<sdk.GetInfoResult> getDaemonInfo() async* {
-    try {
-      await for (final rawData in _xelisWallet.daemonInfoStream()) {
-        final json = jsonDecode(rawData);
-        debugPrint(json.toString());
-        yield sdk.GetInfoResult.fromJson(json as Map<String, dynamic>);
-      }
-    } catch (e) {
-      logger.severe(e);
     }
   }
 }

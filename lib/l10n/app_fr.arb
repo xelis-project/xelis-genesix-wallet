@@ -42,6 +42,8 @@
   "field_required_error": "Ce champ ne peut pas être vide.",
   "must_be_numeric_error": "La valeur doit être numérique.",
   "invalid_address_format_error": "Le format de l'adresse n'est pas valide.",
+  "insufficient_funds_error": "Fonds insuffisants.",
+  "invalid_amount_error": "Montant non valide.",
 
   "tx_hash": "Hash de la transaction",
 
@@ -58,5 +60,18 @@
   "connected" : "Connecté",
   "disconnected" : "Deconnecté",
   "loading": "Chargement ...",
-  "oups": "Oups, quelque chose s'est mal passé ..."
+  "oups": "Oups, quelque chose s'est mal passé ...",
+  "coming_soon": "Bientôt disponible ...",
+
+  "wallet_creation_failed_toast_error": "La création du wallet a échoué.",
+  "wallet_opening_failed_toast_error": "L'ouverture du wallet a échoué.",
+
+  "copied": "Copié !",
+  "rescan_done": "Rescan terminé !",
+
+  "new_transaction_toast_info": "Nouvelle transaction:",
+  "cannot_connect_toast_error": "Impossible de se connecter au nœud.",
+  "rescan_limitation_toast_error": "Vous devez être connecté à un nœud complet pour effectuer un rescan.",
+  "disconnecting_toast_error": "Quelque chose s'est mal passé lors de la déconnexion...",
+  "transfer_failed": "Le transfert n'a pas abouti."
 }

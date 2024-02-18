@@ -34,11 +34,9 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-
     final userThemeMode = ref.watch(userThemeModeProvider);
     final ScalableImageWidget banner =
         getBanner(context, userThemeMode.themeMode);
-
     final openWalletState = ref.watch(openWalletProvider);
 
     _selectedWallet = openWalletState.walletCurrentlyUsed;
@@ -46,7 +44,6 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
     return FutureBuilder(
         future: _pendingLogIn,
         builder: (context, snapshot) {
-          // TODO: handle with toast
           // final isErrored = snapshot.hasError &&
           //     snapshot.connectionState != ConnectionState.waiting;
 
