@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:xelis_mobile_wallet/features/wallet/data/native_wallet_repository.dart';
-import 'package:xelis_mobile_wallet/features/wallet/domain/daemon_info_snapshot.dart';
 
 part 'wallet_snapshot.freezed.dart';
 
@@ -15,6 +14,5 @@ class WalletSnapshot with _$WalletSnapshot {
     @Default('') String address,
     @Default('') String name,
     NativeWalletRepository? nativeWalletRepository,
-    @Default(DaemonInfoSnapshot()) DaemonInfoSnapshot daemonInfo,
   }) = _WalletSnapshot;
 }

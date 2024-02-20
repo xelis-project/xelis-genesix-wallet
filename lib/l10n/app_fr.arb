@@ -60,7 +60,7 @@
   "connected" : "Connecté",
   "disconnected" : "Deconnecté",
   "loading": "Chargement ...",
-  "oups": "Oups, quelque chose s'est mal passé ...",
+  "oups": "Oups, il s'est passé quelque chose d'inattendu ...",
   "coming_soon": "Bientôt disponible ...",
 
   "wallet_creation_failed_toast_error": "La création du wallet a échoué.",
@@ -75,5 +75,15 @@
   "disconnecting_toast_error": "Quelque chose s'est mal passé lors de la déconnexion...",
   "transfer_failed": "Le transfert n'a pas abouti.",
 
-  "my_seed": "Ma Graine"
+  "my_seed": "Ma Graine",
+
+  "information": "Information",
+  "network": "Réseau",
+  "node_type": "Type de Noeud",
+  "full_node": "Noeud Complet",
+  "pruned_node": "Noeud allégé",
+  "circulating_supply": "Offre en Circulation",
+  "average_block_time": "Temps Moyen par Block",
+  "seconds": "secondes",
+  "version": "Version"
 }

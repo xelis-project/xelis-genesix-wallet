@@ -60,7 +60,7 @@
   "connected" : "Connected",
   "disconnected" : "Disconnected",
   "loading": "Loading...",
-  "oups": "Oops, something went wrong...",
+  "oups": "Oops, something unexpected happened...",
   "coming_soon": "Coming soon...",
 
   "wallet_creation_failed_toast_error": "Wallet creation has failed.",
@@ -75,6 +75,15 @@
   "disconnecting_toast_error": "Something went wrong during disconnection...",
   "transfer_failed": "The transfer has failed.",
 
-  "my_seed": "My Seed"
+  "my_seed": "My Seed",
 
+  "information": "Information",
+  "network": "Network",
+  "node_type": "Node Type",
+  "full_node": "Full Node",
+  "pruned_node": "Pruned Node",
+  "circulating_supply": "Circulating Supply",
+  "average_block_time": "Average Block Time",
+  "seconds": "seconds",
+  "version": "Version"
 }

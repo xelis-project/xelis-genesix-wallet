@@ -7,6 +7,7 @@ import 'package:xelis_mobile_wallet/features/authentication/application/open_wal
 import 'package:xelis_mobile_wallet/features/authentication/domain/authentication_state.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/node_addresses_state_provider.dart';
+import 'package:xelis_mobile_wallet/features/wallet/domain/daemon_info_snapshot.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/event.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/node_address.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/wallet_snapshot.dart';

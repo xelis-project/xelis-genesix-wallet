@@ -125,13 +125,10 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
     final state = ref.watch(nodeAddressesProvider);
     final loc = ref.watch(appLocalizationsProvider);
     return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      color: context.colors.surfaceVariant,
-      clipBehavior: Clip.antiAlias,
-      margin: EdgeInsets.zero,
+      elevation: 4,
+      color: Colors.transparent,
+      // clipBehavior: Clip.antiAlias,
+      // margin: EdgeInsets.zero,
       child: Theme(
         data: context.theme.copyWith(
           dividerColor: Colors.transparent,

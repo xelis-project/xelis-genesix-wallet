@@ -65,6 +65,10 @@ class NativeWalletRepository {
 
   Future<bool> get isOnline => _xelisWallet.isOnline();
 
+  Future<String> formatCoin(int amount, [String? assetHash]) async {
+    return _xelisWallet.formatCoin(atomicAmount: amount, assetHash: assetHash);
+  }
+
   Future<void> changePassword(
       {required String oldPassword, required String newPassword}) async {
     return _xelisWallet.changePassword(
@@ -77,7 +81,6 @@ class NativeWalletRepository {
   }
 
   Future<String> getXelisBalance() async {
-    final balance = await _xelisWallet.getXelisBalance();
     return _xelisWallet.getXelisBalance();
   }
 
