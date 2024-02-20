@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jovial_svg/jovial_svg.dart';
@@ -27,24 +28,14 @@ Future<void> main() async {
   logger.info('initialisation done!');
 
   //-------------------------- PRELOAD ASSETS ----------------------------------
-  // AppResources.svgIconGreen = await ScalableImage.fromSvgHttpUrl(
-  //     Uri.parse(AppResources.svgIconGreenTarget),
-  //     compact: true);
-  // AppResources.svgIconBlack = await ScalableImage.fromSvgHttpUrl(
-  //     Uri.parse(AppResources.svgIconBlackTarget),
-  //     compact: true);
-  // AppResources.svgIconWhite = await ScalableImage.fromSvgHttpUrl(
-  //     Uri.parse(AppResources.svgIconWhiteTarget),
-  //     compact: true);
-
-  AppResources.svgBannerGreen = await ScalableImage.fromSvgHttpUrl(
-      Uri.parse(AppResources.svgBannerGreenTarget),
+  AppResources.svgBannerGreen = await ScalableImage.fromSvgAsset(
+      rootBundle, AppResources.svgBannerGreenPath,
       compact: true);
-  AppResources.svgBannerBlack = await ScalableImage.fromSvgHttpUrl(
-      Uri.parse(AppResources.svgBannerBlackTarget),
+  AppResources.svgBannerBlack = await ScalableImage.fromSvgAsset(
+      rootBundle, AppResources.svgBannerBlackPath,
       compact: true);
-  AppResources.svgBannerWhite = await ScalableImage.fromSvgHttpUrl(
-      Uri.parse(AppResources.svgBannerWhiteTarget),
+  AppResources.svgBannerWhite = await ScalableImage.fromSvgAsset(
+      rootBundle, AppResources.svgBannerWhitePath,
       compact: true);
   //----------------------------------------------------------------------------
 
