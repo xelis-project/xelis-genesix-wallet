@@ -6,7 +6,6 @@ import 'package:xelis_mobile_wallet/features/settings/presentation/settings_tab_
 import 'package:xelis_mobile_wallet/features/wallet/presentation/assets_tab/assets_tab_widget.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/history_tab/history_tab_widget.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/wallet_tab_widget.dart';
-import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/hub_app_bar_widget.dart';
 
 class HubScreen extends ConsumerStatefulWidget {
@@ -19,29 +18,20 @@ class HubScreen extends ConsumerStatefulWidget {
 class _HubScreenState extends ConsumerState<HubScreen> {
   int _currentPageIndex = 2; // Default wallet tab
 
-  Widget _getScaffoldBodyShape(BuildContext context, Widget child) {
-    return SafeArea(
-        child: SingleChildScrollView(
-            physics: const ClampingScrollPhysics(),
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            child: ConstrainedBox(
-                constraints:
-                    BoxConstraints(maxHeight: context.mediaSize.height),
-                child: child)));
-  }
-
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     return Scaffold(
       appBar: const HubAppBar(),
-      body: <Widget>[
-        _getScaffoldBodyShape(context, const NodeTab()),
-        _getScaffoldBodyShape(context, const HistoryTab()),
-        _getScaffoldBodyShape(context, const WalletTab()),
-        _getScaffoldBodyShape(context, const AssetsTab()),
-        _getScaffoldBodyShape(context, const SettingsTab()),
-      ][_currentPageIndex],
+      body: SafeArea(
+        child: <Widget>[
+          const NodeTab(),
+          const HistoryTab(),
+          const WalletTab(),
+          const AssetsTab(),
+          const SettingsTab(),
+        ][_currentPageIndex],
+      ),
       bottomNavigationBar: NavigationBar(
         animationDuration: Duration.zero,
         onDestinationSelected: (int index) {

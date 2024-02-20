@@ -61,6 +61,7 @@ class _WalletTabState extends ConsumerState<WalletTab> {
       child: ListView(
         children: [
           Card(
+            elevation: 4,
             color: Colors.transparent,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -140,6 +141,7 @@ class _WalletTabState extends ConsumerState<WalletTab> {
           ),
           const SizedBox(height: 24),
           Card(
+            elevation: 4,
             color: Colors.transparent,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -155,9 +157,7 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                         style: context.bodyMedium
                             ?.copyWith(color: context.colors.primary),
                       ),
-                      const SizedBox(
-                        height: 8,
-                      ),
+                      const SizedBox(height: 8),
                       AnimatedSwitcher(
                         duration: const Duration(milliseconds: 200),
                         child: Text(
@@ -206,6 +206,7 @@ class _WalletTabState extends ConsumerState<WalletTab> {
           ),
           const SizedBox(height: 24),
           Card(
+            elevation: 4,
             color: Colors.transparent,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
