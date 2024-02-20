@@ -31,13 +31,14 @@ dependencies:
   shared_preferences: ^2.2.2
   xelis_dart_sdk: ^0.16.0
   dots_indicator: ^3.0.0
-  flutter_animate: ^4.5.0
-  flutter_hooks: ^0.20.5
-  hooks_riverpod: ^2.4.10
+#  flutter_animate: ^4.5.0
+#  flutter_hooks: ^0.20.5
+#  hooks_riverpod: ^2.4.10
   loader_overlay: ^4.0.0
   random_avatar: ^0.0.8
   pretty_qr_code: ^3.2.1
   uuid: ^4.3.3
+  flutter_native_splash: ^2.3.13
 
   rust_builder:
     path: rust_builder

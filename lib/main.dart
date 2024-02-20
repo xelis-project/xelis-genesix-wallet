@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jovial_svg/jovial_svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -18,14 +19,14 @@ import 'package:xelis_mobile_wallet/shared/widgets/wallet_initializer_widget.dar
 import 'package:xelis_mobile_wallet/src/rust/frb_generated.dart';
 
 Future<void> main() async {
-  initFlutterLogging();
   logger.info('Starting Xelis Mobile Wallet ...');
+  initFlutterLogging();
+  logger.info('initializing Flutter bindings ...');
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   logger.info('initializing Rust lib ...');
   await RustLib.init();
   await initRustLogging();
-  logger.info('initializing Flutter bindings ...');
-  WidgetsFlutterBinding.ensureInitialized();
-  logger.info('initialisation done!');
 
   //-------------------------- PRELOAD ASSETS ----------------------------------
   AppResources.svgBannerGreen = await ScalableImage.fromSvgAsset(
@@ -40,6 +41,9 @@ Future<void> main() async {
   //----------------------------------------------------------------------------
 
   final prefs = await SharedPreferences.getInstance();
+
+  logger.info('initialisation done!');
+  FlutterNativeSplash.remove();
 
   runApp(
     ProviderScope(
