@@ -17,7 +17,7 @@ class AppResources {
         name: 'Official xelis.io Testnet', url: 'ws://$testnetNodeURL/json_rpc')
   ];
 
-  static String svgIconGreenTarget =
+  /*static String svgIconGreenTarget =
       'https://raw.githubusercontent.com/xelis-project/xelis-assets/master/icons/svg/transparent/green.svg';
   static String svgIconBlackTarget =
       'https://raw.githubusercontent.com/xelis-project/xelis-assets/master/icons/svg/transparent/black.svg';
@@ -41,14 +41,14 @@ class AppResources {
   static ScalableImageWidget svgIconWhiteWidget = ScalableImageWidget(
     si: AppResources.svgIconWhite,
     scale: 0.06,
-  );
+  );*/
 
-  static String svgBannerGreenTarget =
-      'https://raw.githubusercontent.com/xelis-project/xelis-assets/master/banners/svg/transparent_background_green_logo.svg';
-  static String svgBannerBlackTarget =
-      'https://raw.githubusercontent.com/xelis-project/xelis-assets/master/banners/svg/transparent_background_black_logo.svg';
-  static String svgBannerWhiteTarget =
-      'https://raw.githubusercontent.com/xelis-project/xelis-assets/master/banners/svg/transparent_background_white_logo.svg';
+  static String svgBannerGreenPath =
+      'assets/banners/svg/transparent_background_green_logo.svg';
+  static String svgBannerBlackPath =
+      'assets/banners/svg/transparent_background_black_logo.svg';
+  static String svgBannerWhitePath =
+      'assets/banners/svg/transparent_background_white_logo.svg';
 
   static late ScalableImage svgBannerGreen;
   static late ScalableImage svgBannerWhite;
