@@ -6,7 +6,7 @@ import 'package:xelis_mobile_wallet/features/settings/presentation/settings_tab_
 import 'package:xelis_mobile_wallet/features/wallet/presentation/assets_tab/assets_tab_widget.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/history_tab/history_tab_widget.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/wallet_tab_widget.dart';
-import 'package:xelis_mobile_wallet/shared/widgets/hub_app_bar_widget.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/components/hub_app_bar_widget.dart';
 
 class HubScreen extends ConsumerStatefulWidget {
   const HubScreen({super.key});
