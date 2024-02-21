@@ -15,26 +15,5 @@ class AssetsTab extends ConsumerWidget {
         style: context.displayMedium,
       ),
     );
-    // final asyncData = ref.watch(walletAssetsProvider);
-    // return asyncData.when(
-    //   skipLoadingOnReload: true,
-    //   data: (assets) {
-    //     return ListView.builder(
-    //       itemCount: assets.length,
-    //       itemBuilder: (context, index) {
-    //         return AssetRow(
-    //           asset: assets[index],
-    //         );
-    //       },
-    //     );
-    //   },
-    //   error: (error, stackTrace) => Center(child: Text(error.toString())),
-    //   loading: () => Center(
-    //     child: LoadingAnimationWidget.waveDots(
-    //       color: context.colors.primary,
-    //       size: 20,
-    //     ),
-    //   ),
-    // );
   }
 }

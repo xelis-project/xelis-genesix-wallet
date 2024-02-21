@@ -13,7 +13,7 @@ import 'package:xelis_mobile_wallet/features/router/route_utils.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/theme_mode_state_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/widgets/banner_widget.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/components/banner_widget.dart';
 
 class OpenWalletWidget extends ConsumerStatefulWidget {
   const OpenWalletWidget({super.key});

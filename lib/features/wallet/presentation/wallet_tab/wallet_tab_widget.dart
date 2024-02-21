@@ -8,9 +8,9 @@ import 'package:xelis_mobile_wallet/features/settings/application/app_localizati
 import 'package:xelis_mobile_wallet/features/wallet/application/balance_mode_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/balance_mode_state.dart';
-import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/qr_dialog.dart';
-import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/seed_dialog.dart';
-import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/transfer_to_dialog.dart';
+import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/components/qr_dialog.dart';
+import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/components/seed_dialog.dart';
+import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/components/transfer_to_dialog.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
