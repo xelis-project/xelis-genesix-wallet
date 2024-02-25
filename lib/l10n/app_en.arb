@@ -85,5 +85,13 @@
   "circulating_supply": "Circulating Supply",
   "average_block_time": "Average Block Time",
   "seconds": "seconds",
-  "version": "Version"
+  "version": "Version",
+
+  "history": "History",
+  "incoming": "Incoming",
+  "outgoing": "Outgoing",
+  "coinbase": "Mining",
+  "burn": "Burn",
+  "no_data": "No data",
+  "reward": "Reward"
 }

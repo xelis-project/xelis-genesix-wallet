@@ -193,9 +193,7 @@ impl XelisWallet {
         Ok(tx.hash().to_hex())
     }
 
-    const TXS_PER_PAGE: usize = 10;
-    pub async fn history(&self, requested_page: Option<usize>) -> Result<Vec<String>> {
-        let page = requested_page.unwrap_or(1);
+    pub async fn all_history(&self) -> Result<Vec<String>> {
         let mut txs: Vec<String> = Vec::new();
 
         let storage = self.wallet.get_storage().read().await;
@@ -208,31 +206,9 @@ impl XelisWallet {
 
         // desc ordered
         transactions.sort_by(|a, b| b.get_topoheight().cmp(&a.get_topoheight()));
-        let mut max_pages = transactions.len() / XelisWallet::TXS_PER_PAGE;
-        if transactions.len() % XelisWallet::TXS_PER_PAGE != 0 {
-            max_pages += 1;
-        }
 
-        if page > max_pages {
-            return Err(anyhow!(
-                "Page must be less than maximum pages ({})",
-                max_pages - 1
-            ));
-        }
-
-        info!(
-            "Transactions (total {}) page {}/{}:",
-            transactions.len(),
-            page,
-            max_pages
-        );
-
-        for tx in transactions
-            .iter()
-            .skip((page - 1) * XelisWallet::TXS_PER_PAGE)
-            .take(XelisWallet::TXS_PER_PAGE)
-        {
-            info!("- {}", tx);
+        for tx in transactions.iter() {
+            // info!("- {}", tx);
             let json_tx = serde_json::to_string(tx).expect("Tx serialization failed");
             txs.push(json_tx);
         }
