@@ -105,9 +105,10 @@ class NativeWalletRepository {
     return _xelisWallet.burn(floatAmount: amount, assetHash: assetHash);
   }
 
-  Future<List<sdk.TransactionEntry>> history({required int page}) async {
-    var jsonTransactionsList = await _xelisWallet.history(requestedPage: page);
+  Future<List<sdk.TransactionEntry>> allHistory() async {
+    var jsonTransactionsList = await _xelisWallet.allHistory();
     return jsonTransactionsList
+        .map((e) => jsonDecode(e))
         .map((entry) =>
             sdk.TransactionEntry.fromJson(entry as Map<String, dynamic>))
         .toList();

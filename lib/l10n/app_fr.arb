@@ -85,5 +85,13 @@
   "circulating_supply": "Offre en Circulation",
   "average_block_time": "Temps Moyen par Block",
   "seconds": "secondes",
-  "version": "Version"
+  "version": "Version",
+
+  "history": "Historique",
+  "incoming": "Entrant",
+  "outgoing": "Sortant",
+  "coinbase": "Minage",
+  "burn": "Burn",
+  "no_data": "Pas de données",
+  "reward": "Récompense"
 }

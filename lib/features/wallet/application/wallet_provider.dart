@@ -7,6 +7,7 @@ import 'package:xelis_mobile_wallet/features/authentication/application/open_wal
 import 'package:xelis_mobile_wallet/features/authentication/domain/authentication_state.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/node_addresses_state_provider.dart';
+import 'package:xelis_mobile_wallet/features/wallet/application/history_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/event.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/node_address.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/wallet_snapshot.dart';
@@ -36,8 +37,10 @@ class WalletState extends _$WalletState {
   Future<void> connect() async {
     if (state.nativeWalletRepository != null) {
       if (state.address.isEmpty) {
+        final nonce = await state.nativeWalletRepository!.nonce;
         state = state.copyWith(
-            address: state.nativeWalletRepository!.humanReadableAddress);
+            address: state.nativeWalletRepository!.humanReadableAddress,
+            nonce: nonce);
       }
 
       state.nativeWalletRepository!.convertRawEvents().listen((event) async {
@@ -47,7 +50,9 @@ class WalletState extends _$WalletState {
 
           case NewTransaction():
             logger.info(event);
-            if (event.transactionEntry.topoHeight >= state.topoheight) {
+            ref.invalidate(historyProvider);
+            if (state.topoheight != 0 &&
+                event.transactionEntry.topoHeight >= state.topoheight) {
               final loc = ref.read(appLocalizationsProvider);
               ref.read(snackbarContentProvider.notifier).setContent(
                   SnackbarEvent.info(
@@ -116,24 +121,6 @@ class WalletState extends _$WalletState {
     }
   }
 
-  Future<void> rescan() async {
-    var res = await state.nativeWalletRepository?.getDaemonInfo();
-    final loc = ref.read(appLocalizationsProvider);
-    if (res?.prunedTopoHeight == null) {
-      await state.nativeWalletRepository?.rescan(topoHeight: 0);
-      ref
-          .read(snackbarContentProvider.notifier)
-          .setContent(SnackbarEvent.info(message: loc.rescan_done));
-    } else {
-      ref.read(snackbarContentProvider.notifier).setContent(
-          SnackbarEvent.error(message: loc.rescan_limitation_toast_error));
-    }
-  }
-
-  Future<String?> getSeed(String password) async {
-    return await state.nativeWalletRepository?.getSeed(password: password);
-  }
-
   Future<void> disconnect() async {
     state = state.copyWith(isOnline: false);
     try {
@@ -153,6 +140,24 @@ class WalletState extends _$WalletState {
     unawaited(connect());
   }
 
+  Future<void> rescan() async {
+    var res = await state.nativeWalletRepository?.getDaemonInfo();
+    final loc = ref.read(appLocalizationsProvider);
+    if (res?.prunedTopoHeight == null) {
+      await state.nativeWalletRepository?.rescan(topoHeight: 0);
+      ref
+          .read(snackbarContentProvider.notifier)
+          .setContent(SnackbarEvent.info(message: loc.rescan_done));
+    } else {
+      ref.read(snackbarContentProvider.notifier).setContent(
+          SnackbarEvent.error(message: loc.rescan_limitation_toast_error));
+    }
+  }
+
+  Future<String?> getSeed(String password) async {
+    return await state.nativeWalletRepository?.getSeed(password: password);
+  }
+
   Future<String?> send(
       {required double amount,
       required String address,
@@ -166,5 +171,12 @@ class WalletState extends _$WalletState {
         .read(snackbarContentProvider.notifier)
         .setContent(SnackbarEvent.error(message: loc.transfer_failed));
     return null;
+  }
+
+  Future<String> formatCoin(int atomicAmount) async {
+    if (state.nativeWalletRepository != null) {
+      return state.nativeWalletRepository!.formatCoin(atomicAmount);
+    }
+    return '';
   }
 }
