@@ -61,7 +61,7 @@ class _WalletTabState extends ConsumerState<WalletTab> {
       child: ListView(
         children: [
           Card(
-            elevation: 4,
+            elevation: 2,
             color: Colors.transparent,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -141,7 +141,7 @@ class _WalletTabState extends ConsumerState<WalletTab> {
           ),
           const SizedBox(height: 24),
           Card(
-            elevation: 4,
+            elevation: 2,
             color: Colors.transparent,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -206,7 +206,7 @@ class _WalletTabState extends ConsumerState<WalletTab> {
           ),
           const SizedBox(height: 24),
           Card(
-            elevation: 4,
+            elevation: 2,
             color: Colors.transparent,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -315,8 +315,8 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                               // TODO
                               ref
                                   .read(snackbarContentProvider.notifier)
-                                  .setContent(const SnackbarEvent.info(
-                                      message: 'Burn!'));
+                                  .setContent(SnackbarEvent.info(
+                                      message: loc.coming_soon));
                             },
                             icon: const Icon(
                                 Icons.local_fire_department_outlined),

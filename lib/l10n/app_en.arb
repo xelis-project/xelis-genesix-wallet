@@ -93,5 +93,13 @@
   "coinbase": "Mining",
   "burn": "Burn",
   "no_data": "No data",
-  "reward": "Reward"
+  "reward": "Reward",
+  "details": "Details",
+
+  "transfers": "Transfers",
+  "asset": "Asset",
+  "receiver": "Receiver",
+  "sender": "Sender",
+  "key": "Key",
+  "atomic_units": "atomic units"
 }
