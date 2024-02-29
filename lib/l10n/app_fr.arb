@@ -93,5 +93,13 @@
   "coinbase": "Minage",
   "burn": "Burn",
   "no_data": "Pas de données",
-  "reward": "Récompense"
+  "reward": "Récompense",
+  "details": "Détails",
+
+  "transfers": "Transferts",
+  "asset": "Actif",
+  "receiver": "Destinataire",
+  "sender": "Expéditeur",
+  "key": "Clé",
+  "atomic_units": "unité atomique"
 }

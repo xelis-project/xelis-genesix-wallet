@@ -172,11 +172,4 @@ class WalletState extends _$WalletState {
         .setContent(SnackbarEvent.error(message: loc.transfer_failed));
     return null;
   }
-
-  Future<String> formatCoin(int atomicAmount) async {
-    if (state.nativeWalletRepository != null) {
-      return state.nativeWalletRepository!.formatCoin(atomicAmount);
-    }
-    return '';
-  }
 }

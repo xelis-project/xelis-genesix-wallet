@@ -8,15 +8,15 @@ environment:
   sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   change_app_package_name: ^1.1.0
   cupertino_icons: ^1.0.6
   ffi: ^2.1.2
   flex_color_scheme: ^7.3.1
-  flutter:
-    sdk: flutter
   flutter_form_builder: ^9.2.1
-  flutter_localizations:
-    sdk: flutter
   flutter_riverpod: ^2.4.10
   form_builder_validators: ^9.1.0
   freezed_annotation: ^2.4.1
@@ -31,9 +31,9 @@ dependencies:
   shared_preferences: ^2.2.2
   xelis_dart_sdk: ^0.16.0
   dots_indicator: ^3.0.0
-#  flutter_animate: ^4.5.0
-#  flutter_hooks: ^0.20.5
-#  hooks_riverpod: ^2.4.10
+  #  flutter_animate: ^4.5.0
+  #  flutter_hooks: ^0.20.5
+  #  hooks_riverpod: ^2.4.10
   loader_overlay: ^4.0.0
   random_avatar: ^0.0.8
   pretty_qr_code: ^3.2.1
@@ -42,7 +42,7 @@ dependencies:
 
   rust_builder:
     path: rust_builder
-  flutter_rust_bridge: 2.0.0-dev.24
+  flutter_rust_bridge: 2.0.0-dev.25
 
 
 dev_dependencies:
@@ -50,8 +50,8 @@ dev_dependencies:
   go_router_builder: ^2.4.1
   ffigen: ^11.0.0
   flutter_lints: ^3.0.1
-#  flutter_test:
-#    sdk: flutter
+  #  flutter_test:
+  #    sdk: flutter
   freezed: ^2.4.7
   json_serializable: ^6.7.1
   riverpod_generator: ^2.3.11
