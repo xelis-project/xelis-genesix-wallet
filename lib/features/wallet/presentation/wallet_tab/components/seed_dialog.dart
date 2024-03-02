@@ -20,6 +20,19 @@ class _MySeedDialogState extends ConsumerState<MySeedDialog> {
 
   Future<String?>? _pendingGetSeed;
 
+  void _getSeed() {
+    if (_mySeedFormKey.currentState?.saveAndValidate() ?? false) {
+      final password =
+          _mySeedFormKey.currentState?.fields['password']?.value as String;
+
+      final future = ref.read(walletStateProvider.notifier).getSeed(password);
+
+      setState(() {
+        _pendingGetSeed = future;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
@@ -84,20 +97,7 @@ class _MySeedDialogState extends ConsumerState<MySeedDialog> {
                 child: Text(loc.cancel_button),
               ),
               TextButton(
-                onPressed: () async {
-                  if (_mySeedFormKey.currentState?.saveAndValidate() ?? false) {
-                    final password = _mySeedFormKey
-                        .currentState?.fields['password']?.value as String;
-
-                    final future = ref
-                        .read(walletStateProvider.notifier)
-                        .getSeed(password);
-
-                    setState(() {
-                      _pendingGetSeed = future;
-                    });
-                  }
-                },
+                onPressed: _getSeed,
                 child: Text(loc.confirm_button),
               ),
             ]

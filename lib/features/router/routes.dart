@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:xelis_mobile_wallet/features/router/login_action_codec.dart';
 import 'package:xelis_mobile_wallet/features/authentication/presentation/authentication_screen.dart';
+import 'package:xelis_mobile_wallet/features/settings/presentation/components/change_password_screen.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/hub_screen.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/snackbar_initializer_widget.dart';
 
@@ -30,5 +31,16 @@ class HubRoute extends GoRouteData {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return const SnackBarInitializerWidget(child: HubScreen());
+  }
+}
+
+@TypedGoRoute<ChangePasswordRoute>(
+    name: 'change_password', path: '/change_password')
+class ChangePasswordRoute extends GoRouteData {
+  const ChangePasswordRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const ChangePasswordScreen();
   }
 }

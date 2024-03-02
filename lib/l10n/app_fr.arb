@@ -101,5 +101,14 @@
   "receiver": "Destinataire",
   "sender": "Expéditeur",
   "key": "Clé",
-  "atomic_units": "unité atomique"
+  "atomic_units": "unité atomique",
+
+  "change_password": "Changer le mot de passe",
+  "old_password": "ancien mot de passe",
+  "new_password": "nouveau mot de passe",
+  "confirm_password": "confirmer mot de passe",
+  "same_old_new_password_error": "l'ancien et le nouveau mot de passe sont identiques",
+  "not_match_new_password_error": "ne correspond pas au nouveau mot de passe",
+  "password_cannot_be_changed_error": "le mot de passe ne peut être changé",
+  "password_changed": "mot de passe modifié !"
 }

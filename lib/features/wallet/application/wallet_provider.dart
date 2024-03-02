@@ -141,9 +141,9 @@ class WalletState extends _$WalletState {
   }
 
   Future<void> rescan() async {
-    var res = await state.nativeWalletRepository?.getDaemonInfo();
+    var nodeInfo = await state.nativeWalletRepository?.getDaemonInfo();
     final loc = ref.read(appLocalizationsProvider);
-    if (res?.prunedTopoHeight == null) {
+    if (nodeInfo?.prunedTopoHeight == null) {
       await state.nativeWalletRepository?.rescan(topoHeight: 0);
       ref
           .read(snackbarContentProvider.notifier)
@@ -155,7 +155,20 @@ class WalletState extends _$WalletState {
   }
 
   Future<String?> getSeed(String password) async {
-    return await state.nativeWalletRepository?.getSeed(password: password);
+    return state.nativeWalletRepository?.getSeed(password: password);
+  }
+
+  Future<void> changePassword(String oldPassword, String newPassword) async {
+    try {
+      await state.nativeWalletRepository
+          ?.changePassword(oldPassword: oldPassword, newPassword: newPassword);
+    } catch (e) {
+      logger.severe('Changing password failed: $e');
+      final loc = ref.read(appLocalizationsProvider);
+      ref.read(snackbarContentProvider.notifier).setContent(
+          SnackbarEvent.error(message: loc.password_cannot_be_changed_error));
+      rethrow;
+    }
   }
 
   Future<String?> send(
