@@ -125,7 +125,7 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
     final state = ref.watch(nodeAddressesProvider);
     final loc = ref.watch(appLocalizationsProvider);
     return Card(
-      elevation: 4,
+      elevation: 2,
       color: Colors.transparent,
       // clipBehavior: Clip.antiAlias,
       // margin: EdgeInsets.zero,
