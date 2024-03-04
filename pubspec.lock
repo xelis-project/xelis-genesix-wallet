@@ -375,10 +375,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_rust_bridge
-      sha256: db2c6aa5c255ba5dcafefb3cc3db65733c5b6b5f68ba0816688748cf2132cfa3
+      sha256: eac5dea1887fc1f1bcf4c3a1866bcf9c22b759e14d33f628b50ecae0229dbd72
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0-dev.25"
+    version: "2.0.0-dev.26"
   flutter_svg:
     dependency: transitive
     description:
@@ -452,10 +452,10 @@ packages:
     dependency: "direct main"
     description:
       name: google_fonts
-      sha256: "5b1726fee554d1cc9db1baef8061b126567ff0a1140a03ed7de936e62f2ab98b"
+      sha256: b1ac0fe2832c9cc95e5e88b57d627c5e68c223b9657f4b96e1487aa9098c7b82
       url: "https://pub.dev"
     source: hosted
-    version: "6.2.0"
+    version: "6.2.1"
   graphs:
     dependency: transitive
     description:
@@ -1182,4 +1182,4 @@ packages:
     version: "2.2.0"
 sdks:
   dart: ">=3.3.0 <4.0.0"
-  flutter: ">=3.16.0"
+  flutter: ">=3.19.2"

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,7 +27,67 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
 
   String? _selectedWallet;
 
-  Future<void>? _pendingLogIn;
+  late Widget _widgetOpening;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _initOpenButton();
+  }
+
+  void _initOpenButton() {
+    final loc = ref.read(appLocalizationsProvider);
+    _widgetOpening = SizedBox(
+      width: 200,
+      child: FilledButton(
+        onPressed: _createWallet,
+        child: Text(
+          loc.open_wallet_button,
+          style: context.titleMedium!.copyWith(color: context.colors.onPrimary),
+        ),
+      ),
+    );
+  }
+
+  void _createWallet() {
+    if (_openFormKey.currentState?.saveAndValidate() ?? false) {
+      final loc = ref.read(appLocalizationsProvider);
+
+      final password = _openFormKey.currentState?.value['password'] as String?;
+
+      if (_selectedWallet != null && password != null) {
+        setState(() {
+          _widgetOpening = const CircularProgressIndicator();
+        });
+
+        ref
+            .read(authenticationProvider.notifier)
+            .openWallet(_selectedWallet!, password)
+            .then((value) {
+          setState(() {
+            _widgetOpening = Column(
+              children: [
+                Icon(
+                  Icons.check_rounded,
+                  color: context.colors.primary,
+                ),
+                const SizedBox(height: 8.0),
+                Text(
+                  loc.open_wallet_message,
+                  style: context.bodyMedium
+                      ?.copyWith(color: context.colors.primary),
+                ),
+              ],
+            );
+          });
+        }, onError: (_) {
+          setState(() {
+            _initOpenButton();
+          });
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,157 +99,116 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
 
     _selectedWallet = openWalletState.walletCurrentlyUsed;
 
-    return FutureBuilder(
-        future: _pendingLogIn,
-        builder: (context, snapshot) {
-          // final isErrored = snapshot.hasError &&
-          //     snapshot.connectionState != ConnectionState.waiting;
-
-          final isWaiting = snapshot.connectionState == ConnectionState.waiting;
-
-          return FormBuilder(
-            key: _openFormKey,
-            onChanged: () => _openFormKey.currentState!.save(),
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Row(
+    return FormBuilder(
+      key: _openFormKey,
+      onChanged: () => _openFormKey.currentState!.save(),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Spacer(),
-                          Row(
-                            children: [
-                              const Spacer(),
-                              banner,
-                              const Spacer(),
-                            ],
-                          ),
-                          const Spacer(),
-                          Text(
-                            loc.sign_in,
-                            style: context.headlineLarge!
-                                .copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Text(
-                                loc.no_wallet,
-                                style: context.bodyLarge,
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  context.go(
-                                    AppScreen.auth.toPath,
-                                    extra: LoginAction.create,
-                                  );
-                                },
-                                child: Text(loc.create_wallet_button),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          DropdownMenu<String>(
-                            expandedInsets: EdgeInsets.zero,
-                            label: Text(
-                              loc.wallet,
-                              style: context.bodyLarge,
-                            ),
-                            requestFocusOnTap: true,
-                            initialSelection:
-                                openWalletState.walletCurrentlyUsed,
-                            dropdownMenuEntries: openWalletState.wallets.entries
-                                .map((entry) => DropdownMenuEntry<String>(
-                                    value: entry.key, label: entry.key))
-                                .toList(),
-                            onSelected: (v) {
-                              setState(() {
-                                _selectedWallet = v;
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 16),
-                          FormBuilderTextField(
-                            name: 'password',
-                            style: context.bodyLarge,
-                            autocorrect: false,
-                            obscureText: _hidePassword,
-                            decoration: InputDecoration(
-                              labelText: loc.password,
-                              suffixIcon: IconButton(
-                                icon: _hidePassword
-                                    ? Icon(
-                                        Icons.visibility_off_outlined,
-                                        color: context.colors.secondary,
-                                      )
-                                    : Icon(
-                                        Icons.visibility_outlined,
-                                        color: context.colors.primary,
-                                      ),
-                                onPressed: () {
-                                  setState(() {
-                                    _hidePassword = !_hidePassword;
-                                  });
-                                },
-                              ),
-                            ),
-                            validator: FormBuilderValidators.required(),
-                          ),
-                          const SizedBox(height: 16),
-                          Center(
-                            child: SizedBox(
-                              width: 200,
-                              child: FilledButton(
-                                onPressed: isWaiting
-                                    ? null
-                                    : () async {
-                                        if (_openFormKey.currentState
-                                                ?.saveAndValidate() ??
-                                            false) {
-                                          final password = _openFormKey
-                                              .currentState
-                                              ?.value['password'] as String?;
-
-                                          if (_selectedWallet != null &&
-                                              password != null) {
-                                            final future = ref
-                                                .read(authenticationProvider
-                                                    .notifier)
-                                                .openWallet(
-                                                    _selectedWallet!, password);
-
-                                            setState(() {
-                                              _pendingLogIn = future;
-                                            });
-                                          }
-                                        }
-                                      },
-                                child: Text(
-                                  loc.open_wallet_button,
-                                  style: context.titleMedium!.copyWith(
-                                      color: context.colors.onPrimary),
-                                ),
-                              ),
-                            ),
-                          ),
-                          if (isWaiting) ...[
-                            const SizedBox(height: 16),
-                            const Center(child: CircularProgressIndicator()),
-                          ],
-                          const Spacer(
-                            flex: 3,
-                          ),
-                        ],
+                    const Spacer(),
+                    Row(
+                      children: [
+                        const Spacer(),
+                        banner,
+                        const Spacer(),
+                      ],
+                    ),
+                    const Spacer(),
+                    Text(
+                      loc.sign_in,
+                      style: context.headlineLarge!
+                          .copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(
+                          loc.no_wallet,
+                          style: context.bodyLarge,
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            context.go(
+                              AppScreen.auth.toPath,
+                              extra: LoginAction.create,
+                            );
+                          },
+                          child: Text(loc.create_wallet_button),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    DropdownMenu<String>(
+                      expandedInsets: EdgeInsets.zero,
+                      label: Text(
+                        loc.wallet,
+                        style: context.bodyLarge,
                       ),
+                      requestFocusOnTap: true,
+                      initialSelection: openWalletState.walletCurrentlyUsed,
+                      dropdownMenuEntries: openWalletState.wallets.entries
+                          .map((entry) => DropdownMenuEntry<String>(
+                              value: entry.key, label: entry.key))
+                          .toList(),
+                      onSelected: (v) {
+                        setState(() {
+                          _selectedWallet = v;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    FormBuilderTextField(
+                      name: 'password',
+                      style: context.bodyLarge,
+                      autocorrect: false,
+                      obscureText: _hidePassword,
+                      decoration: InputDecoration(
+                        labelText: loc.password,
+                        suffixIcon: IconButton(
+                          icon: _hidePassword
+                              ? Icon(
+                                  Icons.visibility_off_rounded,
+                                  color: context.colors.secondary,
+                                )
+                              : Icon(
+                                  Icons.visibility_rounded,
+                                  color: context.colors.primary,
+                                ),
+                          onPressed: () {
+                            setState(() {
+                              _hidePassword = !_hidePassword;
+                            });
+                          },
+                        ),
+                      ),
+                      validator: FormBuilderValidators.required(),
+                    ),
+                    const SizedBox(height: 16),
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 500),
+                          child: _widgetOpening,
+                        ),
+                      ),
+                    ),
+                    const Spacer(
+                      flex: 3,
                     ),
                   ],
                 ),
               ),
-            ),
-          );
-        });
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

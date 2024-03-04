@@ -42,8 +42,7 @@ class _IncomingEntryWidgetState extends ConsumerState<IncomingEntryWidget> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     return Card(
-      elevation: 2,
-      color: Colors.transparent,
+      elevation: 1,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
         child: Row(

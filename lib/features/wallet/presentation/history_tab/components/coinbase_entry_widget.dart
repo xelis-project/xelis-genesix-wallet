@@ -23,8 +23,7 @@ class CoinbaseEntryWidget extends ConsumerWidget {
     final loc = ref.watch(appLocalizationsProvider);
     final entryType = transactionEntry.txEntryType as CoinbaseEntry;
     return Card(
-      elevation: 2,
-      color: Colors.transparent,
+      elevation: 1,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
         child: Row(

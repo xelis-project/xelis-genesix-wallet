@@ -44,6 +44,14 @@ class _WalletTabState extends ConsumerState<WalletTab> {
     );
   }
 
+  void _copy(String content, String message) {
+    Clipboard.setData(ClipboardData(text: content)).then((_) {
+      ref
+          .read(snackbarContentProvider.notifier)
+          .setContent(SnackbarEvent.info(message: message));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
@@ -56,13 +64,17 @@ class _WalletTabState extends ConsumerState<WalletTab> {
 
     ValueNotifier<bool> isRescanningNotifier = ValueNotifier(false);
 
+    final truncatedWalletAddress = walletSnapshot.address.isNotEmpty
+        ? '.' * 3 +
+            walletSnapshot.address.substring(walletSnapshot.address.length - 8)
+        : '...';
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16.0, 32.0, 16.0, 32.0),
       child: ListView(
         children: [
           Card(
-            elevation: 2,
-            color: Colors.transparent,
+            elevation: 1,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: GridTile(
@@ -76,39 +88,42 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                       Row(
                         children: [
                           svgAvatar,
-                          const SizedBox(width: 16),
-                          Text(
-                            walletSnapshot.name,
-                            style: context.displaySmall,
+                          const SizedBox(width: 24),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                loc.wallet_name_capitalize,
+                                style: context.labelLarge
+                                    ?.copyWith(color: context.colors.primary),
+                              ),
+                              Text(
+                                walletSnapshot.name,
+                                style: context.headlineMedium,
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      Row(
+                      const SizedBox(height: 24),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            walletSnapshot.address.isNotEmpty
-                                ? '.' * 3 +
-                                    walletSnapshot.address.substring(
-                                        walletSnapshot.address.length - 8)
-                                : '...',
-                            maxLines: 1,
-                            style: context.bodyMedium,
+                            loc.wallet_address_capitalize,
+                            style: context.labelLarge
+                                ?.copyWith(color: context.colors.primary),
                           ),
-                          IconButton(
-                            onPressed: () {
-                              Clipboard.setData(ClipboardData(
-                                      text: walletSnapshot.address))
-                                  .then((_) {
-                                ref
-                                    .read(snackbarContentProvider.notifier)
-                                    .setContent(SnackbarEvent.info(
-                                        message: loc.copied));
-                              });
-                            },
-                            icon: const Icon(
-                              Icons.copy,
-                              size: 18,
+                          Tooltip(
+                            message: walletSnapshot.address,
+                            child: InkWell(
+                              onTap: () =>
+                                  _copy(walletSnapshot.address, loc.copied),
+                              borderRadius: BorderRadius.circular(4),
+                              child: Text(
+                                truncatedWalletAddress,
+                                style: context.headlineSmall,
+                              ),
                             ),
                           ),
                         ],
@@ -121,16 +136,14 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                         onPressed: () {
                           _showSeedDialog(context);
                         },
-                        icon: const Icon(Icons.pattern),
-                        color: context.colors.primary,
+                        icon: const Icon(Icons.pattern_rounded),
                       ),
-                      const SizedBox(height: 8),
                       FittedBox(
                         fit: BoxFit.fitWidth,
                         child: Text(
                           'Seed',
                           maxLines: 1,
-                          style: context.bodyMedium,
+                          style: context.labelMedium,
                         ),
                       ),
                     ],
@@ -139,10 +152,9 @@ class _WalletTabState extends ConsumerState<WalletTab> {
               )),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           Card(
-            elevation: 2,
-            color: Colors.transparent,
+            elevation: 1,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: GridTile(
@@ -154,16 +166,15 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                     children: [
                       Text(
                         loc.topoheight,
-                        style: context.bodyMedium
+                        style: context.labelLarge
                             ?.copyWith(color: context.colors.primary),
                       ),
-                      const SizedBox(height: 8),
                       AnimatedSwitcher(
                         duration: const Duration(milliseconds: 200),
                         child: Text(
                           key: ValueKey<int>(walletSnapshot.topoheight),
                           walletSnapshot.topoheight.toString(),
-                          style: context.displaySmall,
+                          style: context.headlineMedium,
                         ),
                       ),
                     ],
@@ -184,18 +195,16 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                                         .rescan();
                                     isRescanningNotifier.value = false;
                                   },
-                            icon: const Icon(Icons.sync),
-                            color: context.colors.primary,
+                            icon: const Icon(Icons.sync_rounded),
                           );
                         },
                       ),
-                      const SizedBox(height: 8),
                       FittedBox(
                         fit: BoxFit.fitWidth,
                         child: Text(
                           'Rescan',
                           maxLines: 1,
-                          style: context.bodyMedium,
+                          style: context.labelMedium,
                         ),
                       ),
                     ],
@@ -204,10 +213,9 @@ class _WalletTabState extends ConsumerState<WalletTab> {
               )),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           Card(
-            elevation: 2,
-            color: Colors.transparent,
+            elevation: 1,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: GridTile(
@@ -217,10 +225,9 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                 children: [
                   Text(
                     loc.balance,
-                    style: context.bodyMedium
+                    style: context.labelLarge
                         ?.copyWith(color: context.colors.primary),
                   ),
-                  const SizedBox(height: 8),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -242,9 +249,7 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                                         walletSnapshot.xelisBalance),
                                     walletSnapshot.xelisBalance,
                                     maxLines: 1,
-                                    // overflow: TextOverflow.fade,
-                                    // softWrap: true,
-                                    style: context.displaySmall,
+                                    style: context.headlineMedium,
                                   ),
                                 ),
                               ),
@@ -252,20 +257,18 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                               Text(
                                 'XEL',
                                 maxLines: 1,
-                                style: context.displaySmall,
+                                style: context.headlineLarge,
                               ),
                             ],
                           ),
                           const Spacer(),
                           IconButton.outlined(
                             icon: balanceModeState.hide
-                                ? Icon(
-                                    Icons.visibility_outlined,
-                                    color: context.colors.primary,
+                                ? const Icon(
+                                    Icons.visibility_rounded,
                                   )
-                                : Icon(
-                                    Icons.visibility_off_outlined,
-                                    color: context.colors.primary,
+                                : const Icon(
+                                    Icons.visibility_off_rounded,
                                   ),
                             onPressed: () {
                               ref
@@ -295,15 +298,13 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                               _showTransferToDialog(context);
                             },
                             icon: const Icon(Icons.call_made_rounded),
-                            color: context.colors.primary,
                           ),
-                          const SizedBox(height: 8),
                           FittedBox(
                             fit: BoxFit.fitWidth,
                             child: Text(
                               loc.send,
                               maxLines: 1,
-                              style: context.bodyMedium,
+                              style: context.labelMedium,
                             ),
                           ),
                         ],
@@ -318,17 +319,15 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                                   .setContent(SnackbarEvent.info(
                                       message: loc.coming_soon));
                             },
-                            icon: const Icon(
-                                Icons.local_fire_department_outlined),
-                            color: context.colors.primary,
+                            icon:
+                                const Icon(Icons.local_fire_department_rounded),
                           ),
-                          const SizedBox(height: 8),
                           FittedBox(
                             fit: BoxFit.fitWidth,
                             child: Text(
                               'Burn',
                               maxLines: 1,
-                              style: context.bodyMedium,
+                              style: context.labelMedium,
                             ),
                           ),
                         ],
@@ -340,15 +339,13 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                               _showQrDialog(context);
                             },
                             icon: const Icon(Icons.call_received_rounded),
-                            color: context.colors.primary,
                           ),
-                          const SizedBox(height: 8),
                           FittedBox(
                             fit: BoxFit.fitWidth,
                             child: Text(
                               loc.receive,
                               maxLines: 1,
-                              style: context.bodyMedium,
+                              style: context.labelMedium,
                             ),
                           ),
                         ],

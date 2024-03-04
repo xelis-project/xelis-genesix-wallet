@@ -13,14 +13,14 @@ class ChangePasswordWidget extends ConsumerWidget {
     final loc = ref.watch(appLocalizationsProvider);
     return ListTile(
       title: Text(
-        'Change Password',
+        loc.change_password,
         style: context.titleLarge,
       ),
       onTap: () {
         context.push(AppScreen.changePassword.toPath);
       },
       trailing: const Icon(
-        Icons.keyboard_arrow_right_outlined,
+        Icons.keyboard_arrow_right_rounded,
       ),
     );
   }

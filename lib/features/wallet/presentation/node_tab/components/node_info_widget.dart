@@ -20,9 +20,8 @@ class NodeInfoWidget extends ConsumerWidget {
             Text(
               loc.network,
               style:
-                  context.bodyMedium?.copyWith(color: context.colors.primary),
+                  context.labelLarge?.copyWith(color: context.colors.primary),
             ),
-            const SizedBox(height: 8),
             Text(
               switch (value?.network) {
                 Network.mainnet => 'Mainnet',
@@ -31,13 +30,12 @@ class NodeInfoWidget extends ConsumerWidget {
               },
               style: context.titleMedium,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Text(
               loc.node_type,
               style:
-                  context.bodyMedium?.copyWith(color: context.colors.primary),
+                  context.labelLarge?.copyWith(color: context.colors.primary),
             ),
-            const SizedBox(height: 8),
             Text(
               switch (value?.pruned) {
                 null => '...',
@@ -46,47 +44,48 @@ class NodeInfoWidget extends ConsumerWidget {
               },
               style: context.titleMedium,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Text(
               loc.circulating_supply,
               style:
-                  context.bodyMedium?.copyWith(color: context.colors.primary),
+                  context.labelLarge?.copyWith(color: context.colors.primary),
             ),
-            const SizedBox(height: 8),
             Text(
               '${value?.circulatingSupply ?? '...'} XEL',
               style: context.titleMedium,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Text(
               loc.average_block_time,
               style:
-                  context.bodyMedium?.copyWith(color: context.colors.primary),
+                  context.labelLarge?.copyWith(color: context.colors.primary),
             ),
-            const SizedBox(height: 8),
             Text(
               '${value?.averageBlockTime.inSeconds.toString() ?? '...'} ${loc.seconds}',
               style: context.titleMedium,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Text(
               loc.version,
               style:
-                  context.bodyMedium?.copyWith(color: context.colors.primary),
+                  context.labelLarge?.copyWith(color: context.colors.primary),
             ),
-            const SizedBox(height: 8),
             Text(
               value?.version ?? '...',
               style: context.titleMedium,
             ),
-            const SizedBox(height: 24),
+            // const SizedBox(height: 16),
           ],
         ),
-      AsyncError() => Center(
-          child: Text(
-            loc.oups,
-            style: context.bodyLarge,
-          ),
+      AsyncError() => Column(
+          children: [
+            const Spacer(),
+            Text(
+              loc.oups,
+              style: context.bodyLarge,
+            ),
+            const Spacer(),
+          ],
         ),
       _ => const Center(child: CircularProgressIndicator()),
     };
