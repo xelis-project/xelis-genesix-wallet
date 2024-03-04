@@ -84,11 +84,11 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
           ),
         ),
         actions: <Widget>[
-          TextButton(
+          FilledButton(
             onPressed: () => context.pop(),
             child: Text(loc.cancel_button),
           ),
-          TextButton(
+          FilledButton(
             onPressed: () {
               final name = nodeAddressFormKey
                   .currentState?.fields['name']?.value as String?;
@@ -125,8 +125,7 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
     final state = ref.watch(nodeAddressesProvider);
     final loc = ref.watch(appLocalizationsProvider);
     return Card(
-      elevation: 2,
-      color: Colors.transparent,
+      elevation: 1,
       // clipBehavior: Clip.antiAlias,
       // margin: EdgeInsets.zero,
       child: Theme(
@@ -193,7 +192,6 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
                 onPressed: () => _showNewAddressDialog(context),
                 child: Text(
                   loc.add_node_button,
-                  style: context.titleMedium,
                 ),
               ),
             ),

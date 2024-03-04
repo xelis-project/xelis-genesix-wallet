@@ -86,20 +86,15 @@ class _MySeedDialogState extends ConsumerState<MySeedDialog> {
           ),
           actions: [
             if (isDone) ...[
-              TextButton(
-                onPressed: () => context.pop(),
-                child: Text(loc.ok_button),
-              ),
+              FilledButton(
+                  onPressed: () => context.pop(), child: Text(loc.ok_button)),
             ],
             if (!isWaiting && !isDone) ...[
-              TextButton(
-                onPressed: () => context.pop(),
-                child: Text(loc.cancel_button),
-              ),
-              TextButton(
-                onPressed: _getSeed,
-                child: Text(loc.confirm_button),
-              ),
+              FilledButton(
+                  onPressed: () => context.pop(),
+                  child: Text(loc.cancel_button)),
+              FilledButton(
+                  onPressed: _getSeed, child: Text(loc.confirm_button)),
             ]
           ],
         );

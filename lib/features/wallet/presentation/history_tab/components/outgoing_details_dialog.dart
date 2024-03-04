@@ -125,7 +125,7 @@ class OutgoingDetailsDialog extends ConsumerWidget {
         ),
       ),
       actions: [
-        TextButton(
+        FilledButton(
           onPressed: () => context.pop(),
           child: Text(loc.ok_button),
         ),

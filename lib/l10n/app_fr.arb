@@ -14,6 +14,10 @@
   "wallet_name_already_exists": "Ce nom de portefeuille existe déjà.",
   "create_wallet_button": "Créer portefeuille",
   "wallet_name": "Nom du portefeuille",
+  "wallet_name_capitalize": "Nom du Portefeuille",
+  "wallet_address_capitalize": "Adresse du Portefeuille",
+  "open_wallet_message": "Portefeuille Ouvert !",
+  "create_wallet_message": "Portefeuille Créé !",
 
   "help": "Aide",
   "logout": "Se déconnecter",

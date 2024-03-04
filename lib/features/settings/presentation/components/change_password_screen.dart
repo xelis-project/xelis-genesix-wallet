@@ -75,7 +75,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
             _widgetConfirmation = Column(
               children: [
                 Icon(
-                  Icons.check_outlined,
+                  Icons.check_rounded,
                   color: context.colors.primary,
                 ),
                 const SizedBox(height: 8.0),
@@ -126,11 +126,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 24.0),
                                   child: IconButton(
-                                    onPressed: () {
-                                      context.pop();
-                                    },
-                                    icon: const Icon(Icons.close),
-                                    color: context.colors.primary,
+                                    onPressed: () => context.pop(),
+                                    icon: const Icon(Icons.close_rounded),
                                   ),
                                 ),
                               ],
@@ -155,11 +152,11 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                                 suffixIcon: IconButton(
                                   icon: _hideOldPassword
                                       ? Icon(
-                                          Icons.visibility_off_outlined,
+                                          Icons.visibility_off_rounded,
                                           color: context.colors.secondary,
                                         )
                                       : Icon(
-                                          Icons.visibility_outlined,
+                                          Icons.visibility_rounded,
                                           color: context.colors.primary,
                                         ),
                                   onPressed: () {
@@ -182,11 +179,11 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                                 suffixIcon: IconButton(
                                   icon: _hideNewPassword1
                                       ? Icon(
-                                          Icons.visibility_off_outlined,
+                                          Icons.visibility_off_rounded,
                                           color: context.colors.secondary,
                                         )
                                       : Icon(
-                                          Icons.visibility_outlined,
+                                          Icons.visibility_rounded,
                                           color: context.colors.primary,
                                         ),
                                   onPressed: () {
@@ -209,11 +206,11 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                                 suffixIcon: IconButton(
                                   icon: _hideNewPassword2
                                       ? Icon(
-                                          Icons.visibility_off_outlined,
+                                          Icons.visibility_off_rounded,
                                           color: context.colors.secondary,
                                         )
                                       : Icon(
-                                          Icons.visibility_outlined,
+                                          Icons.visibility_rounded,
                                           color: context.colors.primary,
                                         ),
                                   onPressed: () {

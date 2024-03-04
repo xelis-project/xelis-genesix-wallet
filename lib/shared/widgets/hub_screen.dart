@@ -42,23 +42,23 @@ class _HubScreenState extends ConsumerState<HubScreen> {
         selectedIndex: _currentPageIndex,
         destinations: <Widget>[
           NavigationDestination(
-            icon: const Icon(Icons.explore_outlined),
+            icon: const Icon(Icons.explore_rounded),
             label: loc.node_bottom_app_bar,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.manage_search_outlined),
+            icon: const Icon(Icons.manage_search_rounded),
             label: loc.history_bottom_app_bar,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.account_balance_wallet_outlined),
+            icon: const Icon(Icons.account_balance_wallet_rounded),
             label: loc.wallet_bottom_app_bar,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.assessment_outlined),
+            icon: const Icon(Icons.assessment_rounded),
             label: loc.assets_bottom_app_bar,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.settings_outlined),
+            icon: const Icon(Icons.settings_rounded),
             label: loc.settings_bottom_app_bar,
           ),
         ],

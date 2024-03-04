@@ -27,7 +27,7 @@ class NodeTab extends ConsumerWidget {
             style: context.headlineSmall!.copyWith(fontWeight: FontWeight.bold),
           ),
           const Divider(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           const NodeInfoWidget(),
         ],
       ),

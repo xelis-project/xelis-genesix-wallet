@@ -14,6 +14,10 @@
   "wallet_name_already_exists": "This wallet name already exists.",
   "create_wallet_button": "Create wallet",
   "wallet_name": "Wallet name",
+  "wallet_name_capitalize": "Wallet Name",
+  "wallet_address_capitalize": "Wallet Address",
+  "open_wallet_message": "Wallet Opened!",
+  "create_wallet_message": "Wallet Created!",
 
   "help": "Help",
   "logout": "Logout",

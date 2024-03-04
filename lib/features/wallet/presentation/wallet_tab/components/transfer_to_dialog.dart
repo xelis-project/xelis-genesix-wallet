@@ -161,17 +161,17 @@ class _TransferToDialogState extends ConsumerState<TransferToDialog> {
           }),
           actions: <Widget>[
             if (isDone) ...[
-              TextButton(
+              FilledButton(
                 onPressed: () => context.pop(),
                 child: Text(loc.ok_button),
               ),
             ],
             if (!isWaiting && !isDone) ...[
-              TextButton(
+              FilledButton(
                 onPressed: () => context.pop(),
                 child: Text(loc.cancel_button),
               ),
-              TextButton(
+              FilledButton(
                 onPressed: () async {
                   if (_transferFormKey.currentState?.saveAndValidate() ??
                       false) {
