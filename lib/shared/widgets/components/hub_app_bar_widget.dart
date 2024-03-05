@@ -1,9 +1,12 @@
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jovial_svg/jovial_svg.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
+import 'package:xelis_mobile_wallet/features/settings/application/theme_mode_state_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/components/banner_widget.dart';
 
 class HubAppBar extends ConsumerWidget implements PreferredSizeWidget {
   const HubAppBar({super.key});
@@ -12,6 +15,10 @@ class HubAppBar extends ConsumerWidget implements PreferredSizeWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final walletState = ref.watch(walletStateProvider);
     final loc = ref.watch(appLocalizationsProvider);
+    final userThemeMode = ref.watch(userThemeModeProvider);
+    final ScalableImageWidget banner =
+        getBanner(context, userThemeMode.themeMode);
+
     return AppBar(
       leading: Tooltip(
         message: walletState.isOnline ? loc.connected : loc.disconnected,
@@ -22,6 +29,10 @@ class HubAppBar extends ConsumerWidget implements PreferredSizeWidget {
                   ? context.colors.primary
                   : context.colors.error),
         ),
+      ),
+      title: Hero(
+        tag: 'banner',
+        child: SizedBox(height: 24, child: banner),
       ),
     );
   }
