@@ -120,7 +120,10 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
                     Row(
                       children: [
                         const Spacer(),
-                        banner,
+                        Hero(
+                          tag: 'banner',
+                          child: banner,
+                        ),
                         const Spacer(),
                       ],
                     ),

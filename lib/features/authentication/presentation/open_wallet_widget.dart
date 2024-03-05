@@ -115,7 +115,10 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
                     Row(
                       children: [
                         const Spacer(),
-                        banner,
+                        Hero(
+                          tag: 'banner',
+                          child: banner,
+                        ),
                         const Spacer(),
                       ],
                     ),
