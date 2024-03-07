@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:xelis_mobile_wallet/features/wallet/data/native_wallet_repository.dart';
 
@@ -14,5 +16,6 @@ class WalletSnapshot with _$WalletSnapshot {
     @Default('') String address,
     @Default('') String name,
     NativeWalletRepository? nativeWalletRepository,
+    StreamSubscription<void>? streamSubscription,
   }) = _WalletSnapshot;
 }

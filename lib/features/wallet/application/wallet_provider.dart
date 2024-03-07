@@ -43,65 +43,12 @@ class WalletState extends _$WalletState {
             nonce: nonce);
       }
 
-      state.nativeWalletRepository!.convertRawEvents().listen((event) async {
-        switch (event) {
-          case NewTopoHeight():
-            state = state.copyWith(topoheight: event.topoHeight);
-
-          case NewTransaction():
-            logger.info(event);
-            ref.invalidate(historyProvider);
-            if (state.topoheight != 0 &&
-                event.transactionEntry.topoHeight >= state.topoheight) {
-              final loc = ref.read(appLocalizationsProvider);
-              ref.read(snackbarContentProvider.notifier).setContent(
-                  SnackbarEvent.info(
-                      message:
-                          '${loc.new_transaction_toast_info} ${event.transactionEntry}'));
-            }
-
-          case BalanceChanged():
-            logger.info(event);
-            final nonce = await state.nativeWalletRepository!.nonce;
-
-            var updatedAssets = <String, int>{};
-            if (state.assets == null) {
-              updatedAssets = {
-                event.balanceChanged.assetHash: event.balanceChanged.balance
-              };
-            } else {
-              final updatedAssets = Map<String, int>.from(state.assets!);
-              updatedAssets[event.balanceChanged.assetHash] =
-                  event.balanceChanged.balance;
-            }
-
-            if (event.balanceChanged.assetHash == xelisAsset) {
-              final xelisBalance =
-                  await state.nativeWalletRepository!.getXelisBalance();
-              state = state.copyWith(
-                  nonce: nonce,
-                  assets: updatedAssets,
-                  xelisBalance: xelisBalance);
-            } else {
-              state = state.copyWith(nonce: nonce, assets: updatedAssets);
-            }
-
-          case NewAsset():
-            logger.info(event);
-
-          case Rescan():
-            logger.info(event);
-
-          case Online():
-            state = state.copyWith(isOnline: true);
-
-          case Offline():
-            state = state.copyWith(isOnline: false);
-        }
-      });
+      StreamSubscription<void> sub =
+          state.nativeWalletRepository!.convertRawEvents().listen(_onEvent);
+      state = state.copyWith(streamSubscription: sub);
 
       if (await state.nativeWalletRepository!.isOnline) {
-        await state.nativeWalletRepository!.setOffline();
+        await disconnect();
       }
 
       final address = ref.read(nodeAddressesProvider);
@@ -126,16 +73,16 @@ class WalletState extends _$WalletState {
     try {
       await state.nativeWalletRepository?.setOffline();
       await state.nativeWalletRepository?.close();
+      await state.streamSubscription?.cancel();
     } catch (e) {
       logger.warning('Something went wrong when disconnecting...');
-      final loc = ref.read(appLocalizationsProvider);
-      ref.read(snackbarContentProvider.notifier).setContent(
-          SnackbarEvent.error(message: loc.disconnecting_toast_error));
     }
   }
 
-  Future<void> reconnect(NodeAddress nodeAddress) async {
-    ref.read(nodeAddressesProvider.notifier).setFavoriteAddress(nodeAddress);
+  Future<void> reconnect([NodeAddress? nodeAddress]) async {
+    if (nodeAddress != null) {
+      ref.read(nodeAddressesProvider.notifier).setFavoriteAddress(nodeAddress);
+    }
     await disconnect();
     unawaited(connect());
   }
@@ -184,5 +131,59 @@ class WalletState extends _$WalletState {
         .read(snackbarContentProvider.notifier)
         .setContent(SnackbarEvent.error(message: loc.transfer_failed));
     return null;
+  }
+
+  Future<void> _onEvent(Event event) async {
+    switch (event) {
+      case NewTopoHeight():
+        state = state.copyWith(topoheight: event.topoHeight);
+
+      case NewTransaction():
+        logger.info(event);
+        ref.invalidate(historyProvider);
+        if (state.topoheight != 0 &&
+            event.transactionEntry.topoHeight >= state.topoheight) {
+          final loc = ref.read(appLocalizationsProvider);
+          ref.read(snackbarContentProvider.notifier).setContent(SnackbarEvent.info(
+              message:
+                  '${loc.new_transaction_toast_info} ${event.transactionEntry}'));
+        }
+
+      case BalanceChanged():
+        logger.info(event);
+        final nonce = await state.nativeWalletRepository!.nonce;
+
+        var updatedAssets = <String, int>{};
+        if (state.assets == null) {
+          updatedAssets = {
+            event.balanceChanged.assetHash: event.balanceChanged.balance
+          };
+        } else {
+          final updatedAssets = Map<String, int>.from(state.assets!);
+          updatedAssets[event.balanceChanged.assetHash] =
+              event.balanceChanged.balance;
+        }
+
+        if (event.balanceChanged.assetHash == xelisAsset) {
+          final xelisBalance =
+              await state.nativeWalletRepository!.getXelisBalance();
+          state = state.copyWith(
+              nonce: nonce, assets: updatedAssets, xelisBalance: xelisBalance);
+        } else {
+          state = state.copyWith(nonce: nonce, assets: updatedAssets);
+        }
+
+      case NewAsset():
+        logger.info(event);
+
+      case Rescan():
+        logger.info(event);
+
+      case Online():
+        state = state.copyWith(isOnline: true);
+
+      case Offline():
+        state = state.copyWith(isOnline: false);
+    }
   }
 }
