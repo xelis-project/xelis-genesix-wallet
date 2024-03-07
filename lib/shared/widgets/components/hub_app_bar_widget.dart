@@ -22,12 +22,17 @@ class HubAppBar extends ConsumerWidget implements PreferredSizeWidget {
     return AppBar(
       leading: Tooltip(
         message: walletState.isOnline ? loc.connected : loc.disconnected,
-        child: DotsIndicator(
-          dotsCount: 1,
-          decorator: DotsDecorator(
-              activeColor: walletState.isOnline
-                  ? context.colors.primary
-                  : context.colors.error),
+        child: Center(
+          child: DotsIndicator(
+            dotsCount: 1,
+            decorator: DotsDecorator(
+                activeColor: walletState.isOnline
+                    ? context.colors.primary
+                    : context.colors.error),
+            onTap: (_) {
+              ref.read(walletStateProvider.notifier).reconnect();
+            },
+          ),
         ),
       ),
       title: Hero(
