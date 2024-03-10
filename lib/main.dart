@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,25 +24,27 @@ Future<void> main() async {
   await RustLib.init();
   await initRustLogging();
 
-  logger.info('initializing window manager ...');
-  await windowManager.ensureInitialized();
+  if (!kIsWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows)) {
+    logger.info('initializing window manager ...');
+    await windowManager.ensureInitialized();
 
-  WindowOptions windowOptions = const WindowOptions(
-    title: AppResources.xelisWalletName,
-    size: Size(800, 1000),
-    minimumSize: Size(600, 800),
-    maximumSize: Size(1000, 1200),
-    center: true,
-    backgroundColor: Colors.transparent,
-    skipTaskbar: false,
-    titleBarStyle: TitleBarStyle.normal,
-  );
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.show();
-    await windowManager.focus();
-  });
+    WindowOptions windowOptions = const WindowOptions(
+      title: AppResources.xelisWalletName,
+      size: Size(800, 1000),
+      minimumSize: Size(600, 800),
+      maximumSize: Size(1000, 1200),
+      center: true,
+      backgroundColor: Colors.transparent,
+      skipTaskbar: false,
+      titleBarStyle: TitleBarStyle.normal,
+    );
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
+    });
+  }
 
-  logger.info('loading assets ...');
+  logger.info('loading SVG assets ...');
   //-------------------------- PRELOAD ASSETS ----------------------------------
   AppResources.svgBannerGreen = await ScalableImage.fromSvgAsset(
       rootBundle, AppResources.svgBannerGreenPath,
