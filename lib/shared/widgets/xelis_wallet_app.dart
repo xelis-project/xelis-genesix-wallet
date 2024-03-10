@@ -19,7 +19,8 @@ class XelisWalletApp extends ConsumerStatefulWidget {
   ConsumerState<XelisWalletApp> createState() => _XelisWalletAppState();
 }
 
-class _XelisWalletAppState extends ConsumerState<XelisWalletApp> with WindowListener {
+class _XelisWalletAppState extends ConsumerState<XelisWalletApp>
+    with WindowListener {
   final _lightTheme = FlexTheme().light();
   final _darkTheme = FlexTheme().dark();
 

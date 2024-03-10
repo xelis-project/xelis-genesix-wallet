@@ -250,7 +250,9 @@ impl XelisWallet {
     pub async fn get_daemon_info(&self) -> Result<String> {
         let mutex = self.wallet.get_network_handler().await;
         let lock = mutex.lock().await;
-        let network_handler = lock.as_ref().context("GetDaemonInfo - network handler not available")?;
+        let network_handler = lock
+            .as_ref()
+            .context("GetDaemonInfo - network handler not available")?;
         let api = network_handler.get_api();
 
         let info = match api.get_info().await {
