@@ -17,7 +17,7 @@ dependencies:
   ffi: ^2.1.2
   flex_color_scheme: ^7.3.1
   flutter_form_builder: ^9.2.1
-  flutter_riverpod: ^2.4.10
+  flutter_riverpod: ^2.5.1
   form_builder_validators: ^9.1.0
   freezed_annotation: ^2.4.1
   go_router: ^13.2.0
@@ -27,7 +27,7 @@ dependencies:
   json_annotation: ^4.8.1
   logging: ^1.2.0
   path_provider: ^2.1.2
-  riverpod_annotation: ^2.3.4
+  riverpod_annotation: ^2.3.5
   shared_preferences: ^2.2.2
   xelis_dart_sdk: ^0.16.0
   dots_indicator: ^3.0.0
@@ -43,7 +43,7 @@ dependencies:
 
   rust_builder:
     path: rust_builder
-  flutter_rust_bridge: 2.0.0-dev.27
+  flutter_rust_bridge: 2.0.0-dev.28
 
 
 dev_dependencies:
@@ -55,8 +55,8 @@ dev_dependencies:
   #    sdk: flutter
   freezed: ^2.4.7
   json_serializable: ^6.7.1
-  riverpod_generator: ^2.3.11
-  riverpod_lint: ^2.3.9
+  riverpod_generator: ^2.4.0
+  riverpod_lint: ^2.3.10
 #  integration_test:
 #    sdk: flutter
 
