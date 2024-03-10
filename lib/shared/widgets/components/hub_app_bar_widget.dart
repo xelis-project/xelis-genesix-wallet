@@ -37,7 +37,7 @@ class HubAppBar extends ConsumerWidget implements PreferredSizeWidget {
       ),
       title: Hero(
         tag: 'banner',
-        child: SizedBox(height: 24, child: banner),
+        child: Center(child: SizedBox(height: 24, child: banner)),
       ),
     );
   }

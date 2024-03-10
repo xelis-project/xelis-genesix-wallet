@@ -154,18 +154,25 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    FormBuilderSwitch(
-                      name: 'seed_switch',
-                      initialValue: _seedRequired,
-                      title: Text(
-                        loc.seed_option,
-                        style: context.bodyLarge,
+                    Theme(
+                      data: context.theme.copyWith(
+                        highlightColor: Colors.transparent,
+                        splashColor: Colors.transparent,
+                        hoverColor: Colors.transparent,
                       ),
-                      onChanged: (value) {
-                        setState(() {
-                          _seedRequired = value!;
-                        });
-                      },
+                      child: FormBuilderSwitch(
+                        name: 'seed_switch',
+                        initialValue: _seedRequired,
+                        title: Text(
+                          loc.seed_option,
+                          style: context.bodyLarge,
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            _seedRequired = value!;
+                          });
+                        },
+                      ),
                     ),
                     Visibility(
                       visible: _seedRequired,
