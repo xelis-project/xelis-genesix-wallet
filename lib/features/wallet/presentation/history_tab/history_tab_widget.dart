@@ -13,47 +13,47 @@ class HistoryTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
-    return DefaultTabController(
-      length: 4,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: DefaultTabController(
+        length: 4,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
               loc.history,
               style:
                   context.headlineLarge!.copyWith(fontWeight: FontWeight.bold),
             ),
-          ),
-          const SizedBox(height: 16),
-          TabBar(
-            tabs: <Tab>[
-              Tab(
-                text: loc.incoming,
-              ),
-              Tab(
-                text: loc.outgoing,
-              ),
-              Tab(
-                text: loc.coinbase,
-              ),
-              Tab(
-                text: loc.burn,
-              ),
-            ],
-          ),
-          const Expanded(
-            child: TabBarView(
-              children: <Widget>[
-                IncomingHistoryWidget(),
-                OutgoingHistoryWidget(),
-                CoinbaseHistoryWidget(),
-                BurnHistoryWidget(),
+            const SizedBox(height: 24),
+            TabBar(
+              tabs: <Tab>[
+                Tab(
+                  text: loc.incoming,
+                ),
+                Tab(
+                  text: loc.outgoing,
+                ),
+                Tab(
+                  text: loc.coinbase,
+                ),
+                Tab(
+                  text: loc.burn,
+                ),
               ],
             ),
-          ),
-        ],
+            const Expanded(
+              child: TabBarView(
+                children: <Widget>[
+                  IncomingHistoryWidget(),
+                  OutgoingHistoryWidget(),
+                  CoinbaseHistoryWidget(),
+                  BurnHistoryWidget(),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

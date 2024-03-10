@@ -1,5 +1,5 @@
 name: xelis_mobile_wallet
-description: Xelis Mobile Wallet
+description: Xelis Wallet
 publish_to: 'none'
 
 version: 0.0.1+1
@@ -36,13 +36,14 @@ dependencies:
   #  hooks_riverpod: ^2.4.10
   loader_overlay: ^4.0.0
   random_avatar: ^0.0.8
-  pretty_qr_code: ^3.2.1
+  pretty_qr_code: ^3.3.0
   uuid: ^4.3.3
   flutter_native_splash: ^2.3.13
+  window_manager: ^0.3.8
 
   rust_builder:
     path: rust_builder
-  flutter_rust_bridge: 2.0.0-dev.26
+  flutter_rust_bridge: 2.0.0-dev.27
 
 
 dev_dependencies:
