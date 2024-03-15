@@ -13,13 +13,17 @@ class LoginRoute extends GoRouteData {
   const LoginRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) {
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
     if (state.extra is LoginAction) {
-      return AuthenticationScreen(
-        loginAction: state.extra as LoginAction,
-      );
+      return pageOf(
+          AuthenticationScreen(
+            loginAction: state.extra as LoginAction,
+          ),
+          state.pageKey);
     } else {
-      return const SnackBarInitializerWidget(child: AuthenticationScreen());
+      return pageOf(
+          const SnackBarInitializerWidget(child: AuthenticationScreen()),
+          state.pageKey);
     }
   }
 }
@@ -29,8 +33,9 @@ class HubRoute extends GoRouteData {
   const HubRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const SnackBarInitializerWidget(child: HubScreen());
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageOf(
+        const SnackBarInitializerWidget(child: HubScreen()), state.pageKey);
   }
 }
 
@@ -40,7 +45,16 @@ class ChangePasswordRoute extends GoRouteData {
   const ChangePasswordRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const ChangePasswordScreen();
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageOf(const ChangePasswordScreen(), state.pageKey);
   }
 }
+
+CustomTransitionPage<T> pageOf<T>(Widget child, ValueKey<String> pageKey) =>
+    CustomTransitionPage<T>(
+      key: pageKey,
+      child: child,
+      transitionDuration: const Duration(milliseconds: 200),
+      transitionsBuilder: (context, animation, animation2, child) =>
+          FadeTransition(opacity: animation, child: child),
+    );
