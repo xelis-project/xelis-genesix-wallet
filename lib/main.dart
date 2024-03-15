@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +9,7 @@ import 'package:window_manager/window_manager.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_provider.dart';
+import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/xelis_wallet_app.dart';
 import 'package:xelis_mobile_wallet/src/rust/frb_generated.dart';
 
@@ -24,7 +23,7 @@ Future<void> main() async {
   await RustLib.init();
   await initRustLogging();
 
-  if (!kIsWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows)) {
+  if (isDesktopDevice) {
     logger.info('initializing window manager ...');
     await windowManager.ensureInitialized();
 

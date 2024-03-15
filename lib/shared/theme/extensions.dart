@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 extension TypographyUtils on BuildContext {
@@ -49,10 +52,19 @@ extension DisplayUtils on BuildContext {
   }
 }
 
-extension BreakpointUtils on BoxConstraints {
-  bool get isTablet => maxWidth > 730;
+bool get isMobileDevice => !kIsWeb && (Platform.isIOS || Platform.isAndroid);
 
-  bool get isDesktop => maxWidth > 1200;
+bool get isDesktopDevice =>
+    !kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux);
 
-  bool get isMobile => !isTablet && !isDesktop;
+enum ScreenSize { small, normal, large, extraLarge }
+
+extension FormFactorUtils on BuildContext {
+  ScreenSize get formFactor {
+    double deviceWidth = MediaQuery.of(this).size.shortestSide;
+    if (deviceWidth > 900) return ScreenSize.extraLarge;
+    if (deviceWidth > 600) return ScreenSize.large;
+    if (deviceWidth > 300) return ScreenSize.normal;
+    return ScreenSize.small;
+  }
 }
