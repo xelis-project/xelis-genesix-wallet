@@ -71,7 +71,7 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
         final width = context.mediaSize.width * 0.8;
 
         return SizedBox(
-          width: width,
+          width: isDesktopDevice ? width : null,
           child: FormBuilder(
             key: nodeAddressFormKey,
             child: Column(

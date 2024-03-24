@@ -99,12 +99,10 @@ class _MySeedDialogState extends ConsumerState<MySeedDialog> {
       ),
       content: Builder(
         builder: (BuildContext context) {
-          // final height = context.mediaSize.height * 0.2;
           final width = context.mediaSize.width * 0.8;
 
           return SizedBox(
-            // height: height,
-            width: width,
+            width: isDesktopDevice ? width : null,
             child: AnimatedSwitcher(
               duration: Duration(milliseconds: _animationDuration),
               child: _seedWidget,

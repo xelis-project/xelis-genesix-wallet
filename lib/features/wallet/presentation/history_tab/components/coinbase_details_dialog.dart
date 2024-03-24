@@ -24,45 +24,54 @@ class CoinbaseDetailsDialog extends ConsumerWidget {
           style: context.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
       ),
-      content: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            children: [
-              Text(
-                loc.topoheight,
-                style: context.labelMedium
-                    ?.copyWith(color: context.colors.primary),
-              ),
-              SelectableText(transactionEntry.topoHeight.toString()),
-            ],
-          ),
-          const SizedBox(height: 16.0),
-          Column(
-            children: [
-              Text(
-                loc.tx_hash,
-                style: context.labelMedium
-                    ?.copyWith(color: context.colors.primary),
-              ),
-              SelectableText(transactionEntry.hash)
-            ],
-          ),
-          const SizedBox(height: 16.0),
-          Column(
-            children: [
-              Text(
-                loc.reward,
-                style:
-                    context.labelSmall?.copyWith(color: context.colors.primary),
-              ),
-              SelectableText(
-                '${formatXelis(entryType.reward)} XEL',
-                style: context.bodyLarge,
-              ),
-            ],
-          ),
-        ],
+      content: Builder(
+        builder: (context) {
+          final width = context.mediaSize.width * 0.8;
+
+          return SizedBox(
+            width: isDesktopDevice ? width : null,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  children: [
+                    Text(
+                      loc.topoheight,
+                      style: context.labelMedium
+                          ?.copyWith(color: context.colors.primary),
+                    ),
+                    SelectableText(transactionEntry.topoHeight.toString()),
+                  ],
+                ),
+                const SizedBox(height: 16.0),
+                Column(
+                  children: [
+                    Text(
+                      loc.tx_hash,
+                      style: context.labelMedium
+                          ?.copyWith(color: context.colors.primary),
+                    ),
+                    SelectableText(transactionEntry.hash)
+                  ],
+                ),
+                const SizedBox(height: 16.0),
+                Column(
+                  children: [
+                    Text(
+                      loc.reward,
+                      style:
+                          context.labelSmall?.copyWith(color: context.colors.primary),
+                    ),
+                    SelectableText(
+                      '${formatXelis(entryType.reward)} XEL',
+                      style: context.bodyLarge,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        }
       ),
       actions: [
         FilledButton(
