@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +11,7 @@ import 'package:xelis_mobile_wallet/features/authentication/application/open_wal
 import 'package:xelis_mobile_wallet/features/router/route_utils.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/theme_mode_state_provider.dart';
+import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/components/seed_on_creation_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/banner_widget.dart';
 import 'package:xelis_mobile_wallet/features/router/login_action_codec.dart';
@@ -85,6 +88,9 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
               ],
             );
           });
+          if (seed == null) {
+            _showSeed(password);
+          }
         }, onError: (_) {
           setState(() {
             _initCreateButton();
@@ -92,6 +98,14 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
         });
       }
     }
+  }
+
+  void _showSeed(String password) {
+    Timer.run(() => showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return SeedOnCreationWidget(password);
+        }));
   }
 
   @override
@@ -251,7 +265,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 500),
+                          duration: const Duration(milliseconds: 200),
                           child: _widgetCreation,
                         ),
                       ),

@@ -79,7 +79,12 @@
   "disconnecting_toast_error": "Quelque chose s'est mal passé lors de la déconnexion...",
   "transfer_failed": "Le transfert n'a pas abouti.",
 
-  "my_seed": "Ma Graine",
+  "my_seed": "Ma Phrase-clé",
+  "seed_warning": "Attention :",
+  "seed_warning_message_1": "Veuillez conserver ces mots mnémotechniques (l'ordre est important) dans un endroit sûr.",
+  "seed_warning_message_2": "Cette phrase-clé vous permettra de récupérer votre portefeuille en cas d'oubli de votre mot de passe ou de perte de votre appareil.",
+  "seed_warning_message_3": "Ne divulguez jamais votre phrase-clé. Le fait de la partager peut entraîner une perte de fonds.",
+  "seed_warning_message_4": "La phrase de récupération de votre portefeuille est :",
 
   "information": "Information",
   "network": "Réseau",

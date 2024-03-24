@@ -80,6 +80,11 @@
   "transfer_failed": "The transfer has failed.",
 
   "my_seed": "My Seed",
+  "seed_warning": "Warning:",
+  "seed_warning_message_1": "Please store these mnemonic words (order is important) in a secure location.",
+  "seed_warning_message_2": "This seed phrase will allow you to recover your wallet in case you forget your password or lose your device.",
+  "seed_warning_message_3": "Never disclose your seed phrase. Sharing it may result in a lost of funds.",
+  "seed_warning_message_4": "Your wallet recovery phrase is:",
 
   "information": "Information",
   "network": "Network",
