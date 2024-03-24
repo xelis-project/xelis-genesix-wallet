@@ -38,7 +38,7 @@ dependencies:
   random_avatar: ^0.0.8
   pretty_qr_code: ^3.3.0
   uuid: ^4.3.3
-  flutter_native_splash: ^2.3.13
+  flutter_native_splash: ^2.4.0
   window_manager: ^0.3.8
   flutter_launcher_icons: ^0.13.1
 
