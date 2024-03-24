@@ -103,9 +103,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
   void _showSeed(String password) {
     Timer.run(() => showDialog<void>(
         context: context,
-        builder: (BuildContext context) {
-          return SeedOnCreationWidget(password);
-        }));
+        builder: (BuildContext context) => SeedOnCreationWidget(password)));
   }
 
   @override
