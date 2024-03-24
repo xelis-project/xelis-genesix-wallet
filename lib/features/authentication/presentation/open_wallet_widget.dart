@@ -97,7 +97,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
         getBanner(context, userThemeMode.themeMode);
     final openWalletState = ref.watch(openWalletProvider);
 
-    _selectedWallet = openWalletState.walletCurrentlyUsed;
+    _selectedWallet ??= openWalletState.walletCurrentlyUsed;
 
     return FormBuilder(
       key: _openFormKey,
