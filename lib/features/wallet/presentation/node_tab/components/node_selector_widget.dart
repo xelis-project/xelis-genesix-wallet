@@ -7,6 +7,7 @@ import 'package:xelis_mobile_wallet/features/wallet/domain/node_address.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/node_tab/components/add_node_dialog.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/shared/theme/styles.dart';
 
 class NodeSelectorWidget extends ConsumerStatefulWidget {
   const NodeSelectorWidget({
@@ -105,7 +106,7 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(Spaces.small),
               child: FilledButton(
                 onPressed: () => _showNewAddressDialog(context),
                 child: Text(

@@ -36,32 +36,30 @@ class _SeedOnCreationWidgetState extends ConsumerState<SeedOnCreationWidget> {
         loc.my_seed,
         style: context.titleLarge?.copyWith(fontWeight: FontWeight.bold),
       ),
-      content: Builder(
-        builder: (context) {
-          final width = context.mediaSize.width * 0.8;
+      content: Builder(builder: (context) {
+        final width = context.mediaSize.width * 0.8;
 
-          return SizedBox(
-            width: isDesktopDevice ? width : null,
-            child: FutureBuilder(
-              future: _pendingSeed,
-              builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.none:
-                  case ConnectionState.waiting:
-                    return const Center(child: CircularProgressIndicator());
-                  case ConnectionState.active:
-                  case ConnectionState.done:
-                    if (snapshot.hasData) {
-                      return SeedContentWidget(snapshot.requireData);
-                    } else {
-                      return Text(loc.oups);
-                    }
-                }
-              },
-            ),
-          );
-        }
-      ),
+        return SizedBox(
+          width: isDesktopDevice ? width : null,
+          child: FutureBuilder(
+            future: _pendingSeed,
+            builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.none:
+                case ConnectionState.waiting:
+                  return const Center(child: CircularProgressIndicator());
+                case ConnectionState.active:
+                case ConnectionState.done:
+                  if (snapshot.hasData) {
+                    return SeedContentWidget(snapshot.requireData);
+                  } else {
+                    return Text(loc.oups);
+                  }
+              }
+            },
+          ),
+        );
+      }),
       actions: [
         FilledButton(onPressed: () => context.pop(), child: Text(loc.ok_button))
       ],

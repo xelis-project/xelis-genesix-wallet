@@ -7,6 +7,7 @@ import 'package:xelis_mobile_wallet/features/settings/application/node_addresses
 import 'package:xelis_mobile_wallet/features/wallet/domain/node_address.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/shared/theme/styles.dart';
 
 class AddNodeDialog extends ConsumerStatefulWidget {
   const AddNodeDialog({super.key});
@@ -61,7 +62,7 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
     return AlertDialog(
       scrollable: true,
       title: Padding(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(Spaces.small),
         child: Text(
           loc.add_new_node_title,
           style: context.titleLarge,
@@ -85,7 +86,7 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
                     border: const OutlineInputBorder(),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: Spaces.medium),
                 FormBuilderTextField(
                   name: 'url',
                   style: context.bodyMedium,
