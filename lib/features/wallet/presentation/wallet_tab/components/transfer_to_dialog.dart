@@ -58,12 +58,10 @@ class _TransferToDialogState extends ConsumerState<TransferToDialog> {
                   ),
           ),
           content: Builder(builder: (context) {
-            // var height = context.mediaSize.height;
-            var width = context.mediaSize.width;
+            final width = context.mediaSize.width;
 
             return SizedBox(
-              // height: height,
-              width: width,
+              width: isDesktopDevice ? width : null,
               child: isDone
                   ? Column(
                       children: [
