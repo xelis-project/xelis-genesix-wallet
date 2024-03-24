@@ -7,6 +7,7 @@ import 'package:xelis_mobile_wallet/features/settings/presentation/components/da
 import 'package:xelis_mobile_wallet/features/settings/presentation/components/languages_widget.dart';
 import 'package:xelis_mobile_wallet/features/settings/presentation/components/logout_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/shared/theme/styles.dart';
 
 class SettingsTab extends StatelessWidget {
   const SettingsTab({super.key});
@@ -14,7 +15,7 @@ class SettingsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.all(Spaces.large),
       child: ListView(
         children: [
           Consumer(
@@ -27,9 +28,9 @@ class SettingsTab extends StatelessWidget {
               );
             },
           ),
-          const SizedBox(height: 24.0),
+          const SizedBox(height: Spaces.large),
           const AvatarSelector(),
-          const SizedBox(height: 24.0),
+          const SizedBox(height: Spaces.large),
           const DarkModeSwitchWidget(),
           const LanguageWidget(),
           const ChangePasswordWidget(),

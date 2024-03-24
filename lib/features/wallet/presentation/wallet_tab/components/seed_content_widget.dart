@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
+import 'package:xelis_mobile_wallet/shared/theme/styles.dart';
 
 class SeedContentWidget extends ConsumerWidget {
   const SeedContentWidget(this.seed, {super.key});
@@ -32,7 +33,7 @@ class SeedContentWidget extends ConsumerWidget {
               Expanded(
                 flex: 5,
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(Spaces.small),
                   child: RichText(
                     text: TextSpan(
                         style: context.bodyMedium
@@ -57,15 +58,15 @@ class SeedContentWidget extends ConsumerWidget {
             ],
           ),
         ),
-        const SizedBox(height: 24.0),
+        const SizedBox(height: Spaces.medium),
         Text(
           loc.seed_warning_message_4,
           style: context.titleMedium,
         ),
         Card.outlined(
-          margin: const EdgeInsets.all(0.0),
+          margin: const EdgeInsets.all(Spaces.none),
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(Spaces.small),
             child: SelectableText(
               seed ?? loc.oups,
               style: context.bodyLarge,

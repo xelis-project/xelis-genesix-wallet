@@ -5,6 +5,7 @@ import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/history_tab/components/coinbase_details_dialog.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/shared/theme/styles.dart';
 import 'package:xelis_mobile_wallet/shared/utils/utils.dart';
 
 class BurnEntryWidget extends ConsumerStatefulWidget {
@@ -31,7 +32,8 @@ class _BurnEntryWidgetState extends ConsumerState<BurnEntryWidget> {
     return Card(
       elevation: 1,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+        padding: const EdgeInsets.fromLTRB(
+            Spaces.medium, Spaces.small, Spaces.medium, Spaces.small),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -43,7 +45,7 @@ class _BurnEntryWidgetState extends ConsumerState<BurnEntryWidget> {
                   style: context.labelSmall
                       ?.copyWith(color: context.colors.primary),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: Spaces.small),
                 Text(
                   '${widget.transactionEntry.topoHeight}',
                   style: context.bodyLarge,
@@ -60,7 +62,7 @@ class _BurnEntryWidgetState extends ConsumerState<BurnEntryWidget> {
                   style: context.labelSmall
                       ?.copyWith(color: context.colors.primary),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: Spaces.small),
                 SelectableText(
                   entryType.asset == xelisAsset
                       ? '- ${formatXelis(entryType.amount)} XEL'

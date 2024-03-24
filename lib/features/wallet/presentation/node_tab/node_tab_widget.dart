@@ -4,6 +4,7 @@ import 'package:xelis_mobile_wallet/features/settings/application/app_localizati
 import 'package:xelis_mobile_wallet/features/wallet/presentation/node_tab/components/node_info_widget.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/node_tab/components/node_selector_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/shared/theme/styles.dart';
 
 class NodeTab extends ConsumerWidget {
   const NodeTab({super.key});
@@ -12,22 +13,22 @@ class NodeTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
     return Padding(
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.all(Spaces.large),
       child: ListView(
         children: [
           Text(
             loc.remote_node,
             style: context.headlineLarge!.copyWith(fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: Spaces.large),
           const NodeSelectorWidget(),
-          const SizedBox(height: 24),
+          const SizedBox(height: Spaces.large),
           Text(
             loc.information,
             style: context.headlineSmall!.copyWith(fontWeight: FontWeight.bold),
           ),
           const Divider(),
-          const SizedBox(height: 8),
+          const SizedBox(height: Spaces.small),
           const NodeInfoWidget(),
         ],
       ),
