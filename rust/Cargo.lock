@@ -907,7 +907,7 @@ dependencies = [
 [[package]]
 name = "curve25519-dalek"
 version = "4.1.2"
-source = "git+https://github.com/xelis-project/curve25519-dalek?branch=main#2fcb1e03d8a66e46cf2991be91399bddf0bb0a83"
+source = "git+https://github.com/xelis-project/curve25519-dalek?branch=main#e65858381337f5ea7c567e8a6414525880169f76"
 dependencies = [
  "bytemuck",
  "cfg-if",
@@ -916,7 +916,6 @@ dependencies = [
  "digest",
  "fiat-crypto",
  "group",
- "log",
  "rand_core",
  "rustc_version",
  "serde",
@@ -927,7 +926,7 @@ dependencies = [
 [[package]]
 name = "curve25519-dalek-derive"
 version = "0.1.1"
-source = "git+https://github.com/xelis-project/curve25519-dalek?branch=main#2fcb1e03d8a66e46cf2991be91399bddf0bb0a83"
+source = "git+https://github.com/xelis-project/curve25519-dalek?branch=main#e65858381337f5ea7c567e8a6414525880169f76"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1597,9 +1596,9 @@ dependencies = [
 
 [[package]]
 name = "memchr"
-version = "2.7.1"
+version = "2.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "523dc4f511e55ab87b694dc30d0f820d60906ef06413f93d4d7a1385599cc149"
+checksum = "6c8640c5d730cb13ebd907d8d04b52f55ac9a2eec55b440c8892f40d56c76c1d"
 
 [[package]]
 name = "merlin"
@@ -3037,7 +3036,7 @@ dependencies = [
 [[package]]
 name = "xelis_common"
 version = "1.8.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#d2b6d67288b4e292061e62c59abd99545e35225c"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#829858bfc329b7a2a8c401cae04cd0b65803fb1c"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -3074,7 +3073,7 @@ dependencies = [
 [[package]]
 name = "xelis_wallet"
 version = "1.8.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#d2b6d67288b4e292061e62c59abd99545e35225c"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#829858bfc329b7a2a8c401cae04cd0b65803fb1c"
 dependencies = [
  "actix",
  "actix-web",

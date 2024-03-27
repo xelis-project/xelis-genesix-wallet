@@ -6,7 +6,7 @@ use serde_json::json;
 use std::collections::HashMap;
 use std::sync::Arc;
 use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
-use xelis_common::crypto::{Address, Hash, Hashable};
+use xelis_common::crypto::{ecdlp, Address, Hash, Hashable};
 pub use xelis_common::network::Network;
 use xelis_common::serializer::Serializer;
 use xelis_common::transaction::builder::FeeBuilder;
@@ -33,7 +33,7 @@ pub fn create_xelis_wallet(
     network: Network,
     seed: Option<String>,
 ) -> Result<XelisWallet> {
-    let precomputed_tables = Wallet::read_or_generate_precomputed_tables(None)?;
+    let precomputed_tables = Wallet::read_or_generate_precomputed_tables(None, ecdlp::NoOpProgressTableGenerationReportFunction)?;
     let xelis_wallet = Wallet::create(name, password, seed, network, precomputed_tables)?;
     Ok(XelisWallet {
         wallet: xelis_wallet,
@@ -41,7 +41,7 @@ pub fn create_xelis_wallet(
 }
 
 pub fn open_xelis_wallet(name: String, password: String, network: Network) -> Result<XelisWallet> {
-    let precomputed_tables = Wallet::read_or_generate_precomputed_tables(None)?;
+    let precomputed_tables = Wallet::read_or_generate_precomputed_tables(None, ecdlp::NoOpProgressTableGenerationReportFunction)?;
     let xelis_wallet = Wallet::open(name, password, network, precomputed_tables)?;
     Ok(XelisWallet {
         wallet: xelis_wallet,
