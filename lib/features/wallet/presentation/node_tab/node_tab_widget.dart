@@ -4,7 +4,7 @@ import 'package:xelis_mobile_wallet/features/settings/application/app_localizati
 import 'package:xelis_mobile_wallet/features/wallet/presentation/node_tab/components/node_info_widget.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/node_tab/components/node_selector_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/theme/styles.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 
 class NodeTab extends ConsumerWidget {
   const NodeTab({super.key});

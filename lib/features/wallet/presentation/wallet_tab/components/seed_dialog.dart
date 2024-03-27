@@ -7,6 +7,7 @@ import 'package:xelis_mobile_wallet/features/settings/application/app_localizati
 import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/components/seed_content_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 
 class MySeedDialog extends ConsumerStatefulWidget {
   const MySeedDialog({super.key});
@@ -18,8 +19,6 @@ class MySeedDialog extends ConsumerStatefulWidget {
 class _MySeedDialogState extends ConsumerState<MySeedDialog> {
   final _mySeedFormKey =
       GlobalKey<FormBuilderState>(debugLabel: '_mySeedFormKey');
-  final int _animationDuration = 200;
-
   late Widget _seedWidget;
   late Widget _leftButton;
   late Widget _rightButton;
@@ -104,7 +103,7 @@ class _MySeedDialogState extends ConsumerState<MySeedDialog> {
           return SizedBox(
             width: isDesktopDevice ? width : null,
             child: AnimatedSwitcher(
-              duration: Duration(milliseconds: _animationDuration),
+              duration: const Duration(milliseconds: AppDurations.animFast),
               child: _seedWidget,
             ),
           );
@@ -113,7 +112,7 @@ class _MySeedDialogState extends ConsumerState<MySeedDialog> {
       actions: [
         _leftButton,
         AnimatedSwitcher(
-          duration: Duration(milliseconds: _animationDuration),
+          duration: const Duration(milliseconds: AppDurations.animFast),
           child: _rightButton,
         ),
       ],

@@ -7,7 +7,7 @@ import 'package:xelis_mobile_wallet/features/settings/presentation/components/da
 import 'package:xelis_mobile_wallet/features/settings/presentation/components/languages_widget.dart';
 import 'package:xelis_mobile_wallet/features/settings/presentation/components/logout_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/theme/styles.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 
 class SettingsTab extends StatelessWidget {
   const SettingsTab({super.key});
