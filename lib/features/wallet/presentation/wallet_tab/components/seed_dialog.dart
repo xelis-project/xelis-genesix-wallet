@@ -19,6 +19,7 @@ class MySeedDialog extends ConsumerStatefulWidget {
 class _MySeedDialogState extends ConsumerState<MySeedDialog> {
   final _mySeedFormKey =
       GlobalKey<FormBuilderState>(debugLabel: '_mySeedFormKey');
+  bool _hidePassword = true;
   late Widget _seedWidget;
   late Widget _leftButton;
   late Widget _rightButton;
@@ -35,10 +36,28 @@ class _MySeedDialogState extends ConsumerState<MySeedDialog> {
       key: _mySeedFormKey,
       child: FormBuilderTextField(
         name: 'password',
-        style: context.bodyLarge,
+        obscureText: _hidePassword,
         autocorrect: false,
+        style: context.bodyLarge,
         decoration: InputDecoration(
           labelText: loc.password,
+          suffixIcon: IconButton(
+            icon: _hidePassword
+                ? Icon(
+                    Icons.visibility_off_rounded,
+                    color: context.colors.secondary,
+                  )
+                : Icon(
+                    Icons.visibility_rounded,
+                    color: context.colors.primary,
+                  ),
+            onPressed: () {
+              setState(() {
+                _hidePassword = !_hidePassword;
+                _initDialogWidgets();
+              });
+            },
+          ),
         ),
         validator: FormBuilderValidators.required(),
       ),
