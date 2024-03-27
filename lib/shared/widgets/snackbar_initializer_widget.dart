@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:xelis_mobile_wallet/shared/providers/scaffold_messenger_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 
 class SnackBarInitializerWidget extends ConsumerStatefulWidget {
@@ -21,11 +22,12 @@ class _SnackBarInitializerWidgetState
     ref.read(scaffoldMessengerPodProvider).showSnackBar(
           SnackBar(
             content: widget,
-            duration: const Duration(milliseconds: 3000),
+            duration:
+                const Duration(milliseconds: AppDurations.displayTimeSnackbar),
             width: 280.0,
             elevation: 2,
             backgroundColor: Colors.transparent,
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(Spaces.small),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10.0),
@@ -40,11 +42,12 @@ class _SnackBarInitializerWidgetState
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: widget,
-        duration: const Duration(milliseconds: 3000),
+        duration:
+            const Duration(milliseconds: AppDurations.displayTimeSnackbar),
         width: 280.0,
         elevation: 2,
         backgroundColor: Colors.transparent,
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(Spaces.small),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),

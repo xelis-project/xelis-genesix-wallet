@@ -7,7 +7,7 @@ import 'package:xelis_mobile_wallet/features/settings/application/node_addresses
 import 'package:xelis_mobile_wallet/features/wallet/domain/node_address.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/theme/styles.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 
 class AddNodeDialog extends ConsumerStatefulWidget {
   const AddNodeDialog({super.key});

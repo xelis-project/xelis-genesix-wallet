@@ -6,7 +6,7 @@ import 'package:xelis_mobile_wallet/features/wallet/presentation/history_tab/com
 import 'package:xelis_mobile_wallet/features/wallet/presentation/history_tab/components/outgoing_history_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/shared/theme/styles.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 
 class HistoryTab extends ConsumerWidget {
   const HistoryTab({super.key});

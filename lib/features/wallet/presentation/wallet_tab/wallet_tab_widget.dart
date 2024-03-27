@@ -14,7 +14,7 @@ import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/comp
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/theme/styles.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 
 class WalletTab extends ConsumerStatefulWidget {
   const WalletTab({super.key});
@@ -172,7 +172,8 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                             ?.copyWith(color: context.colors.primary),
                       ),
                       AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 200),
+                        duration:
+                            const Duration(milliseconds: AppDurations.animFast),
                         child: Text(
                           key: ValueKey<int>(walletSnapshot.topoheight),
                           walletSnapshot.topoheight.toString(),
@@ -245,7 +246,8 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                                   sigmaY: 10,
                                 ),
                                 child: AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 200),
+                                  duration: const Duration(
+                                      milliseconds: AppDurations.animFast),
                                   child: Text(
                                     key: ValueKey<String>(
                                         walletSnapshot.xelisBalance),

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:random_avatar/random_avatar.dart';
 import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/theme/styles.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 
 class AvatarSelector extends ConsumerWidget {
   const AvatarSelector({super.key});

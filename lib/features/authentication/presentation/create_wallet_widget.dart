@@ -13,7 +13,7 @@ import 'package:xelis_mobile_wallet/features/settings/application/app_localizati
 import 'package:xelis_mobile_wallet/features/settings/application/theme_mode_state_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/components/seed_on_creation_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/theme/styles.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/banner_widget.dart';
 import 'package:xelis_mobile_wallet/features/router/login_action_codec.dart';
 
@@ -264,7 +264,8 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
                       child: Padding(
                         padding: const EdgeInsets.all(Spaces.small),
                         child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 200),
+                          duration: const Duration(
+                              milliseconds: AppDurations.animFast),
                           child: _widgetCreation,
                         ),
                       ),

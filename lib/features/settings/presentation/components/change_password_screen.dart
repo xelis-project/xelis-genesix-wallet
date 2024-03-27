@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/theme/styles.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 
 class ChangePasswordScreen extends ConsumerStatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -228,7 +228,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                               child: Padding(
                                 padding: const EdgeInsets.all(Spaces.small),
                                 child: AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 500),
+                                  duration: const Duration(
+                                      milliseconds: AppDurations.animNormal),
                                   child: _widgetConfirmation,
                                 ),
                               ),

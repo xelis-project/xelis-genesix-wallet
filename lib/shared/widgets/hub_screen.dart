@@ -7,6 +7,7 @@ import 'package:xelis_mobile_wallet/features/wallet/presentation/assets_tab/asse
 import 'package:xelis_mobile_wallet/features/wallet/presentation/history_tab/history_tab_widget.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/wallet_tab_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/hub_app_bar_widget.dart';
 
 class HubScreen extends ConsumerStatefulWidget {
@@ -155,7 +156,7 @@ class _HubScreenState extends ConsumerState<HubScreen> {
           );
 
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: AppDurations.animFast),
       child: mainWidget,
     );
   }
