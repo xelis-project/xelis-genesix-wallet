@@ -4,5 +4,4 @@
 
 pub mod api;
 pub mod logger;
-pub mod network;
 pub mod wallet;

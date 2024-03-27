@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/open_wallet_state_provider.dart';
 import 'package:xelis_mobile_wallet/features/authentication/domain/authentication_state.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
@@ -11,6 +10,7 @@ import 'package:xelis_mobile_wallet/features/wallet/data/native_wallet_repositor
 import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
+import 'package:xelis_mobile_wallet/src/rust/api/wallet.dart';
 
 part 'authentication_service.g.dart';
 

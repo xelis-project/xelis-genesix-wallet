@@ -1,20 +1,9 @@
 import 'dart:convert';
 
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/event.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
-import 'package:xelis_mobile_wallet/src/rust/api/network.dart';
 import 'package:xelis_mobile_wallet/src/rust/api/wallet.dart';
-
-Future<void> setNetwork(Network network) async {
-  switch (network) {
-    case Network.mainnet:
-      await setNetworkToMainnet();
-    case Network.testnet:
-      await setNetworkToTestnet();
-  }
-}
 
 class NativeWalletRepository {
   NativeWalletRepository._internal(this._xelisWallet);
@@ -22,28 +11,26 @@ class NativeWalletRepository {
   final XelisWallet _xelisWallet;
 
   static Future<NativeWalletRepository> create(
-      String walletPath, String pwd, sdk.Network network) async {
-    await setNetwork(network);
-    final xelisWallet =
-        await createXelisWallet(name: walletPath, password: pwd);
+      String walletPath, String pwd, Network network) async {
+    final xelisWallet = await createXelisWallet(
+        name: walletPath, password: pwd, network: network);
     logger.info('new Xelis Wallet created: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }
 
   static Future<NativeWalletRepository> recover(
-      String walletPath, String pwd, sdk.Network network,
+      String walletPath, String pwd, Network network,
       {required String seed}) async {
-    await setNetwork(network);
-    final xelisWallet =
-        await createXelisWallet(name: walletPath, password: pwd, seed: seed);
+    final xelisWallet = await createXelisWallet(
+        name: walletPath, password: pwd, seed: seed, network: network);
     logger.info('Xelis Wallet recovered from seed: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }
 
   static Future<NativeWalletRepository> open(
-      String walletPath, String pwd, sdk.Network network) async {
-    await setNetwork(network);
-    final xelisWallet = await openXelisWallet(name: walletPath, password: pwd);
+      String walletPath, String pwd, Network network) async {
+    final xelisWallet = await openXelisWallet(
+        name: walletPath, password: pwd, network: network);
     logger.info('Xelis Wallet open: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }

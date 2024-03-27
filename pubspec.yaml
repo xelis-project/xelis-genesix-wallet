@@ -29,7 +29,7 @@ dependencies:
   path_provider: ^2.1.2
   riverpod_annotation: ^2.3.5
   shared_preferences: ^2.2.2
-  xelis_dart_sdk: ^0.16.0
+  xelis_dart_sdk: ^0.16.1
   dots_indicator: ^3.0.0
   #  flutter_animate: ^4.5.0
   #  flutter_hooks: ^0.20.5
@@ -51,7 +51,7 @@ dev_dependencies:
   build_runner: ^2.4.8
   go_router_builder: ^2.4.1
   ffigen: ^11.0.0
-  flutter_lints: ^3.0.1
+  flutter_lints: ^3.0.2
   #  flutter_test:
   #    sdk: flutter
   freezed: ^2.4.7

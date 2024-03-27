@@ -5,13 +5,14 @@ use log::{debug, info};
 use serde_json::json;
 use std::collections::HashMap;
 use std::sync::Arc;
-use xelis_common::api::wallet::FeeBuilder;
 use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
-use xelis_common::crypto::address::{Address, AddressType};
-use xelis_common::crypto::hash::{Hash, Hashable};
+use xelis_common::crypto::{Address, Hash, Hashable};
+pub use xelis_common::network::Network;
 use xelis_common::serializer::Serializer;
-use xelis_common::transaction::TransactionType;
-use xelis_common::utils::{format_coin, format_xelis, get_network};
+use xelis_common::transaction::builder::FeeBuilder;
+use xelis_common::transaction::builder::{TransactionTypeBuilder, TransferBuilder};
+use xelis_common::transaction::{BurnPayload, Transaction};
+use xelis_common::utils::{format_coin, format_xelis};
 use xelis_wallet::wallet::Wallet;
 
 #[frb(opaque)]
@@ -19,21 +20,29 @@ pub struct XelisWallet {
     wallet: Arc<Wallet>,
 }
 
+#[frb(mirror(Network))]
+pub enum _Network {
+    Mainnet,
+    Testnet,
+    Dev,
+}
+
 pub fn create_xelis_wallet(
     name: String,
     password: String,
+    network: Network,
     seed: Option<String>,
 ) -> Result<XelisWallet> {
-    let network = get_network();
-    let xelis_wallet = Wallet::create(name, password, seed, network)?;
+    let precomputed_tables = Wallet::read_or_generate_precomputed_tables(None)?;
+    let xelis_wallet = Wallet::create(name, password, seed, network, precomputed_tables)?;
     Ok(XelisWallet {
         wallet: xelis_wallet,
     })
 }
 
-pub fn open_xelis_wallet(name: String, password: String) -> Result<XelisWallet> {
-    let network = get_network();
-    let xelis_wallet = Wallet::open(name, password, network)?;
+pub fn open_xelis_wallet(name: String, password: String, network: Network) -> Result<XelisWallet> {
+    let precomputed_tables = Wallet::read_or_generate_precomputed_tables(None)?;
+    let xelis_wallet = Wallet::open(name, password, network, precomputed_tables)?;
     Ok(XelisWallet {
         wallet: xelis_wallet,
     })
@@ -72,19 +81,19 @@ impl XelisWallet {
         self.wallet.get_nonce().await
     }
 
-    pub async fn get_xelis_balance(&self) -> String {
+    pub async fn get_xelis_balance(&self) -> Result<String> {
         let storage = self.wallet.get_storage().read().await;
-        let balance = storage.get_balance_for(&XELIS_ASSET).unwrap_or_default();
-        format_xelis(balance)
+        let balance = storage.get_balance_for(&XELIS_ASSET).await?;
+        Ok(format_xelis(balance.amount))
     }
 
     pub async fn get_asset_balances(&self) -> Result<HashMap<String, String>> {
         let storage = self.wallet.get_storage().read().await;
         let mut balances = HashMap::new();
 
-        for (asset, decimals) in storage.get_assets_with_decimals()? {
-            let balance = storage.get_balance_for(&asset).unwrap_or(0);
-            balances.insert(asset.to_string(), format_coin(balance, decimals));
+        for (asset, decimals) in storage.get_assets_with_decimals().await? {
+            let balance = storage.get_balance_for(&asset).await?;
+            balances.insert(asset.to_string(), format_coin(balance.amount, decimals));
         }
 
         Ok(balances)
@@ -101,20 +110,14 @@ impl XelisWallet {
         asset_hash: Option<String>,
     ) -> Result<String> {
         let address = Address::from_string(&str_address).context("Invalid address")?;
-
         let asset = match asset_hash {
             None => XELIS_ASSET,
             Some(value) => Hash::from_hex(value).unwrap_or(XELIS_ASSET),
         };
-
-        let (_max_balance, decimals) = {
-            let storage = self.wallet.get_storage().read().await;
-            let balance = storage.get_balance_for(&asset).unwrap_or(0);
-            let decimals = storage.get_asset_decimals(&asset).unwrap_or(COIN_DECIMALS);
-            (balance, decimals)
-        };
-
+        let storage = self.wallet.get_storage().read().await;
+        let decimals = storage.get_asset_decimals(&asset).unwrap_or(COIN_DECIMALS);
         let amount = (float_amount * 10u32.pow(decimals as u32) as f64) as u64;
+
         info!(
             "Sending {} of {} to {}",
             format_coin(amount, decimals),
@@ -123,35 +126,24 @@ impl XelisWallet {
         );
 
         info!("Building transaction...");
-        let (key, address_type) = address.split();
-        let extra_data = match address_type {
-            AddressType::Normal => None,
-            AddressType::Data(data) => Some(data),
+
+        let transfer = TransferBuilder {
+            destination: address,
+            amount,
+            asset,
+            extra_data: None,
         };
 
-        let tx = {
-            let storage = self.wallet.get_storage().read().await;
-            let transfer = self
-                .wallet
-                .create_transfer(&storage, asset, key, extra_data, amount)
-                .context("Error while creating transfer")?;
-            self.wallet
-                .create_transaction(
-                    &storage,
-                    TransactionType::Transfer(vec![transfer]),
-                    FeeBuilder::default(),
-                )
-                .context("Error while creating transaction")?
-        };
+        let tx = self
+            .wallet
+            .create_transaction(
+                TransactionTypeBuilder::Transfers(vec![transfer]),
+                FeeBuilder::default(),
+            )
+            .await
+            .context("Error while creating transaction")?;
 
-        if self.wallet.is_online().await {
-            self.wallet.submit_transaction(&tx).await?;
-            info!("Transaction submitted successfully!");
-        } else {
-            return Err(anyhow!(
-                "Wallet is offline, transaction cannot be submitted"
-            ));
-        }
+        self.broadcast_tx(&tx).await?;
 
         // TODO: send the entire tx struct to the dart side
         Ok(tx.hash().to_hex())
@@ -159,38 +151,37 @@ impl XelisWallet {
 
     pub async fn burn(&self, float_amount: f64, asset_hash: String) -> Result<String> {
         let asset = Hash::from_hex(asset_hash)?;
-
-        let (_max_balance, decimals) = {
-            let storage = self.wallet.get_storage().read().await;
-            let balance = storage.get_balance_for(&asset).unwrap_or(0);
-            let decimals = storage.get_asset_decimals(&asset).unwrap_or(COIN_DECIMALS);
-            (balance, decimals)
-        };
-
+        let storage = self.wallet.get_storage().read().await;
+        let decimals = storage.get_asset_decimals(&asset).unwrap_or(COIN_DECIMALS);
         let amount = (float_amount * 10u32.pow(decimals as u32) as f64) as u64;
 
-        let tx = {
-            let storage = self.wallet.get_storage().read().await;
-            info!("Burning {} of {}", format_coin(amount, decimals), asset);
-            self.wallet
-                .create_transaction(
-                    &storage,
-                    TransactionType::Burn { asset, amount },
-                    FeeBuilder::Multiplier(1f64),
-                )
-                .context("Error while creating transaction")?
-        };
+        info!("Burning {} of {}", format_coin(amount, decimals), asset);
 
+        let payload = BurnPayload { amount, asset };
+        let tx = self
+            .wallet
+            .create_transaction(
+                TransactionTypeBuilder::Burn(payload),
+                FeeBuilder::Multiplier(1f64),
+            )
+            .await
+            .context("Error while creating transaction")?;
+
+        self.broadcast_tx(&tx).await?;
+
+        Ok(tx.hash().to_hex())
+    }
+
+    async fn broadcast_tx(&self, tx: &Transaction) -> Result<()> {
         if self.wallet.is_online().await {
-            self.wallet.submit_transaction(&tx).await?;
+            self.wallet.submit_transaction(tx).await?;
             info!("Transaction submitted successfully!");
         } else {
             return Err(anyhow!(
                 "Wallet is offline, transaction cannot be submitted"
             ));
         }
-
-        Ok(tx.hash().to_hex())
+        Ok(())
     }
 
     pub async fn all_history(&self) -> Result<Vec<String>> {
@@ -207,9 +198,10 @@ impl XelisWallet {
         // desc ordered
         transactions.sort_by(|a, b| b.get_topoheight().cmp(&a.get_topoheight()));
 
-        for tx in transactions.iter() {
-            // info!("- {}", tx);
-            let json_tx = serde_json::to_string(tx).expect("Tx serialization failed");
+        for tx in transactions.into_iter() {
+            let transaction_entry = tx.serializable(self.wallet.get_network().is_mainnet());
+            let json_tx =
+                serde_json::to_string(&transaction_entry).expect("Tx serialization failed");
             txs.push(json_tx);
         }
 
