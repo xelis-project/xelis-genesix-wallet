@@ -27,6 +27,7 @@ class NodeInfoWidget extends ConsumerWidget {
               switch (value?.network) {
                 Network.mainnet => 'Mainnet',
                 Network.testnet => 'Testnet',
+                Network.dev => 'Dev',
                 null => '...',
               },
               style: context.titleMedium,
