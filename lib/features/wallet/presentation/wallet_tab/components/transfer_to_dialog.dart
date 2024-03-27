@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 
 class TransferToDialog extends ConsumerStatefulWidget {
   const TransferToDialog({super.key});
@@ -42,7 +43,7 @@ class _TransferToDialogState extends ConsumerState<TransferToDialog> {
           // insetPadding: EdgeInsets.zero,
           scrollable: true,
           title: Padding(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(Spaces.small),
             child: isDone
                 ? Center(
                     child: Icon(
@@ -58,12 +59,10 @@ class _TransferToDialogState extends ConsumerState<TransferToDialog> {
                   ),
           ),
           content: Builder(builder: (context) {
-            // var height = context.mediaSize.height;
-            var width = context.mediaSize.width;
+            final width = context.mediaSize.width;
 
             return SizedBox(
-              // height: height,
-              width: width,
+              width: isDesktopDevice ? width : null,
               child: isDone
                   ? Column(
                       children: [
@@ -71,7 +70,7 @@ class _TransferToDialogState extends ConsumerState<TransferToDialog> {
                           loc.tx_hash,
                           style: context.bodyMedium,
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: Spaces.medium),
                         SelectableText(
                           snapshot.data ?? loc.oups,
                           style: context.bodySmall,
@@ -96,7 +95,7 @@ class _TransferToDialogState extends ConsumerState<TransferToDialog> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: Spaces.medium),
                           FormBuilderTextField(
                             name: 'amount',
                             style: context.bodyMedium,
@@ -132,7 +131,7 @@ class _TransferToDialogState extends ConsumerState<TransferToDialog> {
                               }
                             ]),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: Spaces.medium),
                           FormBuilderTextField(
                             name: 'address',
                             style: context.bodyMedium,
@@ -151,7 +150,7 @@ class _TransferToDialogState extends ConsumerState<TransferToDialog> {
                             ]),
                           ),
                           if (isWaiting) ...[
-                            const SizedBox(height: 16),
+                            const SizedBox(height: Spaces.medium),
                             const Center(child: CircularProgressIndicator()),
                           ]
                         ],

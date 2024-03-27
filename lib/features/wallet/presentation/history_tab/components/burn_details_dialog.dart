@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/utils/utils.dart';
 
 class BurnDetailsDialog extends ConsumerWidget {
@@ -25,61 +26,68 @@ class BurnDetailsDialog extends ConsumerWidget {
           style: context.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
       ),
-      content: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
+      content: Builder(builder: (context) {
+        final width = context.mediaSize.width;
+
+        return SizedBox(
+          width: isDesktopDevice ? width : null,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                loc.topoheight,
-                style: context.labelMedium
-                    ?.copyWith(color: context.colors.primary),
+              Column(
+                children: [
+                  Text(
+                    loc.topoheight,
+                    style: context.labelMedium
+                        ?.copyWith(color: context.colors.primary),
+                  ),
+                  SelectableText(transactionEntry.topoHeight.toString()),
+                ],
               ),
-              SelectableText(transactionEntry.topoHeight.toString()),
+              const SizedBox(height: Spaces.medium),
+              Column(
+                children: [
+                  Text(
+                    loc.tx_hash,
+                    style: context.labelMedium
+                        ?.copyWith(color: context.colors.primary),
+                  ),
+                  SelectableText(transactionEntry.hash)
+                ],
+              ),
+              const SizedBox(height: Spaces.medium),
+              Column(
+                children: [
+                  Text(
+                    'Asset',
+                    style: context.labelMedium
+                        ?.copyWith(color: context.colors.primary),
+                  ),
+                  SelectableText(entryType.asset),
+                ],
+              ),
+              const SizedBox(height: Spaces.medium),
+              Column(
+                children: [
+                  Text(
+                    entryType.asset == xelisAsset
+                        ? loc.amount.capitalize
+                        : '${loc.amount.capitalize} (${loc.atomic_units})',
+                    style: context.labelSmall
+                        ?.copyWith(color: context.colors.primary),
+                  ),
+                  SelectableText(
+                    entryType.asset == xelisAsset
+                        ? '${formatXelis(entryType.amount)} XEL'
+                        : entryType.amount.toString(),
+                    style: context.bodyLarge,
+                  ),
+                ],
+              ),
             ],
           ),
-          const SizedBox(height: 16.0),
-          Column(
-            children: [
-              Text(
-                loc.tx_hash,
-                style: context.labelMedium
-                    ?.copyWith(color: context.colors.primary),
-              ),
-              SelectableText(transactionEntry.hash)
-            ],
-          ),
-          const SizedBox(height: 16.0),
-          Column(
-            children: [
-              Text(
-                'Asset',
-                style: context.labelMedium
-                    ?.copyWith(color: context.colors.primary),
-              ),
-              SelectableText(entryType.asset),
-            ],
-          ),
-          const SizedBox(height: 16.0),
-          Column(
-            children: [
-              Text(
-                entryType.asset == xelisAsset
-                    ? loc.amount.capitalize
-                    : '${loc.amount.capitalize} (${loc.atomic_units})',
-                style:
-                    context.labelSmall?.copyWith(color: context.colors.primary),
-              ),
-              SelectableText(
-                entryType.asset == xelisAsset
-                    ? '${formatXelis(entryType.amount)} XEL'
-                    : entryType.amount.toString(),
-                style: context.bodyLarge,
-              ),
-            ],
-          ),
-        ],
-      ),
+        );
+      }),
       actions: [
         FilledButton(
           onPressed: () => context.pop(),

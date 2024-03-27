@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 
 class ChangePasswordScreen extends ConsumerStatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -78,7 +79,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                   Icons.check_rounded,
                   color: context.colors.primary,
                 ),
-                const SizedBox(height: 8.0),
+                const SizedBox(height: Spaces.small),
                 Text(
                   loc.password_changed,
                   style: context.bodyMedium
@@ -112,7 +113,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
               child: Center(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                      vertical: 16.0, horizontal: 24.0),
+                      vertical: Spaces.medium, horizontal: Spaces.large),
                   child: Row(
                     children: [
                       Expanded(
@@ -124,7 +125,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
-                                      vertical: 24.0),
+                                      vertical: Spaces.large),
                                   child: IconButton(
                                     onPressed: () => context.pop(),
                                     icon: const Icon(Icons.close_rounded),
@@ -134,8 +135,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                             ),
                             const Spacer(),
                             Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 16.0),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: Spaces.medium),
                               child: Text(
                                 loc.change_password,
                                 style: context.headlineMedium!
@@ -168,7 +169,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                               ),
                               validator: FormBuilderValidators.required(),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: Spaces.medium),
                             FormBuilderTextField(
                               name: 'new_password1',
                               style: context.bodyLarge,
@@ -195,7 +196,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                               ),
                               validator: FormBuilderValidators.required(),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: Spaces.medium),
                             FormBuilderTextField(
                               name: 'new_password2',
                               style: context.bodyLarge,
@@ -222,12 +223,13 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                               ),
                               validator: FormBuilderValidators.required(),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: Spaces.medium),
                             Center(
                               child: Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding: const EdgeInsets.all(Spaces.small),
                                 child: AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 500),
+                                  duration: const Duration(
+                                      milliseconds: AppDurations.animNormal),
                                   child: _widgetConfirmation,
                                 ),
                               ),

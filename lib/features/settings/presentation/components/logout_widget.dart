@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 
 class LogoutWidget extends ConsumerWidget {
   const LogoutWidget({super.key});
@@ -18,7 +19,7 @@ class LogoutWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: Spaces.medium),
       child: Row(
         children: [
           const Spacer(),

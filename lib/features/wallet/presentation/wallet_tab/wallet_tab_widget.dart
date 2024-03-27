@@ -14,6 +14,7 @@ import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/comp
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 
 class WalletTab extends ConsumerStatefulWidget {
   const WalletTab({super.key});
@@ -70,13 +71,14 @@ class _WalletTabState extends ConsumerState<WalletTab> {
         : '...';
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16.0, 32.0, 16.0, 32.0),
+      padding: const EdgeInsets.fromLTRB(
+          Spaces.medium, Spaces.extraLarge, Spaces.medium, Spaces.extraLarge),
       child: ListView(
         children: [
           Card(
             elevation: 1,
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(Spaces.medium),
               child: GridTile(
                   child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -105,7 +107,7 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: Spaces.large),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -152,11 +154,11 @@ class _WalletTabState extends ConsumerState<WalletTab> {
               )),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: Spaces.medium),
           Card(
             elevation: 1,
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(Spaces.medium),
               child: GridTile(
                   child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -170,7 +172,8 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                             ?.copyWith(color: context.colors.primary),
                       ),
                       AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 200),
+                        duration:
+                            const Duration(milliseconds: AppDurations.animFast),
                         child: Text(
                           key: ValueKey<int>(walletSnapshot.topoheight),
                           walletSnapshot.topoheight.toString(),
@@ -213,11 +216,11 @@ class _WalletTabState extends ConsumerState<WalletTab> {
               )),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: Spaces.medium),
           Card(
             elevation: 1,
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(Spaces.medium),
               child: GridTile(
                   child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -243,7 +246,8 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                                   sigmaY: 10,
                                 ),
                                 child: AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 200),
+                                  duration: const Duration(
+                                      milliseconds: AppDurations.animFast),
                                   child: Text(
                                     key: ValueKey<String>(
                                         walletSnapshot.xelisBalance),
@@ -253,7 +257,7 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: Spaces.small),
                               Text(
                                 'XEL',
                                 maxLines: 1,
@@ -279,14 +283,14 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: Spaces.medium),
                       Text(
                         '.... USD',
                         style: context.bodySmall,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: Spaces.small),
                   const Divider(),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,

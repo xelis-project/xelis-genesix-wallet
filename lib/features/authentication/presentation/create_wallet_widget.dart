@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,7 +11,9 @@ import 'package:xelis_mobile_wallet/features/authentication/application/open_wal
 import 'package:xelis_mobile_wallet/features/router/route_utils.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/theme_mode_state_provider.dart';
+import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/components/seed_on_creation_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/banner_widget.dart';
 import 'package:xelis_mobile_wallet/features/router/login_action_codec.dart';
 
@@ -76,7 +80,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
                   Icons.check_rounded,
                   color: context.colors.primary,
                 ),
-                const SizedBox(height: 8.0),
+                const SizedBox(height: Spaces.small),
                 Text(
                   loc.create_wallet_message,
                   style: context.bodyMedium
@@ -85,6 +89,9 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
               ],
             );
           });
+          if (seed == null) {
+            _showSeed(password);
+          }
         }, onError: (_) {
           setState(() {
             _initCreateButton();
@@ -92,6 +99,12 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
         });
       }
     }
+  }
+
+  void _showSeed(String password) {
+    Timer.run(() => showDialog<void>(
+        context: context,
+        builder: (BuildContext context) => SeedOnCreationWidget(password)));
   }
 
   @override
@@ -109,7 +122,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
       onChanged: () => _createFormKey.currentState!.save(),
       child: Center(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(Spaces.large),
           child: Row(
             children: [
               Expanded(
@@ -153,25 +166,32 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    FormBuilderSwitch(
-                      name: 'seed_switch',
-                      initialValue: _seedRequired,
-                      title: Text(
-                        loc.seed_option,
-                        style: context.bodyLarge,
+                    const SizedBox(height: Spaces.small),
+                    Theme(
+                      data: context.theme.copyWith(
+                        highlightColor: Colors.transparent,
+                        splashColor: Colors.transparent,
+                        hoverColor: Colors.transparent,
                       ),
-                      onChanged: (value) {
-                        setState(() {
-                          _seedRequired = value!;
-                        });
-                      },
+                      child: FormBuilderSwitch(
+                        name: 'seed_switch',
+                        initialValue: _seedRequired,
+                        title: Text(
+                          loc.seed_option,
+                          style: context.bodyLarge,
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            _seedRequired = value!;
+                          });
+                        },
+                      ),
                     ),
                     Visibility(
                       visible: _seedRequired,
                       child: Column(
                         children: [
-                          const SizedBox(height: 16),
+                          const SizedBox(height: Spaces.medium),
                           FormBuilderTextField(
                             name: 'seed',
                             style: context.bodyLarge,
@@ -192,7 +212,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: Spaces.medium),
                     FormBuilderTextField(
                       name: 'wallet_name',
                       style: context.bodyLarge,
@@ -213,7 +233,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
                         },
                       ]),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: Spaces.medium),
                     FormBuilderTextField(
                       name: 'password',
                       style: context.bodyLarge,
@@ -239,12 +259,13 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: Spaces.medium),
                     Center(
                       child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(Spaces.small),
                         child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 500),
+                          duration: const Duration(
+                              milliseconds: AppDurations.animFast),
                           child: _widgetCreation,
                         ),
                       ),

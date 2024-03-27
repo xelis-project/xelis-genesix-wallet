@@ -11,6 +11,7 @@ import 'package:xelis_mobile_wallet/features/router/route_utils.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/theme_mode_state_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/banner_widget.dart';
 
 class OpenWalletWidget extends ConsumerStatefulWidget {
@@ -71,7 +72,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
                   Icons.check_rounded,
                   color: context.colors.primary,
                 ),
-                const SizedBox(height: 8.0),
+                const SizedBox(height: Spaces.small),
                 Text(
                   loc.open_wallet_message,
                   style: context.bodyMedium
@@ -97,14 +98,14 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
         getBanner(context, userThemeMode.themeMode);
     final openWalletState = ref.watch(openWalletProvider);
 
-    _selectedWallet = openWalletState.walletCurrentlyUsed;
+    _selectedWallet ??= openWalletState.walletCurrentlyUsed;
 
     return FormBuilder(
       key: _openFormKey,
       onChanged: () => _openFormKey.currentState!.save(),
       child: Center(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(Spaces.large),
           child: Row(
             children: [
               Expanded(
@@ -146,7 +147,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: Spaces.small),
                     DropdownMenu<String>(
                       expandedInsets: EdgeInsets.zero,
                       label: Text(
@@ -165,7 +166,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
                         });
                       },
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: Spaces.medium),
                     FormBuilderTextField(
                       name: 'password',
                       style: context.bodyLarge,
@@ -192,12 +193,13 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
                       ),
                       validator: FormBuilderValidators.required(),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: Spaces.medium),
                     Center(
                       child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(Spaces.small),
                         child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 500),
+                          duration: const Duration(
+                              milliseconds: AppDurations.animNormal),
                           child: _widgetOpening,
                         ),
                       ),

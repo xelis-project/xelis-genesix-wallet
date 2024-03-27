@@ -4,6 +4,7 @@ import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/application/node_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 
 class NodeInfoWidget extends ConsumerWidget {
   const NodeInfoWidget({super.key});
@@ -26,11 +27,12 @@ class NodeInfoWidget extends ConsumerWidget {
               switch (value?.network) {
                 Network.mainnet => 'Mainnet',
                 Network.testnet => 'Testnet',
+                Network.dev => 'Dev',
                 null => '...',
               },
               style: context.titleMedium,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: Spaces.medium),
             Text(
               loc.node_type,
               style:
@@ -44,7 +46,7 @@ class NodeInfoWidget extends ConsumerWidget {
               },
               style: context.titleMedium,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: Spaces.medium),
             Text(
               loc.circulating_supply,
               style:
@@ -54,7 +56,7 @@ class NodeInfoWidget extends ConsumerWidget {
               '${value?.circulatingSupply ?? '...'} XEL',
               style: context.titleMedium,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: Spaces.medium),
             Text(
               loc.average_block_time,
               style:
@@ -64,7 +66,7 @@ class NodeInfoWidget extends ConsumerWidget {
               '${value?.averageBlockTime.inSeconds.toString() ?? '...'} ${loc.seconds}',
               style: context.titleMedium,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: Spaces.medium),
             Text(
               loc.version,
               style:
@@ -74,18 +76,12 @@ class NodeInfoWidget extends ConsumerWidget {
               value?.version ?? '...',
               style: context.titleMedium,
             ),
-            // const SizedBox(height: 16),
           ],
         ),
-      AsyncError() => Column(
-          children: [
-            const Spacer(),
-            Text(
-              loc.oups,
-              style: context.bodyLarge,
-            ),
-            const Spacer(),
-          ],
+      AsyncError() => Center(
+          child: Text(
+            loc.oups,
+          ),
         ),
       _ => const Center(child: CircularProgressIndicator()),
     };

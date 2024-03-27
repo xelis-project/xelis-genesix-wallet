@@ -7,6 +7,7 @@ import 'package:xelis_mobile_wallet/features/settings/application/theme_mode_sta
 import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 
 class QrDialog extends ConsumerWidget {
   const QrDialog({super.key});
@@ -35,7 +36,7 @@ class QrDialog extends ConsumerWidget {
     return AlertDialog(
       scrollable: true,
       title: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(Spaces.small),
         child: Text(
           'QR Code',
           style: context.titleLarge?.copyWith(fontWeight: FontWeight.bold),

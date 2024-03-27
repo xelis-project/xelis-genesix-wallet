@@ -70,13 +70,20 @@ class WalletState extends _$WalletState {
 
   Future<void> disconnect() async {
     state = state.copyWith(isOnline: false);
+
     try {
       await state.nativeWalletRepository?.setOffline();
-      await state.nativeWalletRepository?.close();
-      await state.streamSubscription?.cancel();
     } catch (e) {
       logger.warning('Something went wrong when disconnecting...');
     }
+
+    try {
+      await state.nativeWalletRepository?.close();
+    } catch (e) {
+      logger.warning('Something went wrong when closing wallet...');
+    }
+
+    await state.streamSubscription?.cancel();
   }
 
   Future<void> reconnect([NodeAddress? nodeAddress]) async {

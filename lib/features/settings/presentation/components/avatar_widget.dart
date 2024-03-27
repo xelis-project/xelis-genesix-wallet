@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:random_avatar/random_avatar.dart';
 import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 
 class AvatarSelector extends ConsumerWidget {
   const AvatarSelector({super.key});
@@ -21,19 +22,13 @@ class AvatarSelector extends ConsumerWidget {
             'My Wallet Avatar',
             style: context.titleMedium,
           ),
-          const SizedBox(height: 16.0),
+          const SizedBox(height: Spaces.medium),
           Tooltip(
             message:
                 'This avatar is generated based on your unique wallet address',
             child: svgAvatar,
           ),
-          const SizedBox(height: 16.0),
-          // IconButton.outlined(
-          //     onPressed: () {
-          //       // TODO
-          //       debugPrint('refresh avatar');
-          //     },
-          //     icon: const Icon(Icons.refresh_rounded))
+          const SizedBox(height: Spaces.medium),
         ],
       ),
     );

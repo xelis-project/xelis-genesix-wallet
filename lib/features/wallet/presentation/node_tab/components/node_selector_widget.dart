@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/node_addresses_state_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/node_address.dart';
+import 'package:xelis_mobile_wallet/features/wallet/presentation/node_tab/components/add_node_dialog.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 
 class NodeSelectorWidget extends ConsumerStatefulWidget {
   const NodeSelectorWidget({
@@ -32,91 +32,10 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
     }
   }
 
-  void _addNewAddress(NodeAddress? value) {
-    if (value != null) {
-      if (!AppResources.builtInNodeAddresses.contains(value)) {
-        ref.read(nodeAddressesProvider.notifier).addNodeAddress(value);
-      }
-    }
-  }
-
   void _showNewAddressDialog(BuildContext context) {
-    final nodeAddressFormKey =
-        GlobalKey<FormBuilderState>(debugLabel: '_nodeAddressFormKey');
-
-    final nodeAddresses = ref.read(nodeAddressesProvider).nodeAddresses;
-    final loc = ref.read(appLocalizationsProvider);
     showDialog<void>(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
-        scrollable: true,
-        title: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Text(
-            loc.add_new_node_title,
-            style: context.titleLarge,
-          ),
-        ),
-        content: FormBuilder(
-          key: nodeAddressFormKey,
-          child: Column(
-            children: [
-              FormBuilderTextField(
-                name: 'name',
-                style: context.bodyMedium,
-                autocorrect: false,
-                decoration: InputDecoration(
-                  labelText: loc.name,
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              FormBuilderTextField(
-                name: 'url',
-                style: context.bodyMedium,
-                autocorrect: false,
-                decoration: InputDecoration(
-                  labelText: loc.url,
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: <Widget>[
-          FilledButton(
-            onPressed: () => context.pop(),
-            child: Text(loc.cancel_button),
-          ),
-          FilledButton(
-            onPressed: () {
-              final name = nodeAddressFormKey
-                  .currentState?.fields['name']?.value as String?;
-              final url = nodeAddressFormKey.currentState?.fields['url']?.value
-                  as String?;
-              if (name != null && url != null) {
-                for (final node in nodeAddresses) {
-                  if (node.name == name) {
-                    nodeAddressFormKey.currentState?.fields['name']
-                        ?.invalidate(loc.name_already_exists);
-                  }
-                  if (node.name == name) {
-                    nodeAddressFormKey.currentState?.fields['url']
-                        ?.invalidate(loc.url_already_exists);
-                  }
-                }
-
-                if (nodeAddressFormKey.currentState?.saveAndValidate() ??
-                    false) {
-                  _addNewAddress(NodeAddress(name: name, url: url));
-                  context.pop();
-                }
-              }
-            },
-            child: Text(loc.ok_button),
-          ),
-        ],
-      ),
+      builder: (BuildContext context) => const AddNodeDialog(),
     );
   }
 
@@ -187,7 +106,7 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(Spaces.small),
               child: FilledButton(
                 onPressed: () => _showNewAddressDialog(context),
                 child: Text(
