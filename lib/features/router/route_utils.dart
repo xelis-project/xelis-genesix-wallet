@@ -30,9 +30,9 @@ extension AppScreenExtension on AppScreen {
   String get toTitle {
     switch (this) {
       case AppScreen.auth:
-        return 'Xelis Wallet Authentication';
+        return 'XELIS Wallet Authentication';
       case AppScreen.hub:
-        return 'Xelis Wallet';
+        return 'XELIS Wallet';
       case AppScreen.changePassword:
         return 'Change Password';
     }

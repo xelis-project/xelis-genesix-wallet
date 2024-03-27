@@ -14,7 +14,7 @@ import 'package:xelis_mobile_wallet/shared/widgets/xelis_wallet_app.dart';
 import 'package:xelis_mobile_wallet/src/rust/frb_generated.dart';
 
 Future<void> main() async {
-  logger.info('Starting Xelis Wallet ...');
+  logger.info('Starting XELIS Wallet ...');
   initFlutterLogging();
   logger.info('initializing Flutter bindings ...');
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
