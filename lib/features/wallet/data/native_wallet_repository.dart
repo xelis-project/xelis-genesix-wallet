@@ -14,7 +14,7 @@ class NativeWalletRepository {
       String walletPath, String pwd, Network network) async {
     final xelisWallet = await createXelisWallet(
         name: walletPath, password: pwd, network: network);
-    logger.info('new Xelis Wallet created: $walletPath');
+    logger.info('new XELIS Wallet created: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }
 
@@ -23,7 +23,7 @@ class NativeWalletRepository {
       {required String seed}) async {
     final xelisWallet = await createXelisWallet(
         name: walletPath, password: pwd, seed: seed, network: network);
-    logger.info('Xelis Wallet recovered from seed: $walletPath');
+    logger.info('XELIS Wallet recovered from seed: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }
 
@@ -31,7 +31,7 @@ class NativeWalletRepository {
       String walletPath, String pwd, Network network) async {
     final xelisWallet = await openXelisWallet(
         name: walletPath, password: pwd, network: network);
-    logger.info('Xelis Wallet open: $walletPath');
+    logger.info('XELIS Wallet open: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }
 
@@ -103,12 +103,12 @@ class NativeWalletRepository {
 
   Future<void> setOnline({required String daemonAddress}) async {
     await _xelisWallet.onlineMode(daemonAddress: daemonAddress);
-    logger.info('Xelis Wallet connected to: $daemonAddress');
+    logger.info('XELIS Wallet connected to: $daemonAddress');
   }
 
   Future<void> setOffline() async {
     await _xelisWallet.offlineMode();
-    logger.info('Xelis Wallet offline');
+    logger.info('XELIS Wallet offline');
   }
 
   Future<sdk.GetInfoResult> getDaemonInfo() async {
