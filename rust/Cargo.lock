@@ -2519,9 +2519,9 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
 name = "tokio"
-version = "1.36.0"
+version = "1.37.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "61285f6515fa018fb2d1e46eb21223fff441ee8db5d0f1435e8ab4f5cdb80931"
+checksum = "1adbebffeca75fcfd058afa480fb6c0b81e165a0323f9c9d39c9697e37c46787"
 dependencies = [
  "backtrace",
  "bytes",
@@ -3036,7 +3036,7 @@ dependencies = [
 [[package]]
 name = "xelis_common"
 version = "1.8.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#829858bfc329b7a2a8c401cae04cd0b65803fb1c"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#e44d095bedb6adc8533a6283c786fd573b0a3711"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -3073,7 +3073,7 @@ dependencies = [
 [[package]]
 name = "xelis_wallet"
 version = "1.8.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#829858bfc329b7a2a8c401cae04cd0b65803fb1c"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#e44d095bedb6adc8533a6283c786fd573b0a3711"
 dependencies = [
  "actix",
  "actix-web",

@@ -1,9 +1,11 @@
+use crate::api::progress_report::{add_progress_report, Report};
 use crate::frb_generated::StreamSink;
 use anyhow::{anyhow, Context, Result};
 use flutter_rust_bridge::frb;
 use log::{debug, info};
 use serde_json::json;
 use std::collections::HashMap;
+use std::ops::ControlFlow;
 use std::sync::Arc;
 use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
 use xelis_common::crypto::{ecdlp, Address, Hash, Hashable};
@@ -15,16 +17,32 @@ use xelis_common::transaction::{BurnPayload, Transaction};
 use xelis_common::utils::{format_coin, format_xelis};
 use xelis_wallet::wallet::Wallet;
 
-#[frb(opaque)]
-pub struct XelisWallet {
-    wallet: Arc<Wallet>,
-}
-
 #[frb(mirror(Network))]
 pub enum _Network {
     Mainnet,
     Testnet,
     Dev,
+}
+
+struct LogProgressTableGenerationReportFunction;
+
+impl ecdlp::ProgressTableGenerationReportFunction for LogProgressTableGenerationReportFunction {
+    fn report(&self, progress: f64, step: ecdlp::ReportStep) -> ControlFlow<()> {
+        let step_str = format!("{:?}", step);
+        add_progress_report(Report::TableGeneration {
+            progress,
+            step: step_str,
+            message: None,
+        });
+        info!("Progress: {:.2}% on step {:?}", progress * 100.0, step);
+
+        ControlFlow::Continue(())
+    }
+}
+
+#[frb(opaque)]
+pub struct XelisWallet {
+    wallet: Arc<Wallet>,
 }
 
 pub fn create_xelis_wallet(
@@ -33,7 +51,10 @@ pub fn create_xelis_wallet(
     network: Network,
     seed: Option<String>,
 ) -> Result<XelisWallet> {
-    let precomputed_tables = Wallet::read_or_generate_precomputed_tables(None, ecdlp::NoOpProgressTableGenerationReportFunction)?;
+    let precomputed_tables = Wallet::read_or_generate_precomputed_tables(
+        None,
+        LogProgressTableGenerationReportFunction,
+    )?;
     let xelis_wallet = Wallet::create(name, password, seed, network, precomputed_tables)?;
     Ok(XelisWallet {
         wallet: xelis_wallet,
@@ -41,7 +62,10 @@ pub fn create_xelis_wallet(
 }
 
 pub fn open_xelis_wallet(name: String, password: String, network: Network) -> Result<XelisWallet> {
-    let precomputed_tables = Wallet::read_or_generate_precomputed_tables(None, ecdlp::NoOpProgressTableGenerationReportFunction)?;
+    let precomputed_tables = Wallet::read_or_generate_precomputed_tables(
+        None,
+        LogProgressTableGenerationReportFunction,
+    )?;
     let xelis_wallet = Wallet::open(name, password, network, precomputed_tables)?;
     Ok(XelisWallet {
         wallet: xelis_wallet,
@@ -242,9 +266,7 @@ impl XelisWallet {
     pub async fn get_daemon_info(&self) -> Result<String> {
         let mutex = self.wallet.get_network_handler().await;
         let lock = mutex.lock().await;
-        let network_handler = lock
-            .as_ref()
-            .context("GetDaemonInfo - network handler not available")?;
+        let network_handler = lock.as_ref().context("network handler not available")?;
         let api = network_handler.get_api();
 
         let info = match api.get_info().await {

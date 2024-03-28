@@ -261,7 +261,7 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                               Text(
                                 'XEL',
                                 maxLines: 1,
-                                style: context.headlineLarge,
+                                style: context.headlineMedium,
                               ),
                             ],
                           ),
