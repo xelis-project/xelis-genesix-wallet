@@ -6,6 +6,7 @@ use log::{debug, info};
 use serde_json::json;
 use std::collections::HashMap;
 use std::ops::ControlFlow;
+use std::path::Path;
 use std::sync::Arc;
 use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
 use xelis_common::crypto::{ecdlp, Address, Hash, Hashable};
@@ -15,7 +16,7 @@ use xelis_common::transaction::builder::FeeBuilder;
 use xelis_common::transaction::builder::{TransactionTypeBuilder, TransferBuilder};
 use xelis_common::transaction::{BurnPayload, Transaction};
 use xelis_common::utils::{format_coin, format_xelis};
-use xelis_wallet::wallet::Wallet;
+use xelis_wallet::wallet::{Wallet, PRECOMPUTED_TABLES_L1};
 
 #[frb(mirror(Network))]
 pub enum _Network {
@@ -34,10 +35,17 @@ impl ecdlp::ProgressTableGenerationReportFunction for LogProgressTableGeneration
             step: step_str,
             message: None,
         });
-        info!("Progress: {:.2}% on step {:?}", progress * 100.0, step);
+        debug!("Progress: {:.2}% on step {:?}", progress * 100.0, step);
 
         ControlFlow::Continue(())
     }
+}
+
+#[frb(sync)]
+pub fn precomputed_tables_exist(precomputed_tables_path: String) -> bool {
+    let file_path =
+        format!("{precomputed_tables_path}precomputed_tables_{PRECOMPUTED_TABLES_L1}.bin");
+    return Path::new(&file_path).is_file();
 }
 
 #[frb(opaque)]
@@ -50,9 +58,10 @@ pub fn create_xelis_wallet(
     password: String,
     network: Network,
     seed: Option<String>,
+    precomputed_tables_path: Option<String>,
 ) -> Result<XelisWallet> {
     let precomputed_tables = Wallet::read_or_generate_precomputed_tables(
-        None,
+        precomputed_tables_path,
         LogProgressTableGenerationReportFunction,
     )?;
     let xelis_wallet = Wallet::create(name, password, seed, network, precomputed_tables)?;
@@ -61,9 +70,14 @@ pub fn create_xelis_wallet(
     })
 }
 
-pub fn open_xelis_wallet(name: String, password: String, network: Network) -> Result<XelisWallet> {
+pub fn open_xelis_wallet(
+    name: String,
+    password: String,
+    network: Network,
+    precomputed_tables_path: Option<String>,
+) -> Result<XelisWallet> {
     let precomputed_tables = Wallet::read_or_generate_precomputed_tables(
-        None,
+        precomputed_tables_path,
         LogProgressTableGenerationReportFunction,
     )?;
     let xelis_wallet = Wallet::open(name, password, network, precomputed_tables)?;

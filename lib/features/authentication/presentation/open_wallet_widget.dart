@@ -14,6 +14,8 @@ import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/banner_widget.dart';
 
+import 'components/table_generation_progress_dialog.dart';
+
 class OpenWalletWidget extends ConsumerStatefulWidget {
   const OpenWalletWidget({super.key});
 
@@ -50,7 +52,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
     );
   }
 
-  void _createWallet() {
+  Future<void> _createWallet() async {
     if (_openFormKey.currentState?.saveAndValidate() ?? false) {
       final loc = ref.read(appLocalizationsProvider);
 
@@ -60,6 +62,13 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
         setState(() {
           _widgetOpening = const CircularProgressIndicator();
         });
+
+        if (!await ref
+                .read(authenticationProvider.notifier)
+                .isPrecomputedTablesExists() &&
+            mounted) {
+          _showTableGenerationProgressDialog(context);
+        }
 
         ref
             .read(authenticationProvider.notifier)
@@ -88,6 +97,14 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
         });
       }
     }
+  }
+
+  void _showTableGenerationProgressDialog(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const TableGenerationProgressDialog(),
+    );
   }
 
   @override

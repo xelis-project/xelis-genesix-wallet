@@ -17,6 +17,8 @@ import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/banner_widget.dart';
 import 'package:xelis_mobile_wallet/features/router/login_action_codec.dart';
 
+import 'components/table_generation_progress_dialog.dart';
+
 class CreateWalletWidget extends ConsumerStatefulWidget {
   const CreateWalletWidget({super.key});
 
@@ -54,7 +56,15 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
     );
   }
 
-  void _createWallet() {
+  void _showTableGenerationProgressDialog(BuildContext context) {
+    showDialog<void>(
+      barrierDismissible: false,
+      context: context,
+      builder: (_) => const TableGenerationProgressDialog(),
+    );
+  }
+
+  Future<void> _createWallet() async {
     if (_createFormKey.currentState?.saveAndValidate() ?? false) {
       final loc = ref.read(appLocalizationsProvider);
 
@@ -68,6 +78,13 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
         setState(() {
           _widgetCreation = const CircularProgressIndicator();
         });
+
+        if (!await ref
+                .read(authenticationProvider.notifier)
+                .isPrecomputedTablesExists() &&
+            mounted) {
+          _showTableGenerationProgressDialog(context);
+        }
 
         ref
             .read(authenticationProvider.notifier)

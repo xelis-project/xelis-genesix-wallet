@@ -11,26 +11,38 @@ class NativeWalletRepository {
   final XelisWallet _xelisWallet;
 
   static Future<NativeWalletRepository> create(
-      String walletPath, String pwd, Network network) async {
+      String walletPath, String pwd, Network network,
+      {String? precomputeTablesPath}) async {
     final xelisWallet = await createXelisWallet(
-        name: walletPath, password: pwd, network: network);
+        name: walletPath,
+        password: pwd,
+        network: network,
+        precomputedTablesPath: precomputeTablesPath);
     logger.info('new XELIS Wallet created: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }
 
   static Future<NativeWalletRepository> recover(
       String walletPath, String pwd, Network network,
-      {required String seed}) async {
+      {required String seed, String? precomputeTablesPath}) async {
     final xelisWallet = await createXelisWallet(
-        name: walletPath, password: pwd, seed: seed, network: network);
+        name: walletPath,
+        password: pwd,
+        seed: seed,
+        network: network,
+        precomputedTablesPath: precomputeTablesPath);
     logger.info('XELIS Wallet recovered from seed: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }
 
   static Future<NativeWalletRepository> open(
-      String walletPath, String pwd, Network network) async {
+      String walletPath, String pwd, Network network,
+      {String? precomputeTablesPath}) async {
     final xelisWallet = await openXelisWallet(
-        name: walletPath, password: pwd, network: network);
+        name: walletPath,
+        password: pwd,
+        network: network,
+        precomputedTablesPath: precomputeTablesPath);
     logger.info('XELIS Wallet open: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }

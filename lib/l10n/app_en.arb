@@ -1,4 +1,8 @@
 {
+  "wait": "Please wait...",
+  "table_generation_message": "For the first launch, we need to create pre-computed tables for Partially Homomorphic Encryption.",
+  "current_step": "Current step: ",
+
   "password": "Password",
 
   "wallet": "Wallet",
