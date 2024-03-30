@@ -53,3 +53,6 @@ lib/rust_bridge/frb_generated.*
 # Dart generated files (Freezed, Riverpod, GoRouter etc..)
 lib/**/*.g.dart
 lib/**/*.freezed.dart
+
+# Wallet precomputed table
+precomputed_tables_26.bin
