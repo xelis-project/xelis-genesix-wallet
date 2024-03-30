@@ -11,7 +11,7 @@ import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/xelis_wallet_app.dart';
-import 'package:xelis_mobile_wallet/src/rust/frb_generated.dart';
+import 'package:xelis_mobile_wallet/rust_bridge/frb_generated.dart';
 
 Future<void> main() async {
   logger.info('Starting XELIS Wallet ...');
@@ -29,8 +29,8 @@ Future<void> main() async {
 
     WindowOptions windowOptions = const WindowOptions(
       title: AppResources.xelisWalletName,
-      size: Size(800, 1000),
-      minimumSize: Size(600, 800),
+      size: Size(400, 600),
+      minimumSize: Size(400, 600),
       maximumSize: Size(1000, 1200),
       center: true,
       backgroundColor: Colors.transparent,

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:jovial_svg/jovial_svg.dart';
-import 'package:xelis_mobile_wallet/features/wallet/domain/node_address.dart';
+import 'package:xelis_mobile_wallet/screens/wallet/domain/node_address.dart';
 
 class AppResources {
   static const String xelisWalletName = 'XELIS Wallet';

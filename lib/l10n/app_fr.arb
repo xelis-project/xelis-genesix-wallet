@@ -29,6 +29,8 @@
   "url_already_exists": "Cette url existe déjà.",
   "name": "name",
   "name_already_exists": "Ce nom existe déjà.",
+  "cache_directory": "Répertoire de cache",
+  "wallets_directory": "Répertoire des portefeuilles",
 
   "node_bottom_app_bar": "Noeud",
   "remote_node": "Noeud Distant",

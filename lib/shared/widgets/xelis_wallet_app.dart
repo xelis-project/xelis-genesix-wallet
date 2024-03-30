@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
-import 'package:xelis_mobile_wallet/features/router/router.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/theme_mode_state_provider.dart';
+import 'package:xelis_mobile_wallet/screens/authentication/application/authentication_service.dart';
+import 'package:xelis_mobile_wallet/router/router.dart';
+import 'package:xelis_mobile_wallet/screens/settings/application/theme_mode_state_provider.dart';
+import 'package:xelis_mobile_wallet/screens/settings/presentation/components/network_widget.dart';
 import 'package:xelis_mobile_wallet/shared/providers/scaffold_messenger_provider.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/theme/flex_theme.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/components/network_bar_widget.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/wallet_initializer_widget.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -60,6 +63,7 @@ class _XelisWalletAppState extends ConsumerState<XelisWalletApp>
             case ThemeMode.dark:
               loadingWidgetColor = _darkTheme.primaryColor;
           }
+
           return Center(
               child: CircularProgressIndicator(
             color: loadingWidgetColor,
@@ -75,6 +79,15 @@ class _XelisWalletAppState extends ConsumerState<XelisWalletApp>
           routerConfig: router,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
+          builder: (context, child) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const NetworkTopWidget(),
+                Expanded(child: child!),
+              ],
+            );
+          },
         ),
       ),
     );

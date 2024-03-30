@@ -29,6 +29,8 @@
   "url_already_exists": "This url already exists.",
   "name": "name",
   "name_already_exists": "This name already exists.",
+  "cache_directory": "Cache directory",
+  "wallets_directory": "Wallets directory",
 
   "node_bottom_app_bar": "Node",
   "remote_node": "Remote Node",
