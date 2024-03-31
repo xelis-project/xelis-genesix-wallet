@@ -50,7 +50,7 @@ just gen
 flutter run --release
 ```
 
-4. Or if you prefer, build the binary file:
+4. Or, build the binary file:
 
 ```
 flutter build --release
