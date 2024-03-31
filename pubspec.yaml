@@ -42,7 +42,7 @@ dependencies:
   window_manager: ^0.3.8
   flutter_launcher_icons: ^0.13.1
 
-  flutter_rust_bridge: 2.0.0-dev.28
+  flutter_rust_bridge: 2.0.0-dev.29
   rust_builder:
     path: rust_builder
 
