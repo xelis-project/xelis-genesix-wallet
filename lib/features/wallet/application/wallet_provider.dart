@@ -36,6 +36,7 @@ class WalletState extends _$WalletState {
 
   Future<void> connect() async {
     if (state.nativeWalletRepository != null) {
+
       if (state.address.isEmpty) {
         final nonce = await state.nativeWalletRepository!.nonce;
         state = state.copyWith(
@@ -52,18 +53,24 @@ class WalletState extends _$WalletState {
       }
 
       final address = ref.read(nodeAddressesProvider);
-      await state.nativeWalletRepository!
-          .setOnline(daemonAddress: address.favorite.url)
-          .onError((error, stackTrace) {
+
+      try {
+        await state.nativeWalletRepository!
+            .setOnline(daemonAddress: address.favorite.url);
+      } catch (_) {
         final loc = ref.read(appLocalizationsProvider);
         ref.read(snackbarContentProvider.notifier).setContent(
             SnackbarEvent.error(message: loc.cannot_connect_toast_error));
-      });
+      }
 
       if (await state.nativeWalletRepository!.isOnline) {
-        final xelisBalance =
-            await state.nativeWalletRepository!.getXelisBalance();
-        state = state.copyWith(xelisBalance: xelisBalance);
+        try {
+          final xelisBalance =
+              await state.nativeWalletRepository!.getXelisBalance();
+          state = state.copyWith(xelisBalance: xelisBalance);
+        } catch (_) {
+          logger.warning("No XELIS balance available.");
+        }
       }
     }
   }

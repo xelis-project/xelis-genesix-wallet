@@ -6,8 +6,8 @@ part 'node_provider.g.dart';
 
 @riverpod
 Future<DaemonInfoSnapshot?> getInfo(GetInfoRef ref) async {
-  final repository = ref.watch(
-      walletStateProvider.select((value) => value.nativeWalletRepository));
+  final walletState = ref.watch(walletStateProvider);
+  final repository = walletState.nativeWalletRepository;
   if (repository != null) {
     var info = await repository.getDaemonInfo();
     return DaemonInfoSnapshot(

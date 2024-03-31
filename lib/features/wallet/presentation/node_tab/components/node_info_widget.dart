@@ -78,9 +78,13 @@ class NodeInfoWidget extends ConsumerWidget {
             ),
           ],
         ),
-      AsyncError() => Center(
-          child: Text(
-            loc.oups,
+      AsyncError() => SizedBox(
+          height: 200,
+          child: Center(
+            child: Text(
+              loc.oups,
+              style: context.titleMedium,
+            ),
           ),
         ),
       _ => const Center(child: CircularProgressIndicator()),
