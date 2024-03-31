@@ -6,6 +6,8 @@ import 'package:xelis_mobile_wallet/features/wallet/domain/node_address.dart';
 class AppResources {
   static const String xelisWalletName = 'XELIS Wallet';
 
+  static const String userWalletsFolderName = 'XELIS wallets';
+
   static const int xelisDecimals = 8;
 
   static List<NodeAddress> builtInNodeAddresses = [

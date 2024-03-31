@@ -10,14 +10,13 @@ import 'package:xelis_mobile_wallet/features/wallet/data/native_wallet_repositor
 import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
+import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/src/rust/api/wallet.dart';
 
 part 'authentication_service.g.dart';
 
 @riverpod
 class Authentication extends _$Authentication {
-  final String _userFolderName = 'XELIS wallets';
-
   @override
   AuthenticationState build() {
     return const AuthenticationState.signedOut();
@@ -113,11 +112,11 @@ class Authentication extends _$Authentication {
 
   Future<String> _getWalletPath(String name) async {
     final dir = await getApplicationDocumentsDirectory();
-    return '${dir.path}/$_userFolderName/$name';
+    return '${dir.path}/${AppResources.userWalletsFolderName}/$name';
   }
 
   Future<String> _getPrecomputedTablesPath() async {
     final dir = await getApplicationDocumentsDirectory();
-    return '${dir.path}/$_userFolderName/';
+    return '${dir.path}/${AppResources.userWalletsFolderName}/';
   }
 }
