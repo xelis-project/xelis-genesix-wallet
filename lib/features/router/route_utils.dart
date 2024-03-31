@@ -23,7 +23,7 @@ extension AppScreenExtension on AppScreen {
       case AppScreen.hub:
         return 'hub';
       case AppScreen.changePassword:
-        return '/change_password';
+        return 'change_password';
     }
   }
 
