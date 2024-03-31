@@ -1,6 +1,7 @@
 # XELIS Wallet
 
 XELIS Wallet is a multiplatform cryptocurrency wallet built using the Flutter framework. It provides a convenient and secure way to manage your XELIS cryptocurrency assets on various platforms.
+
 This wallet harnesses the power of Rust by incorporating a native Rust library from the XELIS blockchain, ensuring the same level of security as the XELIS Wallet CLI.
 
 ## Features
