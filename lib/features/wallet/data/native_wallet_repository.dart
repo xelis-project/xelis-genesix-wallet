@@ -145,6 +145,7 @@ class NativeWalletRepository {
               sdk.AssetWithData.fromJson(json['data'] as Map<String, dynamic>));
           yield newAsset;
         case sdk.WalletEvent.newTransaction:
+          print((json['data'] as Map<String, dynamic>).toString());
           final newTransaction = Event.newTransaction(
               sdk.TransactionEntry.fromJson(
                   json['data'] as Map<String, dynamic>));

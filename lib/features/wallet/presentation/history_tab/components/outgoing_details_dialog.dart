@@ -107,18 +107,6 @@ class OutgoingDetailsDialog extends ConsumerWidget {
                                   : transfer.asset),
                             ],
                           ),
-                          const SizedBox(height: Spaces.small),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                loc.receiver,
-                                style: context.labelSmall
-                                    ?.copyWith(color: context.colors.primary),
-                              ),
-                              SelectableText(transfer.key),
-                            ],
-                          ),
                         ],
                       ),
                     ),
