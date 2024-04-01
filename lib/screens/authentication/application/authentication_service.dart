@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:xelis_mobile_wallet/router/route_utils.dart';
+import 'package:xelis_mobile_wallet/router/router.dart';
 import 'package:xelis_mobile_wallet/screens/authentication/application/network_wallet_state_provider.dart';
 import 'package:xelis_mobile_wallet/screens/authentication/domain/authentication_state.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/app_localizations_provider.dart';
@@ -62,7 +64,8 @@ class Authentication extends _$Authentication {
       ref
           .read(networkWalletProvider.notifier)
           .setWallet(settings.network, name, walletRepository.address);
-      //ref.read(openWalletProvider.notifier).saveOpenWalletState(name,  address: walletRepository.address);
+
+      ref.read(routerProvider).go(AppScreen.wallet.toPath);
 
       state = AuthenticationState.signedIn(nativeWallet: walletRepository);
 
@@ -96,9 +99,10 @@ class Authentication extends _$Authentication {
       ref
           .read(networkWalletProvider.notifier)
           .setWallet(settings.network, name, walletRepository.address);
-      //ref.read(openWalletProvider.notifier).saveOpenWalletState(name);
 
       state = AuthenticationState.signedIn(nativeWallet: walletRepository);
+
+      ref.read(routerProvider).go(AppScreen.wallet.toPath);
 
       ref.read(walletStateProvider.notifier).connect();
     } else {
@@ -113,6 +117,9 @@ class Authentication extends _$Authentication {
         await ref.read(walletStateProvider.notifier).disconnect();
         nativeWallet.dispose();
         state = const AuthenticationState.signedOut();
+
+        ref.read(routerProvider).go(AppScreen.openWallet.toPath);
+
       case SignedOut():
         return;
     }

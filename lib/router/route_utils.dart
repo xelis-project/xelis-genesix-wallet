@@ -1,5 +1,6 @@
 enum AppScreen {
-  auth,
+  openWallet,
+  createWallet,
   wallet,
   settings,
 }
@@ -7,8 +8,10 @@ enum AppScreen {
 extension AppScreenExtension on AppScreen {
   String get toPath {
     switch (this) {
-      case AppScreen.auth:
-        return '/auth';
+      case AppScreen.createWallet:
+        return '/create_wallet';
+      case AppScreen.openWallet:
+        return '/open_wallet';
       case AppScreen.wallet:
         return '/wallet';
       case AppScreen.settings:
@@ -18,8 +21,10 @@ extension AppScreenExtension on AppScreen {
 
   String get toName {
     switch (this) {
-      case AppScreen.auth:
-        return 'authentication';
+      case AppScreen.createWallet:
+        return 'create_wallet';
+      case AppScreen.openWallet:
+        return 'open_wallet';
       case AppScreen.wallet:
         return 'wallet';
       case AppScreen.settings:
@@ -29,8 +34,10 @@ extension AppScreenExtension on AppScreen {
 
   String get toTitle {
     switch (this) {
-      case AppScreen.auth:
-        return 'Authentication';
+      case AppScreen.createWallet:
+        return 'Create Wallet';
+      case AppScreen.openWallet:
+        return 'Open Wallet';
       case AppScreen.wallet:
         return 'Wallet';
       case AppScreen.settings:

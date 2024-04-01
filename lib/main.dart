@@ -29,7 +29,7 @@ Future<void> main() async {
 
     WindowOptions windowOptions = const WindowOptions(
       title: AppResources.xelisWalletName,
-      size: Size(400, 600),
+      size: Size(400, 700),
       minimumSize: Size(400, 600),
       maximumSize: Size(1000, 1200),
       center: true,

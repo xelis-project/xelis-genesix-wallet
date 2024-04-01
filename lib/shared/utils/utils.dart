@@ -25,6 +25,6 @@ Future<String> getAppWalletsPath() async {
 
 Future<String> getWalletPath(Network network, String name) async {
   var walletPath = await getAppWalletsPath();
-  var path = p.join(walletPath, network.toString(), name);
+  var path = p.join(walletPath, network.name, name);
   return Future.value(path);
 }

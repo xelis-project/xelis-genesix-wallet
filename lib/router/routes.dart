@@ -1,35 +1,38 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
-import 'package:xelis_mobile_wallet/router/login_action_codec.dart';
-import 'package:xelis_mobile_wallet/screens/authentication/presentation/authentication_screen.dart';
+import 'package:xelis_mobile_wallet/screens/authentication/presentation/create_wallet_screen.dart';
+import 'package:xelis_mobile_wallet/screens/authentication/presentation/open_wallet_screen.dart';
 import 'package:xelis_mobile_wallet/screens/settings/presentation/settings_screen.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/presentation/wallet_screen.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
-import 'package:xelis_mobile_wallet/shared/widgets/snackbar_initializer_widget.dart';
 
 part 'routes.g.dart';
 
-@TypedGoRoute<AuthRoute>(name: 'auth', path: '/auth')
-class AuthRoute extends GoRouteData {
-  const AuthRoute();
+@TypedGoRoute<OpenWalletRoute>(name: 'open_wallet', path: '/open_wallet')
+class OpenWalletRoute extends GoRouteData {
+  const OpenWalletRoute();
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    if (state.extra is LoginAction) {
-      return pageOf(
-        AuthenticationScreen(
-          loginAction: state.extra as LoginAction,
-        ),
-        state.pageKey,
-        AppDurations.animFast,
-      );
-    } else {
-      return pageOf(
-        const SnackBarInitializerWidget(child: AuthenticationScreen()),
-        state.pageKey,
-        AppDurations.animFast,
-      );
-    }
+    return pageTransition(
+      const OpenWalletScreen(),
+      state.pageKey,
+      0,
+    );
+  }
+}
+
+@TypedGoRoute<CreateWalletRoute>(name: 'create_wallet', path: '/create_wallet')
+class CreateWalletRoute extends GoRouteData {
+  const CreateWalletRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      const CreateWalletScreen(),
+      state.pageKey,
+      0,
+    );
   }
 }
 
@@ -39,8 +42,8 @@ class WalletRoute extends GoRouteData {
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return pageOf(
-      const SnackBarInitializerWidget(child: WalletScreen()),
+    return pageTransition(
+      const WalletScreen(),
       state.pageKey,
       AppDurations.animFast,
     );
@@ -53,7 +56,7 @@ class SettingsRoute extends GoRouteData {
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return pageOf(
+    return pageTransition(
       const SettingsScreen(),
       state.pageKey,
       AppDurations.animFast,
@@ -62,7 +65,7 @@ class SettingsRoute extends GoRouteData {
 }
 
 // This is the function to animate the transition between pages.
-CustomTransitionPage<T> pageOf<T>(
+CustomTransitionPage<T> pageTransition<T>(
         Widget child, ValueKey<String> pageKey, int milliDuration) =>
     CustomTransitionPage<T>(
       key: pageKey,

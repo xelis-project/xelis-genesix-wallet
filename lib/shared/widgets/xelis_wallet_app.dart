@@ -12,6 +12,7 @@ import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/theme/flex_theme.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/network_bar_widget.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/snackbar_initializer_widget.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/wallet_initializer_widget.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -94,7 +95,7 @@ class _XelisWalletAppState extends ConsumerState<XelisWalletApp>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const NetworkTopWidget(),
-                Expanded(child: child!),
+                Expanded(child: SnackBarInitializerWidget(child: child!)),
               ],
             );
           },
