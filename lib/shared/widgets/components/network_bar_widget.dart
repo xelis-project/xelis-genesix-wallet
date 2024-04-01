@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:xelis_mobile_wallet/screens/settings/application/network_state_provider.dart';
-import 'package:xelis_mobile_wallet/screens/settings/domain/network_state.dart';
+import 'package:xelis_mobile_wallet/screens/settings/application/settings_state_provider.dart';
 import 'package:xelis_mobile_wallet/screens/settings/domain/network_translate_name.dart';
+import 'package:xelis_mobile_wallet/screens/settings/domain/settings_state.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 
@@ -11,15 +11,15 @@ class NetworkTopWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final network = ref.watch(networkProvider);
-    final displayTopBar = network.networkType != NetworkType.mainnet;
+    final settings = ref.watch(settingsProvider);
+    final displayTopBar = settings.network != Network.mainnet;
 
     if (displayTopBar) {
       return Container(
-        decoration: const BoxDecoration(color: Colors.black),
+        decoration: BoxDecoration(color: context.colors.background),
         padding: const EdgeInsets.all(Spaces.small),
         child: Text(
-          "Network: ${translateNetworkName(network.networkType)}",
+          "Network: ${translateNetworkName(settings.network)}",
           style: context.bodyLarge,
         ),
       );

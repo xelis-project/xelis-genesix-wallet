@@ -7,12 +7,12 @@ class OpenWalletStateRepository extends PersistentState<OpenWalletState> {
   OpenWalletStateRepository(this.sharedPreferencesSync);
 
   SharedPreferencesSync sharedPreferencesSync;
-  static const _openWalletsStorageKey = 'persistentOpenWallets';
+  static const _storageKey = 'open_wallets';
 
   @override
   OpenWalletState fromStorage() {
     try {
-      final value = sharedPreferencesSync.get(key: _openWalletsStorageKey);
+      final value = sharedPreferencesSync.get(key: _storageKey);
       if (value == null) {
         return const OpenWalletState();
       }
@@ -25,14 +25,14 @@ class OpenWalletStateRepository extends PersistentState<OpenWalletState> {
 
   @override
   Future<bool> localDelete() {
-    return sharedPreferencesSync.delete(key: _openWalletsStorageKey);
+    return sharedPreferencesSync.delete(key: _storageKey);
   }
 
   @override
   Future<bool> localSave(OpenWalletState state) {
     final value = state.toJson();
     return sharedPreferencesSync.save(
-      key: _openWalletsStorageKey,
+      key: _storageKey,
       value: value,
     );
   }

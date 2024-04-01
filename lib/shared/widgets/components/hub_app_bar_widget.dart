@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jovial_svg/jovial_svg.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/screens/settings/application/theme_mode_state_provider.dart';
+import 'package:xelis_mobile_wallet/screens/settings/application/settings_state_provider.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/banner_widget.dart';
@@ -15,9 +15,9 @@ class HubAppBar extends ConsumerWidget implements PreferredSizeWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final walletState = ref.watch(walletStateProvider);
     final loc = ref.watch(appLocalizationsProvider);
-    final userThemeMode = ref.watch(userThemeModeProvider);
+    final settings = ref.watch(settingsProvider);
     final ScalableImageWidget banner =
-        getBanner(context, userThemeMode.themeMode);
+        getBanner(context, settings.theme);
 
     return AppBar(
       leading: Tooltip(

@@ -1,17 +1,15 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/screens/settings/presentation/components/layout_widget.dart';
-import 'package:xelis_mobile_wallet/screens/settings/presentation/components/theme_switch_widget.dart';
-import 'package:xelis_mobile_wallet/screens/settings/presentation/components/languages_widget.dart';
-import 'package:xelis_mobile_wallet/screens/settings/presentation/components/network_widget.dart';
+import 'package:xelis_mobile_wallet/screens/settings/presentation/components/theme_selector_widget.dart';
+import 'package:xelis_mobile_wallet/screens/settings/presentation/components/language_selector_widget.dart';
+import 'package:xelis_mobile_wallet/screens/settings/presentation/components/network_selector_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
-import 'package:path/path.dart' as p;
+import 'package:xelis_mobile_wallet/shared/utils/utils.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/components/background_widget.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -28,56 +26,57 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
 
-    getApplicationCacheDirectory().then((dir) {
+    getAppCachePath().then((path) {
       setState(() {
-        cachePath = dir.path;
+        cachePath = path;
       });
     });
 
-    // TODO: get wallets path should be a global func
-    getApplicationDocumentsDirectory().then((dir) {
+    getAppWalletsPath().then((path) {
       setState(() {
-        walletsPath = p.join(dir.path, 'wallets');
+        walletsPath = path;
       });
     });
 
     return Scaffold(
-      body: ListView(
-        padding: const EdgeInsets.all(Spaces.large),
-        children: [
-          Flex(
-            direction: Axis.horizontal,
-            children: [
-              IconButton(
-                onPressed: () {
-                  context.pop();
-                },
-                icon: const Icon(
-                  Icons.arrow_back,
-                  size: 30,
+      body: Background(
+        child: ListView(
+          padding: const EdgeInsets.all(Spaces.large),
+          children: [
+            Flex(
+              direction: Axis.horizontal,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    context.pop();
+                  },
+                  icon: const Icon(
+                    Icons.arrow_back,
+                    size: 30,
+                  ),
                 ),
-              ),
-              const SizedBox(width: Spaces.small),
-              Text(
-                loc.settings,
-                style: context.headlineLarge!
-                    .copyWith(fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          const SizedBox(height: Spaces.large),
-          const ThemeSwitchWidget(),
-          const Divider(),
-          const LanguageWidget(),
-          const Divider(),
-          const NetworkWidget(),
-          const Divider(),
-          HorizontalContainer(title: loc.version, value: "0.1.0"),
-          const Divider(),
-          VerticalContainer(title: loc.wallets_directory, value: walletsPath),
-          const Divider(),
-          VerticalContainer(title: loc.cache_directory, value: cachePath)
-        ],
+                const SizedBox(width: Spaces.small),
+                Text(
+                  loc.settings,
+                  style: context.headlineLarge!
+                      .copyWith(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: Spaces.large),
+            const ThemeWidget(),
+            const Divider(),
+            const LanguageWidget(),
+            const Divider(),
+            const NetworkWidget(),
+            const Divider(),
+            HorizontalContainer(title: loc.version, value: "0.1.0"),
+            const Divider(),
+            VerticalContainer(title: loc.wallets_directory, value: walletsPath),
+            const Divider(),
+            VerticalContainer(title: loc.cache_directory, value: cachePath)
+          ],
+        ),
       ),
     );
   }

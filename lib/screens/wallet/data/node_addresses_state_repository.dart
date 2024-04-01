@@ -8,12 +8,12 @@ class NodeAddressesStateRepository extends PersistentState<NodeAddressesState> {
   NodeAddressesStateRepository(this.sharedPreferencesSync);
 
   SharedPreferencesSync sharedPreferencesSync;
-  static const _nodeAddressesStorageKey = 'persistentNodeAddresses';
+  static const _storageKey = 'node_addresses';
 
   @override
   NodeAddressesState fromStorage() {
     try {
-      final value = sharedPreferencesSync.get(key: _nodeAddressesStorageKey);
+      final value = sharedPreferencesSync.get(key: _storageKey);
       if (value == null) {
         return NodeAddressesState(
           favorite: AppResources.builtInNodeAddresses.first,
@@ -28,14 +28,14 @@ class NodeAddressesStateRepository extends PersistentState<NodeAddressesState> {
 
   @override
   Future<bool> localDelete() async {
-    return sharedPreferencesSync.delete(key: _nodeAddressesStorageKey);
+    return sharedPreferencesSync.delete(key: _storageKey);
   }
 
   @override
   Future<bool> localSave(NodeAddressesState state) async {
     final value = state.toJson();
     return sharedPreferencesSync.save(
-      key: _nodeAddressesStorageKey,
+      key: _storageKey,
       value: value,
     );
   }

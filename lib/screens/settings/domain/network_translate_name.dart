@@ -1,14 +1,12 @@
-import 'dart:ui';
+import 'package:xelis_mobile_wallet/screens/settings/domain/settings_state.dart';
 
-import 'package:xelis_mobile_wallet/screens/settings/domain/network_state.dart';
-
-String translateNetworkName(NetworkType networkType) {
-  switch (networkType) {
-    case NetworkType.dev:
+String translateNetworkName(Network network) {
+  switch (network) {
+    case Network.dev:
       return 'Dev';
-    case NetworkType.testnet:
+    case Network.testnet:
       return 'Testnet';
-    case NetworkType.mainnet:
+    case Network.mainnet:
       return 'Mainnet';
     default:
       return 'N/A';

@@ -17,16 +17,18 @@ class AuthRoute extends GoRouteData {
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     if (state.extra is LoginAction) {
       return pageOf(
-          AuthenticationScreen(
-            loginAction: state.extra as LoginAction,
-          ),
-          state.pageKey,
-          AppDurations.animNormal);
+        AuthenticationScreen(
+          loginAction: state.extra as LoginAction,
+        ),
+        state.pageKey,
+        AppDurations.animFast,
+      );
     } else {
       return pageOf(
-          const SnackBarInitializerWidget(child: AuthenticationScreen()),
-          state.pageKey,
-          AppDurations.animNormal);
+        const SnackBarInitializerWidget(child: AuthenticationScreen()),
+        state.pageKey,
+        AppDurations.animFast,
+      );
     }
   }
 }
@@ -37,8 +39,11 @@ class WalletRoute extends GoRouteData {
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return pageOf(const SnackBarInitializerWidget(child: WalletScreen()),
-        state.pageKey, AppDurations.animNormal);
+    return pageOf(
+      const SnackBarInitializerWidget(child: WalletScreen()),
+      state.pageKey,
+      AppDurations.animFast,
+    );
   }
 }
 
@@ -48,7 +53,11 @@ class SettingsRoute extends GoRouteData {
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return pageOf(const SettingsScreen(), state.pageKey, AppDurations.animFast);
+    return pageOf(
+      const SettingsScreen(),
+      state.pageKey,
+      AppDurations.animFast,
+    );
   }
 }
 
@@ -62,7 +71,8 @@ CustomTransitionPage<T> pageOf<T>(
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(0.0, 1.0);
         const end = Offset.zero;
-        final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.easeIn));
+        final tween = Tween(begin: begin, end: end)
+            .chain(CurveTween(curve: Curves.easeIn));
         final offsetAnimation = animation.drive(tween);
 
         return SlideTransition(position: offsetAnimation, child: child);

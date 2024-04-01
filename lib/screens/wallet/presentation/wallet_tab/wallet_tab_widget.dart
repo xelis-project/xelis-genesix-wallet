@@ -5,9 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:random_avatar/random_avatar.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/screens/wallet/application/balance_mode_provider.dart';
+import 'package:xelis_mobile_wallet/screens/settings/application/settings_state_provider.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/application/wallet_provider.dart';
-import 'package:xelis_mobile_wallet/screens/wallet/domain/balance_mode_state.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/presentation/wallet_tab/components/qr_dialog.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/presentation/wallet_tab/components/seed_dialog.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/presentation/wallet_tab/components/transfer_to_dialog.dart';
@@ -57,7 +56,7 @@ class _WalletTabState extends ConsumerState<WalletTab> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final walletSnapshot = ref.watch(walletStateProvider);
-    final balanceModeState = ref.watch(balanceModeProvider);
+    final settings = ref.watch(settingsProvider);
 
     Widget svgAvatar = walletSnapshot.address.isNotEmpty
         ? RandomAvatar(walletSnapshot.address, height: 50, width: 50)
@@ -240,7 +239,7 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               ImageFiltered(
-                                enabled: balanceModeState.hide,
+                                enabled: settings.hideBalance,
                                 imageFilter: ImageFilter.blur(
                                   sigmaX: 10,
                                   sigmaY: 10,
@@ -267,7 +266,7 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                           ),
                           const Spacer(),
                           IconButton.outlined(
-                            icon: balanceModeState.hide
+                            icon: settings.hideBalance
                                 ? const Icon(
                                     Icons.visibility_rounded,
                                   )
@@ -276,9 +275,8 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                                   ),
                             onPressed: () {
                               ref
-                                  .read(balanceModeProvider.notifier)
-                                  .setBalanceMode(BalanceModeState(
-                                      hide: !balanceModeState.hide));
+                                  .read(settingsProvider.notifier)
+                                  .setHideBalance(!settings.hideBalance);
                             },
                           ),
                         ],

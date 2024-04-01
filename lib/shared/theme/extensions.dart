@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:xelis_mobile_wallet/shared/theme/more_colors.dart';
 
 extension TypographyUtils on BuildContext {
   ThemeData get theme => Theme.of(this);
@@ -9,6 +10,10 @@ extension TypographyUtils on BuildContext {
   TextTheme get textTheme => theme.textTheme;
 
   ColorScheme get colors => theme.colorScheme;
+
+  MoreColors get moreColors {
+    return Theme.of(this).extension<MoreColors>()!;
+  }
 
   TextStyle? get displayLarge => textTheme.displayLarge;
 

@@ -5,6 +5,7 @@ import 'package:xelis_mobile_wallet/router/login_action_codec.dart';
 import 'package:xelis_mobile_wallet/screens/authentication/presentation/create_wallet_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/screens/authentication/presentation/open_wallet_widget.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/components/background_widget.dart';
 
 class AuthenticationScreen extends ConsumerWidget {
   const AuthenticationScreen({super.key, LoginAction? loginAction})
@@ -13,7 +14,9 @@ class AuthenticationScreen extends ConsumerWidget {
   final LoginAction? explicitAction;
 
   Widget _getScaffold(BuildContext context, Widget child) {
-    return Scaffold(body: child);
+    return Scaffold(
+      body: Background(child: child),
+    );
     return Scaffold(
       body: SafeArea(
           child: SingleChildScrollView(

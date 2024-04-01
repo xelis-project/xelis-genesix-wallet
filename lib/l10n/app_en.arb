@@ -121,5 +121,9 @@
   "same_old_new_password_error": "the old and new passwords are identical",
   "not_match_new_password_error": "does not match the new password",
   "password_cannot_be_changed_error": "the password cannot be changed",
-  "password_changed": "Password changed!"
+  "password_changed": "Password changed!",
+
+  "light": "Light",
+  "dark": "Dark",
+  "theme": "Theme"
 }

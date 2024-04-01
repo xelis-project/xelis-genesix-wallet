@@ -26,7 +26,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     final isHandset = context.formFactor == ScreenSize.normal ||
         context.formFactor == ScreenSize.small;
 
-    final pages = SafeArea(
+    final tabs = SafeArea(
       child: <Widget>[
         const NodeTab(),
         const HistoryTab(),
@@ -39,7 +39,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     Widget mainWidget = isHandset
         ? Scaffold(
             appBar: const HubAppBar(),
-            body: pages,
+            body: tabs,
             bottomNavigationBar: isHandset
                 ? NavigationBar(
                     animationDuration: Duration.zero,
@@ -114,7 +114,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                 Expanded(
                   child: Scaffold(
                     appBar: const HubAppBar(),
-                    body: pages,
+                    body: tabs,
                     bottomNavigationBar: isHandset
                         ? NavigationBar(
                             animationDuration: Duration.zero,

@@ -4,8 +4,8 @@ import 'package:loader_overlay/loader_overlay.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:xelis_mobile_wallet/screens/authentication/application/authentication_service.dart';
 import 'package:xelis_mobile_wallet/router/router.dart';
-import 'package:xelis_mobile_wallet/screens/settings/application/theme_mode_state_provider.dart';
-import 'package:xelis_mobile_wallet/screens/settings/presentation/components/network_widget.dart';
+import 'package:xelis_mobile_wallet/screens/settings/application/settings_state_provider.dart';
+import 'package:xelis_mobile_wallet/screens/settings/domain/settings_state.dart';
 import 'package:xelis_mobile_wallet/shared/providers/scaffold_messenger_provider.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
@@ -24,8 +24,9 @@ class XelisWalletApp extends ConsumerStatefulWidget {
 
 class _XelisWalletAppState extends ConsumerState<XelisWalletApp>
     with WindowListener {
-  final _lightTheme = FlexTheme().light();
-  final _darkTheme = FlexTheme().dark();
+  final _lightTheme = lightTheme();
+  final _darkTheme = darkTheme();
+  final _xelisTheme = xelisTheme();
 
   @override
   void initState() {
@@ -42,15 +43,25 @@ class _XelisWalletAppState extends ConsumerState<XelisWalletApp>
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
-    final userThemeMode = ref.watch(userThemeModeProvider);
+    final settings = ref.watch(settingsProvider);
     final scaffoldMessengerKey = ref.watch(scaffoldMessengerKeyProvider);
+
+    ThemeData themeData;
+    switch (settings.theme) {
+      case AppTheme.xelis:
+        themeData = _xelisTheme;
+      case AppTheme.dark:
+        themeData = _darkTheme;
+      case AppTheme.light:
+        themeData = _lightTheme;
+    }
 
     return WalletInitializerWidget(
       child: GlobalLoaderOverlay(
         useDefaultLoading: false,
         overlayWidgetBuilder: (_) {
           Color loadingWidgetColor;
-          switch (userThemeMode.themeMode) {
+          /*switch (settings.theme) {
             case ThemeMode.system:
               if (context.mediaQueryData.platformBrightness ==
                   Brightness.light) {
@@ -62,20 +73,19 @@ class _XelisWalletAppState extends ConsumerState<XelisWalletApp>
               loadingWidgetColor = _lightTheme.primaryColor;
             case ThemeMode.dark:
               loadingWidgetColor = _darkTheme.primaryColor;
-          }
+          }*/
 
           return Center(
               child: CircularProgressIndicator(
-            color: loadingWidgetColor,
-          ));
+                  //color: loadingWidgetColor,
+                  ));
         },
         child: MaterialApp.router(
           title: AppResources.xelisWalletName,
           scaffoldMessengerKey: scaffoldMessengerKey,
           debugShowCheckedModeBanner: false,
-          themeMode: userThemeMode.themeMode,
-          theme: _lightTheme,
-          darkTheme: _darkTheme,
+          themeMode: ThemeMode.light,
+          theme: themeData,
           routerConfig: router,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,

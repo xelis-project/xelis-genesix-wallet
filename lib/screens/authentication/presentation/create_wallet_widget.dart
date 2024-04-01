@@ -10,7 +10,7 @@ import 'package:xelis_mobile_wallet/screens/authentication/application/authentic
 import 'package:xelis_mobile_wallet/screens/authentication/application/open_wallet_state_provider.dart';
 import 'package:xelis_mobile_wallet/router/route_utils.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/screens/settings/application/theme_mode_state_provider.dart';
+import 'package:xelis_mobile_wallet/screens/settings/application/settings_state_provider.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/presentation/wallet_tab/components/seed_on_creation_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
@@ -111,9 +111,9 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
 
-    final userThemeMode = ref.watch(userThemeModeProvider);
+    final settings = ref.watch(settingsProvider);
     final ScalableImageWidget banner =
-        getBanner(context, userThemeMode.themeMode);
+        getBanner(context, settings.theme);
 
     final openWalletState = ref.watch(openWalletProvider);
 
