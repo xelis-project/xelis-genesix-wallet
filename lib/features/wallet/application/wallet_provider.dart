@@ -7,7 +7,6 @@ import 'package:xelis_mobile_wallet/features/authentication/application/open_wal
 import 'package:xelis_mobile_wallet/features/authentication/domain/authentication_state.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/node_addresses_state_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/application/history_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/event.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/node_address.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/wallet_snapshot.dart';
@@ -36,7 +35,6 @@ class WalletState extends _$WalletState {
 
   Future<void> connect() async {
     if (state.nativeWalletRepository != null) {
-
       if (state.address.isEmpty) {
         final nonce = await state.nativeWalletRepository!.nonce;
         state = state.copyWith(
@@ -63,7 +61,7 @@ class WalletState extends _$WalletState {
             SnackbarEvent.error(message: loc.cannot_connect_toast_error));
       }
 
-      if (await state.nativeWalletRepository!.isOnline) {
+      if (await state.nativeWalletRepository?.isOnline ?? false) {
         try {
           final xelisBalance =
               await state.nativeWalletRepository!.getXelisBalance();
@@ -147,6 +145,14 @@ class WalletState extends _$WalletState {
     return null;
   }
 
+  Future<String?> burnXelis({required double amount}) async {
+    if (state.nativeWalletRepository != null) {
+      return state.nativeWalletRepository!
+          .burn(amount: amount, assetHash: xelisAsset);
+    }
+    return null;
+  }
+
   Future<void> _onEvent(Event event) async {
     switch (event) {
       case NewTopoHeight():
@@ -154,7 +160,6 @@ class WalletState extends _$WalletState {
 
       case NewTransaction():
         logger.info(event);
-        ref.invalidate(historyProvider);
         if (state.topoheight != 0 &&
             event.transactionEntry.topoHeight >= state.topoheight) {
           final loc = ref.read(appLocalizationsProvider);

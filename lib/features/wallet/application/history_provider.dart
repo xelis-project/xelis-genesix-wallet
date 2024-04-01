@@ -7,6 +7,7 @@ part 'history_provider.g.dart';
 
 @riverpod
 Future<HistoryState> history(HistoryRef ref) async {
+  ref.watch(walletStateProvider.select((value) => value.assets));
   final repository = ref.watch(
       walletStateProvider.select((value) => value.nativeWalletRepository));
 
