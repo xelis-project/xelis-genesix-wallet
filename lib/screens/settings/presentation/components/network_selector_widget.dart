@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:xelis_mobile_wallet/rust_bridge/api/wallet.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/settings_state_provider.dart';
 import 'package:xelis_mobile_wallet/screens/settings/domain/network_translate_name.dart';
-import 'package:xelis_mobile_wallet/screens/settings/domain/settings_state.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 
 const List<Network> networks = <Network>[

@@ -1,24 +1,24 @@
-import 'package:xelis_mobile_wallet/screens/authentication/domain/open_wallet_state.dart';
+import 'package:xelis_mobile_wallet/screens/authentication/domain/network_wallet_state.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/shared/storage/persistent_state.dart';
 import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_sync.dart';
 
-class OpenWalletStateRepository extends PersistentState<OpenWalletState> {
-  OpenWalletStateRepository(this.sharedPreferencesSync);
+class NetworkWalletStateRepository extends PersistentState<NetworkWalletState> {
+  NetworkWalletStateRepository(this.sharedPreferencesSync);
 
   SharedPreferencesSync sharedPreferencesSync;
-  static const _storageKey = 'open_wallets';
+  static const _storageKey = 'network_wallet';
 
   @override
-  OpenWalletState fromStorage() {
+  NetworkWalletState fromStorage() {
     try {
       final value = sharedPreferencesSync.get(key: _storageKey);
       if (value == null) {
-        return const OpenWalletState();
+        return const NetworkWalletState();
       }
-      return OpenWalletState.fromJson(value as Map<String, dynamic>);
+      return NetworkWalletState.fromJson(value as Map<String, dynamic>);
     } catch (e) {
-      logger.severe('NodeAddressesStateRepository: $e');
+      logger.severe('NetworkWalletStateRepository: $e');
       rethrow;
     }
   }
@@ -29,7 +29,7 @@ class OpenWalletStateRepository extends PersistentState<OpenWalletState> {
   }
 
   @override
-  Future<bool> localSave(OpenWalletState state) {
+  Future<bool> localSave(NetworkWalletState state) {
     final value = state.toJson();
     return sharedPreferencesSync.save(
       key: _storageKey,

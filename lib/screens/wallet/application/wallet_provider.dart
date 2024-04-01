@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:xelis_mobile_wallet/screens/authentication/application/authentication_service.dart';
-import 'package:xelis_mobile_wallet/screens/authentication/application/open_wallet_state_provider.dart';
+import 'package:xelis_mobile_wallet/screens/authentication/application/network_wallet_state_provider.dart';
 import 'package:xelis_mobile_wallet/screens/authentication/domain/authentication_state.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/app_localizations_provider.dart';
+import 'package:xelis_mobile_wallet/screens/settings/application/settings_state_provider.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/application/node_addresses_state_provider.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/application/history_provider.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/domain/event.dart';
@@ -22,8 +23,9 @@ class WalletState extends _$WalletState {
   @override
   WalletSnapshot build() {
     final authenticationState = ref.watch(authenticationProvider);
-    final name = ref
-        .watch(openWalletProvider.select((value) => value.walletCurrentlyUsed));
+    final networkWallet = ref.watch(networkWalletProvider);
+    final settings = ref.watch(settingsProvider);
+    var name = networkWallet.getOpenWallet(settings.network);
 
     switch (authenticationState) {
       case SignedIn(:final nativeWallet):
@@ -39,8 +41,7 @@ class WalletState extends _$WalletState {
       if (state.address.isEmpty) {
         final nonce = await state.nativeWalletRepository!.nonce;
         state = state.copyWith(
-            address: state.nativeWalletRepository!.humanReadableAddress,
-            nonce: nonce);
+            address: state.nativeWalletRepository!.address, nonce: nonce);
       }
 
       StreamSubscription<void> sub =

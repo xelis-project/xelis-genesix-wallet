@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:xelis_mobile_wallet/screens/authentication/application/open_wallet_state_provider.dart';
 import 'package:xelis_mobile_wallet/router/login_action_codec.dart';
 import 'package:xelis_mobile_wallet/screens/authentication/presentation/create_wallet_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
@@ -37,10 +36,11 @@ class AuthenticationScreen extends ConsumerWidget {
       case LoginAction.open:
         return _getScaffold(context, const OpenWalletWidget());
       case null:
-        final data = ref.watch(openWalletProvider);
+        return _getScaffold(context, const OpenWalletWidget());
+      /*final data = ref.watch(openWalletProvider);
         return data.wallets.isNotEmpty
             ? _getScaffold(context, const OpenWalletWidget())
-            : _getScaffold(context, const CreateWalletWidget());
+            : _getScaffold(context, const CreateWalletWidget());*/
     }
   }
 }

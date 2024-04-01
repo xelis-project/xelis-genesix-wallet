@@ -3,6 +3,7 @@
 import 'dart:ui';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:xelis_mobile_wallet/rust_bridge/api/wallet.dart';
 import 'package:xelis_mobile_wallet/screens/settings/domain/locale_json_converter.dart';
 
 part 'settings_state.freezed.dart';
@@ -15,11 +16,12 @@ enum AppTheme {
   xelis,
 }
 
+/*
 enum Network {
   dev,
   testnet,
   mainnet,
-}
+}*/
 
 @freezed
 class SettingsState with _$SettingsState {

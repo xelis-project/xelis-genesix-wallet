@@ -7,7 +7,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jovial_svg/jovial_svg.dart';
 import 'package:xelis_mobile_wallet/screens/authentication/application/authentication_service.dart';
-import 'package:xelis_mobile_wallet/screens/authentication/application/open_wallet_state_provider.dart';
+import 'package:xelis_mobile_wallet/screens/authentication/application/network_wallet_state_provider.dart';
 import 'package:xelis_mobile_wallet/router/route_utils.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/settings_state_provider.dart';
@@ -112,10 +112,10 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
     final loc = ref.watch(appLocalizationsProvider);
 
     final settings = ref.watch(settingsProvider);
-    final ScalableImageWidget banner =
-        getBanner(context, settings.theme);
+    final ScalableImageWidget banner = getBanner(context, settings.theme);
 
-    final openWalletState = ref.watch(openWalletProvider);
+    final networkWallet = ref.watch(networkWalletProvider);
+    var wallets = networkWallet.getWallets(settings.network);
 
     return FormBuilder(
       key: _createFormKey,
@@ -154,7 +154,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
                           style: context.bodyLarge,
                         ),
                         TextButton(
-                          onPressed: openWalletState.wallets.isNotEmpty
+                          onPressed: wallets.isNotEmpty
                               ? () {
                                   context.go(
                                     AppScreen.auth.toPath,
@@ -224,9 +224,9 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
                         FormBuilderValidators.required(),
                         FormBuilderValidators.minLength(1),
                         FormBuilderValidators.maxLength(64),
-                        // check if this wallet name already exists.
                         (val) {
-                          if (openWalletState.wallets.containsKey(val)) {
+                          // check if this wallet name already exists.
+                          if (wallets.containsKey(val)) {
                             return loc.wallet_name_already_exists;
                           }
                           return null;

@@ -5,7 +5,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jovial_svg/jovial_svg.dart';
 import 'package:xelis_mobile_wallet/screens/authentication/application/authentication_service.dart';
-import 'package:xelis_mobile_wallet/screens/authentication/application/open_wallet_state_provider.dart';
+import 'package:xelis_mobile_wallet/screens/authentication/application/network_wallet_state_provider.dart';
 import 'package:xelis_mobile_wallet/router/login_action_codec.dart';
 import 'package:xelis_mobile_wallet/router/route_utils.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/app_localizations_provider.dart';
@@ -94,11 +94,12 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final settings = ref.watch(settingsProvider);
-    final ScalableImageWidget banner =
-        getBanner(context, settings.theme);
-    final openWalletState = ref.watch(openWalletProvider);
+    final ScalableImageWidget banner = getBanner(context, settings.theme);
+    final networkWallet = ref.watch(networkWalletProvider);
+    var openWallet = networkWallet.getOpenWallet(settings.network);
+    var wallets = networkWallet.getWallets(settings.network);
 
-    _selectedWallet ??= openWalletState.walletCurrentlyUsed;
+    _selectedWallet ??= openWallet;
 
     return FormBuilder(
       key: _openFormKey,
@@ -155,8 +156,8 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
                         style: context.bodyLarge,
                       ),
                       requestFocusOnTap: true,
-                      initialSelection: openWalletState.walletCurrentlyUsed,
-                      dropdownMenuEntries: openWalletState.wallets.entries
+                      initialSelection: openWallet,
+                      dropdownMenuEntries: wallets.entries
                           .map((entry) => DropdownMenuEntry<String>(
                               value: entry.key, label: entry.key))
                           .toList(),
@@ -208,9 +209,8 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletWidget> {
                       flex: 3,
                     ),
                     TextButton(
-                      onPressed: () => {
-                        context.push(AppScreen.settings.toPath)
-                      },
+                      onPressed: () =>
+                          {context.push(AppScreen.settings.toPath)},
                       child: const Text('Settings'),
                     )
                   ],

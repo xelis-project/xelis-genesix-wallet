@@ -1,16 +1,17 @@
 import 'dart:io';
 
-import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:xelis_mobile_wallet/screens/authentication/application/open_wallet_state_provider.dart';
+import 'package:xelis_mobile_wallet/screens/authentication/application/network_wallet_state_provider.dart';
 import 'package:xelis_mobile_wallet/screens/authentication/domain/authentication_state.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/app_localizations_provider.dart';
+import 'package:xelis_mobile_wallet/screens/settings/application/settings_state_provider.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/data/native_wallet_repository.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
 import 'package:xelis_mobile_wallet/rust_bridge/api/wallet.dart';
+import 'package:xelis_mobile_wallet/shared/utils/utils.dart';
 
 part 'authentication_service.g.dart';
 
@@ -26,10 +27,12 @@ class Authentication extends _$Authentication {
     String password, [
     String? seed,
   ]) async {
-    final dir = await getApplicationDocumentsDirectory();
-    final walletPath = '${dir.path}/wallets/$name';
+    final settings = ref.read(settingsProvider);
 
-    if (await Directory(walletPath).exists()) {
+    var walletPath = await getWalletPath(settings.network, name);
+    var walletExists = await Directory(walletPath).exists();
+
+    if (walletExists) {
       logger.severe('This wallet already exists: $name');
       throw Exception('This wallet already exists: $name');
     } else {
@@ -38,8 +41,11 @@ class Authentication extends _$Authentication {
       try {
         if (seed != null) {
           walletRepository = await NativeWalletRepository.recover(
-              walletPath, password, Network.testnet,
-              seed: seed);
+            walletPath,
+            password,
+            settings.network,
+            seed: seed,
+          );
         } else {
           walletRepository = await NativeWalletRepository.create(
               walletPath, password, Network.testnet);
@@ -53,8 +59,10 @@ class Authentication extends _$Authentication {
         rethrow;
       }
 
-      ref.read(openWalletProvider.notifier).saveOpenWalletState(name,
-          address: walletRepository.humanReadableAddress);
+      ref
+          .read(networkWalletProvider.notifier)
+          .setWallet(settings.network, name, walletRepository.address);
+      //ref.read(openWalletProvider.notifier).saveOpenWalletState(name,  address: walletRepository.address);
 
       state = AuthenticationState.signedIn(nativeWallet: walletRepository);
 
@@ -63,14 +71,19 @@ class Authentication extends _$Authentication {
   }
 
   Future<void> openWallet(String name, String password) async {
-    final dir = await getApplicationDocumentsDirectory();
-    final walletPath = '${dir.path}/wallets/$name';
+    final settings = ref.read(settingsProvider);
 
-    if (await Directory(walletPath).exists()) {
+    var walletPath = await getWalletPath(settings.network, name);
+    var walletExists = await Directory(walletPath).exists();
+
+    if (walletExists) {
       NativeWalletRepository walletRepository;
       try {
         walletRepository = await NativeWalletRepository.open(
-            walletPath, password, Network.testnet);
+          walletPath,
+          password,
+          settings.network,
+        );
       } catch (e) {
         logger.severe('Opening wallet failed: $e');
         final loc = ref.read(appLocalizationsProvider);
@@ -80,7 +93,10 @@ class Authentication extends _$Authentication {
         rethrow;
       }
 
-      ref.read(openWalletProvider.notifier).saveOpenWalletState(name);
+      ref
+          .read(networkWalletProvider.notifier)
+          .setWallet(settings.network, name, walletRepository.address);
+      //ref.read(openWalletProvider.notifier).saveOpenWalletState(name);
 
       state = AuthenticationState.signedIn(nativeWallet: walletRepository);
 

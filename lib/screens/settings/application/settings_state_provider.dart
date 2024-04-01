@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:xelis_mobile_wallet/rust_bridge/api/wallet.dart';
 import 'package:xelis_mobile_wallet/screens/settings/data/settings_state.repository.dart';
 import 'package:xelis_mobile_wallet/screens/settings/domain/settings_state.dart';
 import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_provider.dart';

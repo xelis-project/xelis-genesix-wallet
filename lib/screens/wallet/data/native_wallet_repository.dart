@@ -46,7 +46,7 @@ class NativeWalletRepository {
 
   XelisWallet get nativeWallet => _xelisWallet;
 
-  String get humanReadableAddress => _xelisWallet.getAddressStr();
+  String get address => _xelisWallet.getAddressStr();
 
   Future<int> get nonce => _xelisWallet.getNonce();
 
