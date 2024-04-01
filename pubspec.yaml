@@ -45,6 +45,7 @@ dependencies:
   flutter_rust_bridge: 2.0.0-dev.28
   rust_builder:
     path: rust_builder
+  country_flags: ^2.2.0
 
 
 dev_dependencies:

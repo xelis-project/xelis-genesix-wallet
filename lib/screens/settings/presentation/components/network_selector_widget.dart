@@ -12,8 +12,8 @@ const List<Network> networks = <Network>[
   Network.dev,
 ];
 
-class NetworkWidget extends ConsumerWidget {
-  const NetworkWidget({
+class NetworkSelectorWidget extends ConsumerWidget {
+  const NetworkSelectorWidget({
     super.key,
   });
 

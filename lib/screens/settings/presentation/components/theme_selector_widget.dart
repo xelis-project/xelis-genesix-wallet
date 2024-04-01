@@ -12,8 +12,8 @@ const List<AppTheme> themes = <AppTheme>[
   AppTheme.light,
 ];
 
-class ThemeWidget extends ConsumerWidget {
-  const ThemeWidget({
+class ThemeSelectorWidget extends ConsumerWidget {
+  const ThemeSelectorWidget({
     super.key,
   });
 
