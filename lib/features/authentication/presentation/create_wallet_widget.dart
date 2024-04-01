@@ -9,9 +9,10 @@ import 'package:jovial_svg/jovial_svg.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/open_wallet_state_provider.dart';
 import 'package:xelis_mobile_wallet/features/router/route_utils.dart';
+import 'package:xelis_mobile_wallet/features/router/router.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/theme_mode_state_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/components/seed_on_creation_widget.dart';
+import 'package:xelis_mobile_wallet/features/authentication/presentation/components/seed_on_creation_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/banner_widget.dart';
@@ -119,9 +120,12 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletWidget> {
   }
 
   void _showSeed(String password) {
-    Timer.run(() => showDialog<void>(
-        context: context,
-        builder: (BuildContext context) => SeedOnCreationWidget(password)));
+    Timer(
+        // TODO workaround before router rework
+        const Duration(milliseconds: 200),
+        () => showDialog<void>(
+            context: routerKey.currentContext ?? context,
+            builder: (BuildContext context) => SeedOnCreationWidget(password)));
   }
 
   @override

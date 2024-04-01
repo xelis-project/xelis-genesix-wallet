@@ -7,9 +7,10 @@ import 'package:xelis_mobile_wallet/features/authentication/application/authenti
 
 part 'router.g.dart';
 
+final routerKey = GlobalKey<NavigatorState>(debugLabel: 'routerKey');
+
 @riverpod
 GoRouter router(RouterRef ref) {
-  final routerKey = GlobalKey<NavigatorState>(debugLabel: 'routerKey');
   final isAuth = ValueNotifier<bool>(false);
 
   ref
