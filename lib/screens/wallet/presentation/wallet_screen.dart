@@ -8,6 +8,7 @@ import 'package:xelis_mobile_wallet/screens/wallet/presentation/settings_tab/set
 import 'package:xelis_mobile_wallet/screens/wallet/presentation/wallet_tab/wallet_tab_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/components/background_widget.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/hub_app_bar_widget.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
@@ -26,7 +27,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     final isHandset = context.formFactor == ScreenSize.normal ||
         context.formFactor == ScreenSize.small;
 
-    final tabs = SafeArea(
+    final tabs = Background(
       child: <Widget>[
         const NodeTab(),
         const HistoryTab(),
@@ -38,7 +39,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
 
     Widget mainWidget = isHandset
         ? Scaffold(
-            appBar: const HubAppBar(),
+            //appBar: const HubAppBar(),
             body: tabs,
             bottomNavigationBar: isHandset
                 ? NavigationBar(
@@ -113,7 +114,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                 const VerticalDivider(thickness: 1, width: 1),
                 Expanded(
                   child: Scaffold(
-                    appBar: const HubAppBar(),
+                    //appBar: const HubAppBar(),
                     body: tabs,
                     bottomNavigationBar: isHandset
                         ? NavigationBar(

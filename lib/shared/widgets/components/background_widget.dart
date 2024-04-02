@@ -7,7 +7,6 @@ class Background extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //final MoreColors moreColors = Theme.of(context).extension<MoreColors>()!;
     return Container(
       decoration: BoxDecoration(
         gradient: RadialGradient(
@@ -18,7 +17,6 @@ class Background extends StatelessWidget {
           ],
           radius: 1.5,
         ),
-        //borderRadius: BorderRadius.circular(150),
       ),
       child: Container(
         decoration: BoxDecoration(
@@ -30,7 +28,6 @@ class Background extends StatelessWidget {
             ],
             radius: 1.5,
           ),
-          //borderRadius: BorderRadius.circular(150),
         ),
         child: Container(
           decoration: BoxDecoration(
@@ -42,7 +39,6 @@ class Background extends StatelessWidget {
               ],
               radius: 2,
             ),
-            //borderRadius: BorderRadius.circular(150),
           ),
           child: child,
         ),

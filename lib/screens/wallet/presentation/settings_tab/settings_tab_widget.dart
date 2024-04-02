@@ -12,28 +12,26 @@ class SettingsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return ListView(
       padding: const EdgeInsets.all(Spaces.large),
-      child: ListView(
-        children: [
-          Consumer(
-            builder: (context, ref, child) {
-              final loc = ref.watch(appLocalizationsProvider);
-              return Text(
-                loc.settings,
-                style: context.headlineLarge!
-                    .copyWith(fontWeight: FontWeight.bold),
-              );
-            },
-          ),
-          const SizedBox(height: Spaces.large),
-          const AvatarSelector(),
-          const SizedBox(height: Spaces.large),
-          const ChangePasswordWidget(),
-          const Divider(),
-          const LogoutWidget(),
-        ],
-      ),
+      children: [
+        Consumer(
+          builder: (context, ref, child) {
+            final loc = ref.watch(appLocalizationsProvider);
+            return Text(
+              loc.settings,
+              style:
+                  context.headlineLarge!.copyWith(fontWeight: FontWeight.bold),
+            );
+          },
+        ),
+        const SizedBox(height: Spaces.large),
+        const AvatarSelector(),
+        const SizedBox(height: Spaces.large),
+        const ChangePasswordWidget(),
+        const Divider(),
+        const LogoutWidget(),
+      ],
     );
   }
 }

@@ -12,26 +12,24 @@ class NodeTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
-    return Padding(
+    return ListView(
       padding: const EdgeInsets.all(Spaces.large),
-      child: ListView(
-        children: [
-          Text(
-            loc.remote_node,
-            style: context.headlineLarge!.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: Spaces.large),
-          const NodeSelectorWidget(),
-          const SizedBox(height: Spaces.large),
-          Text(
-            loc.information,
-            style: context.headlineSmall!.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const Divider(),
-          const SizedBox(height: Spaces.small),
-          const NodeInfoWidget(),
-        ],
-      ),
+      children: [
+        Text(
+          loc.remote_node,
+          style: context.headlineLarge!.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: Spaces.large),
+        const NodeSelectorWidget(),
+        const SizedBox(height: Spaces.large),
+        Text(
+          loc.information,
+          style: context.headlineSmall!.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const Divider(),
+        const SizedBox(height: Spaces.small),
+        const NodeInfoWidget(),
+      ],
     );
   }
 }
