@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:jovial_svg/jovial_svg.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/domain/node_address.dart';
@@ -8,17 +7,25 @@ class AppResources {
 
   static const int xelisDecimals = 8;
 
-  static List<NodeAddress> builtInNodeAddresses = [
-    // localhost simulator
-    if (kDebugMode)
-      const NodeAddress(
-          name: 'Local Node for AS simulator', url: '10.0.2.2:8080'),
-    const NodeAddress(name: 'Local Node', url: localhostAddress),
+  static List<NodeAddress> mainnetNodes = [
     const NodeAddress(
-        name: 'Official xelis.io Mainnet',
-        url: 'ws://$mainnetNodeURL/json_rpc'),
+      name: 'Official XELIS Mainnet',
+      url: 'https://$mainnetNodeURL',
+    ),
+  ];
+
+  static List<NodeAddress> testnetNodes = [
     const NodeAddress(
-        name: 'Official xelis.io Testnet', url: 'ws://$testnetNodeURL/json_rpc')
+      name: 'Official XELIS Testnet',
+      url: 'https://$testnetNodeURL',
+    )
+  ];
+
+  static List<NodeAddress> devNodes = [
+    const NodeAddress(
+      name: 'Default Local Node',
+      url: 'http://$localhostAddress',
+    ),
   ];
 
   /*static String svgIconGreenTarget =

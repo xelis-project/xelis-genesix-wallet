@@ -7,7 +7,7 @@ import 'package:xelis_mobile_wallet/screens/authentication/application/network_w
 import 'package:xelis_mobile_wallet/screens/authentication/domain/authentication_state.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/settings_state_provider.dart';
-import 'package:xelis_mobile_wallet/screens/wallet/application/node_addresses_state_provider.dart';
+import 'package:xelis_mobile_wallet/screens/wallet/application/network_nodes_provider.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/application/history_provider.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/domain/event.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/domain/node_address.dart';
@@ -52,9 +52,12 @@ class WalletState extends _$WalletState {
         await disconnect();
       }
 
-      final address = ref.read(nodeAddressesProvider);
+      final settings = ref.read(settingsProvider);
+      final networkNodes = ref.read(networkNodesProvider);
+      var node = networkNodes.getNodeAddress(settings.network);
+
       await state.nativeWalletRepository!
-          .setOnline(daemonAddress: address.favorite.url)
+          .setOnline(daemonAddress: node.url)
           .onError((error, stackTrace) {
         final loc = ref.read(appLocalizationsProvider);
         ref.read(snackbarContentProvider.notifier).setContent(
@@ -89,7 +92,10 @@ class WalletState extends _$WalletState {
 
   Future<void> reconnect([NodeAddress? nodeAddress]) async {
     if (nodeAddress != null) {
-      ref.read(nodeAddressesProvider.notifier).setFavoriteAddress(nodeAddress);
+      final settings = ref.read(settingsProvider);
+      ref
+          .read(networkNodesProvider.notifier)
+          .setNodeAddress(settings.network, nodeAddress);
     }
     await disconnect();
     unawaited(connect());

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/screens/wallet/application/node_addresses_state_provider.dart';
+import 'package:xelis_mobile_wallet/screens/settings/application/settings_state_provider.dart';
+import 'package:xelis_mobile_wallet/screens/wallet/application/network_nodes_provider.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/domain/node_address.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/presentation/node_tab/components/add_node_dialog.dart';
@@ -19,11 +20,10 @@ class NodeSelectorWidget extends ConsumerStatefulWidget {
 }
 
 class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
-  void _onDismissed(int index) {
-    final state = ref.read(nodeAddressesProvider);
-    ref
-        .read(nodeAddressesProvider.notifier)
-        .removeNodeAddress(state.nodeAddresses[index]);
+  void _onDismissed(NodeAddress node) {
+    final settings = ref.read(settingsProvider);
+
+    ref.read(networkNodesProvider.notifier).removeNode(settings.network, node);
   }
 
   void _onNodeAddressSelected(NodeAddress? value) {
@@ -41,8 +41,12 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(nodeAddressesProvider);
+    final networkNodes = ref.watch(networkNodesProvider);
+    final settings = ref.watch(settingsProvider);
     final loc = ref.watch(appLocalizationsProvider);
+
+    var nodeAddress = networkNodes.getNodeAddress(settings.network);
+    var nodes = networkNodes.getNodes(settings.network);
     return Card(
       elevation: 1,
       // clipBehavior: Clip.antiAlias,
@@ -54,59 +58,42 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
           highlightColor: Colors.transparent,
         ),
         child: ExpansionTile(
+          expandedCrossAxisAlignment: CrossAxisAlignment.start,
           title: Text(
-            state.favorite.name,
+            nodeAddress.name,
             style: context.titleLarge,
           ),
           subtitle: Text(
-            state.favorite.url,
+            nodeAddress.url,
             style: context.titleSmall,
           ),
           children: [
-            ...List<ListTile>.generate(
-              AppResources.builtInNodeAddresses.length,
-              (index) => ListTile(
-                title: Text(
-                  AppResources.builtInNodeAddresses[index].name,
-                  style: context.bodyLarge,
-                ),
-                subtitle: Text(
-                  AppResources.builtInNodeAddresses[index].url,
-                  style: context.bodyMedium,
-                ),
-                leading: Radio<NodeAddress>(
-                  value: AppResources.builtInNodeAddresses[index],
-                  groupValue: state.favorite,
-                  onChanged: _onNodeAddressSelected,
-                ),
-              ),
-            ),
             ...List<Dismissible>.generate(
-              state.nodeAddresses.length,
+              nodes.length,
               (index) => Dismissible(
-                key: ValueKey<NodeAddress>(state.nodeAddresses[index]),
+                key: ValueKey<NodeAddress>(nodes[index]),
                 onDismissed: (direction) {
-                  _onDismissed(index);
+                  _onDismissed(nodes[index]);
                 },
                 child: ListTile(
                   title: Text(
-                    state.nodeAddresses[index].name,
+                    nodes[index].name,
                     style: context.bodyLarge,
                   ),
                   subtitle: Text(
-                    state.nodeAddresses[index].url,
+                    nodes[index].url,
                     style: context.bodyMedium,
                   ),
                   leading: Radio<NodeAddress>(
-                    value: state.nodeAddresses[index],
-                    groupValue: state.favorite,
+                    value: nodes[index],
+                    groupValue: nodeAddress,
                     onChanged: _onNodeAddressSelected,
                   ),
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(Spaces.small),
+              padding: const EdgeInsets.all(Spaces.medium),
               child: FilledButton(
                 onPressed: () => _showNewAddressDialog(context),
                 child: Text(
