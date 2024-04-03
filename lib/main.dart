@@ -54,6 +54,8 @@ Future<void> main() async {
   AppResources.svgBannerWhite = await ScalableImage.fromSvgAsset(
       rootBundle, AppResources.svgBannerWhitePath,
       compact: true);
+
+  AppResources.bgDots = Image.asset(AppResources.bgDotsPath);
   //----------------------------------------------------------------------------
 
   final prefs = await SharedPreferences.getInstance();

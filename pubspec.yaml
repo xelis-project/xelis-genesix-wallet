@@ -71,6 +71,7 @@ flutter:
   assets:
     - assets/banners/svg/
     - assets/icons/png/
+    - assets/bg_dots.png
 
 
 flutter_launcher_icons:

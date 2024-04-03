@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:jovial_svg/jovial_svg.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/domain/node_address.dart';
@@ -60,10 +61,12 @@ class AppResources {
       'assets/banners/svg/transparent_background_black_logo.svg';
   static String svgBannerWhitePath =
       'assets/banners/svg/transparent_background_white_logo.svg';
+  static String bgDotsPath = 'assets/bg_dots.png';
 
   static late ScalableImage svgBannerGreen;
   static late ScalableImage svgBannerWhite;
   static late ScalableImage svgBannerBlack;
+  static late Image bgDots;
 
   static ScalableImageWidget svgBannerGreenWidget = ScalableImageWidget(
     si: AppResources.svgBannerGreen,

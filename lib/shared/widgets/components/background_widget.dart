@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 
 class Background extends StatelessWidget {
@@ -40,7 +41,17 @@ class Background extends StatelessWidget {
               radius: 2,
             ),
           ),
-          child: child,
+          child: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                opacity: .05,
+                repeat: ImageRepeat.repeat,
+                alignment: Alignment.topLeft,
+                image: AppResources.bgDots.image,
+              ),
+            ),
+            child: child,
+          ),
         ),
       ),
     );
