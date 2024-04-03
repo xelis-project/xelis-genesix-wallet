@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:random_avatar/random_avatar.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
@@ -27,6 +28,7 @@ class _WalletTabState extends ConsumerState<WalletTab> {
   void _showTransferToDialog(BuildContext context) {
     showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (_) => const TransferToDialog(),
     );
   }
@@ -41,6 +43,7 @@ class _WalletTabState extends ConsumerState<WalletTab> {
   void _showSeedDialog(BuildContext context) {
     showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (_) => const MySeedDialog(),
     );
   }
@@ -171,14 +174,28 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                         style: context.labelLarge
                             ?.copyWith(color: context.colors.primary),
                       ),
-                      AnimatedSwitcher(
-                        duration:
-                            const Duration(milliseconds: AppDurations.animFast),
-                        child: Text(
-                          key: ValueKey<int>(walletSnapshot.topoheight),
-                          walletSnapshot.topoheight.toString(),
-                          style: context.headlineMedium,
-                        ),
+                      Row(
+                        children: [
+                          AnimatedSwitcher(
+                            duration: const Duration(
+                                milliseconds: AppDurations.animFast),
+                            child: Text(
+                              key: ValueKey<int>(walletSnapshot.topoheight),
+                              walletSnapshot.topoheight.toString(),
+                              style: context.headlineMedium,
+                            ),
+                          ),
+                          const SizedBox(width: Spaces.small),
+                          Icon(
+                            Icons.arrow_upward_outlined,
+                            color: context.colors.primary,
+                          )
+                              .animate(
+                                  key: ValueKey<int>(walletSnapshot.topoheight))
+                              .fadeIn()
+                              .then()
+                              .fadeOut(),
+                        ],
                       ),
                     ],
                   ),
