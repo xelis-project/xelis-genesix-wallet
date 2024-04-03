@@ -126,7 +126,7 @@ class IncomingDetailsDialog extends ConsumerWidget {
                                 style: context.labelSmall
                                     ?.copyWith(color: context.colors.primary),
                               ),
-                              SelectableText(transfer.key),
+                              SelectableText(transfer.asset),
                             ],
                           ),
                         ],

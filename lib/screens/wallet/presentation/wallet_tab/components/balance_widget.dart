@@ -39,7 +39,7 @@ class BalanceWidget extends ConsumerWidget {
     final settings = ref.watch(settingsProvider);
     final walletSnapshot = ref.watch(walletStateProvider);
 
-    var displayBalance = '${formatXelis(walletSnapshot.balance)}';
+    var displayBalance = walletSnapshot.xelisBalance;
     //var displayBalance = '${NumberFormat().format(balance)} XEL';
     if (settings.hideBalance) {
       displayBalance = 'HIDDEN';

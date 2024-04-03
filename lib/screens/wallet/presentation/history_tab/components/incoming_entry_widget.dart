@@ -21,7 +21,7 @@ class IncomingEntryWidget extends ConsumerStatefulWidget {
 class _IncomingEntryWidgetState extends ConsumerState<IncomingEntryWidget> {
   late final IncomingEntry _entryType;
 
-  TransferEntry? _transferEntry;
+  TransferInEntry? _transferEntry;
 
   @override
   void initState() {

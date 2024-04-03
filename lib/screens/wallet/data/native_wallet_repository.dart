@@ -74,6 +74,10 @@ class NativeWalletRepository {
     return _xelisWallet.getXelisBalance();
   }
 
+  Future<bool> hasXelisBalance() async {
+    return _xelisWallet.hasXelisBalance();
+  }
+
   Future<Map<String, String>> getAssetBalances() async {
     return _xelisWallet.getAssetBalances();
   }

@@ -86,6 +86,11 @@ impl XelisWallet {
         Ok(self.wallet.is_valid_password(password).await?)
     }
 
+    pub async fn has_xelis_balance(&self) -> Result<bool> {
+        let storage = self.wallet.get_storage().read().await;
+        storage.has_balance_for(&XELIS_ASSET).await
+    }
+
     pub async fn get_xelis_balance(&self) -> Result<String> {
         let storage = self.wallet.get_storage().read().await;
         let balance = storage.get_balance_for(&XELIS_ASSET).await?;

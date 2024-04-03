@@ -15,6 +15,7 @@ import 'package:xelis_mobile_wallet/screens/wallet/domain/wallet_snapshot.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
+import 'package:xelis_mobile_wallet/shared/utils/utils.dart';
 
 part 'wallet_provider.g.dart';
 
@@ -65,11 +66,13 @@ class WalletState extends _$WalletState {
       });
 
       if (await state.nativeWalletRepository!.isOnline) {
-        /*
-        final xelisBalance =
-            await state.nativeWalletRepository!.getXelisBalance();
-        state = state.copyWith(xelisBalance: xelisBalance);
-        */
+        if (await state.nativeWalletRepository!.hasXelisBalance()) {
+          final xelisBalance =
+              await state.nativeWalletRepository!.getXelisBalance();
+          state = state.copyWith(xelisBalance: xelisBalance);
+        } else {
+          state = state.copyWith(xelisBalance: formatXelis(0));
+        }
       }
     }
   }
@@ -177,11 +180,10 @@ class WalletState extends _$WalletState {
         }
 
         if (event.balanceChanged.assetHash == xelisAsset) {
-          /*
           final xelisBalance =
               await state.nativeWalletRepository!.getXelisBalance();
           state = state.copyWith(
-              nonce: nonce, assets: updatedAssets, xelisBalance: xelisBalance);*/
+              nonce: nonce, assets: updatedAssets, xelisBalance: xelisBalance);
         } else {
           state = state.copyWith(nonce: nonce, assets: updatedAssets);
         }

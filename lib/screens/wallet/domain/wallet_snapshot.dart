@@ -11,7 +11,7 @@ class WalletSnapshot with _$WalletSnapshot {
     @Default(false) bool isOnline,
     @Default(0) int topoheight,
     @Default(0) int nonce,
-    @Default(0) int balance,
+    @Default('') String xelisBalance,
     Map<String, int>? assets, // Atomic units
     @Default('') String address,
     @Default('') String name,
