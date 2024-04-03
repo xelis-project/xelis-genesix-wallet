@@ -116,7 +116,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Spacer(),
-                        Row(
+                        /*Row(
                           children: [
                             const Spacer(),
                             Hero(
@@ -125,7 +125,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                             ),
                             const Spacer(),
                           ],
-                        ),
+                        ),*/
                         const Spacer(),
                         Text(
                           loc.sign_in,

@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:xelis_mobile_wallet/screens/authentication/presentation/create_wallet_screen.dart';
 import 'package:xelis_mobile_wallet/screens/authentication/presentation/open_wallet_screen.dart';
 import 'package:xelis_mobile_wallet/screens/settings/presentation/settings_screen.dart';
+import 'package:xelis_mobile_wallet/screens/wallet/presentation/settings_tab/change_password_screen.dart';
+import 'package:xelis_mobile_wallet/screens/wallet/presentation/settings_tab/my_seed_screen.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/presentation/wallet_screen.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 
@@ -32,6 +34,34 @@ class CreateWalletRoute extends GoRouteData {
       const CreateWalletScreen(),
       state.pageKey,
       0,
+    );
+  }
+}
+
+@TypedGoRoute<ChangePasswordRoute>(name: 'change_password', path: '/change_password')
+class ChangePasswordRoute extends GoRouteData {
+  const ChangePasswordRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      const ChangePasswordScreen(),
+      state.pageKey,
+      AppDurations.animFast,
+    );
+  }
+}
+
+@TypedGoRoute<WalletSeedRoute>(name: 'wallet_seed', path: '/wallet_seed')
+class WalletSeedRoute extends GoRouteData {
+  const WalletSeedRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      const MySeedScreen(),
+      state.pageKey,
+      AppDurations.animFast,
     );
   }
 }

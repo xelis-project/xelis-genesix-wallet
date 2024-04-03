@@ -132,7 +132,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Spacer(),
-                        Row(
+                        /*Row(
                           children: [
                             const Spacer(),
                             Hero(
@@ -141,7 +141,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                             ),
                             const Spacer(),
                           ],
-                        ),
+                        )*/
                         const Spacer(),
                         Text(
                           loc.create,
@@ -156,13 +156,11 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                               style: context.bodyLarge,
                             ),
                             TextButton(
-                              onPressed: wallets.isNotEmpty
-                                  ? () {
-                                      context.go(
-                                        AppScreen.openWallet.toPath,
-                                      );
-                                    }
-                                  : null,
+                              onPressed: () {
+                                context.go(
+                                  AppScreen.openWallet.toPath,
+                                );
+                              },
                               child: Text(loc.open_wallet_button),
                             ),
                           ],

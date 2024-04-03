@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -47,14 +48,15 @@ class _XelisWalletAppState extends ConsumerState<XelisWalletApp>
     final settings = ref.watch(settingsProvider);
     final scaffoldMessengerKey = ref.watch(scaffoldMessengerKeyProvider);
 
+    // using kDebugMode and call func every render to hot reload the theme
     ThemeData themeData;
     switch (settings.theme) {
       case AppTheme.xelis:
-        themeData = _xelisTheme;
+        themeData = kDebugMode ? xelisTheme() : _xelisTheme;
       case AppTheme.dark:
-        themeData = _darkTheme;
+        themeData = kDebugMode ? darkTheme() : _xelisTheme;
       case AppTheme.light:
-        themeData = _lightTheme;
+        themeData = kDebugMode ? lightTheme() : _xelisTheme;
     }
 
     return WalletInitializerWidget(

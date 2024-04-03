@@ -26,7 +26,7 @@ class _SnackBarInitializerWidgetState
                 const Duration(milliseconds: AppDurations.displayTimeSnackbar),
             width: 280.0,
             elevation: 2,
-            backgroundColor: Colors.transparent,
+            backgroundColor: Colors.black,
             padding: const EdgeInsets.all(Spaces.small),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -46,7 +46,7 @@ class _SnackBarInitializerWidgetState
             const Duration(milliseconds: AppDurations.displayTimeSnackbar),
         width: 280.0,
         elevation: 2,
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.black,
         padding: const EdgeInsets.all(Spaces.small),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(

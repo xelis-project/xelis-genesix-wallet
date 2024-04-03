@@ -24,11 +24,7 @@ class Authentication extends _$Authentication {
     return const AuthenticationState.signedOut();
   }
 
-  Future<void> createWallet(
-    String name,
-    String password, [
-    String? seed,
-  ]) async {
+  Future<void> createWallet(String name, String password, String? seed) async {
     final settings = ref.read(settingsProvider);
 
     var walletPath = await getWalletPath(settings.network, name);

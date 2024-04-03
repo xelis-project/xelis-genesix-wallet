@@ -43,7 +43,11 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
             body: tabs,
             bottomNavigationBar: isHandset
                 ? NavigationBar(
-                    animationDuration: Duration.zero,
+                    //labelBehavior:NavigationDestinationLabelBehavior.alwaysHide,
+                    //animationDuration: Duration.zero,
+                    indicatorShape: const CircleBorder(
+                      side: BorderSide.none,
+                    ),
                     onDestinationSelected: (int index) {
                       setState(() {
                         _currentPageIndex = index;
@@ -64,6 +68,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                         label: loc.wallet_bottom_app_bar,
                       ),
                       NavigationDestination(
+                        enabled: false,
                         icon: const Icon(Icons.assessment_rounded),
                         label: loc.assets_bottom_app_bar,
                       ),

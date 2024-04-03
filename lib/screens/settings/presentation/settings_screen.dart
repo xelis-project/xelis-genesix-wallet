@@ -43,26 +43,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: ListView(
           padding: const EdgeInsets.all(Spaces.large),
           children: [
-            Flex(
-              direction: Axis.horizontal,
-              children: [
-                IconButton(
-                  onPressed: () {
-                    context.pop();
-                  },
-                  icon: const Icon(
-                    Icons.arrow_back,
-                    size: 30,
-                  ),
-                ),
-                const SizedBox(width: Spaces.small),
-                Text(
-                  loc.settings,
-                  style: context.headlineLarge!
-                      .copyWith(fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
+            BackHeader(title: loc.settings),
             const SizedBox(height: Spaces.large),
             const NetworkSelectorWidget(),
             const Divider(),

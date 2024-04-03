@@ -23,8 +23,8 @@ class WalletState extends _$WalletState {
   @override
   WalletSnapshot build() {
     final authenticationState = ref.watch(authenticationProvider);
-    final networkWallet = ref.watch(networkWalletProvider);
-    final settings = ref.watch(settingsProvider);
+    final networkWallet = ref.read(networkWalletProvider);
+    final settings = ref.read(settingsProvider);
     var name = networkWallet.getOpenWallet(settings.network);
 
     switch (authenticationState) {
@@ -65,9 +65,11 @@ class WalletState extends _$WalletState {
       });
 
       if (await state.nativeWalletRepository!.isOnline) {
+        /*
         final xelisBalance =
             await state.nativeWalletRepository!.getXelisBalance();
         state = state.copyWith(xelisBalance: xelisBalance);
+        */
       }
     }
   }
@@ -113,10 +115,6 @@ class WalletState extends _$WalletState {
       ref.read(snackbarContentProvider.notifier).setContent(
           SnackbarEvent.error(message: loc.rescan_limitation_toast_error));
     }
-  }
-
-  Future<String?> getSeed(String password) async {
-    return state.nativeWalletRepository?.getSeed(password: password);
   }
 
   Future<void> changePassword(String oldPassword, String newPassword) async {
@@ -179,10 +177,11 @@ class WalletState extends _$WalletState {
         }
 
         if (event.balanceChanged.assetHash == xelisAsset) {
+          /*
           final xelisBalance =
               await state.nativeWalletRepository!.getXelisBalance();
           state = state.copyWith(
-              nonce: nonce, assets: updatedAssets, xelisBalance: xelisBalance);
+              nonce: nonce, assets: updatedAssets, xelisBalance: xelisBalance);*/
         } else {
           state = state.copyWith(nonce: nonce, assets: updatedAssets);
         }

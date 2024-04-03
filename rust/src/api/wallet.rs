@@ -33,7 +33,10 @@ pub fn create_xelis_wallet(
     network: Network,
     seed: Option<String>,
 ) -> Result<XelisWallet> {
-    let precomputed_tables = Wallet::read_or_generate_precomputed_tables(None, ecdlp::NoOpProgressTableGenerationReportFunction)?;
+    let precomputed_tables = Wallet::read_or_generate_precomputed_tables(
+        None,
+        ecdlp::NoOpProgressTableGenerationReportFunction,
+    )?;
     let xelis_wallet = Wallet::create(name, password, seed, network, precomputed_tables)?;
     Ok(XelisWallet {
         wallet: xelis_wallet,
@@ -41,7 +44,10 @@ pub fn create_xelis_wallet(
 }
 
 pub fn open_xelis_wallet(name: String, password: String, network: Network) -> Result<XelisWallet> {
-    let precomputed_tables = Wallet::read_or_generate_precomputed_tables(None, ecdlp::NoOpProgressTableGenerationReportFunction)?;
+    let precomputed_tables = Wallet::read_or_generate_precomputed_tables(
+        None,
+        ecdlp::NoOpProgressTableGenerationReportFunction,
+    )?;
     let xelis_wallet = Wallet::open(name, password, network, precomputed_tables)?;
     Ok(XelisWallet {
         wallet: xelis_wallet,
@@ -67,18 +73,17 @@ impl XelisWallet {
         self.wallet.close().await;
     }
 
-    pub async fn get_seed(
-        &self,
-        password: String,
-        language_index: Option<usize>,
-    ) -> Result<String> {
-        self.wallet.is_valid_password(password).await?;
+    pub async fn get_seed(&self, language_index: Option<usize>) -> Result<String> {
         let index = language_index.unwrap_or_default();
         self.wallet.get_seed(index)
     }
 
     pub async fn get_nonce(&self) -> u64 {
         self.wallet.get_nonce().await
+    }
+
+    pub async fn is_valid_password(&self, password: String) -> Result<()> {
+        Ok(self.wallet.is_valid_password(password).await?)
     }
 
     pub async fn get_xelis_balance(&self) -> Result<String> {

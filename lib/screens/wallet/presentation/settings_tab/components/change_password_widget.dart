@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:xelis_mobile_wallet/router/route_utils.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 
@@ -15,7 +17,7 @@ class ChangePasswordWidget extends ConsumerWidget {
         style: context.titleLarge,
       ),
       onTap: () {
-        //context.push(AppScreen.changePassword.toPath);
+        context.push(AppScreen.changePassword.toPath);
       },
       trailing: const Icon(
         Icons.keyboard_arrow_right_rounded,

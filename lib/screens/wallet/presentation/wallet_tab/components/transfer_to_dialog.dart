@@ -28,8 +28,8 @@ class _TransferToDialogState extends ConsumerState<TransferToDialog> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final walletSnapshot = ref.watch(walletStateProvider);
-    _remainingBalance =
-        double.parse(walletSnapshot.xelisBalance) - _amountToTransfer;
+    //_remainingBalance =
+      //  double.parse(walletSnapshot.xelisBalance) - _amountToTransfer;
 
     return FutureBuilder(
       future: _pendingTransfer,

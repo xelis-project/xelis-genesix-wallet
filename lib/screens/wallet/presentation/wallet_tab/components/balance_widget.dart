@@ -1,7 +1,10 @@
 import 'dart:ui';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/settings_state_provider.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/application/wallet_provider.dart';
@@ -11,6 +14,7 @@ import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.d
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/shared/utils/utils.dart';
 
 class BalanceWidget extends ConsumerWidget {
   const BalanceWidget({super.key});
@@ -35,6 +39,12 @@ class BalanceWidget extends ConsumerWidget {
     final settings = ref.watch(settingsProvider);
     final walletSnapshot = ref.watch(walletStateProvider);
 
+    var displayBalance = '${formatXelis(walletSnapshot.balance)}';
+    //var displayBalance = '${NumberFormat().format(balance)} XEL';
+    if (settings.hideBalance) {
+      displayBalance = 'HIDDEN';
+    }
+
     return GridTile(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -42,58 +52,52 @@ class BalanceWidget extends ConsumerWidget {
         children: [
           Text(
             loc.balance,
-            style: context.headlineSmall,
+            style: context.headlineSmall!.copyWith(color: Colors.white38),
           ),
-          const SizedBox(height: Spaces.small),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            child: Row(
+              //key: ValueKey<String>(displayBalance),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ImageFiltered(
-                        enabled: settings.hideBalance,
-                        imageFilter: ImageFilter.blur(
-                          sigmaX: 15,
-                          sigmaY: 15,
-                        ),
-                        child: AnimatedSwitcher(
-                          duration: const Duration(
-                              milliseconds: AppDurations.animFast),
-                          child: Text(
-                            key: ValueKey<String>(walletSnapshot.xelisBalance),
-                            '${walletSnapshot.xelisBalance} XEL',
-                            maxLines: 1,
-                            style: context.headlineLarge,
-                          ),
+                      SelectionArea(
+                        child: AutoSizeText(
+                          displayBalance,
+                          maxLines: 1,
+                          style: context.displayMedium,
+                          minFontSize: 20,
                         ),
                       ),
+                      !settings.hideBalance
+                          ? SelectableText(
+                              '0.00 USDT',
+                              style: context.bodyLarge,
+                            )
+                          : const SizedBox.shrink(),
                     ],
                   ),
-                  const Spacer(),
-                  IconButton.filled(
-                    icon: settings.hideBalance
-                        ? const Icon(
-                            Icons.visibility_rounded,
-                          )
-                        : const Icon(
-                            Icons.visibility_off_rounded,
-                          ),
-                    onPressed: () {
-                      ref
-                          .read(settingsProvider.notifier)
-                          .setHideBalance(!settings.hideBalance);
-                    },
-                  ),
-                ],
-              ),
-              Text(
-                '1000.00 usdt',
-                style: context.bodyLarge,
-              ),
-            ],
+                ),
+                const SizedBox(width: Spaces.medium),
+                IconButton.filled(
+                  icon: settings.hideBalance
+                      ? const Icon(
+                          Icons.visibility_rounded,
+                        )
+                      : const Icon(
+                          Icons.visibility_off_rounded,
+                        ),
+                  onPressed: () {
+                    ref
+                        .read(settingsProvider.notifier)
+                        .setHideBalance(!settings.hideBalance);
+                  },
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: Spaces.large),
           Wrap(

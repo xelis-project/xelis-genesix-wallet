@@ -62,9 +62,12 @@ class NativeWalletRepository {
         oldPassword: oldPassword, newPassword: newPassword);
   }
 
-  Future<String> getSeed({required String password, int? languageIndex}) async {
-    return _xelisWallet.getSeed(
-        password: password, languageIndex: languageIndex);
+  Future<String> getSeed({int? languageIndex}) async {
+    return _xelisWallet.getSeed(languageIndex: languageIndex);
+  }
+
+  Future<void> isValidPassword(String password) async {
+    return _xelisWallet.isValidPassword(password: password);
   }
 
   Future<String> getXelisBalance() async {

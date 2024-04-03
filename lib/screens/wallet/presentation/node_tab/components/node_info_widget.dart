@@ -23,14 +23,14 @@ class NodeInfoWidget extends ConsumerWidget {
               style:
                   context.labelLarge?.copyWith(color: context.colors.primary),
             ),
-            Text(
+            SelectableText(
               switch (value?.network) {
                 Network.mainnet => 'Mainnet',
                 Network.testnet => 'Testnet',
                 Network.dev => 'Dev',
                 null => '...',
               },
-              style: context.titleMedium,
+              style: context.titleLarge,
             ),
             const SizedBox(height: Spaces.medium),
             Text(
@@ -38,13 +38,13 @@ class NodeInfoWidget extends ConsumerWidget {
               style:
                   context.labelLarge?.copyWith(color: context.colors.primary),
             ),
-            Text(
+            SelectableText(
               switch (value?.pruned) {
                 null => '...',
                 true => loc.pruned_node,
                 false => loc.full_node,
               },
-              style: context.titleMedium,
+              style: context.titleLarge,
             ),
             const SizedBox(height: Spaces.medium),
             Text(
@@ -52,9 +52,9 @@ class NodeInfoWidget extends ConsumerWidget {
               style:
                   context.labelLarge?.copyWith(color: context.colors.primary),
             ),
-            Text(
+            SelectableText(
               '${value?.circulatingSupply ?? '...'} XEL',
-              style: context.titleMedium,
+              style: context.titleLarge,
             ),
             const SizedBox(height: Spaces.medium),
             Text(
@@ -62,9 +62,9 @@ class NodeInfoWidget extends ConsumerWidget {
               style:
                   context.labelLarge?.copyWith(color: context.colors.primary),
             ),
-            Text(
+            SelectableText(
               '${value?.averageBlockTime.inSeconds.toString() ?? '...'} ${loc.seconds}',
-              style: context.titleMedium,
+              style: context.titleLarge,
             ),
             const SizedBox(height: Spaces.medium),
             Text(
@@ -72,9 +72,9 @@ class NodeInfoWidget extends ConsumerWidget {
               style:
                   context.labelLarge?.copyWith(color: context.colors.primary),
             ),
-            Text(
+            SelectableText(
               value?.version ?? '...',
-              style: context.titleMedium,
+              style: context.titleLarge,
             ),
           ],
         ),

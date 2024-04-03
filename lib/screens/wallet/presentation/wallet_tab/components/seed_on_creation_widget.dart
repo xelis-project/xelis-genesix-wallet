@@ -22,8 +22,8 @@ class _SeedOnCreationWidgetState extends ConsumerState<SeedOnCreationWidget> {
   @override
   void initState() {
     super.initState();
-    _pendingSeed =
-        ref.read(walletStateProvider.notifier).getSeed(widget.password);
+    final wallet = ref.read(walletStateProvider);
+    _pendingSeed = wallet.nativeWalletRepository!.getSeed();
   }
 
   @override
