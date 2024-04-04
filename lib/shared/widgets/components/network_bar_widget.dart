@@ -20,7 +20,7 @@ class NetworkTopWidget extends ConsumerWidget {
         padding: const EdgeInsets.all(Spaces.small),
         child: Text(
           "Network: ${translateNetworkName(settings.network)}",
-          style: context.bodyLarge,
+          style: context.bodyMedium,
         ),
       );
     }

@@ -7,6 +7,7 @@ import 'package:xelis_mobile_wallet/screens/settings/application/app_localizatio
 import 'package:xelis_mobile_wallet/screens/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/components/password_textfield_widget.dart';
 
 class PasswordDialog extends ConsumerStatefulWidget {
   final void Function() onValid;
@@ -21,7 +22,6 @@ class PasswordDialog extends ConsumerStatefulWidget {
 }
 
 class _PasswordDialogState extends ConsumerState<PasswordDialog> {
-  bool _hidePassword = true;
   String? _passwordError;
 
   final _passwordFormKey =
@@ -55,6 +55,8 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
 
     return AlertDialog(
       scrollable: false,
+      contentPadding: const EdgeInsets.all(10),
+      actionsPadding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
       content: Builder(
         builder: (BuildContext context) {
           final width = context.mediaSize.width * 0.8;
@@ -65,40 +67,29 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
               duration: const Duration(milliseconds: AppDurations.animFast),
               child: FormBuilder(
                 key: _passwordFormKey,
-                child: FormBuilderTextField(
-                  name: 'password',
-                  obscureText: _hidePassword,
-                  autocorrect: false,
-                  style: context.bodyLarge,
-                  decoration: InputDecoration(
-                    labelText: loc.password,
-                    errorText: _passwordError,
-                    errorMaxLines: 2,
-                    suffixIcon: IconButton(
-                      icon: _hidePassword
-                          ? Icon(
-                              Icons.visibility_off_rounded,
-                              color: context.colors.secondary,
-                            )
-                          : Icon(
-                              Icons.visibility_rounded,
-                              color: context.colors.primary,
-                            ),
-                      onPressed: () {
-                        setState(() {
-                          _hidePassword = !_hidePassword;
-                        });
-                      },
+                child: PasswordTextField(
+                  textField: FormBuilderTextField(
+                    name: 'password',
+                    autocorrect: false,
+                    style: context.bodyLarge,
+                    decoration: InputDecoration(
+                      fillColor: Colors.transparent,
+                      labelText: loc.password,
+                      errorText: _passwordError,
+                      errorMaxLines: 2,
                     ),
+                    onSubmitted: (value) {
+                      _checkPassword(context);
+                    },
+                    validator: FormBuilderValidators.required(),
                   ),
-                  validator: FormBuilderValidators.required(),
                 ),
               ),
             ),
           );
         },
       ),
-      actions: [
+      /*actions: [
         FilledButton(
           onPressed: () => context.pop(),
           child: Text(loc.cancel_button),
@@ -110,7 +101,7 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
             child: Text(loc.confirm_button),
           ),
         ),
-      ],
+      ],*/
     );
   }
 }

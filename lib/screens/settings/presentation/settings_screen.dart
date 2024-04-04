@@ -43,7 +43,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: ListView(
           padding: const EdgeInsets.all(Spaces.large),
           children: [
-            BackHeader(title: loc.settings),
+            BackHeader(
+              title: 'App settings',
+            ),
             const SizedBox(height: Spaces.large),
             const NetworkSelectorWidget(),
             const Divider(),

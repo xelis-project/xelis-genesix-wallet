@@ -24,7 +24,7 @@ class HistoryTab extends ConsumerWidget {
             Text(
               loc.history,
               style:
-                  context.headlineLarge!.copyWith(fontWeight: FontWeight.bold),
+                  context.headlineLarge//!.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: Spaces.large),
             TabBar(
@@ -44,13 +44,16 @@ class HistoryTab extends ConsumerWidget {
               ],
             ),
             const Expanded(
-              child: TabBarView(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 0, vertical: Spaces.medium),
+                child: TabBarView(
                 children: <Widget>[
                   IncomingHistoryWidget(),
                   OutgoingHistoryWidget(),
                   CoinbaseHistoryWidget(),
                   BurnHistoryWidget(),
                 ],
+              ),
               ),
             ),
           ],

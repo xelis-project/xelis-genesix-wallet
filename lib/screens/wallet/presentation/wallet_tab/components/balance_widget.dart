@@ -39,7 +39,8 @@ class BalanceWidget extends ConsumerWidget {
     final settings = ref.watch(settingsProvider);
     final walletSnapshot = ref.watch(walletStateProvider);
 
-    var displayBalance = walletSnapshot.xelisBalance;
+    // added 2000 in front to test text resize
+    var displayBalance = '2000' + walletSnapshot.xelisBalance;
     //var displayBalance = '${NumberFormat().format(balance)} XEL';
     if (settings.hideBalance) {
       displayBalance = 'HIDDEN';
@@ -52,7 +53,8 @@ class BalanceWidget extends ConsumerWidget {
         children: [
           Text(
             loc.balance,
-            style: context.headlineSmall!.copyWith(color: Colors.white38),
+            style: context.headlineSmall!
+                .copyWith(color: context.moreColors.mutedColor),
           ),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
@@ -90,6 +92,7 @@ class BalanceWidget extends ConsumerWidget {
                       : const Icon(
                           Icons.visibility_off_rounded,
                         ),
+                  tooltip: 'Hide balance',
                   onPressed: () {
                     ref
                         .read(settingsProvider.notifier)
@@ -122,7 +125,8 @@ class BalanceWidget extends ConsumerWidget {
                     onPressed: () {
                       // TODO
                       ref.read(snackbarContentProvider.notifier).setContent(
-                          SnackbarEvent.info(message: loc.coming_soon));
+                            SnackbarEvent.info(message: loc.coming_soon),
+                          );
                     },
                     icon: const Icon(Icons.local_fire_department_rounded),
                   ),

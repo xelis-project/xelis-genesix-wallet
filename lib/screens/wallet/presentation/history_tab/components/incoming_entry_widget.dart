@@ -1,6 +1,7 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/presentation/history_tab/components/incoming_details_dialog.dart';
@@ -42,6 +43,8 @@ class _IncomingEntryWidgetState extends ConsumerState<IncomingEntryWidget> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
+
+    var displayTopoheight = NumberFormat().format(widget.transactionEntry.topoHeight);
     return Card(
       elevation: 1,
       child: Padding(
@@ -53,14 +56,12 @@ class _IncomingEntryWidgetState extends ConsumerState<IncomingEntryWidget> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  loc.topoheight,
-                  style: context.labelSmall
-                      ?.copyWith(color: context.colors.primary),
-                ),
-                const SizedBox(width: Spaces.small),
-                Text(
-                  '${widget.transactionEntry.topoHeight}',
+                Text(loc.topoheight, style: context.labelMedium
+                    //?.copyWith(color: context.colors.primary),
+                    ),
+                //const SizedBox(width: Spaces.small),
+                SelectableText(
+                  displayTopoheight,
                   style: context.bodyLarge,
                 ),
               ],
@@ -69,18 +70,22 @@ class _IncomingEntryWidgetState extends ConsumerState<IncomingEntryWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _transferEntry == null || _transferEntry?.asset == xelisAsset
-                      ? loc.amount.capitalize
-                      : '${loc.amount.capitalize} (${loc.atomic_units})',
-                  style: context.labelSmall
-                      ?.copyWith(color: context.colors.primary),
-                ),
-                const SizedBox(width: Spaces.small),
+                    _transferEntry == null ||
+                            _transferEntry?.asset == xelisAsset
+                        ? loc.amount.capitalize
+                        : '${loc.amount.capitalize} (${loc.atomic_units})',
+                    style: context.labelMedium
+                    //?.copyWith(color: context.colors.primary),
+                    ),
+                //const SizedBox(width: Spaces.small),
                 _transferEntry == null
                     ? Text('multi Tx', style: context.bodyLarge)
-                    : SelectableText(_transferEntry!.asset == xelisAsset
-                        ? '+ ${formatXelis(_transferEntry!.amount)} XEL'
-                        : '+ ${_transferEntry!.amount}'),
+                    : SelectableText(
+                        _transferEntry!.asset == xelisAsset
+                            ? '+ ${formatXelis(_transferEntry!.amount)} XEL'
+                            : '+ ${_transferEntry!.amount}',
+                        style: context.bodyLarge,
+                      ),
               ],
             ),
             IconButton(
@@ -89,7 +94,7 @@ class _IncomingEntryWidgetState extends ConsumerState<IncomingEntryWidget> {
                 },
                 icon: const Icon(
                   Icons.info_outline_rounded,
-                  size: 18,
+                  //size: 18,
                 )),
           ],
         ),

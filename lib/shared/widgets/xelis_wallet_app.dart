@@ -1,7 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:xelis_mobile_wallet/screens/authentication/application/authentication_service.dart';
 import 'package:xelis_mobile_wallet/router/router.dart';
@@ -9,9 +7,8 @@ import 'package:xelis_mobile_wallet/screens/settings/application/settings_state_
 import 'package:xelis_mobile_wallet/screens/settings/domain/settings_state.dart';
 import 'package:xelis_mobile_wallet/shared/providers/scaffold_messenger_provider.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
-import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
-import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/theme/flex_theme.dart';
+import 'package:xelis_mobile_wallet/shared/theme/xelis.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/components/global_bottom_loader_widget.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/network_bar_widget.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/snackbar_initializer_widget.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/wallet_initializer_widget.dart';
@@ -26,9 +23,9 @@ class XelisWalletApp extends ConsumerStatefulWidget {
 
 class _XelisWalletAppState extends ConsumerState<XelisWalletApp>
     with WindowListener {
-  final _lightTheme = lightTheme();
-  final _darkTheme = darkTheme();
-  final _xelisTheme = xelisTheme();
+  //final _lightTheme = lightTheme();
+  //final _darkTheme = darkTheme();
+  //final _xelisTheme = xelisTheme();
 
   @override
   void initState() {
@@ -49,56 +46,40 @@ class _XelisWalletAppState extends ConsumerState<XelisWalletApp>
     final scaffoldMessengerKey = ref.watch(scaffoldMessengerKeyProvider);
 
     // using kDebugMode and call func every render to hot reload the theme
-    ThemeData themeData;
+    /*ThemeData themeData;
     switch (settings.theme) {
       case AppTheme.xelis:
-        themeData = kDebugMode ? xelisTheme() : _xelisTheme;
+      // themeData = kDebugMode ? xelisTheme() : _xelisTheme;
       case AppTheme.dark:
-        themeData = kDebugMode ? darkTheme() : _xelisTheme;
+      //themeData = kDebugMode ? darkTheme() : _xelisTheme;
       case AppTheme.light:
-        themeData = kDebugMode ? lightTheme() : _xelisTheme;
-    }
-
+      // themeData = kDebugMode ? lightTheme() : _xelisTheme;
+    }*/
     return WalletInitializerWidget(
-      child: GlobalLoaderOverlay(
-        useDefaultLoading: false,
-        overlayWidgetBuilder: (_) {
-          Color loadingWidgetColor;
-          /*switch (settings.theme) {
-            case ThemeMode.system:
-              if (context.mediaQueryData.platformBrightness ==
-                  Brightness.light) {
-                loadingWidgetColor = _lightTheme.primaryColor;
-              } else {
-                loadingWidgetColor = _darkTheme.primaryColor;
-              }
-            case ThemeMode.light:
-              loadingWidgetColor = _lightTheme.primaryColor;
-            case ThemeMode.dark:
-              loadingWidgetColor = _darkTheme.primaryColor;
-          }*/
-
-          return Center(
-              child: CircularProgressIndicator(
-                  //color: loadingWidgetColor,
-                  ));
-        },
+      child: GlobalBottomLoader(
         child: MaterialApp.router(
           title: AppResources.xelisWalletName,
           scaffoldMessengerKey: scaffoldMessengerKey,
           debugShowCheckedModeBanner: false,
           themeMode: ThemeMode.light,
-          theme: themeData,
+          //theme: themeData,
+          theme: xelisTheme(),
           routerConfig: router,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           builder: (context, child) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const NetworkTopWidget(),
-                Expanded(child: SnackBarInitializerWidget(child: child!)),
-              ],
+            return Material(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const NetworkTopWidget(),
+                  Expanded(
+                    child: SnackBarInitializerWidget(
+                      child: child!,
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         ),

@@ -31,71 +31,85 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
       }
     });
 
-    return Scaffold(
-      body: Background(
-        child: ListView(
-          padding: const EdgeInsets.all(Spaces.large),
-          children: [
-            BackHeader(title: loc.seed),
-            const SizedBox(height: Spaces.medium),
-            Container(
-              decoration: BoxDecoration(
-                  border: Border.all(color: context.colors.primary),
-                  borderRadius: BorderRadius.circular(8.0)),
+/*
+                  Icon(
+                    Icons.warning_amber,
+                    color: context.colors.primary,
+                    size: 40,
+                  ),*/
+
+    return Background(
+      child: ListView(
+        padding: const EdgeInsets.all(Spaces.large),
+        children: [
+          BackHeader(title: loc.seed),
+          const SizedBox(height: Spaces.medium),
+          /*SelectableText.rich(
+            TextSpan(
+              style: context
+                  .bodyMedium, //?.copyWith(color: context.colors.primary),
+              children: [
+                TextSpan(
+                  text:
+                      '${loc.seed_warning_message_1}\n${loc.seed_warning_message_2}\n\n',
+                ),
+              ],
+            ),
+          ),*/
+          Container(
+            decoration: BoxDecoration(
+                border: Border.all(color: context.colors.primary),
+                borderRadius: BorderRadius.circular(10)),
+            child: Padding(
+              padding: const EdgeInsets.all(Spaces.medium),
               child: Row(
                 children: [
-                  Expanded(
-                    child: Icon(
-                      Icons.warning_amber,
-                      color: context.colors.primary,
-                      size: 40,
-                    ),
+                  Icon(
+                    Icons.warning_amber,
+                    color: context.colors.primary,
+                    size: 30,
                   ),
+                  const SizedBox(width: Spaces.medium),
                   Expanded(
-                    flex: 5,
-                    child: Padding(
-                      padding: const EdgeInsets.all(Spaces.small),
-                      child: RichText(
-                        text: TextSpan(
-                            style: context.bodyMedium
-                                ?.copyWith(color: context.colors.primary),
-                            children: [
-                              TextSpan(
-                                text:
-                                    '${loc.seed_warning_message_1}\n${loc.seed_warning_message_2}\n\n',
-                              ),
-                              TextSpan(
-                                  text: '${loc.seed_warning}\n',
-                                  style: context.bodyMedium?.copyWith(
-                                      color: context.colors.primary,
-                                      fontWeight: FontWeight.bold)),
-                              TextSpan(
-                                text: loc.seed_warning_message_3,
-                              ),
-                            ]),
+                    child: SelectableText.rich(
+                      TextSpan(
+                        style: context
+                            .bodyMedium, //?.copyWith(color: context.colors.primary),
+                        children: [
+                          TextSpan(
+                            text: '${loc.seed_warning}\n',
+                            style: context.bodyMedium?.copyWith(
+                                color: context.colors.primary,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(
+                            text: loc.seed_warning_message_3,
+                          ),
+                        ],
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: Spaces.medium),
-            Text(
-              loc.seed_warning_message_4,
-              style: context.titleMedium,
-            ),
-            Card.outlined(
-              margin: const EdgeInsets.all(Spaces.none),
-              child: Padding(
-                padding: const EdgeInsets.all(Spaces.small),
-                child: SelectableText(
-                  _seed,
-                  style: context.bodyLarge,
-                ),
+          ),
+          const SizedBox(height: Spaces.medium),
+          Text(
+            loc.seed_warning_message_4,
+            style: context.titleMedium,
+          ),
+          const SizedBox(height: Spaces.small),
+          Card.outlined(
+            margin: const EdgeInsets.all(Spaces.none),
+            child: Padding(
+              padding: const EdgeInsets.all(Spaces.medium),
+              child: SelectableText(
+                _seed,
+                style: context.bodyLarge,
               ),
-            )
-          ],
-        ),
+            ),
+          )
+        ],
       ),
     );
   }

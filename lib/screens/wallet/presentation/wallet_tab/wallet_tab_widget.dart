@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:random_avatar/random_avatar.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/presentation/wallet_tab/components/balance_widget.dart';
@@ -57,8 +56,8 @@ class _WalletTabState extends ConsumerState<WalletTab> {
                   children: [
                     Text(
                       loc.topoheight,
-                      style: context.labelLarge
-                          ?.copyWith(color: context.colors.primary),
+                      style: context.titleMedium!
+                          .copyWith(color: context.moreColors.mutedColor),
                     ),
                     AnimatedSwitcher(
                       duration:

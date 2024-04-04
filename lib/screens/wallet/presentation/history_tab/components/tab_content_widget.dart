@@ -6,6 +6,7 @@ import 'package:xelis_mobile_wallet/screens/wallet/presentation/history_tab/comp
 import 'package:xelis_mobile_wallet/screens/wallet/presentation/history_tab/components/coinbase_entry_widget.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/presentation/history_tab/components/incoming_entry_widget.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/presentation/history_tab/components/outgoing_entry_widget.dart';
+import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 
 class TabContentWidget extends ConsumerWidget {
   const TabContentWidget(this.entries, {super.key});
@@ -31,7 +32,10 @@ class TabContentWidget extends ConsumerWidget {
       );
     } else {
       return Center(
-        child: Text(loc.no_data),
+        child: Text(
+          loc.no_data,
+          style: context.headlineSmall,
+        ),
       );
     }
   }

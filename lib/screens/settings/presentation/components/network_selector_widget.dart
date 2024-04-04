@@ -56,7 +56,7 @@ class NetworkSelectorWidget extends ConsumerWidget {
                 } else {
                   ref
                       .read(snackbarContentProvider.notifier)
-                      .setContent(const SnackbarEvent.info(
+                      .setContent(const SnackbarEvent.error(
                         message: 'Can\'t set network if the wallet is opened.',
                       ));
                 }

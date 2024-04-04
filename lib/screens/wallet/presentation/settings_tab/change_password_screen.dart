@@ -9,6 +9,7 @@ import 'package:xelis_mobile_wallet/screens/wallet/application/wallet_provider.d
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/background_widget.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/components/password_textfield_widget.dart';
 
 class ChangePasswordScreen extends ConsumerStatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -21,12 +22,6 @@ class ChangePasswordScreen extends ConsumerStatefulWidget {
 class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
   final _openFormKey = GlobalKey<FormBuilderState>(debugLabel: '_openFormKey');
 
-  bool _hideOldPassword = true;
-
-  bool _hideNewPassword1 = true;
-
-  bool _hideNewPassword2 = true;
-
   late Widget _widgetConfirmation;
 
   @override
@@ -38,17 +33,10 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
   void _initConfirmationButton() {
     final loc = ref.read(appLocalizationsProvider);
     _widgetConfirmation = SizedBox(
-      width: 200,
+      //width: 200,
       child: FilledButton(
         onPressed: _confirmNewPassword,
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Text(
-            loc.confirm_button,
-            style:
-                context.titleMedium!.copyWith(color: context.colors.onPrimary),
-          ),
-        ),
+        child: Text(loc.confirm_button),
       ),
     );
   }
@@ -106,121 +94,58 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    return Scaffold(
-      body: Background(
+    return Background(
+      child: Padding(
+        padding: const EdgeInsets.all(Spaces.large),
         child: FormBuilder(
           key: _openFormKey,
           onChanged: () => _openFormKey.currentState!.save(),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                  vertical: Spaces.medium, horizontal: Spaces.large),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        BackHeader(title: loc.change_password),
-                        const Spacer(),
-                        FormBuilderTextField(
-                          name: 'old_password',
-                          style: context.bodyLarge,
-                          autocorrect: false,
-                          obscureText: _hideOldPassword,
-                          decoration: InputDecoration(
-                            hintText: loc.old_password,
-                            suffixIcon: IconButton(
-                              icon: _hideOldPassword
-                                  ? Icon(
-                                      Icons.visibility_off_rounded,
-                                      color: context.colors.secondary,
-                                    )
-                                  : Icon(
-                                      Icons.visibility_rounded,
-                                      color: context.colors.primary,
-                                    ),
-                              onPressed: () {
-                                setState(() {
-                                  _hideOldPassword = !_hideOldPassword;
-                                });
-                              },
-                            ),
-                          ),
-                          validator: FormBuilderValidators.required(),
-                        ),
-                        const SizedBox(height: Spaces.medium),
-                        FormBuilderTextField(
-                          name: 'new_password1',
-                          style: context.bodyLarge,
-                          autocorrect: false,
-                          obscureText: _hideNewPassword1,
-                          decoration: InputDecoration(
-                            hintText: loc.new_password,
-                            suffixIcon: IconButton(
-                              icon: _hideNewPassword1
-                                  ? Icon(
-                                      Icons.visibility_off_rounded,
-                                      color: context.colors.secondary,
-                                    )
-                                  : Icon(
-                                      Icons.visibility_rounded,
-                                      color: context.colors.primary,
-                                    ),
-                              onPressed: () {
-                                setState(() {
-                                  _hideNewPassword1 = !_hideNewPassword1;
-                                });
-                              },
-                            ),
-                          ),
-                          validator: FormBuilderValidators.required(),
-                        ),
-                        const SizedBox(height: Spaces.medium),
-                        FormBuilderTextField(
-                          name: 'new_password2',
-                          style: context.bodyLarge,
-                          autocorrect: false,
-                          obscureText: _hideNewPassword2,
-                          decoration: InputDecoration(
-                            hintText: loc.confirm_password,
-                            suffixIcon: IconButton(
-                              icon: _hideNewPassword2
-                                  ? Icon(
-                                      Icons.visibility_off_rounded,
-                                      color: context.colors.secondary,
-                                    )
-                                  : Icon(
-                                      Icons.visibility_rounded,
-                                      color: context.colors.primary,
-                                    ),
-                              onPressed: () {
-                                setState(() {
-                                  _hideNewPassword2 = !_hideNewPassword2;
-                                });
-                              },
-                            ),
-                          ),
-                          validator: FormBuilderValidators.required(),
-                        ),
-                        const SizedBox(height: Spaces.medium),
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(Spaces.small),
-                            child: AnimatedSwitcher(
-                              duration: const Duration(
-                                  milliseconds: AppDurations.animNormal),
-                              child: _widgetConfirmation,
-                            ),
-                          ),
-                        ),
-                        const Spacer(flex: 3),
-                      ],
-                    ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              BackHeader(title: loc.change_password),
+              const SizedBox(height: Spaces.large),
+              PasswordTextField(
+                textField: FormBuilderTextField(
+                  name: 'old_password',
+                  style: context.bodyLarge,
+                  autocorrect: false,
+                  decoration: InputDecoration(
+                    hintText: loc.old_password,
                   ),
-                ],
+                  validator: FormBuilderValidators.required(),
+                ),
               ),
-            ),
+              const SizedBox(height: Spaces.medium),
+              PasswordTextField(
+                textField: FormBuilderTextField(
+                  name: 'new_password1',
+                  style: context.bodyLarge,
+                  autocorrect: false,
+                  decoration: InputDecoration(
+                    hintText: loc.new_password,
+                  ),
+                  validator: FormBuilderValidators.required(),
+                ),
+              ),
+              const SizedBox(height: Spaces.medium),
+              PasswordTextField(
+                textField: FormBuilderTextField(
+                  name: 'new_password2',
+                  style: context.bodyLarge,
+                  autocorrect: false,
+                  decoration: InputDecoration(
+                    hintText: loc.confirm_password,
+                  ),
+                  validator: FormBuilderValidators.required(),
+                ),
+              ),
+              const SizedBox(height: Spaces.medium),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: AppDurations.animNormal),
+                child: _widgetConfirmation,
+              )
+            ],
           ),
         ),
       ),

@@ -3,9 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:xelis_mobile_wallet/router/route_utils.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/screens/wallet/presentation/settings_tab/components/avatar_widget.dart';
-import 'package:xelis_mobile_wallet/screens/wallet/presentation/settings_tab/components/change_password_widget.dart';
-import 'package:xelis_mobile_wallet/screens/wallet/presentation/settings_tab/components/logout_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/password_dialog.dart';
@@ -35,9 +32,16 @@ class SettingsTab extends ConsumerWidget {
         const SizedBox(height: Spaces.large),
         //const Divider(),
         ListTile(
-          title: Text(
-            'App Settings',
-            style: context.titleLarge,
+          title: Wrap(
+            spacing: Spaces.medium,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              const Icon(Icons.settings_applications),
+              Text(
+                'App settings',
+                style: context.titleLarge,
+              )
+            ],
           ),
           onTap: () {
             context.push(AppScreen.settings.toPath);
@@ -54,7 +58,7 @@ class SettingsTab extends ConsumerWidget {
             children: [
               const Icon(Icons.pattern_rounded),
               Text(
-                loc.my_seed,
+                'View seed',
                 style: context.titleLarge,
               )
             ],
@@ -95,8 +99,6 @@ class SettingsTab extends ConsumerWidget {
             Icons.keyboard_arrow_right_rounded,
           ),
         ),
-        //const Divider(),
-        const LogoutWidget(),
       ],
     );
   }

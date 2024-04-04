@@ -16,6 +16,7 @@ import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/background_widget.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/banner_widget.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/components/password_textfield_widget.dart';
 
 class CreateWalletScreen extends ConsumerStatefulWidget {
   const CreateWalletScreen({super.key});
@@ -29,8 +30,6 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
       GlobalKey<FormBuilderState>(debugLabel: '_createFormKey');
 
   bool _seedRequired = false;
-
-  bool _hidePassword = true;
 
   late Widget _widgetCreation;
 
@@ -46,10 +45,10 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
       width: 200,
       child: FilledButton(
         onPressed: _createWallet,
-        child: Text(
-          loc.create_wallet_button,
-          style: context.titleMedium!.copyWith(color: context.colors.onPrimary),
-        ),
+        child: Text(loc.create_wallet_button,
+            style:
+                context.titleMedium //!.copyWith(fontWeight: FontWeight.bold),
+            ),
       ),
     );
   }
@@ -117,22 +116,21 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
     final networkWallet = ref.watch(networkWalletProvider);
     var wallets = networkWallet.getWallets(settings.network);
 
-    return Scaffold(
-      body: Background(
-        child: FormBuilder(
-          key: _createFormKey,
-          onChanged: () => _createFormKey.currentState!.save(),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(Spaces.large),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Spacer(),
-                        /*Row(
+    return Background(
+      child: FormBuilder(
+        key: _createFormKey,
+        onChanged: () => _createFormKey.currentState!.save(),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(Spaces.large),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Spacer(),
+                      /*Row(
                           children: [
                             const Spacer(),
                             Hero(
@@ -142,149 +140,153 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                             const Spacer(),
                           ],
                         )*/
-                        const Spacer(),
-                        Text(
-                          loc.create,
-                          style: context.headlineLarge!
-                              .copyWith(fontWeight: FontWeight.bold),
+                      const Spacer(),
+                      Text(
+                        loc.create,
+                        style: context.headlineLarge!
+                            .copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Text(
+                            loc.already_wallet,
+                            style: context.bodyLarge,
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              context.go(
+                                AppScreen.openWallet.toPath,
+                              );
+                            },
+                            child: Text(loc.open_wallet_button),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: Spaces.small),
+                      Theme(
+                        data: context.theme.copyWith(
+                          highlightColor: Colors.transparent,
+                          splashColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text(
-                              loc.already_wallet,
+                        child: FormBuilderSwitch(
+                          name: 'seed_switch',
+                          initialValue: _seedRequired,
+                          title: Text(
+                            loc.seed_option,
+                            style: context.bodyLarge,
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              _seedRequired = value!;
+                            });
+                          },
+                        ),
+                      ),
+                      Visibility(
+                        visible: _seedRequired,
+                        child: Column(
+                          children: [
+                            const SizedBox(height: Spaces.medium),
+                            FormBuilderTextField(
+                              name: 'seed',
                               style: context.bodyLarge,
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                context.go(
-                                  AppScreen.openWallet.toPath,
-                                );
-                              },
-                              child: Text(loc.open_wallet_button),
+                              autocorrect: false,
+                              decoration: InputDecoration(
+                                labelText: loc.seed,
+                              ),
+                              validator: FormBuilderValidators.compose([
+                                // TODO: add better seed validator
+                                FormBuilderValidators.match(
+                                  '(?:[a-zA-Z]+ ){24}[a-zA-Z]+',
+                                  errorText: loc.invalid_seed,
+                                ),
+                                // FormBuilderValidators.minWordsCount(25),
+                                // FormBuilderValidators.maxWordsCount(25),
+                              ]),
                             ),
                           ],
                         ),
-                        const SizedBox(height: Spaces.small),
-                        Theme(
-                          data: context.theme.copyWith(
-                            highlightColor: Colors.transparent,
-                            splashColor: Colors.transparent,
-                            hoverColor: Colors.transparent,
-                          ),
-                          child: FormBuilderSwitch(
-                            name: 'seed_switch',
-                            initialValue: _seedRequired,
-                            title: Text(
-                              loc.seed_option,
-                              style: context.bodyLarge,
+                      ),
+                      const SizedBox(height: Spaces.medium),
+                      FormBuilderTextField(
+                        name: 'wallet_name',
+                        style: context
+                            .bodyLarge, //!.copyWith(color: Colors.white),
+                        autocorrect: false,
+                        decoration: InputDecoration(
+                          labelText: loc.wallet_name,
+                          //labelStyle: asd,.
+                          //labelStyle: context.bodyLarge
+                          /*labelStyle: context.bodyLarge!.copyWith(color: Colors.white),
+                            filled: true,
+                            fillColor: Colors.black.withOpacity(.2),
+                            hoverColor: Colors.black.withOpacity(0),
+                            floatingLabelBehavior: FloatingLabelBehavior.never,
+                            enabledBorder: const OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                              borderSide: BorderSide(
+                                  color: Colors.transparent, width: 1),
                             ),
-                            onChanged: (value) {
-                              setState(() {
-                                _seedRequired = value!;
-                              });
-                            },
-                          ),
+                            focusedBorder: const OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                              borderSide: BorderSide(
+                                  color: Colors.transparent, width: 0),
+                            ),*/
                         ),
-                        Visibility(
-                          visible: _seedRequired,
-                          child: Column(
-                            children: [
-                              const SizedBox(height: Spaces.medium),
-                              FormBuilderTextField(
-                                name: 'seed',
-                                style: context.bodyLarge,
-                                autocorrect: false,
-                                decoration: InputDecoration(
-                                  labelText: loc.seed,
-                                ),
-                                validator: FormBuilderValidators.compose([
-                                  // TODO: add better seed validator
-                                  FormBuilderValidators.match(
-                                    '(?:[a-zA-Z]+ ){24}[a-zA-Z]+',
-                                    errorText: loc.invalid_seed,
-                                  ),
-                                  // FormBuilderValidators.minWordsCount(25),
-                                  // FormBuilderValidators.maxWordsCount(25),
-                                ]),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: Spaces.medium),
-                        FormBuilderTextField(
-                          name: 'wallet_name',
-                          style: context.bodyLarge,
-                          autocorrect: false,
-                          decoration: InputDecoration(
-                            labelText: loc.wallet_name,
-                          ),
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(),
-                            FormBuilderValidators.minLength(1),
-                            FormBuilderValidators.maxLength(64),
-                            (val) {
-                              // check if this wallet name already exists.
-                              if (wallets.containsKey(val)) {
-                                return loc.wallet_name_already_exists;
-                              }
-                              return null;
-                            },
-                          ]),
-                        ),
-                        const SizedBox(height: Spaces.medium),
-                        FormBuilderTextField(
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(),
+                          FormBuilderValidators.minLength(1),
+                          FormBuilderValidators.maxLength(64),
+                          (val) {
+                            // check if this wallet name already exists.
+                            if (wallets.containsKey(val)) {
+                              return loc.wallet_name_already_exists;
+                            }
+                            return null;
+                          },
+                        ]),
+                      ),
+                      const SizedBox(height: Spaces.medium),
+                      PasswordTextField(
+                        textField: FormBuilderTextField(
                           name: 'password',
                           style: context.bodyLarge,
                           autocorrect: false,
-                          obscureText: _hidePassword,
                           decoration: InputDecoration(
                             labelText: loc.password,
-                            suffixIcon: IconButton(
-                              icon: _hidePassword
-                                  ? Icon(
-                                      Icons.visibility_off_rounded,
-                                      color: context.colors.secondary,
-                                    )
-                                  : Icon(
-                                      Icons.visibility_rounded,
-                                      color: context.colors.primary,
-                                    ),
-                              onPressed: () {
-                                setState(() {
-                                  _hidePassword = !_hidePassword;
-                                });
-                              },
-                            ),
                           ),
                         ),
-                        const SizedBox(height: Spaces.medium),
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(Spaces.small),
-                            child: AnimatedSwitcher(
-                              duration: const Duration(
-                                  milliseconds: AppDurations.animFast),
-                              child: _widgetCreation,
-                            ),
+                      ),
+                      const SizedBox(height: Spaces.medium),
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(Spaces.small),
+                          child: AnimatedSwitcher(
+                            duration: const Duration(
+                                milliseconds: AppDurations.animFast),
+                            child: _widgetCreation,
                           ),
                         ),
-                        const Spacer(
-                          flex: 3,
-                        ),
-                        OutlinedButton.icon(
-                          label: const Text('Settings'),
-                          icon: Icon(Icons.settings,
-                              color: context.colors.primary,
-                              size: Spaces.medium),
-                          onPressed: () =>
-                              {context.push(AppScreen.settings.toPath)},
-                        )
-                      ],
-                    ),
+                      ),
+                      const Spacer(
+                        flex: 3,
+                      ),
+                      OutlinedButton.icon(
+                        label: const Text('Settings'),
+                        icon: Icon(Icons.settings,
+                            //color: context.colors.primary,
+                            size: Spaces.medium),
+                        onPressed: () =>
+                            {context.push(AppScreen.settings.toPath)},
+                      )
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

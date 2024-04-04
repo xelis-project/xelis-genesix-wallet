@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jovial_svg/jovial_svg.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_mobile_wallet/screens/authentication/application/authentication_service.dart';
 import 'package:xelis_mobile_wallet/screens/authentication/application/network_wallet_state_provider.dart';
 import 'package:xelis_mobile_wallet/router/route_utils.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/settings_state_provider.dart';
+import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
+import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/background_widget.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/banner_widget.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/components/password_textfield_widget.dart';
 
 class OpenWalletScreen extends ConsumerStatefulWidget {
   const OpenWalletScreen({super.key});
@@ -24,33 +29,27 @@ class OpenWalletScreen extends ConsumerStatefulWidget {
 class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
   final _openFormKey = GlobalKey<FormBuilderState>(debugLabel: '_openFormKey');
 
-  bool _hidePassword = true;
-
   String? _selectedWallet;
 
-  late Widget _widgetOpening;
+  //late Widget _widgetOpening;
 
+/*
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _initOpenButton();
+    //_initOpenButton();
   }
+
 
   void _initOpenButton() {
     final loc = ref.read(appLocalizationsProvider);
-    _widgetOpening = SizedBox(
-      width: 200,
-      child: FilledButton(
-        onPressed: _openWallet,
-        child: Text(
-          loc.open_wallet_button,
-          style: context.titleMedium!.copyWith(color: context.colors.onPrimary),
-        ),
-      ),
+    _widgetOpening = FilledButton(
+      onPressed: _openWallet,
+      child: Text(loc.open_wallet_button),
     );
-  }
+  }*/
 
-  void _openWallet() {
+  void _openWallet() async {
     if (_openFormKey.currentState?.saveAndValidate() ?? false) {
       final loc = ref.read(appLocalizationsProvider);
 
@@ -58,13 +57,27 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
 
       if (_selectedWallet != null && password != null) {
         setState(() {
-          _widgetOpening = const CircularProgressIndicator();
+          //_widgetOpening = const CircularProgressIndicator();
         });
 
-        ref
-            .read(authenticationProvider.notifier)
-            .openWallet(_selectedWallet!, password)
-            .then((value) {
+        try {
+          context.loaderOverlay.show();
+          await ref
+              .read(authenticationProvider.notifier)
+              .openWallet(_selectedWallet!, password);
+        } catch (e) {
+          ref
+              .read(snackbarContentProvider.notifier)
+              .setContent(SnackbarEvent.error(
+                message: e.toString(),
+              ));
+        }
+
+        if (mounted) {
+          context.loaderOverlay.hide();
+        }
+
+        /*  //.then((value) {
           setState(() {
             _widgetOpening = Column(
               children: [
@@ -82,10 +95,11 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
             );
           });
         }, onError: (_) {
+          
           setState(() {
             _initOpenButton();
           });
-        });
+        });*/
       }
     }
   }
@@ -94,7 +108,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final settings = ref.watch(settingsProvider);
-    final ScalableImageWidget banner = getBanner(context, settings.theme);
+    //final ScalableImageWidget banner = getBanner(context, settings.theme);
     final networkWallet = ref.watch(networkWalletProvider);
     var openWallet = networkWallet.getOpenWallet(settings.network);
     var wallets = networkWallet.getWallets(settings.network);
@@ -169,52 +183,30 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                           },
                         ),
                         const SizedBox(height: Spaces.medium),
-                        FormBuilderTextField(
-                          name: 'password',
-                          style: context.bodyLarge,
-                          autocorrect: false,
-                          obscureText: _hidePassword,
-                          decoration: InputDecoration(
-                            labelText: loc.password,
-                            suffixIcon: IconButton(
-                              icon: _hidePassword
-                                  ? Icon(
-                                      Icons.visibility_off_rounded,
-                                      color: context.colors.secondary,
-                                    )
-                                  : Icon(
-                                      Icons.visibility_rounded,
-                                      color: context.colors.primary,
-                                    ),
-                              onPressed: () {
-                                setState(() {
-                                  _hidePassword = !_hidePassword;
-                                });
-                              },
+                        PasswordTextField(
+                          textField: FormBuilderTextField(
+                            name: 'password',
+                            style: context.bodyLarge,
+                            autocorrect: false,
+                            decoration: InputDecoration(
+                              labelText: loc.password,
                             ),
+                            validator: FormBuilderValidators.required(),
                           ),
-                          validator: FormBuilderValidators.required(),
                         ),
                         const SizedBox(height: Spaces.medium),
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(Spaces.small),
-                            child: AnimatedSwitcher(
-                              duration: const Duration(
-                                  milliseconds: AppDurations.animNormal),
-                              child: _widgetOpening,
-                            ),
-                          ),
+                        FilledButton(
+                          onPressed: _openWallet,
+                          child: Text(loc.open_wallet_button),
                         ),
                         const Spacer(
                           flex: 3,
                         ),
                         OutlinedButton.icon(
                           label: const Text('Settings'),
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.settings,
-                            color: context.colors.primary,
-                            size: Spaces.medium
+                            size: Spaces.medium,
                           ),
                           onPressed: () =>
                               {context.push(AppScreen.settings.toPath)},
