@@ -1,4 +1,8 @@
 {
+  "wait": "Veuillez patienter SVP ...",
+  "table_generation_message": "Pour le premier lancement, nous devons créer des tables précalculées pour le chiffrement partiellement homomorphe.",
+  "current_step": "Étape actuelle : ",
+
   "password": "Mot de passe",
 
   "wallet": "Portefeuille",

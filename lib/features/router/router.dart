@@ -5,6 +5,8 @@ import 'package:xelis_mobile_wallet/features/router/routes.dart';
 
 part 'router.g.dart';
 
+final routerKey = GlobalKey<NavigatorState>(debugLabel: 'routerKey');
+
 @riverpod
 GoRouter router(RouterRef ref) {
   final routerKey = GlobalKey<NavigatorState>(debugLabel: 'routerKey');

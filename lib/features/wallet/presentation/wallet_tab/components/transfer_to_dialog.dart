@@ -7,6 +7,7 @@ import 'package:xelis_mobile_wallet/features/settings/application/app_localizati
 import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
+import 'package:xelis_mobile_wallet/src/rust/api/utils.dart';
 
 class TransferToDialog extends ConsumerStatefulWidget {
   const TransferToDialog({super.key});
@@ -40,7 +41,6 @@ class _TransferToDialogState extends ConsumerState<TransferToDialog> {
         final isDone = snapshot.connectionState == ConnectionState.done;
 
         return AlertDialog(
-          // insetPadding: EdgeInsets.zero,
           scrollable: true,
           title: Padding(
             padding: const EdgeInsets.all(Spaces.small),
@@ -143,10 +143,13 @@ class _TransferToDialogState extends ConsumerState<TransferToDialog> {
                             validator: FormBuilderValidators.compose([
                               FormBuilderValidators.required(
                                   errorText: loc.field_required_error),
-                              FormBuilderValidators.minLength(65,
-                                  errorText: loc.invalid_address_format_error),
-                              FormBuilderValidators.maxLength(65,
-                                  errorText: loc.invalid_address_format_error),
+                              (val) {
+                                if (val != null &&
+                                    !isAddressValid(strAddress: val)) {
+                                  return loc.invalid_address_format_error;
+                                }
+                                return null;
+                              }
                             ]),
                           ),
                           if (isWaiting) ...[

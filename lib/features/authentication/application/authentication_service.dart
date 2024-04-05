@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_mobile_wallet/features/router/route_utils.dart';
 import 'package:xelis_mobile_wallet/features/router/router.dart';
@@ -13,6 +14,7 @@ import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
 import 'package:xelis_mobile_wallet/rust_bridge/api/wallet.dart';
+import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/utils/utils.dart';
 
 part 'authentication_service.g.dart';
@@ -24,9 +26,13 @@ class Authentication extends _$Authentication {
     return const AuthenticationState.signedOut();
   }
 
-  Future<void> createWallet(String name, String password, String? seed) async {
+  Future<void> createWallet(
+    String name,
+    String password, [
+    String? seed,
+  ]) async {
+    final precomputedTablesPath = await _getPrecomputedTablesPath();
     final settings = ref.read(settingsProvider);
-
     var walletPath = await getWalletPath(settings.network, name);
     var walletExists = await Directory(walletPath).exists();
 
@@ -39,14 +45,12 @@ class Authentication extends _$Authentication {
       try {
         if (seed != null) {
           walletRepository = await NativeWalletRepository.recover(
-            walletPath,
-            password,
-            settings.network,
-            seed: seed,
-          );
+              walletPath, password, Network.testnet,
+              seed: seed, precomputeTablesPath: precomputedTablesPath);
         } else {
           walletRepository = await NativeWalletRepository.create(
-              walletPath, password, Network.testnet);
+              walletPath, password, Network.testnet,
+              precomputeTablesPath: precomputedTablesPath);
         }
       } catch (e) {
         logger.severe('Creating wallet failed: $e');
@@ -71,6 +75,7 @@ class Authentication extends _$Authentication {
 
   Future<void> openWallet(String name, String password) async {
     final settings = ref.read(settingsProvider);
+    final precomputedTablesPath = await _getPrecomputedTablesPath();
 
     var walletPath = await getWalletPath(settings.network, name);
     var walletExists = await Directory(walletPath).exists();
@@ -79,10 +84,8 @@ class Authentication extends _$Authentication {
       NativeWalletRepository walletRepository;
       try {
         walletRepository = await NativeWalletRepository.open(
-          walletPath,
-          password,
-          settings.network,
-        );
+            walletPath, password, Network.testnet,
+            precomputeTablesPath: precomputedTablesPath);
       } catch (e) {
         logger.severe('Opening wallet failed: $e');
         final loc = ref.read(appLocalizationsProvider);
@@ -119,5 +122,10 @@ class Authentication extends _$Authentication {
       case SignedOut():
         return;
     }
+  }
+
+  Future<String> _getPrecomputedTablesPath() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return '${dir.path}/${AppResources.userWalletsFolderName}/';
   }
 }

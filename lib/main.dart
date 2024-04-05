@@ -63,6 +63,9 @@ Future<void> main() async {
   logger.info('initialisation done!');
   FlutterNativeSplash.remove();
 
+  // TODO: temp for debug
+  // await prefs.clear();
+
   runApp(
     ProviderScope(
       overrides: [
