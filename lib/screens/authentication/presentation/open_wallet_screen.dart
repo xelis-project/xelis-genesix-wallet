@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
@@ -6,6 +7,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jovial_svg/jovial_svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:random_avatar/random_avatar.dart';
 import 'package:xelis_mobile_wallet/screens/authentication/application/authentication_service.dart';
 import 'package:xelis_mobile_wallet/screens/authentication/application/network_wallet_state_provider.dart';
 import 'package:xelis_mobile_wallet/router/route_utils.dart';
@@ -15,8 +17,10 @@ import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.d
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
+import 'package:xelis_mobile_wallet/shared/utils/utils.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/background_widget.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/banner_widget.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/components/password_dialog.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/password_textfield_widget.dart';
 
 class OpenWalletScreen extends ConsumerStatefulWidget {
@@ -49,58 +53,22 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
     );
   }*/
 
-  void _openWallet() async {
-    if (_openFormKey.currentState?.saveAndValidate() ?? false) {
-      final loc = ref.read(appLocalizationsProvider);
+  void _openWallet(String name, String password) async {
+    try {
+      context.loaderOverlay.show();
+      await ref
+          .read(authenticationProvider.notifier)
+          .openWallet(name, password);
+    } catch (e) {
+      ref.read(snackbarContentProvider.notifier).setContent(
+            SnackbarEvent.error(
+              message: e.toString(),
+            ),
+          );
+    }
 
-      final password = _openFormKey.currentState?.value['password'] as String?;
-
-      if (_selectedWallet != null && password != null) {
-        setState(() {
-          //_widgetOpening = const CircularProgressIndicator();
-        });
-
-        try {
-          context.loaderOverlay.show();
-          await ref
-              .read(authenticationProvider.notifier)
-              .openWallet(_selectedWallet!, password);
-        } catch (e) {
-          ref
-              .read(snackbarContentProvider.notifier)
-              .setContent(SnackbarEvent.error(
-                message: e.toString(),
-              ));
-        }
-
-        if (mounted) {
-          context.loaderOverlay.hide();
-        }
-
-        /*  //.then((value) {
-          setState(() {
-            _widgetOpening = Column(
-              children: [
-                Icon(
-                  Icons.check_rounded,
-                  color: context.colors.primary,
-                ),
-                const SizedBox(height: Spaces.small),
-                Text(
-                  loc.open_wallet_message,
-                  style: context.bodyMedium
-                      ?.copyWith(color: context.colors.primary),
-                ),
-              ],
-            );
-          });
-        }, onError: (_) {
-          
-          setState(() {
-            _initOpenButton();
-          });
-        });*/
-      }
+    if (mounted) {
+      context.loaderOverlay.hide();
     }
   }
 
@@ -117,7 +85,121 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
 
     return Scaffold(
       body: Background(
-        child: FormBuilder(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Your wallets',
+                style: context.headlineSmall!
+                    .copyWith(fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 10),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: context.colors.background.withOpacity(.5),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ReorderableListView(
+                    children: <Widget>[
+                      for (var name in wallets.keys)
+                        Material(
+                          color: Colors.transparent,
+                          key: Key(name),
+                          child: InkWell(
+                            onTap: () {
+                              showDialog<void>(
+                                context: context,
+                                builder: (context) {
+                                  return PasswordDialog(
+                                    onEnter: (password) {
+                                      _openWallet(name, password);
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  RandomAvatar(wallets[name]!,
+                                      width: 50, height: 50),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          name,
+                                          style: context.headlineSmall,
+                                        ),
+                                        Text(
+                                          truncateAddress(wallets[name]!),
+                                          style: context.labelLarge!.copyWith(
+                                              color: context
+                                                  .moreColors.mutedColor),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 30),
+                                ],
+                                //tileColor: _items[index].isOdd ? Colors.black : Colors.red,
+                                //title: Text('Item ${_items[index]}'),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                    onReorder: (int oldIndex, int newIndex) {
+                      setState(() {
+                        if (oldIndex < newIndex) {
+                          newIndex -= 1;
+                        }
+                        //final int item = _items.removeAt(oldIndex);
+                        //_items.insert(newIndex, item);
+                      });
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton.icon(
+                    onPressed: () {
+                      context.push(AppScreen.createWallet.toPath);
+                    },
+                    icon: const Icon(Icons.wallet),
+                    label: Text(
+                      'Create new wallet',
+                      style: context.titleMedium!
+                          .copyWith(color: context.colors.onPrimary),
+                    ),
+                  ),
+                  IconButton.filled(
+                    onPressed: () {
+                      context.push(AppScreen.settings.toPath);
+                    },
+                    icon: const Icon(
+                      Icons.settings_applications,
+                    ),
+                  )
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+    /*FormBuilder(
           key: _openFormKey,
           onChanged: () => _openFormKey.currentState!.save(),
           child: Center(
@@ -195,9 +277,14 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                           ),
                         ),
                         const SizedBox(height: Spaces.medium),
-                        FilledButton(
+                        TextButton.icon(
                           onPressed: _openWallet,
-                          child: Text(loc.open_wallet_button),
+                          icon: Icon(Icons.login),
+                          label: Text(
+                            'Open',
+                            style: context.titleMedium!
+                                .copyWith(color: context.colors.onPrimary),
+                          ),
                         ),
                         const Spacer(
                           flex: 3,
@@ -208,8 +295,9 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                             Icons.settings,
                             size: Spaces.medium,
                           ),
-                          onPressed: () =>
-                              {context.push(AppScreen.settings.toPath)},
+                          onPressed: () {
+                            context.push(AppScreen.settings.toPath);
+                          },
                         )
                       ],
                     ),
@@ -218,8 +306,6 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
               ),
             ),
           ),
-        ),
-      ),
-    );
+        ),*/
   }
 }

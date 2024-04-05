@@ -28,3 +28,7 @@ Future<String> getWalletPath(Network network, String name) async {
   var path = p.join(walletPath, network.name, name);
   return Future.value(path);
 }
+
+String truncateAddress(String address) {
+  return '...${address.substring(address.length - 8)}';
+}

@@ -19,7 +19,7 @@ class OpenWalletRoute extends GoRouteData {
     return pageTransition(
       const OpenWalletScreen(),
       state.pageKey,
-      0,
+      AppDurations.animFast,
     );
   }
 }
@@ -33,7 +33,7 @@ class CreateWalletRoute extends GoRouteData {
     return pageTransition(
       const CreateWalletScreen(),
       state.pageKey,
-      0,
+      AppDurations.animFast,
     );
   }
 }

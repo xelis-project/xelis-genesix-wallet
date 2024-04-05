@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:xelis_mobile_wallet/screens/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/screens/wallet/application/wallet_provider.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 
 class QrDialog extends ConsumerWidget {
@@ -30,26 +31,37 @@ class QrDialog extends ConsumerWidget {
     // }
 
     return AlertDialog(
-      scrollable: true,
-      title: Text(
-        'QR Code',
-        style: context.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-      ),
-      content: PrettyQrView.data(
-        data: walletSnapshot.address,
-        decoration: PrettyQrDecoration(
-          shape: PrettyQrSmoothSymbol(color: context.colors.onBackground),
-          // image: PrettyQrDecorationImage(
-          //   image: Image.network(iconTarget).image,
-          // ),
+        scrollable: true,
+        title: Text(
+          'Address',
+          style: context.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
-      ),
-      /*actions: [
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SelectableText(
+              walletSnapshot.address,
+              style: context.bodyMedium!.copyWith(fontWeight: FontWeight.bold,
+              color: context.moreColors.mutedColor,),
+            ),
+            const SizedBox(height: Spaces.medium),
+            PrettyQrView.data(
+              data: walletSnapshot.address,
+              decoration: PrettyQrDecoration(
+                shape: PrettyQrSmoothSymbol(color: context.colors.onBackground),
+                // image: PrettyQrDecorationImage(
+                //   image: Image.network(iconTarget).image,
+                // ),
+              ),
+            ),
+          ],
+        )
+        /*actions: [
         FilledButton(
           onPressed: () => context.pop(),
           child: Text(loc.ok_button),
         ),
       ]*/
-    );
+        );
   }
 }

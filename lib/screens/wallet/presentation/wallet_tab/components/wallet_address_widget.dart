@@ -10,6 +10,7 @@ import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.d
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:xelis_mobile_wallet/shared/utils/utils.dart';
 
 class WalletAddressWidget extends ConsumerWidget {
   const WalletAddressWidget({super.key});
@@ -29,11 +30,10 @@ class WalletAddressWidget extends ConsumerWidget {
 
     Widget avatar = const SizedBox.square(dimension: 50);
 
-    var truncatedAddr = '';
+    var address = '';
     if (walletSnapshot.address.isNotEmpty) {
       avatar = RandomAvatar(walletSnapshot.address, height: 50, width: 50);
-      truncatedAddr =
-          '...${walletSnapshot.address.substring(walletSnapshot.address.length - 8)}';
+      address = truncateAddress(walletSnapshot.address);
     }
 
     return Row(
@@ -55,7 +55,7 @@ class WalletAddressWidget extends ConsumerWidget {
                 onTap: () => _copy(walletSnapshot.address, loc.copied, ref),
                 borderRadius: BorderRadius.circular(4),
                 child: Text(
-                  truncatedAddr,
+                  address,
                   style: context.headlineSmall,
                 ),
               ),

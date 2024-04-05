@@ -89,7 +89,9 @@ ThemeData xelisTheme() {
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        backgroundColor: Colors.black12,
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.black87,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
         shape: RoundedRectangleBorder(
           borderRadius: borderRadius,
         ),

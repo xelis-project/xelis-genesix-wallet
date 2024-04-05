@@ -26,7 +26,7 @@ class _SnackBarInitializerWidgetState
         duration:
             const Duration(milliseconds: AppDurations.displayTimeSnackbar),
         //width: 280.0,
-        //elevation: 2,
+        elevation: 2,
         behavior: SnackBarBehavior.floating,
         showCloseIcon: true,
         closeIconColor: context.colors.onBackground,
@@ -44,7 +44,7 @@ class _SnackBarInitializerWidgetState
         duration: const Duration(days: 1),
         dismissDirection: DismissDirection.down,
         //width: 280.0,
-        //elevation: 2,
+        elevation: 2,
         behavior: SnackBarBehavior.floating,
         showCloseIcon: true,
         closeIconColor: context.colors.error,
