@@ -49,7 +49,7 @@ class HorizontalContainer extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text("Version", style: context.titleLarge),
-          SelectableText("0.1.0",
+          SelectableText(value,
               style: context.bodyLarge!.copyWith(color: context.colors.primary))
         ],
       ),

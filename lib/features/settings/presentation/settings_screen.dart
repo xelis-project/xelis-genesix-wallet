@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/presentation/components/layout_widget.dart';
 import 'package:xelis_mobile_wallet/features/settings/presentation/components/theme_selector_widget.dart';
@@ -17,8 +18,9 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  var walletsPath = "";
-  var cachePath = "";
+  String _walletsPath = '';
+  String _cachePath = '';
+  String _version = '';
 
   @override
   Widget build(BuildContext context) {
@@ -26,13 +28,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     getAppCachePath().then((path) {
       setState(() {
-        cachePath = path;
+        _cachePath = path;
       });
     });
 
     getAppWalletsPath().then((path) {
       setState(() {
-        walletsPath = path;
+        _walletsPath = path;
+      });
+    });
+
+    PackageInfo.fromPlatform().then((packageInfo) {
+      setState(() {
+        _version = packageInfo.version;
       });
     });
 
@@ -51,11 +59,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             const Divider(),
             const LanguageSelectorWidget(),
             const Divider(),
-            HorizontalContainer(title: loc.version, value: "0.1.0"),
+            HorizontalContainer(title: loc.version, value: _version),
             const Divider(),
-            VerticalContainer(title: loc.wallets_directory, value: walletsPath),
+            VerticalContainer(
+                title: loc.wallets_directory, value: _walletsPath),
             const Divider(),
-            VerticalContainer(title: loc.cache_directory, value: cachePath)
+            VerticalContainer(title: loc.cache_directory, value: _cachePath)
           ],
         ),
       ),
