@@ -119,19 +119,6 @@ class WalletState extends _$WalletState {
     }
   }
 
-  Future<void> changePassword(String oldPassword, String newPassword) async {
-    try {
-      await state.nativeWalletRepository
-          ?.changePassword(oldPassword: oldPassword, newPassword: newPassword);
-    } catch (e) {
-      logger.severe('Changing password failed: $e');
-      final loc = ref.read(appLocalizationsProvider);
-      ref.read(snackbarContentProvider.notifier).setContent(
-          SnackbarEvent.error(message: loc.password_cannot_be_changed_error));
-      rethrow;
-    }
-  }
-
   Future<String?> send(
       {required double amount,
       required String address,
