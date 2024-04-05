@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
 import 'package:xelis_mobile_wallet/features/router/router.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
-import 'package:xelis_mobile_wallet/features/settings/domain/settings_state.dart';
 import 'package:xelis_mobile_wallet/shared/providers/scaffold_messenger_provider.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/theme/xelis.dart';
@@ -42,7 +40,7 @@ class _XelisWalletAppState extends ConsumerState<XelisWalletApp>
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
-    final settings = ref.watch(settingsProvider);
+    //final settings = ref.watch(settingsProvider);
     final scaffoldMessengerKey = ref.watch(scaffoldMessengerKeyProvider);
 
     // using kDebugMode and call func every render to hot reload the theme

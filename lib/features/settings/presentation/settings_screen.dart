@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/presentation/components/layout_widget.dart';
 import 'package:xelis_mobile_wallet/features/settings/presentation/components/theme_selector_widget.dart';
 import 'package:xelis_mobile_wallet/features/settings/presentation/components/language_selector_widget.dart';
 import 'package:xelis_mobile_wallet/features/settings/presentation/components/network_selector_widget.dart';
-import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/utils/utils.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/background_widget.dart';
@@ -43,7 +41,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: ListView(
           padding: const EdgeInsets.all(Spaces.large),
           children: [
-            BackHeader(
+            const BackHeader(
               title: 'App settings',
             ),
             const SizedBox(height: Spaces.large),

@@ -9,7 +9,6 @@ import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/wall
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/background_widget.dart';
-import 'package:xelis_mobile_wallet/shared/widgets/components/hub_app_bar_widget.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});
@@ -58,7 +57,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           currentIndex: _currentPageIndex,
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: Icon(Icons.explore_rounded),
+              icon: const Icon(Icons.explore_rounded),
               label: loc.node_bottom_app_bar,
             ),
             BottomNavigationBarItem(

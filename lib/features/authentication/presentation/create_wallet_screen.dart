@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,7 +9,6 @@ import 'package:xelis_mobile_wallet/features/authentication/application/network_
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/presentation/components/layout_widget.dart';
-import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/components/seed_on_creation_widget.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
@@ -34,7 +31,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
 
   void _createWallet() async {
     if (_createFormKey.currentState?.saveAndValidate() ?? false) {
-      final loc = ref.read(appLocalizationsProvider);
+      // final loc = ref.read(appLocalizationsProvider);
 
       final walletName =
           _createFormKey.currentState?.value['wallet_name'] as String?;
@@ -97,11 +94,13 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
     }
   }
 
+/*
   void _showSeed(String password) {
     Timer.run(() => showDialog<void>(
         context: context,
         builder: (BuildContext context) => SeedOnCreationWidget(password)));
   }
+  */
 
   @override
   Widget build(BuildContext context) {
@@ -243,7 +242,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
             const SizedBox(height: Spaces.medium),
             TextButton.icon(
               onPressed: () {
-                context.pop();
+                _createWallet();
               },
               icon: const Icon(Icons.wallet),
               label: Text(

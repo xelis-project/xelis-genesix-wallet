@@ -1,10 +1,6 @@
-import 'dart:ui';
-
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
@@ -14,7 +10,6 @@ import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.d
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/utils/utils.dart';
 
 class BalanceWidget extends ConsumerWidget {
   const BalanceWidget({super.key});
@@ -40,7 +35,7 @@ class BalanceWidget extends ConsumerWidget {
     final walletSnapshot = ref.watch(walletStateProvider);
 
     // added 2000 in front to test text resize
-    var displayBalance = '2000' + walletSnapshot.xelisBalance;
+    var displayBalance = walletSnapshot.xelisBalance;
     //var displayBalance = '${NumberFormat().format(balance)} XEL';
     if (settings.hideBalance) {
       displayBalance = 'HIDDEN';
@@ -131,7 +126,7 @@ class BalanceWidget extends ConsumerWidget {
                     icon: const Icon(Icons.local_fire_department_rounded),
                   ),
                   const SizedBox(height: Spaces.small),
-                  Text('Burn'),
+                  const Text('Burn'),
                 ],
               ),
               Column(

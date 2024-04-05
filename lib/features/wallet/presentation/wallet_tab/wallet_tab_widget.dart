@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/components/balance_widget.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/components/wallet_address_widget.dart';
-import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
-import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 
@@ -19,13 +16,13 @@ class WalletTab extends ConsumerStatefulWidget {
 }
 
 class _WalletTabState extends ConsumerState<WalletTab> {
-  void _copy(String content, String message) {
+  /*void _copy(String content, String message) {
     Clipboard.setData(ClipboardData(text: content)).then((_) {
       ref
           .read(snackbarContentProvider.notifier)
           .setContent(SnackbarEvent.info(message: message));
     });
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {

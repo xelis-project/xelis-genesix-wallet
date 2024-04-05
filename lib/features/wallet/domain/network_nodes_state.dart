@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:xelis_mobile_wallet/rust_bridge/api/wallet.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/node_address.dart';

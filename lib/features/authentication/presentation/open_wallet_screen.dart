@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:random_avatar/random_avatar.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/network_wallet_state_provider.dart';
+import 'package:xelis_mobile_wallet/features/authentication/presentation/components/table_generation_progress_dialog.dart';
 import 'package:xelis_mobile_wallet/features/router/route_utils.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
@@ -24,9 +23,9 @@ class OpenWalletScreen extends ConsumerStatefulWidget {
 }
 
 class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
-  final _openFormKey = GlobalKey<FormBuilderState>(debugLabel: '_openFormKey');
+  //final _openFormKey = GlobalKey<FormBuilderState>(debugLabel: '_openFormKey');
 
-  String? _selectedWallet;
+  //String? _selectedWallet;
 
   //late Widget _widgetOpening;
 
@@ -46,9 +45,25 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
     );
   }*/
 
+  void _showTableGenerationProgressDialog(BuildContext context) {
+    showDialog<void>(
+      barrierDismissible: false,
+      context: context,
+      builder: (_) => const TableGenerationProgressDialog(),
+    );
+  }
+
   void _openWallet(String name, String password) async {
     try {
-      context.loaderOverlay.show();
+      if (!await ref
+              .read(authenticationProvider.notifier)
+              .isPrecomputedTablesExists() &&
+          mounted) {
+        _showTableGenerationProgressDialog(context);
+      } else {
+        context.loaderOverlay.show();
+      }
+
       await ref
           .read(authenticationProvider.notifier)
           .openWallet(name, password);
@@ -67,14 +82,14 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final loc = ref.watch(appLocalizationsProvider);
+    //final loc = ref.watch(appLocalizationsProvider);
     final settings = ref.watch(settingsProvider);
     //final ScalableImageWidget banner = getBanner(context, settings.theme);
     final networkWallet = ref.watch(networkWalletProvider);
-    var openWallet = networkWallet.getOpenWallet(settings.network);
+    //var openWallet = networkWallet.getOpenWallet(settings.network);
     var wallets = networkWallet.getWallets(settings.network);
 
-    _selectedWallet ??= openWallet;
+    //_selectedWallet ??= openWallet;
 
     return Scaffold(
       body: Background(

@@ -8,6 +8,7 @@ environment:
   sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
+  path: any
   flutter:
     sdk: flutter
   flutter_localizations:
