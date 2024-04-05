@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:xelis_mobile_wallet/screens/authentication/application/authentication_service.dart';
-import 'package:xelis_mobile_wallet/router/router.dart';
-import 'package:xelis_mobile_wallet/screens/settings/application/settings_state_provider.dart';
-import 'package:xelis_mobile_wallet/screens/settings/domain/settings_state.dart';
+import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
+import 'package:xelis_mobile_wallet/features/router/router.dart';
+import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
+import 'package:xelis_mobile_wallet/features/settings/domain/settings_state.dart';
 import 'package:xelis_mobile_wallet/shared/providers/scaffold_messenger_provider.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/theme/xelis.dart';
