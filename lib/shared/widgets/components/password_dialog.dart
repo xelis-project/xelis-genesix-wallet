@@ -71,56 +71,36 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
       iconPadding: const EdgeInsets.all(10),
       content: Builder(
         builder: (BuildContext context) {
-          final width = context.mediaSize.width * 0.8;
-
-          return SizedBox(
-            width: isDesktopDevice ? width : null,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: AppDurations.animFast),
-              child: FormBuilder(
-                key: _passwordFormKey,
-                child: PasswordTextField(
-                  textField: FormBuilderTextField(
-                    name: 'password',
-                    autocorrect: false,
-                    focusNode: _passwordFocusNode,
-                    style: context.bodyLarge,
-                    decoration: InputDecoration(
-                      fillColor: Colors.transparent,
-                      hintText: loc.password,
-                      errorText: _passwordError,
-                      errorMaxLines: 2,
-                    ),
-                    onSubmitted: (value) {
-                      if (widget.onEnter != null) {
-                        widget.onEnter!(value!);
-                      }
-
-                      if (widget.onValid != null) {
-                        _checkWalletPassword(context);
-                      }
-                    },
-                    validator: FormBuilderValidators.required(),
-                  ),
+          return FormBuilder(
+            key: _passwordFormKey,
+            child: PasswordTextField(
+              textField: FormBuilderTextField(
+                name: 'password',
+                autocorrect: false,
+                focusNode: _passwordFocusNode,
+                style: context.bodyLarge,
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.lock),
+                  fillColor: Colors.transparent,
+                  hintText: loc.password,
+                  errorText: _passwordError,
+                  errorMaxLines: 2,
                 ),
+                onSubmitted: (value) {
+                  if (widget.onEnter != null) {
+                    widget.onEnter!(value!);
+                  }
+
+                  if (widget.onValid != null) {
+                    _checkWalletPassword(context);
+                  }
+                },
+                validator: FormBuilderValidators.required(),
               ),
             ),
           );
         },
       ),
-      /*actions: [
-        FilledButton(
-          onPressed: () => context.pop(),
-          child: Text(loc.cancel_button),
-        ),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: AppDurations.animFast),
-          child: FilledButton(
-            onPressed: () => _checkPassword(context),
-            child: Text(loc.confirm_button),
-          ),
-        ),
-      ],*/
     );
   }
 }
