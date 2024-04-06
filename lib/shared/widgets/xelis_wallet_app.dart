@@ -54,20 +54,20 @@ class _XelisWalletAppState extends ConsumerState<XelisWalletApp>
       case AppTheme.light:
       // themeData = kDebugMode ? lightTheme() : _xelisTheme;
     }*/
-    return AppProvidersInitializer(
-      child: GlobalBottomLoader(
-        child: MaterialApp.router(
-          title: AppResources.xelisWalletName,
-          scaffoldMessengerKey: scaffoldMessengerKey,
-          debugShowCheckedModeBanner: false,
-          themeMode: ThemeMode.light,
-          //theme: themeData,
-          theme: xelisTheme(),
-          routerConfig: router,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          builder: (context, child) {
-            return Material(
+    return GlobalBottomLoader(
+      child: MaterialApp.router(
+        title: AppResources.xelisWalletName,
+        scaffoldMessengerKey: scaffoldMessengerKey,
+        debugShowCheckedModeBanner: false,
+        themeMode: ThemeMode.light,
+        //theme: themeData,
+        theme: xelisTheme(),
+        routerConfig: router,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        builder: (context, child) {
+          return AppProvidersInitializer(
+            child: Material(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -77,9 +77,9 @@ class _XelisWalletAppState extends ConsumerState<XelisWalletApp>
                   ),
                 ],
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

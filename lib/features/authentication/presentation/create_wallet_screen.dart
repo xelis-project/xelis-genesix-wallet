@@ -168,8 +168,6 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                 autocorrect: false,
                 decoration: InputDecoration(
                   labelText: loc.wallet_name,
-                  //labelStyle: asd,.
-                  //labelStyle: context.bodyLarge
                   /*labelStyle: context.bodyLarge!.copyWith(color: Colors.white),
                               filled: true,
                               fillColor: Colors.black.withOpacity(.2),
