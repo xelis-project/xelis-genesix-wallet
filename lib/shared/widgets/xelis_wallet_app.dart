@@ -6,10 +6,11 @@ import 'package:xelis_mobile_wallet/features/router/router.dart';
 import 'package:xelis_mobile_wallet/shared/providers/scaffold_messenger_provider.dart';
 import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/theme/xelis.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/app_providers_initializer.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/global_bottom_loader_widget.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/network_bar_widget.dart';
-import 'package:xelis_mobile_wallet/shared/widgets/snackbar_initializer_widget.dart';
-import 'package:xelis_mobile_wallet/shared/widgets/wallet_initializer_widget.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/components/snackbar_initializer_widget.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/components/wallet_initializer_widget.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class XelisWalletApp extends ConsumerStatefulWidget {
@@ -53,7 +54,7 @@ class _XelisWalletAppState extends ConsumerState<XelisWalletApp>
       case AppTheme.light:
       // themeData = kDebugMode ? lightTheme() : _xelisTheme;
     }*/
-    return WalletInitializerWidget(
+    return AppProvidersInitializer(
       child: GlobalBottomLoader(
         child: MaterialApp.router(
           title: AppResources.xelisWalletName,
@@ -72,9 +73,7 @@ class _XelisWalletAppState extends ConsumerState<XelisWalletApp>
                 children: [
                   const NetworkTopWidget(),
                   Expanded(
-                    child: SnackBarInitializerWidget(
-                      child: child!,
-                    ),
+                    child: child!,
                   ),
                 ],
               ),
