@@ -43,7 +43,7 @@ dependencies:
   window_manager: ^0.3.8
   flutter_launcher_icons: ^0.13.1
 
-  flutter_rust_bridge: 2.0.0-dev.29
+  flutter_rust_bridge: 2.0.0-dev.30
   rust_builder:
     path: rust_builder
   country_flags: ^2.2.0
@@ -58,7 +58,7 @@ dev_dependencies:
   flutter_lints: ^3.0.2
   #  flutter_test:
   #    sdk: flutter
-  freezed: ^2.4.7
+  freezed: ^2.5.0
   json_serializable: ^6.7.1
   riverpod_generator: ^2.4.0
   riverpod_lint: ^2.3.10
