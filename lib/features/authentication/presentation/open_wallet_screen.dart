@@ -24,7 +24,6 @@ class OpenWalletScreen extends ConsumerStatefulWidget {
 }
 
 class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
-
   void _showTableGenerationProgressDialog(BuildContext context) {
     showDialog<void>(
       barrierDismissible: false,

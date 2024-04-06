@@ -30,13 +30,6 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
       }
     });
 
-/*
-                  Icon(
-                    Icons.warning_amber,
-                    color: context.colors.primary,
-                    size: 40,
-                  ),*/
-
     return Background(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -47,18 +40,6 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
             children: [
               // BackHeader(title: loc.seed),
               const SizedBox(height: Spaces.medium),
-              /*SelectableText.rich(
-                TextSpan(
-                  style: context
-                      .bodyMedium, //?.copyWith(color: context.colors.primary),
-                  children: [
-                    TextSpan(
-                      text:
-                          '${loc.seed_warning_message_1}\n${loc.seed_warning_message_2}\n\n',
-                    ),
-                  ],
-                ),
-              ),*/
               Container(
                 decoration: BoxDecoration(
                     border: Border.all(color: context.colors.primary),

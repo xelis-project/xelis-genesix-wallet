@@ -87,7 +87,7 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
                     style: context.bodyLarge,
                     decoration: InputDecoration(
                       fillColor: Colors.transparent,
-                      labelText: loc.password,
+                      hintText: loc.password,
                       errorText: _passwordError,
                       errorMaxLines: 2,
                     ),
