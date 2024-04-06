@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/network_wallet_state_provider.dart';
+import 'package:xelis_mobile_wallet/features/authentication/presentation/components/table_generation_progress_dialog.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
@@ -29,10 +30,16 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
 
   bool _seedRequired = false;
 
+  void _showTableGenerationProgressDialog(BuildContext context) {
+    showDialog<void>(
+      barrierDismissible: false,
+      context: context,
+      builder: (_) => const TableGenerationProgressDialog(),
+    );
+  }
+
   void _createWallet() async {
     if (_createFormKey.currentState?.saveAndValidate() ?? false) {
-      // final loc = ref.read(appLocalizationsProvider);
-
       final walletName =
           _createFormKey.currentState?.value['wallet_name'] as String?;
       final password =
@@ -44,12 +51,16 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
       if (walletName != null &&
           password != null &&
           password == confirmPassword) {
-        /* setState(() {
-          _widgetCreation = const CircularProgressIndicator();
-        });*/
-
         try {
-          context.loaderOverlay.show();
+          if (!await ref
+                  .read(authenticationProvider.notifier)
+                  .isPrecomputedTablesExists() &&
+              mounted) {
+            _showTableGenerationProgressDialog(context);
+          } else {
+            context.loaderOverlay.show();
+          }
+
           await ref
               .read(authenticationProvider.notifier)
               .createWallet(walletName, password, seed);
@@ -64,43 +75,9 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
         if (mounted) {
           context.loaderOverlay.hide();
         }
-
-        /*      .then((value) {
-          setState(() {
-            _widgetCreation = Column(
-              children: [
-                Icon(
-                  Icons.check_rounded,
-                  color: context.colors.primary,
-                ),
-                const SizedBox(height: Spaces.small),
-                Text(
-                  loc.create_wallet_message,
-                  style: context.bodyMedium
-                      ?.copyWith(color: context.colors.primary),
-                ),
-              ],
-            );
-          });
-          if (seed == null) {
-            _showSeed(password);
-          }
-        }, onError: (_) {
-          setState(() {
-            _initCreateButton();
-          });
-        });*/
       }
     }
   }
-
-/*
-  void _showSeed(String password) {
-    Timer.run(() => showDialog<void>(
-        context: context,
-        builder: (BuildContext context) => SeedOnCreationWidget(password)));
-  }
-  */
 
   @override
   Widget build(BuildContext context) {
