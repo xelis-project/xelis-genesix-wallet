@@ -3,6 +3,7 @@ import 'package:xelis_mobile_wallet/shared/theme/more_colors.dart';
 
 ThemeData xelisTheme() {
   const textColor = Colors.white;
+  var lineHeight = 1.2;
   const primaryColor = Color.fromARGB(255, 122, 250, 211);
   const secondaryColor = Color.fromARGB(255, 122, 203, 250);
   const backgrounColor = Color.fromARGB(255, 19, 19, 19);
@@ -36,19 +37,19 @@ ThemeData xelisTheme() {
     ],
 
     // TEXT
-    textTheme: const TextTheme(
-      bodyLarge: TextStyle(color: textColor),
-      bodyMedium: TextStyle(color: textColor),
-      bodySmall: TextStyle(color: textColor),
-      displayLarge: TextStyle(color: textColor),
-      displayMedium: TextStyle(color: textColor),
-      displaySmall: TextStyle(color: textColor),
-      titleLarge: TextStyle(color: textColor),
-      titleMedium: TextStyle(color: textColor),
-      titleSmall: TextStyle(color: textColor),
-      labelLarge: TextStyle(color: textColor),
-      labelMedium: TextStyle(color: textColor),
-      labelSmall: TextStyle(color: textColor),
+    textTheme: TextTheme(
+      bodyLarge: TextStyle(color: textColor, height: lineHeight),
+      bodyMedium: TextStyle(color: textColor, height: lineHeight),
+      bodySmall: TextStyle(color: textColor, height: lineHeight),
+      displayLarge: TextStyle(color: textColor, height: lineHeight),
+      displayMedium: TextStyle(color: textColor, height: lineHeight),
+      displaySmall: TextStyle(color: textColor, height: lineHeight),
+      titleLarge: TextStyle(color: textColor, height: lineHeight),
+      titleMedium: TextStyle(color: textColor, height: lineHeight),
+      titleSmall: TextStyle(color: textColor, height: lineHeight),
+      labelLarge: TextStyle(color: textColor, height: lineHeight),
+      labelMedium: TextStyle(color: textColor, height: lineHeight),
+      labelSmall: TextStyle(color: textColor, height: lineHeight),
     ),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: textColor,
@@ -223,8 +224,6 @@ ThemeData xelisTheme() {
     ),
 
     scaffoldBackgroundColor: Colors.transparent,
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.transparent
-    ),
+    appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent),
   );
 }

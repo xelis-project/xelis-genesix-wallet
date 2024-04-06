@@ -17,6 +17,17 @@ class TableGenerationProgressDialog extends ConsumerWidget {
         builder: (context, snapshot) {
           final progressValue = snapshot.data?.progress ?? 0.0;
           final step = snapshot.data?.step ?? '';
+
+          var displayStep = '';
+          switch (step) {
+            case 'T1PointsGeneration':
+              displayStep = 'Generating T1 Points';
+            case 'T1CuckooSetup':
+              displayStep = 'Setting up T1 Cuckoo';
+            default:
+              displayStep = 'Loading';
+          }
+
           return AlertDialog(
             scrollable: true,
             elevation: 10,
@@ -52,7 +63,7 @@ class TableGenerationProgressDialog extends ConsumerWidget {
                         ),
                         const SizedBox(height: Spaces.small),
                         Text(
-                          loc.table_generation_message,
+                          'This is a one-time process, creating a data table that enables the wallet to decrypt your balance instantly.',
                           style: context.bodyMedium
                               ?.copyWith(color: context.colors.primary),
                         ),
@@ -62,7 +73,7 @@ class TableGenerationProgressDialog extends ConsumerWidget {
                 ),
                 const SizedBox(height: Spaces.medium),
                 Text(
-                  step,
+                  displayStep,
                   style:
                       context.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),

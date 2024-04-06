@@ -81,82 +81,105 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
               children: [
                 Text(
                   loc.your_wallets,
-                  style: context.headlineSmall!
+                  style: context.headlineMedium!
                       .copyWith(fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 10),
                 Expanded(
-                  child: Container(
+                  child: wallets.isNotEmpty
+                        ? Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: context.colors.background.withOpacity(.5),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: ReorderableListView(
-                      children: <Widget>[
-                        for (var name in wallets.keys)
-                          Material(
-                            color: Colors.transparent,
-                            key: Key(name),
-                            child: InkWell(
-                              onTap: () {
-                                showDialog<void>(
-                                  context: context,
-                                  builder: (context) {
-                                    return PasswordDialog(
-                                      onEnter: (password) {
-                                        _openWallet(name, password);
-                                      },
-                                    );
-                                  },
-                                );
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    RandomAvatar(wallets[name]!,
-                                        width: 50, height: 50),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Column(
+                            proxyDecorator: (child, index, animation) {
+                              return Material(
+                                color:
+                                    context.colors.background.withOpacity(.5),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                ),
+                                child: child,
+                              );
+                            },
+                            children: <Widget>[
+                              for (var name in wallets.keys)
+                                Material(
+                                  color: Colors.transparent,
+                                  key: Key(name),
+                                  child: InkWell(
+                                    onTap: () {
+                                      showDialog<void>(
+                                        context: context,
+                                        builder: (context) {
+                                          return PasswordDialog(
+                                            onEnter: (password) {
+                                              _openWallet(name, password);
+                                            },
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(10),
+                                      child: Row(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            name,
-                                            style: context.headlineSmall,
+                                          RandomAvatar(wallets[name]!,
+                                              width: 50, height: 50),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  name,
+                                                  style: context.headlineSmall,
+                                                ),
+                                                Text(
+                                                  truncateAddress(
+                                                      wallets[name]!),
+                                                  style: context.labelLarge!
+                                                      .copyWith(
+                                                          color: context
+                                                              .moreColors
+                                                              .mutedColor),
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                          Text(
-                                            truncateAddress(wallets[name]!),
-                                            style: context.labelLarge!.copyWith(
-                                                color: context
-                                                    .moreColors.mutedColor),
-                                          ),
+                                          const SizedBox(width: 30),
                                         ],
+                                        //tileColor: _items[index].isOdd ? Colors.black : Colors.red,
+                                        //title: Text('Item ${_items[index]}'),
                                       ),
                                     ),
-                                    const SizedBox(width: 30),
-                                  ],
-                                  //tileColor: _items[index].isOdd ? Colors.black : Colors.red,
-                                  //title: Text('Item ${_items[index]}'),
+                                  ),
                                 ),
-                              ),
+                            ],
+                            onReorder: (int oldIndex, int newIndex) {
+                              setState(() {
+                                if (oldIndex < newIndex) {
+                                  newIndex -= 1;
+                                }
+                                //final int item = _items.removeAt(oldIndex);
+                                //_items.insert(newIndex, item);
+                              });
+                            },
+                          )
+                        
+                  ): Text(
+                            'You don\'t have any wallets available. Create a new wallet from the button below or make sure the app is set the desired network configuration.',
+                            style: context.bodyLarge!.copyWith(
+                              color: context.moreColors.mutedColor,
+                              fontSize: 18,
                             ),
                           ),
-                      ],
-                      onReorder: (int oldIndex, int newIndex) {
-                        setState(() {
-                          if (oldIndex < newIndex) {
-                            newIndex -= 1;
-                          }
-                          //final int item = _items.removeAt(oldIndex);
-                          //_items.insert(newIndex, item);
-                        });
-                      },
-                    ),
-                  ),
                 ),
                 const SizedBox(height: Spaces.large),
                 Row(
