@@ -45,11 +45,11 @@ class Authentication extends _$Authentication {
       try {
         if (seed != null) {
           walletRepository = await NativeWalletRepository.recover(
-              walletPath, password, Network.testnet,
+              walletPath, password, settings.network,
               seed: seed, precomputeTablesPath: precomputedTablesPath);
         } else {
           walletRepository = await NativeWalletRepository.create(
-              walletPath, password, Network.testnet,
+              walletPath, password, settings.network,
               precomputeTablesPath: precomputedTablesPath);
         }
       } catch (e) {
@@ -84,7 +84,7 @@ class Authentication extends _$Authentication {
       NativeWalletRepository walletRepository;
       try {
         walletRepository = await NativeWalletRepository.open(
-            walletPath, password, Network.testnet,
+            walletPath, password, settings.network,
             precomputeTablesPath: precomputedTablesPath);
       } catch (e) {
         logger.severe('Opening wallet failed: $e');
