@@ -6,6 +6,7 @@
   "password": "Mot de passe",
 
   "wallet": "Portefeuille",
+  "your_wallets": "Vos portefeuilles",
   "sign_in": "Se Connecter",
   "no_wallet": "Pas de portefeuille ?",
   "open_wallet_button": "Ouvrir portefeuille",
@@ -16,7 +17,9 @@
   "create": "Créer",
   "already_wallet": "Déjà un portefeuille ?",
   "wallet_name_already_exists": "Ce nom de portefeuille existe déjà.",
-  "create_wallet_button": "Créer portefeuille",
+  "create_new_wallet": "Créer un nouveau portefeuille",
+  "create_from_seed": "Créer à partir d'une graine",
+  "load_from_file": "Charger à partir d'un fichier",
   "wallet_name": "Nom du portefeuille",
   "wallet_name_capitalize": "Nom du Portefeuille",
   "wallet_address_capitalize": "Adresse du Portefeuille",

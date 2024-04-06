@@ -38,7 +38,8 @@ class CreateWalletRoute extends GoRouteData {
   }
 }
 
-@TypedGoRoute<ChangePasswordRoute>(name: 'change_password', path: '/change_password')
+@TypedGoRoute<ChangePasswordRoute>(
+    name: 'change_password', path: '/change_password')
 class ChangePasswordRoute extends GoRouteData {
   const ChangePasswordRoute();
 

@@ -14,19 +14,19 @@ String formatXelis(int value) {
 
 Future<String> getAppCachePath() async {
   var dir = await getApplicationCacheDirectory();
-  return Future.value(dir.path);
+  return dir.path;
 }
 
 Future<String> getAppWalletsPath() async {
   var dir = await getApplicationDocumentsDirectory();
-  var path = p.join(dir.path, 'wallets');
-  return Future.value(path);
+  var path = p.join(dir.path, AppResources.userWalletsFolderName);
+  return path;
 }
 
 Future<String> getWalletPath(Network network, String name) async {
   var walletPath = await getAppWalletsPath();
   var path = p.join(walletPath, network.name, name);
-  return Future.value(path);
+  return path;
 }
 
 String truncateAddress(String address) {

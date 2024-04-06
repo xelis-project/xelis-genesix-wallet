@@ -9,6 +9,7 @@ import 'package:xelis_mobile_wallet/features/settings/presentation/components/ne
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/utils/utils.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/background_widget.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/components/generic_app_bar_widget.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -44,28 +45,32 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       });
     });
 
-    return Scaffold(
-      body: Background(
-        child: ListView(
-          padding: const EdgeInsets.all(Spaces.large),
-          children: [
-            const BackHeader(
-              title: 'App settings',
-            ),
-            const SizedBox(height: Spaces.large),
-            const NetworkSelectorWidget(),
-            const Divider(),
-            const ThemeSelectorWidget(),
-            const Divider(),
-            const LanguageSelectorWidget(),
-            const Divider(),
-            HorizontalContainer(title: loc.version, value: _version),
-            const Divider(),
-            VerticalContainer(
-                title: loc.wallets_directory, value: _walletsPath),
-            const Divider(),
-            VerticalContainer(title: loc.cache_directory, value: _cachePath)
-          ],
+    return Background(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: const GenericAppBar(title: 'App settings'),
+        body: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(Spaces.large),
+            children: [
+              // const GenericAppBar(
+              //   title: 'App settings',
+              // ),
+              const SizedBox(height: Spaces.large),
+              const NetworkSelectorWidget(),
+              const Divider(),
+              const ThemeSelectorWidget(),
+              const Divider(),
+              const LanguageSelectorWidget(),
+              const Divider(),
+              HorizontalContainer(title: loc.version, value: _version),
+              const Divider(),
+              VerticalContainer(
+                  title: loc.wallets_directory, value: _walletsPath),
+              const Divider(),
+              VerticalContainer(title: loc.cache_directory, value: _cachePath)
+            ],
+          ),
         ),
       ),
     );

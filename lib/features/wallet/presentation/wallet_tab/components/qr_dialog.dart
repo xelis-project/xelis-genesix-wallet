@@ -40,8 +40,10 @@ class QrDialog extends ConsumerWidget {
           children: [
             SelectableText(
               walletSnapshot.address,
-              style: context.bodyMedium!.copyWith(fontWeight: FontWeight.bold,
-              color: context.moreColors.mutedColor,),
+              style: context.bodyMedium!.copyWith(
+                fontWeight: FontWeight.bold,
+                color: context.moreColors.mutedColor,
+              ),
             ),
             const SizedBox(height: Spaces.medium),
             PrettyQrView.data(

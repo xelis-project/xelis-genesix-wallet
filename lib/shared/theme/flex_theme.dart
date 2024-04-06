@@ -10,7 +10,7 @@ ThemeData lightTheme() {
         bgRadialColor1: Color.fromARGB(200, 255, 255, 255),
         bgRadialColor2: Color.fromARGB(178, 225, 225, 225),
         bgRadialColor3: Color.fromARGB(130, 150, 150, 150),
-        bgRadialEndColor: Color.fromARGB(0, 255, 255, 255), 
+        bgRadialEndColor: Color.fromARGB(0, 255, 255, 255),
         mutedColor: Colors.red,
       )
     ],
@@ -209,7 +209,7 @@ ThemeData xelisTheme() {
         bgRadialColor1: Color.fromARGB(153, 0, 170, 129),
         bgRadialColor2: Color.fromARGB(178, 5, 124, 132),
         bgRadialColor3: Color.fromARGB(153, 0, 170, 150),
-        bgRadialEndColor: Color.fromARGB(0, 0, 0, 0), 
+        bgRadialEndColor: Color.fromARGB(0, 0, 0, 0),
         mutedColor: Colors.red,
       )
     ],

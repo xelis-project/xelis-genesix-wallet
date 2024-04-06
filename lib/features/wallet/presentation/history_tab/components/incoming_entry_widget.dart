@@ -44,7 +44,8 @@ class _IncomingEntryWidgetState extends ConsumerState<IncomingEntryWidget> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
 
-    var displayTopoheight = NumberFormat().format(widget.transactionEntry.topoHeight);
+    var displayTopoheight =
+        NumberFormat().format(widget.transactionEntry.topoHeight);
     return Card(
       elevation: 1,
       child: Padding(

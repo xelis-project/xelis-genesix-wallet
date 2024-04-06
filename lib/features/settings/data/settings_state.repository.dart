@@ -20,7 +20,7 @@ class SettingsStateRepository extends PersistentState<SettingsState> {
       if (value == null) {
         var locale = const Locale('en');
 
-              // check user system language and apply if available
+        // check user system language and apply if available
         final languageCode =
             WidgetsBinding.instance.platformDispatcher.locale.languageCode;
         if (AppLocalizations.supportedLocales.contains(Locale(languageCode))) {

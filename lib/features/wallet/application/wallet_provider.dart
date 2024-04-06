@@ -109,11 +109,13 @@ class WalletState extends _$WalletState {
     var nodeInfo = await state.nativeWalletRepository?.getDaemonInfo();
     final loc = ref.read(appLocalizationsProvider);
     if (nodeInfo?.prunedTopoHeight == null) {
+      // We are connected to a full node, so we can rescan from 0.
       await state.nativeWalletRepository?.rescan(topoHeight: 0);
       ref
           .read(snackbarContentProvider.notifier)
           .setContent(SnackbarEvent.info(message: loc.rescan_done));
     } else {
+      // We are connected to a pruned node, rescan is not available.
       ref.read(snackbarContentProvider.notifier).setContent(
           SnackbarEvent.error(message: loc.rescan_limitation_toast_error));
     }

@@ -21,11 +21,10 @@ class HistoryTab extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              loc.history,
-              style:
-                  context.headlineLarge//!.copyWith(fontWeight: FontWeight.bold),
-            ),
+            Text(loc.history,
+                style: context
+                    .headlineLarge //!.copyWith(fontWeight: FontWeight.bold),
+                ),
             const SizedBox(height: Spaces.large),
             TabBar(
               tabs: <Tab>[
@@ -45,15 +44,16 @@ class HistoryTab extends ConsumerWidget {
             ),
             const Expanded(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 0, vertical: Spaces.medium),
+                padding: EdgeInsets.symmetric(
+                    horizontal: Spaces.none, vertical: Spaces.medium),
                 child: TabBarView(
-                children: <Widget>[
-                  IncomingHistoryWidget(),
-                  OutgoingHistoryWidget(),
-                  CoinbaseHistoryWidget(),
-                  BurnHistoryWidget(),
-                ],
-              ),
+                  children: <Widget>[
+                    IncomingHistoryWidget(),
+                    OutgoingHistoryWidget(),
+                    CoinbaseHistoryWidget(),
+                    BurnHistoryWidget(),
+                  ],
+                ),
               ),
             ),
           ],

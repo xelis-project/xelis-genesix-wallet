@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 
-class BackHeader extends StatelessWidget {
+/*class BackHeader extends StatelessWidget {
   final String title;
 
   const BackHeader({super.key, required this.title});
@@ -30,7 +30,7 @@ class BackHeader extends StatelessWidget {
       ],
     );
   }
-}
+}*/
 
 class HorizontalContainer extends StatelessWidget {
   final String title;
@@ -41,19 +41,30 @@ class HorizontalContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: Spaces.medium),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(title, style: context.titleLarge),
+          SelectableText(value,
+              style: context.bodyLarge!.copyWith(color: context.colors.primary))
+        ],
+      ),
+    );
+    /*return Container(
       padding: const EdgeInsets.fromLTRB(
           Spaces.none, Spaces.medium, Spaces.none, Spaces.medium),
       child: Flex(
         direction: Axis.horizontal,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text("Version", style: context.titleLarge),
+          Text(title, style: context.titleLarge),
           SelectableText(value,
               style: context.bodyLarge!.copyWith(color: context.colors.primary))
         ],
       ),
-    );
+    );*/
   }
 }
 
@@ -66,7 +77,19 @@ class VerticalContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: Spaces.medium),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: context.titleLarge),
+          const SizedBox(height: Spaces.small),
+          SelectableText(value,
+              style: context.bodyLarge!.copyWith(color: context.colors.primary))
+        ],
+      ),
+    );
+/*    return Container(
       padding: const EdgeInsets.fromLTRB(
           Spaces.none, Spaces.medium, Spaces.none, Spaces.medium),
       child: Flex(
@@ -79,6 +102,6 @@ class VerticalContainer extends StatelessWidget {
               style: context.bodyLarge!.copyWith(color: context.colors.primary))
         ],
       ),
-    );
+    );*/
   }
 }

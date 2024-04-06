@@ -4,13 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/features/settings/presentation/components/layout_widget.dart';
 import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/background_widget.dart';
+import 'package:xelis_mobile_wallet/shared/widgets/components/generic_app_bar_widget.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/password_textfield_widget.dart';
 
 class ChangePasswordScreen extends ConsumerStatefulWidget {
@@ -72,9 +72,11 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    return Scaffold(
-      body: Background(
-        child: Padding(
+    return Background(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: GenericAppBar(title: loc.change_password),
+        body: Padding(
           padding: const EdgeInsets.all(Spaces.large),
           child: FormBuilder(
             key: _openFormKey,
@@ -82,7 +84,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                BackHeader(title: loc.change_password),
+                // BackHeader(title: loc.change_password),
                 const SizedBox(height: Spaces.large),
                 PasswordTextField(
                   textField: FormBuilderTextField(

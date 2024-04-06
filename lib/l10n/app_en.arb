@@ -6,6 +6,7 @@
   "password": "Password",
 
   "wallet": "Wallet",
+  "your_wallets": "Your wallets",
   "sign_in": "Sign In",
   "no_wallet": "No Wallet?",
   "open_wallet_button": "Open wallet",
@@ -16,7 +17,9 @@
   "create": "Create",
   "already_wallet": "Already a wallet?",
   "wallet_name_already_exists": "This wallet name already exists.",
-  "create_wallet_button": "Create wallet",
+  "create_new_wallet": "Create new wallet",
+  "create_from_seed": "Create from seed",
+  "load_from_file": "Load from file",
   "wallet_name": "Wallet name",
   "wallet_name_capitalize": "Wallet Name",
   "wallet_address_capitalize": "Wallet Address",

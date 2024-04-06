@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/progress_report_provider.dart';
@@ -70,7 +69,6 @@ class TableGenerationProgressDialog extends ConsumerWidget {
                 const SizedBox(height: Spaces.small),
                 LinearProgressIndicator(
                   value: progressValue,
-                  semanticsLabel: (progressValue * 100).toStringAsPrecision(3),
                   borderRadius: BorderRadius.circular(8.0),
                   minHeight: 10,
                 ),

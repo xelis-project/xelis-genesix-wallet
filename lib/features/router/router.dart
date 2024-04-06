@@ -26,10 +26,11 @@ GoRouter router(RouterRef ref) {
   final router = GoRouter(
     navigatorKey: routerKey,
     //refreshListenable: isAuth,
-    initialLocation: const OpenWalletRoute().location, //const AuthRoute().location,
+    initialLocation:
+        const OpenWalletRoute().location, //const AuthRoute().location,
     debugLogDiagnostics: true,
     routes: $appRoutes,
-  
+
     //extraCodec: const LoginActionCodec(),
     /*redirect: (context, state) {
       final loggingIn = state.fullPath == const AuthRoute().location;
