@@ -39,6 +39,8 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
   }
 
   void _createWallet() async {
+    //final loc = ref.watch(appLocalizationsProvider);
+
     if (_createFormKey.currentState?.saveAndValidate() ?? false) {
       final walletName =
           _createFormKey.currentState?.value['wallet_name'] as String?;
@@ -48,7 +50,10 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
           _createFormKey.currentState?.value['confirm_password'] as String?;
       final seed = _createFormKey.currentState?.value['seed'] as String?;
 
-      if (walletName != null &&
+      if (password != confirmPassword) {
+        _createFormKey.currentState?.fields['confirm_password']
+            ?.invalidate('does not match the password');
+      } else if (walletName != null &&
           password != null &&
           password == confirmPassword) {
         try {
@@ -131,6 +136,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                         alignLabelWithHint: true,
                       ),
                       validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(),
                         // TODO: add better seed validator
                         FormBuilderValidators.match(
                           '(?:[a-zA-Z]+ ){24}[a-zA-Z]+',

@@ -22,24 +22,24 @@ class ChangePasswordScreen extends ConsumerStatefulWidget {
 }
 
 class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
-  final _openFormKey = GlobalKey<FormBuilderState>(debugLabel: '_openFormKey');
+  final _changePasswordKey = GlobalKey<FormBuilderState>(debugLabel: '_openFormKey');
 
   void _changePassword() async {
-    if (_openFormKey.currentState?.saveAndValidate() ?? false) {
+    if (_changePasswordKey.currentState?.saveAndValidate() ?? false) {
       final loc = ref.read(appLocalizationsProvider);
 
       final oldPassword =
-          _openFormKey.currentState?.value['old_password'] as String;
+          _changePasswordKey.currentState?.value['old_password'] as String;
       final newPassword =
-          _openFormKey.currentState?.value['new_password'] as String;
+          _changePasswordKey.currentState?.value['new_password'] as String;
       final confirmNewPassword =
-          _openFormKey.currentState?.value['confirm_new_password'] as String;
+          _changePasswordKey.currentState?.value['confirm_new_password'] as String;
 
       if (oldPassword == newPassword) {
-        _openFormKey.currentState?.fields['new_password']
+        _changePasswordKey.currentState?.fields['new_password']
             ?.invalidate(loc.same_old_new_password_error);
       } else if (newPassword != confirmNewPassword) {
-        _openFormKey.currentState?.fields['confirm_new_password']
+        _changePasswordKey.currentState?.fields['confirm_new_password']
             ?.invalidate(loc.not_match_new_password_error);
       } else {
         try {
@@ -79,8 +79,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
         body: Padding(
           padding: const EdgeInsets.all(Spaces.large),
           child: FormBuilder(
-            key: _openFormKey,
-            onChanged: () => _openFormKey.currentState!.save(),
+            key: _changePasswordKey,
+            onChanged: () => _changePasswordKey.currentState!.save(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
