@@ -221,5 +221,10 @@ ThemeData xelisTheme() {
       tileColor: Colors.transparent,
       //minVerticalPadding: 5,
     ),
+
+    scaffoldBackgroundColor: Colors.transparent,
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.transparent
+    ),
   );
 }

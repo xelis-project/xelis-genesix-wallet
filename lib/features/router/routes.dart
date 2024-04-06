@@ -6,6 +6,7 @@ import 'package:xelis_mobile_wallet/features/settings/presentation/settings_scre
 import 'package:xelis_mobile_wallet/features/wallet/presentation/settings_tab/change_password_screen.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/settings_tab/my_seed_screen.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_screen.dart';
+import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/components/transfer_screen.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 
 part 'routes.g.dart';
@@ -89,6 +90,20 @@ class SettingsRoute extends GoRouteData {
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
       const SettingsScreen(),
+      state.pageKey,
+      AppDurations.animFast,
+    );
+  }
+}
+
+@TypedGoRoute<TransferRoute>(name: 'transfer', path: '/transfer')
+class TransferRoute extends GoRouteData {
+  const TransferRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      const TransferScreen(),
       state.pageKey,
       AppDurations.animFast,
     );

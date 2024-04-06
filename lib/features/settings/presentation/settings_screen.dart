@@ -47,16 +47,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     return Background(
       child: Scaffold(
-        backgroundColor: Colors.transparent,
+        //backgroundColor: Colors.red,
         appBar: const GenericAppBar(title: 'App settings'),
         body: SafeArea(
           child: ListView(
             padding: const EdgeInsets.all(Spaces.large),
             children: [
-              // const GenericAppBar(
-              //   title: 'App settings',
-              // ),
-              const SizedBox(height: Spaces.large),
               const NetworkSelectorWidget(),
               const Divider(),
               const ThemeSelectorWidget(),

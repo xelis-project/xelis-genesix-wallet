@@ -15,17 +15,17 @@ class HistoryTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
     return Padding(
-      padding: const EdgeInsets.all(Spaces.small),
+      padding: const EdgeInsets.all(Spaces.large),
       child: DefaultTabController(
         length: 4,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(loc.history,
+           /* Text(loc.history,
                 style: context
                     .headlineLarge //!.copyWith(fontWeight: FontWeight.bold),
                 ),
-            const SizedBox(height: Spaces.large),
+            const SizedBox(height: Spaces.large),*/
             TabBar(
               tabs: <Tab>[
                 Tab(

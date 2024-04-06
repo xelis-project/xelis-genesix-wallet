@@ -121,21 +121,6 @@ class WalletState extends _$WalletState {
     }
   }
 
-  Future<String?> send(
-      {required double amount,
-      required String address,
-      String? assetHash}) async {
-    if (state.nativeWalletRepository != null) {
-      return state.nativeWalletRepository!
-          .transfer(amount: amount, address: address);
-    }
-    final loc = ref.read(appLocalizationsProvider);
-    ref
-        .read(snackbarContentProvider.notifier)
-        .setContent(SnackbarEvent.error(message: loc.transfer_failed));
-    return null;
-  }
-
   Future<String?> burnXelis({required double amount}) async {
     if (state.nativeWalletRepository != null) {
       return state.nativeWalletRepository!

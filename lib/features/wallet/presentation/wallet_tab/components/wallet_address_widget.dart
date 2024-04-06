@@ -48,16 +48,12 @@ class WalletAddressWidget extends ConsumerWidget {
               style: context.labelLarge!
                   .copyWith(color: context.moreColors.mutedColor),
             ),
-            Tooltip(
-              margin: const EdgeInsets.all(Spaces.medium),
-              message: walletSnapshot.address,
-              child: InkWell(
-                onTap: () => _copy(walletSnapshot.address, loc.copied, ref),
-                borderRadius: BorderRadius.circular(4),
-                child: Text(
-                  address,
-                  style: context.headlineSmall,
-                ),
+            InkWell(
+              onTap: () => _copy(walletSnapshot.address, loc.copied, ref),
+              borderRadius: BorderRadius.circular(4),
+              child: Text(
+                address,
+                style: context.headlineSmall,
               ),
             ),
           ],

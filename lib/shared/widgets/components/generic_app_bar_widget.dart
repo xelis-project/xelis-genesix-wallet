@@ -10,23 +10,29 @@ class GenericAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.transparent,
-      leading: IconButton(
-        onPressed: () {
-          context.pop();
-        },
-        icon: const Icon(
-          Icons.arrow_back,
-          // size: 30,
+      titleSpacing: 10,
+      leading: Padding(
+        padding: const EdgeInsets.fromLTRB(10, 10, 0, 0),
+        child: IconButton(
+          onPressed: () {
+            context.pop();
+          },
+          icon: const Icon(
+            Icons.arrow_back,
+            // size: 30,
+          ),
         ),
       ),
-      title: Text(
-        title,
-        style: context.headlineLarge!.copyWith(fontWeight: FontWeight.bold),
+      title: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+        child: Text(
+          title,
+          style: context.headlineMedium!.copyWith(fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(70);
 }

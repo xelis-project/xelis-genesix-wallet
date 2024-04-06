@@ -1,11 +1,12 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:xelis_mobile_wallet/features/router/route_utils.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/components/qr_dialog.dart';
-import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/components/transfer_to_dialog.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
@@ -14,12 +15,14 @@ import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 class BalanceWidget extends ConsumerWidget {
   const BalanceWidget({super.key});
 
+/*
   void _showTransferToDialog(BuildContext context) {
     showDialog<void>(
       context: context,
       builder: (_) => const TransferToDialog(),
     );
   }
+  */
 
   void _showQrDialog(BuildContext context) {
     showDialog<void>(
@@ -87,7 +90,8 @@ class BalanceWidget extends ConsumerWidget {
                       : const Icon(
                           Icons.visibility_off_rounded,
                         ),
-                  tooltip: 'Hide balance',
+                  tooltip:
+                      settings.hideBalance ? 'Show balance' : 'Hide balance',
                   onPressed: () {
                     ref
                         .read(settingsProvider.notifier)
@@ -106,7 +110,8 @@ class BalanceWidget extends ConsumerWidget {
                 children: [
                   IconButton.filled(
                     onPressed: () {
-                      _showTransferToDialog(context);
+                      //_showTransferToDialog(context);
+                      context.push(AppScreen.transfer.toPath);
                     },
                     icon: const Icon(Icons.call_made_rounded),
                   ),

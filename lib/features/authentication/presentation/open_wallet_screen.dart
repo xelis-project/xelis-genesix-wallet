@@ -11,6 +11,7 @@ import 'package:xelis_mobile_wallet/features/settings/application/app_localizati
 import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
+import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/utils/utils.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/background_widget.dart';
@@ -72,10 +73,9 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
 
     return Background(
       child: Scaffold(
-        backgroundColor: Colors.transparent,
         body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(Spaces.large),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -158,7 +158,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: Spaces.large),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

@@ -45,7 +45,7 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
         context.loaderOverlay.show();
         await wallet.nativeWalletRepository!.isValidPassword(password);
         widget.onValid!();
-        if (context.mounted) context.pop();
+        if (context.mounted) context.pop(); // hide the dialog
       } catch (e) {
         setState(() {
           _passwordError = 'Invalid password.';

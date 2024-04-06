@@ -127,9 +127,6 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
       );
     }
 
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: AppDurations.animFast),
-      child: Background(child: mainWidget),
-    );
+    return Background(child: mainWidget);
   }
 }

@@ -10,22 +10,30 @@ import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 
   @override
   Widget build(BuildContext context) {
-    return Flex(
-      direction: Axis.horizontal,
+    return Column(
       children: [
-        IconButton(
-          onPressed: () {
-            context.pop();
-          },
-          icon: const Icon(
-            Icons.arrow_back,
-            size: 30,
-          ),
+        Flex(
+          direction: Axis.horizontal,
+          children: [
+            IconButton(
+              onPressed: () {
+                context.pop();
+              },
+              icon: const Icon(
+                Icons.arrow_back,
+                size: 30,
+              ),
+            ),
+            const SizedBox(width: Spaces.small),
+            Text(
+              title,
+              style:
+                  context.headlineLarge!.copyWith(fontWeight: FontWeight.bold),
+            )
+          ],
         ),
-        const SizedBox(width: Spaces.small),
-        Text(
-          title,
-          style: context.headlineLarge!.copyWith(fontWeight: FontWeight.bold),
+        const SizedBox(
+          height: Spaces.medium,
         ),
       ],
     );

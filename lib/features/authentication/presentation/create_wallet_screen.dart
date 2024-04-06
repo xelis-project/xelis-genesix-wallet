@@ -90,7 +90,6 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
 
     return Background(
       child: Scaffold(
-        backgroundColor: Colors.transparent,
         appBar: GenericAppBar(title: loc.create_new_wallet),
         body: FormBuilder(
           key: _createFormKey,
