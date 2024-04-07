@@ -49,6 +49,7 @@ dependencies:
   country_flags: ^2.2.0
   auto_size_text: ^3.0.0
   package_info_plus: ^5.0.1
+  file_picker: ^8.0.0+1
 
 
 dev_dependencies:

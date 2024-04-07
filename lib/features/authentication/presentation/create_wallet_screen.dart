@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,6 +39,18 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
       context: context,
       builder: (_) => const TableGenerationProgressDialog(),
     );
+  }
+
+  Future<void> _loadSeedFromFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (result != null) {
+      File file = File(result.files.single.path!);
+      var seed = await file.readAsString();
+      _createFormKey.currentState?.patchValue({
+        'seed': seed,
+      });
+    }
   }
 
   void _createWallet() async {
@@ -149,7 +164,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                     const SizedBox(height: Spaces.small),
                     TextButton.icon(
                       onPressed: () {
-                        context.pop();
+                        _loadSeedFromFile();
                       },
                       icon: const Icon(
                         Icons.file_open_outlined,
