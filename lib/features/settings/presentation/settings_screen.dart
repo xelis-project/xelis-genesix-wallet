@@ -24,8 +24,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   String _version = '';
 
   @override
-  Widget build(BuildContext context) {
-    final loc = ref.watch(appLocalizationsProvider);
+  void initState() {
+    super.initState();
 
     getAppCachePath().then((path) {
       setState(() {
@@ -44,6 +44,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         _version = packageInfo.version;
       });
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = ref.watch(appLocalizationsProvider);
 
     return Background(
       child: Scaffold(
