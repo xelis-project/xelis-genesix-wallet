@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -31,6 +33,33 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
       context: context,
       builder: (_) => const TableGenerationProgressDialog(),
     );
+  }
+
+  Future<bool> _checkWallet(String name) async {
+    var settings = ref.read(settingsProvider);
+    var networkWallet = ref.read(networkWalletProvider.notifier);
+
+    var walletPath = await getWalletPath(settings.network, name);
+    var walletExists = await Directory(walletPath).exists();
+    if (walletExists) return true;
+
+    // Most likely the wallet was delete manually from the folder.
+    // We can delete from the settings json file and reload the list.
+    if (mounted) {
+      showDialog<void>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Text(
+                'The wallet did not exists. The app removed the reference automatically.',
+                style: context.bodyLarge),
+          );
+        },
+      );
+    }
+
+    networkWallet.removeWallet(settings.network, name);
+    return false;
   }
 
   void _openWallet(String name, String password) async {
@@ -87,13 +116,13 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                 const SizedBox(height: 10),
                 Expanded(
                   child: wallets.isNotEmpty
-                        ? Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: context.colors.background.withOpacity(.5),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: ReorderableListView(
+                      ? Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: context.colors.background.withOpacity(.5),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: ReorderableListView(
                             proxyDecorator: (child, index, animation) {
                               return Material(
                                 color:
@@ -111,17 +140,22 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                                   color: Colors.transparent,
                                   key: Key(name),
                                   child: InkWell(
-                                    onTap: () {
-                                      showDialog<void>(
-                                        context: context,
-                                        builder: (context) {
-                                          return PasswordDialog(
-                                            onEnter: (password) {
-                                              _openWallet(name, password);
-                                            },
-                                          );
-                                        },
-                                      );
+                                    onTap: () async {
+                                      var exists = await _checkWallet(name);
+                                      if (!exists) return;
+
+                                      if (context.mounted) {
+                                        showDialog<void>(
+                                          context: context,
+                                          builder: (context) {
+                                            return PasswordDialog(
+                                              onEnter: (password) {
+                                                _openWallet(name, password);
+                                              },
+                                            );
+                                          },
+                                        );
+                                      }
                                     },
                                     child: Padding(
                                       padding: const EdgeInsets.all(10),
@@ -171,15 +205,14 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                                 //_items.insert(newIndex, item);
                               });
                             },
-                          )
-                        
-                  ): Text(
-                            'You don\'t have any wallets available. Create a new wallet from the button below or make sure the app is set the desired network configuration.',
-                            style: context.bodyLarge!.copyWith(
-                              color: context.moreColors.mutedColor,
-                              fontSize: 18,
-                            ),
+                          ))
+                      : Text(
+                          'You don\'t have any wallets available. Create a new wallet from the button below or make sure the app is set the desired network configuration.',
+                          style: context.bodyLarge!.copyWith(
+                            color: context.moreColors.mutedColor,
+                            fontSize: 18,
                           ),
+                        ),
                 ),
                 const SizedBox(height: Spaces.large),
                 Row(

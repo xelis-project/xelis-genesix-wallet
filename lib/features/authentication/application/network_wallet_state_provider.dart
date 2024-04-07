@@ -44,4 +44,32 @@ class NetworkWallet extends _$NetworkWallet {
 
     networkWalletStateRepository.localSave(state);
   }
+
+  void removeWallet(Network network, String name) {
+    final prefs = ref.read(sharedPreferencesProvider);
+    final networkWalletStateRepository =
+        NetworkWalletStateRepository(SharedPreferencesSync(prefs));
+
+    switch (network) {
+      case Network.mainnet:
+        var newName = state.openMainnet == name ? null : state.openMainnet;
+        var newWallets = Map<String, String>.from(state.mainnetWallets);
+        newWallets.remove(name);
+        state =
+            state.copyWith(openMainnet: newName, mainnetWallets: newWallets);
+      case Network.testnet:
+        var newName = state.openTestnet == name ? null : state.openTestnet;
+        var newWallets = Map<String, String>.from(state.testnetWallets);
+        newWallets.remove(name);
+        state =
+            state.copyWith(openTestnet: newName, testnetWallets: newWallets);
+      case Network.dev:
+        var newName = state.openDev == name ? null : state.openDev;
+        var newWallets = Map<String, String>.from(state.devWallets);
+        newWallets.remove(name);
+        state = state.copyWith(openDev: newName, devWallets: newWallets);
+    }
+
+    networkWalletStateRepository.localSave(state);
+  }
 }
