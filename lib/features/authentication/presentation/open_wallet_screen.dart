@@ -207,7 +207,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                             },
                           ))
                       : Text(
-                          'You don\'t have any wallets available. Create a new wallet from the button below or make sure the app is set the desired network configuration.',
+                          'You don\'t have any wallets available. Create a new wallet from the button below or make sure the app is set to the desired network configuration.',
                           style: context.bodyLarge!.copyWith(
                             color: context.moreColors.mutedColor,
                             fontSize: 18,

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:xelis_mobile_wallet/shared/theme/more_colors.dart';
 
-ThemeData xelisTheme() {
+ThemeData darkTheme() {
   const textColor = Colors.white;
   var lineHeight = 1.2;
-  const primaryColor = Color.fromARGB(255, 122, 250, 211);
+  const primaryColor = Color.fromARGB(255, 216, 216, 216);
   const secondaryColor = Color.fromARGB(255, 122, 203, 250);
   const backgrounColor = Color.fromARGB(255, 19, 19, 19);
   var borderRadius = BorderRadius.circular(10.0);
@@ -28,10 +28,10 @@ ThemeData xelisTheme() {
     // EXTENSIONS
     extensions: <ThemeExtension<dynamic>>[
       MoreColors(
-        bgRadialColor1: const Color.fromARGB(255, 0, 170, 129),
-        bgRadialColor2: const Color.fromARGB(178, 5, 124, 132),
-        bgRadialColor3: const Color.fromARGB(153, 0, 170, 150),
-        bgRadialEndColor: const Color.fromARGB(255, 0, 0, 0),
+        bgRadialColor1: const Color.fromARGB(255, 75, 75, 75),
+        bgRadialColor2: const Color.fromARGB(178, 100, 100, 100),
+        bgRadialColor3: const Color.fromARGB(153, 25, 25, 25),
+        bgRadialEndColor: const Color.fromARGB(0, 0, 0, 0),
         mutedColor: textColor.withOpacity(0.6),
       )
     ],

@@ -124,7 +124,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                 initialValue: _seedRequired,
                 title: Text(
                   loc.create_from_seed,
-                  style: context.bodyLarge,
+                  style: context.bodyLarge//!.copyWith(color: context.colors.onBackground),
                 ),
                 onChanged: (value) {
                   setState(() {

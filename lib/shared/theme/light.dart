@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:xelis_mobile_wallet/shared/theme/more_colors.dart';
 
-ThemeData xelisTheme() {
-  const textColor = Colors.white;
+ThemeData lightTheme() {
+  const textColor = Colors.black;
   var lineHeight = 1.2;
-  const primaryColor = Color.fromARGB(255, 122, 250, 211);
+  const primaryColor = Color.fromARGB(255, 34, 34, 34);
   const secondaryColor = Color.fromARGB(255, 122, 203, 250);
-  const backgrounColor = Color.fromARGB(255, 19, 19, 19);
+  const backgrounColor = Color.fromARGB(255, 221, 221, 221);
   var borderRadius = BorderRadius.circular(10.0);
 
   return ThemeData(
     // COLORS
     colorScheme: const ColorScheme(
-      brightness: Brightness.dark,
+      brightness: Brightness.light,
       primary: primaryColor,
-      onPrimary: Colors.black87,
+      onPrimary: Colors.white,
       secondary: secondaryColor,
       onSecondary: Colors.white,
       error: Colors.red,
@@ -28,10 +28,10 @@ ThemeData xelisTheme() {
     // EXTENSIONS
     extensions: <ThemeExtension<dynamic>>[
       MoreColors(
-        bgRadialColor1: const Color.fromARGB(255, 0, 170, 129),
-        bgRadialColor2: const Color.fromARGB(178, 5, 124, 132),
-        bgRadialColor3: const Color.fromARGB(153, 0, 170, 150),
-        bgRadialEndColor: const Color.fromARGB(255, 0, 0, 0),
+        bgRadialColor1: const Color.fromARGB(255, 200, 200, 200),
+        bgRadialColor2: const Color.fromARGB(178, 225, 225, 225),
+        bgRadialColor3: const Color.fromARGB(130, 150, 150, 150),
+        bgRadialEndColor: const Color.fromARGB(0, 255, 255, 255),
         mutedColor: textColor.withOpacity(0.6),
       )
     ],
@@ -61,7 +61,7 @@ ThemeData xelisTheme() {
 
     // CARD
     cardTheme: CardTheme(
-      color: Colors.black12,
+      color: Colors.white12,
       shape: RoundedRectangleBorder(
           borderRadius: borderRadius,
           side: const BorderSide(color: Colors.black12, width: 1)),
@@ -94,7 +94,7 @@ ThemeData xelisTheme() {
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         backgroundColor: primaryColor,
-        foregroundColor: Colors.black87,
+        foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
         shape: RoundedRectangleBorder(
           borderRadius: borderRadius,
@@ -130,22 +130,22 @@ ThemeData xelisTheme() {
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.black12,
-      selectedItemColor: Colors.white,
+      selectedItemColor: primaryColor,
       type: BottomNavigationBarType.fixed,
-      unselectedItemColor: Colors.white54,
+      unselectedItemColor: Colors.black45,
       selectedLabelStyle: TextStyle(fontSize: 12),
       selectedIconTheme: IconThemeData(size: 36),
       //showUnselectedLabels: false,
       //showSelectedLabels: false,
     ),
     navigationRailTheme: const NavigationRailThemeData(
-      backgroundColor: Colors.black26,
+      backgroundColor: Colors.black12,
       indicatorColor: Colors.transparent,
       //useIndicator: false,
-      selectedLabelTextStyle: TextStyle(color: Colors.white, fontSize: 14),
-      unselectedLabelTextStyle: TextStyle(color: Colors.white54, fontSize: 12),
-      selectedIconTheme: IconThemeData(size: 36, color: Colors.white),
-      unselectedIconTheme: IconThemeData(size: 30, color: Colors.white54),
+      selectedLabelTextStyle: TextStyle(color: primaryColor, fontSize: 14),
+      unselectedLabelTextStyle: TextStyle(color: Colors.black45, fontSize: 12),
+      selectedIconTheme: IconThemeData(size: 36, color: primaryColor),
+      unselectedIconTheme: IconThemeData(size: 30, color: Colors.black45),
       /*indicatorShape: CircleBorder(
         side: BorderSide(color: Colors.transparent,width: 0),
       ),*/
@@ -153,7 +153,7 @@ ThemeData xelisTheme() {
 
     // INPUT
     inputDecorationTheme: InputDecorationTheme(
-      labelStyle: const TextStyle(color: Colors.white),
+      labelStyle: const TextStyle(color: Colors.black),
       errorStyle: const TextStyle(
         color: Colors.red,
         fontSize: 14,
@@ -162,9 +162,9 @@ ThemeData xelisTheme() {
       contentPadding: const EdgeInsets.all(15),
       filled: true,
       fillColor: Colors.black26,
-      iconColor: Colors.white,
-      suffixIconColor: Colors.white,
-      prefixIconColor: Colors.white,
+      iconColor: Colors.black26,
+      suffixIconColor: primaryColor,
+      prefixIconColor: primaryColor,
       floatingLabelBehavior: FloatingLabelBehavior.never,
       enabledBorder: OutlineInputBorder(
         borderRadius: borderRadius,
@@ -215,18 +215,33 @@ ThemeData xelisTheme() {
 
     dividerTheme: const DividerThemeData(
       thickness: 2,
-      color: Colors.white30,
+      color: Colors.black38,
       space: 20,
     ),
 
     listTileTheme: const ListTileThemeData(
-      contentPadding: EdgeInsets.all(10),
-      dense: true,
-      tileColor: Colors.transparent,
-      //minVerticalPadding: 5,
-    ),
+        contentPadding: EdgeInsets.all(10),
+        dense: true,
+        tileColor: Colors.transparent,
+        iconColor: primaryColor
+        //minVerticalPadding: 5,
+        ),
+
+    expansionTileTheme: const ExpansionTileThemeData(
+        collapsedIconColor: primaryColor, iconColor: primaryColor),
 
     scaffoldBackgroundColor: Colors.transparent,
-    appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.transparent,
+      foregroundColor: primaryColor
+    ),
+
+    radioTheme: RadioThemeData(
+      fillColor: MaterialStateProperty.all(primaryColor)
+    ),
+
+    switchTheme: SwitchThemeData(
+      thumbColor: MaterialStateProperty.all(Colors.white),
+    )
   );
 }

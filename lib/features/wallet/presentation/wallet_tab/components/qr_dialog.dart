@@ -30,39 +30,42 @@ class QrDialog extends ConsumerWidget {
     // }
 
     return AlertDialog(
-        scrollable: true,
-        title: Text(
-          'Address',
-          style: context.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SelectableText(
-              walletSnapshot.address,
-              style: context.bodyMedium!.copyWith(
-                fontWeight: FontWeight.bold,
-                color: context.moreColors.mutedColor,
+      scrollable: true,
+      content: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 250,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SelectableText(
+                walletSnapshot.address,
+                style: context.bodyLarge!.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: context.moreColors.mutedColor,
+                ),
+                textAlign: TextAlign.center,
               ),
-            ),
-            const SizedBox(height: Spaces.medium),
-            PrettyQrView.data(
-              data: walletSnapshot.address,
-              decoration: PrettyQrDecoration(
-                shape: PrettyQrSmoothSymbol(color: context.colors.onBackground),
-                // image: PrettyQrDecorationImage(
-                //   image: Image.network(iconTarget).image,
-                // ),
+              const SizedBox(height: Spaces.large),
+              PrettyQrView.data(
+                data: walletSnapshot.address,
+                decoration: PrettyQrDecoration(
+                  shape:
+                      PrettyQrSmoothSymbol(color: context.colors.onBackground),
+                  // image: PrettyQrDecorationImage(
+                  //   image: Image.network(iconTarget).image,
+                  // ),
+                ),
               ),
-            ),
-          ],
-        )
-        /*actions: [
+            ],
+          )
+          /*actions: [
         FilledButton(
           onPressed: () => context.pop(),
           child: Text(loc.ok_button),
         ),
       ]*/
-        );
+          ),
+    );
   }
 }
