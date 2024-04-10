@@ -52,7 +52,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     return Background(
       child: Scaffold(
-        //backgroundColor: Colors.red,
         appBar: const GenericAppBar(title: 'App settings'),
         body: SafeArea(
           child: ListView(

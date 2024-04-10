@@ -265,20 +265,22 @@ impl XelisWallet {
     pub async fn events_stream(&self, sink: StreamSink<String>) {
         let mut rx = self.wallet.subscribe_events().await;
 
-        loop {
-            let result = rx.recv().await;
-            match result {
-                Ok(event) => {
-                    let json_event = json!({"event": event.kind(), "data": event}).to_string();
-                    sink.add(json_event)
-                        .expect("Unable to send event data through stream");
-                }
-                Err(e) => {
-                    debug!("Error with events stream: {}", e);
-                    break;
+        flutter_rust_bridge::spawn(async move {
+            loop {
+                let result = rx.recv().await;
+                match result {
+                    Ok(event) => {
+                        let json_event = json!({"event": event.kind(), "data": event}).to_string();
+                        sink.add(json_event)
+                            .expect("Unable to send event data through stream");
+                    }
+                    Err(e) => {
+                        debug!("Error with events stream: {}", e);
+                        break;
+                    }
                 }
             }
-        }
+        });
     }
 
     pub async fn get_daemon_info(&self) -> Result<String> {

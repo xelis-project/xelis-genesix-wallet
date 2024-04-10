@@ -7,7 +7,6 @@ import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/password_textfield_widget.dart';
 
 class PasswordDialog extends ConsumerStatefulWidget {

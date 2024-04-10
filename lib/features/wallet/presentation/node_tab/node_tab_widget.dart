@@ -22,12 +22,6 @@ class NodeTab extends ConsumerWidget {
         const SizedBox(height: Spaces.large),
         const NodeSelectorWidget(),
         const SizedBox(height: Spaces.large),
-        /*Text(
-          loc.information,
-          style: context.headlineSmall!.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const Divider(),
-        const SizedBox(height: Spaces.small),*/
         const NodeInfoWidget(),
       ],
     );

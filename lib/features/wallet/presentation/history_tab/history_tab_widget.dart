@@ -21,7 +21,7 @@ class HistoryTab extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-           /* Text(loc.history,
+            /* Text(loc.history,
                 style: context
                     .headlineLarge //!.copyWith(fontWeight: FontWeight.bold),
                 ),

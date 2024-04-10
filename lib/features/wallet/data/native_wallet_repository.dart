@@ -137,7 +137,7 @@ class NativeWalletRepository {
   }
 
   Stream<Event> convertRawEvents() async* {
-    final rawEventStream = _xelisWallet.eventsStream();
+    final rawEventStream = await _xelisWallet.eventsStream();
 
     await for (final rawData in rawEventStream) {
       final json = jsonDecode(rawData);

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/network_wallet_state_provider.dart';
@@ -117,15 +116,14 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
           child: ListView(
             padding: const EdgeInsets.all(Spaces.large),
             children: [
-              // const BackHeader(title: loc.create_new_wallet),
               const SizedBox(height: Spaces.medium),
               FormBuilderSwitch(
                 name: 'seed_switch',
                 initialValue: _seedRequired,
-                title: Text(
-                  loc.create_from_seed,
-                  style: context.bodyLarge//!.copyWith(color: context.colors.onBackground),
-                ),
+                title: Text(loc.create_from_seed,
+                    style: context
+                        .bodyLarge //!.copyWith(color: context.colors.onBackground),
+                    ),
                 onChanged: (value) {
                   setState(() {
                     _seedRequired = value!;

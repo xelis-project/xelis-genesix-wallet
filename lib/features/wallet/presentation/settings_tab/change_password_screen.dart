@@ -22,7 +22,8 @@ class ChangePasswordScreen extends ConsumerStatefulWidget {
 }
 
 class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
-  final _changePasswordKey = GlobalKey<FormBuilderState>(debugLabel: '_openFormKey');
+  final _changePasswordKey =
+      GlobalKey<FormBuilderState>(debugLabel: '_openFormKey');
 
   void _changePassword() async {
     if (_changePasswordKey.currentState?.saveAndValidate() ?? false) {
@@ -32,8 +33,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
           _changePasswordKey.currentState?.value['old_password'] as String;
       final newPassword =
           _changePasswordKey.currentState?.value['new_password'] as String;
-      final confirmNewPassword =
-          _changePasswordKey.currentState?.value['confirm_new_password'] as String;
+      final confirmNewPassword = _changePasswordKey
+          .currentState?.value['confirm_new_password'] as String;
 
       if (oldPassword == newPassword) {
         _changePasswordKey.currentState?.fields['new_password']
