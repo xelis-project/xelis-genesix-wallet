@@ -55,7 +55,7 @@ dependencies = [
  "actix-service",
  "actix-utils",
  "ahash",
-    "base64 0.21.7",
+ "base64 0.21.7",
  "bitflags 2.5.0",
  "brotli",
  "bytes",
@@ -215,7 +215,7 @@ checksum = "1d613edf08a42ccc6864c941d30fe14e1b676a77d16f1dbadc1174d065a0a775"
 dependencies = [
  "actix-utils",
  "actix-web",
-    "base64 0.21.7",
+ "base64 0.21.7",
  "futures-core",
  "futures-util",
  "log",
@@ -1116,9 +1116,9 @@ version = "2.0.0-dev.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e02edfe56f04af804d3145b17dfe7820d46a6753b214160f227dbdfa1073f7cb"
 dependencies = [
-    "hex",
-    "quote",
-    "syn 2.0.58",
+ "hex",
+ "quote",
+ "syn 2.0.58",
 ]
 
 [[package]]
@@ -1989,7 +1989,7 @@ version = "0.11.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dd67538700a17451e7cba03ac727fb961abb7607553461627b97de0b89cf4a62"
 dependencies = [
-    "base64 0.21.7",
+ "base64 0.21.7",
  "bytes",
  "encoding_rs",
  "futures-core",
@@ -2116,7 +2116,7 @@ version = "2.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "29993a25686778eb88d4189742cd713c9bce943bc54251a33509dc63cbacf73d"
 dependencies = [
-    "base64 0.22.0",
+ "base64 0.22.0",
  "rustls-pki-types",
 ]
 

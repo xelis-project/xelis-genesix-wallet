@@ -12,82 +12,65 @@ class NodeInfoWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
-    final info = ref.watch(getInfoProvider);
+    final info = ref.watch(getInfoProvider).valueOrNull;
 
-    return switch (info) {
-      AsyncData(:final value) => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              loc.network,
-              style:
-                  context.labelLarge?.copyWith(color: context.colors.primary),
-            ),
-            SelectableText(
-              switch (value?.network) {
-                Network.mainnet => 'Mainnet',
-                Network.testnet => 'Testnet',
-                Network.dev => 'Dev',
-                null => '...',
-              },
-              style: context.titleLarge,
-            ),
-            const SizedBox(height: Spaces.medium),
-            Text(
-              loc.node_type,
-              style:
-                  context.labelLarge?.copyWith(color: context.colors.primary),
-            ),
-            SelectableText(
-              switch (value?.pruned) {
-                null => '...',
-                true => loc.pruned_node,
-                false => loc.full_node,
-              },
-              style: context.titleLarge,
-            ),
-            const SizedBox(height: Spaces.medium),
-            Text(
-              loc.circulating_supply,
-              style:
-                  context.labelLarge?.copyWith(color: context.colors.primary),
-            ),
-            SelectableText(
-              '${value?.circulatingSupply ?? '...'} XEL',
-              style: context.titleLarge,
-            ),
-            const SizedBox(height: Spaces.medium),
-            Text(
-              loc.average_block_time,
-              style:
-                  context.labelLarge?.copyWith(color: context.colors.primary),
-            ),
-            SelectableText(
-              '${value?.averageBlockTime.inSeconds.toString() ?? '...'} ${loc.seconds}',
-              style: context.titleLarge,
-            ),
-            const SizedBox(height: Spaces.medium),
-            Text(
-              loc.version,
-              style:
-                  context.labelLarge?.copyWith(color: context.colors.primary),
-            ),
-            SelectableText(
-              value?.version ?? '...',
-              style: context.titleLarge,
-            ),
-          ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          loc.network,
+          style: context.labelLarge?.copyWith(color: context.colors.primary),
         ),
-      AsyncError() => SizedBox(
-          height: 200,
-          child: Center(
-            child: Text(
-              loc.oups,
-              style: context.titleMedium,
-            ),
-          ),
+        SelectableText(
+          switch (info?.network) {
+            Network.mainnet => 'Mainnet',
+            Network.testnet => 'Testnet',
+            Network.dev => 'Dev',
+            null => '...',
+          },
+          style: context.titleLarge,
         ),
-      _ => const Center(child: CircularProgressIndicator()),
-    };
+        const SizedBox(height: Spaces.medium),
+        Text(
+          loc.node_type,
+          style: context.labelLarge?.copyWith(color: context.colors.primary),
+        ),
+        SelectableText(
+          switch (info?.pruned) {
+            null => '...',
+            true => loc.pruned_node,
+            false => loc.full_node,
+          },
+          style: context.titleLarge,
+        ),
+        const SizedBox(height: Spaces.medium),
+        Text(
+          loc.circulating_supply,
+          style: context.labelLarge?.copyWith(color: context.colors.primary),
+        ),
+        SelectableText(
+          '${info?.circulatingSupply ?? '...'} XEL',
+          style: context.titleLarge,
+        ),
+        const SizedBox(height: Spaces.medium),
+        Text(
+          loc.average_block_time,
+          style: context.labelLarge?.copyWith(color: context.colors.primary),
+        ),
+        SelectableText(
+          '${info?.averageBlockTime.inSeconds.toString() ?? '...'} ${loc.seconds}',
+          style: context.titleLarge,
+        ),
+        const SizedBox(height: Spaces.medium),
+        Text(
+          loc.version,
+          style: context.labelLarge?.copyWith(color: context.colors.primary),
+        ),
+        SelectableText(
+          info?.version ?? '...',
+          style: context.titleLarge,
+        ),
+      ],
+    );
   }
 }

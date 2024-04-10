@@ -10,6 +10,10 @@ Future<DaemonInfoSnapshot?> getInfo(GetInfoRef ref) async {
   final repository = walletState.nativeWalletRepository;
   if (repository != null) {
     var info = await repository.getDaemonInfo();
+
+    // keep the state of a successful (only) request
+    ref.keepAlive();
+
     return DaemonInfoSnapshot(
       pruned: info.prunedTopoHeight != null ? true : false,
       circulatingSupply: await repository.formatCoin(info.circulatingSupply),
