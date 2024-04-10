@@ -125,8 +125,8 @@ class Authentication extends _$Authentication {
   }
 
   Future<String> _getPrecomputedTablesPath() async {
-    final dir = await getApplicationDocumentsDirectory();
-    return '${dir.path}/${AppResources.userWalletsFolderName}/';
+    final dir = await getApplicationCacheDirectory();
+    return dir.path;
   }
 
   Future<bool> isPrecomputedTablesExists() async {
