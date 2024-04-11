@@ -12,23 +12,24 @@ String formatXelis(int value) {
   return formatCoin(value, AppResources.xelisDecimals);
 }
 
-Future<String> getAppCachePath() async {
+Future<String> getAppCacheDirPath() async {
   var dir = await getApplicationCacheDirectory();
   return dir.path;
 }
 
-Future<String> getAppWalletsPath() async {
+Future<String> getAppWalletsDirPath() async {
   var dir = await getApplicationDocumentsDirectory();
   var path = p.join(dir.path, AppResources.userWalletsFolderName);
   return path;
 }
 
 Future<String> getWalletPath(Network network, String name) async {
-  var walletPath = await getAppWalletsPath();
-  var path = p.join(walletPath, network.name, name);
+  var walletsDir = await getAppWalletsDirPath();
+  var path = p.join(walletsDir, network.name, name);
   return path;
 }
 
 String truncateAddress(String address) {
-  return '...${address.substring(address.length - 8)}';
+  if (address.isEmpty) return "";
+  return "...${address.substring(address.length - 8)}";
 }

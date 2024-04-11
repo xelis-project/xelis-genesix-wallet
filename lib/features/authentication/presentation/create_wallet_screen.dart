@@ -7,10 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
-import 'package:xelis_mobile_wallet/features/authentication/application/network_wallet_state_provider.dart';
+import 'package:xelis_mobile_wallet/features/authentication/application/wallets_state_provider.dart';
 import 'package:xelis_mobile_wallet/features/authentication/presentation/components/table_generation_progress_dialog.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
@@ -101,11 +100,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-
-    final settings = ref.watch(settingsProvider);
-
-    final networkWallet = ref.watch(networkWalletProvider);
-    var wallets = networkWallet.getWallets(settings.network);
+    final wallets = ref.watch(walletsProvider);
 
     return Background(
       child: Scaffold(

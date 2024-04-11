@@ -4,32 +4,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
-import 'package:xelis_mobile_wallet/features/authentication/application/network_wallet_state_provider.dart';
+import 'package:xelis_mobile_wallet/features/authentication/application/wallets_state_provider.dart';
 import 'package:xelis_mobile_wallet/features/router/route_utils.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
-import 'package:xelis_mobile_wallet/shared/utils/utils.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/password_dialog.dart';
 
 class SettingsTab extends ConsumerWidget {
   const SettingsTab({super.key});
 
   void _deleteWallet(WidgetRef ref) async {
-    final settings = ref.read(settingsProvider);
     final walletSnapshot = ref.read(walletStateProvider);
     final auth = ref.read(authenticationProvider.notifier);
-    final networkWallets = ref.read(networkWalletProvider.notifier);
+    final wallets = ref.read(walletsProvider.notifier);
 
     try {
-      var walletPath =
-          await getWalletPath(settings.network, walletSnapshot.name);
-      await Directory(walletPath).delete(recursive: true);
-      networkWallets.removeWallet(settings.network, walletSnapshot.name);
+      await wallets.deleteWallet(walletSnapshot.name);
       await auth.logout();
     } catch (e) {
       ref

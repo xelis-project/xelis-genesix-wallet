@@ -27,13 +27,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   void initState() {
     super.initState();
 
-    getAppCachePath().then((path) {
+    getAppCacheDirPath().then((path) {
       setState(() {
         _cachePath = path;
       });
     });
 
-    getAppWalletsPath().then((path) {
+    getAppWalletsDirPath().then((path) {
       setState(() {
         _walletsPath = path;
       });

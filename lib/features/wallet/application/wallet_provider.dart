@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
-import 'package:xelis_mobile_wallet/features/authentication/application/network_wallet_state_provider.dart';
 import 'package:xelis_mobile_wallet/features/authentication/domain/authentication_state.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
@@ -23,16 +22,12 @@ class WalletState extends _$WalletState {
   @override
   WalletSnapshot build() {
     final authenticationState = ref.watch(authenticationProvider);
-    final networkWallet = ref.read(networkWalletProvider);
-    final settings = ref.read(settingsProvider);
-    var name = networkWallet.getOpenWallet(settings.network);
 
     switch (authenticationState) {
-      case SignedIn(:final nativeWallet):
-        return WalletSnapshot(
-            name: name ?? '', nativeWalletRepository: nativeWallet);
+      case SignedIn(:final name, :final nativeWallet):
+        return WalletSnapshot(name: name, nativeWalletRepository: nativeWallet);
       case SignedOut():
-        return WalletSnapshot(name: name ?? '');
+        return const WalletSnapshot();
     }
   }
 

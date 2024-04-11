@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:xelis_mobile_wallet/features/authentication/application/wallets_state_provider.dart';
 import 'package:xelis_mobile_wallet/features/router/route_utils.dart';
 import 'package:xelis_mobile_wallet/features/router/router.dart';
-import 'package:xelis_mobile_wallet/features/authentication/application/network_wallet_state_provider.dart';
 import 'package:xelis_mobile_wallet/features/authentication/domain/authentication_state.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
@@ -61,13 +61,17 @@ class Authentication extends _$Authentication {
         rethrow;
       }
 
+      //ref
+      //   .read(networkWalletProvider.notifier)
+      //  .setWallet(settings.network, name, walletRepository.address);
+
       ref
-          .read(networkWalletProvider.notifier)
-          .setWallet(settings.network, name, walletRepository.address);
+          .read(walletsProvider.notifier)
+          .setWalletAddress(name, walletRepository.address);
 
       ref.read(routerProvider).go(AppScreen.wallet.toPath);
 
-      state = AuthenticationState.signedIn(nativeWallet: walletRepository);
+      state = AuthenticationState.signedIn(name: name, nativeWallet: walletRepository);
 
       ref.read(walletStateProvider.notifier).connect();
     }
@@ -95,11 +99,15 @@ class Authentication extends _$Authentication {
         rethrow;
       }
 
-      ref
-          .read(networkWalletProvider.notifier)
-          .setWallet(settings.network, name, walletRepository.address);
+      // ref
+      //    .read(networkWalletProvider.notifier)
+      //    .setWallet(settings.network, name, walletRepository.address);
 
-      state = AuthenticationState.signedIn(nativeWallet: walletRepository);
+      ref
+          .read(walletsProvider.notifier)
+          .setWalletAddress(name, walletRepository.address);
+
+      state = AuthenticationState.signedIn(name: name, nativeWallet: walletRepository);
 
       ref.read(routerProvider).go(AppScreen.wallet.toPath);
 

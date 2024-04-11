@@ -1,12 +1,10 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:random_avatar/random_avatar.dart';
 import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
-import 'package:xelis_mobile_wallet/features/authentication/application/network_wallet_state_provider.dart';
+import 'package:xelis_mobile_wallet/features/authentication/application/wallets_state_provider.dart';
 import 'package:xelis_mobile_wallet/features/authentication/presentation/components/table_generation_progress_dialog.dart';
 import 'package:xelis_mobile_wallet/features/router/route_utils.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
@@ -33,33 +31,6 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
       context: context,
       builder: (_) => const TableGenerationProgressDialog(),
     );
-  }
-
-  Future<bool> _checkWallet(String name) async {
-    var settings = ref.read(settingsProvider);
-    var networkWallet = ref.read(networkWalletProvider.notifier);
-
-    var walletPath = await getWalletPath(settings.network, name);
-    var walletExists = await Directory(walletPath).exists();
-    if (walletExists) return true;
-
-    // Most likely the wallet was delete manually from the folder.
-    // We can delete from the settings json file and reload the list.
-    if (mounted) {
-      showDialog<void>(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            content: Text(
-                'The wallet did not exists. The app removed the reference automatically.',
-                style: context.bodyLarge),
-          );
-        },
-      );
-    }
-
-    networkWallet.removeWallet(settings.network, name);
-    return false;
   }
 
   void _openWallet(String name, String password) async {
@@ -92,13 +63,9 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final settings = ref.watch(settingsProvider);
     //final ScalableImageWidget banner = getBanner(context, settings.theme);
-    final networkWallet = ref.watch(networkWalletProvider);
-    //var openWallet = networkWallet.getOpenWallet(settings.network);
-    var wallets = networkWallet.getWallets(settings.network);
 
-    //_selectedWallet ??= openWallet;
+    final wallets = ref.watch(walletsProvider);
 
     return Background(
       child: Scaffold(
@@ -141,21 +108,16 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                                   key: Key(name),
                                   child: InkWell(
                                     onTap: () async {
-                                      var exists = await _checkWallet(name);
-                                      if (!exists) return;
-
-                                      if (context.mounted) {
-                                        showDialog<void>(
-                                          context: context,
-                                          builder: (context) {
-                                            return PasswordDialog(
-                                              onEnter: (password) {
-                                                _openWallet(name, password);
-                                              },
-                                            );
-                                          },
-                                        );
-                                      }
+                                      showDialog<void>(
+                                        context: context,
+                                        builder: (context) {
+                                          return PasswordDialog(
+                                            onEnter: (password) {
+                                              _openWallet(name, password);
+                                            },
+                                          );
+                                        },
+                                      );
                                     },
                                     child: Padding(
                                       padding: const EdgeInsets.all(10),
@@ -163,8 +125,13 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          RandomAvatar(wallets[name]!,
-                                              width: 50, height: 50),
+                                          wallets[name]!.isNotEmpty
+                                              ? RandomAvatar(wallets[name]!,
+                                                  width: 50, height: 50)
+                                              : const SizedBox(
+                                                  width: 50,
+                                                  height: 50,
+                                                ),
                                           const SizedBox(width: 10),
                                           Expanded(
                                             child: Column(
@@ -189,21 +156,21 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                                           ),
                                           const SizedBox(width: 30),
                                         ],
-                                        //tileColor: _items[index].isOdd ? Colors.black : Colors.red,
-                                        //title: Text('Item ${_items[index]}'),
                                       ),
                                     ),
                                   ),
                                 ),
                             ],
                             onReorder: (int oldIndex, int newIndex) {
-                              setState(() {
-                                if (oldIndex < newIndex) {
-                                  newIndex -= 1;
-                                }
-                                //final int item = _items.removeAt(oldIndex);
-                                //_items.insert(newIndex, item);
-                              });
+                              // https://api.flutter.dev/flutter/widgets/ReorderCallback.html
+                              if (oldIndex < newIndex) {
+                                // removing the item at oldIndex will shorten the list by 1.
+                                newIndex -= 1;
+                              }
+
+                              var name = wallets.keys.elementAt(oldIndex);
+                              final w = ref.read(walletsProvider.notifier);
+                              w.orderWallet(name, newIndex);
                             },
                           ))
                       : Text(
