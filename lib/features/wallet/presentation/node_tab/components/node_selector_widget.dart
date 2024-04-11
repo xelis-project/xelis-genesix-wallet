@@ -58,6 +58,7 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
         ),
         child: ExpansionTile(
           expandedCrossAxisAlignment: CrossAxisAlignment.start,
+          tilePadding: const EdgeInsets.fromLTRB(Spaces.medium, Spaces.small, Spaces.medium, Spaces.small),
           title: Text(
             nodeAddress.name,
             style: context.titleLarge,

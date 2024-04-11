@@ -3,6 +3,7 @@ import 'package:path/path.dart' as p;
 import 'dart:convert';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
 import 'package:xelis_mobile_wallet/rust_bridge/api/wallet.dart';
 import 'package:xelis_mobile_wallet/shared/utils/utils.dart';
@@ -122,7 +123,17 @@ class Wallets extends _$Wallets {
   Future<void> renameWallet(String name, String newName) async {
     final walletsDir = await getAppWalletsDirPath();
     final walletPath = p.join(walletsDir, _network.name, name);
-    await Directory(walletPath).rename(newName);
+    final newWalletPath = p.join(walletsDir, _network.name, newName);
+    final newDir = Directory(newWalletPath);
+    final exists = await newDir.exists();
+    if (exists) {
+      throw 'A wallet with this name already exists.';
+    }
+
+    final auth = ref.read(authenticationProvider.notifier);
+    await auth.logout();
+
+    await Directory(walletPath).rename(newWalletPath);
 
     for (var i = 0; i < _ordering.length; i++) {
       if (_ordering[i] == name) {
@@ -149,6 +160,10 @@ class Wallets extends _$Wallets {
   Future<void> deleteWallet(String name) async {
     final walletsDir = await getAppWalletsDirPath();
     final walletPath = p.join(walletsDir, _network.name, name);
+
+    final auth = ref.read(authenticationProvider.notifier);
+    await auth.logout();
+
     await Directory(walletPath).delete(recursive: true);
 
     _ordering.remove(name);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
@@ -36,14 +37,15 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
         appBar: GenericAppBar(title: loc.seed),
         body: SafeArea(
           child: ListView(
-            padding: const EdgeInsets.all(Spaces.large),
+            padding: const EdgeInsets.symmetric(horizontal: Spaces.large),
             children: [
               // BackHeader(title: loc.seed),
               const SizedBox(height: Spaces.medium),
               Container(
                 decoration: BoxDecoration(
-                    border: Border.all(color: context.colors.primary),
-                    borderRadius: BorderRadius.circular(10)),
+                  border: Border.all(color: context.colors.primary),
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(Spaces.medium),
                   child: Row(
@@ -55,22 +57,20 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                       ),
                       const SizedBox(width: Spaces.medium),
                       Expanded(
-                        child: SelectableText.rich(
-                          TextSpan(
-                            style: context.bodyMedium,
-                            //?.copyWith(color: context.colors.primary),
-                            children: [
-                              TextSpan(
-                                text: '${loc.seed_warning}\n',
-                                style: context.bodyMedium?.copyWith(
-                                    color: context.colors.primary,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              TextSpan(
-                                text: loc.seed_warning_message_3,
-                              ),
-                            ],
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              loc.seed_warning,
+                              style: context.bodyMedium?.copyWith(
+                                  color: context.colors.primary,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: Spaces.extraSmall),
+                            SelectableText(
+                              loc.seed_warning_message_3,
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -82,7 +82,7 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                 loc.seed_warning_message_4,
                 style: context.titleMedium,
               ),
-              const SizedBox(height: Spaces.small),
+              const SizedBox(height: Spaces.medium),
               Card.outlined(
                 margin: const EdgeInsets.all(Spaces.none),
                 child: Padding(

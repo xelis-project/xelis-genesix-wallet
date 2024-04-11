@@ -32,40 +32,34 @@ class QrDialog extends ConsumerWidget {
     return AlertDialog(
       scrollable: true,
       content: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: 250,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SelectableText(
-                walletSnapshot.address,
-                style: context.bodyLarge!.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: context.moreColors.mutedColor,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: Spaces.large),
-              PrettyQrView.data(
-                data: walletSnapshot.address,
-                decoration: PrettyQrDecoration(
-                  shape:
-                      PrettyQrSmoothSymbol(color: context.colors.onBackground),
-                  // image: PrettyQrDecorationImage(
-                  //   image: Image.network(iconTarget).image,
-                  // ),
-                ),
-              ),
-            ],
-          )
-          /*actions: [
-        FilledButton(
-          onPressed: () => context.pop(),
-          child: Text(loc.ok_button),
+        constraints: const BoxConstraints(
+          maxWidth: 200,
         ),
-      ]*/
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: Spaces.small),
+            SelectableText(
+              walletSnapshot.address,
+              style: context.bodyLarge!.copyWith(
+                fontWeight: FontWeight.bold,
+                color: context.moreColors.mutedColor,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: Spaces.large),
+            PrettyQrView.data(
+              data: walletSnapshot.address,
+              decoration: PrettyQrDecoration(
+                shape: PrettyQrSmoothSymbol(color: context.colors.onBackground),
+                // image: PrettyQrDecorationImage(
+                //   image: Image.network(iconTarget).image,
+                // ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

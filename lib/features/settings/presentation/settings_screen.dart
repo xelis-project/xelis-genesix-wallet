@@ -55,7 +55,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         appBar: const GenericAppBar(title: 'App settings'),
         body: SafeArea(
           child: ListView(
-            padding: const EdgeInsets.all(Spaces.large),
+            padding: const EdgeInsets.symmetric(horizontal: Spaces.large),
             children: [
               const NetworkSelectorWidget(),
               const Divider(),

@@ -109,7 +109,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
           key: _createFormKey,
           onChanged: () => _createFormKey.currentState!.save(),
           child: ListView(
-            padding: const EdgeInsets.all(Spaces.large),
+            padding: const EdgeInsets.symmetric(horizontal: Spaces.large),
             children: [
               const SizedBox(height: Spaces.medium),
               FormBuilderSwitch(

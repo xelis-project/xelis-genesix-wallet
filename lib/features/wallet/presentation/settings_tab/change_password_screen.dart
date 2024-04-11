@@ -78,7 +78,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
         backgroundColor: Colors.transparent,
         appBar: GenericAppBar(title: loc.change_password),
         body: Padding(
-          padding: const EdgeInsets.all(Spaces.large),
+          padding: const EdgeInsets.symmetric(horizontal: Spaces.large),
           child: FormBuilder(
             key: _changePasswordKey,
             onChanged: () => _changePasswordKey.currentState!.save(),
