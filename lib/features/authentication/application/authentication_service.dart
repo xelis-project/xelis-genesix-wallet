@@ -14,7 +14,6 @@ import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
 import 'package:xelis_mobile_wallet/rust_bridge/api/wallet.dart';
-import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
 import 'package:xelis_mobile_wallet/shared/utils/utils.dart';
 
 part 'authentication_service.g.dart';
@@ -71,7 +70,8 @@ class Authentication extends _$Authentication {
 
       ref.read(routerProvider).go(AppScreen.wallet.toPath);
 
-      state = AuthenticationState.signedIn(name: name, nativeWallet: walletRepository);
+      state = AuthenticationState.signedIn(
+          name: name, nativeWallet: walletRepository);
 
       ref.read(walletStateProvider.notifier).connect();
     }
@@ -80,6 +80,7 @@ class Authentication extends _$Authentication {
   Future<void> openWallet(String name, String password) async {
     final settings = ref.read(settingsProvider);
     final precomputedTablesPath = await _getPrecomputedTablesPath();
+    print(precomputedTablesPath);
 
     var walletPath = await getWalletPath(settings.network, name);
     var walletExists = await Directory(walletPath).exists();
@@ -107,7 +108,8 @@ class Authentication extends _$Authentication {
           .read(walletsProvider.notifier)
           .setWalletAddress(name, walletRepository.address);
 
-      state = AuthenticationState.signedIn(name: name, nativeWallet: walletRepository);
+      state = AuthenticationState.signedIn(
+          name: name, nativeWallet: walletRepository);
 
       ref.read(routerProvider).go(AppScreen.wallet.toPath);
 
@@ -134,7 +136,7 @@ class Authentication extends _$Authentication {
 
   Future<String> _getPrecomputedTablesPath() async {
     final dir = await getApplicationCacheDirectory();
-    return dir.path;
+    return "${dir.path}/";
   }
 
   Future<bool> isPrecomputedTablesExists() async {
