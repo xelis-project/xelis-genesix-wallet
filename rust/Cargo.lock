@@ -437,9 +437,9 @@ checksum = "96d30a06541fbafbc7f82ed10c06164cfbd2c401138f6addd8404629c4b16711"
 
 [[package]]
 name = "async-trait"
-version = "0.1.79"
+version = "0.1.80"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a507401cad91ec6a857ed5513a2073c82a9b9048762b885bb98655b306964681"
+checksum = "c6fa2087f2753a7da8cc1c0dbfcf89579dd57458e36769de5ac750b4671737ca"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1520,9 +1520,9 @@ checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
 
 [[package]]
 name = "jobserver"
-version = "0.1.28"
+version = "0.1.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ab46a6e9526ddef3ae7f787c06f0f2600639ba80ea3eade3d8e670a2230f51d6"
+checksum = "f08474e32172238f2827bd160c67871cdb2801430f65c3979184dc362e3ca118"
 dependencies = [
  "libc",
 ]
@@ -2482,9 +2482,9 @@ dependencies = [
 
 [[package]]
 name = "time"
-version = "0.3.35"
+version = "0.3.36"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ef89ece63debf11bc32d1ed8d078ac870cbeb44da02afb02a9ff135ae7ca0582"
+checksum = "5dfd88e563464686c916c7e46e623e520ddc6d79fa6641390f2e3fa86e83e885"
 dependencies = [
  "deranged",
  "itoa",
@@ -3047,7 +3047,7 @@ dependencies = [
 [[package]]
 name = "xelis_common"
 version = "1.8.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#fd0685ab78d4dc9159da49fa6308406bb8734ee6"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=fixes#4b10b573ad4f5a4d0fce9da02c9959d526c40858"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -3084,7 +3084,7 @@ dependencies = [
 [[package]]
 name = "xelis_wallet"
 version = "1.8.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#fd0685ab78d4dc9159da49fa6308406bb8734ee6"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=fixes#4b10b573ad4f5a4d0fce9da02c9959d526c40858"
 dependencies = [
  "actix",
  "actix-web",
