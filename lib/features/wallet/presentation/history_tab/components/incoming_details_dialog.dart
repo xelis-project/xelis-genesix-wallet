@@ -117,18 +117,18 @@ class IncomingDetailsDialog extends ConsumerWidget {
                                   : transfer.asset),
                             ],
                           ),
-                          const SizedBox(height: Spaces.small),
+                          /*const SizedBox(height: Spaces.small),
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                loc.key,
+                                'Data',
                                 style: context.labelSmall
                                     ?.copyWith(color: context.colors.primary),
                               ),
-                              SelectableText(transfer.asset),
+                              SelectableText(transfer.extraData?.toString() ?? '/'),
                             ],
-                          ),
+                          ),*/
                         ],
                       ),
                     ),
