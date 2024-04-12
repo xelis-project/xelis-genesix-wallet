@@ -39,10 +39,18 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
           return PasswordDialog(
             onValid: () async {
               try {
-                await ref
-                    .read(walletStateProvider)
-                    .nativeWalletRepository!
-                    .transfer(amount: double.parse(amount), address: address);
+                final res = await ref
+                    .read(walletStateProvider.notifier)
+                    .createXelisTransaction(
+                        amount: double.parse(amount), destination: address);
+
+                if (res != null) {
+                  ref
+                      .read(snackbarContentProvider.notifier)
+                      .setContent(SnackbarEvent.info(
+                        message: "transaction created: ${res.hash}",
+                      ));
+                }
               } catch (e) {
                 ref
                     .read(snackbarContentProvider.notifier)

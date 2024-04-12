@@ -8,6 +8,7 @@ use std::collections::HashMap;
 use std::ops::ControlFlow;
 use std::path::Path;
 use std::sync::Arc;
+use xelis_common::api::RPCTransaction;
 use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
 use xelis_common::crypto::{ecdlp, Address, Hash, Hashable};
 pub use xelis_common::network::Network;
@@ -145,7 +146,7 @@ impl XelisWallet {
         Ok(self.wallet.rescan(topoheight).await?)
     }
 
-    pub async fn transfer(
+    pub async fn create_transfer_transaction(
         &self,
         float_amount: f64,
         str_address: String,
@@ -156,7 +157,7 @@ impl XelisWallet {
             None => XELIS_ASSET,
             Some(value) => Hash::from_hex(value).unwrap_or(XELIS_ASSET),
         };
-        let storage = self.wallet.get_storage().read().await;
+        let mut storage = self.wallet.get_storage().write().await;
         let decimals = storage.get_asset_decimals(&asset).unwrap_or(COIN_DECIMALS);
         let amount = (float_amount * 10u32.pow(decimals as u32) as f64) as u64;
 
@@ -178,22 +179,30 @@ impl XelisWallet {
 
         let tx = self
             .wallet
-            .create_transaction(
+            .create_transaction_with_storage(
+                &mut storage,
                 TransactionTypeBuilder::Transfers(vec![transfer]),
                 FeeBuilder::default(),
             )
             .await
             .context("Error while creating transaction")?;
 
-        self.broadcast_tx(&tx).await?;
+        info!("Transaction created!");
+        let hash = tx.hash();
+        info!("Tx Hash: {}", hash);
 
-        // TODO: send the entire tx struct to the dart side
-        Ok(tx.hash().to_hex())
+        let tx_rpc = RPCTransaction::from_tx(&tx, &hash, self.wallet.get_network().is_mainnet());
+
+        Ok(json!(tx_rpc).to_string())
     }
 
-    pub async fn burn(&self, float_amount: f64, asset_hash: String) -> Result<String> {
+    pub async fn create_burn_transaction(
+        &self,
+        float_amount: f64,
+        asset_hash: String,
+    ) -> Result<String> {
         let asset = Hash::from_hex(asset_hash)?;
-        let storage = self.wallet.get_storage().read().await;
+        let mut storage = self.wallet.get_storage().write().await;
         let decimals = storage.get_asset_decimals(&asset).unwrap_or(COIN_DECIMALS);
         let amount = (float_amount * 10u32.pow(decimals as u32) as f64) as u64;
 
@@ -202,21 +211,29 @@ impl XelisWallet {
         let payload = BurnPayload { amount, asset };
         let tx = self
             .wallet
-            .create_transaction(
+            .create_transaction_with_storage(
+                &mut storage,
                 TransactionTypeBuilder::Burn(payload),
                 FeeBuilder::Multiplier(1f64),
             )
             .await
             .context("Error while creating transaction")?;
 
-        self.broadcast_tx(&tx).await?;
+        info!("Transaction created!");
+        let hash = tx.hash();
+        info!("Tx Hash: {}", hash);
 
-        Ok(tx.hash().to_hex())
+        let tx_rpc = RPCTransaction::from_tx(&tx, &hash, self.wallet.get_network().is_mainnet());
+
+        Ok(json!(tx_rpc).to_string())
     }
 
-    async fn broadcast_tx(&self, tx: &Transaction) -> Result<()> {
+    pub async fn broadcast_transaction(&self, json_data: String) -> Result<()> {
+        let tx_rpc_json: RPCTransaction = serde_json::from_str(&*json_data)?;
+        let tx = Transaction::from(tx_rpc_json);
+
         if self.wallet.is_online().await {
-            self.wallet.submit_transaction(tx).await?;
+            self.wallet.submit_transaction(&tx).await?;
             info!("Transaction submitted successfully!");
         } else {
             return Err(anyhow!(

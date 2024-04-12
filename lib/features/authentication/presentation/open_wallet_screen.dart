@@ -8,7 +8,6 @@ import 'package:xelis_mobile_wallet/features/authentication/application/wallets_
 import 'package:xelis_mobile_wallet/features/authentication/presentation/components/table_generation_progress_dialog.dart';
 import 'package:xelis_mobile_wallet/features/router/route_utils.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
 import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
 import 'package:xelis_mobile_wallet/shared/theme/constants.dart';

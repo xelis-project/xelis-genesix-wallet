@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:xelis_mobile_wallet/features/wallet/domain/event.dart';
+import 'package:xelis_mobile_wallet/features/wallet/domain/native_transaction.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
 import 'package:xelis_mobile_wallet/rust_bridge/api/wallet.dart';
 
@@ -98,17 +99,27 @@ class NativeWalletRepository {
     return _xelisWallet.rescan(topoheight: topoHeight);
   }
 
-  Future<String> transfer(
+  Future<NativeTransaction> createSimpleTransaction(
       {required double amount,
       required String address,
       String? assetHash}) async {
-    return _xelisWallet.transfer(
+    final rawTx = await _xelisWallet.createTransferTransaction(
         floatAmount: amount, strAddress: address, assetHash: assetHash);
+    final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
+    return NativeTransaction.fromJson(jsonTx);
   }
 
-  Future<String> burn(
+  Future<NativeTransaction> createBurnTransaction(
       {required double amount, required String assetHash}) async {
-    return _xelisWallet.burn(floatAmount: amount, assetHash: assetHash);
+    final rawTx = await _xelisWallet.createBurnTransaction(
+        floatAmount: amount, assetHash: assetHash);
+    final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
+    return NativeTransaction.fromJson(jsonTx);
+  }
+
+  Future<void> broadcastTransaction(NativeTransaction nativeTransaction) async {
+    final rawTx = jsonEncode(nativeTransaction.toJson());
+    await _xelisWallet.broadcastTransaction(jsonData: rawTx);
   }
 
   Future<List<sdk.TransactionEntry>> allHistory() async {

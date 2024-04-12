@@ -15,15 +15,6 @@ import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 class BalanceWidget extends ConsumerWidget {
   const BalanceWidget({super.key});
 
-/*
-  void _showTransferToDialog(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (_) => const TransferToDialog(),
-    );
-  }
-  */
-
   void _showQrDialog(BuildContext context) {
     showDialog<void>(
       context: context,
@@ -110,7 +101,6 @@ class BalanceWidget extends ConsumerWidget {
                 children: [
                   IconButton.filled(
                     onPressed: () {
-                      //_showTransferToDialog(context);
                       context.push(AppScreen.transfer.toPath);
                     },
                     icon: const Icon(Icons.call_made_rounded),

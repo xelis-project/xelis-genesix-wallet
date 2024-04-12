@@ -21,6 +21,7 @@ pub fn init_logger() {
                 level: LevelFilter::Debug,
             }),
             // Box::new(SendToDartLogger { level: LevelFilter::Info }),
+            // Box::new(SendToDartLogger { level: LevelFilter::Trace }),
         ])
         .unwrap_or_else(|e| {
             error!("init_logger (inside 'once') has error: {:?}", e);

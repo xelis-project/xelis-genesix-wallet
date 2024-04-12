@@ -8,6 +8,7 @@ import 'package:xelis_mobile_wallet/features/settings/application/app_localizati
 import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/application/network_nodes_provider.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/event.dart';
+import 'package:xelis_mobile_wallet/features/wallet/domain/native_transaction.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/node_address.dart';
 import 'package:xelis_mobile_wallet/features/wallet/domain/wallet_snapshot.dart';
 import 'package:xelis_mobile_wallet/shared/logger.dart';
@@ -116,12 +117,28 @@ class WalletState extends _$WalletState {
     }
   }
 
-  Future<String?> burnXelis({required double amount}) async {
+  Future<NativeTransaction?> createXelisTransaction(
+      {required double amount, required String destination}) async {
     if (state.nativeWalletRepository != null) {
       return state.nativeWalletRepository!
-          .burn(amount: amount, assetHash: xelisAsset);
+          .createSimpleTransaction(amount: amount, address: destination);
     }
     return null;
+  }
+
+  Future<NativeTransaction?> createBurnXelisTransaction(
+      {required double amount}) async {
+    if (state.nativeWalletRepository != null) {
+      return state.nativeWalletRepository!
+          .createBurnTransaction(amount: amount, assetHash: xelisAsset);
+    }
+    return null;
+  }
+
+  Future<void> broadcastTx({required NativeTransaction tx}) async {
+    if (state.nativeWalletRepository != null) {
+      await state.nativeWalletRepository!.broadcastTransaction(tx);
+    }
   }
 
   Future<void> _onEvent(Event event) async {

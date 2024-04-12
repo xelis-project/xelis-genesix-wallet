@@ -80,7 +80,6 @@ class Authentication extends _$Authentication {
   Future<void> openWallet(String name, String password) async {
     final settings = ref.read(settingsProvider);
     final precomputedTablesPath = await _getPrecomputedTablesPath();
-    print(precomputedTablesPath);
 
     var walletPath = await getWalletPath(settings.network, name);
     var walletExists = await Directory(walletPath).exists();

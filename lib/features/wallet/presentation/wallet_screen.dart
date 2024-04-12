@@ -7,7 +7,6 @@ import 'package:xelis_mobile_wallet/features/wallet/presentation/history_tab/his
 import 'package:xelis_mobile_wallet/features/wallet/presentation/settings_tab/settings_tab_widget.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/wallet_tab_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
 import 'package:xelis_mobile_wallet/shared/widgets/components/background_widget.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
