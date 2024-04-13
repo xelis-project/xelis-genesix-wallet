@@ -41,11 +41,12 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
   @override
   Widget build(BuildContext context) {
     final networkNodes = ref.watch(networkNodesProvider);
-    final settings = ref.watch(settingsProvider);
+    final network =
+        ref.watch(settingsProvider.select((value) => value.network));
     final loc = ref.watch(appLocalizationsProvider);
 
-    var nodeAddress = networkNodes.getNodeAddress(settings.network);
-    var nodes = networkNodes.getNodes(settings.network);
+    var nodeAddress = networkNodes.getNodeAddress(network);
+    var nodes = networkNodes.getNodes(network);
     return Card(
       elevation: 1,
       // clipBehavior: Clip.antiAlias,
@@ -58,7 +59,8 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
         ),
         child: ExpansionTile(
           expandedCrossAxisAlignment: CrossAxisAlignment.start,
-          tilePadding: const EdgeInsets.fromLTRB(Spaces.medium, Spaces.small, Spaces.medium, Spaces.small),
+          tilePadding: const EdgeInsets.fromLTRB(
+              Spaces.medium, Spaces.small, Spaces.medium, Spaces.small),
           title: Text(
             nodeAddress.name,
             style: context.titleLarge,

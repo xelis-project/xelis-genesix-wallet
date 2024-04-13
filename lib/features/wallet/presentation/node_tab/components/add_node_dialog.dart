@@ -59,9 +59,10 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final settings = ref.watch(settingsProvider);
+    final network =
+        ref.watch(settingsProvider.select((state) => state.network));
     final networkNodes = ref.watch(networkNodesProvider);
-    var nodes = networkNodes.getNodes(settings.network);
+    var nodes = networkNodes.getNodes(network);
 
     return AlertDialog(
       scrollable: true,

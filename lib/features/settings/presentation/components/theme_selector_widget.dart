@@ -19,7 +19,7 @@ class ThemeSelectorWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(settingsProvider);
+    final theme = ref.watch(settingsProvider.select((state) => state.theme));
     final loc = ref.watch(appLocalizationsProvider);
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
@@ -30,7 +30,7 @@ class ThemeSelectorWidget extends ConsumerWidget {
         style: context.titleLarge,
       ),
       subtitle: Text(
-        translateThemeName(loc, settings.theme),
+        translateThemeName(loc, theme),
         style: context.titleMedium!.copyWith(color: context.colors.primary),
       ),
       children: List<ListTile>.generate(
@@ -43,7 +43,7 @@ class ThemeSelectorWidget extends ConsumerWidget {
           ),
           leading: Radio<AppTheme>(
             value: themes[index],
-            groupValue: settings.theme,
+            groupValue: theme,
             onChanged: (value) {
               if (value != null) {
                 ref.read(settingsProvider.notifier).setTheme(value);

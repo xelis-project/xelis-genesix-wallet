@@ -25,13 +25,14 @@ class BalanceWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
-    final settings = ref.watch(settingsProvider);
+    final hideBalance =
+        ref.watch(settingsProvider.select((value) => value.hideBalance));
     final walletSnapshot = ref.watch(walletStateProvider);
 
     // added 2000 in front to test text resize
     var displayBalance = walletSnapshot.xelisBalance;
     //var displayBalance = '${NumberFormat().format(balance)} XEL';
-    if (settings.hideBalance) {
+    if (hideBalance) {
       displayBalance = 'HIDDEN';
     }
 
@@ -63,7 +64,7 @@ class BalanceWidget extends ConsumerWidget {
                           minFontSize: 20,
                         ),
                       ),
-                      !settings.hideBalance
+                      !hideBalance
                           ? SelectableText(
                               '0.00 USDT',
                               style: context.bodyLarge,
@@ -74,19 +75,18 @@ class BalanceWidget extends ConsumerWidget {
                 ),
                 const SizedBox(width: Spaces.medium),
                 IconButton.filled(
-                  icon: settings.hideBalance
+                  icon: hideBalance
                       ? const Icon(
                           Icons.visibility_rounded,
                         )
                       : const Icon(
                           Icons.visibility_off_rounded,
                         ),
-                  tooltip:
-                      settings.hideBalance ? 'Show balance' : 'Hide balance',
+                  tooltip: hideBalance ? 'Show balance' : 'Hide balance',
                   onPressed: () {
                     ref
                         .read(settingsProvider.notifier)
-                        .setHideBalance(!settings.hideBalance);
+                        .setHideBalance(!hideBalance);
                   },
                 ),
               ],

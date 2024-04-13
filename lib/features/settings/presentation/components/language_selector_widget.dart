@@ -15,7 +15,7 @@ class LanguageSelectorWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(settingsProvider);
+    final locale = ref.watch(settingsProvider.select((state) => state.locale));
     final loc = ref.watch(appLocalizationsProvider);
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
@@ -26,7 +26,7 @@ class LanguageSelectorWidget extends ConsumerWidget {
         style: context.titleLarge,
       ),
       subtitle: Text(
-        translateLocaleName(settings.locale),
+        translateLocaleName(locale),
         style: context.titleMedium!.copyWith(color: context.colors.primary),
       ),
       children: List<ListTile>.generate(
@@ -50,7 +50,7 @@ class LanguageSelectorWidget extends ConsumerWidget {
           ),
           leading: Radio<Locale>(
             value: AppLocalizations.supportedLocales[index],
-            groupValue: settings.locale,
+            groupValue: locale,
             onChanged: (value) {
               if (value != null) {
                 ref.read(settingsProvider.notifier).setLocale(value);

@@ -16,13 +16,6 @@ enum AppTheme {
   xelis,
 }
 
-/*
-enum Network {
-  dev,
-  testnet,
-  mainnet,
-}*/
-
 @freezed
 class SettingsState with _$SettingsState {
   const factory SettingsState({

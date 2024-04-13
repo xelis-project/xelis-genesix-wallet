@@ -44,12 +44,12 @@ class _XelisWalletAppState extends ConsumerState<XelisWalletApp>
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
-    final settings = ref.watch(settingsProvider);
+    final appTheme = ref.watch(settingsProvider.select((state) => state.theme));
     final scaffoldMessengerKey = ref.watch(scaffoldMessengerKeyProvider);
 
     // using kDebugMode and call func every render to hot reload the theme
     ThemeData themeData;
-    switch (settings.theme) {
+    switch (appTheme) {
       case AppTheme.xelis:
         themeData = kDebugMode ? xelisTheme() : _xelisTheme;
       case AppTheme.dark:

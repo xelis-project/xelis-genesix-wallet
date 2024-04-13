@@ -11,15 +11,16 @@ class NetworkTopWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(settingsProvider);
-    final displayTopBar = settings.network != Network.mainnet;
+    final network =
+        ref.watch(settingsProvider.select((state) => state.network));
+    final displayTopBar = network != Network.mainnet;
 
     if (displayTopBar) {
       return Container(
         decoration: BoxDecoration(color: context.colors.background),
         padding: const EdgeInsets.all(Spaces.small),
         child: Text(
-          "Network: ${translateNetworkName(settings.network)}",
+          "Network: ${translateNetworkName(network)}",
           style: context.bodyMedium,
         ),
       );

@@ -15,8 +15,8 @@ class HubAppBar extends ConsumerWidget implements PreferredSizeWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final walletState = ref.watch(walletStateProvider);
     final loc = ref.watch(appLocalizationsProvider);
-    final settings = ref.watch(settingsProvider);
-    final ScalableImageWidget banner = getBanner(context, settings.theme);
+    final theme = ref.watch(settingsProvider.select((state) => state.theme));
+    final ScalableImageWidget banner = getBanner(context, theme);
 
     return AppBar(
       leading: Tooltip(
