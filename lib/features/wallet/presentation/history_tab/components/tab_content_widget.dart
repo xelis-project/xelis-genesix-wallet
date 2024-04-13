@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/presentation/history_tab/components/burn_entry_widget.dart';
-import 'package:xelis_mobile_wallet/features/wallet/presentation/history_tab/components/coinbase_entry_widget.dart';
-import 'package:xelis_mobile_wallet/features/wallet/presentation/history_tab/components/incoming_entry_widget.dart';
-import 'package:xelis_mobile_wallet/features/wallet/presentation/history_tab/components/outgoing_entry_widget.dart';
+import 'package:xelis_mobile_wallet/features/wallet/presentation/history_tab/components/transaction_entry_widget.dart';
 import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
 
 class TabContentWidget extends ConsumerWidget {
@@ -22,12 +19,7 @@ class TabContentWidget extends ConsumerWidget {
         itemCount: entries.length,
         itemBuilder: (BuildContext context, int index) {
           final entry = entries[index];
-          return switch (entry.txEntryType) {
-            CoinbaseEntry() => CoinbaseEntryWidget(transactionEntry: entry),
-            BurnEntry() => BurnEntryWidget(transactionEntry: entry),
-            IncomingEntry() => IncomingEntryWidget(transactionEntry: entry),
-            OutgoingEntry() => OutgoingEntryWidget(transactionEntry: entry),
-          };
+          return TransactionEntryWidget(transactionEntry: entry);
         },
       );
     } else {

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:xelis_mobile_wallet/features/authentication/presentation/create_wallet_screen.dart';
 import 'package:xelis_mobile_wallet/features/authentication/presentation/open_wallet_screen.dart';
 import 'package:xelis_mobile_wallet/features/settings/presentation/settings_screen.dart';
+import 'package:xelis_mobile_wallet/features/wallet/presentation/history_tab/components/transaction_entry_screen.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/settings_tab/change_password_screen.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/settings_tab/my_seed_screen.dart';
 import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_screen.dart';
@@ -104,6 +105,20 @@ class TransferRoute extends GoRouteData {
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
       const TransferScreen(),
+      state.pageKey,
+      AppDurations.animFast,
+    );
+  }
+}
+
+@TypedGoRoute<TransactionEntryRoute>(name: 'transaction_entry', path: '/transaction_entry')
+class TransactionEntryRoute extends GoRouteData {
+  const TransactionEntryRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      TransactionEntryScreen(routerState: state),
       state.pageKey,
       AppDurations.animFast,
     );
