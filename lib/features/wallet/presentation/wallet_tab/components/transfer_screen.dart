@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
-import 'package:xelis_mobile_wallet/rust_bridge/api/utils.dart';
-import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
-import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
-import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
-import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/widgets/components/background_widget.dart';
-import 'package:xelis_mobile_wallet/shared/widgets/components/generic_app_bar_widget.dart';
-import 'package:xelis_mobile_wallet/shared/widgets/components/password_dialog.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/rust_bridge/api/utils.dart';
+import 'package:genesix/shared/providers/snackbar_content_provider.dart';
+import 'package:genesix/shared/providers/snackbar_event.dart';
+import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/widgets/components/background_widget.dart';
+import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
+import 'package:genesix/shared/widgets/components/password_dialog.dart';
 
 class TransferScreen extends ConsumerStatefulWidget {
   const TransferScreen({super.key});

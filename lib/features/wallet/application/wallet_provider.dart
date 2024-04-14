@@ -2,19 +2,19 @@ import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
-import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
-import 'package:xelis_mobile_wallet/features/authentication/domain/authentication_state.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/application/network_nodes_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/domain/event.dart';
-import 'package:xelis_mobile_wallet/features/wallet/domain/native_transaction.dart';
-import 'package:xelis_mobile_wallet/features/wallet/domain/node_address.dart';
-import 'package:xelis_mobile_wallet/features/wallet/domain/wallet_snapshot.dart';
-import 'package:xelis_mobile_wallet/shared/logger.dart';
-import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
-import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
-import 'package:xelis_mobile_wallet/shared/utils/utils.dart';
+import 'package:genesix/features/authentication/application/authentication_service.dart';
+import 'package:genesix/features/authentication/domain/authentication_state.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/wallet/application/network_nodes_provider.dart';
+import 'package:genesix/features/wallet/domain/event.dart';
+import 'package:genesix/features/wallet/domain/native_transaction.dart';
+import 'package:genesix/features/wallet/domain/node_address.dart';
+import 'package:genesix/features/wallet/domain/wallet_snapshot.dart';
+import 'package:genesix/shared/logger.dart';
+import 'package:genesix/shared/providers/snackbar_content_provider.dart';
+import 'package:genesix/shared/providers/snackbar_event.dart';
+import 'package:genesix/shared/utils/utils.dart';
 
 part 'wallet_provider.g.dart';
 

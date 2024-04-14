@@ -1,10 +1,10 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:xelis_mobile_wallet/rust_bridge/api/wallet.dart';
-import 'package:xelis_mobile_wallet/features/wallet/data/network_nodes_state_repository.dart';
-import 'package:xelis_mobile_wallet/features/wallet/domain/network_nodes_state.dart';
-import 'package:xelis_mobile_wallet/features/wallet/domain/node_address.dart';
-import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_provider.dart';
-import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_sync.dart';
+import 'package:genesix/rust_bridge/api/wallet.dart';
+import 'package:genesix/features/wallet/data/network_nodes_state_repository.dart';
+import 'package:genesix/features/wallet/domain/network_nodes_state.dart';
+import 'package:genesix/features/wallet/domain/node_address.dart';
+import 'package:genesix/shared/storage/shared_preferences/shared_preferences_provider.dart';
+import 'package:genesix/shared/storage/shared_preferences/shared_preferences_sync.dart';
 
 part 'network_nodes_provider.g.dart';
 

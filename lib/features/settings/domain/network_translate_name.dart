@@ -1,4 +1,4 @@
-import 'package:xelis_mobile_wallet/rust_bridge/api/wallet.dart';
+import 'package:genesix/rust_bridge/api/wallet.dart';
 
 String translateNetworkName(Network network) {
   switch (network) {

@@ -1,12 +1,12 @@
 import 'package:flutter/widgets.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:jovial_svg/jovial_svg.dart';
-import 'package:xelis_mobile_wallet/features/wallet/domain/node_address.dart';
+import 'package:genesix/features/wallet/domain/node_address.dart';
 
 class AppResources {
-  static const String xelisWalletName = 'XELIS Wallet';
+  static const String xelisWalletName = 'Genesix';
 
-  static const String userWalletsFolderName = 'XELIS wallets';
+  static const String userWalletsFolderName = 'Genesix wallets';
 
   static const int xelisDecimals = 8;
 

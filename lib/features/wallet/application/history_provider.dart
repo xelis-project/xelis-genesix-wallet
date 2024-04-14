@@ -1,7 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
-import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/domain/history_state.dart';
+import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/domain/history_state.dart';
 
 part 'history_provider.g.dart';
 

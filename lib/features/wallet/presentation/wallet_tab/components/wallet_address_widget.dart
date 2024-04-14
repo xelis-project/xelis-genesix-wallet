@@ -3,14 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:random_avatar/random_avatar.dart';
-import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
-import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
-import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
-import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
-import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/utils/utils.dart';
+import 'package:genesix/features/authentication/application/authentication_service.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/shared/providers/snackbar_content_provider.dart';
+import 'package:genesix/shared/providers/snackbar_event.dart';
+import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/utils/utils.dart';
 
 class WalletAddressWidget extends ConsumerWidget {
   const WalletAddressWidget({super.key});

@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
-import 'package:xelis_mobile_wallet/features/wallet/domain/event.dart';
-import 'package:xelis_mobile_wallet/features/wallet/domain/native_transaction.dart';
-import 'package:xelis_mobile_wallet/shared/logger.dart';
-import 'package:xelis_mobile_wallet/rust_bridge/api/wallet.dart';
+import 'package:genesix/features/wallet/domain/event.dart';
+import 'package:genesix/features/wallet/domain/native_transaction.dart';
+import 'package:genesix/shared/logger.dart';
+import 'package:genesix/rust_bridge/api/wallet.dart';
 
 class NativeWalletRepository {
   NativeWalletRepository._internal(this._xelisWallet);

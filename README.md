@@ -1,6 +1,6 @@
-# XELIS Wallet
+# Genesix
 
-XELIS Wallet is a multiplatform cryptocurrency wallet built using the Flutter framework. It provides a convenient and secure way to manage your XELIS cryptocurrency assets on various platforms.
+Genesix is a multiplatform mobile wallet for the XELIS network. Built using the Flutter framework, it provides a convenient and secure way to manage your XELIS cryptocurrency assets.
 
 This wallet harnesses the power of Rust by incorporating a native Rust library from the XELIS blockchain, ensuring the same level of security as the XELIS Wallet CLI.
 
@@ -18,7 +18,7 @@ This wallet harnesses the power of Rust by incorporating a native Rust library f
 
 ## Installation
 
-Follow the steps below to install and run XELIS Wallet on your desired platform.
+Follow the steps below to install and run Genesix on your desired platform.
 
 ### Prerequisites
 
@@ -61,11 +61,11 @@ For platform-specific instructions and additional configuration steps, please re
 
 ## Contributing
 
-We welcome contributions from the community! If you'd like to contribute to XELIS Wallet, please follow our [contribution guidelines](CONTRIBUTING.md) and submit a pull request.
+We welcome contributions from the community! If you'd like to contribute to Genesix, please follow our [contribution guidelines](CONTRIBUTING.md) and submit a pull request.
 
 ## License
 
-XELIS Wallet is open source and licensed under the [MIT License](LICENSE). Feel free to modify and distribute the application as per the terms of the license.
+Genesix is open source and licensed under the [MIT License](LICENSE). Feel free to modify and distribute the application as per the terms of the license.
 
 ## Contact
 

@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "io.xelis.app" "\0"
-            VALUE "FileDescription", "Xelis Wallet" "\0"
+            VALUE "FileDescription", "Genesix" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "xelis_wallet" "\0"
+            VALUE "InternalName", "genesix" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024 io.xelis.app. All rights reserved." "\0"
-            VALUE "OriginalFilename", "xelis_wallet.exe" "\0"
-            VALUE "ProductName", "xelis_wallet" "\0"
+            VALUE "OriginalFilename", "genesix.exe" "\0"
+            VALUE "ProductName", "genesix" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:random_avatar/random_avatar.dart';
-import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
-import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
+import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/constants.dart';
 
 class AvatarSelector extends ConsumerWidget {
   const AvatarSelector({super.key});

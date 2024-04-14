@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:xelis_mobile_wallet/features/wallet/data/native_wallet_repository.dart';
+import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 
 part 'authentication_state.freezed.dart';
 

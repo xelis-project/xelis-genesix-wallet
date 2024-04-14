@@ -2,11 +2,11 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jovial_svg/jovial_svg.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
-import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/widgets/components/banner_widget.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/widgets/components/banner_widget.dart';
 
 class HubAppBar extends ConsumerWidget implements PreferredSizeWidget {
   const HubAppBar({super.key});

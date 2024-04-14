@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/application/network_nodes_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/domain/node_address.dart';
-import 'package:xelis_mobile_wallet/features/wallet/presentation/node_tab/components/add_node_dialog.dart';
-import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/wallet/application/network_nodes_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/domain/node_address.dart';
+import 'package:genesix/features/wallet/presentation/node_tab/components/add_node_dialog.dart';
+import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/constants.dart';
 
 class NodeSelectorWidget extends ConsumerStatefulWidget {
   const NodeSelectorWidget({

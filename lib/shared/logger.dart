@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:logging/logging.dart';
-import 'package:xelis_mobile_wallet/rust_bridge/api/api.dart';
+import 'package:genesix/rust_bridge/api/api.dart';
 
 final logger = Logger('XelisWalletApp');
 

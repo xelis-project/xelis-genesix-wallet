@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
-import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
+import 'package:genesix/shared/providers/snackbar_event.dart';
 
 part 'snackbar_content_provider.g.dart';
 

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/presentation/node_tab/node_tab_widget.dart';
-import 'package:xelis_mobile_wallet/features/wallet/presentation/assets_tab/assets_tab_widget.dart';
-import 'package:xelis_mobile_wallet/features/wallet/presentation/history_tab/history_tab_widget.dart';
-import 'package:xelis_mobile_wallet/features/wallet/presentation/settings_tab/settings_tab_widget.dart';
-import 'package:xelis_mobile_wallet/features/wallet/presentation/wallet_tab/wallet_tab_widget.dart';
-import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/widgets/components/background_widget.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/wallet/presentation/node_tab/node_tab_widget.dart';
+import 'package:genesix/features/wallet/presentation/assets_tab/assets_tab_widget.dart';
+import 'package:genesix/features/wallet/presentation/history_tab/history_tab_widget.dart';
+import 'package:genesix/features/wallet/presentation/settings_tab/settings_tab_widget.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/wallet_tab_widget.dart';
+import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/widgets/components/background_widget.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});

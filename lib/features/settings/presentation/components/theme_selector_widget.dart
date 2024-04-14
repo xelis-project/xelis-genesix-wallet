@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
-import 'package:xelis_mobile_wallet/features/settings/domain/settings_state.dart';
-import 'package:xelis_mobile_wallet/features/settings/domain/theme_translate_name.dart';
-import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/settings/domain/settings_state.dart';
+import 'package:genesix/features/settings/domain/theme_translate_name.dart';
+import 'package:genesix/shared/theme/extensions.dart';
 
 const List<AppTheme> themes = <AppTheme>[
   AppTheme.xelis,

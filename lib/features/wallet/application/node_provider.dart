@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/domain/daemon_info_snapshot.dart';
+import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/domain/daemon_info_snapshot.dart';
 
 part 'node_provider.g.dart';
 

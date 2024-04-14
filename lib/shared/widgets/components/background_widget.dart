@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
-import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:genesix/shared/resources/app_resources.dart';
+import 'package:genesix/shared/theme/extensions.dart';
 
 class Background extends StatelessWidget {
   final Widget child;

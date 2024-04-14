@@ -2,11 +2,11 @@ import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
-import 'package:xelis_mobile_wallet/features/settings/domain/locale_translate_name.dart';
-import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
-import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/settings/domain/locale_translate_name.dart';
+import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/extensions.dart';
 
 class LanguageSelectorWidget extends ConsumerWidget {
   const LanguageSelectorWidget({

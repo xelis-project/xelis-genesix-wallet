@@ -1,4 +1,4 @@
-import 'package:xelis_mobile_wallet/features/settings/domain/settings_state.dart';
+import 'package:genesix/features/settings/domain/settings_state.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 String translateThemeName(AppLocalizations loc, AppTheme theme) {

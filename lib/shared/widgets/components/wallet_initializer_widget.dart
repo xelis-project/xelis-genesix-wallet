@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
-import 'package:xelis_mobile_wallet/shared/providers/progress_report_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/shared/providers/progress_report_provider.dart';
 
 class WalletInitializerWidget extends ConsumerWidget {
   const WalletInitializerWidget({required this.child, super.key});

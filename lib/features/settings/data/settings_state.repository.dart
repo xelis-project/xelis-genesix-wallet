@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:xelis_mobile_wallet/rust_bridge/api/wallet.dart';
-import 'package:xelis_mobile_wallet/features/settings/domain/settings_state.dart';
-import 'package:xelis_mobile_wallet/shared/storage/persistent_state.dart';
-import 'package:xelis_mobile_wallet/shared/logger.dart';
-import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_sync.dart';
+import 'package:genesix/rust_bridge/api/wallet.dart';
+import 'package:genesix/features/settings/domain/settings_state.dart';
+import 'package:genesix/shared/storage/persistent_state.dart';
+import 'package:genesix/shared/logger.dart';
+import 'package:genesix/shared/storage/shared_preferences/shared_preferences_sync.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SettingsStateRepository extends PersistentState<SettingsState> {

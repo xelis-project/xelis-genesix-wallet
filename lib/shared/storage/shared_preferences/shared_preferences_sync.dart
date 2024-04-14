@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:xelis_mobile_wallet/shared/logger.dart';
+import 'package:genesix/shared/logger.dart';
 
 class SharedPreferencesSync {
   SharedPreferencesSync(this.prefs);

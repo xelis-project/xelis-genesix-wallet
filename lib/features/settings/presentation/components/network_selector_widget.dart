@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:xelis_mobile_wallet/rust_bridge/api/wallet.dart';
-import 'package:xelis_mobile_wallet/features/authentication/application/authentication_service.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
-import 'package:xelis_mobile_wallet/features/settings/domain/network_translate_name.dart';
-import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
-import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
-import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:genesix/rust_bridge/api/wallet.dart';
+import 'package:genesix/features/authentication/application/authentication_service.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/settings/domain/network_translate_name.dart';
+import 'package:genesix/shared/providers/snackbar_content_provider.dart';
+import 'package:genesix/shared/providers/snackbar_event.dart';
+import 'package:genesix/shared/theme/extensions.dart';
 
 const List<Network> networks = <Network>[
   Network.mainnet,

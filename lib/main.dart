@@ -6,15 +6,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jovial_svg/jovial_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:xelis_mobile_wallet/shared/logger.dart';
-import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
-import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_provider.dart';
-import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/widgets/xelis_wallet_app.dart';
-import 'package:xelis_mobile_wallet/rust_bridge/frb_generated.dart';
+import 'package:genesix/shared/logger.dart';
+import 'package:genesix/shared/resources/app_resources.dart';
+import 'package:genesix/shared/storage/shared_preferences/shared_preferences_provider.dart';
+import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/widgets/xelis_wallet_app.dart';
+import 'package:genesix/rust_bridge/frb_generated.dart';
 
 Future<void> main() async {
-  logger.info('Starting XELIS Wallet ...');
+  logger.info('Starting Genesix...');
   initFlutterLogging();
   logger.info('initializing Flutter bindings ...');
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();

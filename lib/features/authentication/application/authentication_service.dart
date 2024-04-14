@@ -2,19 +2,19 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:xelis_mobile_wallet/features/authentication/application/wallets_state_provider.dart';
-import 'package:xelis_mobile_wallet/features/router/route_utils.dart';
-import 'package:xelis_mobile_wallet/features/router/router.dart';
-import 'package:xelis_mobile_wallet/features/authentication/domain/authentication_state.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/settings_state_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/data/native_wallet_repository.dart';
-import 'package:xelis_mobile_wallet/shared/logger.dart';
-import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
-import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
-import 'package:xelis_mobile_wallet/rust_bridge/api/wallet.dart';
-import 'package:xelis_mobile_wallet/shared/utils/utils.dart';
+import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
+import 'package:genesix/features/router/route_utils.dart';
+import 'package:genesix/features/router/router.dart';
+import 'package:genesix/features/authentication/domain/authentication_state.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
+import 'package:genesix/shared/logger.dart';
+import 'package:genesix/shared/providers/snackbar_content_provider.dart';
+import 'package:genesix/shared/providers/snackbar_event.dart';
+import 'package:genesix/rust_bridge/api/wallet.dart';
+import 'package:genesix/shared/utils/utils.dart';
 
 part 'authentication_service.g.dart';
 

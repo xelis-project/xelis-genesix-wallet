@@ -11,6 +11,7 @@
 migrate_working_dir/
 logs/
 TODO.txt
+.vscode
 
 # IntelliJ related
 *.iml

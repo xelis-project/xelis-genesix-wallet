@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:xelis_mobile_wallet/features/router/routes.dart';
+import 'package:genesix/features/router/routes.dart';
 
 part 'router.g.dart';
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:xelis_mobile_wallet/shared/theme/more_colors.dart';
+import 'package:genesix/shared/theme/more_colors.dart';
 
 ThemeData xelisTheme() {
   const textColor = Colors.white;

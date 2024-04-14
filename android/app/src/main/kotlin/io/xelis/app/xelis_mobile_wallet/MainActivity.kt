@@ -1,4 +1,4 @@
-package io.xelis.app.xelis_mobile_wallet
+package io.xelis.app.genesix
 
 import io.flutter.embedding.android.FlutterActivity
 

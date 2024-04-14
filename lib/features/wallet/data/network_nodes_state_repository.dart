@@ -1,8 +1,8 @@
-import 'package:xelis_mobile_wallet/shared/storage/persistent_state.dart';
-import 'package:xelis_mobile_wallet/features/wallet/domain/network_nodes_state.dart';
-import 'package:xelis_mobile_wallet/shared/logger.dart';
-import 'package:xelis_mobile_wallet/shared/resources/app_resources.dart';
-import 'package:xelis_mobile_wallet/shared/storage/shared_preferences/shared_preferences_sync.dart';
+import 'package:genesix/shared/storage/persistent_state.dart';
+import 'package:genesix/features/wallet/domain/network_nodes_state.dart';
+import 'package:genesix/shared/logger.dart';
+import 'package:genesix/shared/resources/app_resources.dart';
+import 'package:genesix/shared/storage/shared_preferences/shared_preferences_sync.dart';
 
 class NetworkNodesStateRepository extends PersistentState<NetworkNodesState> {
   NetworkNodesStateRepository(this.sharedPreferencesSync);

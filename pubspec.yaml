@@ -1,5 +1,5 @@
-name: xelis_mobile_wallet
-description: XELIS Wallet
+name: genesix
+description: Mutliplatform mobile wallet for the XELIS network.
 publish_to: 'none'
 
 version: 0.0.1+1

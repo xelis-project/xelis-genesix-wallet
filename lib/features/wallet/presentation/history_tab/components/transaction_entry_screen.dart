@@ -5,12 +5,12 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:random_avatar/random_avatar.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
-import 'package:xelis_mobile_wallet/shared/utils/utils.dart';
-import 'package:xelis_mobile_wallet/shared/widgets/components/background_widget.dart';
-import 'package:xelis_mobile_wallet/shared/widgets/components/generic_app_bar_widget.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/background_widget.dart';
+import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
 
 class TransactionEntryScreenExtra {
   final TransactionEntry transactionEntry;

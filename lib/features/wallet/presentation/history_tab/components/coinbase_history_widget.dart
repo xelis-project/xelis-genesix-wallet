@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:xelis_mobile_wallet/features/wallet/application/history_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/presentation/history_tab/components/tab_content_widget.dart';
+import 'package:genesix/features/wallet/application/history_provider.dart';
+import 'package:genesix/features/wallet/presentation/history_tab/components/tab_content_widget.dart';
 
 class CoinbaseHistoryWidget extends ConsumerWidget {
   const CoinbaseHistoryWidget({super.key});

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:xelis_mobile_wallet/features/authentication/application/wallets_state_provider.dart';
-import 'package:xelis_mobile_wallet/features/router/route_utils.dart';
-import 'package:xelis_mobile_wallet/features/settings/application/app_localizations_provider.dart';
-import 'package:xelis_mobile_wallet/features/wallet/application/wallet_provider.dart';
-import 'package:xelis_mobile_wallet/shared/providers/snackbar_content_provider.dart';
-import 'package:xelis_mobile_wallet/shared/providers/snackbar_event.dart';
-import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
-import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
-import 'package:xelis_mobile_wallet/shared/widgets/components/input_dialog.dart';
-import 'package:xelis_mobile_wallet/shared/widgets/components/password_dialog.dart';
+import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
+import 'package:genesix/features/router/route_utils.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/shared/providers/snackbar_content_provider.dart';
+import 'package:genesix/shared/providers/snackbar_event.dart';
+import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/widgets/components/input_dialog.dart';
+import 'package:genesix/shared/widgets/components/password_dialog.dart';
 
 class SettingsTab extends ConsumerWidget {
   const SettingsTab({super.key});

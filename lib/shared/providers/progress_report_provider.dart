@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:xelis_mobile_wallet/rust_bridge/api/progress_report.dart';
+import 'package:genesix/rust_bridge/api/progress_report.dart';
 
 part 'progress_report_provider.g.dart';
 

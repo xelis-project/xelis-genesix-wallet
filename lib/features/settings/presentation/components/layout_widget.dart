@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:xelis_mobile_wallet/shared/theme/constants.dart';
-import 'package:xelis_mobile_wallet/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/extensions.dart';
 
 /*class BackHeader extends StatelessWidget {
   final String title;
