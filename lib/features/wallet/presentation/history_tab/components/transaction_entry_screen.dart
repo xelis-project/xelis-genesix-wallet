@@ -1,4 +1,3 @@
-import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -18,29 +17,34 @@ class TransactionEntryScreenExtra {
   TransactionEntryScreenExtra(this.transactionEntry);
 }
 
-class TransactionEntryScreen extends ConsumerWidget {
+class TransactionEntryScreen extends ConsumerStatefulWidget {
   const TransactionEntryScreen({required this.routerState, super.key});
 
   final GoRouterState routerState;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final loc = ref.watch(appLocalizationsProvider);
-    //final entryType = transactionEntry.txEntryType as IncomingEntry;
+  ConsumerState<TransactionEntryScreen> createState() =>
+      _TransactionEntryScreenState();
+}
 
-    final extra = routerState.extra as TransactionEntryScreenExtra;
+class _TransactionEntryScreenState
+    extends ConsumerState<TransactionEntryScreen> {
+  late String entryTypeName;
+  late Icon icon;
+
+  CoinbaseEntry? coinbase;
+  OutgoingEntry? outgoing;
+  BurnEntry? burn;
+  IncomingEntry? incoming;
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = ref.watch(appLocalizationsProvider);
+    final extra = widget.routerState.extra as TransactionEntryScreenExtra;
     final transactionEntry = extra.transactionEntry;
     final entryType = transactionEntry.txEntryType;
 
     var displayTopoheight = NumberFormat().format(transactionEntry.topoHeight);
-
-    var entryTypeName = '';
-    Icon icon;
-
-    CoinbaseEntry? coinbase;
-    OutgoingEntry? outgoing;
-    BurnEntry? burn;
-    IncomingEntry? incoming;
 
     switch (entryType) {
       case CoinbaseEntry():
@@ -99,16 +103,6 @@ class TransactionEntryScreen extends ConsumerWidget {
               style: context.bodyLarge!
                   .copyWith(color: context.moreColors.mutedColor),
             ),
-            const SizedBox(height: Spaces.medium),
-            Text('Fee', style: context.headlineSmall),
-            const SizedBox(height: Spaces.small),
-            SelectableText(
-              transactionEntry.fee != null
-                  ? '${formatXelis(transactionEntry.fee!)} XEL'
-                  : '${formatXelis(0)} XEL',
-              style: context.bodyLarge!
-                  .copyWith(color: context.moreColors.mutedColor),
-            ),
 
             // COINBASE
             if (entryType is CoinbaseEntry)
@@ -143,8 +137,15 @@ class TransactionEntryScreen extends ConsumerWidget {
               ),
 
             // OUTGOING
-
-            if (entryType is OutgoingEntry)
+            if (entryType is OutgoingEntry) ...[
+              const SizedBox(height: Spaces.medium),
+              Text('Fee', style: context.headlineSmall),
+              const SizedBox(height: Spaces.small),
+              SelectableText(
+                '${formatXelis(outgoing!.fee)} XEL',
+                style: context.bodyLarge!
+                    .copyWith(color: context.moreColors.mutedColor),
+              ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -161,26 +162,26 @@ class TransactionEntryScreen extends ConsumerWidget {
                       final transfer = outgoing!.transfers[index];
 
                       return Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(Spaces.medium),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(loc.asset, style: context.labelLarge),
-                                  SelectableText(transfer.asset == xelisAsset
-                                      ? 'XELIS'
-                                      : transfer.asset),
-                                ],
-                              ),
-                              const SizedBox(width: Spaces.medium),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Amount',
-                                      /* transfer.asset == xelisAsset
+                          child: Padding(
+                            padding: const EdgeInsets.all(Spaces.medium),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(loc.asset, style: context.labelLarge),
+                                    SelectableText(transfer.asset == xelisAsset
+                                        ? 'XELIS'
+                                        : transfer.asset),
+                                  ],
+                                ),
+                                const SizedBox(width: Spaces.medium),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Amount',
+                                        /* transfer.asset == xelisAsset
                                           ? loc.amount.capitalize
                                           : '${loc.amount.capitalize} (${loc.atomic_units})',*/
                                       style: context.labelLarge),
@@ -197,6 +198,7 @@ class TransactionEntryScreen extends ConsumerWidget {
                   )
                 ],
               ),
+            ],
 
             // INCOMING
             if (entryType is IncomingEntry)
@@ -212,7 +214,7 @@ class TransactionEntryScreen extends ConsumerWidget {
                       const SizedBox(width: Spaces.small),
                       Expanded(
                         child: SelectableText(
-                          incoming.from,
+                          incoming!.from,
                           style: context.bodyLarge!
                               .copyWith(color: context.moreColors.mutedColor),
                         ),
@@ -227,7 +229,7 @@ class TransactionEntryScreen extends ConsumerWidget {
                   const Divider(),
                   ListView.builder(
                     shrinkWrap: true,
-                    itemCount: incoming.transfers.length,
+                    itemCount: incoming!.transfers.length,
                     itemBuilder: (BuildContext context, int index) {
                       final transfer = incoming!.transfers[index];
 

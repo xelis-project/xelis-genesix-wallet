@@ -111,7 +111,8 @@ class TransferRoute extends GoRouteData {
   }
 }
 
-@TypedGoRoute<TransactionEntryRoute>(name: 'transaction_entry', path: '/transaction_entry')
+@TypedGoRoute<TransactionEntryRoute>(
+    name: 'transaction_entry', path: '/transaction_entry')
 class TransactionEntryRoute extends GoRouteData {
   const TransactionEntryRoute();
 

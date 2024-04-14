@@ -4,7 +4,6 @@ import 'package:genesix/features/wallet/presentation/history_tab/components/burn
 import 'package:genesix/features/wallet/presentation/history_tab/components/coinbase_history_widget.dart';
 import 'package:genesix/features/wallet/presentation/history_tab/components/incoming_history_widget.dart';
 import 'package:genesix/features/wallet/presentation/history_tab/components/outgoing_history_widget.dart';
-import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 
@@ -21,11 +20,6 @@ class HistoryTab extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /* Text(loc.history,
-                style: context
-                    .headlineLarge //!.copyWith(fontWeight: FontWeight.bold),
-                ),
-            const SizedBox(height: Spaces.large),*/
             TabBar(
               tabs: <Tab>[
                 Tab(
@@ -44,8 +38,7 @@ class HistoryTab extends ConsumerWidget {
             ),
             const Expanded(
               child: Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: Spaces.none, vertical: Spaces.medium),
+                padding: EdgeInsets.symmetric(vertical: Spaces.medium),
                 child: TabBarView(
                   children: <Widget>[
                     IncomingHistoryWidget(),
