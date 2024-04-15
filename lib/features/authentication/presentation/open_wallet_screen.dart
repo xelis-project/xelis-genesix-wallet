@@ -68,145 +68,141 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
 
     return Background(
       child: Scaffold(
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(Spaces.large),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  loc.your_wallets,
-                  style: context.headlineMedium!
-                      .copyWith(fontWeight: FontWeight.w500),
-                ),
-                const SizedBox(height: 10),
-                Expanded(
-                  child: wallets.isNotEmpty
-                      ? Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: context.colors.background.withOpacity(.5),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: ReorderableListView(
-                            proxyDecorator: (child, index, animation) {
-                              return Material(
-                                color:
-                                    context.colors.background.withOpacity(.5),
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                ),
-                                child: child,
-                              );
-                            },
-                            children: <Widget>[
-                              for (var name in wallets.keys)
-                                Material(
-                                  color: Colors.transparent,
-                                  key: Key(name),
-                                  child: InkWell(
-                                    onTap: () async {
-                                      showDialog<void>(
-                                        context: context,
-                                        builder: (context) {
-                                          return PasswordDialog(
-                                            onEnter: (password) {
-                                              _openWallet(name, password);
-                                            },
-                                          );
-                                        },
-                                      );
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(10),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          wallets[name]!.isNotEmpty
-                                              ? RandomAvatar(wallets[name]!,
-                                                  width: 50, height: 50)
-                                              : const SizedBox(
-                                                  width: 50,
-                                                  height: 50,
-                                                ),
-                                          const SizedBox(width: 10),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  name,
-                                                  style: context.headlineSmall,
-                                                ),
-                                                Text(
-                                                  truncateAddress(
-                                                      wallets[name]!),
-                                                  style: context.labelLarge!
-                                                      .copyWith(
-                                                          color: context
-                                                              .moreColors
-                                                              .mutedColor),
-                                                ),
-                                              ],
-                                            ),
+        body: Padding(
+          padding: const EdgeInsets.all(Spaces.large),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                loc.your_wallets,
+                style: context.headlineMedium!
+                    .copyWith(fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 10),
+              Expanded(
+                child: wallets.isNotEmpty
+                    ? Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: context.colors.background.withOpacity(.5),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: ReorderableListView(
+                          proxyDecorator: (child, index, animation) {
+                            return Material(
+                              color: context.colors.background.withOpacity(.5),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                              ),
+                              child: child,
+                            );
+                          },
+                          children: <Widget>[
+                            for (var name in wallets.keys)
+                              Material(
+                                color: Colors.transparent,
+                                key: Key(name),
+                                child: InkWell(
+                                  onTap: () async {
+                                    showDialog<void>(
+                                      context: context,
+                                      builder: (context) {
+                                        return PasswordDialog(
+                                          onEnter: (password) {
+                                            _openWallet(name, password);
+                                          },
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        wallets[name]!.isNotEmpty
+                                            ? RandomAvatar(wallets[name]!,
+                                                width: 50, height: 50)
+                                            : const SizedBox(
+                                                width: 50,
+                                                height: 50,
+                                              ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                name,
+                                                style: context.headlineSmall,
+                                              ),
+                                              Text(
+                                                truncateAddress(wallets[name]!),
+                                                style: context.labelLarge!
+                                                    .copyWith(
+                                                        color: context
+                                                            .moreColors
+                                                            .mutedColor),
+                                              ),
+                                            ],
                                           ),
-                                          const SizedBox(width: 30),
-                                        ],
-                                      ),
+                                        ),
+                                        const SizedBox(width: 30),
+                                      ],
                                     ),
                                   ),
                                 ),
-                            ],
-                            onReorder: (int oldIndex, int newIndex) {
-                              // https://api.flutter.dev/flutter/widgets/ReorderCallback.html
-                              if (oldIndex < newIndex) {
-                                // removing the item at oldIndex will shorten the list by 1.
-                                newIndex -= 1;
-                              }
+                              ),
+                          ],
+                          onReorder: (int oldIndex, int newIndex) {
+                            // https://api.flutter.dev/flutter/widgets/ReorderCallback.html
+                            if (oldIndex < newIndex) {
+                              // removing the item at oldIndex will shorten the list by 1.
+                              newIndex -= 1;
+                            }
 
-                              var name = wallets.keys.elementAt(oldIndex);
-                              final w = ref.read(walletsProvider.notifier);
-                              w.orderWallet(name, newIndex);
-                            },
-                          ))
-                      : Text(
-                          'You don\'t have any wallets available. Create a new wallet from the button below or make sure the app is set to the desired network configuration.',
-                          style: context.bodyLarge!.copyWith(
-                            color: context.moreColors.mutedColor,
-                            fontSize: 18,
-                          ),
+                            var name = wallets.keys.elementAt(oldIndex);
+                            final w = ref.read(walletsProvider.notifier);
+                            w.orderWallet(name, newIndex);
+                          },
+                        ))
+                    : Text(
+                        'You don\'t have any wallets available. Create a new wallet from the button below or make sure the app is set to the desired network configuration.',
+                        style: context.bodyLarge!.copyWith(
+                          color: context.moreColors.mutedColor,
+                          fontSize: 18,
                         ),
-                ),
-                const SizedBox(height: Spaces.large),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton.icon(
-                      onPressed: () {
-                        context.push(AppScreen.createWallet.toPath);
-                      },
-                      icon: const Icon(Icons.wallet),
-                      label: Text(
-                        loc.create_new_wallet,
-                        style: context.titleMedium!
-                            .copyWith(color: context.colors.onPrimary),
                       ),
+              ),
+              const SizedBox(height: Spaces.large),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton.icon(
+                    onPressed: () {
+                      context.push(AppScreen.createWallet.toPath);
+                    },
+                    icon: const Icon(Icons.wallet),
+                    label: Text(
+                      loc.create_new_wallet,
+                      style: context.titleMedium!
+                          .copyWith(color: context.colors.onPrimary),
                     ),
-                    IconButton.filled(
-                      onPressed: () {
-                        context.push(AppScreen.settings.toPath);
-                      },
-                      icon: const Icon(
-                        Icons.settings_applications,
-                      ),
-                    )
-                  ],
-                )
-              ],
-            ),
+                  ),
+                  IconButton.filled(
+                    onPressed: () {
+                      context.push(AppScreen.settings.toPath);
+                    },
+                    icon: const Icon(
+                      Icons.settings_applications,
+                    ),
+                  )
+                ],
+              )
+            ],
           ),
         ),
       ),

@@ -71,14 +71,16 @@ class _XelisWalletAppState extends ConsumerState<XelisWalletApp>
         builder: (context, child) {
           return AppProvidersInitializer(
             child: Material(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const NetworkTopWidget(),
-                  Expanded(
-                    child: child!,
-                  ),
-                ],
+              child: SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const NetworkTopWidget(),
+                    Expanded(
+                      child: child!,
+                    ),
+                  ],
+                ),
               ),
             ),
           );
