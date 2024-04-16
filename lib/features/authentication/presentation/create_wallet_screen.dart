@@ -132,27 +132,30 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    FormBuilderTextField(
-                      name: 'seed',
-                      style: context.bodyLarge,
-                      maxLines: null,
-                      minLines: 5,
-                      autocorrect: false,
-                      keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        labelText: loc.seed,
-                        alignLabelWithHint: true,
-                      ),
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(),
-                        // TODO: add better seed validator
-                        FormBuilderValidators.match(
-                          '(?:[a-zA-Z]+ ){24}[a-zA-Z]+',
-                          errorText: loc.invalid_seed,
+                    Container(
+                      constraints: const BoxConstraints(maxHeight: 150),
+                      child: FormBuilderTextField(
+                        name: 'seed',
+                        style: context.bodyLarge,
+                        maxLines: null,
+                        minLines: 5,
+                        autocorrect: false,
+                        keyboardType: TextInputType.multiline,
+                        decoration: InputDecoration(
+                          labelText: loc.seed,
+                          alignLabelWithHint: true,
                         ),
-                        // FormBuilderValidators.minWordsCount(25),
-                        // FormBuilderValidators.maxWordsCount(25),
-                      ]),
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(),
+                          // TODO: add better seed validator
+                          FormBuilderValidators.match(
+                            '(?:[a-zA-Z]+ ){24}[a-zA-Z]+',
+                            errorText: loc.invalid_seed,
+                          ),
+                          // FormBuilderValidators.minWordsCount(25),
+                          // FormBuilderValidators.maxWordsCount(25),
+                        ]),
+                      ),
                     ),
                     const SizedBox(height: Spaces.small),
                     TextButton.icon(
