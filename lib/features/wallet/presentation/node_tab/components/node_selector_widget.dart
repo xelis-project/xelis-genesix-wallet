@@ -48,9 +48,6 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
     var nodeAddress = networkNodes.getNodeAddress(network);
     var nodes = networkNodes.getNodes(network);
     return Card(
-      elevation: 1,
-      // clipBehavior: Clip.antiAlias,
-      // margin: EdgeInsets.zero,
       child: Theme(
         data: context.theme.copyWith(
           dividerColor: Colors.transparent,
@@ -67,7 +64,8 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
           ),
           subtitle: Text(
             nodeAddress.url,
-            style: context.titleSmall,
+            style: context.titleSmall!
+                .copyWith(color: context.moreColors.mutedColor),
           ),
           children: [
             ...List<Dismissible>.generate(
@@ -78,6 +76,7 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
                   _onDismissed(nodes[index]);
                 },
                 child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: Spaces.medium),
                   title: Text(
                     nodes[index].name,
                     style: context.bodyLarge,
