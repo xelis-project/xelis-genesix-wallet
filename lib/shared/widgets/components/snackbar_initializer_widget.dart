@@ -23,10 +23,9 @@ class _SnackBarInitializerWidgetState
     messenger.showSnackBar(
       SnackBar(
         content: widget,
+        margin: const EdgeInsets.all(Spaces.large),
         duration:
             const Duration(milliseconds: AppDurations.displayTimeSnackbar),
-        //width: 280.0,
-        elevation: 2,
         behavior: SnackBarBehavior.floating,
         showCloseIcon: true,
         closeIconColor: context.colors.onBackground,
@@ -40,11 +39,10 @@ class _SnackBarInitializerWidgetState
     messenger.showSnackBar(
       SnackBar(
         content: widget,
-        // long duration for error or we don't have time do see the error
+        margin: const EdgeInsets.all(Spaces.large),
+        // long duration for error or we don't have time to see the error
         duration: const Duration(days: 1),
         dismissDirection: DismissDirection.down,
-        //width: 280.0,
-        elevation: 2,
         behavior: SnackBarBehavior.floating,
         showCloseIcon: true,
         closeIconColor: context.colors.error,
@@ -59,18 +57,20 @@ class _SnackBarInitializerWidgetState
         switch (next) {
           case Info():
             _showInfoSnackBar(
-                context,
-                Text(next.message, style: context.bodyLarge
-                    //?.copyWith(color: context.colors.primary),
-                    ));
+              context,
+              Text(
+                next.message,
+                style: context.bodyLarge,
+              ),
+            );
           case Error():
             _showErrorSnackBar(
-                context,
-                Text(
-                  next.message,
-                  style:
-                      context.bodyLarge?.copyWith(color: context.colors.error),
-                ));
+              context,
+              Text(
+                next.message,
+                style: context.bodyLarge?.copyWith(color: context.colors.error),
+              ),
+            );
         }
       }
     });
