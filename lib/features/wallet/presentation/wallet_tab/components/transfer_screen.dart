@@ -4,13 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/transfer_review_dialog.dart';
 import 'package:genesix/rust_bridge/api/utils.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/components/background_widget.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
-import 'package:genesix/shared/widgets/components/password_dialog.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 
 class TransferScreen extends ConsumerStatefulWidget {
   const TransferScreen({super.key});
@@ -25,38 +26,36 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
 
   final double _remainingBalance = 0;
 
-  void _sendTransfer() async {
+  void _reviewTransfer() async {
     if (_transferFormKey.currentState?.saveAndValidate() ?? false) {
       final amount =
           _transferFormKey.currentState?.fields['amount']?.value as String;
       final address =
           _transferFormKey.currentState?.fields['address']?.value as String;
 
-      showDialog<void>(
-        context: context,
-        builder: (context) {
-          return PasswordDialog(
-            onValid: () async {
-              try {
-                final res = await ref
-                    .read(walletStateProvider.notifier)
-                    .createXelisTransaction(
-                        amount: double.parse(amount), destination: address);
+      try {
+        context.loaderOverlay.show();
 
-                if (res != null) {
-                  ref.read(snackBarMessengerProvider.notifier).showInfo(
-                        "transaction created: ${res.hash}",
-                      );
-                }
-              } catch (e) {
-                ref
-                    .read(snackBarMessengerProvider.notifier)
-                    .showError(e.toString());
-              }
+        final tx = await ref
+            .read(walletStateProvider.notifier)
+            .createXelisTransaction(
+                amount: double.parse(amount), destination: address);
+
+        if (mounted) {
+          showDialog<void>(
+            context: context,
+            builder: (context) {
+              return TransferReviewDialog(address, amount, tx!);
             },
           );
-        },
-      );
+        }
+      } catch (e) {
+        ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
+      }
+
+      if (mounted) {
+        context.loaderOverlay.hide();
+      }
     }
   }
 
@@ -68,7 +67,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
       child: Scaffold(
         appBar: const GenericAppBar(title: 'Transfer'),
         body: ListView(
-          padding: const EdgeInsets.fromLTRB(Spaces.large, 0, Spaces.large, Spaces.large),
+          padding: const EdgeInsets.fromLTRB(
+              Spaces.large, 0, Spaces.large, Spaces.large),
           children: [
             FormBuilder(
               key: _transferFormKey,
@@ -147,9 +147,9 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
             ),
             const SizedBox(height: Spaces.large),
             TextButton.icon(
-              icon: const Icon(Icons.send),
-              onPressed: _sendTransfer,
-              label: Text(loc.confirm_button),
+              icon: const Icon(Icons.check_circle),
+              onPressed: _reviewTransfer,
+              label: Text('Review & Send'),
             ),
           ],
         ),
