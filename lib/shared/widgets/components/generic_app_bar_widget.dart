@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:genesix/shared/theme/constants.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 
@@ -10,9 +11,9 @@ class GenericAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      titleSpacing: 10,
+      titleSpacing: Spaces.small,
       leading: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 10, 0, 0),
+        padding: const EdgeInsets.fromLTRB(Spaces.small, Spaces.medium, 0, 0),
         child: IconButton(
           onPressed: () {
             context.pop();
@@ -24,7 +25,7 @@ class GenericAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       title: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+        padding: const EdgeInsets.fromLTRB(0, Spaces.medium, 0, 0),
         child: Text(
           title,
           style: context.headlineMedium!.copyWith(fontWeight: FontWeight.bold),

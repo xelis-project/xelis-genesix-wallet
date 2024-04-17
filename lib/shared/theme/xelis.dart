@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/more_colors.dart';
 
 ThemeData xelisTheme() {
@@ -74,7 +75,8 @@ ThemeData xelisTheme() {
         //foregroundColor: primaryColor,
         side: const BorderSide(
             color: Color.fromARGB(255, 122, 250, 211), width: 2),
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        padding: const EdgeInsets.symmetric(
+            vertical: Spaces.medium, horizontal: Spaces.medium),
         shape: RoundedRectangleBorder(
           borderRadius: borderRadius,
         ),
@@ -85,7 +87,8 @@ ThemeData xelisTheme() {
         //backgroundColor: primaryColor,
         //foregroundColor: Colors.black,
         //textStyle: TextStyle(color: Colors.black),
-        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+        padding: const EdgeInsets.symmetric(
+            vertical: Spaces.medium, horizontal: Spaces.medium),
         shape: RoundedRectangleBorder(
           borderRadius: borderRadius,
         ),
@@ -95,7 +98,8 @@ ThemeData xelisTheme() {
       style: TextButton.styleFrom(
         backgroundColor: primaryColor,
         foregroundColor: Colors.black87,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        padding: const EdgeInsets.symmetric(
+            vertical: Spaces.medium, horizontal: Spaces.medium),
         shape: RoundedRectangleBorder(
           borderRadius: borderRadius,
         ),
@@ -153,7 +157,7 @@ ThemeData xelisTheme() {
 
     // INPUT
     inputDecorationTheme: InputDecorationTheme(
-      labelStyle: const TextStyle(color: Colors.white),
+      labelStyle: const TextStyle(color: Colors.white54),
       errorStyle: const TextStyle(
         color: Colors.red,
         fontSize: 14,

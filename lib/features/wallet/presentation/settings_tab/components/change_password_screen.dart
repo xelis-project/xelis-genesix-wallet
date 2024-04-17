@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
-import 'package:genesix/shared/providers/snackbar_content_provider.dart';
-import 'package:genesix/shared/providers/snackbar_event.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/background_widget.dart';
@@ -53,14 +52,10 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                   oldPassword: oldPassword, newPassword: newPassword);
 
           ref
-              .read(snackbarContentProvider.notifier)
-              .setContent(SnackbarEvent.info(message: loc.password_changed));
+              .read(snackBarMessengerProvider.notifier)
+              .showInfo(loc.password_changed);
         } catch (e) {
-          ref
-              .read(snackbarContentProvider.notifier)
-              .setContent(SnackbarEvent.error(
-                message: e.toString(),
-              ));
+          ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
         }
 
         if (mounted) {
@@ -78,15 +73,17 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
         backgroundColor: Colors.transparent,
         appBar: GenericAppBar(title: loc.change_password),
         body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Spaces.large),
+          padding: const EdgeInsets.fromLTRB(
+              Spaces.large, 0, Spaces.large, Spaces.large),
           child: FormBuilder(
             key: _changePasswordKey,
             onChanged: () => _changePasswordKey.currentState!.save(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // BackHeader(title: loc.change_password),
-                const SizedBox(height: Spaces.large),
+                const SizedBox(height: Spaces.small),
+                Text(loc.old_password, style: context.bodyLarge),
+                const SizedBox(height: Spaces.small),
                 PasswordTextField(
                   textField: FormBuilderTextField(
                     name: 'old_password',
@@ -98,7 +95,9 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                     validator: FormBuilderValidators.required(),
                   ),
                 ),
-                const SizedBox(height: Spaces.medium),
+                const SizedBox(height: Spaces.small),
+                Text(loc.new_password, style: context.bodyLarge),
+                const SizedBox(height: Spaces.small),
                 PasswordTextField(
                   textField: FormBuilderTextField(
                     name: 'new_password',
@@ -110,7 +109,9 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                     validator: FormBuilderValidators.required(),
                   ),
                 ),
-                const SizedBox(height: Spaces.medium),
+                const SizedBox(height: Spaces.small),
+                Text(loc.confirm_password, style: context.bodyLarge),
+                const SizedBox(height: Spaces.small),
                 PasswordTextField(
                   textField: FormBuilderTextField(
                     name: 'confirm_new_password',
@@ -123,10 +124,17 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                   ),
                 ),
                 const SizedBox(height: Spaces.medium),
-                FilledButton(
-                  onPressed: _changePassword,
-                  child: Text(loc.confirm_button),
-                ),
+                TextButton.icon(
+                  onPressed: () {
+                    _changePassword();
+                  },
+                  icon: const Icon(Icons.edit),
+                  label: Text(
+                    loc.confirm_button,
+                    style: context.titleMedium!
+                        .copyWith(color: context.colors.onPrimary),
+                  ),
+                )
               ],
             ),
           ),

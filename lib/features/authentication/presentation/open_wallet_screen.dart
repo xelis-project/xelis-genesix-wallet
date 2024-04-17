@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/shared/logger.dart';
+import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:random_avatar/random_avatar.dart';
@@ -8,8 +10,6 @@ import 'package:genesix/features/authentication/application/wallets_state_provid
 import 'package:genesix/features/authentication/presentation/components/table_generation_progress_dialog.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/shared/providers/snackbar_content_provider.dart';
-import 'package:genesix/shared/providers/snackbar_event.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -47,11 +47,8 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
           .read(authenticationProvider.notifier)
           .openWallet(name, password);
     } catch (e) {
-      ref.read(snackbarContentProvider.notifier).setContent(
-            SnackbarEvent.error(
-              message: e.toString(),
-            ),
-          );
+      logger.severe('Opening wallet failed: $e');
+      ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
     }
 
     if (mounted) {
@@ -78,11 +75,11 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                 style: context.headlineMedium!
                     .copyWith(fontWeight: FontWeight.w500),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: Spaces.small),
               Expanded(
                 child: wallets.isNotEmpty
                     ? Container(
-                        padding: const EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(Spaces.small),
                         decoration: BoxDecoration(
                           color: context.colors.background.withOpacity(.5),
                           borderRadius: BorderRadius.circular(10),
@@ -117,7 +114,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                                     );
                                   },
                                   child: Padding(
-                                    padding: const EdgeInsets.all(10),
+                                    padding: const EdgeInsets.all(Spaces.small),
                                     child: Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -129,7 +126,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                                                 width: 50,
                                                 height: 50,
                                               ),
-                                        const SizedBox(width: 10),
+                                        const SizedBox(width: Spaces.small),
                                         Expanded(
                                           child: Column(
                                             crossAxisAlignment:

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/more_colors.dart';
 
 ThemeData lightTheme() {
@@ -74,7 +75,8 @@ ThemeData lightTheme() {
           //foregroundColor: primaryColor,
           side: const BorderSide(
               color: Color.fromARGB(255, 122, 250, 211), width: 2),
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          padding: const EdgeInsets.symmetric(
+              vertical: Spaces.medium, horizontal: Spaces.medium),
           shape: RoundedRectangleBorder(
             borderRadius: borderRadius,
           ),
@@ -85,7 +87,8 @@ ThemeData lightTheme() {
           //backgroundColor: primaryColor,
           //foregroundColor: Colors.black,
           //textStyle: TextStyle(color: Colors.black),
-          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+          padding: const EdgeInsets.symmetric(
+              vertical: Spaces.medium, horizontal: Spaces.medium),
           shape: RoundedRectangleBorder(
             borderRadius: borderRadius,
           ),
@@ -95,7 +98,8 @@ ThemeData lightTheme() {
         style: TextButton.styleFrom(
           backgroundColor: primaryColor,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          padding: const EdgeInsets.symmetric(
+              vertical: Spaces.medium, horizontal: Spaces.medium),
           shape: RoundedRectangleBorder(
             borderRadius: borderRadius,
           ),
@@ -154,7 +158,7 @@ ThemeData lightTheme() {
 
       // INPUT
       inputDecorationTheme: InputDecorationTheme(
-        labelStyle: const TextStyle(color: Colors.black),
+        labelStyle: const TextStyle(color: Colors.black54),
         errorStyle: const TextStyle(
           color: Colors.red,
           fontSize: 14,

@@ -4,8 +4,8 @@ import 'package:genesix/features/authentication/presentation/create_wallet_scree
 import 'package:genesix/features/authentication/presentation/open_wallet_screen.dart';
 import 'package:genesix/features/settings/presentation/settings_screen.dart';
 import 'package:genesix/features/wallet/presentation/history_tab/components/transaction_entry_screen.dart';
-import 'package:genesix/features/wallet/presentation/settings_tab/change_password_screen.dart';
-import 'package:genesix/features/wallet/presentation/settings_tab/my_seed_screen.dart';
+import 'package:genesix/features/wallet/presentation/settings_tab/components/change_password_screen.dart';
+import 'package:genesix/features/wallet/presentation/settings_tab/components/my_seed_screen.dart';
 import 'package:genesix/features/wallet/presentation/wallet_screen.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/transfer_screen.dart';
 import 'package:genesix/shared/theme/constants.dart';

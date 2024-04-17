@@ -11,8 +11,6 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/shared/logger.dart';
-import 'package:genesix/shared/providers/snackbar_content_provider.dart';
-import 'package:genesix/shared/providers/snackbar_event.dart';
 import 'package:genesix/rust_bridge/api/wallet.dart';
 import 'package:genesix/shared/utils/utils.dart';
 
@@ -36,33 +34,19 @@ class Authentication extends _$Authentication {
     var walletExists = await Directory(walletPath).exists();
 
     if (walletExists) {
-      logger.severe('This wallet already exists: $name');
       throw Exception('This wallet already exists: $name');
     } else {
       NativeWalletRepository walletRepository;
 
-      try {
-        if (seed != null) {
-          walletRepository = await NativeWalletRepository.recover(
-              walletPath, password, settings.network,
-              seed: seed, precomputeTablesPath: precomputedTablesPath);
-        } else {
-          walletRepository = await NativeWalletRepository.create(
-              walletPath, password, settings.network,
-              precomputeTablesPath: precomputedTablesPath);
-        }
-      } catch (e) {
-        logger.severe('Creating wallet failed: $e');
-        final loc = ref.read(appLocalizationsProvider);
-        ref.read(snackbarContentProvider.notifier).setContent(
-            SnackbarEvent.error(
-                message: loc.wallet_creation_failed_toast_error));
-        rethrow;
+      if (seed != null) {
+        walletRepository = await NativeWalletRepository.recover(
+            walletPath, password, settings.network,
+            seed: seed, precomputeTablesPath: precomputedTablesPath);
+      } else {
+        walletRepository = await NativeWalletRepository.create(
+            walletPath, password, settings.network,
+            precomputeTablesPath: precomputedTablesPath);
       }
-
-      //ref
-      //   .read(networkWalletProvider.notifier)
-      //  .setWallet(settings.network, name, walletRepository.address);
 
       ref
           .read(walletsProvider.notifier)
@@ -91,17 +75,8 @@ class Authentication extends _$Authentication {
             walletPath, password, settings.network,
             precomputeTablesPath: precomputedTablesPath);
       } catch (e) {
-        logger.severe('Opening wallet failed: $e');
-        final loc = ref.read(appLocalizationsProvider);
-        ref.read(snackbarContentProvider.notifier).setContent(
-            SnackbarEvent.error(
-                message: loc.wallet_opening_failed_toast_error));
         rethrow;
       }
-
-      // ref
-      //    .read(networkWalletProvider.notifier)
-      //    .setWallet(settings.network, name, walletRepository.address);
 
       ref
           .read(walletsProvider.notifier)
@@ -114,7 +89,6 @@ class Authentication extends _$Authentication {
 
       ref.read(walletStateProvider.notifier).connect();
     } else {
-      logger.severe('This wallet does not exist: $name');
       throw Exception('This wallet does not exist: $name');
     }
   }

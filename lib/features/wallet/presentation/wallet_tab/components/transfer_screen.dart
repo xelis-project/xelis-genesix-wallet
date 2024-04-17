@@ -5,8 +5,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/rust_bridge/api/utils.dart';
-import 'package:genesix/shared/providers/snackbar_content_provider.dart';
-import 'package:genesix/shared/providers/snackbar_event.dart';
+import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/components/background_widget.dart';
@@ -45,18 +44,14 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                         amount: double.parse(amount), destination: address);
 
                 if (res != null) {
-                  ref
-                      .read(snackbarContentProvider.notifier)
-                      .setContent(SnackbarEvent.info(
-                        message: "transaction created: ${res.hash}",
-                      ));
+                  ref.read(snackBarMessengerProvider.notifier).showInfo(
+                        "transaction created: ${res.hash}",
+                      );
                 }
               } catch (e) {
                 ref
-                    .read(snackbarContentProvider.notifier)
-                    .setContent(SnackbarEvent.error(
-                      message: e.toString(),
-                    ));
+                    .read(snackBarMessengerProvider.notifier)
+                    .showError(e.toString());
               }
             },
           );

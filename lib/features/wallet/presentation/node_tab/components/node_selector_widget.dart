@@ -76,7 +76,8 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
                   _onDismissed(nodes[index]);
                 },
                 child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: Spaces.medium),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: Spaces.medium),
                   title: Text(
                     nodes[index].name,
                     style: context.bodyLarge,

@@ -162,26 +162,26 @@ class _TransactionEntryScreenState
                       final transfer = outgoing!.transfers[index];
 
                       return Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(Spaces.medium),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(loc.asset, style: context.labelLarge),
-                                    SelectableText(transfer.asset == xelisAsset
-                                        ? 'XELIS'
-                                        : transfer.asset),
-                                  ],
-                                ),
-                                const SizedBox(width: Spaces.medium),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Amount',
-                                        /* transfer.asset == xelisAsset
+                        child: Padding(
+                          padding: const EdgeInsets.all(Spaces.medium),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(loc.asset, style: context.labelLarge),
+                                  SelectableText(transfer.asset == xelisAsset
+                                      ? 'XELIS'
+                                      : transfer.asset),
+                                ],
+                              ),
+                              const SizedBox(width: Spaces.medium),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Amount',
+                                      /* transfer.asset == xelisAsset
                                           ? loc.amount.capitalize
                                           : '${loc.amount.capitalize} (${loc.atomic_units})',*/
                                       style: context.labelLarge),

@@ -7,8 +7,6 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/qr_dialog.dart';
-import 'package:genesix/shared/providers/snackbar_content_provider.dart';
-import 'package:genesix/shared/providers/snackbar_event.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 
@@ -114,9 +112,6 @@ class BalanceWidget extends ConsumerWidget {
                   IconButton.filled(
                     onPressed: () {
                       // TODO
-                      ref.read(snackbarContentProvider.notifier).setContent(
-                            SnackbarEvent.info(message: loc.coming_soon),
-                          );
                     },
                     icon: const Icon(Icons.local_fire_department_rounded),
                   ),

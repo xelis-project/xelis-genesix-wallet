@@ -5,13 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:genesix/features/authentication/presentation/components/seed_content_dialog.dart';
+import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/shared/logger.dart';
+import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
 import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
 import 'package:genesix/features/authentication/presentation/components/table_generation_progress_dialog.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/shared/providers/snackbar_content_provider.dart';
-import 'package:genesix/shared/providers/snackbar_event.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/background_widget.dart';
@@ -61,7 +63,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
           _createFormKey.currentState?.value['password'] as String?;
       final confirmPassword =
           _createFormKey.currentState?.value['confirm_password'] as String?;
-      final seed = _createFormKey.currentState?.value['seed'] as String?;
+      final createSeed = _createFormKey.currentState?.value['seed'] as String?;
 
       if (password != confirmPassword) {
         _createFormKey.currentState?.fields['confirm_password']
@@ -81,13 +83,24 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
 
           await ref
               .read(authenticationProvider.notifier)
-              .createWallet(walletName, password, seed);
+              .createWallet(walletName, password, createSeed);
+
+          var seed = await ref
+              .read(walletStateProvider)
+              .nativeWalletRepository!
+              .getSeed();
+
+          if (mounted) {
+            showDialog<void>(
+              context: context,
+              builder: (context) {
+                return SeedContentDialog(seed, ref);
+              },
+            );
+          }
         } catch (e) {
-          ref
-              .read(snackbarContentProvider.notifier)
-              .setContent(SnackbarEvent.error(
-                message: e.toString(),
-              ));
+          logger.severe('Creating wallet failed: $e');
+          ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
         }
 
         if (mounted) {
@@ -109,16 +122,13 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
           key: _createFormKey,
           onChanged: () => _createFormKey.currentState!.save(),
           child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: Spaces.large),
+            padding: const EdgeInsets.fromLTRB(
+                Spaces.large, 0, Spaces.large, Spaces.large),
             children: [
-              const SizedBox(height: Spaces.medium),
               FormBuilderSwitch(
                 name: 'seed_switch',
                 initialValue: _seedRequired,
-                title: Text(loc.create_from_seed,
-                    style: context
-                        .bodyLarge //!.copyWith(color: context.colors.onBackground),
-                    ),
+                title: Text(loc.create_from_seed, style: context.bodyLarge),
                 onChanged: (value) {
                   setState(() {
                     _seedRequired = value!;
@@ -177,30 +187,14 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                 ),
               ),
               const SizedBox(height: Spaces.small),
+              Text(loc.wallet_name, style: context.bodyLarge),
+              const SizedBox(height: Spaces.small),
               FormBuilderTextField(
                 name: 'wallet_name',
                 style: context.bodyLarge,
-                //!.copyWith(color: Colors.white),
                 autocorrect: false,
                 decoration: InputDecoration(
                   labelText: loc.wallet_name,
-                  /*labelStyle: context.bodyLarge!.copyWith(color: Colors.white),
-                              filled: true,
-                              fillColor: Colors.black.withOpacity(.2),
-                              hoverColor: Colors.black.withOpacity(0),
-                              floatingLabelBehavior: FloatingLabelBehavior.never,
-                              enabledBorder: const OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10)),
-                                borderSide: BorderSide(
-                                    color: Colors.transparent, width: 1),
-                              ),
-                              focusedBorder: const OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10)),
-                                borderSide: BorderSide(
-                                    color: Colors.transparent, width: 0),
-                              ),*/
                 ),
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
@@ -215,7 +209,9 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                   },
                 ]),
               ),
-              const SizedBox(height: Spaces.medium),
+              const SizedBox(height: Spaces.small),
+              Text(loc.password, style: context.bodyLarge),
+              const SizedBox(height: Spaces.small),
               PasswordTextField(
                 textField: FormBuilderTextField(
                   name: 'password',
@@ -226,7 +222,9 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: Spaces.medium),
+              const SizedBox(height: Spaces.small),
+              Text(loc.confirm_password, style: context.bodyLarge),
+              const SizedBox(height: Spaces.small),
               PasswordTextField(
                 textField: FormBuilderTextField(
                   name: 'confirm_password',

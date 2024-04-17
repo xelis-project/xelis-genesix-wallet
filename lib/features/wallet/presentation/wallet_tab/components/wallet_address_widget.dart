@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:random_avatar/random_avatar.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
-import 'package:genesix/shared/providers/snackbar_content_provider.dart';
-import 'package:genesix/shared/providers/snackbar_event.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -17,9 +16,7 @@ class WalletAddressWidget extends ConsumerWidget {
 
   void _copy(String content, String message, WidgetRef ref) {
     Clipboard.setData(ClipboardData(text: content)).then((_) {
-      ref
-          .read(snackbarContentProvider.notifier)
-          .setContent(SnackbarEvent.info(message: message));
+      ref.read(snackBarMessengerProvider.notifier).showInfo(message);
     });
   }
 
@@ -28,11 +25,13 @@ class WalletAddressWidget extends ConsumerWidget {
     final loc = ref.watch(appLocalizationsProvider);
     final walletSnapshot = ref.watch(walletStateProvider);
 
-    Widget avatar = const SizedBox.square(dimension: 50);
+    const double avatarSize = 50;
+    Widget avatar = const SizedBox.square(dimension: avatarSize);
 
     var address = '';
     if (walletSnapshot.address.isNotEmpty) {
-      avatar = RandomAvatar(walletSnapshot.address, height: 50, width: 50);
+      avatar = RandomAvatar(walletSnapshot.address,
+          height: avatarSize, width: avatarSize);
       address = truncateAddress(walletSnapshot.address);
     }
 
