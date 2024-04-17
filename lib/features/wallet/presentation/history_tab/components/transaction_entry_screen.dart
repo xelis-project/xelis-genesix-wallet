@@ -163,31 +163,56 @@ class _TransactionEntryScreenState
 
                       return Card(
                         child: Padding(
-                          padding: const EdgeInsets.all(Spaces.medium),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          padding: const EdgeInsets.fromLTRB(Spaces.medium,
+                              Spaces.medium, Spaces.medium, Spaces.medium),
+                          child: Column(
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              Row(
                                 children: [
-                                  Text(loc.asset, style: context.labelLarge),
-                                  SelectableText(transfer.asset == xelisAsset
-                                      ? 'XELIS'
-                                      : transfer.asset),
+                                  RandomAvatar(transfer.destination,
+                                      width: 35, height: 35),
+                                  const SizedBox(width: Spaces.small),
+                                  Expanded(
+                                    child: SelectableText(
+                                      transfer.destination,
+                                      style: context.bodyMedium,
+                                    ),
+                                  ),
                                 ],
                               ),
-                              const SizedBox(width: Spaces.medium),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              const Divider(),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('Amount',
-                                      /* transfer.asset == xelisAsset
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(loc.asset,
+                                          style: context.labelLarge),
+                                      SelectableText(
+                                          transfer.asset == xelisAsset
+                                              ? 'XELIS'
+                                              : transfer.asset),
+                                    ],
+                                  ),
+                                  const SizedBox(width: Spaces.medium),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Amount',
+                                          /* transfer.asset == xelisAsset
                                           ? loc.amount.capitalize
                                           : '${loc.amount.capitalize} (${loc.atomic_units})',*/
-                                      style: context.labelLarge),
-                                  SelectableText(transfer.asset == xelisAsset
-                                      ? '-${formatXelis(transfer.amount)} XEL'
-                                      : '${transfer.amount}'),
+                                          style: context.labelLarge),
+                                      SelectableText(transfer.asset ==
+                                              xelisAsset
+                                          ? '-${formatXelis(transfer.amount)} XEL'
+                                          : '${transfer.amount}'),
+                                    ],
+                                  ),
                                 ],
                               ),
                             ],
