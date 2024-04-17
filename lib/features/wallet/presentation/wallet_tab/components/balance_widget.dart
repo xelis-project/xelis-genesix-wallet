@@ -47,7 +47,7 @@ class BalanceWidget extends ConsumerWidget {
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
             child: Row(
-              //key: ValueKey<String>(displayBalance),
+              key: UniqueKey(),
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
@@ -62,12 +62,11 @@ class BalanceWidget extends ConsumerWidget {
                           minFontSize: 20,
                         ),
                       ),
-                      !hideBalance
-                          ? SelectableText(
-                              '0.00 USDT',
-                              style: context.bodyLarge,
-                            )
-                          : const SizedBox.shrink(),
+                      const SizedBox(height: 3),
+                      SelectableText(
+                        hideBalance ? '' : '0.00 USDT',
+                        style: context.bodyLarge,
+                      ),
                     ],
                   ),
                 ),

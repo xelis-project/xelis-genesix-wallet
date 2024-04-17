@@ -68,7 +68,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
       child: Scaffold(
         appBar: const GenericAppBar(title: 'Transfer'),
         body: ListView(
-          padding: const EdgeInsets.all(Spaces.large),
+          padding: const EdgeInsets.fromLTRB(Spaces.large, 0, Spaces.large, Spaces.large),
           children: [
             FormBuilder(
               key: _transferFormKey,
