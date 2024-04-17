@@ -208,6 +208,13 @@ ThemeData darkTheme() {
       //actionsPadding: EdgeInsets.all(10)
     ),
 
+    // SWITCH
+    switchTheme: SwitchThemeData(
+      thumbColor: const MaterialStatePropertyAll(primaryColor),
+      trackColor: MaterialStatePropertyAll(primaryColor.withOpacity(.2)),
+      trackOutlineColor: const MaterialStatePropertyAll(primaryColor),
+    ),
+
     // MISC
     tooltipTheme: TooltipThemeData(
       decoration: BoxDecoration(
