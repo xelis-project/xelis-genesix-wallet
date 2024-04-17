@@ -6,11 +6,9 @@ import 'package:genesix/features/authentication/application/wallets_state_provid
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/router/router.dart';
 import 'package:genesix/features/authentication/domain/authentication_state.dart';
-import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
-import 'package:genesix/shared/logger.dart';
 import 'package:genesix/rust_bridge/api/wallet.dart';
 import 'package:genesix/shared/utils/utils.dart';
 
