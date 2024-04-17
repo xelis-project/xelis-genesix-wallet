@@ -84,7 +84,7 @@ class TableGenerationProgressDialog extends ConsumerWidget {
                   minHeight: 10,
                 ),
                 const SizedBox(height: Spaces.small),
-                Text('${(progressValue * 100).toStringAsPrecision(3)}%',
+                Text('${(progressValue * 100).toStringAsFixed(2)}%',
                     style: context.headlineMedium),
               ],
             ),
