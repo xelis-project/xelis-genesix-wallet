@@ -92,6 +92,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
 
           if (mounted) {
             showDialog<void>(
+              barrierDismissible: false,
               context: context,
               builder: (context) {
                 return SeedContentDialog(seed, ref);
