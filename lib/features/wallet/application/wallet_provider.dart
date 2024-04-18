@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
+import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';

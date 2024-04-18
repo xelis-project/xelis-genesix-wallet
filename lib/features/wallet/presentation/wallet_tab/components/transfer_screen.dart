@@ -24,7 +24,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
   final _transferFormKey =
       GlobalKey<FormBuilderState>(debugLabel: '_transferFormKey');
 
-  final double _remainingBalance = 0;
+  // final double _remainingBalance = 0;
 
   void _reviewTransfer() async {
     if (_transferFormKey.currentState?.saveAndValidate() ?? false) {
@@ -39,13 +39,13 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
         final tx = await ref
             .read(walletStateProvider.notifier)
             .createXelisTransaction(
-                amount: double.parse(amount), destination: address);
+                amount: double.parse(amount), destination: address.trim());
 
         if (mounted) {
           showDialog<void>(
             context: context,
             builder: (context) {
-              return TransferReviewDialog(address, amount, tx!);
+              return TransferReviewDialog(tx!);
             },
           );
         }
@@ -90,23 +90,23 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                       labelStyle: context.headlineLarge!
                           .copyWith(fontWeight: FontWeight.bold),
                     ),
-                    onChanged: (val) {
-                      /*if (val != null) {
+                    // onChanged: (val) {
+                    /*if (val != null) {
                                 final amount = double.tryParse(val);
                                 setState(() {
                                   _amountToTransfer = amount ?? 0.0;
                                 });
                               }*/
-                    },
+                    // },
                     validator: FormBuilderValidators.compose([
                       FormBuilderValidators.required(
                           errorText: loc.field_required_error),
                       FormBuilderValidators.numeric(
                           errorText: loc.must_be_numeric_error),
                       (val) {
-                        if (_remainingBalance < 0) {
-                          return loc.insufficient_funds_error;
-                        }
+                        // if (_remainingBalance < 0) {
+                        //   return loc.insufficient_funds_error;
+                        // }
                         if (val != null) {
                           final amount = double.tryParse(val);
                           if (amount == 0) {
@@ -135,7 +135,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                       FormBuilderValidators.required(
                           errorText: loc.field_required_error),
                       (val) {
-                        if (val != null && !isAddressValid(strAddress: val)) {
+                        if (val != null &&
+                            !isAddressValid(strAddress: val.trim())) {
                           return loc.invalid_address_format_error;
                         }
                         return null;
@@ -149,7 +150,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
             TextButton.icon(
               icon: const Icon(Icons.check_circle),
               onPressed: _reviewTransfer,
-              label: Text('Review & Send'),
+              label: const Text('Review & Send'),
             ),
           ],
         ),

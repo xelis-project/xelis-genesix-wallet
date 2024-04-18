@@ -44,7 +44,7 @@ class SeedContentDialog extends ConsumerWidget {
           onPressed: () {
             Navigator.pop(context);
           },
-          child: Text("Yes, I have saved my seed."),
+          child: const Text("Yes, I have saved my seed."),
         )
       ],
     );

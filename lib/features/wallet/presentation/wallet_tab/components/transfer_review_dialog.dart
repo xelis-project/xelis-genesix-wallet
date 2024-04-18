@@ -1,11 +1,8 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
-import 'package:genesix/features/wallet/domain/native_transaction.dart';
+import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
-import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -15,17 +12,15 @@ import 'package:loader_overlay/loader_overlay.dart';
 import 'package:random_avatar/random_avatar.dart';
 
 class TransferReviewDialog extends ConsumerWidget {
-  final String address;
-  final String amount;
-  final NativeTransaction tx;
+  final TransactionSummary tx;
 
-  const TransferReviewDialog(this.address, this.amount, this.tx, {super.key});
+  const TransferReviewDialog(this.tx, {super.key});
 
   void _sendTransfer(BuildContext context, WidgetRef ref) async {
     try {
       context.loaderOverlay.show();
 
-      await ref.read(walletStateProvider.notifier).broadcastTx(tx: tx);
+      await ref.read(walletStateProvider.notifier).broadcastTx(hash: tx.hash);
       ref
           .read(snackBarMessengerProvider.notifier)
           .showInfo('The transaction was broadcast to the network.');
@@ -40,8 +35,9 @@ class TransferReviewDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var amountValue = double.parse(amount) * pow(10, AppResources.xelisDecimals);
-    var total = amountValue + tx.fee;
+    final destination =
+        tx.transactionSummaryType.transferOutEntry!.first.destination;
+    var total = tx.amount + tx.fee;
 
     return AlertDialog(
       scrollable: true,
@@ -61,7 +57,7 @@ class TransferReviewDialog extends ConsumerWidget {
                 Text('Amount',
                     style: context.bodyLarge!
                         .copyWith(color: context.moreColors.mutedColor)),
-                SelectableText(formatXelis(amountValue.truncate())),
+                SelectableText(formatXelis(tx.amount.truncate())),
               ],
             ),
             const SizedBox(height: 3),
@@ -91,10 +87,10 @@ class TransferReviewDialog extends ConsumerWidget {
             const SizedBox(height: Spaces.small),
             Row(
               children: [
-                RandomAvatar(address, width: 35, height: 35),
+                RandomAvatar(destination, width: 35, height: 35),
                 const SizedBox(width: Spaces.small),
                 Expanded(
-                  child: SelectableText(address),
+                  child: SelectableText(destination),
                 ),
               ],
             ),
@@ -110,9 +106,12 @@ class TransferReviewDialog extends ConsumerWidget {
       actions: [
         TextButton(
           onPressed: () {
+            ref
+                .read(walletStateProvider.notifier)
+                .cancelTransaction(hash: tx.hash);
             context.pop();
           },
-          child: Text('Cancel'),
+          child: const Text('Cancel'),
         ),
         TextButton.icon(
           onPressed: () {
@@ -128,7 +127,7 @@ class TransferReviewDialog extends ConsumerWidget {
             );
           },
           icon: const Icon(Icons.send),
-          label: Text('Broadcast'),
+          label: const Text('Broadcast'),
         ),
       ],
     );
