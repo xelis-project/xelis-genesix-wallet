@@ -19,7 +19,7 @@ class SnackBarState with _$SnackBarState {
 
 @riverpod
 class SnackBarMessenger extends _$SnackBarMessenger {
-  Timer? timer;
+  Timer? _timer;
 
   @override
   SnackBarState build() {
@@ -39,18 +39,17 @@ class SnackBarMessenger extends _$SnackBarMessenger {
   }
 
   void showInfo(String message) {
-
     state = state.copyWith(
       message: message,
       type: SnackBarType.info,
       visible: true,
     );
 
-    if (timer != null) {
-      timer!.cancel();
+    if (_timer != null) {
+      _timer!.cancel();
     }
 
-    timer = Timer(const Duration(seconds: 3), () {
+    _timer = Timer(const Duration(seconds: 3), () {
       state = state.copyWith(visible: false);
     });
   }
