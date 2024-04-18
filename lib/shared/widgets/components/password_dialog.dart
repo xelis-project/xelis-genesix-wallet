@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:genesix/shared/theme/constants.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -12,10 +13,12 @@ import 'package:genesix/shared/widgets/components/password_textfield_widget.dart
 class PasswordDialog extends ConsumerStatefulWidget {
   final void Function(String password)? onEnter;
   final void Function()? onValid;
+  final bool closeOnValid;
 
   const PasswordDialog({
     this.onEnter,
     this.onValid,
+    this.closeOnValid = true,
     super.key,
   });
 
@@ -25,7 +28,6 @@ class PasswordDialog extends ConsumerStatefulWidget {
 
 class _PasswordDialogState extends ConsumerState<PasswordDialog> {
   String? _passwordError;
-  final FocusNode _passwordFocusNode = FocusNode();
 
   final _passwordFormKey =
       GlobalKey<FormBuilderState>(debugLabel: '_passwordFormKey');
@@ -44,7 +46,9 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
         context.loaderOverlay.show();
         await wallet.nativeWalletRepository!.isValidPassword(password);
         widget.onValid!();
-        if (context.mounted) context.pop(); // hide the dialog
+        if (widget.closeOnValid == true && context.mounted) {
+          context.pop(); // hide the dialog
+        }
       } catch (e) {
         setState(() {
           _passwordError = 'Invalid password.';
@@ -61,44 +65,37 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
 
-    FocusScope.of(context).requestFocus(_passwordFocusNode);
-
     return AlertDialog(
       scrollable: false,
-      contentPadding: const EdgeInsets.all(10),
-      actionsPadding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-      iconPadding: const EdgeInsets.all(10),
-      content: Builder(
-        builder: (BuildContext context) {
-          return FormBuilder(
-            key: _passwordFormKey,
-            child: PasswordTextField(
-              textField: FormBuilderTextField(
-                name: 'password',
-                autocorrect: false,
-                focusNode: _passwordFocusNode,
-                style: context.bodyLarge,
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.lock),
-                  fillColor: Colors.transparent,
-                  hintText: loc.password,
-                  errorText: _passwordError,
-                  errorMaxLines: 2,
-                ),
-                onSubmitted: (value) {
-                  if (widget.onEnter != null) {
-                    widget.onEnter!(value!);
-                  }
-
-                  if (widget.onValid != null) {
-                    _checkWalletPassword(context);
-                  }
-                },
-                validator: FormBuilderValidators.required(),
-              ),
+      contentPadding: const EdgeInsets.all(Spaces.small),
+      //iconPadding: const EdgeInsets.all(Spaces.small),
+      content: FormBuilder(
+        key: _passwordFormKey,
+        child: PasswordTextField(
+          textField: FormBuilderTextField(
+            name: 'password',
+            autocorrect: false,
+            autofocus: true,
+            style: context.bodyLarge,
+            decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.lock),
+              fillColor: Colors.transparent,
+              hintText: loc.password,
+              errorText: _passwordError,
+              errorMaxLines: 2,
             ),
-          );
-        },
+            onSubmitted: (value) {
+              if (widget.onEnter != null) {
+                widget.onEnter!(value!);
+              }
+
+              if (widget.onValid != null) {
+                _checkWalletPassword(context);
+              }
+            },
+            validator: FormBuilderValidators.required(),
+          ),
+        ),
       ),
     );
   }

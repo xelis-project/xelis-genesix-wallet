@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:genesix/shared/widgets/components/snackbar_initializer_widget.dart';
+import 'package:genesix/shared/widgets/components/snackbar_widget.dart';
 import 'package:genesix/shared/widgets/components/wallet_initializer_widget.dart';
 
 class AppProvidersInitializer extends StatelessWidget {
@@ -9,7 +9,8 @@ class AppProvidersInitializer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SnackBarInitializerWidget(
-        child: WalletInitializerWidget(child: child));
+    return SnackBarWidget(
+      child: WalletInitializerWidget(child: child),
+    );
   }
 }

@@ -53,24 +53,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     return Background(
       child: Scaffold(
         appBar: const GenericAppBar(title: 'App settings'),
-        body: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: Spaces.large),
-            children: [
-              const NetworkSelectorWidget(),
-              const Divider(),
-              const ThemeSelectorWidget(),
-              const Divider(),
-              const LanguageSelectorWidget(),
-              const Divider(),
-              HorizontalContainer(title: loc.version, value: _version),
-              const Divider(),
-              VerticalContainer(
-                  title: loc.wallets_directory, value: _walletsPath),
-              const Divider(),
-              VerticalContainer(title: loc.cache_directory, value: _cachePath)
-            ],
-          ),
+        body: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: Spaces.large),
+          children: [
+            const NetworkSelectorWidget(),
+            const Divider(),
+            const ThemeSelectorWidget(),
+            const Divider(),
+            const LanguageSelectorWidget(),
+            const Divider(),
+            HorizontalContainer(title: loc.version, value: _version),
+            const Divider(),
+            VerticalContainer(
+                title: loc.wallets_directory, value: _walletsPath),
+            const Divider(),
+            VerticalContainer(title: loc.cache_directory, value: _cachePath)
+          ],
         ),
       ),
     );

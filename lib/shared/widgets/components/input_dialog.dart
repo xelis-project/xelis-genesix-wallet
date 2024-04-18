@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 
 class InputDialog extends ConsumerStatefulWidget {
+  final String? hintText;
   final void Function(String value)? onEnter;
 
   const InputDialog({
     this.onEnter,
+    this.hintText,
     super.key,
   });
 
@@ -17,20 +20,14 @@ class InputDialog extends ConsumerStatefulWidget {
 }
 
 class _InputDialogState extends ConsumerState<InputDialog> {
-  final FocusNode _inputFocusNode = FocusNode();
-
   final _inputFormKey =
       GlobalKey<FormBuilderState>(debugLabel: '_inputFormKey');
 
   @override
   Widget build(BuildContext context) {
-    FocusScope.of(context).requestFocus(_inputFocusNode);
-
     return AlertDialog(
       scrollable: false,
-      contentPadding: const EdgeInsets.all(0),
-      insetPadding: const EdgeInsets.all(0),
-      iconPadding: const EdgeInsets.all(0),
+      contentPadding: const EdgeInsets.all(Spaces.small),
       content: Builder(
         builder: (BuildContext context) {
           return FormBuilder(
@@ -38,8 +35,12 @@ class _InputDialogState extends ConsumerState<InputDialog> {
             child: FormBuilderTextField(
               name: 'input',
               autocorrect: false,
-              focusNode: _inputFocusNode,
+              autofocus: true,
               style: context.bodyLarge,
+              decoration: InputDecoration(
+                fillColor: Colors.transparent,
+                hintText: widget.hintText,
+              ),
               onSubmitted: (value) {
                 if (widget.onEnter != null) {
                   widget.onEnter!(value!);

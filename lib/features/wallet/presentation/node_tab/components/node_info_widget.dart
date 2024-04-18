@@ -32,6 +32,18 @@ class NodeInfoWidget extends ConsumerWidget {
         ),
         const SizedBox(height: Spaces.medium),
         Text(
+          loc.topoheight,
+          style: context.labelLarge?.copyWith(color: context.colors.primary),
+        ),
+        SelectableText(
+          switch (info?.topoHeight) {
+            null => '...',
+            int() => info!.topoHeight.toString(),
+          },
+          style: context.titleLarge,
+        ),
+        const SizedBox(height: Spaces.medium),
+        Text(
           loc.node_type,
           style: context.labelLarge?.copyWith(color: context.colors.primary),
         ),
@@ -49,7 +61,10 @@ class NodeInfoWidget extends ConsumerWidget {
           style: context.labelLarge?.copyWith(color: context.colors.primary),
         ),
         SelectableText(
-          '${info?.circulatingSupply ?? '...'} XEL',
+          switch (info?.circulatingSupply) {
+            null => '...',
+            String() => '${info?.circulatingSupply} XEL',
+          },
           style: context.titleLarge,
         ),
         const SizedBox(height: Spaces.medium),
@@ -58,7 +73,11 @@ class NodeInfoWidget extends ConsumerWidget {
           style: context.labelLarge?.copyWith(color: context.colors.primary),
         ),
         SelectableText(
-          '${info?.averageBlockTime.inSeconds.toString() ?? '...'} ${loc.seconds}',
+          switch (info?.averageBlockTime) {
+            null => '...',
+            Duration() =>
+              '${info?.averageBlockTime.inSeconds.toString()} ${loc.seconds}'
+          },
           style: context.titleLarge,
         ),
         const SizedBox(height: Spaces.medium),

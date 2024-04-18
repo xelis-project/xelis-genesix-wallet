@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/widgets/components/confirm_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
-import 'package:genesix/shared/providers/snackbar_content_provider.dart';
-import 'package:genesix/shared/providers/snackbar_event.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/input_dialog.dart';
@@ -15,30 +15,58 @@ import 'package:genesix/shared/widgets/components/password_dialog.dart';
 class SettingsTab extends ConsumerWidget {
   const SettingsTab({super.key});
 
-  void _deleteWallet(WidgetRef ref) async {
-    final walletSnapshot = ref.read(walletStateProvider);
-    final wallets = ref.read(walletsProvider.notifier);
+  void _deleteWallet(WidgetRef ref) {
+    showDialog<void>(
+      context: ref.context,
+      builder: (context) {
+        return ConfirmDialog(
+          onConfirm: (yes) async {
+            if (yes) {
+              final walletSnapshot = ref.read(walletStateProvider);
+              final wallets = ref.read(walletsProvider.notifier);
 
-    try {
-      await wallets.deleteWallet(walletSnapshot.name);
-    } catch (e) {
-      ref
-          .read(snackbarContentProvider.notifier)
-          .setContent(SnackbarEvent.error(message: e.toString()));
-    }
+              try {
+                await wallets.deleteWallet(walletSnapshot.name);
+                ref
+                    .read(snackBarMessengerProvider.notifier)
+                    .showInfo('Wallet was deleted.');
+              } catch (e) {
+                ref
+                    .read(snackBarMessengerProvider.notifier)
+                    .showError(e.toString());
+              }
+            }
+          },
+        );
+      },
+    );
   }
 
-  void _renameWallet(WidgetRef ref, String newName) async {
-    final walletSnapshot = ref.read(walletStateProvider);
-    final wallets = ref.read(walletsProvider.notifier);
+  void _renameWallet(WidgetRef ref, String newName) {
+    showDialog<void>(
+      context: ref.context,
+      builder: (context) {
+        return ConfirmDialog(
+          onConfirm: (yes) async {
+            if (yes) {
+              try {
+                final walletSnapshot = ref.read(walletStateProvider);
+                final wallets = ref.read(walletsProvider.notifier);
 
-    try {
-      await wallets.renameWallet(walletSnapshot.name, newName);
-    } catch (e) {
-      ref.read(snackbarContentProvider.notifier).setContent(SnackbarEvent.error(
-            message: e.toString(),
-          ));
-    }
+                await wallets.renameWallet(walletSnapshot.name, newName);
+                ref
+                    .read(snackBarMessengerProvider.notifier)
+                    .showInfo('Wallet was renamed.');
+              } catch (e) {
+                ref
+                    .read(snackBarMessengerProvider.notifier)
+                    .showError(e.toString());
+              }
+            }
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -58,10 +86,7 @@ class SettingsTab extends ConsumerWidget {
             );
           },
         ),
-        //const SizedBox(height: Spaces.large),
-        //const AvatarSelector(),
         const SizedBox(height: Spaces.large),
-        //const Divider(),
         ListTile(
           title: Wrap(
             spacing: Spaces.medium,
@@ -127,17 +152,11 @@ class SettingsTab extends ConsumerWidget {
             showDialog<void>(
               context: context,
               builder: (context) {
-                return AlertDialog(
-                  scrollable: true,
-                  content: Builder(
-                    builder: (BuildContext context) {
-                      return InputDialog(
-                        onEnter: (value) async {
-                          _renameWallet(ref, value);
-                        },
-                      );
-                    },
-                  ),
+                return InputDialog(
+                  hintText: 'New name',
+                  onEnter: (value) {
+                    _renameWallet(ref, value);
+                  },
                 );
               },
             );
@@ -176,7 +195,7 @@ class SettingsTab extends ConsumerWidget {
             color: context.colors.error,
           ),
           style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(Spaces.large),
             side: BorderSide(
               color: context.colors.error,
               width: 2,
@@ -187,7 +206,10 @@ class SettingsTab extends ConsumerWidget {
               context: context,
               builder: (context) {
                 return PasswordDialog(
-                  onValid: () => _deleteWallet(ref),
+                  closeOnValid: false,
+                  onValid: () {
+                    _deleteWallet(ref);
+                  },
                 );
               },
             );

@@ -16,14 +16,6 @@ class WalletTab extends ConsumerStatefulWidget {
 }
 
 class _WalletTabState extends ConsumerState<WalletTab> {
-  /*void _copy(String content, String message) {
-    Clipboard.setData(ClipboardData(text: content)).then((_) {
-      ref
-          .read(snackbarContentProvider.notifier)
-          .setContent(SnackbarEvent.info(message: message));
-    });
-  }*/
-
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);

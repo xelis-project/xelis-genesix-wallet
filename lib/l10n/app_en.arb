@@ -122,9 +122,9 @@
   "atomic_units": "atomic units",
 
   "change_password": "Change password",
-  "old_password": "old password",
-  "new_password": "new password",
-  "confirm_password": "confirm password",
+  "old_password": "Old password",
+  "new_password": "New password",
+  "confirm_password": "Confirm password",
   "same_old_new_password_error": "the old and new passwords are identical",
   "not_match_new_password_error": "does not match the new password",
   "password_cannot_be_changed_error": "the password cannot be changed",
@@ -132,5 +132,9 @@
 
   "light": "Light",
   "dark": "Dark",
-  "theme": "Theme"
+  "theme": "Theme",
+
+  "yes": "Yes",
+  "no": "No",
+  "are_you_sure": "Are you sure?"
 }

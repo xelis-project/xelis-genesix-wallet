@@ -7,7 +7,7 @@ part 'daemon_info_snapshot.freezed.dart';
 class DaemonInfoSnapshot with _$DaemonInfoSnapshot {
   const factory DaemonInfoSnapshot({
     // @Default(0) int height,
-    // @Default(0) int topoHeight,
+    @Default(0) int topoHeight,
     @Default(false) bool pruned,
     @Default('') String circulatingSupply,
     @Default(Duration()) Duration averageBlockTime,
