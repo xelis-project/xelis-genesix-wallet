@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
@@ -8,7 +9,6 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/network_nodes_provider.dart';
 import 'package:genesix/features/wallet/domain/event.dart';
-import 'package:genesix/features/wallet/domain/native_transaction.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
 import 'package:genesix/features/wallet/domain/wallet_snapshot.dart';
 import 'package:genesix/shared/logger.dart';
@@ -117,7 +117,7 @@ class WalletState extends _$WalletState {
     }
   }
 
-  Future<NativeTransaction?> createXelisTransaction(
+  Future<TransactionSummary?> createXelisTransaction(
       {required double amount, required String destination}) async {
     if (state.nativeWalletRepository != null) {
       return state.nativeWalletRepository!
@@ -126,7 +126,7 @@ class WalletState extends _$WalletState {
     return null;
   }
 
-  Future<NativeTransaction?> createBurnXelisTransaction(
+  Future<TransactionSummary?> createBurnXelisTransaction(
       {required double amount}) async {
     if (state.nativeWalletRepository != null) {
       return state.nativeWalletRepository!
@@ -135,9 +135,15 @@ class WalletState extends _$WalletState {
     return null;
   }
 
-  Future<void> broadcastTx({required NativeTransaction tx}) async {
+  void cancelTransaction({required String hash}) {
     if (state.nativeWalletRepository != null) {
-      await state.nativeWalletRepository!.broadcastTransaction(tx);
+      state.nativeWalletRepository!.cancelTransaction(hash);
+    }
+  }
+
+  Future<void> broadcastTx({required String hash}) async {
+    if (state.nativeWalletRepository != null) {
+      await state.nativeWalletRepository!.broadcastTransaction(hash);
     }
   }
 

@@ -1,8 +1,8 @@
 import 'dart:convert';
 
+import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/features/wallet/domain/event.dart';
-import 'package:genesix/features/wallet/domain/native_transaction.dart';
 import 'package:genesix/shared/logger.dart';
 import 'package:genesix/rust_bridge/api/wallet.dart';
 
@@ -99,27 +99,32 @@ class NativeWalletRepository {
     return _xelisWallet.rescan(topoheight: topoHeight);
   }
 
-  Future<NativeTransaction> createSimpleTransaction(
+  Future<TransactionSummary> createSimpleTransaction(
       {required double amount,
       required String address,
       String? assetHash}) async {
     final rawTx = await _xelisWallet.createTransferTransaction(
         floatAmount: amount, strAddress: address, assetHash: assetHash);
     final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
-    return NativeTransaction.fromJson(jsonTx);
+    return TransactionSummary.fromJson(jsonTx);
   }
 
-  Future<NativeTransaction> createBurnTransaction(
+  Future<TransactionSummary> createBurnTransaction(
       {required double amount, required String assetHash}) async {
     final rawTx = await _xelisWallet.createBurnTransaction(
         floatAmount: amount, assetHash: assetHash);
     final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
-    return NativeTransaction.fromJson(jsonTx);
+    return TransactionSummary.fromJson(jsonTx);
   }
 
-  Future<void> broadcastTransaction(NativeTransaction nativeTransaction) async {
-    final rawTx = jsonEncode(nativeTransaction.toJson());
-    await _xelisWallet.broadcastTransaction(jsonData: rawTx);
+  Future<void> broadcastTransaction(String hash) async {
+    await _xelisWallet.broadcastTransaction(txHash: hash);
+    logger.info('Transaction successfully broadcast: $hash');
+  }
+
+  void cancelTransaction(String hash) {
+    _xelisWallet.cancelTransaction(txHash: hash);
+    logger.info('Transaction canceled: $hash');
   }
 
   Future<List<sdk.TransactionEntry>> allHistory() async {
@@ -148,7 +153,7 @@ class NativeWalletRepository {
   }
 
   Stream<Event> convertRawEvents() async* {
-    final rawEventStream = await _xelisWallet.eventsStream();
+    final rawEventStream = _xelisWallet.eventsStream();
 
     await for (final rawData in rawEventStream) {
       final json = jsonDecode(rawData);

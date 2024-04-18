@@ -7,12 +7,13 @@ edition = "2021"
 crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
-flutter_rust_bridge = { version = "=2.0.0-dev.31", features = ["log"] }
+flutter_rust_bridge = { version = "=2.0.0-dev.32", features = ["log"] }
 anyhow = "1"
 log = "0.4"
 parking_lot = "0.12.1"
 simplelog = "0.12.1"
 lazy_static = "1.4.0"
 serde_json = "1"
-xelis_wallet = { git = "https://github.com/xelis-project/xelis-blockchain", branch = "fixes", package = "xelis_wallet", features = ["api_server"] }
-xelis_common = { git = "https://github.com/xelis-project/xelis-blockchain", branch = "fixes", package = "xelis_common" }
+xelis_wallet = { git = "https://github.com/xelis-project/xelis-blockchain", rev = "1143b1f", package = "xelis_wallet", features = ["api_server"] }
+xelis_common = { git = "https://github.com/xelis-project/xelis-blockchain", rev = "1143b1f", package = "xelis_common" }
+serde = { version = "1.0.197", features = ["derive"] }

@@ -1,23 +1,27 @@
-use crate::api::progress_report::{add_progress_report, Report};
-use crate::frb_generated::StreamSink;
-use anyhow::{anyhow, Context, Result};
-use flutter_rust_bridge::frb;
-use log::{debug, info};
-use serde_json::json;
 use std::collections::HashMap;
 use std::ops::ControlFlow;
 use std::path::Path;
-use std::sync::Arc;
-use xelis_common::api::RPCTransaction;
+use std::sync::{Arc, Mutex};
+
+use anyhow::{anyhow, Context, Result};
+use flutter_rust_bridge::frb;
+use lazy_static::lazy_static;
+use log::{debug, info};
+use serde::{Deserialize, Serialize};
+use serde_json::json;
 use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
-use xelis_common::crypto::{ecdlp, Address, Hash, Hashable};
+use xelis_common::crypto::{Address, ecdlp, Hash, Hashable};
 pub use xelis_common::network::Network;
 use xelis_common::serializer::Serializer;
-use xelis_common::transaction::builder::FeeBuilder;
-use xelis_common::transaction::builder::{TransactionTypeBuilder, TransferBuilder};
-use xelis_common::transaction::{BurnPayload, Transaction};
+use xelis_common::transaction::builder::{FeeBuilder, TransactionTypeBuilder, TransferBuilder};
+use xelis_common::transaction::BurnPayload;
+pub use xelis_common::transaction::Transaction;
 use xelis_common::utils::{format_coin, format_xelis};
-use xelis_wallet::wallet::{Wallet, PRECOMPUTED_TABLES_L1};
+pub use xelis_wallet::transaction_builder::TransactionBuilderState;
+use xelis_wallet::wallet::{PRECOMPUTED_TABLES_L1, Wallet};
+
+use crate::api::progress_report::{add_progress_report, Report};
+use crate::frb_generated::StreamSink;
 
 #[frb(mirror(Network))]
 pub enum _Network {
@@ -49,9 +53,13 @@ pub fn precomputed_tables_exist(precomputed_tables_path: String) -> bool {
     return Path::new(&file_path).is_file();
 }
 
-#[frb(opaque)]
 pub struct XelisWallet {
     wallet: Arc<Wallet>,
+}
+
+lazy_static! {
+    pub static ref PENDING_TRANSACTIONS: Mutex<HashMap<Hash, (Transaction, TransactionBuilderState)>> =
+        Mutex::new(HashMap::new());
 }
 
 pub fn create_xelis_wallet(
@@ -87,6 +95,14 @@ pub fn open_xelis_wallet(
     })
 }
 
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct SummaryTransaction {
+    hash: String,
+    amount: u64,
+    fee: u64,
+    transaction_type: TransactionTypeBuilder,
+}
+
 impl XelisWallet {
     pub async fn change_password(&self, old_password: String, new_password: String) -> Result<()> {
         self.wallet.set_password(old_password, new_password).await
@@ -116,7 +132,7 @@ impl XelisWallet {
     }
 
     pub async fn is_valid_password(&self, password: String) -> Result<()> {
-        Ok(self.wallet.is_valid_password(password).await?)
+        self.wallet.is_valid_password(password).await
     }
 
     pub async fn has_xelis_balance(&self) -> Result<bool> {
@@ -177,27 +193,38 @@ impl XelisWallet {
             extra_data: None,
         };
 
-        let tx = self
+        let transaction_type_builder = TransactionTypeBuilder::Transfers(vec![transfer]);
+
+        let (state, tx) = self
             .wallet
             .create_transaction_with_storage(
                 &mut storage,
-                TransactionTypeBuilder::Transfers(vec![transfer]),
+                transaction_type_builder.clone(),
                 FeeBuilder::default(),
             )
-            .await
-            .context("Error while creating transaction")?;
+            .await?;
 
         info!("Transaction created!");
         let hash = tx.hash();
         info!("Tx Hash: {}", hash);
+        let fee = tx.get_fee();
 
-        let tx_rpc = RPCTransaction::from_tx(&tx, &hash, self.wallet.get_network().is_mainnet());
+        PENDING_TRANSACTIONS
+            .lock()
+            .unwrap()
+            .insert(hash.clone(), (tx, state));
 
-        Ok(json!(tx_rpc).to_string())
+        Ok(json!(SummaryTransaction {
+            hash: hash.to_hex(),
+            amount,
+            fee,
+            transaction_type: transaction_type_builder
+        })
+            .to_string())
     }
 
     pub async fn create_burn_transaction(
-        &self,
+        &mut self,
         float_amount: f64,
         asset_hash: String,
     ) -> Result<String> {
@@ -209,31 +236,56 @@ impl XelisWallet {
         info!("Burning {} of {}", format_coin(amount, decimals), asset);
 
         let payload = BurnPayload { amount, asset };
-        let tx = self
+        let transaction_type_builder = TransactionTypeBuilder::Burn(payload);
+        let (state, tx) = self
             .wallet
             .create_transaction_with_storage(
                 &mut storage,
-                TransactionTypeBuilder::Burn(payload),
+                transaction_type_builder.clone(),
                 FeeBuilder::Multiplier(1f64),
             )
-            .await
-            .context("Error while creating transaction")?;
+            .await?;
 
         info!("Transaction created!");
         let hash = tx.hash();
         info!("Tx Hash: {}", hash);
+        let fee = tx.get_fee();
 
-        let tx_rpc = RPCTransaction::from_tx(&tx, &hash, self.wallet.get_network().is_mainnet());
+        PENDING_TRANSACTIONS
+            .lock()
+            .unwrap()
+            .insert(hash.clone(), (tx, state));
 
-        Ok(json!(tx_rpc).to_string())
+        Ok(json!(SummaryTransaction {
+            hash: hash.to_hex(),
+            amount,
+            fee,
+            transaction_type: transaction_type_builder
+        })
+            .to_string())
     }
 
-    pub async fn broadcast_transaction(&self, json_data: String) -> Result<()> {
-        let tx_rpc_json: RPCTransaction = serde_json::from_str(&*json_data)?;
-        let tx = Transaction::from(tx_rpc_json);
+    #[frb(sync)]
+    pub fn cancel_transaction(
+        &self,
+        tx_hash: String,
+    ) -> Result<(Transaction, TransactionBuilderState)> {
+        let hash = Hash::from_hex(tx_hash).unwrap();
+        Ok(PENDING_TRANSACTIONS
+            .lock()
+            .unwrap()
+            .remove(&hash)
+            .expect("Cannot delete pending transaction"))
+    }
+
+    pub async fn broadcast_transaction(&self, tx_hash: String) -> Result<()> {
+        let (tx, mut state) = self.cancel_transaction(tx_hash)?;
+        let mut storage = self.wallet.get_storage().write().await;
 
         if self.wallet.is_online().await {
             self.wallet.submit_transaction(&tx).await?;
+            state.apply_changes(&mut storage).await?;
+
             info!("Transaction submitted successfully!");
         } else {
             return Err(anyhow!(
@@ -282,22 +334,20 @@ impl XelisWallet {
     pub async fn events_stream(&self, sink: StreamSink<String>) {
         let mut rx = self.wallet.subscribe_events().await;
 
-        flutter_rust_bridge::spawn(async move {
-            loop {
-                let result = rx.recv().await;
-                match result {
-                    Ok(event) => {
-                        let json_event = json!({"event": event.kind(), "data": event}).to_string();
-                        sink.add(json_event)
-                            .expect("Unable to send event data through stream");
-                    }
-                    Err(e) => {
-                        debug!("Error with events stream: {}", e);
-                        break;
-                    }
+        loop {
+            let result = rx.recv().await;
+            match result {
+                Ok(event) => {
+                    let json_event = json!({"event": event.kind(), "data": event}).to_string();
+                    sink.add(json_event)
+                        .expect("Unable to send event data through stream");
+                }
+                Err(e) => {
+                    debug!("Error with events stream: {}", e);
+                    break;
                 }
             }
-        });
+        }
     }
 
     pub async fn get_daemon_info(&self) -> Result<String> {
