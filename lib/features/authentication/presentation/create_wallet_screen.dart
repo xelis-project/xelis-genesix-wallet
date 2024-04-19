@@ -85,7 +85,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
               .read(authenticationProvider.notifier)
               .createWallet(walletName, password, createSeed);
 
-          var seed = await ref
+          final seed = await ref
               .read(walletStateProvider)
               .nativeWalletRepository!
               .getSeed();

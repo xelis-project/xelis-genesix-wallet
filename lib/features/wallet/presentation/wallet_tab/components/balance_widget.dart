@@ -79,11 +79,9 @@ class BalanceWidget extends ConsumerWidget {
                           Icons.visibility_off_rounded,
                         ),
                   tooltip: hideBalance ? 'Show balance' : 'Hide balance',
-                  onPressed: () {
-                    ref
-                        .read(settingsProvider.notifier)
-                        .setHideBalance(!hideBalance);
-                  },
+                  onPressed: () => ref
+                      .read(settingsProvider.notifier)
+                      .setHideBalance(!hideBalance),
                 ),
               ],
             ),
@@ -120,9 +118,7 @@ class BalanceWidget extends ConsumerWidget {
               Column(
                 children: [
                   IconButton.filled(
-                    onPressed: () {
-                      _showQrDialog(context);
-                    },
+                    onPressed: () => _showQrDialog(context),
                     icon: const Icon(Icons.call_received_rounded),
                   ),
                   const SizedBox(height: Spaces.small),

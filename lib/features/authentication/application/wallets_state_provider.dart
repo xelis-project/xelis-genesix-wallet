@@ -18,7 +18,7 @@ class Wallets extends _$Wallets {
   @override
   Map<String, String> build() {
     final network =
-        ref.watch(settingsProvider.select((value) => value.network));
+        ref.watch(settingsProvider.select((state) => state.network));
     _network = network;
     _loadWallets();
     return {};

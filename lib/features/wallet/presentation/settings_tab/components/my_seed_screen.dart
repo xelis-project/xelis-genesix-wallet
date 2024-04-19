@@ -18,17 +18,25 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
   String _seed = '';
 
   @override
+  void initState() {
+    super.initState();
+    final loc = ref.read(appLocalizationsProvider);
+    final walletRepository = ref.read(
+        walletStateProvider.select((state) => state.nativeWalletRepository));
+
+    walletRepository!.getSeed().then((value) {
+      setState(() {
+        _seed = value;
+      });
+    },
+        onError: (_, __) => setState(() {
+              _seed = loc.oups;
+            }));
+  }
+
+  @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final wallet = ref.read(walletStateProvider);
-
-    wallet.nativeWalletRepository!.getSeed().then((value) {
-      if (mounted) {
-        setState(() {
-          _seed = value;
-        });
-      }
-    });
 
     return Background(
       child: Scaffold(
@@ -37,7 +45,6 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
         body: ListView(
           padding: const EdgeInsets.symmetric(horizontal: Spaces.large),
           children: [
-            // BackHeader(title: loc.seed),
             const SizedBox(height: Spaces.medium),
             Container(
               decoration: BoxDecoration(
@@ -83,11 +90,13 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
             const SizedBox(height: Spaces.medium),
             Card.outlined(
               margin: const EdgeInsets.all(Spaces.none),
-              child: Padding(
-                padding: const EdgeInsets.all(Spaces.medium),
-                child: SelectableText(
-                  _seed,
-                  style: context.bodyLarge,
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(Spaces.medium),
+                  child: SelectableText(
+                    _seed,
+                    style: context.bodyLarge,
+                  ),
                 ),
               ),
             )

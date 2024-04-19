@@ -7,6 +7,6 @@ part 'app_localizations_provider.g.dart';
 
 @riverpod
 AppLocalizations appLocalizations(AppLocalizationsRef ref) {
-  final locale = ref.watch(settingsProvider.select((value) => value.locale));
+  final locale = ref.watch(settingsProvider.select((state) => state.locale));
   return lookupAppLocalizations(locale);
 }

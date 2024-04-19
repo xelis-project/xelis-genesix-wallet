@@ -42,6 +42,19 @@ class SettingsTab extends ConsumerWidget {
     );
   }
 
+  void _showDeleteWalletInput(WidgetRef ref) {
+    showDialog<void>(
+        context: ref.context,
+        builder: (context) {
+          return PasswordDialog(
+            closeOnValid: false,
+            onValid: () {
+              _deleteWallet(ref);
+            },
+          );
+        });
+  }
+
   void _renameWallet(WidgetRef ref, String newName) {
     showDialog<void>(
       context: ref.context,
@@ -69,6 +82,33 @@ class SettingsTab extends ConsumerWidget {
     );
   }
 
+  void _showRenameWalletInput(WidgetRef ref) {
+    showDialog<void>(
+      context: ref.context,
+      builder: (context) {
+        return InputDialog(
+          hintText: 'New name',
+          onEnter: (value) {
+            _renameWallet(ref, value);
+          },
+        );
+      },
+    );
+  }
+
+  void _showSeedInput(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return PasswordDialog(
+          onValid: () {
+            context.push(AppScreen.walletSeed.toPath);
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
@@ -76,15 +116,9 @@ class SettingsTab extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(Spaces.large),
       children: [
-        Consumer(
-          builder: (context, ref, child) {
-            final loc = ref.watch(appLocalizationsProvider);
-            return Text(
-              loc.settings,
-              style:
-                  context.headlineLarge!.copyWith(fontWeight: FontWeight.bold),
-            );
-          },
+        Text(
+          loc.settings,
+          style: context.headlineLarge!.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: Spaces.large),
         ListTile(
@@ -99,9 +133,7 @@ class SettingsTab extends ConsumerWidget {
               )
             ],
           ),
-          onTap: () {
-            context.push(AppScreen.settings.toPath);
-          },
+          onTap: () => context.push(AppScreen.settings.toPath),
           trailing: const Icon(
             Icons.keyboard_arrow_right_rounded,
           ),
@@ -119,18 +151,7 @@ class SettingsTab extends ConsumerWidget {
               )
             ],
           ),
-          onTap: () {
-            showDialog<void>(
-              context: context,
-              builder: (context) {
-                return PasswordDialog(
-                  onValid: () {
-                    context.push(AppScreen.walletSeed.toPath);
-                  },
-                );
-              },
-            );
-          },
+          onTap: () => _showSeedInput(context),
           trailing: const Icon(
             Icons.keyboard_arrow_right_rounded,
           ),
@@ -148,19 +169,7 @@ class SettingsTab extends ConsumerWidget {
               )
             ],
           ),
-          onTap: () {
-            showDialog<void>(
-              context: context,
-              builder: (context) {
-                return InputDialog(
-                  hintText: 'New name',
-                  onEnter: (value) {
-                    _renameWallet(ref, value);
-                  },
-                );
-              },
-            );
-          },
+          onTap: () => _showRenameWalletInput(ref),
           trailing: const Icon(
             Icons.keyboard_arrow_right_rounded,
           ),
@@ -178,9 +187,7 @@ class SettingsTab extends ConsumerWidget {
               )
             ],
           ),
-          onTap: () {
-            context.push(AppScreen.changePassword.toPath);
-          },
+          onTap: () => context.push(AppScreen.changePassword.toPath),
           trailing: const Icon(
             Icons.keyboard_arrow_right_rounded,
           ),
@@ -201,19 +208,7 @@ class SettingsTab extends ConsumerWidget {
               width: 2,
             ),
           ),
-          onPressed: () {
-            showDialog<void>(
-              context: context,
-              builder: (context) {
-                return PasswordDialog(
-                  closeOnValid: false,
-                  onValid: () {
-                    _deleteWallet(ref);
-                  },
-                );
-              },
-            );
-          },
+          onPressed: () => _showDeleteWalletInput(ref),
           label: Text(
             'Delete wallet',
             style: context.titleLarge!.copyWith(color: context.colors.error),

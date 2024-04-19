@@ -8,7 +8,7 @@ import 'package:genesix/shared/theme/constants.dart';
 class SeedContentDialog extends ConsumerWidget {
   const SeedContentDialog(this.seed, WidgetRef ref, {super.key});
 
-  final String? seed;
+  final String seed;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,7 +26,7 @@ class SeedContentDialog extends ConsumerWidget {
             height: Spaces.medium,
           ),
           SelectableText(
-            seed ?? loc.oups,
+            seed,
             style: context.bodyLarge!
                 .copyWith(color: context.moreColors.mutedColor),
           ),
