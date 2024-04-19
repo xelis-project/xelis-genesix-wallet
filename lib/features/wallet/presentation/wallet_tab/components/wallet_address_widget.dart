@@ -23,16 +23,17 @@ class WalletAddressWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
-    final walletSnapshot = ref.watch(walletStateProvider);
+    final walletAddress =
+        ref.watch(walletStateProvider.select((statue) => statue.address));
 
     const double avatarSize = 50;
     Widget avatar = const SizedBox.square(dimension: avatarSize);
 
     var address = '';
-    if (walletSnapshot.address.isNotEmpty) {
-      avatar = RandomAvatar(walletSnapshot.address,
-          height: avatarSize, width: avatarSize);
-      address = truncateAddress(walletSnapshot.address);
+    if (walletAddress.isNotEmpty) {
+      avatar =
+          RandomAvatar(walletAddress, height: avatarSize, width: avatarSize);
+      address = truncateAddress(walletAddress);
     }
 
     return Row(
@@ -48,7 +49,7 @@ class WalletAddressWidget extends ConsumerWidget {
                   .copyWith(color: context.moreColors.mutedColor),
             ),
             InkWell(
-              onTap: () => _copy(walletSnapshot.address, loc.copied, ref),
+              onTap: () => _copy(walletAddress, loc.copied, ref),
               borderRadius: BorderRadius.circular(4),
               child: Text(
                 address,

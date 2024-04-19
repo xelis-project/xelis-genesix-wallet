@@ -25,11 +25,10 @@ class BalanceWidget extends ConsumerWidget {
     final loc = ref.watch(appLocalizationsProvider);
     final hideBalance =
         ref.watch(settingsProvider.select((value) => value.hideBalance));
-    final walletSnapshot = ref.watch(walletStateProvider);
+    final xelisBalance =
+        ref.watch(walletStateProvider.select((statue) => statue.xelisBalance));
 
-    // added 2000 in front to test text resize
-    var displayBalance = walletSnapshot.xelisBalance;
-    //var displayBalance = '${NumberFormat().format(balance)} XEL';
+    var displayBalance = xelisBalance;
     if (hideBalance) {
       displayBalance = 'HIDDEN';
     }
