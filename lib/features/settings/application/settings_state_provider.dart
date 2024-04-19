@@ -45,4 +45,14 @@ class Settings extends _$Settings {
     state = state.copyWith(hideBalance: hideBalance);
     setState(state);
   }
+
+  void setHideExtraData(bool hideExtraData) {
+    state = state.copyWith(hideExtraData: hideExtraData);
+    setState(state);
+  }
+
+  void setHideZeroTransfer(bool hideZeroTransfer) {
+    state = state.copyWith(hideZeroTransfer: hideZeroTransfer);
+    setState(state);
+  }
 }

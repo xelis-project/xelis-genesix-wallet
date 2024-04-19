@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:random_avatar/random_avatar.dart';
@@ -40,6 +41,10 @@ class _TransactionEntryScreenState
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
+    final hideZeroTransfer =
+        ref.watch(settingsProvider.select((value) => value.hideZeroTransfer));
+    final hideExtraData =
+        ref.watch(settingsProvider.select((value) => value.hideExtraData));
     final extra = widget.routerState.extra as TransactionEntryScreenExtra;
     final transactionEntry = extra.transactionEntry;
     final entryType = transactionEntry.txEntryType;
@@ -155,69 +160,89 @@ class _TransactionEntryScreenState
                     style: context.headlineSmall,
                   ),
                   const Divider(),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: outgoing!.transfers.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final transfer = outgoing!.transfers[index];
+                  Builder(
+                    builder: (BuildContext context) {
+                      var transfers = outgoing!.transfers;
 
-                      return Card(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(Spaces.medium,
-                              Spaces.medium, Spaces.medium, Spaces.medium),
-                          child: Column(
-                            children: [
-                              Row(
+                      if (hideZeroTransfer) {
+                        transfers = transfers.skipWhile((value) {
+                          return value.amount == 0 && value.extraData == null;
+                        }).toList(growable: false);
+                      }
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: transfers.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          final transfer = transfers[index];
+
+                          return Card(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(Spaces.medium,
+                                  Spaces.medium, Spaces.medium, Spaces.medium),
+                              child: Column(
                                 children: [
-                                  RandomAvatar(transfer.destination,
-                                      width: 35, height: 35),
-                                  const SizedBox(width: Spaces.small),
-                                  Expanded(
-                                    child: SelectableText(
-                                      transfer.destination,
-                                      style: context.bodyMedium,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const Divider(),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                  Row(
                                     children: [
-                                      Text(loc.asset,
-                                          style: context.labelLarge),
-                                      SelectableText(
-                                          transfer.asset == xelisAsset
-                                              ? 'XELIS'
-                                              : transfer.asset),
+                                      RandomAvatar(transfer.destination,
+                                          width: 35, height: 35),
+                                      const SizedBox(width: Spaces.small),
+                                      Expanded(
+                                        child: SelectableText(
+                                          transfer.destination,
+                                          style: context.bodyMedium,
+                                        ),
+                                      ),
                                     ],
                                   ),
-                                  const SizedBox(width: Spaces.medium),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                  const Divider(),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text('Amount',
-                                          /* transfer.asset == xelisAsset
-                                          ? loc.amount.capitalize
-                                          : '${loc.amount.capitalize} (${loc.atomic_units})',*/
-                                          style: context.labelLarge),
-                                      SelectableText(transfer.asset ==
-                                              xelisAsset
-                                          ? '-${formatXelis(transfer.amount)} XEL'
-                                          : '${transfer.amount}'),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(loc.asset,
+                                              style: context.labelLarge),
+                                          SelectableText(
+                                              transfer.asset == xelisAsset
+                                                  ? 'XELIS'
+                                                  : transfer.asset),
+                                        ],
+                                      ),
+                                      const SizedBox(width: Spaces.medium),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text('Amount',
+                                              /* transfer.asset == xelisAsset
+                                            ? loc.amount.capitalize
+                                            : '${loc.amount.capitalize} (${loc.atomic_units})',*/
+                                              style: context.labelLarge),
+                                          SelectableText(transfer.asset ==
+                                                  xelisAsset
+                                              ? '-${formatXelis(transfer.amount)} XEL'
+                                              : '${transfer.amount}'),
+                                        ],
+                                      ),
                                     ],
                                   ),
+                                  if (transfer.extraData != null &&
+                                      !hideExtraData) ...[
+                                    const SizedBox(height: Spaces.medium),
+                                    Text('Extra Data',
+                                        style: context.labelLarge),
+                                    SelectableText(
+                                        transfer.extraData.toString()),
+                                  ]
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
+                            ),
+                          );
+                        },
                       );
                     },
                   )
@@ -252,48 +277,74 @@ class _TransactionEntryScreenState
                     style: context.headlineSmall,
                   ),
                   const Divider(),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: incoming!.transfers.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final transfer = incoming!.transfers[index];
+                  Builder(
+                    builder: (BuildContext context) {
+                      var transfers = incoming!.transfers;
 
-                      return Card(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(Spaces.medium,
-                              Spaces.small, Spaces.medium, Spaces.small),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                      if (hideZeroTransfer) {
+                        transfers = transfers.skipWhile((value) {
+                          return value.amount == 0 && value.extraData == null;
+                        }).toList(growable: false);
+                      }
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: transfers.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          final transfer = transfers[index];
+
+                          return Card(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(Spaces.medium,
+                                  Spaces.small, Spaces.medium, Spaces.small),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(loc.asset, style: context.labelLarge),
-                                  SelectableText(transfer.asset == xelisAsset
-                                      ? 'XELIS'
-                                      : transfer.asset),
-                                ],
-                              ),
-                              const SizedBox(width: Spaces.medium),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Amount',
-                                      /*transfer.asset == xelisAsset
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(loc.asset,
+                                          style: context.labelLarge),
+                                      SelectableText(
+                                          transfer.asset == xelisAsset
+                                              ? 'XELIS'
+                                              : transfer.asset),
+                                    ],
+                                  ),
+                                  const SizedBox(width: Spaces.medium),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Amount',
+                                          /*transfer.asset == xelisAsset
                                           ? loc.amount.capitalize
                                           : '${loc.amount.capitalize} (${loc.atomic_units})',*/
-                                      style: context.labelLarge),
-                                  SelectableText(transfer.asset == xelisAsset
-                                      ? '+${formatXelis(transfer.amount)} XEL'
-                                      : '${transfer.amount}'),
+                                          style: context.labelLarge),
+                                      SelectableText(transfer.asset ==
+                                              xelisAsset
+                                          ? '+${formatXelis(transfer.amount)} XEL'
+                                          : '${transfer.amount}'),
+                                    ],
+                                  ),
+                                  if (transfer.extraData != null &&
+                                      !hideExtraData) ...[
+                                    const SizedBox(height: Spaces.medium),
+                                    Text('Extra Data',
+                                        style: context.labelLarge),
+                                    SelectableText(
+                                        transfer.extraData.toString()),
+                                  ]
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
+                            ),
+                          );
+                        },
                       );
                     },
-                  )
+                  ),
                 ],
               ),
           ],

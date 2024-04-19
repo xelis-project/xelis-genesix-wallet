@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/widgets/components/confirm_dialog.dart';
 import 'package:go_router/go_router.dart';
@@ -112,6 +114,10 @@ class SettingsTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
+    final hideZeroTransfer =
+        ref.watch(settingsProvider.select((value) => value.hideZeroTransfer));
+    final hideExtraData =
+        ref.watch(settingsProvider.select((value) => value.hideExtraData));
 
     return ListView(
       padding: const EdgeInsets.all(Spaces.large),
@@ -193,9 +199,34 @@ class SettingsTab extends ConsumerWidget {
           ),
         ),
         const Divider(),
-        const SizedBox(
-          height: Spaces.large,
+        ExpansionTile(
+          title: Text(
+            'Transaction parameters',
+            style: context.titleLarge,
+          ),
+          children: [
+            FormBuilderSwitch(
+              name: 'zero_transfer_switch',
+              initialValue: hideZeroTransfer,
+              decoration: const InputDecoration(fillColor: Colors.transparent),
+              title: Text('Hide zero transfers', style: context.bodyLarge),
+              onChanged: (value) {
+                ref.read(settingsProvider.notifier).setHideZeroTransfer(value!);
+              },
+            ),
+            FormBuilderSwitch(
+              name: 'extra_data_switch',
+              initialValue: hideExtraData,
+              decoration: const InputDecoration(fillColor: Colors.transparent),
+              title: Text('Hide extra data', style: context.bodyLarge),
+              onChanged: (value) {
+                ref.read(settingsProvider.notifier).setHideExtraData(value!);
+              },
+            ),
+          ],
         ),
+        const Divider(),
+        const SizedBox(height: Spaces.large),
         OutlinedButton.icon(
           icon: Icon(
             Icons.delete_forever,

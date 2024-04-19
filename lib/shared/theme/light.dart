@@ -247,5 +247,7 @@ ThemeData lightTheme() {
 
     radioTheme:
         RadioThemeData(fillColor: MaterialStateProperty.all(primaryColor)),
+
+    dividerColor: Colors.transparent,
   );
 }

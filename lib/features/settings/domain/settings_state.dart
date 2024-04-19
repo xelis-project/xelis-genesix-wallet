@@ -19,9 +19,11 @@ enum AppTheme {
 @freezed
 class SettingsState with _$SettingsState {
   const factory SettingsState({
-    @JsonKey(name: 'hide_balance') required bool hideBalance,
-    @JsonKey(name: 'network') required Network network,
-    @JsonKey(name: 'theme') required AppTheme theme,
+    @JsonKey(name: 'hide_balance') @Default(false) bool hideBalance,
+    @JsonKey(name: 'hide_extra_data') @Default(false) bool hideExtraData,
+    @JsonKey(name: 'hide_zero_transfer') @Default(false) bool hideZeroTransfer,
+    @JsonKey(name: 'network') @Default(Network.mainnet) Network network,
+    @JsonKey(name: 'theme') @Default(AppTheme.xelis) AppTheme theme,
     @LocaleJsonConverter() required Locale locale,
   }) = _SettingsState;
 

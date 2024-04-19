@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:genesix/rust_bridge/api/wallet.dart';
 import 'package:genesix/features/settings/domain/settings_state.dart';
 import 'package:genesix/shared/storage/persistent_state.dart';
 import 'package:genesix/shared/logger.dart';
@@ -27,12 +26,7 @@ class SettingsStateRepository extends PersistentState<SettingsState> {
           locale = Locale(languageCode);
         }
 
-        return SettingsState(
-          hideBalance: false,
-          locale: locale,
-          network: Network.mainnet,
-          theme: AppTheme.xelis,
-        );
+        return SettingsState(locale: locale);
       }
 
       return SettingsState.fromJson(value);

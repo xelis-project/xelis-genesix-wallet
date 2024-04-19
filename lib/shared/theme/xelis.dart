@@ -239,5 +239,6 @@ ThemeData xelisTheme() {
 
     scaffoldBackgroundColor: Colors.transparent,
     appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent),
+    dividerColor: Colors.transparent,
   );
 }
