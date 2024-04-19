@@ -47,7 +47,7 @@ class BalanceWidget extends ConsumerWidget {
             duration: const Duration(milliseconds: 250),
             child: Row(
               key: UniqueKey(),
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
                   child: Column(
@@ -61,11 +61,12 @@ class BalanceWidget extends ConsumerWidget {
                           minFontSize: 20,
                         ),
                       ),
-                      const SizedBox(height: 3),
-                      SelectableText(
-                        hideBalance ? '' : '0.00 USDT',
-                        style: context.bodyLarge,
-                      ),
+                      // TODO
+                      // const SizedBox(height: 3),
+                      // SelectableText(
+                      //   hideBalance ? '' : '0.00 USDT',
+                      //   style: context.bodyLarge,
+                      // ),
                     ],
                   ),
                 ),
