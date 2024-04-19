@@ -11,16 +11,31 @@ import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:random_avatar/random_avatar.dart';
 
-class TransferReviewDialog extends ConsumerWidget {
-  final TransactionSummary tx;
-
+class TransferReviewDialog extends ConsumerStatefulWidget {
   const TransferReviewDialog(this.tx, {super.key});
 
-  void _sendTransfer(BuildContext context, WidgetRef ref) async {
+  final TransactionSummary tx;
+
+  @override
+  ConsumerState<TransferReviewDialog> createState() =>
+      _TransferReviewDialogState();
+}
+
+class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
+  bool isBroadcast = false;
+
+  Future<void> _sendTransfer(BuildContext context, WidgetRef ref) async {
     try {
       context.loaderOverlay.show();
 
-      await ref.read(walletStateProvider.notifier).broadcastTx(hash: tx.hash);
+      await ref
+          .read(walletStateProvider.notifier)
+          .broadcastTx(hash: widget.tx.hash);
+
+      setState(() {
+        isBroadcast = true;
+      });
+
       ref
           .read(snackBarMessengerProvider.notifier)
           .showInfo('The transaction was broadcast to the network.');
@@ -34,10 +49,10 @@ class TransferReviewDialog extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final destination =
-        tx.transactionSummaryType.transferOutEntry!.first.destination;
-    var total = tx.amount + tx.fee;
+        widget.tx.transactionSummaryType.transferOutEntry!.first.destination;
+    var total = widget.tx.amount + widget.tx.fee;
 
     return AlertDialog(
       scrollable: true,
@@ -57,7 +72,7 @@ class TransferReviewDialog extends ConsumerWidget {
                 Text('Amount',
                     style: context.bodyLarge!
                         .copyWith(color: context.moreColors.mutedColor)),
-                SelectableText(formatXelis(tx.amount.truncate())),
+                SelectableText(formatXelis(widget.tx.amount.truncate())),
               ],
             ),
             const SizedBox(height: 3),
@@ -67,7 +82,7 @@ class TransferReviewDialog extends ConsumerWidget {
                 Text('Fee',
                     style: context.bodyLarge!
                         .copyWith(color: context.moreColors.mutedColor)),
-                SelectableText(formatXelis(tx.fee)),
+                SelectableText(formatXelis(widget.tx.fee)),
               ],
             ),
             const SizedBox(height: 3),
@@ -99,35 +114,46 @@ class TransferReviewDialog extends ConsumerWidget {
                 style: context.bodyLarge!
                     .copyWith(color: context.moreColors.mutedColor)),
             const SizedBox(height: 3),
-            SelectableText(tx.hash),
+            SelectableText(widget.tx.hash),
           ],
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () {
-            ref
-                .read(walletStateProvider.notifier)
-                .cancelTransaction(hash: tx.hash);
-            context.pop();
-          },
-          child: const Text('Cancel'),
-        ),
-        TextButton.icon(
-          onPressed: () {
-            showDialog<void>(
-              context: context,
-              builder: (context) {
-                return PasswordDialog(
-                  onValid: () async {
-                    _sendTransfer(context, ref);
+        if (!isBroadcast)
+          TextButton(
+            onPressed: () {
+              ref
+                  .read(walletStateProvider.notifier)
+                  .cancelTransaction(hash: widget.tx.hash);
+              context.pop();
+            },
+            child: const Text('Cancel'),
+          ),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: AppDurations.animFast),
+          child: isBroadcast
+              ? TextButton(
+                  onPressed: () {
+                    context.pop();
                   },
-                );
-              },
-            );
-          },
-          icon: const Icon(Icons.send),
-          label: const Text('Broadcast'),
+                  child: const Text('Ok'),
+                )
+              : TextButton.icon(
+                  onPressed: () {
+                    showDialog<void>(
+                      context: context,
+                      builder: (context) {
+                        return PasswordDialog(
+                          onValid: () {
+                            _sendTransfer(context, ref);
+                          },
+                        );
+                      },
+                    );
+                  },
+                  icon: const Icon(Icons.send),
+                  label: const Text('Broadcast'),
+                ),
         ),
       ],
     );
