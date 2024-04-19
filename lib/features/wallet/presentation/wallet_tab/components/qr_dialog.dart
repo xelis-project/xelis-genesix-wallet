@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -8,26 +11,17 @@ import 'package:genesix/shared/theme/extensions.dart';
 class QrDialog extends ConsumerWidget {
   const QrDialog({super.key});
 
+  void _copy(String content, String message, WidgetRef ref) {
+    Clipboard.setData(ClipboardData(text: content)).then((_) {
+      ref.read(snackBarMessengerProvider.notifier).showInfo(message);
+    });
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    //final loc = ref.watch(appLocalizationsProvider);
-    final walletSnapshot = ref.watch(walletStateProvider);
-
-    // final userThemeMode = ref.watch(userThemeModeProvider);
-
-    // var iconTarget = '';
-    // switch (userThemeMode.themeMode) {
-    //   case ThemeMode.system:
-    //     if (context.mediaQueryData.platformBrightness == Brightness.light) {
-    //       iconTarget = AppResources.svgIconWhiteTarget;
-    //     } else {
-    //       iconTarget = AppResources.svgIconBlackTarget;
-    //     }
-    //   case ThemeMode.light:
-    //     iconTarget = AppResources.svgIconWhiteTarget;
-    //   case ThemeMode.dark:
-    //     iconTarget = AppResources.svgIconBlackTarget;
-    // }
+    final loc = ref.watch(appLocalizationsProvider);
+    final address =
+        ref.watch(walletStateProvider.select((state) => state.address));
 
     return AlertDialog(
       scrollable: true,
@@ -39,22 +33,24 @@ class QrDialog extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: Spaces.small),
-            SelectableText(
-              walletSnapshot.address,
-              style: context.bodyLarge!.copyWith(
-                fontWeight: FontWeight.bold,
-                color: context.moreColors.mutedColor,
+            InkWell(
+              splashColor: Colors.transparent,
+              onTap: () => _copy(address, loc.copied, ref),
+              borderRadius: BorderRadius.circular(4),
+              child: Text(
+                address,
+                style: context.bodyLarge!.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: context.moreColors.mutedColor,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
             ),
             const SizedBox(height: Spaces.large),
             PrettyQrView.data(
-              data: walletSnapshot.address,
+              data: address,
               decoration: PrettyQrDecoration(
                 shape: PrettyQrSmoothSymbol(color: context.colors.onBackground),
-                // image: PrettyQrDecorationImage(
-                //   image: Image.network(iconTarget).image,
-                // ),
               ),
             ),
           ],
