@@ -156,6 +156,14 @@ class WalletState extends _$WalletState {
           final loc = ref.read(appLocalizationsProvider);
           ref.read(snackBarMessengerProvider.notifier).showInfo(
               '${loc.new_transaction_toast_info} ${event.transactionEntry}');
+
+          // Temporary workaround to update XELIS balance on new outgoing transaction.
+          // Normally there should be a BalanceChanged event for this case ...
+          if (await state.nativeWalletRepository?.hasXelisBalance() ?? false) {
+            state = state.copyWith(
+                xelisBalance:
+                    await state.nativeWalletRepository!.getXelisBalance());
+          }
         }
 
       case BalanceChanged():

@@ -24,9 +24,9 @@ class BalanceWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
     final hideBalance =
-        ref.watch(settingsProvider.select((value) => value.hideBalance));
+        ref.watch(settingsProvider.select((state) => state.hideBalance));
     final xelisBalance =
-        ref.watch(walletStateProvider.select((statue) => statue.xelisBalance));
+        ref.watch(walletStateProvider.select((state) => state.xelisBalance));
 
     var displayBalance = xelisBalance;
     if (hideBalance) {

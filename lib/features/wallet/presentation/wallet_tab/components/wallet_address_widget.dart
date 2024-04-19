@@ -24,7 +24,7 @@ class WalletAddressWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
     final walletAddress =
-        ref.watch(walletStateProvider.select((statue) => statue.address));
+        ref.watch(walletStateProvider.select((state) => state.address));
 
     const double avatarSize = 50;
     Widget avatar = const SizedBox.square(dimension: avatarSize);
