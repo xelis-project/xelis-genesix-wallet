@@ -60,6 +60,7 @@ dev_dependencies:
   json_serializable: ^6.7.1
   riverpod_generator: ^2.4.0
   riverpod_lint: ^2.3.10
+  msix: ^3.16.7
 #  integration_test:
 #    sdk: flutter
 
