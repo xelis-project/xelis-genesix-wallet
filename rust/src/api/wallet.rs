@@ -220,7 +220,7 @@ impl XelisWallet {
             fee,
             transaction_type: transaction_type_builder
         })
-            .to_string())
+        .to_string())
     }
 
     pub async fn create_burn_transaction(
@@ -262,7 +262,7 @@ impl XelisWallet {
             fee,
             transaction_type: transaction_type_builder
         })
-            .to_string())
+        .to_string())
     }
 
     #[frb(sync)]
