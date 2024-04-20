@@ -200,8 +200,9 @@ class SettingsTab extends ConsumerWidget {
         ),
         const Divider(),
         ExpansionTile(
+          leading: const Icon(Icons.widgets_outlined),
           title: Text(
-            'Transaction parameters',
+            'History parameters',
             style: context.titleLarge,
           ),
           children: [

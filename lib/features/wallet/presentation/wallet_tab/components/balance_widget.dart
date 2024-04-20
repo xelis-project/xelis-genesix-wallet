@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -109,6 +110,9 @@ class BalanceWidget extends ConsumerWidget {
                   IconButton.filled(
                     onPressed: () {
                       // TODO
+                      ref
+                          .read(snackBarMessengerProvider.notifier)
+                          .showInfo(loc.coming_soon);
                     },
                     icon: const Icon(Icons.local_fire_department_rounded),
                   ),
