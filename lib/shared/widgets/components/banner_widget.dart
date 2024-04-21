@@ -1,3 +1,4 @@
+/*
 import 'package:flutter/material.dart';
 import 'package:jovial_svg/jovial_svg.dart';
 import 'package:genesix/features/settings/domain/settings_state.dart';
@@ -10,3 +11,4 @@ ScalableImageWidget getBanner(BuildContext context, AppTheme theme) {
     AppTheme.xelis => AppResources.svgBannerWhiteWidget,
   };
 }
+*/

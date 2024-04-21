@@ -577,7 +577,7 @@ packages:
     source: hosted
     version: "0.8.5"
   jovial_svg:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: jovial_svg
       sha256: "7162d9fce53e284782f6178e175c9e07dde695779392eaa2542c1f795658eb3d"

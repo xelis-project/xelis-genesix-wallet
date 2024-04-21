@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
-import 'package:jovial_svg/jovial_svg.dart';
+// import 'package:jovial_svg/jovial_svg.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
 
 class AppResources {
@@ -57,31 +57,31 @@ class AppResources {
     scale: 0.06,
   );*/
 
-  static String svgBannerGreenPath =
-      'assets/banners/svg/transparent_background_green_logo.svg';
-  static String svgBannerBlackPath =
-      'assets/banners/svg/transparent_background_black_logo.svg';
-  static String svgBannerWhitePath =
-      'assets/banners/svg/transparent_background_white_logo.svg';
+  // static String svgBannerGreenPath =
+  //     'assets/banners/svg/transparent_background_green_logo.svg';
+  // static String svgBannerBlackPath =
+  //     'assets/banners/svg/transparent_background_black_logo.svg';
+  // static String svgBannerWhitePath =
+  //     'assets/banners/svg/transparent_background_white_logo.svg';
   static String bgDotsPath = 'assets/bg_dots.png';
 
-  static late ScalableImage svgBannerGreen;
-  static late ScalableImage svgBannerWhite;
-  static late ScalableImage svgBannerBlack;
+  // static late ScalableImage svgBannerGreen;
+  // static late ScalableImage svgBannerWhite;
+  // static late ScalableImage svgBannerBlack;
   static late Image bgDots;
 
-  static ScalableImageWidget svgBannerGreenWidget = ScalableImageWidget(
-    si: AppResources.svgBannerGreen,
-    scale: 0.15,
-  );
-
-  static ScalableImageWidget svgBannerBlackWidget = ScalableImageWidget(
-    si: AppResources.svgBannerBlack,
-    scale: 0.15,
-  );
-
-  static ScalableImageWidget svgBannerWhiteWidget = ScalableImageWidget(
-    si: AppResources.svgBannerWhite,
-    scale: 0.15,
-  );
+  // static ScalableImageWidget svgBannerGreenWidget = ScalableImageWidget(
+  //   si: AppResources.svgBannerGreen,
+  //   scale: 0.15,
+  // );
+  //
+  // static ScalableImageWidget svgBannerBlackWidget = ScalableImageWidget(
+  //   si: AppResources.svgBannerBlack,
+  //   scale: 0.15,
+  // );
+  //
+  // static ScalableImageWidget svgBannerWhiteWidget = ScalableImageWidget(
+  //   si: AppResources.svgBannerWhite,
+  //   scale: 0.15,
+  // );
 }
