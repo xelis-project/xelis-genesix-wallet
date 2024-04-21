@@ -42,7 +42,7 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
   Widget build(BuildContext context) {
     final networkNodes = ref.watch(networkNodesProvider);
     final network =
-        ref.watch(settingsProvider.select((value) => value.network));
+        ref.watch(settingsProvider.select((state) => state.network));
     final loc = ref.watch(appLocalizationsProvider);
 
     var nodeAddress = networkNodes.getNodeAddress(network);

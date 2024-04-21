@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
@@ -23,9 +24,10 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
   void _add(NodeAddress? value) {
     if (value != null) {
       final settings = ref.read(settingsProvider);
-      //if (!AppResources.builtInNodeAddresses.contains(value)) {
       ref.read(networkNodesProvider.notifier).addNode(settings.network, value);
-      //}
+      // set the newly added node as the current node
+      ref.read(walletStateProvider.notifier).reconnect(value);
+
     }
   }
 
