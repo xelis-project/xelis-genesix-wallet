@@ -63,7 +63,7 @@ class TableGenerationProgressDialog extends ConsumerWidget {
                         ),
                         const SizedBox(height: Spaces.small),
                         Text(
-                          'This is a one-time process, creating a data table that enables the wallet to decrypt your balance instantly.',
+                          loc.table_generation_message_1,
                           style: context.bodyMedium
                               ?.copyWith(color: context.colors.primary),
                         ),

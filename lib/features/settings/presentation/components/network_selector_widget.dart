@@ -55,7 +55,7 @@ class NetworkSelectorWidget extends ConsumerWidget {
                 } else {
                   ref
                       .read(snackBarMessengerProvider.notifier)
-                      .showError('Can\'t set network if the wallet is opened.');
+                      .showError(loc.change_network_error);
                 }
               }
             },

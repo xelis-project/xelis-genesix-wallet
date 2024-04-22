@@ -63,7 +63,7 @@ class WalletAddressWidget extends ConsumerWidget {
           icon: const Icon(
             Icons.logout,
           ),
-          tooltip: 'Logout',
+          tooltip: loc.logout,
           onPressed: () async {
             context.loaderOverlay.show();
             await ref.read(authenticationProvider.notifier).logout();

@@ -26,12 +26,13 @@ class SettingsTab extends ConsumerWidget {
             if (yes) {
               final walletSnapshot = ref.read(walletStateProvider);
               final wallets = ref.read(walletsProvider.notifier);
+              final loc = ref.read(appLocalizationsProvider);
 
               try {
                 await wallets.deleteWallet(walletSnapshot.name);
                 ref
                     .read(snackBarMessengerProvider.notifier)
-                    .showInfo('Wallet was deleted.');
+                    .showInfo(loc.wallet_deleted);
               } catch (e) {
                 ref
                     .read(snackBarMessengerProvider.notifier)
@@ -67,11 +68,12 @@ class SettingsTab extends ConsumerWidget {
               try {
                 final walletSnapshot = ref.read(walletStateProvider);
                 final wallets = ref.read(walletsProvider.notifier);
+                final loc = ref.read(appLocalizationsProvider);
 
                 await wallets.renameWallet(walletSnapshot.name, newName);
                 ref
                     .read(snackBarMessengerProvider.notifier)
-                    .showInfo('Wallet was renamed.');
+                    .showInfo(loc.wallet_renamed);
               } catch (e) {
                 ref
                     .read(snackBarMessengerProvider.notifier)
@@ -88,8 +90,9 @@ class SettingsTab extends ConsumerWidget {
     showDialog<void>(
       context: ref.context,
       builder: (context) {
+        final loc = ref.read(appLocalizationsProvider);
         return InputDialog(
-          hintText: 'New name',
+          hintText: loc.new_name,
           onEnter: (value) {
             _renameWallet(ref, value);
           },
@@ -134,7 +137,7 @@ class SettingsTab extends ConsumerWidget {
             children: [
               const Icon(Icons.settings_applications),
               Text(
-                'App settings',
+                loc.app_settings,
                 style: context.titleLarge,
               )
             ],
@@ -152,7 +155,7 @@ class SettingsTab extends ConsumerWidget {
             children: [
               const Icon(Icons.pattern_rounded),
               Text(
-                'View seed',
+                loc.view_seed,
                 style: context.titleLarge,
               )
             ],
@@ -170,7 +173,7 @@ class SettingsTab extends ConsumerWidget {
             children: [
               const Icon(Icons.edit),
               Text(
-                'Rename wallet',
+                loc.rename_wallet,
                 style: context.titleLarge,
               )
             ],
@@ -202,7 +205,7 @@ class SettingsTab extends ConsumerWidget {
         ExpansionTile(
           leading: const Icon(Icons.widgets_outlined),
           title: Text(
-            'History parameters',
+            loc.history_parameters,
             style: context.titleLarge,
           ),
           children: [
@@ -210,7 +213,7 @@ class SettingsTab extends ConsumerWidget {
               name: 'zero_transfer_switch',
               initialValue: hideZeroTransfer,
               decoration: const InputDecoration(fillColor: Colors.transparent),
-              title: Text('Hide zero transfers', style: context.bodyLarge),
+              title: Text(loc.hide_zero_transfers, style: context.bodyLarge),
               onChanged: (value) {
                 ref.read(settingsProvider.notifier).setHideZeroTransfer(value!);
               },
@@ -219,7 +222,7 @@ class SettingsTab extends ConsumerWidget {
               name: 'extra_data_switch',
               initialValue: hideExtraData,
               decoration: const InputDecoration(fillColor: Colors.transparent),
-              title: Text('Hide extra data', style: context.bodyLarge),
+              title: Text(loc.hide_extra_data, style: context.bodyLarge),
               onChanged: (value) {
                 ref.read(settingsProvider.notifier).setHideExtraData(value!);
               },
@@ -242,7 +245,7 @@ class SettingsTab extends ConsumerWidget {
           ),
           onPressed: () => _showDeleteWalletInput(ref),
           label: Text(
-            'Delete wallet',
+            loc.delete_wallet,
             style: context.titleLarge!.copyWith(color: context.colors.error),
           ),
         ),

@@ -52,7 +52,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     return Background(
       child: Scaffold(
-        appBar: const GenericAppBar(title: 'App settings'),
+        appBar: GenericAppBar(title: loc.app_settings),
         body: ListView(
           padding: const EdgeInsets.symmetric(horizontal: Spaces.large),
           children: [

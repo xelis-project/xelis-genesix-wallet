@@ -19,7 +19,7 @@ class SeedContentDialog extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            loc.seed_warning_message_4,
+            loc.seed_warning_message_2,
             style: context.titleLarge,
           ),
           const SizedBox(
@@ -34,7 +34,7 @@ class SeedContentDialog extends ConsumerWidget {
             height: Spaces.medium,
           ),
           Text(
-            'Save it somewhere safe. You can write it down on a piece of paper.',
+            loc.seed_warning_message_3,
             style: context.titleMedium,
           ),
         ],
@@ -44,7 +44,7 @@ class SeedContentDialog extends ConsumerWidget {
           onPressed: () {
             Navigator.pop(context);
           },
-          child: const Text("Yes, I have saved my seed."),
+          child: Text(loc.seed_warning_message_4),
         )
       ],
     );

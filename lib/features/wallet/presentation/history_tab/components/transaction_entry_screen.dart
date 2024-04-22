@@ -53,19 +53,19 @@ class _TransactionEntryScreenState
 
     switch (entryType) {
       case CoinbaseEntry():
-        entryTypeName = 'Coinbase';
+        entryTypeName = loc.coinbase;
         coinbase = entryType;
         icon = const Icon(Icons.square_rounded);
       case BurnEntry():
-        entryTypeName = 'Burn';
+        entryTypeName = loc.burn;
         burn = entryType;
         icon = const Icon(Icons.fireplace_rounded);
       case IncomingEntry():
-        entryTypeName = 'Incoming';
+        entryTypeName = loc.incoming;
         incoming = entryType;
         icon = const Icon(Icons.arrow_downward);
       case OutgoingEntry():
-        entryTypeName = 'Outgoing';
+        entryTypeName = loc.outgoing;
         outgoing = entryType;
         icon = const Icon(Icons.arrow_upward);
     }
@@ -73,12 +73,12 @@ class _TransactionEntryScreenState
     return Background(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: const GenericAppBar(title: 'Transaction Entry'),
+        appBar: GenericAppBar(title: loc.transaction_entry),
         body: ListView(
           padding: const EdgeInsets.fromLTRB(
               Spaces.large, 0, Spaces.large, Spaces.large),
           children: [
-            Text('Type', style: context.headlineSmall),
+            Text(loc.type, style: context.headlineSmall),
             const SizedBox(height: Spaces.small),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -101,7 +101,7 @@ class _TransactionEntryScreenState
                   .copyWith(color: context.moreColors.mutedColor),
             ),
             const SizedBox(height: Spaces.medium),
-            Text('Hash', style: context.headlineSmall),
+            Text(loc.hash, style: context.headlineSmall),
             const SizedBox(height: Spaces.small),
             SelectableText(
               transactionEntry.hash,
@@ -115,7 +115,7 @@ class _TransactionEntryScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: Spaces.medium),
-                  Text('Amount', style: context.headlineSmall),
+                  Text(loc.amount, style: context.headlineSmall),
                   const SizedBox(height: Spaces.small),
                   SelectableText(
                     '+${formatXelis(coinbase!.reward)} XEL', // hmm coinbase could return other asset than XELIS
@@ -131,7 +131,7 @@ class _TransactionEntryScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: Spaces.medium),
-                  Text('Burn', style: context.headlineSmall),
+                  Text(loc.burn, style: context.headlineSmall),
                   const SizedBox(height: Spaces.small),
                   SelectableText(
                     '-${formatXelis(burn!.amount)} XEL',
@@ -144,7 +144,7 @@ class _TransactionEntryScreenState
             // OUTGOING
             if (entryType is OutgoingEntry) ...[
               const SizedBox(height: Spaces.medium),
-              Text('Fee', style: context.headlineSmall),
+              Text(loc.fee, style: context.headlineSmall),
               const SizedBox(height: Spaces.small),
               SelectableText(
                 '${formatXelis(outgoing!.fee)} XEL',
@@ -217,7 +217,7 @@ class _TransactionEntryScreenState
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text('Amount',
+                                          Text(loc.amount,
                                               /* transfer.asset == xelisAsset
                                             ? loc.amount.capitalize
                                             : '${loc.amount.capitalize} (${loc.atomic_units})',*/
@@ -233,7 +233,7 @@ class _TransactionEntryScreenState
                                   if (transfer.extraData != null &&
                                       !hideExtraData) ...[
                                     const SizedBox(height: Spaces.medium),
-                                    Text('Extra Data',
+                                    Text(loc.extra_data,
                                         style: context.labelLarge),
                                     SelectableText(
                                         transfer.extraData.toString()),
@@ -256,7 +256,7 @@ class _TransactionEntryScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: Spaces.medium),
-                  Text('From', style: context.headlineSmall),
+                  Text(loc.from, style: context.headlineSmall),
                   const SizedBox(height: Spaces.small),
                   Row(
                     children: [
@@ -318,7 +318,7 @@ class _TransactionEntryScreenState
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text('Amount',
+                                      Text(loc.amount,
                                           /*transfer.asset == xelisAsset
                                           ? loc.amount.capitalize
                                           : '${loc.amount.capitalize} (${loc.atomic_units})',*/
@@ -332,7 +332,7 @@ class _TransactionEntryScreenState
                                   if (transfer.extraData != null &&
                                       !hideExtraData) ...[
                                     const SizedBox(height: Spaces.medium),
-                                    Text('Extra Data',
+                                    Text(loc.extra_data,
                                         style: context.labelLarge),
                                     SelectableText(
                                         transfer.extraData.toString()),

@@ -1,34 +1,28 @@
 {
   "wait": "Please wait...",
-  "table_generation_message": "For the first launch, we need to create pre-computed tables for Partially Homomorphic Encryption.",
-  "current_step": "Current step: ",
 
   "password": "Password",
 
-  "wallet": "Wallet",
   "your_wallets": "Your wallets",
-  "sign_in": "Sign In",
-  "no_wallet": "No Wallet?",
-  "open_wallet_button": "Open wallet",
 
-  "seed_option": "Import your seed",
   "seed": "Seed",
   "invalid_seed": "Invalid seed.",
   "create": "Create",
-  "already_wallet": "Already a wallet?",
-  "wallet_name_already_exists": "This wallet name already exists.",
+  "wallet_name_already_exists": "This wallet name already exists",
+  "password_not_match": "does not match the password",
   "create_new_wallet": "Create new wallet",
   "create_from_seed": "Create from seed",
   "load_from_file": "Load from file",
   "wallet_name": "Wallet name",
   "wallet_name_capitalize": "Wallet Name",
   "wallet_address_capitalize": "Wallet Address",
-  "open_wallet_message": "Wallet Opened!",
-  "create_wallet_message": "Wallet Created!",
+
+  "no_wallet_available": "You don't have any wallets available. Create a new wallet from the button below or make sure the app is set to the desired network configuration.",
 
   "help": "Help",
   "logout": "Logout",
   "settings": "Settings",
+  "app_settings": "App settings",
   "language": "Language",
   "add_node_button": "Add",
   "add_new_node_title": "New Node",
@@ -36,6 +30,7 @@
   "url_already_exists": "This url already exists.",
   "name": "name",
   "name_already_exists": "This name already exists.",
+  "change_network_error": "Can't set network if the wallet is opened.",
   "cache_directory": "Cache directory",
   "wallets_directory": "Wallets directory",
 
@@ -47,7 +42,7 @@
   "send": "Send",
   "receive": "Receive",
   "topoheight": "Topoheight",
-  "transfer_to": "Transfer to",
+  "transfer": "Transfer",
   "remaining_balance": "Remaining balance",
   "amount": "amount",
   "receiver_address": "receiver address",
@@ -57,8 +52,9 @@
   "invalid_address_format_error": "The address format is invalid.",
   "insufficient_funds_error": "Insufficient funds.",
   "invalid_amount_error": "Invalid amount.",
+  "invalid_password_error": "Invalid password.",
 
-  "tx_hash": "Transaction hash",
+  "hash": "Hash",
 
   "history_bottom_app_bar": "History",
   "assets_bottom_app_bar": "Assets",
@@ -67,8 +63,6 @@
   "cancel_button": "Cancel",
   "ok_button": "Ok",
   "confirm_button": "Confirm",
-
-  "dark_mode_setting": "Dark Mode",
 
   "connected" : "Connected",
   "disconnected" : "Disconnected",
@@ -80,7 +74,11 @@
   "wallet_opening_failed_toast_error": "Wallet opening has failed.",
 
   "copied": "Copied!",
+  "rescan": "Rescan",
   "rescan_done": "Rescan complete!",
+  "hidden": "HIDDEN",
+  "show_balance": "Show balance",
+  "hide_balance": "Hide balance",
 
   "new_transaction_toast_info": "New transaction:",
   "cannot_connect_toast_error": "Cannot connect to the node.",
@@ -88,12 +86,13 @@
   "disconnecting_toast_error": "Something went wrong during disconnection...",
   "transfer_failed": "The transfer has failed.",
 
-  "my_seed": "My Seed",
   "seed_warning": "Warning:",
-  "seed_warning_message_1": "Please store these mnemonic words (order is important) in a secure location.",
-  "seed_warning_message_2": "This seed phrase will allow you to recover your wallet in case you forget your password or lose your device.",
-  "seed_warning_message_3": "Never disclose your seed phrase. Sharing it may result in a lost of funds.",
-  "seed_warning_message_4": "Your wallet recovery phrase is:",
+  "seed_warning_message_1": "Never disclose your seed phrase. Sharing it may result in a lost of funds.",
+  "seed_warning_message_2": "Your wallet recovery phrase is:",
+  "seed_warning_message_3": "Save it somewhere safe. You can write it down on a piece of paper.",
+  "seed_warning_message_4": "Yes, I have saved my seed.",
+
+  "table_generation_message_1": "This is a one-time process, creating a data table that enables the wallet to decrypt your balance instantly.",
 
   "information": "Information",
   "network": "Network",
@@ -106,6 +105,7 @@
   "version": "Version",
 
   "history": "History",
+  "transaction_entry": "Transaction Entry",
   "incoming": "Incoming",
   "outgoing": "Outgoing",
   "coinbase": "Mining",
@@ -113,6 +113,19 @@
   "no_data": "No data",
   "reward": "Reward",
   "details": "Details",
+  "type": "Type",
+  "fee": "Fee",
+  "from": "From",
+  "extra_data": "Extra data",
+  "multi_transfer": "Multi transfer",
+
+  "recipient": "Recipient",
+  "review_send": "Review & Send",
+
+  "review": "Review",
+  "total": "Total",
+  "broadcast": "Broadcast",
+  "transaction_broadcast_message": "The transaction was broadcast to the network.",
 
   "transfers": "Transfers",
   "asset": "Asset",
@@ -129,6 +142,17 @@
   "not_match_new_password_error": "does not match the new password",
   "password_cannot_be_changed_error": "the password cannot be changed",
   "password_changed": "Password changed!",
+
+  "wallet_deleted": "Wallet was deleted.",
+  "wallet_renamed": "Wallet was renamed.",
+
+  "rename_wallet": "Rename wallet",
+  "new_name": "New name",
+  "view_seed": "View seed",
+  "history_parameters": "History parameters",
+  "hide_zero_transfers": "Cacher les transferts à zero",
+  "hide_extra_data": "Hide extra data",
+  "delete_wallet": "Delete wallet",
 
   "light": "Light",
   "dark": "Dark",

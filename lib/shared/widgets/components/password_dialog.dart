@@ -50,8 +50,9 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
           context.pop(); // hide the dialog
         }
       } catch (e) {
+        final loc = ref.read(appLocalizationsProvider);
         setState(() {
-          _passwordError = 'Invalid password.';
+          _passwordError = loc.invalid_password_error;
         });
       }
 

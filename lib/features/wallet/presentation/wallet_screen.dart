@@ -114,11 +114,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
               ),
             ],
           ),
-          //const VerticalDivider(thickness: 1, width: 1),
           Expanded(
             child: Scaffold(
               backgroundColor: Colors.transparent,
-              //appBar: const HubAppBar(),
               body: tabs,
             ),
           ),

@@ -27,7 +27,6 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
       ref.read(networkNodesProvider.notifier).addNode(settings.network, value);
       // set the newly added node as the current node
       ref.read(walletStateProvider.notifier).reconnect(value);
-
     }
   }
 

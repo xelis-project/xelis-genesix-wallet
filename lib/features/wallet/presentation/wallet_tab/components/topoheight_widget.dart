@@ -67,7 +67,7 @@ class TopoHeightWidget extends ConsumerWidget {
                 FittedBox(
                   fit: BoxFit.fitWidth,
                   child: Text(
-                    'Rescan',
+                    loc.rescan,
                     maxLines: 1,
                     style: context.labelMedium,
                   ),

@@ -1,34 +1,28 @@
 {
   "wait": "Veuillez patienter SVP ...",
-  "table_generation_message": "Pour le premier lancement, nous devons créer des tables précalculées pour le chiffrement partiellement homomorphe.",
-  "current_step": "Étape actuelle : ",
 
   "password": "Mot de passe",
 
-  "wallet": "Portefeuille",
   "your_wallets": "Vos portefeuilles",
-  "sign_in": "Se Connecter",
-  "no_wallet": "Pas de portefeuille ?",
-  "open_wallet_button": "Ouvrir portefeuille",
 
-  "seed_option": "Importer votre graine",
   "seed": "Graine",
   "invalid_seed": "Graines non valides.",
   "create": "Créer",
-  "already_wallet": "Déjà un portefeuille ?",
-  "wallet_name_already_exists": "Ce nom de portefeuille existe déjà.",
+  "wallet_name_already_exists": "Ce nom de portefeuille existe déjà",
+  "password_not_match": "ne correspond pas au mot de passe",
   "create_new_wallet": "Créer un nouveau portefeuille",
   "create_from_seed": "Créer à partir d'une graine",
   "load_from_file": "Charger à partir d'un fichier",
   "wallet_name": "Nom du portefeuille",
   "wallet_name_capitalize": "Nom du Portefeuille",
   "wallet_address_capitalize": "Adresse du Portefeuille",
-  "open_wallet_message": "Portefeuille Ouvert !",
-  "create_wallet_message": "Portefeuille Créé !",
+
+  "no_wallet_available": "Vous n'avez pas de portefeuille disponible. Créez un nouveau portefeuille à partir du bouton ci-dessous ou assurez-vous que l'application est réglée sur la configuration réseau souhaitée.",
 
   "help": "Aide",
   "logout": "Se déconnecter",
   "settings": "Réglages",
+  "app_settings": "Paramètres de l'app",
   "language": "Langage",
   "add_node_button": "Ajouter",
   "add_new_node_title": "Nouveau Noeud",
@@ -36,6 +30,7 @@
   "url_already_exists": "Cette url existe déjà.",
   "name": "name",
   "name_already_exists": "Ce nom existe déjà.",
+  "change_network_error": "Can't set network if the wallet is opened.",
   "cache_directory": "Répertoire de cache",
   "wallets_directory": "Répertoire des portefeuilles",
 
@@ -47,7 +42,7 @@
   "send": "Envoyer",
   "receive": "Recevoir",
   "topoheight": "Topoheight",
-  "transfer_to": "Transfert vers",
+  "transfer": "Transfert",
   "remaining_balance": "Balance restante",
   "amount": "montant",
   "receiver_address": "adresse du destinataire",
@@ -57,8 +52,9 @@
   "invalid_address_format_error": "Le format de l'adresse n'est pas valide.",
   "insufficient_funds_error": "Fonds insuffisants.",
   "invalid_amount_error": "Montant non valide.",
+  "invalid_password_error": "Mot de passe incorrect.",
 
-  "tx_hash": "Hash de la transaction",
+  "hash": "Hash",
 
   "history_bottom_app_bar": "Historique",
   "assets_bottom_app_bar": "Actifs",
@@ -67,8 +63,6 @@
   "cancel_button": "Annuler",
   "ok_button": "Ok",
   "confirm_button": "Confirmer",
-
-  "dark_mode_setting": "Mode Sombre",
 
   "connected" : "Connecté",
   "disconnected" : "Deconnecté",
@@ -80,7 +74,11 @@
   "wallet_opening_failed_toast_error": "L'ouverture du wallet a échoué.",
 
   "copied": "Copié !",
+  "rescan": "Rescan",
   "rescan_done": "Rescan terminé !",
+  "hidden": "CACHÉ",
+  "show_balance": "Montrer la balance",
+  "hide_balance": "Caché la balance",
 
   "new_transaction_toast_info": "Nouvelle transaction:",
   "cannot_connect_toast_error": "Impossible de se connecter au nœud.",
@@ -88,12 +86,13 @@
   "disconnecting_toast_error": "Quelque chose s'est mal passé lors de la déconnexion...",
   "transfer_failed": "Le transfert n'a pas abouti.",
 
-  "my_seed": "Ma Phrase-clé",
   "seed_warning": "Attention :",
-  "seed_warning_message_1": "Veuillez conserver ces mots mnémotechniques (l'ordre est important) dans un endroit sûr.",
-  "seed_warning_message_2": "Cette phrase-clé vous permettra de récupérer votre portefeuille en cas d'oubli de votre mot de passe ou de perte de votre appareil.",
-  "seed_warning_message_3": "Ne divulguez jamais votre phrase-clé. Le fait de la partager peut entraîner une perte de fonds.",
-  "seed_warning_message_4": "La phrase de récupération de votre portefeuille est :",
+  "seed_warning_message_1": "Ne divulguez jamais votre phrase-clé. Le fait de la partager peut entraîner une perte de fonds.",
+  "seed_warning_message_2": "La phrase de récupération de votre portefeuille est :",
+  "seed_warning_message_3": "Conservez-la dans un endroit sûr. Vous pouvez l'écrire sur une feuille de papier.",
+  "seed_warning_message_4": "Oui, j'ai sauvegardé ma graine.",
+
+  "table_generation_message_1": "Il s'agit d'un processus à effectuer une seule fois, qui crée une table de données permettant au portefeuille de décrypter votre solde instantanément.",
 
   "information": "Information",
   "network": "Réseau",
@@ -106,6 +105,7 @@
   "version": "Version",
 
   "history": "Historique",
+  "transaction_entry": "Entrée de la transaction",
   "incoming": "Entrant",
   "outgoing": "Sortant",
   "coinbase": "Minage",
@@ -113,6 +113,19 @@
   "no_data": "Pas de données",
   "reward": "Récompense",
   "details": "Détails",
+  "type": "Type",
+  "fee": "Frais",
+  "from": "De",
+  "extra_data": "Données supplémentaires",
+  "multi_transfer": "Transfert multiple",
+
+  "recipient": "Bénéficiaire",
+  "review_send": "Réviser & envoyer",
+
+  "review": "Revue",
+  "total": "Total",
+  "broadcast": "Diffusion",
+  "transaction_broadcast_message": "La transaction a été diffusée sur le réseau.",
 
   "transfers": "Transferts",
   "asset": "Actif",
@@ -129,6 +142,17 @@
   "not_match_new_password_error": "ne correspond pas au nouveau mot de passe",
   "password_cannot_be_changed_error": "le mot de passe ne peut être changé",
   "password_changed": "Mot de passe modifié !",
+
+  "wallet_deleted": "Le portefeuille a été supprimé.",
+  "wallet_renamed": "Le portefeuille a été renommé.",
+
+  "rename_wallet": "Renommer le portefeuille",
+  "new_name": "Nouveau nom",
+  "view_seed": "Voir la graine",
+  "history_parameters": "Paramètres de l'historique",
+  "hide_zero_transfers": "Cacher les transferts vide",
+  "hide_extra_data": "Cacher les données supplémentaires",
+  "delete_wallet": "Supprimer le portefeuille",
 
   "light": "Clair",
   "dark": "Sombre",

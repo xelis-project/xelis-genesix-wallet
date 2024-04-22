@@ -54,7 +54,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
   }
 
   void _createWallet() async {
-    //final loc = ref.watch(appLocalizationsProvider);
+    final loc = ref.read(appLocalizationsProvider);
 
     if (_createFormKey.currentState?.saveAndValidate() ?? false) {
       final walletName =
@@ -67,7 +67,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
 
       if (password != confirmPassword) {
         _createFormKey.currentState?.fields['confirm_password']
-            ?.invalidate('does not match the password');
+            ?.invalidate(loc.password_not_match);
       } else if (walletName != null &&
           password != null &&
           password == confirmPassword) {
