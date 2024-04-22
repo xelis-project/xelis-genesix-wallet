@@ -28,12 +28,12 @@ jobs:
       
       - name: Install dependencies
         run: flutter pub get
-      
-      - name: Generate Dart code
-        run:  dart run build_runner build
 
       - name: Generate bridge code
         run: flutter_rust_bridge_codegen generate
+
+      - name: Generate Dart code
+        run:  dart run build_runner build
       
       - name: Build MacOS app
         run: flutter build macos
