@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/rust_bridge/api/wallet.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/settings/domain/network_translate_name.dart';
@@ -11,6 +12,7 @@ class NetworkTopWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = ref.watch(appLocalizationsProvider);
     final network =
         ref.watch(settingsProvider.select((state) => state.network));
     final displayTopBar = network != Network.mainnet;
@@ -20,7 +22,7 @@ class NetworkTopWidget extends ConsumerWidget {
         decoration: BoxDecoration(color: context.colors.background),
         padding: const EdgeInsets.all(Spaces.small),
         child: Text(
-          "Network: ${translateNetworkName(network)}",
+          "${loc.network}: ${translateNetworkName(network)}",
           style: context.bodyMedium,
         ),
       );

@@ -31,7 +31,7 @@ class BalanceWidget extends ConsumerWidget {
 
     var displayBalance = xelisBalance;
     if (hideBalance) {
-      displayBalance = 'HIDDEN';
+      displayBalance = loc.hidden;
     }
 
     return GridTile(
@@ -80,7 +80,7 @@ class BalanceWidget extends ConsumerWidget {
                       : const Icon(
                           Icons.visibility_off_rounded,
                         ),
-                  tooltip: hideBalance ? 'Show balance' : 'Hide balance',
+                  tooltip: hideBalance ? loc.show_balance : loc.hide_balance,
                   onPressed: () => ref
                       .read(settingsProvider.notifier)
                       .setHideBalance(!hideBalance),
@@ -117,7 +117,7 @@ class BalanceWidget extends ConsumerWidget {
                     icon: const Icon(Icons.local_fire_department_rounded),
                   ),
                   const SizedBox(height: Spaces.small),
-                  const Text('Burn'),
+                  Text(loc.burn),
                 ],
               ),
               Column(

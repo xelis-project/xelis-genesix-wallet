@@ -60,7 +60,7 @@ class _TransactionEntryWidgetState
             displayAmount = '+${transfer.amount.toString()}';
           }
         } else {
-          displayAmount = 'Multi transfer';
+          displayAmount = loc.multi_transfer;
         }
       case OutgoingEntry():
         if (entryType.transfers.length == 1) {
@@ -72,7 +72,7 @@ class _TransactionEntryWidgetState
             displayAmount = '-${transfer.amount.toString()}';
           }
         } else {
-          displayAmount = 'Multi transfer';
+          displayAmount = loc.multi_transfer;
         }
     }
 
@@ -100,7 +100,7 @@ class _TransactionEntryWidgetState
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Amount',
+                Text(loc.amount,
                     /*_transferEntry == null ||
                             _transferEntry?.asset == xelisAsset
                         ? loc.amount.capitalize

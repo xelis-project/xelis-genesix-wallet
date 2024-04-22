@@ -65,7 +65,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
 
     return Background(
       child: Scaffold(
-        appBar: const GenericAppBar(title: 'Transfer'),
+        appBar: GenericAppBar(title: loc.transfer),
         body: ListView(
           padding: const EdgeInsets.fromLTRB(
               Spaces.large, 0, Spaces.large, Spaces.large),
@@ -76,7 +76,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Amount',
+                    loc.amount,
                     style: context.headlineSmall,
                   ),
                   const SizedBox(height: Spaces.small),
@@ -119,7 +119,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                   ),
                   const SizedBox(height: Spaces.medium),
                   Text(
-                    'Recipient',
+                    loc.recipient,
                     style: context.headlineSmall,
                   ),
                   const SizedBox(height: Spaces.small),
@@ -150,7 +150,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
             TextButton.icon(
               icon: const Icon(Icons.check_circle),
               onPressed: _reviewTransfer,
-              label: const Text('Review & Send'),
+              label: Text(loc.review_send),
             ),
           ],
         ),

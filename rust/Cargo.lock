@@ -1068,9 +1068,9 @@ dependencies = [
 
 [[package]]
 name = "fiat-crypto"
-version = "0.2.7"
+version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c007b1ae3abe1cb6f85a16305acd418b7ca6343b953633fee2b76d8f108b830f"
+checksum = "38793c55593b33412e3ae40c2c9781ffaa6f438f6f8c10f24e71846fbd7ae01e"
 
 [[package]]
 name = "fixed-hash"
@@ -1532,9 +1532,9 @@ checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
 
 [[package]]
 name = "jobserver"
-version = "0.1.30"
+version = "0.1.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "685a7d121ee3f65ae4fddd72b25a04bb36b6af81bc0828f7d5434c0fe60fa3a2"
+checksum = "d2b099aaa34a9751c5bf0878add70444e1ed2dd73f347be99003d4577277de6e"
 dependencies = [
  "libc",
 ]
@@ -2105,7 +2105,7 @@ dependencies = [
  "log",
  "ring",
  "rustls-pki-types",
- "rustls-webpki 0.102.2",
+ "rustls-webpki 0.102.3",
  "subtle",
  "zeroize",
 ]
@@ -2151,9 +2151,9 @@ dependencies = [
 
 [[package]]
 name = "rustls-webpki"
-version = "0.102.2"
+version = "0.102.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "faaa0a62740bedb9b2ef5afa303da42764c012f743917351dc9a237ea1663610"
+checksum = "f3bce581c0dd41bce533ce695a1437fa16a7ab5ac3ccfa99fe1a620a7885eabf"
 dependencies = [
  "ring",
  "rustls-pki-types",
@@ -2317,9 +2317,9 @@ dependencies = [
 
 [[package]]
 name = "signal-hook-registry"
-version = "1.4.1"
+version = "1.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d8229b473baa5980ac72ef434c4415e70c4b5e71b423043adb4ba059f89c99a1"
+checksum = "a9e9e0b4211b72e7b8b6e85c807d36c212bdb33ea8587f7569562a84df5465b1"
 dependencies = [
  "libc",
 ]
@@ -3076,7 +3076,7 @@ dependencies = [
 [[package]]
 name = "xelis-hash"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-hash?branch=master#b715e01775ade341ad0413e3e31b2e37e10798d0"
+source = "git+https://github.com/xelis-project/xelis-hash?branch=master#68dd2b168a8750af38fb2a170b237bbee26ab9e0"
 dependencies = [
  "aes",
  "bytemuck",
@@ -3087,7 +3087,7 @@ dependencies = [
 [[package]]
 name = "xelis_common"
 version = "1.9.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#134f75454c36857c3ebf8403ea154013240436c9"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#6fac86b4cb6f22a1eb81fe522ec75b87648ab585"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -3126,7 +3126,7 @@ dependencies = [
 [[package]]
 name = "xelis_wallet"
 version = "1.9.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#134f75454c36857c3ebf8403ea154013240436c9"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#6fac86b4cb6f22a1eb81fe522ec75b87648ab585"
 dependencies = [
  "actix",
  "actix-web",

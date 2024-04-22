@@ -73,7 +73,7 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                           ),
                           const SizedBox(height: Spaces.extraSmall),
                           SelectableText(
-                            loc.seed_warning_message_3,
+                            loc.seed_warning_message_1,
                           ),
                         ],
                       ),
@@ -84,7 +84,7 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
             ),
             const SizedBox(height: Spaces.medium),
             Text(
-              loc.seed_warning_message_4,
+              loc.seed_warning_message_2,
               style: context.titleMedium,
             ),
             const SizedBox(height: Spaces.medium),
