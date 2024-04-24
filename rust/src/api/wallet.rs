@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 use std::ops::ControlFlow;
 use std::path::Path;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use anyhow::{anyhow, Context, Result};
 use flutter_rust_bridge::frb;
 use lazy_static::lazy_static;
 use log::{debug, info};
+use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
@@ -58,8 +59,8 @@ pub struct XelisWallet {
 }
 
 lazy_static! {
-    pub static ref PENDING_TRANSACTIONS: Mutex<HashMap<Hash, (Transaction, TransactionBuilderState)>> =
-        Mutex::new(HashMap::new());
+    pub static ref PENDING_TRANSACTIONS: RwLock<HashMap<Hash, (Transaction, TransactionBuilderState)>> =
+        RwLock::new(HashMap::new());
 }
 
 pub fn create_xelis_wallet(
@@ -210,8 +211,7 @@ impl XelisWallet {
         let fee = tx.get_fee();
 
         PENDING_TRANSACTIONS
-            .lock()
-            .unwrap()
+            .write()
             .insert(hash.clone(), (tx, state));
 
         Ok(json!(SummaryTransaction {
@@ -252,8 +252,7 @@ impl XelisWallet {
         let fee = tx.get_fee();
 
         PENDING_TRANSACTIONS
-            .lock()
-            .unwrap()
+            .write()
             .insert(hash.clone(), (tx, state));
 
         Ok(json!(SummaryTransaction {
@@ -265,17 +264,16 @@ impl XelisWallet {
         .to_string())
     }
 
-    #[frb(sync)]
     pub fn cancel_transaction(
         &self,
         tx_hash: String,
     ) -> Result<(Transaction, TransactionBuilderState)> {
         let hash = Hash::from_hex(tx_hash).unwrap();
-        Ok(PENDING_TRANSACTIONS
-            .lock()
-            .unwrap()
+        let mut lock = PENDING_TRANSACTIONS.write();
+        let res = lock
             .remove(&hash)
-            .expect("Cannot delete pending transaction"))
+            .expect("Cannot delete pending transaction");
+        Ok(res)
     }
 
     pub async fn broadcast_transaction(&self, tx_hash: String) -> Result<()> {

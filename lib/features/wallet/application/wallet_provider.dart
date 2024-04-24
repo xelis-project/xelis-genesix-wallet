@@ -132,9 +132,9 @@ class WalletState extends _$WalletState {
     return null;
   }
 
-  void cancelTransaction({required String hash}) {
+  Future<void> cancelTransaction({required String hash}) async {
     if (state.nativeWalletRepository != null) {
-      state.nativeWalletRepository!.cancelTransaction(hash);
+      await state.nativeWalletRepository!.cancelTransaction(hash);
     }
   }
 

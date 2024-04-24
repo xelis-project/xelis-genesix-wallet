@@ -122,8 +122,8 @@ class NativeWalletRepository {
     logger.info('Transaction successfully broadcast: $hash');
   }
 
-  void cancelTransaction(String hash) {
-    _xelisWallet.cancelTransaction(txHash: hash);
+  Future<void> cancelTransaction(String hash) async {
+    await _xelisWallet.cancelTransaction(txHash: hash);
     logger.info('Transaction canceled: $hash');
   }
 
