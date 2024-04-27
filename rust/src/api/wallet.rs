@@ -10,16 +10,18 @@ use log::{debug, info};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use xelis_common::api::{DataElement, ValueType};
+use xelis_common::api::DataElement::Value;
 use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
-use xelis_common::crypto::{ecdlp, Address, Hash, Hashable};
+use xelis_common::crypto::{Address, ecdlp, Hash, Hashable};
 pub use xelis_common::network::Network;
 use xelis_common::serializer::Serializer;
+use xelis_common::transaction::{BurnPayload, TransactionType};
 use xelis_common::transaction::builder::{FeeBuilder, TransactionTypeBuilder, TransferBuilder};
-use xelis_common::transaction::BurnPayload;
 pub use xelis_common::transaction::Transaction;
 use xelis_common::utils::{format_coin, format_xelis};
 pub use xelis_wallet::transaction_builder::TransactionBuilderState;
-use xelis_wallet::wallet::{Wallet, PRECOMPUTED_TABLES_L1};
+use xelis_wallet::wallet::{PRECOMPUTED_TABLES_L1, Wallet};
 
 use crate::api::progress_report::{add_progress_report, Report};
 use crate::frb_generated::StreamSink;
@@ -160,7 +162,7 @@ impl XelisWallet {
     }
 
     pub async fn rescan(&self, topoheight: u64) -> Result<()> {
-        Ok(self.wallet.rescan(topoheight).await?)
+        Ok(self.wallet.rescan(topoheight, true).await?)
     }
 
     pub async fn create_transfer_transaction(
@@ -169,6 +171,8 @@ impl XelisWallet {
         str_address: String,
         asset_hash: Option<String>,
     ) -> Result<String> {
+        PENDING_TRANSACTIONS.write().clear();
+
         let address = Address::from_string(&str_address).context("Invalid address")?;
         let asset = match asset_hash {
             None => XELIS_ASSET,
@@ -228,6 +232,8 @@ impl XelisWallet {
         float_amount: f64,
         asset_hash: String,
     ) -> Result<String> {
+        PENDING_TRANSACTIONS.write().clear();
+
         let asset = Hash::from_hex(asset_hash)?;
         let mut storage = self.wallet.get_storage().write().await;
         let decimals = storage.get_asset_decimals(&asset).unwrap_or(COIN_DECIMALS);
@@ -269,8 +275,8 @@ impl XelisWallet {
         tx_hash: String,
     ) -> Result<(Transaction, TransactionBuilderState)> {
         let hash = Hash::from_hex(tx_hash).unwrap();
-        let mut lock = PENDING_TRANSACTIONS.write();
-        let res = lock
+        let res = PENDING_TRANSACTIONS
+            .write()
             .remove(&hash)
             .expect("Cannot delete pending transaction");
         Ok(res)
@@ -318,7 +324,7 @@ impl XelisWallet {
     }
 
     pub async fn online_mode(&self, daemon_address: String) -> Result<()> {
-        Ok(self.wallet.set_online_mode(&daemon_address).await?)
+        Ok(self.wallet.set_online_mode(&daemon_address, true).await?)
     }
 
     pub async fn offline_mode(&self) -> Result<()> {
