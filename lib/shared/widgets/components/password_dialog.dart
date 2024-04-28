@@ -37,28 +37,25 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
       _passwordError = null;
     });
 
-    if (_passwordFormKey.currentState?.saveAndValidate() ?? false) {
-      final password =
-          _passwordFormKey.currentState?.value['password'] as String;
+    final password = _passwordFormKey.currentState?.value['password'] as String;
 
-      final wallet = ref.read(walletStateProvider);
-      try {
-        context.loaderOverlay.show();
-        await wallet.nativeWalletRepository!.isValidPassword(password);
-        widget.onValid!();
-        if (widget.closeOnValid == true && context.mounted) {
-          context.pop(); // hide the dialog
-        }
-      } catch (e) {
-        final loc = ref.read(appLocalizationsProvider);
-        setState(() {
-          _passwordError = loc.invalid_password_error;
-        });
+    final wallet = ref.read(walletStateProvider);
+    try {
+      context.loaderOverlay.show();
+      await wallet.nativeWalletRepository!.isValidPassword(password);
+      widget.onValid!();
+      if (widget.closeOnValid == true && context.mounted) {
+        context.pop(); // hide the dialog
       }
+    } catch (e) {
+      final loc = ref.read(appLocalizationsProvider);
+      setState(() {
+        _passwordError = loc.invalid_password_error;
+      });
+    }
 
-      if (context.mounted) {
-        context.loaderOverlay.hide();
-      }
+    if (context.mounted) {
+      context.loaderOverlay.hide();
     }
   }
 
@@ -86,12 +83,14 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
               errorMaxLines: 2,
             ),
             onSubmitted: (value) {
-              if (widget.onEnter != null) {
-                widget.onEnter!(value!);
-              }
+              if (_passwordFormKey.currentState?.saveAndValidate() ?? false) {
+                if (widget.onEnter != null) {
+                  widget.onEnter!(value!);
+                }
 
-              if (widget.onValid != null) {
-                _checkWalletPassword(context);
+                if (widget.onValid != null) {
+                  _checkWalletPassword(context);
+                }
               }
             },
             validator: FormBuilderValidators.required(),

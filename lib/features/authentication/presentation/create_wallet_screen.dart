@@ -221,6 +221,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                   decoration: InputDecoration(
                     labelText: loc.password,
                   ),
+                  validator: FormBuilderValidators.required(),
                 ),
               ),
               const SizedBox(height: Spaces.small),
@@ -234,6 +235,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                   decoration: InputDecoration(
                     labelText: loc.confirm_password,
                   ),
+                  validator: FormBuilderValidators.required(),
                 ),
               ),
               const SizedBox(height: Spaces.medium),
