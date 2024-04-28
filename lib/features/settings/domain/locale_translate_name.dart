@@ -20,6 +20,24 @@ String translateLocaleName(Locale locale) {
       return '한국어';
     case 'pt':
       return 'Português';
+    case 'ru':
+      return 'Русский';
+    case 'tr':
+      return 'Turkiye';
+    case 'ar':
+      return 'اللغة العربية';
+    case 'nl':
+      return 'Nederlands';
+    case 'bg':
+      return 'Български';
+    case 'hi':
+      return 'हिंदी';
+    case 'ms':
+      return 'Melayu';
+    case 'pl':
+      return 'Polski';
+    case 'uk':
+      return 'українська';
     default:
       return 'N/A';
   }

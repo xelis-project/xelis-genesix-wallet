@@ -966,9 +966,9 @@ dependencies = [
 
 [[package]]
 name = "data-encoding"
-version = "2.5.0"
+version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7e962a19be5cfc3f3bf6dd8f61eb50107f356ad6270fbb3ed41476571db78be5"
+checksum = "e8566979429cf69b49a5c740c60791108e86440e8be149bbea4fe54d2c32d6e2"
 
 [[package]]
 name = "delegate-attr"
@@ -2996,7 +2996,7 @@ dependencies = [
 [[package]]
 name = "xelis_common"
 version = "1.9.4"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#40f1e4f0a05f5f2e2ff72802401d67b9552c54d8"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#c362d0822497c34d963755ed6951e6c6867413f2"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -3035,7 +3035,7 @@ dependencies = [
 [[package]]
 name = "xelis_wallet"
 version = "1.9.4"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#40f1e4f0a05f5f2e2ff72802401d67b9552c54d8"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#c362d0822497c34d963755ed6951e6c6867413f2"
 dependencies = [
  "actix",
  "actix-web",
