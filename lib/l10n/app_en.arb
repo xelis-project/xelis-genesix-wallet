@@ -150,7 +150,7 @@
   "new_name": "New name",
   "view_seed": "View seed",
   "history_parameters": "History parameters",
-  "hide_zero_transfers": "Cacher les transferts à zero",
+  "hide_zero_transfers": "Hide zero transfer",
   "hide_extra_data": "Hide extra data",
   "delete_wallet": "Delete wallet",
 
