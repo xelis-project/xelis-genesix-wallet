@@ -81,9 +81,8 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
             context.loaderOverlay.show();
           }
 
-          await ref
-              .read(authenticationProvider.notifier)
-              .createWallet(walletName, password, createSeed);
+          await ref.read(authenticationProvider.notifier).createWallet(
+              walletName, password, _seedRequired ? createSeed : null);
 
           final seed = await ref
               .read(walletStateProvider)
@@ -158,13 +157,19 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                         ),
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(),
-                          // TODO: add better seed validator
-                          FormBuilderValidators.match(
-                            '(?:[a-zA-Z]+ ){24}[a-zA-Z]+',
+                          // FormBuilderValidators.match(
+                          //   '(?:[a-zA-Z]+ ){24}[a-zA-Z]+',
+                          //   errorText: loc.invalid_seed,
+                          // ),
+                          // TODO: add a better localized error msg
+                          FormBuilderValidators.minWordsCount(
+                            24,
                             errorText: loc.invalid_seed,
                           ),
-                          // FormBuilderValidators.minWordsCount(25),
-                          // FormBuilderValidators.maxWordsCount(25),
+                          FormBuilderValidators.maxWordsCount(
+                            25,
+                            errorText: loc.invalid_seed,
+                          ),
                         ]),
                       ),
                     ),
