@@ -74,16 +74,16 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
         appBar: GenericAppBar(title: loc.change_password),
         body: Padding(
           padding: const EdgeInsets.fromLTRB(
-              Spaces.large, 0, Spaces.large, Spaces.large),
+              Spaces.large, Spaces.none, Spaces.large, Spaces.large),
           child: FormBuilder(
             key: _changePasswordKey,
             onChanged: () => _changePasswordKey.currentState!.save(),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                const SizedBox(height: Spaces.small),
-                Text(loc.old_password, style: context.bodyLarge),
-                const SizedBox(height: Spaces.small),
+                const SizedBox(height: Spaces.large),
+                // Text(loc.old_password, style: context.bodyLarge),
+                // const SizedBox(height: Spaces.small),
                 PasswordTextField(
                   textField: FormBuilderTextField(
                     name: 'old_password',
@@ -95,9 +95,9 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                     validator: FormBuilderValidators.required(),
                   ),
                 ),
-                const SizedBox(height: Spaces.small),
-                Text(loc.new_password, style: context.bodyLarge),
-                const SizedBox(height: Spaces.small),
+                const SizedBox(height: Spaces.medium),
+                // Text(loc.new_password, style: context.bodyLarge),
+                // const SizedBox(height: Spaces.small),
                 PasswordTextField(
                   textField: FormBuilderTextField(
                     name: 'new_password',
@@ -109,9 +109,9 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                     validator: FormBuilderValidators.required(),
                   ),
                 ),
-                const SizedBox(height: Spaces.small),
-                Text(loc.confirm_password, style: context.bodyLarge),
-                const SizedBox(height: Spaces.small),
+                const SizedBox(height: Spaces.medium),
+                // Text(loc.confirm_password, style: context.bodyLarge),
+                // const SizedBox(height: Spaces.small),
                 PasswordTextField(
                   textField: FormBuilderTextField(
                     name: 'confirm_new_password',
@@ -123,7 +123,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                     validator: FormBuilderValidators.required(),
                   ),
                 ),
-                const SizedBox(height: Spaces.medium),
+                const SizedBox(height: Spaces.large),
                 TextButton.icon(
                   onPressed: () {
                     _changePassword();
