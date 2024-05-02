@@ -123,6 +123,15 @@ class WalletState extends _$WalletState {
     return null;
   }
 
+  Future<TransactionSummary?> createAllXelisTransaction(
+      {required String destination}) async {
+    if (state.nativeWalletRepository != null) {
+      return state.nativeWalletRepository!
+          .createSimpleTransaction(address: destination);
+    }
+    return null;
+  }
+
   Future<TransactionSummary?> createBurnXelisTransaction(
       {required double amount}) async {
     if (state.nativeWalletRepository != null) {
@@ -142,6 +151,15 @@ class WalletState extends _$WalletState {
     if (state.nativeWalletRepository != null) {
       await state.nativeWalletRepository!.broadcastTransaction(hash);
     }
+  }
+
+  Future<int> estimateFees(
+      {required double amount, required String destination}) async {
+    if (state.nativeWalletRepository != null) {
+      return state.nativeWalletRepository!
+          .estimateFees(amount: amount, address: destination);
+    }
+    return 0;
   }
 
   Future<void> _onEvent(Event event) async {

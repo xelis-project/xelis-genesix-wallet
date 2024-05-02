@@ -187,6 +187,10 @@ ThemeData xelisTheme() {
         borderRadius: borderRadius,
         borderSide: const BorderSide(color: Colors.red, width: 2.5),
       ),
+      disabledBorder: OutlineInputBorder(
+        borderRadius: borderRadius,
+        borderSide: const BorderSide(color: Colors.transparent, width: 1),
+      ),
     ),
 
     // SNACKBAR

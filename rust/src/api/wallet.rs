@@ -163,6 +163,55 @@ impl XelisWallet {
         Ok(self.wallet.rescan(topoheight, true).await?)
     }
 
+    async fn create_transfer_type(
+        &self,
+        amount: u64,
+        str_address: String,
+        asset: Hash,
+    ) -> Result<TransactionTypeBuilder> {
+        let address = Address::from_string(&str_address).context("Invalid address")?;
+        let transfer = TransferBuilder {
+            destination: address,
+            amount,
+            asset,
+            extra_data: None,
+        };
+        Ok(TransactionTypeBuilder::Transfers(vec![transfer]))
+    }
+
+    async fn convert_float_amount(&self, float_amount: f64, asset: Hash) -> Result<u64> {
+        let storage = self.wallet.get_storage().read().await;
+        let decimals = storage.get_asset_decimals(&asset).unwrap_or(COIN_DECIMALS);
+        let amount = (float_amount * 10u32.pow(decimals as u32) as f64) as u64;
+        Ok(amount)
+    }
+
+    pub async fn estimate_fees(
+        &self,
+        float_amount: f64,
+        str_address: String,
+        asset_hash: Option<String>,
+    ) -> Result<u64> {
+        let asset = match asset_hash {
+            None => XELIS_ASSET,
+            Some(value) => Hash::from_hex(value).unwrap_or(XELIS_ASSET),
+        };
+        let amount = self
+            .convert_float_amount(float_amount, asset.clone())
+            .await
+            .context("Error while converting amount to atomic format")?;
+        let transaction_type_builder = self
+            .create_transfer_type(amount, str_address, asset.clone())
+            .await
+            .context("Error while creating transaction type builder")?;
+        let estimated_fees = self
+            .wallet
+            .estimate_fees(transaction_type_builder)
+            .await
+            .context("Error while estimating fees")?;
+        Ok(estimated_fees)
+    }
+
     pub async fn create_transfer_transaction(
         &self,
         float_amount: f64,
@@ -171,33 +220,92 @@ impl XelisWallet {
     ) -> Result<String> {
         PENDING_TRANSACTIONS.write().clear();
 
-        let address = Address::from_string(&str_address).context("Invalid address")?;
+        info!("Building transaction...");
+
         let asset = match asset_hash {
             None => XELIS_ASSET,
             Some(value) => Hash::from_hex(value).unwrap_or(XELIS_ASSET),
         };
-        let mut storage = self.wallet.get_storage().write().await;
-        let decimals = storage.get_asset_decimals(&asset).unwrap_or(COIN_DECIMALS);
-        let amount = (float_amount * 10u32.pow(decimals as u32) as f64) as u64;
 
-        info!(
-            "Sending {} of {} to {}",
-            format_coin(amount, decimals),
-            asset,
-            address.to_string()
-        );
+        let amount = self
+            .convert_float_amount(float_amount, asset.clone())
+            .await
+            .context("Error while converting amount to atomic format")?;
+
+        let transaction_type_builder = self
+            .create_transfer_type(amount, str_address, asset.clone())
+            .await
+            .context("Error while creating transaction type builder")?;
+        let mut storage = self.wallet.get_storage().write().await;
+
+        let (state, tx) = self
+            .wallet
+            .create_transaction_with_storage(
+                &mut storage,
+                transaction_type_builder.clone(),
+                FeeBuilder::default(),
+            )
+            .await?;
+
+        info!("Transaction created!");
+        let hash = tx.hash();
+        info!("Tx Hash: {}", hash);
+        let fee = tx.get_fee();
+
+        PENDING_TRANSACTIONS
+            .write()
+            .insert(hash.clone(), (tx, state));
+
+        Ok(json!(SummaryTransaction {
+            hash: hash.to_hex(),
+            amount,
+            fee,
+            transaction_type: transaction_type_builder
+        })
+        .to_string())
+    }
+
+    pub async fn create_transfer_all_transaction(
+        &self,
+        str_address: String,
+        asset_hash: Option<String>,
+    ) -> Result<String> {
+        PENDING_TRANSACTIONS.write().clear();
 
         info!("Building transaction...");
 
-        let transfer = TransferBuilder {
-            destination: address,
-            amount,
-            asset,
-            extra_data: None,
+        let asset = match asset_hash {
+            None => XELIS_ASSET,
+            Some(value) => Hash::from_hex(value).unwrap_or(XELIS_ASSET),
         };
 
-        let transaction_type_builder = TransactionTypeBuilder::Transfers(vec![transfer]);
+        let mut amount = {
+            let storage = self.wallet.get_storage().read().await;
+            let amount = storage.get_plaintext_balance_for(&asset).await.unwrap_or(0);
+            amount
+        };
 
+        let transaction_type_builder = self
+            .create_transfer_type(amount, str_address.clone(), asset.clone())
+            .await
+            .context("Error while creating transaction type builder")?;
+
+        let estimated_fees = self
+            .wallet
+            .estimate_fees(transaction_type_builder.clone())
+            .await
+            .context("Error while estimating fees")?;
+
+        if asset == XELIS_ASSET {
+            amount -= estimated_fees;
+        }
+
+        let transaction_type_builder = self
+            .create_transfer_type(amount, str_address, asset.clone())
+            .await
+            .context("Error while creating transaction type builder")?;
+
+        let mut storage = self.wallet.get_storage().write().await;
         let (state, tx) = self
             .wallet
             .create_transaction_with_storage(
@@ -231,6 +339,8 @@ impl XelisWallet {
         asset_hash: String,
     ) -> Result<String> {
         PENDING_TRANSACTIONS.write().clear();
+
+        info!("Building transaction...");
 
         let asset = Hash::from_hex(asset_hash)?;
         let mut storage = self.wallet.get_storage().write().await;
@@ -272,11 +382,12 @@ impl XelisWallet {
         &self,
         tx_hash: String,
     ) -> Result<(Transaction, TransactionBuilderState)> {
-        let hash = Hash::from_hex(tx_hash).unwrap();
+        let hash = Hash::from_hex(tx_hash.clone()).unwrap();
         let res = PENDING_TRANSACTIONS
             .write()
             .remove(&hash)
             .expect("Cannot delete pending transaction");
+        info!("tx: {} removed from pending transaction", tx_hash);
         Ok(res)
     }
 
@@ -341,6 +452,7 @@ impl XelisWallet {
             match result {
                 Ok(event) => {
                     let json_event = json!({"event": event.kind(), "data": event}).to_string();
+                    info!("{}", json_event.clone());
                     sink.add(json_event)
                         .expect("Unable to send event data through stream");
                 }

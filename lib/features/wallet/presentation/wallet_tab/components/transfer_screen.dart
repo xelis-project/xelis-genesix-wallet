@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/transfer_review_dialog.dart';
 import 'package:genesix/rust_bridge/api/utils.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
@@ -24,8 +25,6 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
   final _transferFormKey =
       GlobalKey<FormBuilderState>(debugLabel: '_transferFormKey');
 
-  // final double _remainingBalance = 0;
-
   void _reviewTransfer() async {
     if (_transferFormKey.currentState?.saveAndValidate() ?? false) {
       final amount =
@@ -36,10 +35,20 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
       try {
         context.loaderOverlay.show();
 
-        final tx = await ref
-            .read(walletStateProvider.notifier)
-            .createXelisTransaction(
-                amount: double.parse(amount), destination: address.trim());
+        final xelisBalance =
+            ref.read(walletStateProvider.select((value) => value.xelisBalance));
+
+        TransactionSummary? tx;
+        if (amount == xelisBalance) {
+          tx = await ref
+              .read(walletStateProvider.notifier)
+              .createAllXelisTransaction(destination: address.trim());
+        } else {
+          tx = await ref
+              .read(walletStateProvider.notifier)
+              .createXelisTransaction(
+                  amount: double.parse(amount), destination: address.trim());
+        }
 
         if (mounted) {
           showDialog<void>(
@@ -62,6 +71,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
+    final xelisBalance =
+        ref.watch(walletStateProvider.select((value) => value.xelisBalance));
 
     return Background(
       child: Scaffold(
@@ -75,6 +86,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: Spaces.medium),
                   Text(
                     loc.amount,
                     style: context.headlineSmall,
@@ -89,15 +101,17 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                       labelText: '0.0000000',
                       labelStyle: context.headlineLarge!
                           .copyWith(fontWeight: FontWeight.bold),
+                      suffixIcon: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextButton(
+                          onPressed: () {
+                            _transferFormKey.currentState?.fields['amount']
+                                ?.didChange(xelisBalance);
+                          },
+                          child: const Text('max'),
+                        ),
+                      ),
                     ),
-                    // onChanged: (val) {
-                    /*if (val != null) {
-                                final amount = double.tryParse(val);
-                                setState(() {
-                                  _amountToTransfer = amount ?? 0.0;
-                                });
-                              }*/
-                    // },
                     validator: FormBuilderValidators.compose([
                       FormBuilderValidators.required(
                           errorText: loc.field_required_error),
@@ -117,7 +131,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                       }
                     ]),
                   ),
-                  const SizedBox(height: Spaces.medium),
+                  const SizedBox(height: Spaces.small),
                   Text(
                     loc.recipient,
                     style: context.headlineSmall,

@@ -99,12 +99,24 @@ class NativeWalletRepository {
     return _xelisWallet.rescan(topoheight: topoHeight);
   }
 
-  Future<TransactionSummary> createSimpleTransaction(
+  Future<int> estimateFees(
       {required double amount,
       required String address,
       String? assetHash}) async {
-    final rawTx = await _xelisWallet.createTransferTransaction(
+    return _xelisWallet.estimateFees(
         floatAmount: amount, strAddress: address, assetHash: assetHash);
+  }
+
+  Future<TransactionSummary> createSimpleTransaction(
+      {double? amount, required String address, String? assetHash}) async {
+    String rawTx;
+    if (amount != null) {
+      rawTx = await _xelisWallet.createTransferTransaction(
+          floatAmount: amount, strAddress: address, assetHash: assetHash);
+    } else {
+      rawTx = await _xelisWallet.createTransferAllTransaction(
+          strAddress: address, assetHash: assetHash);
+    }
     final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
     return TransactionSummary.fromJson(jsonTx);
   }
