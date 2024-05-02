@@ -163,6 +163,7 @@ class WalletState extends _$WalletState {
   }
 
   Future<void> _onEvent(Event event) async {
+    final loc = ref.read(appLocalizationsProvider);
     switch (event) {
       case NewTopoHeight():
         state = state.copyWith(topoheight: event.topoHeight);
@@ -171,7 +172,6 @@ class WalletState extends _$WalletState {
         logger.info(event);
         if (state.topoheight != 0 &&
             event.transactionEntry.topoHeight >= state.topoheight) {
-          final loc = ref.read(appLocalizationsProvider);
           ref.read(snackBarMessengerProvider.notifier).showInfo(
               '${loc.new_transaction_toast_info} ${event.transactionEntry}');
 
@@ -215,10 +215,14 @@ class WalletState extends _$WalletState {
         logger.info(event);
 
       case Online():
+        logger.info(event);
         state = state.copyWith(isOnline: true);
+        ref.read(snackBarMessengerProvider.notifier).showInfo(loc.connected);
 
       case Offline():
+        logger.info(event);
         state = state.copyWith(isOnline: false);
+      // ref.read(snackBarMessengerProvider.notifier).showInfo(loc.disconnected);
     }
   }
 }
