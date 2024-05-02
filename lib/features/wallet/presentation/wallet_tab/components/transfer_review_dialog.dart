@@ -154,7 +154,7 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
                       },
                     );
                   },
-                  icon: const Icon(Icons.send),
+                  icon: const Icon(Icons.send, size: 18),
                   label: Text(loc.broadcast),
                 ),
         ),

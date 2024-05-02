@@ -13,6 +13,7 @@ import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/components/background_widget.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:intl/intl.dart' show toBeginningOfSentenceCase;
 
 class TransferScreen extends ConsumerStatefulWidget {
   const TransferScreen({super.key});
@@ -88,7 +89,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                 children: [
                   const SizedBox(height: Spaces.medium),
                   Text(
-                    loc.amount,
+                    toBeginningOfSentenceCase(loc.amount) ?? '',
                     style: context.headlineSmall,
                   ),
                   const SizedBox(height: Spaces.small),
@@ -98,7 +99,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                         .copyWith(fontWeight: FontWeight.bold),
                     autocorrect: false,
                     decoration: InputDecoration(
-                      labelText: '0.0000000',
+                      labelText: '0.00000000',
                       labelStyle: context.headlineLarge!
                           .copyWith(fontWeight: FontWeight.bold),
                       suffixIcon: Padding(
