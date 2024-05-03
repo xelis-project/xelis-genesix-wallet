@@ -7,10 +7,17 @@ ThemeData darkTheme() {
   var lineHeight = 1.2;
   const primaryColor = Color.fromARGB(255, 216, 216, 216);
   const secondaryColor = Color.fromARGB(255, 122, 203, 250);
-  const backgrounColor = Color.fromARGB(255, 19, 19, 19);
+  const backgroundColor = Color.fromARGB(255, 19, 19, 19);
   var borderRadius = BorderRadius.circular(10.0);
 
   return ThemeData(
+    useMaterial3: true,
+    // splashFactory: InkSparkle.splashFactory,
+    splashFactory: NoSplash.splashFactory,
+    // TODO deactivated until we find a better combo color/shape
+    hoverColor: Colors.transparent,
+    highlightColor: Colors.transparent,
+
     // COLORS
     colorScheme: const ColorScheme(
       brightness: Brightness.dark,
@@ -20,7 +27,7 @@ ThemeData darkTheme() {
       onSecondary: Colors.white,
       error: Colors.red,
       onError: Colors.white,
-      background: backgrounColor,
+      background: backgroundColor,
       onBackground: textColor,
       surface: Colors.black,
       onSurface: Colors.white,
@@ -187,11 +194,15 @@ ThemeData darkTheme() {
         borderRadius: borderRadius,
         borderSide: const BorderSide(color: Colors.red, width: 2.5),
       ),
+      disabledBorder: OutlineInputBorder(
+        borderRadius: borderRadius,
+        borderSide: const BorderSide(color: Colors.transparent, width: 1),
+      ),
     ),
 
     // SNACKBAR
     snackBarTheme: SnackBarThemeData(
-      backgroundColor: backgrounColor,
+      backgroundColor: backgroundColor,
       actionTextColor: Colors.amber,
       shape: RoundedRectangleBorder(
         borderRadius: borderRadius,
@@ -200,7 +211,7 @@ ThemeData darkTheme() {
 
     // DIALOG
     dialogTheme: DialogTheme(
-      backgroundColor: backgrounColor,
+      backgroundColor: backgroundColor,
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: borderRadius,
@@ -215,10 +226,16 @@ ThemeData darkTheme() {
       trackOutlineColor: const MaterialStatePropertyAll(primaryColor),
     ),
 
+    // TAB BAR
+    tabBarTheme: const TabBarTheme(
+      dividerColor: Colors.white30,
+      overlayColor: MaterialStatePropertyAll(Colors.transparent),
+    ),
+
     // MISC
     tooltipTheme: TooltipThemeData(
       decoration: BoxDecoration(
-        color: backgrounColor,
+        color: backgroundColor,
         borderRadius: borderRadius,
       ),
       textStyle: const TextStyle(color: textColor),
