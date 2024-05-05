@@ -81,15 +81,14 @@ class _TransactionEntryScreenState
             Text(loc.type, style: context.headlineSmall),
             const SizedBox(height: Spaces.small),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                icon,
+                const SizedBox(width: Spaces.small),
                 SelectableText(
                   entryTypeName,
                   style: context.bodyLarge!
                       .copyWith(color: context.moreColors.mutedColor),
                 ),
-                const SizedBox(width: Spaces.medium),
-                icon,
               ],
             ),
             const SizedBox(height: Spaces.medium),
@@ -118,7 +117,8 @@ class _TransactionEntryScreenState
                   Text(loc.amount, style: context.headlineSmall),
                   const SizedBox(height: Spaces.small),
                   SelectableText(
-                    '+${formatXelis(coinbase!.reward)} XEL', // hmm coinbase could return other asset than XELIS
+                    '+${formatXelis(coinbase!.reward)} XEL',
+                    // hmm coinbase could return other asset than XELIS
                     style: context.bodyLarge!
                         .copyWith(color: context.moreColors.mutedColor),
                   ),

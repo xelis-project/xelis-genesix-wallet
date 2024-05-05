@@ -452,7 +452,6 @@ impl XelisWallet {
             match result {
                 Ok(event) => {
                     let json_event = json!({"event": event.kind(), "data": event}).to_string();
-                    info!("{}", json_event.clone());
                     sink.add(json_event)
                         .expect("Unable to send event data through stream");
                 }
