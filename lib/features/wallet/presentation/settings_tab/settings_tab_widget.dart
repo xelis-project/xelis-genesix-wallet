@@ -121,6 +121,7 @@ class SettingsTab extends ConsumerWidget {
         ref.watch(settingsProvider.select((value) => value.hideZeroTransfer));
     final hideExtraData =
         ref.watch(settingsProvider.select((value) => value.hideExtraData));
+    final name = ref.watch(walletStateProvider.select((state) => state.name));
 
     return ListView(
       padding: const EdgeInsets.all(Spaces.large),
@@ -131,16 +132,10 @@ class SettingsTab extends ConsumerWidget {
         ),
         const SizedBox(height: Spaces.large),
         ListTile(
-          title: Wrap(
-            spacing: Spaces.medium,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              const Icon(Icons.settings_applications),
-              Text(
-                loc.app_settings,
-                style: context.titleLarge,
-              )
-            ],
+          leading: const Icon(Icons.settings_applications),
+          title: Text(
+            loc.app_settings,
+            style: context.titleLarge,
           ),
           onTap: () => context.push(AppScreen.settings.toPath),
           trailing: const Icon(
@@ -149,16 +144,10 @@ class SettingsTab extends ConsumerWidget {
         ),
         const Divider(),
         ListTile(
-          title: Wrap(
-            spacing: Spaces.medium,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              const Icon(Icons.pattern_rounded),
-              Text(
-                loc.view_seed,
-                style: context.titleLarge,
-              )
-            ],
+          leading: const Icon(Icons.pattern_rounded),
+          title: Text(
+            loc.view_seed,
+            style: context.titleLarge,
           ),
           onTap: () => _showSeedInput(context),
           trailing: const Icon(
@@ -167,16 +156,14 @@ class SettingsTab extends ConsumerWidget {
         ),
         const Divider(),
         ListTile(
-          title: Wrap(
-            spacing: Spaces.medium,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              const Icon(Icons.edit),
-              Text(
-                loc.rename_wallet,
-                style: context.titleLarge,
-              )
-            ],
+          leading: const Icon(Icons.edit),
+          title: Text(
+            loc.rename_wallet,
+            style: context.titleLarge,
+          ),
+          subtitle: Text(
+            name,
+            style: context.titleMedium!.copyWith(color: context.colors.primary),
           ),
           onTap: () => _showRenameWalletInput(ref),
           trailing: const Icon(
@@ -185,16 +172,10 @@ class SettingsTab extends ConsumerWidget {
         ),
         const Divider(),
         ListTile(
-          title: Wrap(
-            spacing: Spaces.medium,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              const Icon(Icons.password),
-              Text(
-                loc.change_password,
-                style: context.titleLarge,
-              )
-            ],
+          leading: const Icon(Icons.password),
+          title: Text(
+            loc.change_password,
+            style: context.titleLarge,
           ),
           onTap: () => context.push(AppScreen.changePassword.toPath),
           trailing: const Icon(
