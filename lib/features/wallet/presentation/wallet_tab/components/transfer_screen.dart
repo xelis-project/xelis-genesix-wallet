@@ -54,6 +54,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
         if (mounted) {
           showDialog<void>(
             context: context,
+            barrierDismissible: false,
             builder: (context) {
               return TransferReviewDialog(tx!);
             },
