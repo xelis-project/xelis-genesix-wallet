@@ -8,7 +8,7 @@ part 'network_nodes_state.freezed.dart';
 
 part 'network_nodes_state.g.dart';
 
-@freezed
+@Freezed(makeCollectionsUnmodifiable: false)
 class NetworkNodesState with _$NetworkNodesState {
   const NetworkNodesState._();
 

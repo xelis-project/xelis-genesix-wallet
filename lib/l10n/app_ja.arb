@@ -133,5 +133,11 @@
   "theme": "テーマ",
   "yes": "はい",
   "no": "いいえ",
-  "are_you_sure": "本当か？"
+  "are_you_sure": "本当か？",
+  "block_reward": "ブロック報酬",
+  "modify": "モディファイ",
+  "remove": "取り除く",
+  "clear_cache": "キャッシュのクリア",
+  "cache_cleared": "キャッシュがクリアされた！",
+  "edit_node": "編集ノード"
 }

@@ -133,5 +133,11 @@
   "theme": "Tema",
   "yes": "Sim",
   "no": "Não",
-  "are_you_sure": "Tens a certeza?"
+  "are_you_sure": "Tens a certeza?",
+  "block_reward": "Recompensa por bloco",
+  "modify": "modificar",
+  "remove": "remover",
+  "clear_cache": "Limpar a cache",
+  "cache_cleared": "Cache limpa!",
+  "edit_node": "Editar nó"
 }

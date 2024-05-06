@@ -133,5 +133,11 @@
   "theme": "主题",
   "yes": "是",
   "no": "没有",
-  "are_you_sure": "你确定吗？"
+  "are_you_sure": "你确定吗？",
+  "block_reward": "区块奖励",
+  "modify": "修改",
+  "remove": "去除",
+  "clear_cache": "清除缓存",
+  "cache_cleared": "缓存已清除！",
+  "edit_node": "编辑节点"
 }

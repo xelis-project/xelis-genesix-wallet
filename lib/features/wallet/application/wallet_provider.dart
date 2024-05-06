@@ -217,7 +217,7 @@ class WalletState extends _$WalletState {
       case Online():
         logger.info(event);
         state = state.copyWith(isOnline: true);
-        ref.read(snackBarMessengerProvider.notifier).showInfo(loc.connected);
+        // ref.read(snackBarMessengerProvider.notifier).showInfo(loc.connected);
 
       case Offline():
         logger.info(event);

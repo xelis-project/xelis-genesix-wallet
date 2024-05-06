@@ -6,6 +6,7 @@ import 'package:genesix/features/wallet/application/network_nodes_provider.dart'
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
 import 'package:genesix/features/wallet/presentation/node_tab/components/add_node_dialog.dart';
+import 'package:genesix/features/wallet/presentation/node_tab/components/modify_node_dialog.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 
@@ -38,12 +39,21 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
     );
   }
 
+  void _showUpdateAddressDialog(BuildContext context, NodeAddress nodeAddress) {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) => ModifyNodeDialog(nodeAddress),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final loc = ref.watch(appLocalizationsProvider);
     final networkNodes = ref.watch(networkNodesProvider);
     final network =
         ref.watch(settingsProvider.select((state) => state.network));
-    final loc = ref.watch(appLocalizationsProvider);
+    final isOnline =
+        ref.watch(walletStateProvider.select((value) => value.isOnline));
 
     var nodeAddress = networkNodes.getNodeAddress(network);
     var nodes = networkNodes.getNodes(network);
@@ -55,6 +65,13 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
           highlightColor: Colors.transparent,
         ),
         child: ExpansionTile(
+          leading: Tooltip(
+            message: isOnline ? loc.connected : loc.disconnected,
+            child: Icon(
+              isOnline ? Icons.sensors : Icons.sensors_off,
+              color: isOnline ? context.colors.primary : context.colors.error,
+            ),
+          ),
           expandedCrossAxisAlignment: CrossAxisAlignment.start,
           tilePadding: const EdgeInsets.fromLTRB(
               Spaces.medium, Spaces.small, Spaces.medium, Spaces.small),
@@ -64,7 +81,7 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
           ),
           subtitle: Text(
             nodeAddress.url,
-            style: context.titleSmall!
+            style: context.titleMedium!
                 .copyWith(color: context.moreColors.mutedColor),
           ),
           children: [
@@ -90,6 +107,41 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
                     value: nodes[index],
                     groupValue: nodeAddress,
                     onChanged: _onNodeAddressSelected,
+                  ),
+                  trailing: MenuAnchor(
+                    builder: (BuildContext context, MenuController controller,
+                        Widget? child) {
+                      return IconButton(
+                        onPressed: () {
+                          if (controller.isOpen) {
+                            controller.close();
+                          } else {
+                            controller.open();
+                          }
+                        },
+                        icon: const Icon(Icons.more_vert),
+                      );
+                    },
+                    menuChildren: [
+                      MenuItemButton(
+                        child: Text(
+                          loc.modify,
+                          style: context.bodyMedium,
+                        ),
+                        onPressed: () {
+                          _showUpdateAddressDialog(context, nodes[index]);
+                        },
+                      ),
+                      MenuItemButton(
+                        child: Text(
+                          loc.remove,
+                          style: context.bodyMedium,
+                        ),
+                        onPressed: () {
+                          _onDismissed(nodes[index]);
+                        },
+                      )
+                    ],
                   ),
                 ),
               ),

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/presentation/node_tab/components/node_info_widget.dart';
 import 'package:genesix/features/wallet/presentation/node_tab/components/node_selector_widget.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+// import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 
 class NodeTab extends ConsumerWidget {
@@ -14,15 +14,15 @@ class NodeTab extends ConsumerWidget {
     final loc = ref.watch(appLocalizationsProvider);
     return ListView(
       padding: const EdgeInsets.all(Spaces.large),
-      children: [
-        Text(
-          loc.remote_node,
-          style: context.headlineLarge!.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: Spaces.medium),
-        const NodeSelectorWidget(),
-        const SizedBox(height: Spaces.medium),
-        const NodeInfoWidget(),
+      children: const [
+        // Text(
+        //   loc.remote_node,
+        //   style: context.headlineLarge!.copyWith(fontWeight: FontWeight.bold),
+        // ),
+        SizedBox(height: Spaces.medium),
+        NodeSelectorWidget(),
+        SizedBox(height: Spaces.medium),
+        NodeInfoWidget(),
       ],
     );
   }

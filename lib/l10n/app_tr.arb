@@ -133,5 +133,11 @@
   "theme": "Tema",
   "yes": "Evet",
   "no": "Hayır",
-  "are_you_sure": "Emin misin?"
+  "are_you_sure": "Emin misin?",
+  "block_reward": "Blok Ödülü",
+  "modify": "değiştir",
+  "remove": "Kaldır",
+  "clear_cache": "Önbelleği temizle",
+  "cache_cleared": "Önbellek temizlendi!",
+  "edit_node": "Düğümü düzenle"
 }

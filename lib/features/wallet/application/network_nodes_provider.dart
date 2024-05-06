@@ -66,19 +66,27 @@ class NetworkNodes extends _$NetworkNodes {
 
   void addNode(Network network, NodeAddress nodeAddress) {
     if (!state.nodeExists(network, nodeAddress)) {
+      final nodes = state.getNodes(network);
+      nodes.add(nodeAddress);
+      setNodes(network, nodes);
+    }
+  }
+
+  void updateNode(
+      Network network, NodeAddress oldNodeAddress, NodeAddress newNodeAddress) {
+    if (state.nodeExists(network, oldNodeAddress)) {
       var nodes = state.getNodes(network);
-      setNodes(network, [...nodes, nodeAddress]);
+      final index = nodes.indexOf(oldNodeAddress);
+      nodes[index] = newNodeAddress;
+      setNodes(network, nodes);
     }
   }
 
   void removeNode(Network network, NodeAddress nodeAddress) {
     if (state.nodeExists(network, nodeAddress)) {
       var nodes = state.getNodes(network);
-      final newNodes = [
-        for (final item in nodes)
-          if (item != nodeAddress) item,
-      ];
-      setNodes(network, newNodes);
+      nodes.remove(nodeAddress);
+      setNodes(network, nodes);
     }
   }
 }

@@ -11,27 +11,31 @@ import 'package:genesix/features/wallet/domain/node_address.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 
-class AddNodeDialog extends ConsumerStatefulWidget {
-  const AddNodeDialog({super.key});
+class ModifyNodeDialog extends ConsumerStatefulWidget {
+  const ModifyNodeDialog(this.oldNodeAddress, {super.key});
+
+  final NodeAddress oldNodeAddress;
 
   @override
-  ConsumerState<AddNodeDialog> createState() => _AddNodeDialogState();
+  ConsumerState<ModifyNodeDialog> createState() => _ModifyNodeDialogState();
 }
 
-class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
+class _ModifyNodeDialogState extends ConsumerState<ModifyNodeDialog> {
   final nodeAddressFormKey =
       GlobalKey<FormBuilderState>(debugLabel: '_nodeAddressFormKey');
 
-  void _add(NodeAddress? value) {
-    if (value != null) {
+  void _modify(NodeAddress? newValue) {
+    if (newValue != null) {
       final settings = ref.read(settingsProvider);
-      ref.read(networkNodesProvider.notifier).addNode(settings.network, value);
+      ref
+          .read(networkNodesProvider.notifier)
+          .updateNode(settings.network, widget.oldNodeAddress, newValue);
       // set the newly added node as the current node
-      ref.read(walletStateProvider.notifier).reconnect(value);
+      ref.read(walletStateProvider.notifier).reconnect(newValue);
     }
   }
 
-  void _addNodeAddress(List<NodeAddress> nodes) {
+  void _modifyNodeAddress(List<NodeAddress> nodes) {
     final loc = ref.read(appLocalizationsProvider);
 
     final name =
@@ -52,7 +56,7 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
       }
 
       if (name != null && url != null) {
-        _add(NodeAddress(name: name, url: url));
+        _modify(NodeAddress(name: name, url: url));
         context.pop();
       }
     }
@@ -71,7 +75,7 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
       title: Padding(
         padding: const EdgeInsets.all(Spaces.small),
         child: Text(
-          loc.add_new_node_title,
+          loc.edit_node,
           style: context.titleLarge,
         ),
       ),
@@ -86,6 +90,7 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
               children: [
                 FormBuilderTextField(
                   name: 'name',
+                  initialValue: widget.oldNodeAddress.name,
                   style: context.bodyMedium,
                   autocorrect: false,
                   decoration: InputDecoration(
@@ -97,6 +102,7 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
                 const SizedBox(height: Spaces.medium),
                 FormBuilderTextField(
                   name: 'url',
+                  initialValue: widget.oldNodeAddress.url,
                   style: context.bodyMedium,
                   autocorrect: false,
                   decoration: InputDecoration(
@@ -116,8 +122,8 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
           child: Text(loc.cancel_button),
         ),
         FilledButton(
-          onPressed: () => _addNodeAddress(nodes),
-          child: Text(loc.ok_button),
+          onPressed: () => _modifyNodeAddress(nodes),
+          child: Text(loc.confirm_button),
         ),
       ],
     );

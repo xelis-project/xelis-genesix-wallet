@@ -133,5 +133,11 @@
   "theme": "Temat",
   "yes": "Tak",
   "no": "Nie",
-  "are_you_sure": "Jesteś pewien?"
+  "are_you_sure": "Jesteś pewien?",
+  "block_reward": "Nagroda za blok",
+  "modify": "modyfikować",
+  "remove": "usunąć",
+  "clear_cache": "Wyczyść pamięć podręczną",
+  "cache_cleared": "Pamięć podręczna wyczyszczona!",
+  "edit_node": "Węzeł edycji"
 }

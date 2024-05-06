@@ -133,5 +133,11 @@
   "theme": "Thema",
   "yes": "Ja",
   "no": "Geen",
-  "are_you_sure": "Weet je het zeker?"
+  "are_you_sure": "Weet je het zeker?",
+  "block_reward": "Blok Beloning",
+  "modify": "wijzigen",
+  "remove": "verwijderen",
+  "clear_cache": "Cache wissen",
+  "cache_cleared": "Cache gewist!",
+  "edit_node": "Knooppunt bewerken"
 }

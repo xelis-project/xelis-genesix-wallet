@@ -466,9 +466,9 @@ checksum = "c59bdb34bc650a32731b31bd8f0829cc15d24a708ee31559e0bb34f2bc320cba"
 
 [[package]]
 name = "autocfg"
-version = "1.2.0"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1fdabc7756949593fe60f30ec81974b613357de856987752631dea1e3394c80"
+checksum = "0c4b4d0bd25bd0b74681c0ad21497610ce1b7c91b1022cd21c80c6fbdd9476b0"
 
 [[package]]
 name = "backtrace"
@@ -654,9 +654,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.0.96"
+version = "1.0.97"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "065a29261d53ba54260972629f9ca6bffa69bac13cd1fed61420f7fa68b9f8bd"
+checksum = "099a5357d84c4c61eb35fc8eafa9a79a902c2f76911e5747ced4e032edd8d9b4"
 dependencies = [
  "jobserver",
  "libc",
@@ -1091,9 +1091,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge"
-version = "2.0.0-dev.32"
+version = "2.0.0-dev.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34014207992d96657886c50c90ab503bb4581cc9c2b1ea7ffad2ec12400032da"
+checksum = "293c86d55bf9b6108482f8574517a8e7e032dd1d9260e1f4801c6180fdd2583c"
 dependencies = [
  "allo-isolate",
  "android_logger",
@@ -1119,9 +1119,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge_macros"
-version = "2.0.0-dev.32"
+version = "2.0.0-dev.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd250246955bb9548a99733859946a5721289ec152de5fcc6eb03da7d3143dd1"
+checksum = "d852460bc16316c4491a60e1652612f717764d436f3a97f8f1cc7c3b54d9a0dc"
 dependencies = [
  "hex",
  "quote",
@@ -1671,9 +1671,9 @@ checksum = "51d515d32fb182ee37cda2ccdcb92950d6a3c2893aa280e540671c2cd0f3b1d9"
 
 [[package]]
 name = "num-traits"
-version = "0.2.18"
+version = "0.2.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "da0df0e5185db44f69b44f26786fe401b6c293d1907744beaa7fa62b2e5a517a"
+checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
 dependencies = [
  "autocfg",
 ]
@@ -2473,7 +2473,6 @@ dependencies = [
  "signal-hook-registry",
  "socket2",
  "tokio-macros",
- "tracing",
  "windows-sys 0.48.0",
 ]
 
@@ -2517,16 +2516,15 @@ dependencies = [
 
 [[package]]
 name = "tokio-util"
-version = "0.7.10"
+version = "0.7.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5419f34732d9eb6ee4c3578b7989078579b7f039cbbb9ca2c4da015749371e15"
+checksum = "9cf6b47b3771c49ac75ad09a6162f53ad4b8088b76ac60e8ec1455b31a189fe1"
 dependencies = [
  "bytes",
  "futures-core",
  "futures-sink",
  "pin-project-lite",
  "tokio",
- "tracing",
 ]
 
 [[package]]
@@ -3003,8 +3001,8 @@ dependencies = [
 
 [[package]]
 name = "xelis_common"
-version = "1.9.5"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#723569b82784ff92e77a8a02baa4e55c98106de8"
+version = "1.10.0"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#45795c2d5600c2b11e363ea3862829c612a58442"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -3042,8 +3040,8 @@ dependencies = [
 
 [[package]]
 name = "xelis_wallet"
-version = "1.9.5"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#723569b82784ff92e77a8a02baa4e55c98106de8"
+version = "1.10.0"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#45795c2d5600c2b11e363ea3862829c612a58442"
 dependencies = [
  "actix",
  "actix-web",
@@ -3072,18 +3070,18 @@ dependencies = [
 
 [[package]]
 name = "zerocopy"
-version = "0.7.32"
+version = "0.7.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "74d4d3961e53fa4c9a25a8637fc2bfaf2595b3d3ae34875568a5cf64787716be"
+checksum = "087eca3c1eaf8c47b94d02790dd086cd594b912d2043d4de4bfdd466b3befb7c"
 dependencies = [
  "zerocopy-derive",
 ]
 
 [[package]]
 name = "zerocopy-derive"
-version = "0.7.32"
+version = "0.7.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ce1b18ccd8e73a9321186f97e46f9f04b778851177567b1975109d26a08d2a6"
+checksum = "6f4b6c273f496d8fd4eaf18853e6b448760225dc030ff2c485a786859aea6393"
 dependencies = [
  "proc-macro2",
  "quote",

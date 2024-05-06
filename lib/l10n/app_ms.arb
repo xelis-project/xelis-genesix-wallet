@@ -133,5 +133,11 @@
   "theme": "Tema",
   "yes": "ya",
   "no": "Tidak",
-  "are_you_sure": "Adakah anda pasti?"
+  "are_you_sure": "Adakah anda pasti?",
+  "block_reward": "Ganjaran Sekat",
+  "modify": "ubah suai",
+  "remove": "keluarkan",
+  "clear_cache": "Kosongkan cache",
+  "cache_cleared": "Cache dikosongkan!",
+  "edit_node": "Edit nod"
 }

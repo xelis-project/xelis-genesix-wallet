@@ -133,5 +133,11 @@
   "theme": "테마",
   "yes": "예",
   "no": "아니요",
-  "are_you_sure": "확실하신가요?"
+  "are_you_sure": "확실하신가요?",
+  "block_reward": "블록 보상",
+  "modify": "수정",
+  "remove": "제거",
+  "clear_cache": "캐시 지우기",
+  "cache_cleared": "캐시가 지워졌습니다!",
+  "edit_node": "노드 편집"
 }

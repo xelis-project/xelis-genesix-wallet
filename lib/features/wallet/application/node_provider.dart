@@ -19,6 +19,8 @@ Future<DaemonInfoSnapshot?> getInfo(GetInfoRef ref) async {
       pruned: info.prunedTopoHeight != null ? true : false,
       circulatingSupply: await repository.formatCoin(info.circulatingSupply),
       averageBlockTime: Duration(milliseconds: info.averageBlockTime),
+      mempoolSize: info.mempoolSize,
+      blockReward: info.blockReward,
       version: info.version,
       network: info.network,
     );
