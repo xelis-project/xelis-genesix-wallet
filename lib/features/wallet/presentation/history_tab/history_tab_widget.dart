@@ -6,6 +6,7 @@ import 'package:genesix/features/wallet/presentation/history_tab/components/inco
 import 'package:genesix/features/wallet/presentation/history_tab/components/outgoing_history_widget.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/extensions.dart';
 
 class HistoryTab extends ConsumerWidget {
   const HistoryTab({super.key});
@@ -14,7 +15,9 @@ class HistoryTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
     return Padding(
-      padding: const EdgeInsets.all(Spaces.large),
+      padding: isDesktopDevice
+          ? const EdgeInsets.all(Spaces.large)
+          : const EdgeInsets.only(top: Spaces.large),
       child: DefaultTabController(
         length: 4,
         child: Column(
