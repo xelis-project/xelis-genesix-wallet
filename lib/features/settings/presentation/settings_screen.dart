@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/storage/shared_preferences/shared_preferences_provider.dart';
+import 'package:genesix/shared/theme/extensions.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/presentation/components/layout_widget.dart';
@@ -46,6 +50,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     });
   }
 
+  Future<void> _clearCache(BuildContext context) async {
+    final loc = ref.read(appLocalizationsProvider);
+    try {
+      context.loaderOverlay.show();
+
+      await ref.read(sharedPreferencesProvider).clear();
+
+      ref.read(snackBarMessengerProvider.notifier).showInfo(loc.cache_cleared);
+    } catch (e) {
+      ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
+    }
+
+    if (context.mounted) {
+      context.loaderOverlay.hide();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
@@ -67,7 +88,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             VerticalContainer(
                 title: loc.wallets_directory, value: _walletsPath),
             const Divider(),
-            VerticalContainer(title: loc.cache_directory, value: _cachePath)
+            VerticalContainer(title: loc.cache_directory, value: _cachePath),
+            const SizedBox(height: Spaces.medium),
+            OutlinedButton(
+                onPressed: () => _clearCache(context),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.all(Spaces.large),
+                  side: BorderSide(
+                    color: context.colors.error,
+                    width: 2,
+                  ),
+                ),
+                child: Text(
+                  loc.clear_cache,
+                  style:
+                      context.titleLarge!.copyWith(color: context.colors.error),
+                )),
           ],
         ),
       ),
