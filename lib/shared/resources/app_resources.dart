@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
-// import 'package:jovial_svg/jovial_svg.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
+// import 'package:jovial_svg/jovial_svg.dart';
 
 class AppResources {
   static const String xelisWalletName = 'Genesix';
@@ -12,8 +12,16 @@ class AppResources {
 
   static List<NodeAddress> mainnetNodes = [
     const NodeAddress(
-      name: 'Official XELIS Mainnet',
+      name: 'Official Seed Node #1',
       url: 'https://$mainnetNodeURL',
+    ),
+    const NodeAddress(
+      name: 'Official Seed Node #FR',
+      url: 'https://fr-node.xelis.io/',
+    ),
+    const NodeAddress(
+      name: 'Official Seed Node #US',
+      url: 'https://us-node.xelis.io/',
     ),
   ];
 
@@ -70,18 +78,18 @@ class AppResources {
   // static late ScalableImage svgBannerBlack;
   static late Image bgDots;
 
-  // static ScalableImageWidget svgBannerGreenWidget = ScalableImageWidget(
-  //   si: AppResources.svgBannerGreen,
-  //   scale: 0.15,
-  // );
-  //
-  // static ScalableImageWidget svgBannerBlackWidget = ScalableImageWidget(
-  //   si: AppResources.svgBannerBlack,
-  //   scale: 0.15,
-  // );
-  //
-  // static ScalableImageWidget svgBannerWhiteWidget = ScalableImageWidget(
-  //   si: AppResources.svgBannerWhite,
-  //   scale: 0.15,
-  // );
+// static ScalableImageWidget svgBannerGreenWidget = ScalableImageWidget(
+//   si: AppResources.svgBannerGreen,
+//   scale: 0.15,
+// );
+//
+// static ScalableImageWidget svgBannerBlackWidget = ScalableImageWidget(
+//   si: AppResources.svgBannerBlack,
+//   scale: 0.15,
+// );
+//
+// static ScalableImageWidget svgBannerWhiteWidget = ScalableImageWidget(
+//   si: AppResources.svgBannerWhite,
+//   scale: 0.15,
+// );
 }
