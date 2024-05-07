@@ -29,7 +29,7 @@ Follow the steps below to install and run Genesix on your desired platform.
 ### Clone the Repository
 
 ```
-git clone https://github.com/xelis-project/xelis-mobile-wallet.git
+git clone https://github.com/xelis-project/xelis-genesix-wallet.git
 ```
 
 ### Build and Run
@@ -37,7 +37,7 @@ git clone https://github.com/xelis-project/xelis-mobile-wallet.git
 1. Navigate to the cloned repository:
 
 ```
-cd xelis-mobile-wallet
+cd xelis-genesix-wallet
 ```
 
 2. Install the required dependencies and generate glue code :
