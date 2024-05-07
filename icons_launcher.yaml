@@ -1,0 +1,13 @@
+icons_launcher:
+  image_path: 'assets/icons/png/circle/black_background_green_logo.png'
+  platforms:
+    android:
+      enable: true
+    ios:
+      enable: true
+    macos:
+      enable: true
+    windows:
+      enable: true
+    linux:
+      enable: true
