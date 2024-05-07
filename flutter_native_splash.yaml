@@ -1,14 +1,7 @@
 flutter_native_splash:
-  color: "#ffffff"
-  image: "assets/icons/png/transparent/green.png"
-
-  color_dark: "#000000"
-  image_dark: assets/icons/png/transparent/white.png
+  image: assets/splash_screen/without_background_black.png
+  color: "#02FFCF"
 
   android_12:
-    image: assets/icons/png/transparent/green.png
-    color: "#ffffff"
-
-    image_dark: assets/icons/png/transparent/white.png
-    color_dark: "#000000"
-
+    image: assets/splash_screen/without_background_black.png
+    color: "#02FFCF"
