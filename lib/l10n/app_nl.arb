@@ -139,5 +139,7 @@
   "remove": "verwijderen",
   "clear_cache": "Cache wissen",
   "cache_cleared": "Cache gewist!",
-  "edit_node": "Knooppunt bewerken"
+  "edit_node": "Knooppunt bewerken",
+  "explorer": "Verkenner",
+  "launch_url_error": "Kan niet starten"
 }

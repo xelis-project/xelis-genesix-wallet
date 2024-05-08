@@ -139,5 +139,7 @@
   "remove": "Kaldır",
   "clear_cache": "Önbelleği temizle",
   "cache_cleared": "Önbellek temizlendi!",
-  "edit_node": "Düğümü düzenle"
+  "edit_node": "Düğümü düzenle",
+  "explorer": "Kaşif",
+  "launch_url_error": "Başlatılamadı"
 }

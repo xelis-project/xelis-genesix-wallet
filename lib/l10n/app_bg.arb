@@ -139,5 +139,7 @@
   "remove": "премахване на",
   "clear_cache": "Изчистване на кеша",
   "cache_cleared": "Кешът е изчистен!",
-  "edit_node": "Редактиране на възел"
+  "edit_node": "Редактиране на възел",
+  "explorer": "Explorer",
+  "launch_url_error": "Не може да се стартира"
 }

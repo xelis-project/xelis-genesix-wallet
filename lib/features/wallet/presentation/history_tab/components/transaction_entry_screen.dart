@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/rust_bridge/api/wallet.dart';
+import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:random_avatar/random_avatar.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -13,7 +17,7 @@ import 'package:genesix/shared/widgets/components/background_widget.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
 
 class TransactionEntryScreenExtra {
-  final TransactionEntry transactionEntry;
+  final sdk.TransactionEntry transactionEntry;
 
   TransactionEntryScreenExtra(this.transactionEntry);
 }
@@ -33,42 +37,64 @@ class _TransactionEntryScreenState
   late String entryTypeName;
   late Icon icon;
 
-  CoinbaseEntry? coinbase;
-  OutgoingEntry? outgoing;
-  BurnEntry? burn;
-  IncomingEntry? incoming;
+  sdk.CoinbaseEntry? coinbase;
+  sdk.OutgoingEntry? outgoing;
+  sdk.BurnEntry? burn;
+  sdk.IncomingEntry? incoming;
+
+  Future<void> _launchUrl(Uri url) async {
+    if (!await launchUrl(url)) {
+      final loc = ref.read(appLocalizationsProvider);
+      ref
+          .read(snackBarMessengerProvider.notifier)
+          .showError('${loc.launch_url_error} $url');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
+    final network =
+        ref.watch(settingsProvider.select((state) => state.network));
     final hideZeroTransfer =
         ref.watch(settingsProvider.select((value) => value.hideZeroTransfer));
     final hideExtraData =
         ref.watch(settingsProvider.select((value) => value.hideExtraData));
+
     final extra = widget.routerState.extra as TransactionEntryScreenExtra;
     final transactionEntry = extra.transactionEntry;
     final entryType = transactionEntry.txEntryType;
 
-    var displayTopoheight = NumberFormat().format(transactionEntry.topoHeight);
-
     switch (entryType) {
-      case CoinbaseEntry():
+      case sdk.CoinbaseEntry():
         entryTypeName = loc.coinbase;
         coinbase = entryType;
         icon = const Icon(Icons.square_rounded);
-      case BurnEntry():
+      case sdk.BurnEntry():
         entryTypeName = loc.burn;
         burn = entryType;
         icon = const Icon(Icons.fireplace_rounded);
-      case IncomingEntry():
+      case sdk.IncomingEntry():
         entryTypeName = loc.incoming;
         incoming = entryType;
         icon = const Icon(Icons.arrow_downward);
-      case OutgoingEntry():
+      case sdk.OutgoingEntry():
         entryTypeName = loc.outgoing;
         outgoing = entryType;
         icon = const Icon(Icons.arrow_upward);
     }
+
+    Uri url;
+    switch (network) {
+      case Network.mainnet || Network.dev:
+        url = Uri.parse(
+            '${AppResources.explorerMainnetUrl}txs/${transactionEntry.hash}');
+      case Network.testnet:
+        url = Uri.parse(
+            '${AppResources.explorerTestnetUrl}txs/${transactionEntry.hash}');
+    }
+
+    var displayTopoheight = NumberFormat().format(transactionEntry.topoHeight);
 
     return Background(
       child: Scaffold(
@@ -100,7 +126,17 @@ class _TransactionEntryScreenState
                   .copyWith(color: context.moreColors.mutedColor),
             ),
             const SizedBox(height: Spaces.medium),
-            Text(loc.hash, style: context.headlineSmall),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(loc.hash, style: context.headlineSmall),
+                IconButton(
+                  onPressed: () => _launchUrl(url),
+                  icon: const Icon(Icons.link),
+                  tooltip: loc.explorer,
+                ),
+              ],
+            ),
             const SizedBox(height: Spaces.small),
             SelectableText(
               transactionEntry.hash,
@@ -109,7 +145,7 @@ class _TransactionEntryScreenState
             ),
 
             // COINBASE
-            if (entryType is CoinbaseEntry)
+            if (entryType is sdk.CoinbaseEntry)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -126,7 +162,7 @@ class _TransactionEntryScreenState
               ),
 
             // BURN
-            if (entryType is BurnEntry)
+            if (entryType is sdk.BurnEntry)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -142,7 +178,7 @@ class _TransactionEntryScreenState
               ),
 
             // OUTGOING
-            if (entryType is OutgoingEntry) ...[
+            if (entryType is sdk.OutgoingEntry) ...[
               const SizedBox(height: Spaces.medium),
               Text(loc.fee, style: context.headlineSmall),
               const SizedBox(height: Spaces.small),
@@ -207,7 +243,7 @@ class _TransactionEntryScreenState
                                           Text(loc.asset,
                                               style: context.labelLarge),
                                           SelectableText(
-                                              transfer.asset == xelisAsset
+                                              transfer.asset == sdk.xelisAsset
                                                   ? 'XELIS'
                                                   : transfer.asset),
                                         ],
@@ -223,7 +259,7 @@ class _TransactionEntryScreenState
                                             : '${loc.amount.capitalize} (${loc.atomic_units})',*/
                                               style: context.labelLarge),
                                           SelectableText(transfer.asset ==
-                                                  xelisAsset
+                                                  sdk.xelisAsset
                                               ? '-${formatXelis(transfer.amount)} XEL'
                                               : '${transfer.amount}'),
                                         ],
@@ -251,7 +287,7 @@ class _TransactionEntryScreenState
             ],
 
             // INCOMING
-            if (entryType is IncomingEntry)
+            if (entryType is sdk.IncomingEntry)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -308,7 +344,7 @@ class _TransactionEntryScreenState
                                       Text(loc.asset,
                                           style: context.labelLarge),
                                       SelectableText(
-                                          transfer.asset == xelisAsset
+                                          transfer.asset == sdk.xelisAsset
                                               ? 'XELIS'
                                               : transfer.asset),
                                     ],
@@ -324,7 +360,7 @@ class _TransactionEntryScreenState
                                           : '${loc.amount.capitalize} (${loc.atomic_units})',*/
                                           style: context.labelLarge),
                                       SelectableText(transfer.asset ==
-                                              xelisAsset
+                                              sdk.xelisAsset
                                           ? '+${formatXelis(transfer.amount)} XEL'
                                           : '${transfer.amount}'),
                                     ],

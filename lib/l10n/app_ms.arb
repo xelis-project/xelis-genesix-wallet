@@ -139,5 +139,7 @@
   "remove": "keluarkan",
   "clear_cache": "Kosongkan cache",
   "cache_cleared": "Cache dikosongkan!",
-  "edit_node": "Edit nod"
+  "edit_node": "Edit nod",
+  "explorer": "Penjelajah",
+  "launch_url_error": "Tidak dapat dilancarkan"
 }

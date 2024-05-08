@@ -4,9 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 
 class GenericAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const GenericAppBar({super.key, required this.title});
+  const GenericAppBar({super.key, required this.title, this.actions});
 
   final String title;
+
+  final List<Widget>? actions;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +33,7 @@ class GenericAppBar extends StatelessWidget implements PreferredSizeWidget {
           style: context.headlineMedium!.copyWith(fontWeight: FontWeight.bold),
         ),
       ),
+      actions: actions,
     );
   }
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+// import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/presentation/node_tab/components/node_info_widget.dart';
 import 'package:genesix/features/wallet/presentation/node_tab/components/node_selector_widget.dart';
 // import 'package:genesix/shared/theme/extensions.dart';
@@ -11,7 +11,7 @@ class NodeTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final loc = ref.watch(appLocalizationsProvider);
+    // final loc = ref.watch(appLocalizationsProvider);
     return ListView(
       padding: const EdgeInsets.all(Spaces.large),
       children: const [

@@ -139,5 +139,7 @@
   "remove": "entfernen",
   "clear_cache": "Cache löschen",
   "cache_cleared": "Cache geleert!",
-  "edit_node": "Knoten bearbeiten"
+  "edit_node": "Knoten bearbeiten",
+  "explorer": "Entdecker",
+  "launch_url_error": "Konnte nicht starten"
 }

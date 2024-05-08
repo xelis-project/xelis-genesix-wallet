@@ -139,5 +139,7 @@
   "remove": "удалить",
   "clear_cache": "Очистить кэш",
   "cache_cleared": "Кэш очищен!",
-  "edit_node": "Редактировать узел"
+  "edit_node": "Редактировать узел",
+  "explorer": "Explorer",
+  "launch_url_error": "Не удалось запустить"
 }

@@ -139,5 +139,7 @@
   "remove": "usunąć",
   "clear_cache": "Wyczyść pamięć podręczną",
   "cache_cleared": "Pamięć podręczna wyczyszczona!",
-  "edit_node": "Węzeł edycji"
+  "edit_node": "Węzeł edycji",
+  "explorer": "Odkrywca",
+  "launch_url_error": "Nie można uruchomić"
 }

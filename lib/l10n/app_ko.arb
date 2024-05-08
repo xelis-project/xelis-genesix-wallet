@@ -139,5 +139,7 @@
   "remove": "제거",
   "clear_cache": "캐시 지우기",
   "cache_cleared": "캐시가 지워졌습니다!",
-  "edit_node": "노드 편집"
+  "edit_node": "노드 편집",
+  "explorer": "탐색기",
+  "launch_url_error": "시작할 수 없습니다."
 }

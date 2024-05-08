@@ -39,6 +39,9 @@ class AppResources {
     ),
   ];
 
+  static String explorerMainnetUrl = 'https://explorer.xelis.io/';
+  static String explorerTestnetUrl = 'https://testnet-explorer.xelis.io/';
+
   /*static String svgIconGreenTarget =
       'https://raw.githubusercontent.com/xelis-project/xelis-assets/master/icons/svg/transparent/green.svg';
   static String svgIconBlackTarget =

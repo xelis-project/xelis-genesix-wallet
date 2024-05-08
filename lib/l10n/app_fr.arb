@@ -139,5 +139,7 @@
   "remove": "supprimer",
   "clear_cache": "Vider le cache",
   "cache_cleared": "Cache vidé !",
-  "edit_node": "Modifier le nœud"
+  "edit_node": "Modifier le nœud",
+  "explorer": "Explorateur",
+  "launch_url_error": "Impossible de lancer"
 }

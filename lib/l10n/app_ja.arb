@@ -139,5 +139,7 @@
   "remove": "取り除く",
   "clear_cache": "キャッシュのクリア",
   "cache_cleared": "キャッシュがクリアされた！",
-  "edit_node": "編集ノード"
+  "edit_node": "編集ノード",
+  "explorer": "エクスプローラー",
+  "launch_url_error": "起動できませんでした"
 }

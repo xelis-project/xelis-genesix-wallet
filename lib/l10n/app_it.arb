@@ -139,5 +139,7 @@
   "remove": "rimuovere",
   "clear_cache": "Cancella la cache",
   "cache_cleared": "Cache cancellata!",
-  "edit_node": "Modifica nodo"
+  "edit_node": "Modifica nodo",
+  "explorer": "Esploratore",
+  "launch_url_error": "Impossibile avviare"
 }

@@ -139,5 +139,7 @@
   "remove": "去除",
   "clear_cache": "清除缓存",
   "cache_cleared": "缓存已清除！",
-  "edit_node": "编辑节点"
+  "edit_node": "编辑节点",
+  "explorer": "探险家",
+  "launch_url_error": "无法启动"
 }

@@ -139,5 +139,7 @@
   "remove": "remover",
   "clear_cache": "Limpar a cache",
   "cache_cleared": "Cache limpa!",
-  "edit_node": "Editar nó"
+  "edit_node": "Editar nó",
+  "explorer": "Explorador",
+  "launch_url_error": "Não foi possível lançar"
 }
