@@ -141,5 +141,6 @@
   "cache_cleared": "Cache cleared!",
   "edit_node": "Edit node",
   "explorer": "Explorer",
-  "launch_url_error": "Could not launch"
+  "launch_url_error": "Could not launch",
+  "network_mismatch": "Network mismatch between node and wallet"
 }

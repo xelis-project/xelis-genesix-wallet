@@ -141,5 +141,6 @@
   "cache_cleared": "キャッシュがクリアされた！",
   "edit_node": "編集ノード",
   "explorer": "エクスプローラー",
-  "launch_url_error": "起動できませんでした"
+  "launch_url_error": "起動できませんでした",
+  "network_mismatch": "ノードとウォレット間のネットワークの不一致"
 }

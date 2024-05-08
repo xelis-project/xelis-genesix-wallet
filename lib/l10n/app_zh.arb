@@ -141,5 +141,6 @@
   "cache_cleared": "缓存已清除！",
   "edit_node": "编辑节点",
   "explorer": "探险家",
-  "launch_url_error": "无法启动"
+  "launch_url_error": "无法启动",
+  "network_mismatch": "节点和钱包之间的网络不匹配"
 }

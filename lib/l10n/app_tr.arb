@@ -141,5 +141,6 @@
   "cache_cleared": "Önbellek temizlendi!",
   "edit_node": "Düğümü düzenle",
   "explorer": "Kaşif",
-  "launch_url_error": "Başlatılamadı"
+  "launch_url_error": "Başlatılamadı",
+  "network_mismatch": "Düğüm ve cüzdan arasında ağ uyuşmazlığı"
 }

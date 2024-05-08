@@ -141,5 +141,6 @@
   "cache_cleared": "Cache cancellata!",
   "edit_node": "Modifica nodo",
   "explorer": "Esploratore",
-  "launch_url_error": "Impossibile avviare"
+  "launch_url_error": "Impossibile avviare",
+  "network_mismatch": "Disadattamento della rete tra nodo e portafoglio"
 }

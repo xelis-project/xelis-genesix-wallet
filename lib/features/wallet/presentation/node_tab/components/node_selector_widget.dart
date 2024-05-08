@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/wallet/application/network_mismatch_provider.dart';
 import 'package:genesix/features/wallet/application/network_nodes_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
@@ -54,6 +55,7 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
         ref.watch(settingsProvider.select((state) => state.network));
     final isOnline =
         ref.watch(walletStateProvider.select((value) => value.isOnline));
+    bool mismatch = ref.watch(networkMismatchProvider);
 
     var nodeAddress = networkNodes.getNodeAddress(network);
     var nodes = networkNodes.getNodes(network);
@@ -66,9 +68,17 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
         ),
         child: ExpansionTile(
           leading: Tooltip(
-            message: isOnline ? loc.connected : loc.disconnected,
+            message: isOnline
+                ? loc.connected
+                : mismatch
+                    ? loc.network_mismatch
+                    : loc.disconnected,
             child: Icon(
-              isOnline ? Icons.sensors : Icons.sensors_off,
+              isOnline
+                  ? Icons.sensors
+                  : mismatch
+                      ? Icons.warning_amber
+                      : Icons.sensors_off,
               color: isOnline ? context.colors.primary : context.colors.error,
             ),
           ),

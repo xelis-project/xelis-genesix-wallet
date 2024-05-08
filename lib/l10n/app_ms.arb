@@ -141,5 +141,6 @@
   "cache_cleared": "Cache dikosongkan!",
   "edit_node": "Edit nod",
   "explorer": "Penjelajah",
-  "launch_url_error": "Tidak dapat dilancarkan"
+  "launch_url_error": "Tidak dapat dilancarkan",
+  "network_mismatch": "Rangkaian tidak sepadan antara nod dan dompet"
 }

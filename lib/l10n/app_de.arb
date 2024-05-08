@@ -141,5 +141,6 @@
   "cache_cleared": "Cache geleert!",
   "edit_node": "Knoten bearbeiten",
   "explorer": "Entdecker",
-  "launch_url_error": "Konnte nicht starten"
+  "launch_url_error": "Konnte nicht starten",
+  "network_mismatch": "Netzwerk-Fehlanpassung zwischen Knoten und Wallet"
 }

@@ -141,5 +141,6 @@
   "cache_cleared": "Cache vidé !",
   "edit_node": "Modifier le nœud",
   "explorer": "Explorateur",
-  "launch_url_error": "Impossible de lancer"
+  "launch_url_error": "Impossible de lancer",
+  "network_mismatch": "Incompatibilité de réseau entre le nœud et le portefeuille"
 }

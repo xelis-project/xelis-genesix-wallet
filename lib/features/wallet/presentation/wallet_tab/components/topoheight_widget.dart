@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/wallet/application/network_mismatch_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
@@ -12,11 +13,13 @@ class TopoHeightWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
+    bool mismatch = ref.watch(networkMismatchProvider);
     final topoheight =
         ref.watch(walletStateProvider.select((state) => state.topoheight));
 
-    ValueNotifier<bool> isRescanningNotifier = ValueNotifier(false);
     var displayTopo = NumberFormat().format(topoheight);
+
+    ValueNotifier<bool> isRescanningNotifier = ValueNotifier(false);
 
     return Card(
       elevation: 1,
@@ -24,8 +27,19 @@ class TopoHeightWidget extends ConsumerWidget {
         padding: const EdgeInsets.all(Spaces.medium),
         child: GridTile(
             child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            if (mismatch) ...[
+              Tooltip(
+                message: loc.network_mismatch,
+                child: Icon(
+                  Icons.warning_amber,
+                  color: context.colors.error,
+                ),
+              ),
+              const SizedBox(
+                width: Spaces.medium,
+              )
+            ],
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -44,6 +58,7 @@ class TopoHeightWidget extends ConsumerWidget {
                 ),
               ],
             ),
+            const Spacer(),
             Column(
               children: [
                 ValueListenableBuilder(

@@ -141,5 +141,6 @@
   "cache_cleared": "Cache gewist!",
   "edit_node": "Knooppunt bewerken",
   "explorer": "Verkenner",
-  "launch_url_error": "Kan niet starten"
+  "launch_url_error": "Kan niet starten",
+  "network_mismatch": "Netwerkfout tussen knooppunt en portemonnee"
 }

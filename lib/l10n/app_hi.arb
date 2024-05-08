@@ -141,5 +141,6 @@
   "cache_cleared": "कैश साफ़ हो गया!",
   "edit_node": "नोड संपादित करें",
   "explorer": "एक्सप्लोरर",
-  "launch_url_error": "लॉन्च नहीं किया जा सका"
+  "launch_url_error": "लॉन्च नहीं किया जा सका",
+  "network_mismatch": "नोड और वॉलेट के बीच नेटवर्क बेमेल"
 }

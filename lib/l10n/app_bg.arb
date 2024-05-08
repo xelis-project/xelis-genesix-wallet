@@ -141,5 +141,6 @@
   "cache_cleared": "Кешът е изчистен!",
   "edit_node": "Редактиране на възел",
   "explorer": "Explorer",
-  "launch_url_error": "Не може да се стартира"
+  "launch_url_error": "Не може да се стартира",
+  "network_mismatch": "Несъответствие в мрежата между възела и портфейла"
 }

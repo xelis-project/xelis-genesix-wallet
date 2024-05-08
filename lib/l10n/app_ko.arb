@@ -141,5 +141,6 @@
   "cache_cleared": "캐시가 지워졌습니다!",
   "edit_node": "노드 편집",
   "explorer": "탐색기",
-  "launch_url_error": "시작할 수 없습니다."
+  "launch_url_error": "시작할 수 없습니다.",
+  "network_mismatch": "노드와 지갑 간의 네트워크 불일치"
 }

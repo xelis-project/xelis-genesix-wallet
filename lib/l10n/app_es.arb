@@ -141,5 +141,6 @@
   "cache_cleared": "¡Caché vaciado!",
   "edit_node": "Editar nodo",
   "explorer": "Explorador",
-  "launch_url_error": "No se ha podido iniciar"
+  "launch_url_error": "No se ha podido iniciar",
+  "network_mismatch": "Desajuste de red entre el nodo y el monedero"
 }

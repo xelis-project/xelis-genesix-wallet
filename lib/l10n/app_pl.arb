@@ -141,5 +141,6 @@
   "cache_cleared": "Pamięć podręczna wyczyszczona!",
   "edit_node": "Węzeł edycji",
   "explorer": "Odkrywca",
-  "launch_url_error": "Nie można uruchomić"
+  "launch_url_error": "Nie można uruchomić",
+  "network_mismatch": "Niedopasowanie sieci między węzłem a portfelem"
 }

@@ -141,5 +141,6 @@
   "cache_cleared": "Cache limpa!",
   "edit_node": "Editar nó",
   "explorer": "Explorador",
-  "launch_url_error": "Não foi possível lançar"
+  "launch_url_error": "Não foi possível lançar",
+  "network_mismatch": "Incompatibilidade de rede entre o nó e a carteira"
 }
