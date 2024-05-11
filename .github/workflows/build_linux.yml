@@ -1,0 +1,48 @@
+name: Build Linux
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: linux-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install system libraries
+        uses: apt-get install libgtk-3-0 libblkid1 liblzma5
+
+      - name: Install Rust and Cargo
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.4'
+
+      - name: Install Flutter Rust bridge
+        run: |
+          cargo install 'flutter_rust_bridge_codegen@^2.0.0-dev'
+          cd rust && cargo update
+      
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate bridge code
+        run: flutter_rust_bridge_codegen generate
+
+      - name: Generate Dart code
+        run:  dart run build_runner build
+      
+      - name: Build Linux app
+        run: flutter build linux --release
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+            name: linux-build
+            path: build/linux/x64/release/bundle
