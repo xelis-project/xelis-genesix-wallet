@@ -1,11 +1,12 @@
 default: gen lint
 
-gen: gen_flutter
+gen: rust flutter gen_rust_bridge
+
+gen_rust_bridge:
     flutter_rust_bridge_codegen generate
 
-gen_flutter:
+flutter:
     flutter pub get
-    dart run build_runner build
 
 lint:
     cd rust && cargo fmt
@@ -14,7 +15,10 @@ lint:
 clean:
     flutter clean
     cd rust && cargo clean
-    
+
+rust:
+    cd rust && cargo update
+
 prep:
     cargo install 'flutter_rust_bridge_codegen@^2.0.0-dev'
     cd rust && cargo update
