@@ -171,8 +171,13 @@ impl XelisWallet {
 
         info!("Building transaction...");
 
+        let amounts = self
+            .compute_total_amounts(transfers.clone())
+            .await
+            .context("Error while computed total amounts")?;
+
         let transaction_type_builder = self
-            .create_transfers(transfers.clone())
+            .create_transfers(transfers)
             .await
             .context("Error while creating transaction type builder")?;
         let mut storage = self.wallet.get_storage().write().await;
@@ -194,8 +199,6 @@ impl XelisWallet {
         PENDING_TRANSACTIONS
             .write()
             .insert(hash.clone(), (tx, state));
-
-        let amounts = self.compute_total_amounts(transfers).await?;
 
         Ok(json!(SummaryTransaction {
             hash: hash.to_hex(),
@@ -492,19 +495,17 @@ impl XelisWallet {
         let mut amounts: HashMap<String, u64> = HashMap::new();
 
         for transfer in transfers {
-            let asset_hash = match transfer.clone().asset_hash {
+            let asset_hash = match transfer.asset_hash.clone() {
                 None => XELIS_ASSET,
                 Some(value) => Hash::from_hex(value).unwrap_or(XELIS_ASSET),
             };
 
             let amount = self
-                .convert_float_amount(transfer.float_amount.clone(), asset_hash)
+                .convert_float_amount(transfer.float_amount, asset_hash)
                 .await
                 .context("Error while converting amount to atomic format")?;
 
             let asset_hex = transfer.asset_hash.unwrap_or_else(|| XELIS_ASSET.to_hex());
-
-            info!("calculate_total_assets : {}", asset_hex.clone());
 
             match amounts.get(&asset_hex) {
                 None => {
