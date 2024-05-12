@@ -1,5 +1,7 @@
 default: gen lint
 
+init: prep flutter gen_rust_bridge
+
 gen: rust flutter gen_rust_bridge
 
 gen_rust_bridge:

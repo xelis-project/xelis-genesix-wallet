@@ -43,7 +43,7 @@ cd xelis-genesix-wallet
 2. Install the required dependencies and generate glue code :
 
 ```
-just gen
+just init
 ```
 
 3. Connect your device or emulator and run the application:
