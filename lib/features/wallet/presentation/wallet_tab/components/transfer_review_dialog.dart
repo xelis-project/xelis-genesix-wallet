@@ -11,6 +11,7 @@ import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:random_avatar/random_avatar.dart';
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class TransferReviewDialog extends ConsumerStatefulWidget {
   const TransferReviewDialog(this.tx, {super.key});
@@ -55,7 +56,10 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
     final loc = ref.watch(appLocalizationsProvider);
     final destination =
         widget.tx.transactionSummaryType.transferOutEntry!.first.destination;
-    var total = widget.tx.amount + widget.tx.fee;
+
+    // TODO various assets
+    final amount = widget.tx.amounts[xelisAsset] ?? 0;
+    final total = amount + widget.tx.fee;
 
     return AlertDialog(
       scrollable: true,
@@ -75,7 +79,7 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
                 Text(loc.amount,
                     style: context.bodyLarge!
                         .copyWith(color: context.moreColors.mutedColor)),
-                SelectableText(formatXelis(widget.tx.amount.truncate())),
+                SelectableText(formatXelis(amount.truncate())),
               ],
             ),
             const SizedBox(height: 3),

@@ -1,9 +1,10 @@
 import 'dart:async';
 
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
+import 'package:genesix/rust_bridge/api/wallet.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/features/authentication/application/authentication_service.dart';
 import 'package:genesix/features/authentication/domain/authentication_state.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -117,8 +118,8 @@ class WalletState extends _$WalletState {
   Future<TransactionSummary?> createXelisTransaction(
       {required double amount, required String destination}) async {
     if (state.nativeWalletRepository != null) {
-      return state.nativeWalletRepository!
-          .createSimpleTransaction(amount: amount, address: destination);
+      return state.nativeWalletRepository!.createSimpleTransferTransaction(
+          amount: amount, address: destination);
     }
     return null;
   }
@@ -127,7 +128,7 @@ class WalletState extends _$WalletState {
       {required String destination}) async {
     if (state.nativeWalletRepository != null) {
       return state.nativeWalletRepository!
-          .createSimpleTransaction(address: destination);
+          .createSimpleTransferTransaction(address: destination);
     }
     return null;
   }
@@ -136,7 +137,7 @@ class WalletState extends _$WalletState {
       {required double amount}) async {
     if (state.nativeWalletRepository != null) {
       return state.nativeWalletRepository!
-          .createBurnTransaction(amount: amount, assetHash: xelisAsset);
+          .createBurnTransaction(amount: amount, assetHash: sdk.xelisAsset);
     }
     return null;
   }
@@ -153,11 +154,12 @@ class WalletState extends _$WalletState {
     }
   }
 
+  // TODO rework
   Future<int> estimateFees(
       {required double amount, required String destination}) async {
     if (state.nativeWalletRepository != null) {
-      return state.nativeWalletRepository!
-          .estimateFees(amount: amount, address: destination);
+      return state.nativeWalletRepository!.estimateFees(
+          [Transfer(floatAmount: amount, strAddress: destination)]);
     }
     return 0;
   }
@@ -199,7 +201,7 @@ class WalletState extends _$WalletState {
               event.balanceChanged.balance;
         }
 
-        if (event.balanceChanged.assetHash == xelisAsset) {
+        if (event.balanceChanged.assetHash == sdk.xelisAsset) {
           final xelisBalance =
               await state.nativeWalletRepository!.getXelisBalance();
           state = state.copyWith(

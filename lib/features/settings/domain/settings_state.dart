@@ -3,7 +3,7 @@
 import 'dart:ui';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:genesix/rust_bridge/api/wallet.dart';
+import 'package:genesix/rust_bridge/api/network.dart';
 import 'package:genesix/features/settings/domain/locale_json_converter.dart';
 
 part 'settings_state.freezed.dart';

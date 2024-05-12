@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:genesix/rust_bridge/api/api.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:genesix/rust_bridge/api/progress_report.dart';
 

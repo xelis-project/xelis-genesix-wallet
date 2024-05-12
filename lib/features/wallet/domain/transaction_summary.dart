@@ -11,7 +11,7 @@ part 'transaction_summary.g.dart';
 class TransactionSummary with _$TransactionSummary {
   const factory TransactionSummary({
     @JsonKey(name: "hash") required String hash,
-    @JsonKey(name: "amount") required int amount,
+    @JsonKey(name: "amounts") required Map<String, int> amounts,
     @JsonKey(name: "fee") required int fee,
     @JsonKey(name: "transaction_type")
     required TransactionSummaryType transactionSummaryType,

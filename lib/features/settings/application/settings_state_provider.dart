@@ -1,7 +1,7 @@
 import 'dart:ui';
 
+import 'package:genesix/rust_bridge/api/network.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:genesix/rust_bridge/api/wallet.dart';
 import 'package:genesix/features/settings/data/settings_state.repository.dart';
 import 'package:genesix/features/settings/domain/settings_state.dart';
 import 'package:genesix/shared/storage/shared_preferences/shared_preferences_provider.dart';

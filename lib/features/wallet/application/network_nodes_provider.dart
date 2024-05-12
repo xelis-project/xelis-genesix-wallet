@@ -1,5 +1,5 @@
+import 'package:genesix/rust_bridge/api/network.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:genesix/rust_bridge/api/wallet.dart';
 import 'package:genesix/features/wallet/data/network_nodes_state_repository.dart';
 import 'package:genesix/features/wallet/domain/network_nodes_state.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';

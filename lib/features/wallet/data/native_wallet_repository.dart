@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
+import 'package:genesix/rust_bridge/api/network.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/features/wallet/domain/event.dart';
 import 'package:genesix/shared/logger.dart';
@@ -99,24 +100,29 @@ class NativeWalletRepository {
     return _xelisWallet.rescan(topoheight: topoHeight);
   }
 
-  Future<int> estimateFees(
-      {required double amount,
-      required String address,
-      String? assetHash}) async {
-    return _xelisWallet.estimateFees(
-        floatAmount: amount, strAddress: address, assetHash: assetHash);
+  Future<int> estimateFees(List<Transfer> transfers) async {
+    return _xelisWallet.estimateFees(transfers: transfers);
   }
 
-  Future<TransactionSummary> createSimpleTransaction(
+  Future<TransactionSummary> createSimpleTransferTransaction(
       {double? amount, required String address, String? assetHash}) async {
     String rawTx;
     if (amount != null) {
-      rawTx = await _xelisWallet.createTransferTransaction(
-          floatAmount: amount, strAddress: address, assetHash: assetHash);
+      rawTx = await _xelisWallet.createTransfersTransaction(transfers: [
+        Transfer(floatAmount: amount, strAddress: address, assetHash: assetHash)
+      ]);
     } else {
       rawTx = await _xelisWallet.createTransferAllTransaction(
           strAddress: address, assetHash: assetHash);
     }
+    final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
+    return TransactionSummary.fromJson(jsonTx);
+  }
+
+  Future<TransactionSummary> createMultiTransferTransaction(
+      List<Transfer> transfers) async {
+    final rawTx =
+        await _xelisWallet.createTransfersTransaction(transfers: transfers);
     final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
     return TransactionSummary.fromJson(jsonTx);
   }

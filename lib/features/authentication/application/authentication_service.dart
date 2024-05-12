@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:genesix/rust_bridge/api/table_generation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
@@ -9,7 +10,6 @@ import 'package:genesix/features/authentication/domain/authentication_state.dart
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
-import 'package:genesix/rust_bridge/api/wallet.dart';
 import 'package:genesix/shared/utils/utils.dart';
 
 part 'authentication_service.g.dart';

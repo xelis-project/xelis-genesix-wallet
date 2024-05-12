@@ -1,4 +1,4 @@
-import 'package:genesix/rust_bridge/api/wallet.dart';
+import 'package:genesix/rust_bridge/api/network.dart';
 
 String translateNetworkName(Network network) {
   switch (network) {
