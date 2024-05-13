@@ -1063,9 +1063,9 @@ dependencies = [
 
 [[package]]
 name = "fiat-crypto"
-version = "0.2.8"
+version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38793c55593b33412e3ae40c2c9781ffaa6f438f6f8c10f24e71846fbd7ae01e"
+checksum = "28dea519a9695b9977216879a3ebfddf92f1c08c05d984f8996aecd6ecdc811d"
 
 [[package]]
 name = "fixed-hash"
@@ -3010,7 +3010,7 @@ dependencies = [
 [[package]]
 name = "xelis_common"
 version = "1.10.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#917c619987d8cff90bbd3b4dec8e3ca47d035768"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#4b16dffb8bf2926f48e6bbfbc876fcae85bb5f1d"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -3050,7 +3050,7 @@ dependencies = [
 [[package]]
 name = "xelis_wallet"
 version = "1.10.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#917c619987d8cff90bbd3b4dec8e3ca47d035768"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#4b16dffb8bf2926f48e6bbfbc876fcae85bb5f1d"
 dependencies = [
  "actix",
  "actix-web",
