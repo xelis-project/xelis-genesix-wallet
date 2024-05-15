@@ -19,7 +19,7 @@ class NetworkTopWidget extends ConsumerWidget {
 
     if (displayTopBar) {
       return Container(
-        decoration: BoxDecoration(color: context.colors.background),
+        decoration: BoxDecoration(color: context.colors.surface),
         padding: const EdgeInsets.all(Spaces.small),
         child: Text(
           "${loc.network}: ${translateNetworkName(network)}",

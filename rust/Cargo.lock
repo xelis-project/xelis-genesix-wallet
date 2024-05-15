@@ -613,9 +613,9 @@ checksum = "c3ac9f8b63eca6fd385229b3675f6cc0dc5c8a5c8a54a59d4f52ffd670d87b0c"
 
 [[package]]
 name = "bytemuck"
-version = "1.15.0"
+version = "1.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d6d68c57235a3a081186990eca2867354726650f42f7516ca50c28d6281fd15"
+checksum = "78834c15cb5d5efe3452d58b1e8ba890dd62d21907f867f383358198e56ebca5"
 dependencies = [
  "bytemuck_derive",
 ]
@@ -2128,18 +2128,18 @@ checksum = "61697e0a1c7e512e84a621326239844a24d8207b4669b41bc18b32ea5cbf988b"
 
 [[package]]
 name = "serde"
-version = "1.0.201"
+version = "1.0.202"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "780f1cebed1629e4753a1a38a3c72d30b97ec044f0aef68cb26650a3c5cf363c"
+checksum = "226b61a0d411b2ba5ff6d7f73a476ac4f8bb900373459cd00fab8512828ba395"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.201"
+version = "1.0.202"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c5e405930b9796f1c00bee880d03fc7e0bb4b9a11afc776885ffe84320da2865"
+checksum = "6048858004bcff69094cd972ed40a32500f153bd3be9f716b2eed2e8217c4838"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2528,9 +2528,9 @@ dependencies = [
 
 [[package]]
 name = "toml_datetime"
-version = "0.6.5"
+version = "0.6.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3550f4e9685620ac18a50ed434eb3aec30db8ba93b0287467bca5826ea25baf1"
+checksum = "4badfd56924ae69bcc9039335b2e017639ce3f9b001c393c1b2d1ef846ce2cbf"
 
 [[package]]
 name = "toml_edit"
@@ -3009,8 +3009,8 @@ dependencies = [
 
 [[package]]
 name = "xelis_common"
-version = "1.10.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#4b16dffb8bf2926f48e6bbfbc876fcae85bb5f1d"
+version = "1.11.0"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#bcb4cffdc7e89d7d50181f2c34c388e3f7c775d6"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -3049,8 +3049,8 @@ dependencies = [
 
 [[package]]
 name = "xelis_wallet"
-version = "1.10.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#4b16dffb8bf2926f48e6bbfbc876fcae85bb5f1d"
+version = "1.11.0"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#bcb4cffdc7e89d7d50181f2c34c388e3f7c775d6"
 dependencies = [
  "actix",
  "actix-web",

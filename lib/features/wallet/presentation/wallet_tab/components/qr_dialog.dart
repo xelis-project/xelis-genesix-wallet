@@ -50,7 +50,7 @@ class QrDialog extends ConsumerWidget {
             PrettyQrView.data(
               data: address,
               decoration: PrettyQrDecoration(
-                shape: PrettyQrSmoothSymbol(color: context.colors.onBackground),
+                shape: PrettyQrSmoothSymbol(color: context.colors.onSurface),
               ),
             ),
           ],

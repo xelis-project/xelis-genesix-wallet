@@ -142,15 +142,16 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
                           _showUpdateAddressDialog(context, nodes[index]);
                         },
                       ),
-                      if (nodeAddress == nodes[index]) MenuItemButton(
-                        child: Text(
-                          loc.reconnect,
-                          style: context.bodyMedium,
+                      if (nodeAddress == nodes[index])
+                        MenuItemButton(
+                          child: Text(
+                            loc.reconnect,
+                            style: context.bodyMedium,
+                          ),
+                          onPressed: () {
+                            _onNodeAddressSelected(nodes[index]);
+                          },
                         ),
-                        onPressed: () {
-                          _onNodeAddressSelected(nodes[index]);
-                        },
-                      ),
                       MenuItemButton(
                         child: Text(
                           loc.remove,

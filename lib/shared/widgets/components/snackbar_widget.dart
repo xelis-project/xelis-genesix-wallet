@@ -46,7 +46,7 @@ class _SnackBarWidgetState extends ConsumerState<SnackBarWidget> {
                   padding: const EdgeInsets.all(Spaces.large),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: context.colors.background,
+                      color: context.colors.surface,
                       borderRadius: BorderRadius.circular(10),
                       //border: Border.all(width: Spaces.medium),
                     ),

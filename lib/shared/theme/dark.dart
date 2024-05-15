@@ -27,10 +27,8 @@ ThemeData darkTheme() {
       onSecondary: Colors.white,
       error: Colors.red,
       onError: Colors.white,
-      background: backgroundColor,
-      onBackground: textColor,
-      surface: Colors.black,
-      onSurface: Colors.white,
+      surface: backgroundColor,
+      onSurface: textColor,
     ),
 
     // EXTENSIONS
@@ -133,7 +131,7 @@ ThemeData darkTheme() {
       surfaceTintColor: Colors.transparent,
       backgroundColor: Colors.black26,
       indicatorColor: Colors.white,
-      labelTextStyle: MaterialStatePropertyAll(
+      labelTextStyle: WidgetStatePropertyAll(
         TextStyle(
           color: Colors.white,
         ),
@@ -221,15 +219,15 @@ ThemeData darkTheme() {
 
     // SWITCH
     switchTheme: SwitchThemeData(
-      thumbColor: const MaterialStatePropertyAll(primaryColor),
-      trackColor: MaterialStatePropertyAll(primaryColor.withOpacity(.2)),
-      trackOutlineColor: const MaterialStatePropertyAll(primaryColor),
+      thumbColor: const WidgetStatePropertyAll(primaryColor),
+      trackColor: WidgetStatePropertyAll(primaryColor.withOpacity(.2)),
+      trackOutlineColor: const WidgetStatePropertyAll(primaryColor),
     ),
 
     // TAB BAR
     tabBarTheme: const TabBarTheme(
       dividerColor: Colors.white30,
-      overlayColor: MaterialStatePropertyAll(Colors.transparent),
+      overlayColor: WidgetStatePropertyAll(Colors.transparent),
     ),
 
     // MISC
