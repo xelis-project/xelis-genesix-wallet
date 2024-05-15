@@ -1,0 +1,45 @@
+name: Build Linux
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust and Cargo
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install Flutter Rust bridge
+        run: |
+          cargo install 'flutter_rust_bridge_codegen@^2.0.0-dev'
+          cd rust && cargo update
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate Dart code
+        run:  dart run build_runner build
+
+      - name: Generate bridge code
+        run: flutter_rust_bridge_codegen generate
+
+      - name: Build Android apk
+        run: flutter build apk --split-per-abi
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+            name: android-build
+            path: build/app/outputs/apk/release/*.apk
