@@ -40,28 +40,25 @@ git clone https://github.com/xelis-project/xelis-genesix-wallet.git
 cd xelis-genesix-wallet
 ```
 
-2. Install the required dependencies and generate glue code :
+2. Install the required dependencies and generate glue code:
 
 ```
 just init
 ```
 
-3. Connect your device or emulator and run the application:
+3. Run the app for the current device:
+
 ```
 flutter run --release
 ```
 
-4. Or, build the binary file:
+4. Or, build the application for your platform (e.g. ``windows``, etc.):
 
 ```
-flutter build --release
+flutter build <platform>
 ```
 
 For platform-specific instructions and additional configuration steps, please refer to the documentation available by following the links provided.
-
-## Contributing
-
-We welcome contributions from the community! If you'd like to contribute to Genesix, please follow our [contribution guidelines](CONTRIBUTING.md) and submit a pull request.
 
 ## License
 
