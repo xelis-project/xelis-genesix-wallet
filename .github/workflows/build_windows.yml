@@ -1,11 +1,11 @@
-name: Build MacOS
+name: Build Windows
 
 on:
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,7 +25,7 @@ jobs:
         run: |
           cargo install 'flutter_rust_bridge_codegen@^2.0.0-dev'
           cd rust && cargo update
-      
+
       - name: Install dependencies
         run: flutter pub get
 
@@ -34,12 +34,12 @@ jobs:
 
       - name: Generate bridge code
         run: flutter_rust_bridge_codegen generate
-      
-      - name: Build MacOS app
-        run: flutter build macos
+
+      - name: Build Windows app
+        run: flutter build windows
 
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
-            name: genesix-macos
-            path: build/macos/Build/Products/Release
+          name: genesix-windows
+          path: build/windows/x64/runner/Release
