@@ -78,3 +78,8 @@ flutter:
 #    - assets/banners/svg/
 #    - assets/icons/png/
     - assets/bg_dots.png
+
+msix_config:
+  display_name: Genesix Wallet
+  publisher_display_name: XELIS
+  logo_path: assets/icons/png/circle/green_background_black_logo.png
