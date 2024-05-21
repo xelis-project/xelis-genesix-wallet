@@ -2,23 +2,49 @@ name: Dart
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "dev" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "dev" ]
 
 jobs:
   analyse:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dart-lang/setup-dart@v1
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust and Cargo
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
 
-      - run: flutter pub get
-      - run: dart run build_runner build
-      - run: dart format --output=none --set-exit-if-changed .
-      - run: dart analyze
+      - name: Install Flutter Rust bridge
+        run: |
+          cargo install 'flutter_rust_bridge_codegen@^2.0.0-dev'
+          cd rust && cargo update
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate Dart code
+        run: dart run build_runner build
+
+      - name: Generate bridge code
+        run: flutter_rust_bridge_codegen generate
+
+      - name: Check Dart code formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Dart analyse
+        run: dart analyze
+
 #      - run: dart test
