@@ -25,15 +25,15 @@ jobs:
         run: |
           cargo install 'flutter_rust_bridge_codegen@^2.0.0-dev'
           cd rust && cargo update
-      
-      - name: Install dependencies
-        run: flutter pub get
 
       - name: Generate bridge code
         run: flutter_rust_bridge_codegen generate
 
       - name: Generate Dart code
         run:  dart run build_runner build
+
+      - name: Install dependencies
+        run: flutter pub get
 
       - name: Build MacOS app
         run: flutter build macos
