@@ -46,7 +46,7 @@ dependencies:
   icons_launcher: ^2.1.7
   url_launcher: ^6.2.6
 
-  flutter_rust_bridge: 2.0.0-dev.33
+  flutter_rust_bridge: 2.0.0-dev.35
   rust_builder:
     path: rust_builder
 
