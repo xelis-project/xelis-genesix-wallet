@@ -2,7 +2,8 @@ use std::sync::Once;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use lazy_static::lazy_static;
-use log::{error, warn, LevelFilter, Log, Metadata, Record};
+pub use log::LevelFilter;
+use log::{error, warn, Log, Metadata, Record};
 use simplelog::{CombinedLogger, Config, SharedLogger};
 
 use crate::frb_generated::StreamSink;

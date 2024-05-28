@@ -311,7 +311,7 @@ impl XelisWallet {
         .to_string())
     }
 
-    pub fn cancel_transaction(
+    pub fn clear_transaction(
         &self,
         tx_hash: String,
     ) -> Result<(Transaction, TransactionBuilderState)> {
@@ -325,7 +325,7 @@ impl XelisWallet {
     }
 
     pub async fn broadcast_transaction(&self, tx_hash: String) -> Result<()> {
-        let (tx, mut state) = self.cancel_transaction(tx_hash)?;
+        let (tx, mut state) = self.clear_transaction(tx_hash)?;
         let mut storage = self.wallet.get_storage().write().await;
 
         if self.wallet.is_online().await {

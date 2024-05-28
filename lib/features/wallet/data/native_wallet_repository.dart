@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
@@ -62,12 +63,13 @@ class NativeWalletRepository {
 
   String get address => _xelisWallet.getAddressStr();
 
-  Future<int> get nonce => _xelisWallet.getNonce();
+  Future<BigInt> get nonce => _xelisWallet.getNonce();
 
   Future<bool> get isOnline => _xelisWallet.isOnline();
 
   Future<String> formatCoin(int amount, [String? assetHash]) async {
-    return _xelisWallet.formatCoin(atomicAmount: amount, assetHash: assetHash);
+    return _xelisWallet.formatCoin(
+        atomicAmount: BigInt.from(amount), assetHash: assetHash);
   }
 
   Future<void> changePassword(
@@ -77,7 +79,9 @@ class NativeWalletRepository {
   }
 
   Future<String> getSeed({int? languageIndex}) async {
-    return _xelisWallet.getSeed(languageIndex: languageIndex);
+    return _xelisWallet.getSeed(
+        languageIndex:
+            languageIndex == null ? null : BigInt.from(languageIndex));
   }
 
   Future<void> isValidPassword(String password) async {
@@ -97,10 +101,10 @@ class NativeWalletRepository {
   }
 
   Future<void> rescan({required int topoHeight}) async {
-    return _xelisWallet.rescan(topoheight: topoHeight);
+    return _xelisWallet.rescan(topoheight: BigInt.from(topoHeight));
   }
 
-  Future<int> estimateFees(List<Transfer> transfers) async {
+  Future<BigInt> estimateFees(List<Transfer> transfers) async {
     return _xelisWallet.estimateFees(transfers: transfers);
   }
 
@@ -140,8 +144,8 @@ class NativeWalletRepository {
     logger.info('Transaction successfully broadcast: $hash');
   }
 
-  Future<void> cancelTransaction(String hash) async {
-    await _xelisWallet.cancelTransaction(txHash: hash);
+  Future<void> clearTransaction(String hash) async {
+    await _xelisWallet.clearTransaction(txHash: hash);
     logger.info('Transaction canceled: $hash');
   }
 

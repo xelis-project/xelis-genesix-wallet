@@ -37,7 +37,8 @@ class WalletState extends _$WalletState {
       if (state.address.isEmpty) {
         final nonce = await state.nativeWalletRepository!.nonce;
         state = state.copyWith(
-            address: state.nativeWalletRepository!.address, nonce: nonce);
+            address: state.nativeWalletRepository!.address,
+            nonce: nonce.toInt());
       }
 
       StreamSubscription<void> sub =
@@ -144,7 +145,7 @@ class WalletState extends _$WalletState {
 
   Future<void> cancelTransaction({required String hash}) async {
     if (state.nativeWalletRepository != null) {
-      await state.nativeWalletRepository!.cancelTransaction(hash);
+      await state.nativeWalletRepository!.clearTransaction(hash);
     }
   }
 
@@ -155,13 +156,13 @@ class WalletState extends _$WalletState {
   }
 
   // TODO rework
-  Future<int> estimateFees(
+  Future<BigInt> estimateFees(
       {required double amount, required String destination}) async {
     if (state.nativeWalletRepository != null) {
       return state.nativeWalletRepository!.estimateFees(
           [Transfer(floatAmount: amount, strAddress: destination)]);
     }
-    return 0;
+    return BigInt.zero;
   }
 
   Future<void> _onEvent(Event event) async {
@@ -205,9 +206,11 @@ class WalletState extends _$WalletState {
           final xelisBalance =
               await state.nativeWalletRepository!.getXelisBalance();
           state = state.copyWith(
-              nonce: nonce, assets: updatedAssets, xelisBalance: xelisBalance);
+              nonce: nonce.toInt(),
+              assets: updatedAssets,
+              xelisBalance: xelisBalance);
         } else {
-          state = state.copyWith(nonce: nonce, assets: updatedAssets);
+          state = state.copyWith(nonce: nonce.toInt(), assets: updatedAssets);
         }
 
       case NewAsset():
