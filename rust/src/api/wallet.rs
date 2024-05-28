@@ -327,12 +327,16 @@ impl XelisWallet {
     pub async fn broadcast_transaction(&self, tx_hash: String) -> Result<()> {
         let (tx, mut state) = self.clear_transaction(tx_hash)?;
         let mut storage = self.wallet.get_storage().write().await;
+        state.apply_changes(&mut storage).await?;
 
         if self.wallet.is_online().await {
-            self.wallet.submit_transaction(&tx).await?;
-            state.apply_changes(&mut storage).await?;
-
-            info!("Transaction submitted successfully!");
+            if let Err(_e) = self.wallet.submit_transaction(&tx).await {
+                let mut storage = self.wallet.get_storage().write().await;
+                storage.clear_tx_cache();
+                storage.delete_unconfirmed_balances().await;
+            } else {
+                info!("Transaction submitted successfully!");
+            }
         } else {
             return Err(anyhow!(
                 "Wallet is offline, transaction cannot be submitted"
