@@ -317,9 +317,9 @@ impl XelisWallet {
             .pending_transactions
             .write()
             .remove(&hash)
-            .expect("Cannot delete pending transaction");
+            .context("Cannot delete pending transaction");
         info!("tx: {} removed from pending transaction", tx_hash);
-        Ok(res)
+        res
     }
 
     pub async fn broadcast_transaction(&self, tx_hash: String) -> Result<()> {
@@ -359,8 +359,7 @@ impl XelisWallet {
 
         for tx in transactions.into_iter() {
             let transaction_entry = tx.serializable(self.wallet.get_network().is_mainnet());
-            let json_tx =
-                serde_json::to_string(&transaction_entry).expect("Tx serialization failed");
+            let json_tx = serde_json::to_string(&transaction_entry)?;
             txs.push(json_tx);
         }
 
@@ -399,7 +398,7 @@ impl XelisWallet {
             }
         };
 
-        Ok(serde_json::to_string(&info).expect("GetInfoResult serialization failed"))
+        Ok(serde_json::to_string(&info)?)
     }
 
     pub async fn format_coin(
