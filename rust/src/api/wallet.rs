@@ -3,7 +3,6 @@ use std::sync::Arc;
 
 use anyhow::{anyhow, Context, Result};
 use flutter_rust_bridge::frb;
-use lazy_static::lazy_static;
 use log::{debug, info};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
@@ -21,11 +20,6 @@ use xelis_wallet::wallet::Wallet;
 
 use crate::api::table_generation::LogProgressTableGenerationReportFunction;
 use crate::frb_generated::StreamSink;
-
-lazy_static! {
-    pub static ref PENDING_TRANSACTIONS: RwLock<HashMap<Hash, (Transaction, TransactionBuilderState)>> =
-        RwLock::new(HashMap::new());
-}
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct SummaryTransaction {
@@ -45,6 +39,7 @@ pub struct Transfer {
 
 pub struct XelisWallet {
     wallet: Arc<Wallet>,
+    pending_transactions: RwLock<HashMap<Hash, (Transaction, TransactionBuilderState)>>,
 }
 
 pub fn create_xelis_wallet(
@@ -61,6 +56,7 @@ pub fn create_xelis_wallet(
     let xelis_wallet = Wallet::create(name, password, seed, network, precomputed_tables)?;
     Ok(XelisWallet {
         wallet: xelis_wallet,
+        pending_transactions: RwLock::new(HashMap::new()),
     })
 }
 
@@ -77,6 +73,7 @@ pub fn open_xelis_wallet(
     let xelis_wallet = Wallet::open(name, password, network, precomputed_tables)?;
     Ok(XelisWallet {
         wallet: xelis_wallet,
+        pending_transactions: RwLock::new(HashMap::new()),
     })
 }
 
@@ -167,7 +164,7 @@ impl XelisWallet {
     }
 
     pub async fn create_transfers_transaction(&self, transfers: Vec<Transfer>) -> Result<String> {
-        PENDING_TRANSACTIONS.write().clear();
+        self.pending_transactions.write().clear();
 
         info!("Building transaction...");
 
@@ -196,7 +193,7 @@ impl XelisWallet {
         info!("Tx Hash: {}", hash);
         let fee = tx.get_fee();
 
-        PENDING_TRANSACTIONS
+        self.pending_transactions
             .write()
             .insert(hash.clone(), (tx, state));
 
@@ -214,7 +211,7 @@ impl XelisWallet {
         str_address: String,
         asset_hash: Option<String>,
     ) -> Result<String> {
-        PENDING_TRANSACTIONS.write().clear();
+        self.pending_transactions.write().clear();
 
         info!("Building transaction...");
 
@@ -246,7 +243,7 @@ impl XelisWallet {
         info!("Tx Hash: {}", hash);
         let fee = tx.get_fee();
 
-        PENDING_TRANSACTIONS
+        self.pending_transactions
             .write()
             .insert(hash.clone(), (tx, state));
 
@@ -266,7 +263,7 @@ impl XelisWallet {
         float_amount: f64,
         asset_hash: String,
     ) -> Result<String> {
-        PENDING_TRANSACTIONS.write().clear();
+        self.pending_transactions.write().clear();
 
         info!("Building transaction...");
 
@@ -296,7 +293,7 @@ impl XelisWallet {
         info!("Tx Hash: {}", hash);
         let fee = tx.get_fee();
 
-        PENDING_TRANSACTIONS
+        self.pending_transactions
             .write()
             .insert(hash.clone(), (tx, state));
 
@@ -316,7 +313,8 @@ impl XelisWallet {
         tx_hash: String,
     ) -> Result<(Transaction, TransactionBuilderState)> {
         let hash = Hash::from_hex(tx_hash.clone()).unwrap();
-        let res = PENDING_TRANSACTIONS
+        let res = self
+            .pending_transactions
             .write()
             .remove(&hash)
             .expect("Cannot delete pending transaction");
