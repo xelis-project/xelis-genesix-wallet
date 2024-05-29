@@ -38,8 +38,11 @@ jobs:
       - name: Build MacOS app
         run: flutter build macos
 
+      - name: Set app as executable
+        run: chmod +x build/macos/Build/Products/Release/genesix.app/Contents/MacOS/genesix
+
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
             name: genesix-macos
-            path: build/macos/Build/Products/Release
+            path: build/macos/Build/Products/Release/genesix.app
