@@ -1100,9 +1100,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge"
-version = "2.0.0-dev.36"
+version = "2.0.0-dev.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dbafb8df6b5ec843e2b7f19f33f5b682d6bd028bf86aef2c5e02ff3e4ea37b03"
+checksum = "7bc10f01bad9c10018ecd7c998b35d37e6856ffc62b735ef796c617e2006bf00"
 dependencies = [
  "allo-isolate",
  "android_logger",
@@ -1128,9 +1128,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge_macros"
-version = "2.0.0-dev.36"
+version = "2.0.0-dev.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "04366488e32ac18f07982356d62860e145cc7ae28e16070f240082fe1c8ed5c9"
+checksum = "728da530efd18249b5adda2b932a69f92c1d861c18d93dd8b6b9d6df0a2a7d27"
 dependencies = [
  "hex",
  "quote",
@@ -2473,9 +2473,9 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
 name = "tokio"
-version = "1.37.0"
+version = "1.38.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1adbebffeca75fcfd058afa480fb6c0b81e165a0323f9c9d39c9697e37c46787"
+checksum = "ba4f4a02a7a80d6f274636f0aa95c7e383b912d41fe721a31f29e29698585a4a"
 dependencies = [
  "backtrace",
  "bytes",
@@ -2492,9 +2492,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-macros"
-version = "2.2.0"
+version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b8a1e28f2deaa14e508979454cb3a223b10b938b45af148bc0986de36f1923b"
+checksum = "5f5ae998a069d4b5aba8ee9dad856af7d520c3699e6159b185c2acd48155d39a"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3025,7 +3025,7 @@ dependencies = [
 [[package]]
 name = "xelis_common"
 version = "1.12.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#0c1dfbaac95cf3549faca30830cc728b322664ba"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#d5e4c90db4f3094469c54d40eb48edd975ef2704"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -3066,7 +3066,7 @@ dependencies = [
 [[package]]
 name = "xelis_wallet"
 version = "1.12.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#0c1dfbaac95cf3549faca30830cc728b322664ba"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#d5e4c90db4f3094469c54d40eb48edd975ef2704"
 dependencies = [
  "actix",
  "actix-web",
