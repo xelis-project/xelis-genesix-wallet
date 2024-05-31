@@ -49,6 +49,10 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
     } catch (e) {
       logger.severe('Opening wallet failed: $e');
       ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
+      if (mounted) {
+        // Dismiss TableGenerationProgressDialog if error occurs
+        context.pop();
+      }
     }
 
     if (mounted) {
