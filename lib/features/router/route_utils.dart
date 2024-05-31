@@ -4,7 +4,8 @@ enum AppScreen {
   wallet,
   settings,
   changePassword,
-  walletSeed,
+  walletSeedScreen,
+  walletSeedDialog,
   transfer,
   transactionEntry,
 }
@@ -22,8 +23,10 @@ extension AppScreenExtension on AppScreen {
         return '/settings';
       case AppScreen.changePassword:
         return '/change_password';
-      case AppScreen.walletSeed:
+      case AppScreen.walletSeedScreen:
         return '/wallet_seed';
+      case AppScreen.walletSeedDialog:
+        return '/wallet_seed_dialog';
       case AppScreen.transfer:
         return '/transfer';
       case AppScreen.transactionEntry:

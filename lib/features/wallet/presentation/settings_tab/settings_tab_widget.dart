@@ -107,7 +107,7 @@ class SettingsTab extends ConsumerWidget {
       builder: (context) {
         return PasswordDialog(
           onValid: () {
-            context.push(AppScreen.walletSeed.toPath);
+            context.push(AppScreen.walletSeedScreen.toPath);
           },
         );
       },

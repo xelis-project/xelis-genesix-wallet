@@ -6,7 +6,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/shared/theme/constants.dart';
 
 class SeedContentDialog extends ConsumerWidget {
-  const SeedContentDialog(this.seed, WidgetRef ref, {super.key});
+  const SeedContentDialog(this.seed, {super.key});
 
   final String seed;
 

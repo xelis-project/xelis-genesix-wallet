@@ -55,7 +55,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
       }
     }
 
-    if (mounted) {
+    if (mounted && context.loaderOverlay.visible) {
       context.loaderOverlay.hide();
     }
   }

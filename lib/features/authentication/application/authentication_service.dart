@@ -56,6 +56,17 @@ class Authentication extends _$Authentication {
           name: name, nativeWallet: walletRepository);
 
       ref.read(walletStateProvider.notifier).connect();
+
+      if (seed == null) {
+        final seed = await ref
+            .read(walletStateProvider)
+            .nativeWalletRepository!
+            .getSeed();
+
+        ref
+            .read(routerProvider)
+            .push(AppScreen.walletSeedDialog.toPath, extra: seed);
+      }
     }
   }
 
@@ -106,7 +117,7 @@ class Authentication extends _$Authentication {
   }
 
   Future<String> _getPrecomputedTablesPath() async {
-    final dir = await getApplicationCacheDirectory();
+    final dir = await getApplicationSupportDirectory();
     return "${dir.path}/";
   }
 
