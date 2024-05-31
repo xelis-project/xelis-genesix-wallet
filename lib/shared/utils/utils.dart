@@ -13,7 +13,7 @@ String formatXelis(int value) {
 }
 
 Future<String> getAppCacheDirPath() async {
-  var dir = await getApplicationCacheDirectory();
+  var dir = await getApplicationSupportDirectory();
   return dir.path;
 }
 
