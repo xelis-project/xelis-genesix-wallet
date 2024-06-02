@@ -1899,9 +1899,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.84"
+version = "1.0.85"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec96c6a92621310b51366f1e28d05ef11489516e93be030060e5fc12024a49d6"
+checksum = "22244ce15aa966053a896d1accb3a6e68469b97c7f33f284b99f0d576879fc23"
 dependencies = [
  "unicode-ident",
 ]
@@ -3025,7 +3025,7 @@ dependencies = [
 [[package]]
 name = "xelis_common"
 version = "1.12.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#d5e4c90db4f3094469c54d40eb48edd975ef2704"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#3c3d95a08f6bf45b3c198d64344ec2bed343758f"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -3066,7 +3066,7 @@ dependencies = [
 [[package]]
 name = "xelis_wallet"
 version = "1.12.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#d5e4c90db4f3094469c54d40eb48edd975ef2704"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#3c3d95a08f6bf45b3c198d64344ec2bed343758f"
 dependencies = [
  "actix",
  "actix-web",
