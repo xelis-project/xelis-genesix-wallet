@@ -1,12 +1,14 @@
 use std::collections::HashMap;
+use std::fmt::Debug;
 use std::sync::Arc;
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, bail, Context, Result};
 use flutter_rust_bridge::frb;
 use log::{debug, info};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use xelis_common::api::{DataElement, DataValue};
 use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
 use xelis_common::crypto::{Address, Hash, Hashable};
 use xelis_common::network::Network;
@@ -35,6 +37,7 @@ pub struct Transfer {
     pub float_amount: f64,
     pub str_address: String,
     pub asset_hash: Option<String>,
+    pub extra_data: Option<String>,
 }
 
 pub struct XelisWallet {
@@ -177,16 +180,17 @@ impl XelisWallet {
             .create_transfers(transfers)
             .await
             .context("Error while creating transaction type builder")?;
-        let mut storage = self.wallet.get_storage().write().await;
 
-        let (state, tx) = self
-            .wallet
-            .create_transaction_with_storage(
-                &mut storage,
-                transaction_type_builder.clone(),
-                FeeBuilder::default(),
-            )
-            .await?;
+        let (state, tx) = {
+            let mut storage = self.wallet.get_storage().write().await;
+            self.wallet
+                .create_transaction_with_storage(
+                    &mut storage,
+                    transaction_type_builder.clone(),
+                    FeeBuilder::default(),
+                )
+                .await?
+        };
 
         info!("Transaction created!");
         let hash = tx.hash();
@@ -210,6 +214,7 @@ impl XelisWallet {
         &self,
         str_address: String,
         asset_hash: Option<String>,
+        extra_data: Option<String>,
     ) -> Result<String> {
         self.pending_transactions.write().clear();
 
@@ -231,7 +236,10 @@ impl XelisWallet {
             destination: address.clone(),
             amount,
             asset: asset.clone(),
-            extra_data: None,
+            extra_data: match extra_data {
+                None => None,
+                Some(value) => Some(DataElement::Value(DataValue::String(value))),
+            },
         };
 
         let estimated_fees = self
@@ -338,7 +346,7 @@ impl XelisWallet {
         &self,
         tx_hash: String,
     ) -> Result<(Transaction, TransactionBuilderState)> {
-        let hash = Hash::from_hex(tx_hash.clone()).unwrap();
+        let hash = Hash::from_hex(tx_hash.clone())?;
         let res = self
             .pending_transactions
             .write()
@@ -349,15 +357,24 @@ impl XelisWallet {
     }
 
     pub async fn broadcast_transaction(&self, tx_hash: String) -> Result<()> {
-        let (tx, mut state) = self.clear_transaction(tx_hash)?;
+        info!("start to broadcast tx: {}", tx_hash);
+        let (tx, mut state) = self.clear_transaction(tx_hash.clone())?;
+
         let mut storage = self.wallet.get_storage().write().await;
         state.apply_changes(&mut storage).await?;
+        info!("Transaction applied to storage");
 
+        info!("Broadcasting transaction...");
         if self.wallet.is_online().await {
-            if let Err(_e) = self.wallet.submit_transaction(&tx).await {
-                let mut storage = self.wallet.get_storage().write().await;
+            if let Err(e) = self.wallet.submit_transaction(&tx).await {
+                info!("Error while submitting transaction, clearing cache...");
                 storage.clear_tx_cache();
                 storage.delete_unconfirmed_balances().await;
+                let hash: Hash = Hash::from_hex(tx_hash)?;
+                self.pending_transactions
+                    .write()
+                    .insert(hash.clone(), (tx, state));
+                bail!(e)
             } else {
                 info!("Transaction submitted successfully!");
             }
@@ -466,7 +483,10 @@ impl XelisWallet {
                 destination: address,
                 amount,
                 asset,
-                extra_data: None,
+                extra_data: match transfer.extra_data {
+                    None => None,
+                    Some(value) => Some(DataElement::Value(DataValue::String(value))),
+                },
             };
 
             vec.push(transfer_builder);
