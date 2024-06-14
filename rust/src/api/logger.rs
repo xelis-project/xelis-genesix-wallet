@@ -31,7 +31,7 @@ pub fn init_logger() {
 }
 
 pub struct LogEntry {
-    pub time_millis: i64,
+    pub time_millis: u64,
     pub level: String,
     pub tag: String,
     pub msg: String,
@@ -62,7 +62,7 @@ impl SendToDartLogger {
         let time_millis = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap_or_else(|_| Duration::from_secs(0))
-            .as_millis() as i64;
+            .as_millis() as u64;
 
         let level = record.level().to_string();
 
