@@ -4,7 +4,7 @@ use std::path::Path;
 use flutter_rust_bridge::frb;
 use log::debug;
 use xelis_common::crypto::ecdlp;
-use xelis_wallet::wallet::PRECOMPUTED_TABLES_L1;
+//use xelis_wallet::wallet::PRECOMPUTED_TABLES_L1;
 
 use crate::api::progress_report::{add_progress_report, Report};
 
@@ -27,6 +27,6 @@ impl ecdlp::ProgressTableGenerationReportFunction for LogProgressTableGeneration
 #[frb(sync)]
 pub fn precomputed_tables_exist(precomputed_tables_path: String) -> bool {
     let file_path =
-        format!("{precomputed_tables_path}precomputed_tables_{PRECOMPUTED_TABLES_L1}.bin");
+        format!("{precomputed_tables_path}precomputed_tables_26.bin");
     return Path::new(&file_path).is_file();
 }

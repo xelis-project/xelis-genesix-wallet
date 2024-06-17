@@ -11,6 +11,7 @@ import 'package:genesix/shared/storage/shared_preferences/shared_preferences_pro
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/xelis_wallet_app.dart';
 import 'package:genesix/rust_bridge/frb_generated.dart';
+import 'package:localstorage/localstorage.dart';
 
 Future<void> main() async {
   logger.info('Starting Genesix...');
@@ -21,6 +22,11 @@ Future<void> main() async {
   logger.info('initializing Rust lib ...');
   await RustLib.init();
   await initRustLogging();
+
+  if (kIsWeb) {
+    logger.info('initializing local storage ...');
+    await initLocalStorage();
+  }
 
   if (isDesktopDevice) {
     logger.info('initializing window manager ...');

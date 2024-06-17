@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/shared/logger.dart';
@@ -34,13 +35,15 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
 
   void _openWallet(String name, String password) async {
     try {
-      if (!await ref
-              .read(authenticationProvider.notifier)
-              .isPrecomputedTablesExists() &&
-          mounted) {
-        _showTableGenerationProgressDialog(context);
-      } else {
-        context.loaderOverlay.show();
+      if (!kIsWeb) {
+        if (!await ref
+                .read(authenticationProvider.notifier)
+                .isPrecomputedTablesExists() &&
+            mounted) {
+          _showTableGenerationProgressDialog(context);
+        } else {
+          context.loaderOverlay.show();
+        }
       }
 
       await ref

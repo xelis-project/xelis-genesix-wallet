@@ -1,7 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:genesix/rust_bridge/api/table_generation.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
 import 'package:genesix/features/router/route_utils.dart';
@@ -11,6 +11,8 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:localstorage/localstorage.dart';
+import 'package:genesix/shared/logger.dart';
 
 part 'authentication_service.g.dart';
 
@@ -29,7 +31,14 @@ class Authentication extends _$Authentication {
     final precomputedTablesPath = await _getPrecomputedTablesPath();
     final settings = ref.read(settingsProvider);
     var walletPath = await getWalletPath(settings.network, name);
-    var walletExists = await Directory(walletPath).exists();
+
+    var walletExists = false;
+    if (kIsWeb) {
+      var path = localStorage.getItem(walletPath);
+      if (path != null) walletExists = true;
+    } else {
+      walletExists = await Directory(walletPath).exists();
+    }
 
     if (walletExists) {
       throw Exception('This wallet already exists: $name');
@@ -39,11 +48,10 @@ class Authentication extends _$Authentication {
       if (seed != null) {
         walletRepository = await NativeWalletRepository.recover(
             walletPath, password, settings.network,
-            seed: seed, precomputeTablesPath: precomputedTablesPath);
+            seed: seed);
       } else {
         walletRepository = await NativeWalletRepository.create(
-            walletPath, password, settings.network,
-            precomputeTablesPath: precomputedTablesPath);
+            walletPath, password, settings.network);
       }
 
       ref
@@ -117,8 +125,12 @@ class Authentication extends _$Authentication {
   }
 
   Future<String> _getPrecomputedTablesPath() async {
-    final dir = await getApplicationSupportDirectory();
-    return "${dir.path}/";
+    if (kIsWeb) {
+      return "/";
+    } else {
+      final dir = await getAppCacheDirPath();
+      return "$dir/";
+    }
   }
 
   Future<bool> isPrecomputedTablesExists() async {
