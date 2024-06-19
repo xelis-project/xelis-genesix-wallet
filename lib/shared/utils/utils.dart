@@ -24,7 +24,7 @@ Future<String> getAppCacheDirPath() async {
 
 Future<String> getAppWalletsDirPath() async {
   if (kIsWeb) {
-    return p.join("/documents", AppResources.userWalletsFolderName);
+    return p.join("___xelis_db___/documents", AppResources.userWalletsFolderName);
   } else {
     var dir = await getApplicationDocumentsDirectory();
     var path = p.join(dir.path, AppResources.userWalletsFolderName);

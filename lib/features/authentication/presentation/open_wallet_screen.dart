@@ -35,15 +35,13 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
 
   void _openWallet(String name, String password) async {
     try {
-      if (!kIsWeb) {
-        if (!await ref
-                .read(authenticationProvider.notifier)
-                .isPrecomputedTablesExists() &&
-            mounted) {
-          _showTableGenerationProgressDialog(context);
-        } else {
-          context.loaderOverlay.show();
-        }
+      if (!await ref
+              .read(authenticationProvider.notifier)
+              .isPrecomputedTablesExists() &&
+          mounted) {
+        _showTableGenerationProgressDialog(context);
+      } else {
+        context.loaderOverlay.show();
       }
 
       await ref
