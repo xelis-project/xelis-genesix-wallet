@@ -45,7 +45,7 @@ pub struct XelisWallet {
     pending_transactions: RwLock<HashMap<Hash, (Transaction, TransactionBuilderState)>>,
 }
 
-pub fn create_xelis_wallet(
+pub async fn create_xelis_wallet(
     name: String,
     password: String,
     network: Network,
@@ -63,7 +63,7 @@ pub fn create_xelis_wallet(
     })
 }
 
-pub fn open_xelis_wallet(
+pub async fn open_xelis_wallet(
     name: String,
     password: String,
     network: Network,

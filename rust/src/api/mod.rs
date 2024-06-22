@@ -9,4 +9,5 @@ pub mod progress_report;
 pub mod table_generation;
 pub mod utils;
 pub mod wallet;
-pub mod time;
+/// flutter_rust_bridge:ignore
+mod time;
