@@ -73,15 +73,13 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
           password != null &&
           password == confirmPassword) {
         try {
-          if (!kIsWeb) {
-            if (!await ref
-                    .read(authenticationProvider.notifier)
-                    .isPrecomputedTablesExists() &&
-                mounted) {
-              _showTableGenerationProgressDialog(context);
-            } else {
-              context.loaderOverlay.show();
-            }
+          if (!await ref
+                  .read(authenticationProvider.notifier)
+                  .isPrecomputedTablesExists() &&
+              mounted) {
+            _showTableGenerationProgressDialog(context);
+          } else {
+            context.loaderOverlay.show();
           }
 
           await ref.read(authenticationProvider.notifier).createWallet(

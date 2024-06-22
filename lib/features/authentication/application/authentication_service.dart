@@ -35,7 +35,7 @@ class Authentication extends _$Authentication {
     var walletExists = false;
     if (kIsWeb) {
       var path = localStorage.getItem(walletPath);
-      if (path != null) walletExists = true;
+      walletExists = path != null;
     } else {
       walletExists = await Directory(walletPath).exists();
     }
@@ -48,10 +48,11 @@ class Authentication extends _$Authentication {
       if (seed != null) {
         walletRepository = await NativeWalletRepository.recover(
             walletPath, password, settings.network,
-            seed: seed);
+            seed: seed, precomputeTablesPath: precomputedTablesPath);
       } else {
         walletRepository = await NativeWalletRepository.create(
-            walletPath, password, settings.network);
+            walletPath, password, settings.network,
+            precomputeTablesPath: precomputedTablesPath);
       }
 
       ref
@@ -83,7 +84,14 @@ class Authentication extends _$Authentication {
     final precomputedTablesPath = await _getPrecomputedTablesPath();
 
     var walletPath = await getWalletPath(settings.network, name);
-    var walletExists = await Directory(walletPath).exists();
+
+    var walletExists = false;
+    if (kIsWeb) {
+      var path = localStorage.getItem(walletPath);
+      walletExists = path != null;
+    } else {
+      walletExists = await Directory(walletPath).exists();
+    }
 
     if (walletExists) {
       NativeWalletRepository walletRepository;
@@ -126,7 +134,7 @@ class Authentication extends _$Authentication {
 
   Future<String> _getPrecomputedTablesPath() async {
     if (kIsWeb) {
-      return "/";
+      return "";
     } else {
       final dir = await getAppCacheDirPath();
       return "$dir/";
@@ -134,7 +142,11 @@ class Authentication extends _$Authentication {
   }
 
   Future<bool> isPrecomputedTablesExists() async {
-    return precomputedTablesExist(
-        precomputedTablesPath: await _getPrecomputedTablesPath());
+    if (kIsWeb) {
+      return true;
+    } else {
+      return precomputedTablesExist(
+          precomputedTablesPath: await _getPrecomputedTablesPath());
+    }
   }
 }
