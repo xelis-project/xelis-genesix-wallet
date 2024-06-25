@@ -45,13 +45,15 @@ class Authentication extends _$Authentication {
     } else {
       NativeWalletRepository walletRepository;
 
+      // remove prefix for rust call because it's already appended
+      var dbName = walletPath.replaceFirst(localStorageDBPrefix, "");
       if (seed != null) {
         walletRepository = await NativeWalletRepository.recover(
-            walletPath, password, settings.network,
+            dbName, password, settings.network,
             seed: seed, precomputeTablesPath: precomputedTablesPath);
       } else {
         walletRepository = await NativeWalletRepository.create(
-            walletPath, password, settings.network,
+            dbName, password, settings.network,
             precomputeTablesPath: precomputedTablesPath);
       }
 
@@ -95,9 +97,10 @@ class Authentication extends _$Authentication {
 
     if (walletExists) {
       NativeWalletRepository walletRepository;
+      var dbName = walletPath.replaceFirst(localStorageDBPrefix, "");
       try {
         walletRepository = await NativeWalletRepository.open(
-            walletPath, password, settings.network,
+            dbName, password, settings.network,
             precomputeTablesPath: precomputedTablesPath);
       } catch (e) {
         rethrow;

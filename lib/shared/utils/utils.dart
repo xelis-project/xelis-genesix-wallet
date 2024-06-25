@@ -22,9 +22,11 @@ Future<String> getAppCacheDirPath() async {
   }
 }
 
+String localStorageDBPrefix = "___xelis_db___";
+
 Future<String> getAppWalletsDirPath() async {
   if (kIsWeb) {
-    return p.join("___xelis_db___/documents", AppResources.userWalletsFolderName);
+    return p.join(localStorageDBPrefix, AppResources.userWalletsFolderName);
   } else {
     var dir = await getApplicationDocumentsDirectory();
     var path = p.join(dir.path, AppResources.userWalletsFolderName);

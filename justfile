@@ -24,3 +24,6 @@ rust:
 prep:
     cargo install 'flutter_rust_bridge_codegen@^2.0.0-dev'
     cd rust && cargo update
+
+serve_web:
+    flutter_rust_bridge_serve --crate rust --features="network_handler" --no-default-features
