@@ -32,6 +32,7 @@ class Background extends StatelessWidget {
         ),
         child: Container(
           decoration: BoxDecoration(
+            
             gradient: RadialGradient(
               center: Alignment.centerLeft,
               colors: [
@@ -44,7 +45,9 @@ class Background extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                opacity: .05,
+                // https://github.com/flutter/flutter/issues/104114
+                // opacity is not working for mobile browser so we applied it directly to the png image
+                // opacity: .05,
                 repeat: ImageRepeat.repeat,
                 alignment: Alignment.topLeft,
                 image: AppResources.bgDots.image,
