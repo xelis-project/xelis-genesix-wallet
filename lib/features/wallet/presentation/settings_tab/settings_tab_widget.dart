@@ -107,7 +107,7 @@ class SettingsTab extends ConsumerWidget {
       builder: (context) {
         return PasswordDialog(
           onValid: () {
-            context.push(AppScreen.walletSeedScreen.toPath);
+            context.push(AuthAppScreen.walletSeedScreen.toPath);
           },
         );
       },
@@ -177,7 +177,7 @@ class SettingsTab extends ConsumerWidget {
             loc.change_password,
             style: context.titleLarge,
           ),
-          onTap: () => context.push(AppScreen.changePassword.toPath),
+          onTap: () => context.push(AuthAppScreen.changePassword.toPath),
           trailing: const Icon(
             Icons.keyboard_arrow_right_rounded,
           ),

@@ -25,7 +25,7 @@ class _TransactionEntryWidgetState
   void _showTransactionEntry(
       BuildContext context, TransactionEntry transactionEntry) {
     context.push(
-      AppScreen.transactionEntry.toPath,
+      AuthAppScreen.transactionEntry.toPath,
       extra: TransactionEntryScreenExtra(transactionEntry),
     );
   }

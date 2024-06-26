@@ -61,7 +61,7 @@ class Authentication extends _$Authentication {
           .read(walletsProvider.notifier)
           .setWalletAddress(name, walletRepository.address);
 
-      ref.read(routerProvider).go(AppScreen.wallet.toPath);
+      ref.read(routerProvider).go(AuthAppScreen.wallet.toPath);
 
       state = AuthenticationState.signedIn(
           name: name, nativeWallet: walletRepository);
@@ -76,7 +76,7 @@ class Authentication extends _$Authentication {
 
         ref
             .read(routerProvider)
-            .push(AppScreen.walletSeedDialog.toPath, extra: seed);
+            .push(AuthAppScreen.walletSeedDialog.toPath, extra: seed);
       }
     }
   }
@@ -113,7 +113,7 @@ class Authentication extends _$Authentication {
       state = AuthenticationState.signedIn(
           name: name, nativeWallet: walletRepository);
 
-      ref.read(routerProvider).go(AppScreen.wallet.toPath);
+      ref.read(routerProvider).go(AuthAppScreen.wallet.toPath);
 
       ref.read(walletStateProvider.notifier).connect();
     } else {

@@ -1,13 +1,16 @@
-enum AppScreen {
-  openWallet,
-  createWallet,
+enum AuthAppScreen {
   wallet,
-  settings,
   changePassword,
   walletSeedScreen,
   walletSeedDialog,
   transfer,
   transactionEntry,
+}
+
+enum AppScreen {
+  openWallet,
+  createWallet,
+  settings,
 }
 
 extension AppScreenExtension on AppScreen {
@@ -17,19 +20,26 @@ extension AppScreenExtension on AppScreen {
         return '/create_wallet';
       case AppScreen.openWallet:
         return '/open_wallet';
-      case AppScreen.wallet:
-        return '/wallet';
       case AppScreen.settings:
         return '/settings';
-      case AppScreen.changePassword:
+    }
+  }
+}
+
+extension AuthAppScreenExtension on AuthAppScreen {
+  String get toPath {
+    switch (this) {
+      case AuthAppScreen.wallet:
+        return '/wallet';
+      case AuthAppScreen.changePassword:
         return '/change_password';
-      case AppScreen.walletSeedScreen:
+      case AuthAppScreen.walletSeedScreen:
         return '/wallet_seed';
-      case AppScreen.walletSeedDialog:
+      case AuthAppScreen.walletSeedDialog:
         return '/wallet_seed_dialog';
-      case AppScreen.transfer:
+      case AuthAppScreen.transfer:
         return '/transfer';
-      case AppScreen.transactionEntry:
+      case AuthAppScreen.transactionEntry:
         return '/transaction_entry';
     }
   }
