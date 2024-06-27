@@ -13,7 +13,7 @@ packages:
     dependency: transitive
     description: dart
     source: sdk
-    version: "0.1.0"
+    version: "0.1.5"
   analyzer:
     dependency: transitive
     description:
@@ -404,10 +404,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_rust_bridge
-      sha256: f703c4b50e253e53efc604d50281bbaefe82d615856f8ae1e7625518ae252e98
+      sha256: d513d132ebc1c6413fe88f444386b8da00a6363fa87c0a632f2d47779d6ad69d
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0"
+    version: "2.0.0-dev.42"
   flutter_svg:
     dependency: transitive
     description:
@@ -665,10 +665,10 @@ packages:
     dependency: transitive
     description:
       name: macros
-      sha256: "12e8a9842b5a7390de7a781ec63d793527582398d16ea26c60fed58833c9ae79"
+      sha256: a8403c89b36483b4cbf9f1fcd24562f483cb34a5c9bf101cf2b0d8a083cf1239
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.0-main.0"
+    version: "0.1.0-main.5"
   matcher:
     dependency: transitive
     description:
@@ -681,10 +681,10 @@ packages:
     dependency: transitive
     description:
       name: material_color_utilities
-      sha256: "0e0a020085b65b6083975e499759762399b4475f766c21668c4ecca34ea74e5a"
+      sha256: f7142bb1154231d7ea5f96bc7bde4bda2a0945d2806bb11670e30b850d56bdec
       url: "https://pub.dev"
     source: hosted
-    version: "0.8.0"
+    version: "0.11.1"
   meta:
     dependency: "direct overridden"
     description:

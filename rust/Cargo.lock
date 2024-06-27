@@ -614,9 +614,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.0.100"
+version = "1.0.101"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c891175c3fb232128f48de6590095e59198bbeb8620c310be349bfc3afd12c7b"
+checksum = "ac367972e516d45567c7eafc73d24e1c193dcf200a8d94e9db7b3d38b349572d"
 dependencies = [
  "jobserver",
  "libc",
@@ -969,9 +969,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge"
-version = "2.0.0"
+version = "2.0.0-dev.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "033e831e28f1077ceae3490fb6d093dfdefefd09c5c6e8544c6579effe7e814f"
+checksum = "79e46b146c768437f2c37de40392d210aa8a20fb838704499687043da65c9c7d"
 dependencies = [
  "allo-isolate",
  "android_logger",
@@ -997,9 +997,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge_macros"
-version = "2.0.0"
+version = "2.0.0-dev.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0217fc4b7131b52578be60bbe38c76b3edfc2f9fecab46d9f930510f40ef9023"
+checksum = "290cadd7cd9c47dc521a99ef13e8a037bb767846991351bb7fd33cf62d330c74"
 dependencies = [
  "hex",
  "md-5",
@@ -2897,7 +2897,7 @@ dependencies = [
 [[package]]
 name = "xelis_common"
 version = "1.13.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#cfe12462607d60fb57d7540f86222292d0c186b6"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#4cd60c41b206d159bd0544c046d7ef36c5cf9bfd"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -2937,7 +2937,7 @@ dependencies = [
 [[package]]
 name = "xelis_wallet"
 version = "1.13.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#cfe12462607d60fb57d7540f86222292d0c186b6"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#4cd60c41b206d159bd0544c046d7ef36c5cf9bfd"
 dependencies = [
  "actix",
  "actix-web",

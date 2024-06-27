@@ -47,7 +47,7 @@ dependencies:
   url_launcher: ^6.3.0
 #  workmanager: ^0.5.2
 
-  flutter_rust_bridge: 2.0.0
+  flutter_rust_bridge: 2.0.0-dev.42
   rust_builder:
     path: rust_builder
   localstorage: ^5.0.0
