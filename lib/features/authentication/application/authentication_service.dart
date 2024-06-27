@@ -61,18 +61,20 @@ class Authentication extends _$Authentication {
           .read(walletsProvider.notifier)
           .setWalletAddress(name, walletRepository.address);
 
-      ref.read(routerProvider).go(AuthAppScreen.wallet.toPath);
-
       state = AuthenticationState.signedIn(
           name: name, nativeWallet: walletRepository);
 
-      ref.read(walletStateProvider.notifier).connect();
+      ref.read(routerProvider).go(AuthAppScreen.wallet.toPath);
+
+      try {
+        ref.read(walletStateProvider.notifier).connect();
+      } finally {
+        // continue... it's ok if we can't connect
+        // the connect() func displays an error message
+      }
 
       if (seed == null) {
-        final seed = await ref
-            .read(walletStateProvider)
-            .nativeWalletRepository!
-            .getSeed();
+        final seed = await walletRepository.getSeed();
 
         ref
             .read(routerProvider)
