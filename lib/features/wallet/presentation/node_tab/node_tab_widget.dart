@@ -19,7 +19,6 @@ class NodeTab extends ConsumerWidget {
         //   loc.remote_node,
         //   style: context.headlineLarge!.copyWith(fontWeight: FontWeight.bold),
         // ),
-        SizedBox(height: Spaces.medium),
         NodeSelectorWidget(),
         SizedBox(height: Spaces.medium),
         NodeInfoWidget(),

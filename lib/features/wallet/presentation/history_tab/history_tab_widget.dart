@@ -15,9 +15,7 @@ class HistoryTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
     return Padding(
-      padding: isDesktopDevice
-          ? const EdgeInsets.all(Spaces.large)
-          : const EdgeInsets.only(top: Spaces.large),
+      padding: const EdgeInsets.all(Spaces.large),
       child: DefaultTabController(
         length: 4,
         child: Column(

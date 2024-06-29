@@ -81,14 +81,13 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
         appBar: GenericAppBar(title: loc.transfer),
         body: ListView(
           padding: const EdgeInsets.fromLTRB(
-              Spaces.large, 0, Spaces.large, Spaces.large),
+              Spaces.large, Spaces.none, Spaces.large, Spaces.large),
           children: [
             FormBuilder(
               key: _transferFormKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: Spaces.medium),
                   Text(
                     toBeginningOfSentenceCase(loc.amount) ?? '',
                     style: context.headlineSmall,
@@ -134,7 +133,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                       }
                     ]),
                   ),
-                  const SizedBox(height: Spaces.small),
+                  const SizedBox(height: Spaces.medium),
                   Text(
                     loc.recipient,
                     style: context.headlineSmall,

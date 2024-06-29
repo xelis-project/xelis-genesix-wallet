@@ -130,7 +130,7 @@ class SettingsTab extends ConsumerWidget {
           loc.settings,
           style: context.headlineLarge!.copyWith(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: Spaces.large),
+        const SizedBox(height: Spaces.medium),
         ListTile(
           leading: const Icon(Icons.settings_applications),
           title: Text(
@@ -211,23 +211,23 @@ class SettingsTab extends ConsumerWidget {
           ],
         ),
         const Divider(),
-        const SizedBox(height: Spaces.large),
+        const SizedBox(height: Spaces.medium),
         OutlinedButton.icon(
           icon: Icon(
             Icons.delete_forever,
             color: context.colors.error,
           ),
           style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.all(Spaces.large),
+            padding: const EdgeInsets.all(Spaces.medium + 4),
             side: BorderSide(
               color: context.colors.error,
-              width: 2,
+              width: 1,
             ),
           ),
           onPressed: () => _showDeleteWalletInput(ref),
           label: Text(
             loc.delete_wallet,
-            style: context.titleLarge!.copyWith(color: context.colors.error),
+            style: context.titleMedium!.copyWith(color: context.colors.error),
           ),
         ),
       ],
