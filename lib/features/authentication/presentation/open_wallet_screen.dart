@@ -142,7 +142,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                                                 style: context.headlineSmall,
                                               ),
                                               Text(
-                                                truncateAddress(wallets[name]!),
+                                                truncateText(wallets[name]!),
                                                 style: context.labelLarge!
                                                     .copyWith(
                                                         color: context

@@ -33,7 +33,7 @@ class WalletAddressWidget extends ConsumerWidget {
     if (walletAddress.isNotEmpty) {
       avatar =
           RandomAvatar(walletAddress, height: avatarSize, width: avatarSize);
-      address = truncateAddress(walletAddress);
+      address = truncateText(walletAddress);
     }
 
     return Row(

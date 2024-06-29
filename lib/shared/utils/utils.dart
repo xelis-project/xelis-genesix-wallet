@@ -40,7 +40,8 @@ Future<String> getWalletPath(Network network, String name) async {
   return path;
 }
 
-String truncateAddress(String address) {
-  if (address.isEmpty) return "";
-  return "...${address.substring(address.length - 8)}";
+String truncateText(String text, {int maxLength = 8}) {
+  if (text.isEmpty) return "";
+  if (text.length <= maxLength) return text;
+  return "...${text.substring(text.length - maxLength)}";
 }

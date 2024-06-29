@@ -36,7 +36,7 @@ Future<void> main() async {
       title: AppResources.xelisWalletName,
       size: Size(500, 700),
       minimumSize: Size(400, 600),
-      maximumSize: Size(1000, 1200),
+      //maximumSize: Size(1000, 1200),
       center: true,
       backgroundColor: Colors.transparent,
       skipTaskbar: false,
