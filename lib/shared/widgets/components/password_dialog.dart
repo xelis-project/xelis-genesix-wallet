@@ -33,10 +33,6 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
       GlobalKey<FormBuilderState>(debugLabel: '_passwordFormKey');
 
   void _checkWalletPassword(BuildContext context) async {
-    setState(() {
-      _passwordError = null;
-    });
-
     final password = _passwordFormKey.currentState?.value['password'] as String;
 
     final wallet = ref.read(walletStateProvider);
@@ -54,7 +50,7 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
       });
     }
 
-    if (context.mounted) {
+    if (context.mounted && context.loaderOverlay.visible) {
       context.loaderOverlay.hide();
     }
   }
@@ -82,6 +78,11 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
               errorText: _passwordError,
               errorMaxLines: 2,
             ),
+            onChanged: (_) {
+              setState(() {
+                _passwordError = null;
+              });
+            },
             onSubmitted: (value) {
               if (_passwordFormKey.currentState?.saveAndValidate() ?? false) {
                 if (widget.onEnter != null) {

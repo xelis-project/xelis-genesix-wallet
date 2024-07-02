@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:genesix/features/authentication/presentation/components/seed_content_dialog.dart';
+import 'package:genesix/shared/widgets/components/dialog_page.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/authentication/presentation/create_wallet_screen.dart';
 import 'package:genesix/features/authentication/presentation/open_wallet_screen.dart';
@@ -66,6 +69,19 @@ class WalletSeedRoute extends GoRouteData {
       state.pageKey,
       AppDurations.animFast,
     );
+  }
+}
+
+@TypedGoRoute<WalletSeedDialogRoute>(
+    name: 'wallet_seed_dialog', path: '/wallet_seed_dialog')
+class WalletSeedDialogRoute extends GoRouteData {
+  const WalletSeedDialogRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return DialogPage(
+        barrierDismissible: false,
+        builder: (_) => SeedContentDialog(state.extra as String));
   }
 }
 

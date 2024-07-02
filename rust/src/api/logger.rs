@@ -1,12 +1,12 @@
-use std::sync::Once;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
-
 use lazy_static::lazy_static;
 pub use log::LevelFilter;
 use log::{error, warn, Log, Metadata, Record};
 use simplelog::{CombinedLogger, Config, SharedLogger};
+use std::sync::Once;
 
 use crate::frb_generated::StreamSink;
+
+use super::time;
 
 lazy_static! {
     pub static ref SEND_TO_DART_LOGGER_STREAM_SINK: parking_lot::RwLock<Option<StreamSink<LogEntry>>> =
@@ -31,7 +31,7 @@ pub fn init_logger() {
 }
 
 pub struct LogEntry {
-    pub time_millis: i64,
+    pub time_millis: u64,
     pub level: String,
     pub tag: String,
     pub msg: String,
@@ -59,11 +59,7 @@ impl SendToDartLogger {
     }
 
     fn record_to_entry(record: &Record) -> LogEntry {
-        let time_millis = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap_or_else(|_| Duration::from_secs(0))
-            .as_millis() as i64;
-
+        let time_millis = time::get_current_time_millis();
         let level = record.level().to_string();
 
         let tag = record.file().unwrap_or_else(|| record.target()).to_owned();

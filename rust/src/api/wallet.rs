@@ -1,12 +1,14 @@
 use std::collections::HashMap;
+use std::fmt::Debug;
 use std::sync::Arc;
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, bail, Context, Result};
 use flutter_rust_bridge::frb;
 use log::{debug, info};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use xelis_common::api::{DataElement, DataValue};
 use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
 use xelis_common::crypto::{Address, Hash, Hashable};
 use xelis_common::network::Network;
@@ -35,6 +37,7 @@ pub struct Transfer {
     pub float_amount: f64,
     pub str_address: String,
     pub asset_hash: Option<String>,
+    pub extra_data: Option<String>,
 }
 
 pub struct XelisWallet {
@@ -42,7 +45,7 @@ pub struct XelisWallet {
     pending_transactions: RwLock<HashMap<Hash, (Transaction, TransactionBuilderState)>>,
 }
 
-pub fn create_xelis_wallet(
+pub async fn create_xelis_wallet(
     name: String,
     password: String,
     network: Network,
@@ -60,7 +63,7 @@ pub fn create_xelis_wallet(
     })
 }
 
-pub fn open_xelis_wallet(
+pub async fn open_xelis_wallet(
     name: String,
     password: String,
     network: Network,
@@ -177,16 +180,17 @@ impl XelisWallet {
             .create_transfers(transfers)
             .await
             .context("Error while creating transaction type builder")?;
-        let mut storage = self.wallet.get_storage().write().await;
 
-        let (state, tx) = self
-            .wallet
-            .create_transaction_with_storage(
-                &mut storage,
-                transaction_type_builder.clone(),
-                FeeBuilder::default(),
-            )
-            .await?;
+        let (state, tx) = {
+            let mut storage = self.wallet.get_storage().write().await;
+            self.wallet
+                .create_transaction_with_storage(
+                    &mut storage,
+                    transaction_type_builder.clone(),
+                    FeeBuilder::default(),
+                )
+                .await?
+        };
 
         info!("Transaction created!");
         let hash = tx.hash();
@@ -210,33 +214,63 @@ impl XelisWallet {
         &self,
         str_address: String,
         asset_hash: Option<String>,
+        extra_data: Option<String>,
     ) -> Result<String> {
         self.pending_transactions.write().clear();
 
-        info!("Building transaction...");
+        info!("Building transfer all transaction...");
 
-        let asset = match asset_hash {
+        let asset = match asset_hash.clone() {
             None => XELIS_ASSET,
             Some(value) => Hash::from_hex(value).unwrap_or(XELIS_ASSET),
         };
 
-        let amount = {
+        let mut amount = {
             let storage = self.wallet.get_storage().read().await;
-            let amount = storage.get_plaintext_balance_for(&asset).await.unwrap_or(0);
-            amount
+            storage.get_plaintext_balance_for(&asset).await.unwrap_or(0)
         };
 
         let address = Address::from_string(&str_address).context("Invalid address")?;
 
-        let transfers = self
-            .create_transfer_with_fees_included(amount, address, asset.clone())
-            .await?;
+        let transfer = TransferBuilder {
+            destination: address.clone(),
+            amount,
+            asset: asset.clone(),
+            extra_data: match extra_data {
+                None => None,
+                Some(value) => Some(DataElement::Value(DataValue::String(value))),
+            },
+        };
 
-        let mut storage = self.wallet.get_storage().write().await;
-        let (state, tx) = self
+        let estimated_fees = self
             .wallet
-            .create_transaction_with_storage(&mut storage, transfers.clone(), FeeBuilder::default())
-            .await?;
+            .estimate_fees(TransactionTypeBuilder::Transfers(vec![transfer]))
+            .await
+            .context("Error while estimating fees")?;
+
+        if asset == XELIS_ASSET {
+            amount -= estimated_fees;
+        }
+
+        let transfer = TransferBuilder {
+            destination: address,
+            amount,
+            asset: asset.clone(),
+            extra_data: None,
+        };
+
+        let transaction_type_builder = TransactionTypeBuilder::Transfers(vec![transfer]);
+
+        let (state, tx) = {
+            let mut storage = self.wallet.get_storage().write().await;
+            self.wallet
+                .create_transaction_with_storage(
+                    &mut storage,
+                    transaction_type_builder.clone(),
+                    FeeBuilder::default(),
+                )
+                .await?
+        };
 
         info!("Transaction created!");
         let hash = tx.hash();
@@ -253,7 +287,7 @@ impl XelisWallet {
             hash: hash.to_hex(),
             amounts,
             fee,
-            transaction_type: transfers
+            transaction_type: transaction_type_builder
         })
         .to_string())
     }
@@ -312,7 +346,7 @@ impl XelisWallet {
         &self,
         tx_hash: String,
     ) -> Result<(Transaction, TransactionBuilderState)> {
-        let hash = Hash::from_hex(tx_hash.clone()).unwrap();
+        let hash = Hash::from_hex(tx_hash.clone())?;
         let res = self
             .pending_transactions
             .write()
@@ -323,15 +357,24 @@ impl XelisWallet {
     }
 
     pub async fn broadcast_transaction(&self, tx_hash: String) -> Result<()> {
-        let (tx, mut state) = self.clear_transaction(tx_hash)?;
+        info!("start to broadcast tx: {}", tx_hash);
+        let (tx, mut state) = self.clear_transaction(tx_hash.clone())?;
+
         let mut storage = self.wallet.get_storage().write().await;
         state.apply_changes(&mut storage).await?;
+        info!("Transaction applied to storage");
 
+        info!("Broadcasting transaction...");
         if self.wallet.is_online().await {
-            if let Err(_e) = self.wallet.submit_transaction(&tx).await {
-                let mut storage = self.wallet.get_storage().write().await;
+            if let Err(e) = self.wallet.submit_transaction(&tx).await {
+                info!("Error while submitting transaction, clearing cache...");
                 storage.clear_tx_cache();
                 storage.delete_unconfirmed_balances().await;
+                let hash: Hash = Hash::from_hex(tx_hash)?;
+                self.pending_transactions
+                    .write()
+                    .insert(hash.clone(), (tx, state));
+                bail!(e)
             } else {
                 info!("Transaction submitted successfully!");
             }
@@ -440,46 +483,16 @@ impl XelisWallet {
                 destination: address,
                 amount,
                 asset,
-                extra_data: None,
+                extra_data: match transfer.extra_data {
+                    None => None,
+                    Some(value) => Some(DataElement::Value(DataValue::String(value))),
+                },
             };
 
             vec.push(transfer_builder);
         }
 
         Ok(TransactionTypeBuilder::Transfers(vec))
-    }
-
-    async fn create_transfer_with_fees_included(
-        &self,
-        mut amount: u64,
-        address: Address,
-        asset: Hash,
-    ) -> Result<TransactionTypeBuilder> {
-        let transfer = TransferBuilder {
-            destination: address.clone(),
-            amount,
-            asset: asset.clone(),
-            extra_data: None,
-        };
-
-        let estimated_fees = self
-            .wallet
-            .estimate_fees(TransactionTypeBuilder::Transfers(vec![transfer]))
-            .await
-            .context("Error while estimating fees")?;
-
-        if asset == XELIS_ASSET {
-            amount -= estimated_fees;
-        }
-
-        let transfer = TransferBuilder {
-            destination: address,
-            amount,
-            asset: asset.clone(),
-            extra_data: None,
-        };
-
-        Ok(TransactionTypeBuilder::Transfers(vec![transfer]))
     }
 
     async fn convert_float_amount(&self, float_amount: f64, asset: Hash) -> Result<u64> {

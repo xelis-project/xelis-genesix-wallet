@@ -75,7 +75,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       child: Scaffold(
         appBar: GenericAppBar(title: loc.app_settings),
         body: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: Spaces.large),
+          padding: const EdgeInsets.fromLTRB(
+              Spaces.large, Spaces.none, Spaces.large, Spaces.large),
           children: [
             const NetworkSelectorWidget(),
             const Divider(),
@@ -93,16 +94,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             OutlinedButton(
                 onPressed: () => _clearCache(context),
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.all(Spaces.large),
+                  padding: const EdgeInsets.all(Spaces.medium + 4),
                   side: BorderSide(
                     color: context.colors.error,
-                    width: 2,
+                    width: 1,
                   ),
                 ),
                 child: Text(
                   loc.clear_cache,
-                  style:
-                      context.titleLarge!.copyWith(color: context.colors.error),
+                  style: context.titleMedium!
+                      .copyWith(color: context.colors.error),
                 )),
           ],
         ),

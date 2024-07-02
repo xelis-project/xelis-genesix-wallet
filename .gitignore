@@ -57,3 +57,6 @@ lib/**/*.freezed.dart
 
 # Wallet precomputed table
 precomputed_tables_26.bin
+
+# Web wallet wasm
+web/pkg

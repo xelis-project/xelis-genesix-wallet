@@ -97,7 +97,7 @@ class BalanceWidget extends ConsumerWidget {
                 children: [
                   IconButton.filled(
                     onPressed: () {
-                      context.push(AppScreen.transfer.toPath);
+                      context.push(AuthAppScreen.transfer.toPath);
                     },
                     icon: const Icon(Icons.call_made_rounded),
                   ),

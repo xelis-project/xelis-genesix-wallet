@@ -1,4 +1,6 @@
 import 'package:flutter/widgets.dart';
+import 'package:genesix/features/authentication/application/authentication_service.dart';
+import 'package:genesix/features/router/route_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:genesix/features/router/routes.dart';
@@ -13,8 +15,24 @@ GoRouter router(RouterRef ref) {
 
   final router = GoRouter(
     navigatorKey: routerKey,
-    initialLocation:
-        const OpenWalletRoute().location, //const AuthRoute().location,
+    initialLocation: const OpenWalletRoute().location,
+    onException: (context, state, router) {
+      // if exception like page not found just redirect to openWallet screen
+      router.go(AppScreen.openWallet.toPath);
+    },
+    redirect: (context, state) {
+      // redirect to openWallet screen if wallet is not authenticated
+      final auth = ref.read(authenticationProvider);
+      if (!auth.isAuth) {
+        for (final p in AuthAppScreen.values) {
+          if (state.fullPath == p.toPath) {
+            return AppScreen.openWallet.toPath;
+          }
+        }
+      }
+
+      return null;
+    },
     debugLogDiagnostics: true,
     routes: $appRoutes,
   );

@@ -17,7 +17,7 @@ void initFlutterLogging() {
 Future<void> initRustLogging() async {
   await setUpRustLogger();
   createLogStream().listen((event) {
-    final time = DateTime.fromMillisecondsSinceEpoch(event.timeMillis);
+    final time = DateTime.fromMillisecondsSinceEpoch(event.timeMillis.toInt());
     debugPrint('${event.level}: $time - ${event.tag} - ${event.msg}');
   });
 }

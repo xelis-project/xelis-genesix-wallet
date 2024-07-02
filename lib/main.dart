@@ -11,6 +11,7 @@ import 'package:genesix/shared/storage/shared_preferences/shared_preferences_pro
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/xelis_wallet_app.dart';
 import 'package:genesix/rust_bridge/frb_generated.dart';
+import 'package:localstorage/localstorage.dart';
 
 Future<void> main() async {
   logger.info('Starting Genesix...');
@@ -22,6 +23,11 @@ Future<void> main() async {
   await RustLib.init();
   await initRustLogging();
 
+  if (kIsWeb) {
+    logger.info('initializing local storage ...');
+    await initLocalStorage();
+  }
+
   if (isDesktopDevice) {
     logger.info('initializing window manager ...');
     await windowManager.ensureInitialized();
@@ -30,7 +36,7 @@ Future<void> main() async {
       title: AppResources.xelisWalletName,
       size: Size(500, 700),
       minimumSize: Size(400, 600),
-      maximumSize: Size(1000, 1200),
+      //maximumSize: Size(1000, 1200),
       center: true,
       backgroundColor: Colors.transparent,
       skipTaskbar: false,

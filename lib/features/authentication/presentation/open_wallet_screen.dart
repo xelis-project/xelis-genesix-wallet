@@ -49,9 +49,13 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
     } catch (e) {
       logger.severe('Opening wallet failed: $e');
       ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
+      if (mounted) {
+        // Dismiss TableGenerationProgressDialog if error occurs
+        context.pop();
+      }
     }
 
-    if (mounted) {
+    if (mounted && context.loaderOverlay.visible) {
       context.loaderOverlay.hide();
     }
   }
@@ -137,7 +141,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                                                 style: context.headlineSmall,
                                               ),
                                               Text(
-                                                truncateAddress(wallets[name]!),
+                                                truncateText(wallets[name]!),
                                                 style: context.labelLarge!
                                                     .copyWith(
                                                         color: context

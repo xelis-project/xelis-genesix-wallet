@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -5,10 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:genesix/features/authentication/presentation/components/seed_content_dialog.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/shared/logger.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
 import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
@@ -83,27 +83,16 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
 
           await ref.read(authenticationProvider.notifier).createWallet(
               walletName, password, _seedRequired ? createSeed : null);
-
-          final seed = await ref
-              .read(walletStateProvider)
-              .nativeWalletRepository!
-              .getSeed();
-
-          if (mounted) {
-            showDialog<void>(
-              barrierDismissible: false,
-              context: context,
-              builder: (context) {
-                return SeedContentDialog(seed, ref);
-              },
-            );
-          }
         } catch (e) {
           logger.severe('Creating wallet failed: $e');
           ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
+          if (mounted) {
+            // Dismiss TableGenerationProgressDialog if error occurs
+            context.pop();
+          }
         }
 
-        if (mounted) {
+        if (mounted && context.loaderOverlay.visible) {
           context.loaderOverlay.hide();
         }
       }

@@ -21,49 +21,49 @@ class LanguageSelectorWidget extends ConsumerWidget {
           'CN',
           height: 24,
           width: 30,
-          borderRadius: 8,
+          shape: const RoundedRectangle(8),
         );
       case 'ru' || 'pt' || 'nl' || 'pl':
         return CountryFlag.fromCountryCode(
           languageCode,
           height: 24,
           width: 30,
-          borderRadius: 8,
+          shape: const RoundedRectangle(8),
         );
       case 'ko':
         return CountryFlag.fromCountryCode(
           'KR',
           height: 24,
           width: 30,
-          borderRadius: 8,
+          shape: const RoundedRectangle(8),
         );
       case 'ms':
         return CountryFlag.fromCountryCode(
           'MY',
           height: 24,
           width: 30,
-          borderRadius: 8,
+          shape: const RoundedRectangle(8),
         );
       case 'uk':
         return CountryFlag.fromCountryCode(
           'UA',
           height: 24,
           width: 30,
-          borderRadius: 8,
+          shape: const RoundedRectangle(8),
         );
       case 'ja':
         return CountryFlag.fromCountryCode(
           'JP',
           height: 24,
           width: 30,
-          borderRadius: 8,
+          shape: const RoundedRectangle(8),
         );
       default:
         return CountryFlag.fromLanguageCode(
           AppLocalizations.supportedLocales[index].languageCode,
           height: 24,
           width: 30,
-          borderRadius: 8,
+          shape: const RoundedRectangle(8),
         );
     }
   }

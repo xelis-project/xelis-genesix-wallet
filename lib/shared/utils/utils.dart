@@ -3,6 +3,7 @@ import 'package:genesix/rust_bridge/api/network.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:path/path.dart' as p;
+import 'package:flutter/foundation.dart';
 
 String formatCoin(int value, int decimals) {
   return (value / pow(10, decimals)).toStringAsFixed(decimals);
@@ -13,14 +14,24 @@ String formatXelis(int value) {
 }
 
 Future<String> getAppCacheDirPath() async {
-  var dir = await getApplicationCacheDirectory();
-  return dir.path;
+  if (kIsWeb) {
+    return "/cache";
+  } else {
+    var dir = await getApplicationSupportDirectory();
+    return dir.path;
+  }
 }
 
+String localStorageDBPrefix = "___xelis_db___";
+
 Future<String> getAppWalletsDirPath() async {
-  var dir = await getApplicationDocumentsDirectory();
-  var path = p.join(dir.path, AppResources.userWalletsFolderName);
-  return path;
+  if (kIsWeb) {
+    return p.join(localStorageDBPrefix, AppResources.userWalletsFolderName);
+  } else {
+    var dir = await getApplicationDocumentsDirectory();
+    var path = p.join(dir.path, AppResources.userWalletsFolderName);
+    return path;
+  }
 }
 
 Future<String> getWalletPath(Network network, String name) async {
@@ -29,7 +40,8 @@ Future<String> getWalletPath(Network network, String name) async {
   return path;
 }
 
-String truncateAddress(String address) {
-  if (address.isEmpty) return "";
-  return "...${address.substring(address.length - 8)}";
+String truncateText(String text, {int maxLength = 8}) {
+  if (text.isEmpty) return "";
+  if (text.length <= maxLength) return text;
+  return "...${text.substring(text.length - maxLength)}";
 }
