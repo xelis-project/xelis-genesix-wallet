@@ -32,7 +32,6 @@ class Background extends StatelessWidget {
         ),
         child: Container(
           decoration: BoxDecoration(
-            
             gradient: RadialGradient(
               center: Alignment.centerLeft,
               colors: [

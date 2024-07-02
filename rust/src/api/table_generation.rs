@@ -25,7 +25,6 @@ impl ecdlp::ProgressTableGenerationReportFunction for LogProgressTableGeneration
 
 #[frb(sync)]
 pub fn precomputed_tables_exist(precomputed_tables_path: String) -> bool {
-    let file_path =
-        format!("{precomputed_tables_path}precomputed_tables_26.bin");
+    let file_path = format!("{precomputed_tables_path}precomputed_tables_26.bin");
     return Path::new(&file_path).is_file();
 }

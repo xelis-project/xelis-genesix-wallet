@@ -75,7 +75,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       child: Scaffold(
         appBar: GenericAppBar(title: loc.app_settings),
         body: ListView(
-          padding: const EdgeInsets.fromLTRB(Spaces.large, Spaces.none, Spaces.large, Spaces.large),
+          padding: const EdgeInsets.fromLTRB(
+              Spaces.large, Spaces.none, Spaces.large, Spaces.large),
           children: [
             const NetworkSelectorWidget(),
             const Divider(),
@@ -101,8 +102,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 child: Text(
                   loc.clear_cache,
-                  style:
-                      context.titleMedium!.copyWith(color: context.colors.error),
+                  style: context.titleMedium!
+                      .copyWith(color: context.colors.error),
                 )),
           ],
         ),

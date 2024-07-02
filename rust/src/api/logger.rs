@@ -1,8 +1,8 @@
-use std::sync::Once;
 use lazy_static::lazy_static;
 pub use log::LevelFilter;
 use log::{error, warn, Log, Metadata, Record};
 use simplelog::{CombinedLogger, Config, SharedLogger};
+use std::sync::Once;
 
 use crate::frb_generated::StreamSink;
 
@@ -14,8 +14,6 @@ lazy_static! {
 }
 
 static INIT_LOGGER_ONCE: Once = Once::new();
-
-
 
 pub fn init_logger() {
     INIT_LOGGER_ONCE.call_once(|| {

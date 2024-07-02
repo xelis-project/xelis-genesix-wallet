@@ -3,13 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
-import 'package:genesix/shared/resources/app_resources.dart';
-import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
-import 'package:genesix/features/router/route_utils.dart';
-import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/presentation/history_tab/components/transaction_entry_screen.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -42,7 +35,7 @@ class AssetItemWidget extends ConsumerStatefulWidget {
 class _AssetItemWidgetState extends ConsumerState<AssetItemWidget> {
   @override
   Widget build(BuildContext context) {
-    final loc = ref.watch(appLocalizationsProvider);
+    // final loc = ref.watch(appLocalizationsProvider);
 
     final walletSnapshot = ref.read(walletStateProvider);
     var assets = walletSnapshot.assets ?? {};

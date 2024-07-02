@@ -6,7 +6,6 @@ import 'package:genesix/features/wallet/presentation/history_tab/components/inco
 import 'package:genesix/features/wallet/presentation/history_tab/components/outgoing_history_widget.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/extensions.dart';
 
 class HistoryTab extends ConsumerWidget {
   const HistoryTab({super.key});
