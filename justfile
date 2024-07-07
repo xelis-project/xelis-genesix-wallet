@@ -22,7 +22,7 @@ rust:
     cd rust && cargo update
 
 prep:
-    cargo install 'flutter_rust_bridge_codegen@^2.0.0-dev'
+    cargo install 'flutter_rust_bridge_codegen'
     cd rust && cargo update
 
 serve_web:

@@ -12,7 +12,6 @@ import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:genesix/shared/logger.dart';
 
 part 'authentication_service.g.dart';
 
