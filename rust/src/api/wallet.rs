@@ -32,7 +32,7 @@ pub struct SummaryTransaction {
     transaction_type: TransactionTypeBuilder,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct Transfer {
     pub float_amount: f64,
     pub str_address: String,
@@ -220,26 +220,28 @@ impl XelisWallet {
 
         info!("Building transfer all transaction...");
 
-        let asset = match asset_hash.clone() {
+        let asset = match asset_hash {
             None => XELIS_ASSET,
-            Some(value) => Hash::from_hex(value).unwrap_or(XELIS_ASSET),
+            Some(value) => Hash::from_hex(value).context("Invalid asset")?,
         };
 
         let mut amount = {
             let storage = self.wallet.get_storage().read().await;
-            storage.get_plaintext_balance_for(&asset).await.unwrap_or(0)
+            storage.get_plaintext_balance_for(&asset).await?
         };
 
         let address = Address::from_string(&str_address).context("Invalid address")?;
+
+        let extra_data = match extra_data {
+            None => None,
+            Some(value) => Some(DataElement::Value(DataValue::String(value))),
+        };
 
         let transfer = TransferBuilder {
             destination: address.clone(),
             amount,
             asset: asset.clone(),
-            extra_data: match extra_data {
-                None => None,
-                Some(value) => Some(DataElement::Value(DataValue::String(value))),
-            },
+            extra_data: extra_data.clone(),
         };
 
         let estimated_fees = self
@@ -256,7 +258,7 @@ impl XelisWallet {
             destination: address,
             amount,
             asset: asset.clone(),
-            extra_data: None,
+            extra_data,
         };
 
         let transaction_type_builder = TransactionTypeBuilder::Transfers(vec![transfer]);
@@ -299,12 +301,16 @@ impl XelisWallet {
     ) -> Result<String> {
         self.pending_transactions.write().clear();
 
-        info!("Building transaction...");
+        info!("Building burn transaction...");
 
-        let asset = Hash::from_hex(asset_hash)?;
-        let mut storage = self.wallet.get_storage().write().await;
-        let decimals = storage.get_asset_decimals(&asset).unwrap_or(COIN_DECIMALS);
-        let amount = (float_amount * 10u32.pow(decimals as u32) as f64) as u64;
+        let asset = Hash::from_hex(asset_hash).context("Invalid asset")?;
+
+        let (amount, decimals) = {
+            let storage = self.wallet.get_storage().read().await;
+            let decimals = storage.get_asset_decimals(&asset).unwrap_or(COIN_DECIMALS);
+            let amount = (float_amount * 10u32.pow(decimals as u32) as f64) as u64;
+            (amount, decimals)
+        };
 
         info!("Burning {} of {}", format_coin(amount, decimals), asset);
 
@@ -312,15 +318,19 @@ impl XelisWallet {
             amount,
             asset: asset.clone(),
         };
+
         let transaction_type_builder = TransactionTypeBuilder::Burn(payload);
-        let (state, tx) = self
-            .wallet
-            .create_transaction_with_storage(
-                &mut storage,
-                transaction_type_builder.clone(),
-                FeeBuilder::Multiplier(1f64),
-            )
-            .await?;
+
+        let (state, tx) = {
+            let mut storage = self.wallet.get_storage().write().await;
+            self.wallet
+                .create_transaction_with_storage(
+                    &mut storage,
+                    transaction_type_builder.clone(),
+                    FeeBuilder::Multiplier(1f64),
+                )
+                .await?
+        };
 
         info!("Transaction created!");
         let hash = tx.hash();
@@ -470,11 +480,11 @@ impl XelisWallet {
         for transfer in transfers {
             let asset = match transfer.asset_hash {
                 None => XELIS_ASSET,
-                Some(value) => Hash::from_hex(value).unwrap_or(XELIS_ASSET),
+                Some(value) => Hash::from_hex(value).context("Invalid asset")?,
             };
 
             let amount = self
-                .convert_float_amount(transfer.float_amount, asset.clone())
+                .convert_float_amount(transfer.float_amount, &asset)
                 .await
                 .context("Error while converting amount to atomic format")?;
 
@@ -496,7 +506,7 @@ impl XelisWallet {
         Ok(TransactionTypeBuilder::Transfers(vec))
     }
 
-    async fn convert_float_amount(&self, float_amount: f64, asset: Hash) -> Result<u64> {
+    async fn convert_float_amount(&self, float_amount: f64, asset: &Hash) -> Result<u64> {
         let storage = self.wallet.get_storage().read().await;
         let decimals = storage.get_asset_decimals(&asset).unwrap_or(COIN_DECIMALS);
         let amount = (float_amount * 10u32.pow(decimals as u32) as f64) as u64;
@@ -512,11 +522,11 @@ impl XelisWallet {
         for transfer in transfers {
             let asset_hash = match transfer.asset_hash.clone() {
                 None => XELIS_ASSET,
-                Some(value) => Hash::from_hex(value).unwrap_or(XELIS_ASSET),
+                Some(value) => Hash::from_hex(value).context("Invalid asset")?,
             };
 
             let amount = self
-                .convert_float_amount(transfer.float_amount, asset_hash)
+                .convert_float_amount(transfer.float_amount, &asset_hash)
                 .await
                 .context("Error while converting amount to atomic format")?;
 
