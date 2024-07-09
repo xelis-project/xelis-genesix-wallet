@@ -344,8 +344,9 @@ impl XelisWallet {
 
     pub fn clear_transaction(
         &self,
-        hash: &Hash,
+        tx_hash: String,
     ) -> Result<(Transaction, TransactionBuilderState)> {
+        let hash = Hash::from_hex(tx_hash)?;
         let res = self
             .pending_transactions
             .write()
@@ -357,19 +358,19 @@ impl XelisWallet {
 
     pub async fn broadcast_transaction(&self, tx_hash: String) -> Result<()> {
         info!("start to broadcast tx: {}", tx_hash);
-        let hash = Hash::from_hex(tx_hash)?;
-        let (tx, mut state) = self.clear_transaction(&hash)?;
-        let mut storage = self.wallet.get_storage().write().await;
 
-        info!("Broadcasting transaction...");
         if self.wallet.is_online().await {
+            let (tx, mut state) = self.clear_transaction(tx_hash.clone())?;
+            let mut storage = self.wallet.get_storage().write().await;
+
+            info!("Broadcasting transaction...");
             if let Err(e) = self.wallet.submit_transaction(&tx).await {
                 error!("Error while submitting transaction, clearing cache...");
                 storage.delete_unconfirmed_balances().await;
 
                 warn!("Inserting back to pending transactions in case of retry...");
-                self.pending_transactions.write()
-                    .insert(hash, (tx, state));
+                let hash: Hash = Hash::from_hex(tx_hash)?;
+                self.pending_transactions.write().insert(hash, (tx, state));
 
                 bail!(e)
             } else {
