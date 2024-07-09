@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use anyhow::{anyhow, bail, Context, Result};
 use flutter_rust_bridge::frb;
-use log::{debug, info, error};
+use log::{debug, error, info, warn};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -344,21 +344,21 @@ impl XelisWallet {
 
     pub fn clear_transaction(
         &self,
-        tx_hash: String,
+        hash: &Hash,
     ) -> Result<(Transaction, TransactionBuilderState)> {
-        let hash = Hash::from_hex(tx_hash.clone())?;
         let res = self
             .pending_transactions
             .write()
             .remove(&hash)
             .context("Cannot delete pending transaction");
-        info!("tx: {} removed from pending transaction", tx_hash);
+        info!("tx: {} removed from pending transaction", hash);
         res
     }
 
     pub async fn broadcast_transaction(&self, tx_hash: String) -> Result<()> {
         info!("start to broadcast tx: {}", tx_hash);
-        let (tx, mut state) = self.clear_transaction(tx_hash.clone())?;
+        let hash = Hash::from_hex(tx_hash)?;
+        let (tx, mut state) = self.clear_transaction(&hash)?;
         let mut storage = self.wallet.get_storage().write().await;
 
         info!("Broadcasting transaction...");
@@ -366,6 +366,11 @@ impl XelisWallet {
             if let Err(e) = self.wallet.submit_transaction(&tx).await {
                 error!("Error while submitting transaction, clearing cache...");
                 storage.delete_unconfirmed_balances().await;
+
+                warn!("Inserting back to pending transactions in case of retry...");
+                self.pending_transactions.write()
+                    .insert(hash, (tx, state));
+
                 bail!(e)
             } else {
                 info!("Transaction submitted successfully!");
