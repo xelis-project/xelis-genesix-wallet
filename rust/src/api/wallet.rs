@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use anyhow::{anyhow, bail, Context, Result};
 use flutter_rust_bridge::frb;
-use log::{debug, info};
+use log::{debug, info, error};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -359,30 +359,25 @@ impl XelisWallet {
     pub async fn broadcast_transaction(&self, tx_hash: String) -> Result<()> {
         info!("start to broadcast tx: {}", tx_hash);
         let (tx, mut state) = self.clear_transaction(tx_hash.clone())?;
-
         let mut storage = self.wallet.get_storage().write().await;
-        state.apply_changes(&mut storage).await?;
-        info!("Transaction applied to storage");
 
         info!("Broadcasting transaction...");
         if self.wallet.is_online().await {
             if let Err(e) = self.wallet.submit_transaction(&tx).await {
-                info!("Error while submitting transaction, clearing cache...");
-                storage.clear_tx_cache();
+                error!("Error while submitting transaction, clearing cache...");
                 storage.delete_unconfirmed_balances().await;
-                let hash: Hash = Hash::from_hex(tx_hash)?;
-                self.pending_transactions
-                    .write()
-                    .insert(hash.clone(), (tx, state));
                 bail!(e)
             } else {
                 info!("Transaction submitted successfully!");
+                state.apply_changes(&mut storage).await?;
+                info!("Transaction applied to storage");
             }
         } else {
             return Err(anyhow!(
                 "Wallet is offline, transaction cannot be submitted"
             ));
         }
+
         Ok(())
     }
 
