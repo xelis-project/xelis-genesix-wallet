@@ -1,7 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -96,9 +95,8 @@ class BalanceWidget extends ConsumerWidget {
               Column(
                 children: [
                   IconButton.filled(
-                    onPressed: () {
-                      context.push(AuthAppScreen.transfer.toPath);
-                    },
+                    onPressed: () =>
+                        context.push(AuthAppScreen.transfer.toPath),
                     icon: const Icon(Icons.call_made_rounded),
                   ),
                   const SizedBox(height: Spaces.small),
@@ -108,12 +106,7 @@ class BalanceWidget extends ConsumerWidget {
               Column(
                 children: [
                   IconButton.filled(
-                    onPressed: () {
-                      // TODO
-                      ref
-                          .read(snackBarMessengerProvider.notifier)
-                          .showInfo(loc.coming_soon);
-                    },
+                    onPressed: () => context.push(AuthAppScreen.burn.toPath),
                     icon: const Icon(Icons.local_fire_department_rounded),
                   ),
                   const SizedBox(height: Spaces.small),

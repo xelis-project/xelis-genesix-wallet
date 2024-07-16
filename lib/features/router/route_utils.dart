@@ -4,6 +4,7 @@ enum AuthAppScreen {
   walletSeedScreen,
   walletSeedDialog,
   transfer,
+  burn,
   transactionEntry,
 }
 
@@ -39,6 +40,8 @@ extension AuthAppScreenExtension on AuthAppScreen {
         return '/wallet_seed_dialog';
       case AuthAppScreen.transfer:
         return '/transfer';
+      case AuthAppScreen.burn:
+        return '/burn';
       case AuthAppScreen.transactionEntry:
         return '/transaction_entry';
     }

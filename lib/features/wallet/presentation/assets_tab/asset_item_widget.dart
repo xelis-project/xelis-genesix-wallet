@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
@@ -38,9 +36,8 @@ class _AssetItemWidgetState extends ConsumerState<AssetItemWidget> {
     // final loc = ref.watch(appLocalizationsProvider);
 
     final walletSnapshot = ref.read(walletStateProvider);
-    var assets = walletSnapshot.assets ?? {};
-    var balanceAtomic = assets[widget.asset.hash] ?? 0;
-    var balance = balanceAtomic / pow(10, widget.asset.decimals);
+    var assets = walletSnapshot.assets;
+    var balance = assets[widget.asset.hash] ?? '0.00000000';
 
     return Card(
       elevation: 1,
@@ -87,7 +84,7 @@ class _AssetItemWidgetState extends ConsumerState<AssetItemWidget> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 SelectableText(
-                  balance.toStringAsFixed(widget.asset.decimals),
+                  balance,
                   style: context.bodyLarge,
                 ),
                 const SizedBox(height: Spaces.extraSmall),

@@ -11,22 +11,44 @@ import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:random_avatar/random_avatar.dart';
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
-class TransferReviewDialog extends ConsumerStatefulWidget {
-  const TransferReviewDialog(this.tx, {super.key});
+class BurnReviewDialog extends ConsumerStatefulWidget {
+  const BurnReviewDialog(this.tx, {super.key});
 
   final TransactionSummary tx;
 
   @override
-  ConsumerState<TransferReviewDialog> createState() =>
-      _TransferReviewDialogState();
+  ConsumerState createState() => _BurnReviewDialogState();
 }
 
-class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
+class _BurnReviewDialogState extends ConsumerState<BurnReviewDialog> {
   bool _isBroadcast = false;
+  late String _asset;
+  late Future<String> _formattedAmount;
+  late Future<String> _formattedFee;
+  late Future<String> _formattedTotal;
 
-  Future<void> _broadcastTransfer(BuildContext context, WidgetRef ref) async {
+  @override
+  void initState() {
+    super.initState();
+    _asset = widget.tx.transactionSummaryType.burn!.asset;
+    final amount = widget.tx.transactionSummaryType.burn!.amount;
+    final total = widget.tx.fee + amount;
+
+    final walletRepository = ref.read(
+        walletStateProvider.select((value) => value.nativeWalletRepository));
+
+    const repositoryError = "Wallet repository is null";
+    _formattedAmount = walletRepository?.formatCoin(amount, _asset) ??
+        Future.error(repositoryError);
+    _formattedFee = walletRepository?.formatCoin(widget.tx.fee, _asset) ??
+        Future.error(repositoryError);
+    _formattedTotal = walletRepository?.formatCoin(total, _asset) ??
+        Future.error(repositoryError);
+  }
+
+  Future<void> _broadcastBurn(BuildContext context, WidgetRef ref) async {
     final loc = ref.read(appLocalizationsProvider);
     try {
       context.loaderOverlay.show();
@@ -46,7 +68,7 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
       ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
     }
 
-    if (context.mounted) {
+    if (context.mounted && context.loaderOverlay.visible) {
       context.loaderOverlay.hide();
     }
   }
@@ -54,13 +76,6 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-
-    // TODO handle various assets
-    final destination =
-        widget.tx.transactionSummaryType.transferOutEntry!.first.destination;
-    final amount =
-        widget.tx.transactionSummaryType.transferOutEntry!.first.amount;
-    final total = amount + widget.tx.fee;
 
     return AlertDialog(
       scrollable: true,
@@ -80,7 +95,19 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
                 Text(toBeginningOfSentenceCase(loc.amount) ?? loc.amount,
                     style: context.bodyLarge!
                         .copyWith(color: context.moreColors.mutedColor)),
-                SelectableText(formatXelis(amount.truncate())),
+                FutureBuilder(
+                  future: _formattedAmount,
+                  builder:
+                      (BuildContext context, AsyncSnapshot<String> snapshot) {
+                    if (snapshot.hasData) {
+                      return SelectableText(snapshot.data!);
+                    } else if (snapshot.hasError) {
+                      return Text("Error: ${snapshot.error}");
+                    } else {
+                      return const CircularProgressIndicator();
+                    }
+                  },
+                ),
               ],
             ),
             const SizedBox(height: 3),
@@ -90,7 +117,19 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
                 Text(loc.fee,
                     style: context.bodyLarge!
                         .copyWith(color: context.moreColors.mutedColor)),
-                SelectableText(formatXelis(widget.tx.fee)),
+                FutureBuilder(
+                  future: _formattedFee,
+                  builder:
+                      (BuildContext context, AsyncSnapshot<String> snapshot) {
+                    if (snapshot.hasData) {
+                      return SelectableText(snapshot.data!);
+                    } else if (snapshot.hasError) {
+                      return Text("Error: ${snapshot.error}");
+                    } else {
+                      return const CircularProgressIndicator();
+                    }
+                  },
+                ),
               ],
             ),
             const SizedBox(height: 3),
@@ -100,21 +139,29 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
                 Text(loc.total,
                     style: context.bodyLarge!
                         .copyWith(color: context.moreColors.mutedColor)),
-                SelectableText(formatXelis(total.truncate())),
+                FutureBuilder(
+                  future: _formattedTotal,
+                  builder:
+                      (BuildContext context, AsyncSnapshot<String> snapshot) {
+                    if (snapshot.hasData) {
+                      return SelectableText(snapshot.data!);
+                    } else if (snapshot.hasError) {
+                      return Text("Error: ${snapshot.error}");
+                    } else {
+                      return const CircularProgressIndicator();
+                    }
+                  },
+                ),
               ],
             ),
             const SizedBox(height: Spaces.small),
-            Text(loc.receiver,
-                style: context.bodyLarge!
-                    .copyWith(color: context.moreColors.mutedColor)),
-            const SizedBox(height: Spaces.small),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                RandomAvatar(destination, width: 35, height: 35),
-                const SizedBox(width: Spaces.small),
-                Expanded(
-                  child: SelectableText(destination),
-                ),
+                Text(loc.asset,
+                    style: context.bodyLarge!
+                        .copyWith(color: context.moreColors.mutedColor)),
+                Text(_asset == xelisAsset ? 'XELIS' : truncateText(_asset)),
               ],
             ),
             const SizedBox(height: Spaces.small),
@@ -152,7 +199,7 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
                       context: context,
                       builder: (context) {
                         return PasswordDialog(
-                          onValid: () => _broadcastTransfer(context, ref),
+                          onValid: () => _broadcastBurn(context, ref),
                         );
                       },
                     );

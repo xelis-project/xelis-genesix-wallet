@@ -10,6 +10,10 @@ class AppResources {
 
   static const int xelisDecimals = 8;
 
+  static const Map<String, String> defaultAssets = {
+    xelisAsset: '0.00000000',
+  };
+
   static List<NodeAddress> mainnetNodes = [
     const NodeAddress(
       name: 'Official Seed Node #1',

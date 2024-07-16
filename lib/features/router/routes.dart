@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:genesix/features/authentication/presentation/components/seed_content_dialog.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/burn_screen.dart';
 import 'package:genesix/shared/widgets/components/dialog_page.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/authentication/presentation/create_wallet_screen.dart';
@@ -121,6 +122,20 @@ class TransferRoute extends GoRouteData {
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
       const TransferScreen(),
+      state.pageKey,
+      AppDurations.animFast,
+    );
+  }
+}
+
+@TypedGoRoute<BurnRoute>(name: 'burn', path: '/burn')
+class BurnRoute extends GoRouteData {
+  const BurnRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      const BurnScreen(),
       state.pageKey,
       AppDurations.animFast,
     );

@@ -58,7 +58,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
           ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
         }
 
-        if (mounted) {
+        if (mounted && context.loaderOverlay.visible) {
           context.loaderOverlay.hide();
         }
       }

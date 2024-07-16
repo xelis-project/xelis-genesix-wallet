@@ -132,9 +132,14 @@ class NativeWalletRepository {
   }
 
   Future<TransactionSummary> createBurnTransaction(
-      {required double amount, required String assetHash}) async {
-    final rawTx = await _xelisWallet.createBurnTransaction(
-        floatAmount: amount, assetHash: assetHash);
+      {double? amount, required String assetHash}) async {
+    String rawTx;
+    if (amount == null) {
+      rawTx = await _xelisWallet.createBurnAllTransaction(assetHash: assetHash);
+    } else {
+      rawTx = await _xelisWallet.createBurnTransaction(
+          floatAmount: amount, assetHash: assetHash);
+    }
     final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
     return TransactionSummary.fromJson(jsonTx);
   }

@@ -5,50 +5,57 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
-import 'package:genesix/features/wallet/presentation/wallet_tab/components/transfer_review_dialog.dart';
-import 'package:genesix/rust_bridge/api/utils.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/burn_review_dialog.dart';
+import 'package:genesix/shared/logger.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/background_widget.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
+import 'package:intl/intl.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:intl/intl.dart' show toBeginningOfSentenceCase;
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
-class TransferScreen extends ConsumerStatefulWidget {
-  const TransferScreen({super.key});
+class BurnScreen extends ConsumerStatefulWidget {
+  const BurnScreen({super.key});
 
   @override
-  ConsumerState<TransferScreen> createState() => _TransferScreenState();
+  ConsumerState createState() => _BurnScreenState();
 }
 
-class _TransferScreenState extends ConsumerState<TransferScreen> {
-  final _transferFormKey =
-      GlobalKey<FormBuilderState>(debugLabel: '_transferFormKey');
+class _BurnScreenState extends ConsumerState<BurnScreen> {
+  final _burnFormKey = GlobalKey<FormBuilderState>(debugLabel: '_burnFormKey');
+  late String _selectedAssetBalance;
 
-  void _reviewTransfer() async {
-    if (_transferFormKey.currentState?.saveAndValidate() ?? false) {
+  @override
+  void initState() {
+    super.initState();
+    final Map<String, String> assets =
+        ref.read(walletStateProvider.select((value) => value.assets));
+    _selectedAssetBalance = assets[assets.entries.first.key]!;
+  }
+
+  void _reviewBurn() async {
+    if (_burnFormKey.currentState?.saveAndValidate() ?? false) {
       final amount =
-          _transferFormKey.currentState?.fields['amount']?.value as String;
-      final address =
-          _transferFormKey.currentState?.fields['address']?.value as String;
+          _burnFormKey.currentState?.fields['amount']?.value as String;
+      final asset =
+          _burnFormKey.currentState?.fields['assets']?.value as String;
 
       try {
         context.loaderOverlay.show();
 
-        final xelisBalance =
-            ref.read(walletStateProvider.select((value) => value.xelisBalance));
-
         TransactionSummary? tx;
-        if (double.parse(amount) == double.parse(xelisBalance)) {
+        if (double.parse(amount) == double.parse(_selectedAssetBalance)) {
           tx = await ref
               .read(walletStateProvider.notifier)
-              .createAllXelisTransaction(destination: address.trim());
+              .createBurnAllTransaction(asset: asset);
         } else {
           tx = await ref
               .read(walletStateProvider.notifier)
-              .createXelisTransaction(
-                  amount: double.parse(amount), destination: address.trim());
+              .createBurnTransaction(
+                  amount: double.parse(amount), asset: asset);
         }
 
         if (mounted) {
@@ -56,7 +63,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
             context: context,
             barrierDismissible: false,
             builder: (context) {
-              return TransferReviewDialog(tx!);
+              return BurnReviewDialog(tx!);
             },
           );
         }
@@ -73,18 +80,18 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final xelisBalance =
-        ref.watch(walletStateProvider.select((value) => value.xelisBalance));
+    final Map<String, String> assets =
+        ref.watch(walletStateProvider.select((value) => value.assets));
 
     return Background(
       child: Scaffold(
-        appBar: GenericAppBar(title: loc.transfer),
+        appBar: const GenericAppBar(title: 'Burn'),
         body: ListView(
           padding: const EdgeInsets.fromLTRB(
               Spaces.large, Spaces.none, Spaces.large, Spaces.large),
           children: [
             FormBuilder(
-              key: _transferFormKey,
+              key: _burnFormKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -106,9 +113,9 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                       suffixIcon: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextButton(
-                          onPressed: () => _transferFormKey
+                          onPressed: () => _burnFormKey
                               .currentState?.fields['amount']
-                              ?.didChange(xelisBalance),
+                              ?.didChange(_selectedAssetBalance),
                           child: const Text('max'),
                         ),
                       ),
@@ -131,29 +138,40 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                   ),
                   const SizedBox(height: Spaces.medium),
                   Text(
-                    loc.recipient,
+                    loc.asset,
                     style: context.headlineSmall,
                   ),
                   const SizedBox(height: Spaces.small),
-                  FormBuilderTextField(
-                    name: 'address',
-                    style: context.bodyMedium,
-                    autocorrect: false,
-                    decoration: InputDecoration(
-                      labelText: loc.receiver_address,
-                      border: const OutlineInputBorder(),
-                    ),
+                  FormBuilderDropdown<String>(
+                    name: 'assets',
+                    initialValue: assets.entries.first.key,
+                    items: assets.entries
+                        .map((asset) => DropdownMenuItem(
+                              value: asset.key,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(asset.key == xelisAsset
+                                      ? 'XELIS'
+                                      : truncateText(asset.key)),
+                                  Text(asset.value),
+                                ],
+                              ),
+                            ))
+                        .toList(),
                     validator: FormBuilderValidators.compose([
                       FormBuilderValidators.required(
                           errorText: loc.field_required_error),
-                      (val) {
-                        if (val != null &&
-                            !isAddressValid(strAddress: val.trim())) {
-                          return loc.invalid_address_format_error;
-                        }
-                        return null;
-                      }
                     ]),
+                    onChanged: (val) {
+                      logger.info(val);
+                      if (val != null) {
+                        setState(() {
+                          _selectedAssetBalance = assets[val]!;
+                        });
+                      }
+                    },
                   ),
                 ],
               ),
@@ -161,8 +179,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
             const SizedBox(height: Spaces.large),
             TextButton.icon(
               icon: const Icon(Icons.check_circle),
-              onPressed: _reviewTransfer,
-              label: Text(loc.review_send),
+              onPressed: _reviewBurn,
+              label: const Text('Review & Burn'),
             ),
           ],
         ),

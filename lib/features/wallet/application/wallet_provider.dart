@@ -14,7 +14,6 @@ import 'package:genesix/features/wallet/domain/event.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
 import 'package:genesix/features/wallet/domain/wallet_snapshot.dart';
 import 'package:genesix/shared/logger.dart';
-import 'package:genesix/shared/utils/utils.dart';
 
 part 'wallet_provider.g.dart';
 
@@ -26,7 +25,11 @@ class WalletState extends _$WalletState {
 
     switch (authenticationState) {
       case SignedIn(:final name, :final nativeWallet):
-        return WalletSnapshot(name: name, nativeWalletRepository: nativeWallet);
+        return WalletSnapshot(
+          name: name,
+          nativeWalletRepository: nativeWallet,
+          address: nativeWallet.address,
+        );
       case SignedOut():
         return const WalletSnapshot();
     }
@@ -34,13 +37,6 @@ class WalletState extends _$WalletState {
 
   Future<void> connect() async {
     if (state.nativeWalletRepository != null) {
-      if (state.address.isEmpty) {
-        final nonce = await state.nativeWalletRepository!.nonce;
-        state = state.copyWith(
-            address: state.nativeWalletRepository!.address,
-            nonce: nonce.toInt());
-      }
-
       StreamSubscription<void> sub =
           state.nativeWalletRepository!.convertRawEvents().listen(_onEvent);
       state = state.copyWith(streamSubscription: sub);
@@ -62,12 +58,14 @@ class WalletState extends _$WalletState {
             .showError(loc.cannot_connect_toast_error);
       });
 
-      if (await state.nativeWalletRepository!.hasXelisBalance()) {
-        final xelisBalance =
-            await state.nativeWalletRepository!.getXelisBalance();
-        state = state.copyWith(xelisBalance: xelisBalance);
+      final xelisBalance =
+          await state.nativeWalletRepository!.getXelisBalance();
+      final assets = await state.nativeWalletRepository!.getAssetBalances();
+
+      if (assets.isNotEmpty) {
+        state = state.copyWith(xelisBalance: xelisBalance, assets: assets);
       } else {
-        state = state.copyWith(xelisBalance: formatXelis(0));
+        state = state.copyWith(xelisBalance: xelisBalance);
       }
     }
   }
@@ -139,6 +137,24 @@ class WalletState extends _$WalletState {
     return null;
   }
 
+  Future<TransactionSummary?> createBurnTransaction(
+      {required double amount, required String asset}) async {
+    if (state.nativeWalletRepository != null) {
+      return state.nativeWalletRepository!
+          .createBurnTransaction(amount: amount, assetHash: asset);
+    }
+    return null;
+  }
+
+  Future<TransactionSummary?> createBurnAllTransaction(
+      {required String asset}) async {
+    if (state.nativeWalletRepository != null) {
+      return state.nativeWalletRepository!
+          .createBurnTransaction(assetHash: asset);
+    }
+    return null;
+  }
+
   Future<TransactionSummary?> createBurnXelisTransaction(
       {required double amount}) async {
     if (state.nativeWalletRepository != null) {
@@ -185,37 +201,26 @@ class WalletState extends _$WalletState {
 
           // Temporary workaround to update XELIS balance on new outgoing transaction.
           // Normally there should be a BalanceChanged event for this case ...
-          if (await state.nativeWalletRepository?.hasXelisBalance() ?? false) {
-            state = state.copyWith(
-                xelisBalance:
-                    await state.nativeWalletRepository!.getXelisBalance());
-          }
+          state = state.copyWith(
+            xelisBalance: await state.nativeWalletRepository!.getXelisBalance(),
+          );
         }
 
       case BalanceChanged():
         logger.info(event);
-        final nonce = await state.nativeWalletRepository!.nonce;
-
-        var updatedAssets = <String, int>{};
-        if (state.assets == null) {
-          updatedAssets = {
-            event.balanceChanged.assetHash: event.balanceChanged.balance
-          };
-        } else {
-          final updatedAssets = Map<String, int>.from(state.assets!);
-          updatedAssets[event.balanceChanged.assetHash] =
-              event.balanceChanged.balance;
-        }
+        final asset = event.balanceChanged.assetHash;
+        final newBalance = await state.nativeWalletRepository!
+            .formatCoin(event.balanceChanged.balance, asset);
+        final updatedAssets = Map<String, String>.from(state.assets);
+        updatedAssets[event.balanceChanged.assetHash] = newBalance;
 
         if (event.balanceChanged.assetHash == sdk.xelisAsset) {
           final xelisBalance =
               await state.nativeWalletRepository!.getXelisBalance();
-          state = state.copyWith(
-              nonce: nonce.toInt(),
-              assets: updatedAssets,
-              xelisBalance: xelisBalance);
+          state =
+              state.copyWith(assets: updatedAssets, xelisBalance: xelisBalance);
         } else {
-          state = state.copyWith(nonce: nonce.toInt(), assets: updatedAssets);
+          state = state.copyWith(assets: updatedAssets);
         }
 
       case NewAsset():
