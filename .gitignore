@@ -50,6 +50,7 @@ app.*.map.json
 # Flutter Rust Bridge
 lib/rust_bridge/api/**
 lib/rust_bridge/frb_generated.*
+lib/rust_bridge/lib.dart
 
 # Dart generated files (Freezed, Riverpod, GoRouter etc..)
 lib/**/*.g.dart
