@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:genesix/shared/logger.dart';
+import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -47,8 +47,10 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
           .read(authenticationProvider.notifier)
           .openWallet(name, password);
     } catch (e) {
-      logger.severe('Opening wallet failed: $e');
-      ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
+      talker.critical('Opening wallet failed: $e');
+      ref
+          .read(snackBarMessengerProvider.notifier)
+          .showError('Error when opening wallet');
       if (mounted) {
         // Dismiss TableGenerationProgressDialog if error occurs
         context.pop();

@@ -95,8 +95,7 @@ class BalanceWidget extends ConsumerWidget {
               Column(
                 children: [
                   IconButton.filled(
-                    onPressed: () =>
-                        context.push(AuthAppScreen.transfer.toPath),
+                    onPressed: () => context.push(AppScreen.transfer.toPath),
                     icon: const Icon(Icons.call_made_rounded),
                   ),
                   const SizedBox(height: Spaces.small),
@@ -106,7 +105,7 @@ class BalanceWidget extends ConsumerWidget {
               Column(
                 children: [
                   IconButton.filled(
-                    onPressed: () => context.push(AuthAppScreen.burn.toPath),
+                    onPressed: () => context.push(AppScreen.burn.toPath),
                     icon: const Icon(Icons.local_fire_department_rounded),
                   ),
                   const SizedBox(height: Spaces.small),

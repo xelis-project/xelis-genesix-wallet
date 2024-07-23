@@ -1,6 +1,6 @@
 import 'package:genesix/shared/storage/persistent_state.dart';
 import 'package:genesix/features/wallet/domain/network_nodes_state.dart';
-import 'package:genesix/shared/logger.dart';
+import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/storage/shared_preferences/shared_preferences_sync.dart';
 
@@ -26,7 +26,7 @@ class NetworkNodesStateRepository extends PersistentState<NetworkNodesState> {
       }
       return NetworkNodesState.fromJson(value as Map<String, dynamic>);
     } catch (e) {
-      logger.severe('NetworkNodesStateRepository: $e');
+      talker.critical('NetworkNodesStateRepository: $e');
       rethrow;
     }
   }

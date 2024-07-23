@@ -90,7 +90,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e01ed3140b2f8d422c68afa1ed2e85d996ea619c988ac834d255db32138655cb"
 dependencies = [
  "quote",
- "syn 2.0.71",
+ "syn 2.0.72",
 ]
 
 [[package]]
@@ -207,7 +207,7 @@ dependencies = [
  "actix-router",
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn 2.0.72",
 ]
 
 [[package]]
@@ -227,13 +227,14 @@ dependencies = [
 
 [[package]]
 name = "actix-ws"
-version = "0.2.5"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "535aec173810be3ca6f25dd5b4d431ae7125d62000aa3cbae1ec739921b02cf3"
+checksum = "a3a1fb4f9f2794b0aadaf2ba5f14a6f034c7e86957b458c506a8cb75953f2d99"
 dependencies = [
  "actix-codec",
  "actix-http",
  "actix-web",
+ "bytestring",
  "futures-core",
  "tokio",
 ]
@@ -246,7 +247,7 @@ checksum = "7c7db3d5a9718568e4cf4a537cfd7070e6e6ff7481510d0237fb529ac850f6d3"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn 2.0.72",
 ]
 
 [[package]]
@@ -391,9 +392,9 @@ dependencies = [
 
 [[package]]
 name = "arrayref"
-version = "0.3.7"
+version = "0.3.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6b4930d2cb77ce62f89ee5d5289b4ac049559b1c45539271f5ed4fdc7db34545"
+checksum = "9d151e35f61089500b617991b791fc8bfd237ae50cd5950803758a179b41e67a"
 
 [[package]]
 name = "arrayvec"
@@ -409,7 +410,7 @@ checksum = "6e0c28dcc82d7c8ead5cb13beb15405b57b8546e93215673ff8ca0349a028107"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn 2.0.72",
 ]
 
 [[package]]
@@ -588,7 +589,7 @@ checksum = "1ee891b04274a59bd38b412188e24b849617b2e45a0fd8d057deb63e7403761b"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn 2.0.72",
 ]
 
 [[package]]
@@ -614,9 +615,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.1.5"
+version = "1.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "324c74f2155653c90b04f25b2a47a8a631360cb908f92a772695f430c7e31052"
+checksum = "2aba8f4e9906c7ce3c73463f62a7f0c65183ada1a2d47e397cc8810827f9694f"
 dependencies = [
  "jobserver",
  "libc",
@@ -820,7 +821,7 @@ source = "git+https://github.com/xelis-project/curve25519-dalek?branch=main#5fbf
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn 2.0.72",
 ]
 
 [[package]]
@@ -856,7 +857,7 @@ checksum = "51aac4c99b2e6775164b412ea33ae8441b2fde2dbf05a20bc0052a63d08c475b"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn 2.0.72",
 ]
 
 [[package]]
@@ -878,7 +879,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "rustc_version",
- "syn 2.0.71",
+ "syn 2.0.72",
 ]
 
 [[package]]
@@ -1004,7 +1005,7 @@ dependencies = [
  "md-5",
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn 2.0.72",
 ]
 
 [[package]]
@@ -1094,7 +1095,7 @@ checksum = "87750cf4b7a4c0625b1529e4c543c2182106e4dedc60a2a6455e00d212c489ac"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn 2.0.72",
 ]
 
 [[package]]
@@ -1985,9 +1986,9 @@ checksum = "976295e77ce332211c0d24d92c0e83e50f5c5f046d11082cea19f3df13a3562d"
 
 [[package]]
 name = "rustls-webpki"
-version = "0.102.5"
+version = "0.102.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9a6fccd794a42c2c105b513a2f62bc3fd8f3ba57a4593677ceb0bd035164d78"
+checksum = "8e6b52d4fda176fd835fdc55a835d4a89b8499cad995885a21149d5ad62f852e"
 dependencies = [
  "ring",
  "rustls-pki-types",
@@ -2029,7 +2030,7 @@ checksum = "e0cd7e117be63d3c3678776753929474f3b04a43a080c744d6b0ae2a8c28e222"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn 2.0.72",
 ]
 
 [[package]]
@@ -2178,9 +2179,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "2.0.71"
+version = "2.0.72"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b146dcf730474b4bcd16c311627b31ede9ab149045db4d6088b3becaea046462"
+checksum = "dc4b9b9bf2add8093d3f2c0204471e951b2285580335de42f9d2534f3ae7a8af"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2231,22 +2232,22 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "1.0.62"
+version = "1.0.63"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f2675633b1499176c2dff06b0856a27976a8f9d436737b4cf4f312d4d91d8bbb"
+checksum = "c0342370b38b6a11b6cc11d6a805569958d54cfa061a29969c3b5ce2ea405724"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.62"
+version = "1.0.63"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d20468752b09f49e909e55a5d338caa8bedf615594e9d80bc4c565d30faf798c"
+checksum = "a4558b58466b9ad7ca0f102865eccc95938dca1a74a856f2b57b6629050da261"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn 2.0.72",
 ]
 
 [[package]]
@@ -2342,7 +2343,7 @@ checksum = "5f5ae998a069d4b5aba8ee9dad856af7d520c3699e6159b185c2acd48155d39a"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn 2.0.72",
 ]
 
 [[package]]
@@ -2600,7 +2601,7 @@ dependencies = [
  "once_cell",
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn 2.0.72",
  "wasm-bindgen-shared",
 ]
 
@@ -2634,7 +2635,7 @@ checksum = "e94f17b526d0a461a191c78ea52bbce64071ed5c04c9ffe424dcb38f74171bb7"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn 2.0.72",
  "wasm-bindgen-backend",
  "wasm-bindgen-shared",
 ]
@@ -2896,7 +2897,7 @@ dependencies = [
 [[package]]
 name = "xelis_common"
 version = "1.13.2"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#7206a3eea1560800b6ec678137022a644fe7601f"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#6b6b196746c807682ee4362af0d50843d34d1fe8"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -2936,7 +2937,7 @@ dependencies = [
 [[package]]
 name = "xelis_wallet"
 version = "1.13.2"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#7206a3eea1560800b6ec678137022a644fe7601f"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#6b6b196746c807682ee4362af0d50843d34d1fe8"
 dependencies = [
  "actix",
  "actix-web",
@@ -2980,7 +2981,7 @@ checksum = "fa4f8080344d4671fb4e831a13ad1e68092748387dfc4f55e356242fae12ce3e"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn 2.0.72",
 ]
 
 [[package]]
@@ -3000,7 +3001,7 @@ checksum = "ce36e65b0d2999d2aafac989fb249189a141aee1f53c612c1f37d72631959f69"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.71",
+ "syn 2.0.72",
 ]
 
 [[package]]

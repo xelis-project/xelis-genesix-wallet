@@ -6,7 +6,6 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/burn_review_dialog.dart';
-import 'package:genesix/shared/logger.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
@@ -165,7 +164,6 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
                           errorText: loc.field_required_error),
                     ]),
                     onChanged: (val) {
-                      logger.info(val);
                       if (val != null) {
                         setState(() {
                           _selectedAssetBalance = assets[val]!;
