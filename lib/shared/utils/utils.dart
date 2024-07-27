@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'dart:math';
+import 'package:genesix/features/wallet/domain/address.dart';
 import 'package:genesix/rust_bridge/api/network.dart';
+import 'package:genesix/rust_bridge/api/utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:path/path.dart' as p;
@@ -11,6 +14,12 @@ String formatCoin(int value, int decimals) {
 
 String formatXelis(int value) {
   return formatCoin(value, AppResources.xelisDecimals);
+}
+
+Address splitIntegratedAddress(String address) {
+  var rawData = splitIntegratedAddressJson(integratedAddress: address);
+  final json = jsonDecode(rawData);
+  return Address.fromJson(json as Map<String, dynamic>);
 }
 
 Future<String> getAppCacheDirPath() async {

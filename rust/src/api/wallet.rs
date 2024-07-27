@@ -79,54 +79,66 @@ pub async fn open_xelis_wallet(
 }
 
 impl XelisWallet {
+    // Change the wallet password
     pub async fn change_password(&self, old_password: String, new_password: String) -> Result<()> {
         self.wallet.set_password(old_password, new_password).await
     }
 
+    // set the wallet to online mode
     pub async fn online_mode(&self, daemon_address: String) -> Result<()> {
         Ok(self.wallet.set_online_mode(&daemon_address, true).await?)
     }
 
+    // set the wallet to offline mode
     pub async fn offline_mode(&self) -> Result<()> {
         Ok(self.wallet.set_offline_mode().await?)
     }
 
+    // Check if the wallet is online
     pub async fn is_online(&self) -> bool {
         self.wallet.is_online().await
     }
 
+    // Get the wallet address as a string
     #[frb(sync)]
     pub fn get_address_str(&self) -> String {
         self.wallet.get_address().to_string()
     }
 
+    // get the wallet network
     #[frb(sync)]
     pub fn get_network(&self) -> String {
         self.wallet.get_network().to_string()
     }
 
+    // close securely the wallet
     pub async fn close(&self) {
         self.wallet.close().await;
     }
 
+    // get the wallet mnemonic seed in different languages
     pub async fn get_seed(&self, language_index: Option<usize>) -> Result<String> {
         let index = language_index.unwrap_or_default();
         self.wallet.get_seed(index)
     }
 
+    // get the wallet nonce
     pub async fn get_nonce(&self) -> u64 {
         self.wallet.get_nonce().await
     }
 
+    // check if the password is valid
     pub async fn is_valid_password(&self, password: String) -> Result<()> {
         self.wallet.is_valid_password(password).await
     }
 
+    // check if the wallet has a Xelis balance
     pub async fn has_xelis_balance(&self) -> Result<bool> {
         let storage = self.wallet.get_storage().read().await;
         storage.has_balance_for(&XELIS_ASSET).await
     }
 
+    // get the wallet Xelis balance
     pub async fn get_xelis_balance(&self) -> Result<String> {
         let storage = self.wallet.get_storage().read().await;
         let balance = storage
@@ -136,6 +148,7 @@ impl XelisWallet {
         Ok(format_xelis(balance))
     }
 
+    // get all the assets balances (atomic units) in a HashMap
     pub async fn get_asset_balances(&self) -> Result<HashMap<String, String>> {
         let storage = self.wallet.get_storage().read().await;
         let mut balances = HashMap::new();
@@ -148,6 +161,7 @@ impl XelisWallet {
         Ok(balances)
     }
 
+    // get the number of decimals of an asset
     pub async fn get_asset_decimals(&self, asset: String) -> Result<u8> {
         let asset_hash = Hash::from_hex(asset).context("Invalid asset")?;
         let storage = self.wallet.get_storage().read().await;
@@ -155,10 +169,12 @@ impl XelisWallet {
         Ok(decimals)
     }
 
+    // rescan the wallet history from a specific height
     pub async fn rescan(&self, topoheight: u64) -> Result<()> {
         Ok(self.wallet.rescan(topoheight, true).await?)
     }
 
+    // estimate the fees for a transaction
     pub async fn estimate_fees(&self, transfers: Vec<Transfer>) -> Result<u64> {
         let transaction_type_builder = self
             .create_transfers(transfers)
@@ -174,6 +190,7 @@ impl XelisWallet {
         Ok(estimated_fees)
     }
 
+    // create a transfer transaction
     pub async fn create_transfers_transaction(&self, transfers: Vec<Transfer>) -> Result<String> {
         self.pending_transactions.write().clear();
 
@@ -212,6 +229,7 @@ impl XelisWallet {
         .to_string())
     }
 
+    // create a transfer all transaction
     pub async fn create_transfer_all_transaction(
         &self,
         str_address: String,
@@ -293,6 +311,7 @@ impl XelisWallet {
         .to_string())
     }
 
+    // create a burn transaction
     pub async fn create_burn_transaction(
         &self,
         float_amount: f64,
@@ -350,6 +369,7 @@ impl XelisWallet {
         .to_string())
     }
 
+    // create a burn all transaction for a specific asset
     pub async fn create_burn_all_transaction(&self, asset_hash: String) -> Result<String> {
         self.pending_transactions.write().clear();
 
@@ -410,6 +430,7 @@ impl XelisWallet {
         .to_string())
     }
 
+    // clear a pending transaction
     pub fn clear_transaction(
         &self,
         tx_hash: String,
@@ -424,6 +445,7 @@ impl XelisWallet {
         res
     }
 
+    // broadcast a transaction to the network
     pub async fn broadcast_transaction(&self, tx_hash: String) -> Result<()> {
         info!("start to broadcast tx: {}", tx_hash);
 
@@ -455,6 +477,7 @@ impl XelisWallet {
         Ok(())
     }
 
+    // get all the transactions history
     pub async fn all_history(&self) -> Result<Vec<String>> {
         let mut txs: Vec<String> = Vec::new();
 
@@ -478,6 +501,7 @@ impl XelisWallet {
         Ok(txs)
     }
 
+    // Redirect events from wallet to a dart stream
     pub async fn events_stream(&self, sink: StreamSink<String>) {
         let mut rx = self.wallet.subscribe_events().await;
 
@@ -497,6 +521,7 @@ impl XelisWallet {
         }
     }
 
+    // Get daemon info (network, version, etc)
     pub async fn get_daemon_info(&self) -> Result<String> {
         let mutex = self.wallet.get_network_handler().await;
         let lock = mutex.lock().await;
@@ -513,6 +538,7 @@ impl XelisWallet {
         Ok(serde_json::to_string(&info)?)
     }
 
+    // Format amount to human readable format
     pub async fn format_coin(
         &self,
         atomic_amount: u64,
@@ -532,6 +558,7 @@ impl XelisWallet {
         Ok(format_coin(atomic_amount, decimals))
     }
 
+    // Private method to create TransactionTypeBuilder from transfers
     async fn create_transfers(&self, transfers: Vec<Transfer>) -> Result<TransactionTypeBuilder> {
         let mut vec = Vec::new();
 
@@ -564,42 +591,11 @@ impl XelisWallet {
         Ok(TransactionTypeBuilder::Transfers(vec))
     }
 
+    // Private method to convert float amount to atomic format
     async fn convert_float_amount(&self, float_amount: f64, asset: &Hash) -> Result<u64> {
         let storage = self.wallet.get_storage().read().await;
         let decimals = storage.get_asset_decimals(&asset).unwrap_or(COIN_DECIMALS);
         let amount = (float_amount * 10u32.pow(decimals as u32) as f64) as u64;
         Ok(amount)
     }
-
-    // async fn compute_total_amounts(
-    //     &self,
-    //     transfers: Vec<Transfer>,
-    // ) -> Result<HashMap<String, u64>> {
-    //     let mut amounts: HashMap<String, u64> = HashMap::new();
-
-    //     for transfer in transfers {
-    //         let asset_hash = match transfer.asset_hash.clone() {
-    //             None => XELIS_ASSET,
-    //             Some(value) => Hash::from_hex(value).context("Invalid asset")?,
-    //         };
-
-    //         let amount = self
-    //             .convert_float_amount(transfer.float_amount, &asset_hash)
-    //             .await
-    //             .context("Error while converting amount to atomic format")?;
-
-    //         let asset_hex = transfer.asset_hash.unwrap_or_else(|| XELIS_ASSET.to_hex());
-
-    //         match amounts.get(&asset_hex) {
-    //             None => {
-    //                 amounts.insert(asset_hex, amount);
-    //             }
-    //             Some(value) => {
-    //                 amounts.insert(asset_hex, amount + value);
-    //             }
-    //         }
-    //     }
-
-    //     Ok(amounts)
-    // }
 }
