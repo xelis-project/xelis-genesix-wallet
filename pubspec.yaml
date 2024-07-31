@@ -35,7 +35,6 @@ dependencies:
   #  flutter_hooks: ^0.20.5
   #  hooks_riverpod: ^2.4.10
   loader_overlay: ^4.0.0
-  random_avatar: ^0.0.8
   pretty_qr_code: ^3.3.0
   flutter_native_splash: ^2.4.1
   window_manager: ^0.3.9
@@ -51,6 +50,8 @@ dependencies:
   flutter_rust_bridge: ^2.1.0
   rust_builder:
     path: rust_builder
+  flutter_hashicon:
+    git: https://github.com/g45t345rt/flutter_hashicon.git
 
 dependency_overrides:
   meta:

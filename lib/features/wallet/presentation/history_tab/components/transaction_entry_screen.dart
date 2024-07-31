@@ -4,9 +4,9 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/rust_bridge/api/network.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
+import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:random_avatar/random_avatar.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -220,8 +220,10 @@ class _TransactionEntryScreenState
                                 children: [
                                   Row(
                                     children: [
-                                      RandomAvatar(transfer.destination,
-                                          width: 35, height: 35),
+                                      HashiconWidget(
+                                        hash: transfer.destination,
+                                        size: const Size(35, 35),
+                                      ),
                                       const SizedBox(width: Spaces.small),
                                       Expanded(
                                         child: SelectableText(
@@ -296,7 +298,10 @@ class _TransactionEntryScreenState
                   const SizedBox(height: Spaces.small),
                   Row(
                     children: [
-                      RandomAvatar(incoming!.from, width: 35, height: 35),
+                      HashiconWidget(
+                        hash: incoming!.from,
+                        size: const Size(35, 35),
+                      ),
                       const SizedBox(width: Spaces.small),
                       Expanded(
                         child: SelectableText(

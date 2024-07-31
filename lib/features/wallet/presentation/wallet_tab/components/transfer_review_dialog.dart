@@ -7,11 +7,11 @@ import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:random_avatar/random_avatar.dart';
 
 class TransferReviewDialog extends ConsumerStatefulWidget {
   const TransferReviewDialog(this.tx, {super.key});
@@ -110,7 +110,10 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
             const SizedBox(height: Spaces.small),
             Row(
               children: [
-                RandomAvatar(destination, width: 35, height: 35),
+                HashiconWidget(
+                  hash: destination,
+                  size: const Size(35, 35),
+                ),
                 const SizedBox(width: Spaces.small),
                 Expanded(
                   child: SelectableText(destination),
