@@ -162,7 +162,15 @@ class _TransactionEntryScreenState
               ),
 
             // BURN
-            if (entryType is sdk.BurnEntry)
+            if (entryType is sdk.BurnEntry) ...[
+              const SizedBox(height: Spaces.medium),
+              Text(loc.fee, style: context.headlineSmall),
+              const SizedBox(height: Spaces.small),
+              SelectableText(
+                '${formatXelis(burn!.fee)} XEL',
+                style: context.bodyLarge!
+                    .copyWith(color: context.moreColors.mutedColor),
+              ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -176,6 +184,7 @@ class _TransactionEntryScreenState
                   ),
                 ],
               ),
+            ],
 
             // OUTGOING
             if (entryType is sdk.OutgoingEntry) ...[
