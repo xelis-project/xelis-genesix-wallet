@@ -84,7 +84,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
 
     return Background(
       child: Scaffold(
-        appBar: const GenericAppBar(title: 'Burn'),
+        appBar: GenericAppBar(title: loc.burn),
         body: ListView(
           padding: const EdgeInsets.fromLTRB(
               Spaces.large, Spaces.none, Spaces.large, Spaces.large),
@@ -115,7 +115,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
                           onPressed: () => _burnFormKey
                               .currentState?.fields['amount']
                               ?.didChange(_selectedAssetBalance),
-                          child: const Text('max'),
+                          child: Text(loc.max),
                         ),
                       ),
                     ),
@@ -178,7 +178,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
             TextButton.icon(
               icon: const Icon(Icons.check_circle),
               onPressed: _reviewBurn,
-              label: const Text('Review & Burn'),
+              label: Text(loc.review_burn),
             ),
           ],
         ),

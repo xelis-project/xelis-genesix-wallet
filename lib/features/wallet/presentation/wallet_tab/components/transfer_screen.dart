@@ -109,7 +109,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                           onPressed: () => _transferFormKey
                               .currentState?.fields['amount']
                               ?.didChange(xelisBalance),
-                          child: const Text('max'),
+                          child: Text(loc.max),
                         ),
                       ),
                     ),

@@ -13,6 +13,7 @@ import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/input_dialog.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
+import 'package:intl/intl.dart';
 
 class SettingsTab extends ConsumerWidget {
   const SettingsTab({super.key});
@@ -122,6 +123,8 @@ class SettingsTab extends ConsumerWidget {
     final hideExtraData =
         ref.watch(settingsProvider.select((value) => value.hideExtraData));
     final name = ref.watch(walletStateProvider.select((state) => state.name));
+    final unlockBurn =
+        ref.watch(settingsProvider.select((value) => value.unlockBurn));
 
     return ListView(
       padding: const EdgeInsets.all(Spaces.large),
@@ -181,6 +184,26 @@ class SettingsTab extends ConsumerWidget {
           trailing: const Icon(
             Icons.keyboard_arrow_right_rounded,
           ),
+        ),
+        const Divider(),
+        ExpansionTile(
+          leading: const Icon(Icons.wallet_membership_rounded),
+          title: Text(
+            toBeginningOfSentenceCase(loc.wallet_parameters),
+            style: context.titleLarge,
+          ),
+          children: [
+            FormBuilderSwitch(
+              name: 'unlock_burn_switch',
+              initialValue: unlockBurn,
+              decoration: const InputDecoration(fillColor: Colors.transparent),
+              title: Text(toBeginningOfSentenceCase(loc.unlock_burn_transfer),
+                  style: context.bodyLarge),
+              onChanged: (value) {
+                ref.read(settingsProvider.notifier).setUnlockBurn(value!);
+              },
+            ),
+          ],
         ),
         const Divider(),
         ExpansionTile(

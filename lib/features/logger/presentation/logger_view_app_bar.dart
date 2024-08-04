@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/logger/presentation/logger_view_controller.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:go_router/go_router.dart';
 import 'package:group_button/group_button.dart';
 
-class LoggerViewAppBar extends StatelessWidget {
+class LoggerViewAppBar extends ConsumerWidget {
   const LoggerViewAppBar(
       {super.key,
       required this.titlesController,
@@ -31,7 +33,8 @@ class LoggerViewAppBar extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = ref.watch(appLocalizationsProvider);
     return SliverAppBar(
       backgroundColor: context.colors.surface,
       // elevation:0,
@@ -66,7 +69,7 @@ class LoggerViewAppBar extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(
             Spaces.none, Spaces.medium, Spaces.none, Spaces.none),
         child: Text(
-          'Logger',
+          loc.logger,
           style: context.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
       ),
@@ -140,7 +143,7 @@ class LoggerViewAppBar extends StatelessWidget {
   }
 }
 
-class _SearchTextField extends StatelessWidget {
+class _SearchTextField extends ConsumerWidget {
   const _SearchTextField({
     required this.controller,
   });
@@ -148,7 +151,8 @@ class _SearchTextField extends StatelessWidget {
   final LoggerViewController controller;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = ref.watch(appLocalizationsProvider);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: Spaces.medium),
       child: TextFormField(
@@ -172,7 +176,7 @@ class _SearchTextField extends StatelessWidget {
             Icons.search,
             size: 20,
           ),
-          hintText: 'Search...',
+          hintText: '${loc.search} ...',
           hintStyle: context.bodyLarge,
         ),
       ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/router/route_utils.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/settings/presentation/components/logger_selector_widget.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/storage/shared_preferences/shared_preferences_provider.dart';
 import 'package:genesix/shared/theme/extensions.dart';
@@ -72,20 +74,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
+    final activateLogger =
+        ref.watch(settingsProvider.select((state) => state.activateLogger));
 
     return Background(
       child: Scaffold(
-        appBar: GenericAppBar(title: loc.app_settings, actions: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-                Spaces.none, Spaces.medium, Spaces.small, Spaces.none),
-            child: IconButton(
-              onPressed: () => context.push(AppScreen.logger.toPath),
-              icon: const Icon(Icons.feed_outlined),
-              tooltip: 'Logger',
-            ),
-          )
-        ]),
+        appBar: GenericAppBar(
+            title: loc.app_settings,
+            actions: activateLogger
+                ? [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(Spaces.none,
+                          Spaces.medium, Spaces.small, Spaces.none),
+                      child: IconButton(
+                        onPressed: () => context.push(AppScreen.logger.toPath),
+                        icon: const Icon(Icons.feed_outlined),
+                        tooltip: loc.logger,
+                      ),
+                    )
+                  ]
+                : null),
         body: ListView(
           padding: const EdgeInsets.fromLTRB(
               Spaces.large, Spaces.none, Spaces.large, Spaces.large),
@@ -97,6 +105,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             const LanguageSelectorWidget(),
             const Divider(),
             HorizontalContainer(title: loc.version, value: _version),
+            const Divider(),
+            const LoggerSelectorWidget(),
             const Divider(),
             VerticalContainer(
                 title: loc.wallets_directory, value: _walletsPath),

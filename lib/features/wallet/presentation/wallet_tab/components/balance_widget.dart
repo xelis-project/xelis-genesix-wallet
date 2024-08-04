@@ -9,6 +9,7 @@ import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/qr_dialog.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
+import 'package:intl/intl.dart';
 
 class BalanceWidget extends ConsumerWidget {
   const BalanceWidget({super.key});
@@ -32,6 +33,9 @@ class BalanceWidget extends ConsumerWidget {
     if (hideBalance) {
       displayBalance = loc.hidden;
     }
+
+    final unlockBurn =
+        ref.watch(settingsProvider.select((state) => state.unlockBurn));
 
     return GridTile(
       child: Column(
@@ -98,18 +102,29 @@ class BalanceWidget extends ConsumerWidget {
                     onPressed: () => context.push(AppScreen.transfer.toPath),
                     icon: const Icon(Icons.call_made_rounded),
                   ),
-                  const SizedBox(height: Spaces.small),
-                  Text(loc.send),
+                  const SizedBox(height: Spaces.extraSmall),
+                  Text(loc.send, style: context.labelLarge),
                 ],
               ),
               Column(
                 children: [
                   IconButton.filled(
-                    onPressed: () => context.push(AppScreen.burn.toPath),
+                    onPressed: unlockBurn
+                        ? () => context.push(AppScreen.burn.toPath)
+                        : null,
                     icon: const Icon(Icons.local_fire_department_rounded),
+                    tooltip: unlockBurn
+                        ? null
+                        : toBeginningOfSentenceCase(loc.unlock_in_settings),
                   ),
-                  const SizedBox(height: Spaces.small),
-                  Text(loc.burn),
+                  const SizedBox(height: Spaces.extraSmall),
+                  Text(
+                    loc.burn,
+                    style: context.labelLarge?.copyWith(
+                        color: unlockBurn
+                            ? context.colors.onSurface
+                            : context.moreColors.mutedColor),
+                  ),
                 ],
               ),
               Column(
@@ -118,8 +133,8 @@ class BalanceWidget extends ConsumerWidget {
                     onPressed: () => _showQrDialog(context),
                     icon: const Icon(Icons.call_received_rounded),
                   ),
-                  const SizedBox(height: Spaces.small),
-                  Text(loc.receive),
+                  const SizedBox(height: Spaces.extraSmall),
+                  Text(loc.receive, style: context.labelLarge),
                 ],
               ),
             ],

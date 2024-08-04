@@ -5,6 +5,7 @@ import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/logger/presentation/logger_actions_bottom_sheet.dart';
 import 'package:genesix/features/logger/presentation/logger_view_app_bar.dart';
 import 'package:genesix/features/logger/presentation/logger_view_controller.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:group_button/group_button.dart';
@@ -39,22 +40,23 @@ class _LoggerViewState extends ConsumerState<LoggerView> {
   }
 
   void _copyLoggerDataItemText(TalkerData data) {
+    final loc = ref.read(appLocalizationsProvider);
     final text =
         data.generateTextMessage(timeFormat: widget.talker.settings.timeFormat);
     Clipboard.setData(ClipboardData(text: text));
-    ref.read(snackBarMessengerProvider.notifier).showInfo('Log entry copied');
+    ref.read(snackBarMessengerProvider.notifier).showInfo(loc.copied);
   }
 
   void _copyAllLogs(BuildContext context) {
+    final loc = ref.read(appLocalizationsProvider);
     Clipboard.setData(ClipboardData(
         text: widget.talker.history
             .text(timeFormat: widget.talker.settings.timeFormat)));
-    ref
-        .read(snackBarMessengerProvider.notifier)
-        .showInfo('All logs copied to clipboard');
+    ref.read(snackBarMessengerProvider.notifier).showInfo(loc.all_logs_copied);
   }
 
   Future<void> _showActionsBottomSheet(BuildContext context) async {
+    final loc = ref.read(appLocalizationsProvider);
     await showModalBottomSheet<LoggerActionsBottomSheet>(
       context: context,
       isScrollControlled: true,
@@ -64,17 +66,17 @@ class _LoggerViewState extends ConsumerState<LoggerView> {
           actions: [
             LoggerActionItem(
               onTap: _controller.toggleLogOrder,
-              title: 'Reverse logs',
+              title: loc.reverse_logs,
               icon: Icons.swap_vert,
             ),
             LoggerActionItem(
               onTap: () => _copyAllLogs(context),
-              title: 'Copy all logs',
+              title: loc.copy_all_logs,
               icon: Icons.copy,
             ),
             LoggerActionItem(
               onTap: _cleanHistory,
-              title: 'Clean history',
+              title: loc.clean_history,
               icon: Icons.delete_outline,
             ),
             // TalkerActionItem(

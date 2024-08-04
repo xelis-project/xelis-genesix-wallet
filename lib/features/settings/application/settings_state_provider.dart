@@ -55,4 +55,14 @@ class Settings extends _$Settings {
     state = state.copyWith(hideZeroTransfer: hideZeroTransfer);
     setState(state);
   }
+
+  void setUnlockBurn(bool unlockBurn) {
+    state = state.copyWith(unlockBurn: unlockBurn);
+    setState(state);
+  }
+
+  void setActivateLogger(bool activateLogger) {
+    state = state.copyWith(activateLogger: activateLogger);
+    setState(state);
+  }
 }

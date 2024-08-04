@@ -110,12 +110,12 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('Destination',
+                  Text(loc.destination,
                       style: context.bodyLarge!
                           .copyWith(color: context.moreColors.mutedColor)),
                   const SizedBox(width: Spaces.small),
                   Tooltip(
-                    message: 'Integrated address detected',
+                    message: loc.integrated_address_detected,
                     textStyle: context.bodyMedium
                         ?.copyWith(color: context.colors.primary),
                     child: Icon(
@@ -145,7 +145,7 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
             ),
             if (destination.isIntegrated) ...[
               const SizedBox(height: Spaces.small),
-              Text('Payment ID',
+              Text(loc.payment_id,
                   style: context.bodyLarge!
                       .copyWith(color: context.moreColors.mutedColor)),
               const SizedBox(height: 3),

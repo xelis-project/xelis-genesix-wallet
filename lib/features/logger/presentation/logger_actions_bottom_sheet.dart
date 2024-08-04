@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:go_router/go_router.dart';
 
-class LoggerActionsBottomSheet extends StatelessWidget {
+class LoggerActionsBottomSheet extends ConsumerWidget {
   const LoggerActionsBottomSheet({super.key, required this.actions});
 
   final List<LoggerActionItem> actions;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = ref.watch(appLocalizationsProvider);
     return SafeArea(
       bottom: false,
       child: Container(
@@ -37,8 +40,8 @@ class LoggerActionsBottomSheet extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Logger Actions',
-                    style: context.headlineSmall,
+                    loc.actions,
+                    style: context.headlineMedium,
                   ),
                   InkWell(
                     onTap: () => context.pop(),
