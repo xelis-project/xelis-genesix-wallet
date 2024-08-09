@@ -65,11 +65,13 @@ class _TransactionEntryScreenState
     final transactionEntry = extra.transactionEntry;
     final entryType = transactionEntry.txEntryType;
 
+    String hashPath = 'txs/';
     switch (entryType) {
       case sdk.CoinbaseEntry():
         entryTypeName = loc.coinbase;
         coinbase = entryType;
         icon = const Icon(Icons.square_rounded);
+        hashPath = 'blocks/';
       case sdk.BurnEntry():
         entryTypeName = loc.burn;
         burn = entryType;
@@ -88,10 +90,10 @@ class _TransactionEntryScreenState
     switch (network) {
       case Network.mainnet || Network.dev:
         url = Uri.parse(
-            '${AppResources.explorerMainnetUrl}txs/${transactionEntry.hash}');
+            '${AppResources.explorerMainnetUrl}$hashPath${transactionEntry.hash}');
       case Network.testnet:
         url = Uri.parse(
-            '${AppResources.explorerTestnetUrl}txs/${transactionEntry.hash}');
+            '${AppResources.explorerTestnetUrl}$hashPath${transactionEntry.hash}');
     }
 
     var displayTopoheight = NumberFormat().format(transactionEntry.topoHeight);
