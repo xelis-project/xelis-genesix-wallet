@@ -8,6 +8,6 @@ pub mod network;
 pub mod progress_report;
 pub mod table_generation;
 /// flutter_rust_bridge:ignore
-mod time;
+// mod time;
 pub mod utils;
 pub mod wallet;
