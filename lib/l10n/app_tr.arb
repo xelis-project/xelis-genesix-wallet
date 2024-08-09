@@ -165,5 +165,6 @@
   "all_logs_copied": "Tüm günlükler kopyalandı",
   "destination": "Hedef",
   "integrated_address_detected": "Entegre adres tanımlanıyor",
-  "payment_id": "Ödeme kimliği"
+  "payment_id": "Ödeme kimliği",
+  "show_balance_usdt": "USDT'de bakiye gösterin"
 }

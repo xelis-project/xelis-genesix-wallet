@@ -125,6 +125,8 @@ class SettingsTab extends ConsumerWidget {
     final name = ref.watch(walletStateProvider.select((state) => state.name));
     final unlockBurn =
         ref.watch(settingsProvider.select((value) => value.unlockBurn));
+    final showBalanceUSDT =
+        ref.watch(settingsProvider.select((value) => value.showBalanceUSDT));
 
     return ListView(
       padding: const EdgeInsets.all(Spaces.large),
@@ -158,34 +160,6 @@ class SettingsTab extends ConsumerWidget {
           ),
         ),
         const Divider(),
-        ListTile(
-          leading: const Icon(Icons.edit),
-          title: Text(
-            loc.rename_wallet,
-            style: context.titleLarge,
-          ),
-          subtitle: Text(
-            name,
-            style: context.titleMedium!.copyWith(color: context.colors.primary),
-          ),
-          onTap: () => _showRenameWalletInput(ref),
-          trailing: const Icon(
-            Icons.keyboard_arrow_right_rounded,
-          ),
-        ),
-        const Divider(),
-        ListTile(
-          leading: const Icon(Icons.password),
-          title: Text(
-            loc.change_password,
-            style: context.titleLarge,
-          ),
-          onTap: () => context.push(AuthAppScreen.changePassword.toPath),
-          trailing: const Icon(
-            Icons.keyboard_arrow_right_rounded,
-          ),
-        ),
-        const Divider(),
         ExpansionTile(
           leading: const Icon(Icons.wallet_membership_rounded),
           title: Text(
@@ -193,6 +167,16 @@ class SettingsTab extends ConsumerWidget {
             style: context.titleLarge,
           ),
           children: [
+            FormBuilderSwitch(
+              name: 'show_balance_usdt_switch',
+              initialValue: showBalanceUSDT,
+              decoration: const InputDecoration(fillColor: Colors.transparent),
+              title: Text(toBeginningOfSentenceCase(loc.show_balance_usdt),
+                  style: context.bodyLarge),
+              onChanged: (value) {
+                ref.read(settingsProvider.notifier).setShowBalanceUSDT(value!);
+              },
+            ),
             FormBuilderSwitch(
               name: 'unlock_burn_switch',
               initialValue: unlockBurn,
@@ -232,6 +216,34 @@ class SettingsTab extends ConsumerWidget {
               },
             ),
           ],
+        ),
+        const Divider(),
+        ListTile(
+          leading: const Icon(Icons.edit),
+          title: Text(
+            loc.rename_wallet,
+            style: context.titleLarge,
+          ),
+          subtitle: Text(
+            name,
+            style: context.titleMedium!.copyWith(color: context.colors.primary),
+          ),
+          onTap: () => _showRenameWalletInput(ref),
+          trailing: const Icon(
+            Icons.keyboard_arrow_right_rounded,
+          ),
+        ),
+        const Divider(),
+        ListTile(
+          leading: const Icon(Icons.password),
+          title: Text(
+            loc.change_password,
+            style: context.titleLarge,
+          ),
+          onTap: () => context.push(AuthAppScreen.changePassword.toPath),
+          trailing: const Icon(
+            Icons.keyboard_arrow_right_rounded,
+          ),
         ),
         const Divider(),
         const SizedBox(height: Spaces.medium),

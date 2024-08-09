@@ -165,5 +165,6 @@
   "all_logs_copied": "Tutti i log sono stati copiati nel porta documento",
   "destination": "Destinazione",
   "integrated_address_detected": "Indirizzo integrazione rilevato",
-  "payment_id": "Identificatore di pagamento"
+  "payment_id": "Identificatore di pagamento",
+  "show_balance_usdt": "Mostra il saldo in USDT"
 }

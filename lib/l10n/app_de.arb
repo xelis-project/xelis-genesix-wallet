@@ -165,5 +165,6 @@
   "all_logs_copied": "Alle Logdateien wurden in die Zwischenablage kopiert",
   "destination": "Ziel",
   "integrated_address_detected": "Integrierte Adresse erkannt",
-  "payment_id": "Zahlungs-ID"
+  "payment_id": "Zahlungs-ID",
+  "show_balance_usdt": "Zeige den Saldo in USDT"
 }

@@ -165,5 +165,6 @@
   "all_logs_copied": "所有日志已复制到剪贴板",
   "destination": "目的地",
   "integrated_address_detected": "整合地址检测到",
-  "payment_id": "支付ID"
+  "payment_id": "支付ID",
+  "show_balance_usdt": "展示在USDT中的余额"
 }

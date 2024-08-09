@@ -165,5 +165,6 @@
   "all_logs_copied": "全てのログがクリップボードにコピーされました",
   "destination": "宛先",
   "integrated_address_detected": "統合アドレス検出",
-  "payment_id": "決済ID"
+  "payment_id": "決済ID",
+  "show_balance_usdt": "USDTでバランスを表示する"
 }

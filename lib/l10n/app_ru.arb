@@ -165,5 +165,6 @@
   "all_logs_copied": "Все журналы скопированы в буфер обмена",
   "destination": "Направление",
   "integrated_address_detected": "Интегрированная адреса обнаружена",
-  "payment_id": "ИД платежа"
+  "payment_id": "ИД платежа",
+  "show_balance_usdt": "Покажите баланс в USDT"
 }

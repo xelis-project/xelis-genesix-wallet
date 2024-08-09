@@ -165,5 +165,6 @@
   "all_logs_copied": "Tous les logs copiés dans le presse-papier",
   "destination": "Destination",
   "integrated_address_detected": "Adresse intégrée détectée",
-  "payment_id": "ID de paiement"
+  "payment_id": "ID de paiement",
+  "show_balance_usdt": "Afficher le solde en USDT"
 }

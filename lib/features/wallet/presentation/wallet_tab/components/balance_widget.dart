@@ -1,6 +1,8 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/wallet/application/xelis_price_provider.dart';
+import 'package:genesix/features/wallet/domain/xelis_price/coinpaprika/xelis_ticker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -26,16 +28,25 @@ class BalanceWidget extends ConsumerWidget {
     final loc = ref.watch(appLocalizationsProvider);
     final hideBalance =
         ref.watch(settingsProvider.select((state) => state.hideBalance));
+    final unlockBurn =
+        ref.watch(settingsProvider.select((state) => state.unlockBurn));
+    final showBalanceUSDT =
+        ref.watch(settingsProvider.select((state) => state.showBalanceUSDT));
     final xelisBalance =
         ref.watch(walletStateProvider.select((state) => state.xelisBalance));
+
+    XelisTicker? xelisTicker;
+    if (showBalanceUSDT) {
+      xelisTicker = ref.watch(xelisPriceProvider).valueOrNull;
+    }
+    var xelisPrice =
+        (xelisTicker?.price ?? 0.0) * (double.tryParse(xelisBalance) ?? 0.0);
 
     var displayBalance = xelisBalance;
     if (hideBalance) {
       displayBalance = loc.hidden;
+      xelisPrice = 0.0;
     }
-
-    final unlockBurn =
-        ref.watch(settingsProvider.select((state) => state.unlockBurn));
 
     return GridTile(
       child: Column(
@@ -65,12 +76,11 @@ class BalanceWidget extends ConsumerWidget {
                           minFontSize: 20,
                         ),
                       ),
-                      // TODO
-                      // const SizedBox(height: 3),
-                      // SelectableText(
-                      //   hideBalance ? '' : '0.00 USDT',
-                      //   style: context.bodyLarge,
-                      // ),
+                      if (showBalanceUSDT) ...[
+                        const SizedBox(height: 3),
+                        SelectableText('${xelisPrice.toStringAsFixed(2)} USDT',
+                            style: context.bodyLarge)
+                      ],
                     ],
                   ),
                 ),

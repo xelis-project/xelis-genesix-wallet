@@ -165,5 +165,6 @@
   "all_logs_copied": "Alle logboeken zijn gekopieerd in de knipbord",
   "destination": "Bestemming",
   "integrated_address_detected": "Geïntegreerde adres gedetecteerd",
-  "payment_id": "Betalings-ID"
+  "payment_id": "Betalings-ID",
+  "show_balance_usdt": "Toon de balans in USDT"
 }

@@ -165,5 +165,6 @@
   "all_logs_copied": "Wszystkie logi zostały skopiowane do schowka",
   "destination": "Cel",
   "integrated_address_detected": "Zintegrowana adresa wykryta",
-  "payment_id": "Numer identyfikacji płatności"
+  "payment_id": "Numer identyfikacji płatności",
+  "show_balance_usdt": "Pokaż saldo w USDT"
 }

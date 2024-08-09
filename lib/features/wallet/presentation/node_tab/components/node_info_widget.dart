@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/node_provider.dart';
+import 'package:genesix/features/wallet/application/node_info_provider.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 
@@ -13,7 +13,7 @@ class NodeInfoWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
-    final info = ref.watch(getInfoProvider).valueOrNull;
+    final info = ref.watch(nodeInfoProvider).valueOrNull;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

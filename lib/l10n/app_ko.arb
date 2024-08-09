@@ -165,5 +165,6 @@
   "all_logs_copied": "모든 로그가 클립보드에 복사되었습니다",
   "destination": "목적지",
   "integrated_address_detected": "통합 주소 검출됨",
-  "payment_id": "결제ID"
+  "payment_id": "결제ID",
+  "show_balance_usdt": "USDT에 잔액을 보여주세요"
 }

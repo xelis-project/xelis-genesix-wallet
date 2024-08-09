@@ -165,5 +165,6 @@
   "all_logs_copied": "All logs copied to clipboard",
   "destination": "Destination",
   "integrated_address_detected": "Integrated address detected",
-  "payment_id": "Payment ID"
+  "payment_id": "Payment ID",
+  "show_balance_usdt": "Show balance in USDT"
 }

@@ -7,7 +7,7 @@ pub mod logger;
 pub mod network;
 pub mod progress_report;
 pub mod table_generation;
-/// flutter_rust_bridge:ignore
+// /// flutter_rust_bridge:ignore
 // mod time;
 pub mod utils;
 pub mod wallet;

@@ -165,5 +165,6 @@
   "all_logs_copied": "Todos los registros copiados en el portapapeles",
   "destination": "Destino",
   "integrated_address_detected": "Dirección integrada detectada",
-  "payment_id": "Identificador de pago"
+  "payment_id": "Identificador de pago",
+  "show_balance_usdt": "Muestra el saldo en USDT"
 }

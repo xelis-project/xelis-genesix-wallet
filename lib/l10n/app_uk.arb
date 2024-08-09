@@ -165,5 +165,6 @@
   "all_logs_copied": "Всі логи скопійовані до буфера обміну",
   "destination": "Місце призначення",
   "integrated_address_detected": "Інтегрована адреса виявлена",
-  "payment_id": "ІД платіжі"
+  "payment_id": "ІД платіжі",
+  "show_balance_usdt": "Показати баланс в USDT"
 }

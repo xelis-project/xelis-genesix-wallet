@@ -165,5 +165,6 @@
   "all_logs_copied": "Semua rekod telah disalin ke kertas klip",
   "destination": "Tujuan",
   "integrated_address_detected": "Alamat terintegrasi dikesan",
-  "payment_id": "ID Pembayaran"
+  "payment_id": "ID Pembayaran",
+  "show_balance_usdt": "Tunjukkan saldo dalam USDT"
 }

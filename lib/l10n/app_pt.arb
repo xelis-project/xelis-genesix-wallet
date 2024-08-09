@@ -165,5 +165,6 @@
   "all_logs_copied": "Todos os registros copiados para a área de transferência",
   "destination": "Destino",
   "integrated_address_detected": "Endereço integrado detectado",
-  "payment_id": "Identificador de pagamento"
+  "payment_id": "Identificador de pagamento",
+  "show_balance_usdt": "Mostre o saldo em USDT"
 }

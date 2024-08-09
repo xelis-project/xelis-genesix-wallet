@@ -165,5 +165,6 @@
   "all_logs_copied": "सभी लॉग्स कॉपी कर लिया गया है",
   "destination": "गंतव्यस्थान",
   "integrated_address_detected": "एकीकृत पता पहचाना गया",
-  "payment_id": "भुगतान ID"
+  "payment_id": "भुगतान ID",
+  "show_balance_usdt": "यूएसडीटी में शेष दिखाएं"
 }
