@@ -12,9 +12,8 @@ final Uri coinPaprikaEndpoint =
 
 @riverpod
 Future<XelisTicker> xelisPrice(XelisPriceRef ref) async {
-  final client = http.Client();
-
   final timer = Timer(const Duration(seconds: 60), () => ref.invalidateSelf());
+  final client = http.Client();
 
   ref.onDispose(() {
     timer.cancel();

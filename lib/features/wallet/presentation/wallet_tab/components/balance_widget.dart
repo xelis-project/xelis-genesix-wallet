@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/wallet/application/xelis_price_provider.dart';
 import 'package:genesix/features/wallet/domain/xelis_price/coinpaprika/xelis_ticker.dart';
+import 'package:genesix/rust_bridge/api/network.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -26,24 +27,19 @@ class BalanceWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
-    final hideBalance =
-        ref.watch(settingsProvider.select((state) => state.hideBalance));
-    final unlockBurn =
-        ref.watch(settingsProvider.select((state) => state.unlockBurn));
-    final showBalanceUSDT =
-        ref.watch(settingsProvider.select((state) => state.showBalanceUSDT));
+    final settings = ref.watch(settingsProvider);
     final xelisBalance =
         ref.watch(walletStateProvider.select((state) => state.xelisBalance));
 
     XelisTicker? xelisTicker;
-    if (showBalanceUSDT) {
+    if (settings.showBalanceUSDT && settings.network == Network.mainnet) {
       xelisTicker = ref.watch(xelisPriceProvider).valueOrNull;
     }
     var xelisPrice =
         (xelisTicker?.price ?? 0.0) * (double.tryParse(xelisBalance) ?? 0.0);
 
     var displayBalance = xelisBalance;
-    if (hideBalance) {
+    if (settings.hideBalance) {
       displayBalance = loc.hidden;
       xelisPrice = 0.0;
     }
@@ -76,7 +72,8 @@ class BalanceWidget extends ConsumerWidget {
                           minFontSize: 20,
                         ),
                       ),
-                      if (showBalanceUSDT) ...[
+                      if (settings.showBalanceUSDT &&
+                          settings.network == Network.mainnet) ...[
                         const SizedBox(height: 3),
                         SelectableText('${xelisPrice.toStringAsFixed(2)} USDT',
                             style: context.bodyLarge)
@@ -86,17 +83,19 @@ class BalanceWidget extends ConsumerWidget {
                 ),
                 const SizedBox(width: Spaces.medium),
                 IconButton.filled(
-                  icon: hideBalance
+                  icon: settings.hideBalance
                       ? const Icon(
                           Icons.visibility_rounded,
                         )
                       : const Icon(
                           Icons.visibility_off_rounded,
                         ),
-                  tooltip: hideBalance ? loc.show_balance : loc.hide_balance,
+                  tooltip: settings.hideBalance
+                      ? loc.show_balance
+                      : loc.hide_balance,
                   onPressed: () => ref
                       .read(settingsProvider.notifier)
-                      .setHideBalance(!hideBalance),
+                      .setHideBalance(!settings.hideBalance),
                 ),
               ],
             ),
@@ -119,11 +118,11 @@ class BalanceWidget extends ConsumerWidget {
               Column(
                 children: [
                   IconButton.filled(
-                    onPressed: unlockBurn
+                    onPressed: settings.unlockBurn
                         ? () => context.push(AppScreen.burn.toPath)
                         : null,
                     icon: const Icon(Icons.local_fire_department_rounded),
-                    tooltip: unlockBurn
+                    tooltip: settings.unlockBurn
                         ? null
                         : toBeginningOfSentenceCase(loc.unlock_in_settings),
                   ),
@@ -131,7 +130,7 @@ class BalanceWidget extends ConsumerWidget {
                   Text(
                     loc.burn,
                     style: context.labelLarge?.copyWith(
-                        color: unlockBurn
+                        color: settings.unlockBurn
                             ? context.colors.onSurface
                             : context.moreColors.mutedColor),
                   ),

@@ -104,9 +104,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             const Divider(),
             const LanguageSelectorWidget(),
             const Divider(),
-            HorizontalContainer(title: loc.version, value: _version),
-            const Divider(),
             const LoggerSelectorWidget(),
+            const Divider(),
+            HorizontalContainer(title: loc.version, value: _version),
             const Divider(),
             VerticalContainer(
                 title: loc.wallets_directory, value: _walletsPath),

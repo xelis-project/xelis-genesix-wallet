@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/rust_bridge/api/network.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/widgets/components/confirm_dialog.dart';
 import 'package:go_router/go_router.dart';
@@ -118,15 +119,8 @@ class SettingsTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
-    final hideZeroTransfer =
-        ref.watch(settingsProvider.select((value) => value.hideZeroTransfer));
-    final hideExtraData =
-        ref.watch(settingsProvider.select((value) => value.hideExtraData));
     final name = ref.watch(walletStateProvider.select((state) => state.name));
-    final unlockBurn =
-        ref.watch(settingsProvider.select((value) => value.unlockBurn));
-    final showBalanceUSDT =
-        ref.watch(settingsProvider.select((value) => value.showBalanceUSDT));
+    final settings = ref.watch(settingsProvider);
 
     return ListView(
       padding: const EdgeInsets.all(Spaces.large),
@@ -167,19 +161,23 @@ class SettingsTab extends ConsumerWidget {
             style: context.titleLarge,
           ),
           children: [
-            FormBuilderSwitch(
-              name: 'show_balance_usdt_switch',
-              initialValue: showBalanceUSDT,
-              decoration: const InputDecoration(fillColor: Colors.transparent),
-              title: Text(toBeginningOfSentenceCase(loc.show_balance_usdt),
-                  style: context.bodyLarge),
-              onChanged: (value) {
-                ref.read(settingsProvider.notifier).setShowBalanceUSDT(value!);
-              },
-            ),
+            if (settings.network == Network.mainnet)
+              FormBuilderSwitch(
+                name: 'show_balance_usdt_switch',
+                initialValue: settings.showBalanceUSDT,
+                decoration:
+                    const InputDecoration(fillColor: Colors.transparent),
+                title: Text(toBeginningOfSentenceCase(loc.show_balance_usdt),
+                    style: context.bodyLarge),
+                onChanged: (value) {
+                  ref
+                      .read(settingsProvider.notifier)
+                      .setShowBalanceUSDT(value!);
+                },
+              ),
             FormBuilderSwitch(
               name: 'unlock_burn_switch',
-              initialValue: unlockBurn,
+              initialValue: settings.unlockBurn,
               decoration: const InputDecoration(fillColor: Colors.transparent),
               title: Text(toBeginningOfSentenceCase(loc.unlock_burn_transfer),
                   style: context.bodyLarge),
@@ -199,7 +197,7 @@ class SettingsTab extends ConsumerWidget {
           children: [
             FormBuilderSwitch(
               name: 'zero_transfer_switch',
-              initialValue: hideZeroTransfer,
+              initialValue: settings.hideZeroTransfer,
               decoration: const InputDecoration(fillColor: Colors.transparent),
               title: Text(loc.hide_zero_transfers, style: context.bodyLarge),
               onChanged: (value) {
@@ -208,7 +206,7 @@ class SettingsTab extends ConsumerWidget {
             ),
             FormBuilderSwitch(
               name: 'extra_data_switch',
-              initialValue: hideExtraData,
+              initialValue: settings.hideExtraData,
               decoration: const InputDecoration(fillColor: Colors.transparent),
               title: Text(loc.hide_extra_data, style: context.bodyLarge),
               onChanged: (value) {
