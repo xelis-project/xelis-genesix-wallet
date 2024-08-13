@@ -54,7 +54,8 @@ pub async fn create_xelis_wallet(
     let precomputed_tables = precomputed_tables::read_or_generate_precomputed_tables(
         precomputed_tables_path,
         LogProgressTableGenerationReportFunction,
-    ).await?;
+    )
+    .await?;
     let xelis_wallet = Wallet::create(name, password, seed, network, precomputed_tables)?;
     Ok(XelisWallet {
         wallet: xelis_wallet,
@@ -71,7 +72,8 @@ pub async fn open_xelis_wallet(
     let precomputed_tables = precomputed_tables::read_or_generate_precomputed_tables(
         precomputed_tables_path,
         LogProgressTableGenerationReportFunction,
-    ).await?;
+    )
+    .await?;
     let xelis_wallet = Wallet::open(name, password, network, precomputed_tables)?;
     Ok(XelisWallet {
         wallet: xelis_wallet,
