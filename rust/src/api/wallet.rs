@@ -332,6 +332,7 @@ impl XelisWallet {
                     &mut storage,
                     transaction_type_builder.clone(),
                     FeeBuilder::Multiplier(1f64),
+                    None
                 )
                 .await?
         };
@@ -392,6 +393,7 @@ impl XelisWallet {
                     &mut storage,
                     transaction_type_builder.clone(),
                     FeeBuilder::default(),
+                    None
                 )
                 .await?
         };
