@@ -55,6 +55,8 @@ dependencies:
   flutter_rust_bridge: 2.2.0
   rust_builder:
     path: rust_builder
+  flutter_hashicon:
+    git: https://github.com/g45t345rt/flutter_hashicon.git
 
 dependency_overrides:
   meta:

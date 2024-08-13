@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:random_avatar/random_avatar.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
 import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
 import 'package:genesix/features/authentication/presentation/components/table_generation_progress_dialog.dart';
@@ -126,8 +126,10 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         wallets[name]!.isNotEmpty
-                                            ? RandomAvatar(wallets[name]!,
-                                                width: 50, height: 50)
+                                            ? HashiconWidget(
+                                                hash: wallets[name]!,
+                                                size: const Size(50, 50),
+                                              )
                                             : const SizedBox(
                                                 width: 50,
                                                 height: 50,

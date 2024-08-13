@@ -17,6 +17,7 @@ use xelis_common::transaction::builder::{FeeBuilder, TransactionTypeBuilder, Tra
 use xelis_common::transaction::BurnPayload;
 pub use xelis_common::transaction::Transaction;
 use xelis_common::utils::{format_coin, format_xelis};
+use xelis_wallet::precomputed_tables;
 pub use xelis_wallet::transaction_builder::TransactionBuilderState;
 use xelis_wallet::wallet::Wallet;
 
@@ -50,10 +51,10 @@ pub async fn create_xelis_wallet(
     seed: Option<String>,
     precomputed_tables_path: Option<String>,
 ) -> Result<XelisWallet> {
-    let precomputed_tables = Wallet::read_or_generate_precomputed_tables(
+    let precomputed_tables = precomputed_tables::read_or_generate_precomputed_tables(
         precomputed_tables_path,
         LogProgressTableGenerationReportFunction,
-    )?;
+    ).await?;
     let xelis_wallet = Wallet::create(name, password, seed, network, precomputed_tables)?;
     Ok(XelisWallet {
         wallet: xelis_wallet,
@@ -67,10 +68,10 @@ pub async fn open_xelis_wallet(
     network: Network,
     precomputed_tables_path: Option<String>,
 ) -> Result<XelisWallet> {
-    let precomputed_tables = Wallet::read_or_generate_precomputed_tables(
+    let precomputed_tables = precomputed_tables::read_or_generate_precomputed_tables(
         precomputed_tables_path,
         LogProgressTableGenerationReportFunction,
-    )?;
+    ).await?;
     let xelis_wallet = Wallet::open(name, password, network, precomputed_tables)?;
     Ok(XelisWallet {
         wallet: xelis_wallet,

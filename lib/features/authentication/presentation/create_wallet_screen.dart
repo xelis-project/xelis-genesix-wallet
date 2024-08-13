@@ -76,8 +76,11 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                   .read(authenticationProvider.notifier)
                   .isPrecomputedTablesExists() &&
               mounted) {
+            logger
+                .info('Creating wallet: show table generation progress dialog');
             _showTableGenerationProgressDialog(context);
           } else {
+            logger.info('Creating wallet: show loader overlay');
             context.loaderOverlay.show();
           }
 
