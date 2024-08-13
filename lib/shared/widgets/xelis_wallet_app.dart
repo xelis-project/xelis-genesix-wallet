@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/logger/logger.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
 import 'package:genesix/features/router/router.dart';
@@ -89,5 +90,6 @@ class _XelisWalletAppState extends ConsumerState<XelisWalletApp>
   @override
   Future<void> onWindowClose() async {
     await ref.read(authenticationProvider.notifier).logout();
+    talker.disable();
   }
 }
