@@ -1,6 +1,5 @@
 use std::ops::ControlFlow;
 
-use flutter_rust_bridge::frb;
 use log::debug;
 use xelis_common::crypto::ecdlp;
 use xelis_wallet::precomputed_tables;
@@ -23,7 +22,6 @@ impl ecdlp::ProgressTableGenerationReportFunction for LogProgressTableGeneration
     }
 }
 
-#[frb(sync)]
 pub async fn precomputed_tables_exist(precomputed_tables_path: String) -> bool {
     precomputed_tables::has_precomputed_tables(Some(precomputed_tables_path)).await.expect("Failed to check precomputed tables existence")
 }
