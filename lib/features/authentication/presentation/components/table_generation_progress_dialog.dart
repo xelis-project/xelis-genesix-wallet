@@ -81,6 +81,7 @@ class TableGenerationProgressDialog extends ConsumerWidget {
                 LinearProgressIndicator(
                   value: progressValue,
                   borderRadius: BorderRadius.circular(8.0),
+                  backgroundColor: context.moreColors.mutedColor,
                   minHeight: 10,
                 ),
                 const SizedBox(height: Spaces.small),
