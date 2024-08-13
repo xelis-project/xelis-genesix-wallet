@@ -148,7 +148,12 @@
     <div>Please be patient. If this is your first time loading, it might take up to 1 minute to download the precomputed
       table before it is cached on your device.</div>
   </div>
-
+  <script>
+    // Polyfill for old browsers that don't support WeakRef.
+    // (See https://github.com/ungap/weakrefs/blob/v0.1.0/min.js)
+    /*! (c) Andrea Giammarchi - ISC */
+    var self=this||{};try{self.WeakRef=WeakRef,self.FinalizationGroup=FinalizationGroup}catch(e){!function(e,t){var i=new e;function n(e){i.set(this,e)}t(n.prototype,{deref:{value:function(){return i.get(this)}}});var a=new e;function r(e){a.set(this,[])}t(r.prototype,{register:{value:function(e,t){var i=a.get(this);i.indexOf(t)<0&&i.push(t)}},unregister:{value:function(e,t){var i=a.get(this),n=i.indexOf(t);return-1<n&&i.splice(n,1),-1<n}},cleanupSome:{value:function(e){e(a.get(this))}}}),self.WeakRef=n,self.FinalizationGroup=r}(WeakMap,Object.defineProperties)}
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 

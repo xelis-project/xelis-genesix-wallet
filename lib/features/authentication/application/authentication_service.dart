@@ -146,11 +146,7 @@ class Authentication extends _$Authentication {
   }
 
   Future<bool> isPrecomputedTablesExists() async {
-    if (kIsWeb) {
-      return true;
-    } else {
-      return precomputedTablesExist(
-          precomputedTablesPath: await _getPrecomputedTablesPath());
-    }
+    return precomputedTablesExist(
+        precomputedTablesPath: await _getPrecomputedTablesPath());
   }
 }
