@@ -5,10 +5,10 @@
 // 'flutter create' template.
 
 // The application's name. By default this is also the title of the Flutter window.
-PRODUCT_NAME = genesix
+PRODUCT_NAME = Genesix
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = io.xelis.app.xelisWallet
+PRODUCT_BUNDLE_IDENTIFIER = io.xelis.app.genesix
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2024 io.xelis.app. All rights reserved.
