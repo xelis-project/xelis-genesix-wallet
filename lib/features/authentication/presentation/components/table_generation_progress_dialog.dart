@@ -53,11 +53,13 @@ class TableGenerationProgressDialog extends ConsumerWidget {
                               size: 30,
                             ),
                             const SizedBox(width: Spaces.medium),
-                            Text(
-                              loc.wait,
-                              style: context.bodyLarge?.copyWith(
-                                  color: context.colors.primary,
-                                  fontWeight: FontWeight.bold),
+                            Expanded(
+                              child: Text(
+                                loc.wait,
+                                style: context.bodyLarge?.copyWith(
+                                    color: context.colors.primary,
+                                    fontWeight: FontWeight.bold),
+                              ),
                             ),
                           ],
                         ),

@@ -1215,6 +1215,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d231dfb89cfffdbc30e7fc41579ed6066ad03abda9e567ccafae602b97ec5024"
 
 [[package]]
+name = "hermit-abi"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fbf6a919d6cf397374f7dfeeea91d974c7c0a7221d0d0f4f20d859d329e53fcc"
+
+[[package]]
 name = "hex"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1394,11 +1400,11 @@ checksum = "8f518f335dce6725a761382244631d86cf0ccb2863413590b31338feb467f9c3"
 
 [[package]]
 name = "is-terminal"
-version = "0.4.12"
+version = "0.4.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f23ff5ef2b80d608d61efee834934d862cd92461afc0560dedf493e4c033738b"
+checksum = "261f68e344040fbd0edea105bef17c66edf46f984ddb1115b775ce31be948f4b"
 dependencies = [
- "hermit-abi",
+ "hermit-abi 0.4.0",
  "libc",
  "windows-sys 0.52.0",
 ]
@@ -1545,7 +1551,7 @@ version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "80e04d1dcff3aae0704555fe5fee3bcfaf3d1fdf8a7e521d5b9d2b42acb52cec"
 dependencies = [
- "hermit-abi",
+ "hermit-abi 0.3.9",
  "libc",
  "log",
  "wasi",
@@ -1573,7 +1579,7 @@ version = "1.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4161fcb6d602d4d2081af7c3a45852d875a03dd337a6bfdd6e06407b61342a43"
 dependencies = [
- "hermit-abi",
+ "hermit-abi 0.3.9",
  "libc",
 ]
 
@@ -2912,7 +2918,7 @@ dependencies = [
 [[package]]
 name = "xelis-hash"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-hash?branch=master#af1ea607b5183e6067031381fd00692fa8d15575"
+source = "git+https://github.com/xelis-project/xelis-hash?branch=master#478dd8d8924bb2d38684193656d38b112ab2f532"
 dependencies = [
  "aes",
  "blake3",
@@ -2925,7 +2931,7 @@ dependencies = [
 [[package]]
 name = "xelis_common"
 version = "1.13.3"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#935a7fe3bbcd65a9e5a6e5b51081975c737d7af1"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#108c7e4792c72e4ef284d240c9a1786dbc02b1ae"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -2965,7 +2971,7 @@ dependencies = [
 [[package]]
 name = "xelis_wallet"
 version = "1.13.3"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#935a7fe3bbcd65a9e5a6e5b51081975c737d7af1"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#108c7e4792c72e4ef284d240c9a1786dbc02b1ae"
 dependencies = [
  "actix",
  "actix-web",

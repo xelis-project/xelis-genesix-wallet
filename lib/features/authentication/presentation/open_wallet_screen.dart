@@ -65,8 +65,6 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    //final ScalableImageWidget banner = getBanner(context, settings.theme);
-
     final wallets = ref.watch(walletsProvider);
 
     return Background(
@@ -186,17 +184,22 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  TextButton.icon(
-                    onPressed: () {
-                      context.push(AppScreen.createWallet.toPath);
-                    },
-                    icon: const Icon(Icons.wallet),
-                    label: Text(
-                      loc.create_new_wallet,
-                      style: context.titleMedium!
-                          .copyWith(color: context.colors.onPrimary),
+                  Flexible(
+                    child: TextButton.icon(
+                      onPressed: () {
+                        context.push(AppScreen.createWallet.toPath);
+                      },
+                      icon: const Icon(Icons.wallet),
+                      label: Text(
+                        loc.create_new_wallet,
+                        style: context.titleMedium!
+                            .copyWith(color: context.colors.onPrimary),
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                      ),
                     ),
                   ),
+                  const SizedBox(width: Spaces.large),
                   IconButton.filled(
                     onPressed: () {
                       context.push(AppScreen.settings.toPath);
