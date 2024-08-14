@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:genesix/shared/logger.dart';
+import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:go_router/go_router.dart';
@@ -47,8 +47,10 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
           .read(authenticationProvider.notifier)
           .openWallet(name, password);
     } catch (e) {
-      logger.severe('Opening wallet failed: $e');
-      ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
+      talker.critical('Opening wallet failed: $e');
+      ref
+          .read(snackBarMessengerProvider.notifier)
+          .showError('Error when opening wallet');
       if (mounted) {
         // Dismiss TableGenerationProgressDialog if error occurs
         context.pop();
@@ -63,8 +65,6 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    //final ScalableImageWidget banner = getBanner(context, settings.theme);
-
     final wallets = ref.watch(walletsProvider);
 
     return Background(
@@ -184,17 +184,22 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  TextButton.icon(
-                    onPressed: () {
-                      context.push(AppScreen.createWallet.toPath);
-                    },
-                    icon: const Icon(Icons.wallet),
-                    label: Text(
-                      loc.create_new_wallet,
-                      style: context.titleMedium!
-                          .copyWith(color: context.colors.onPrimary),
+                  Flexible(
+                    child: TextButton.icon(
+                      onPressed: () {
+                        context.push(AppScreen.createWallet.toPath);
+                      },
+                      icon: const Icon(Icons.wallet),
+                      label: Text(
+                        loc.create_new_wallet,
+                        style: context.titleMedium!
+                            .copyWith(color: context.colors.onPrimary),
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                      ),
                     ),
                   ),
+                  const SizedBox(width: Spaces.large),
                   IconButton.filled(
                     onPressed: () {
                       context.push(AppScreen.settings.toPath);

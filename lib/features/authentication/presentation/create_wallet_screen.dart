@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:genesix/shared/logger.dart';
+import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -76,19 +76,21 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                   .read(authenticationProvider.notifier)
                   .isPrecomputedTablesExists() &&
               mounted) {
-            logger
+            talker
                 .info('Creating wallet: show table generation progress dialog');
             _showTableGenerationProgressDialog(context);
           } else {
-            logger.info('Creating wallet: show loader overlay');
+            talker.info('Creating wallet: show loader overlay');
             context.loaderOverlay.show();
           }
 
           await ref.read(authenticationProvider.notifier).createWallet(
               walletName, password, _seedRequired ? createSeed : null);
         } catch (e) {
-          logger.severe('Creating wallet failed: $e');
-          ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
+          talker.critical('Creating wallet failed: $e');
+          ref
+              .read(snackBarMessengerProvider.notifier)
+              .showError('Error when creating wallet');
           if (mounted) {
             // Dismiss TableGenerationProgressDialog if error occurs
             context.pop();

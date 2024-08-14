@@ -15,7 +15,8 @@ class GenericAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       titleSpacing: Spaces.small,
       leading: Padding(
-        padding: const EdgeInsets.fromLTRB(Spaces.small, Spaces.medium, 0, 0),
+        padding: const EdgeInsets.fromLTRB(
+            Spaces.small, Spaces.medium, Spaces.none, Spaces.none),
         child: IconButton(
           onPressed: () {
             context.pop();
@@ -27,7 +28,8 @@ class GenericAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       title: Padding(
-        padding: const EdgeInsets.fromLTRB(0, Spaces.medium, 0, 0),
+        padding: const EdgeInsets.fromLTRB(
+            Spaces.none, Spaces.medium, Spaces.none, Spaces.none),
         child: Text(
           title,
           style: context.headlineMedium!.copyWith(fontWeight: FontWeight.bold),

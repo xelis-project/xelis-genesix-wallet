@@ -56,11 +56,13 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
     final loc = ref.watch(appLocalizationsProvider);
 
     // TODO handle various assets
-    final destination =
-        widget.tx.transactionSummaryType.transferOutEntry!.first.destination;
     final amount =
         widget.tx.transactionSummaryType.transferOutEntry!.first.amount;
     final total = amount + widget.tx.fee;
+
+    final rawAddress =
+        widget.tx.transactionSummaryType.transferOutEntry!.first.destination;
+    final destination = splitIntegratedAddress(rawAddress);
 
     return AlertDialog(
       scrollable: true,
@@ -104,6 +106,30 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
               ],
             ),
             const SizedBox(height: Spaces.small),
+            if (destination.isIntegrated) ...[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(loc.destination,
+                      style: context.bodyLarge!
+                          .copyWith(color: context.moreColors.mutedColor)),
+                  const SizedBox(width: Spaces.small),
+                  Tooltip(
+                    message: loc.integrated_address_detected,
+                    textStyle: context.bodyMedium
+                        ?.copyWith(color: context.colors.primary),
+                    child: Icon(
+                      Icons.info_outline_rounded,
+                      size: 18,
+                      color: context.moreColors.mutedColor,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: Spaces.small),
+              SelectableText(rawAddress),
+              const SizedBox(height: Spaces.small),
+            ],
             Text(loc.receiver,
                 style: context.bodyLarge!
                     .copyWith(color: context.moreColors.mutedColor)),
@@ -111,15 +137,23 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
             Row(
               children: [
                 HashiconWidget(
-                  hash: destination,
+                  hash: destination.address,
                   size: const Size(35, 35),
                 ),
                 const SizedBox(width: Spaces.small),
                 Expanded(
-                  child: SelectableText(destination),
+                  child: SelectableText(destination.address),
                 ),
               ],
             ),
+            if (destination.isIntegrated) ...[
+              const SizedBox(height: Spaces.small),
+              Text(loc.payment_id,
+                  style: context.bodyLarge!
+                      .copyWith(color: context.moreColors.mutedColor)),
+              const SizedBox(height: 3),
+              SelectableText(destination.data.toString()),
+            ],
             const SizedBox(height: Spaces.small),
             Text(loc.hash,
                 style: context.bodyLarge!

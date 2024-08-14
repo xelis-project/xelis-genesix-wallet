@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:genesix/shared/logger.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:path/path.dart' as p;
 import 'dart:convert';
@@ -125,7 +124,7 @@ class Wallets extends _$Wallets {
             !key.endsWith("ordering.json")) {
           var name = p.basename(key);
 
-          logger.info(name);
+          // talker.info(name);
           var addr = await _getWalletAddress(name);
           wallets[name] = addr;
         }

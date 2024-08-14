@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:genesix/features/authentication/presentation/components/seed_content_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/burn_screen.dart';
+import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/shared/widgets/components/dialog_page.dart';
+import 'package:genesix/features/logger/presentation/logger_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/authentication/presentation/create_wallet_screen.dart';
 import 'package:genesix/features/authentication/presentation/open_wallet_screen.dart';
@@ -25,6 +27,8 @@ class OpenWalletRoute extends GoRouteData {
     return pageTransition(
       const OpenWalletScreen(),
       state.pageKey,
+      state.fullPath,
+      state.extra,
       AppDurations.animFast,
     );
   }
@@ -39,6 +43,8 @@ class CreateWalletRoute extends GoRouteData {
     return pageTransition(
       const CreateWalletScreen(),
       state.pageKey,
+      state.fullPath,
+      state.extra,
       AppDurations.animFast,
     );
   }
@@ -54,6 +60,8 @@ class ChangePasswordRoute extends GoRouteData {
     return pageTransition(
       const ChangePasswordScreen(),
       state.pageKey,
+      state.fullPath,
+      state.extra,
       AppDurations.animFast,
     );
   }
@@ -68,6 +76,8 @@ class WalletSeedRoute extends GoRouteData {
     return pageTransition(
       const MySeedScreen(),
       state.pageKey,
+      state.fullPath,
+      state.extra,
       AppDurations.animFast,
     );
   }
@@ -95,6 +105,8 @@ class WalletRoute extends GoRouteData {
     return pageTransition(
       const WalletScreen(),
       state.pageKey,
+      state.fullPath,
+      state.extra,
       AppDurations.animFast,
     );
   }
@@ -109,6 +121,8 @@ class SettingsRoute extends GoRouteData {
     return pageTransition(
       const SettingsScreen(),
       state.pageKey,
+      state.fullPath,
+      state.extra,
       AppDurations.animFast,
     );
   }
@@ -123,6 +137,8 @@ class TransferRoute extends GoRouteData {
     return pageTransition(
       const TransferScreen(),
       state.pageKey,
+      state.fullPath,
+      state.extra,
       AppDurations.animFast,
     );
   }
@@ -137,6 +153,8 @@ class BurnRoute extends GoRouteData {
     return pageTransition(
       const BurnScreen(),
       state.pageKey,
+      state.fullPath,
+      state.extra,
       AppDurations.animFast,
     );
   }
@@ -152,6 +170,24 @@ class TransactionEntryRoute extends GoRouteData {
     return pageTransition(
       TransactionEntryScreen(routerState: state),
       state.pageKey,
+      state.fullPath,
+      state.extra,
+      AppDurations.animFast,
+    );
+  }
+}
+
+@TypedGoRoute<TalkerScreenRoute>(name: 'logger', path: '/logger')
+class TalkerScreenRoute extends GoRouteData {
+  const TalkerScreenRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      LoggerScreen(talker: talker),
+      state.pageKey,
+      state.fullPath,
+      state.extra,
       AppDurations.animFast,
     );
   }
@@ -159,10 +195,16 @@ class TransactionEntryRoute extends GoRouteData {
 
 // This is the function to animate the transition between pages.
 CustomTransitionPage<T> pageTransition<T>(
-        Widget child, ValueKey<String> pageKey, int milliDuration) =>
+        Widget child,
+        ValueKey<String> pageKey,
+        String? path,
+        Object? arguments,
+        int milliDuration) =>
     CustomTransitionPage<T>(
       key: pageKey,
+      name: path,
       child: child,
+      arguments: arguments,
       transitionDuration: Duration(milliseconds: milliDuration),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(0.0, 1.0);

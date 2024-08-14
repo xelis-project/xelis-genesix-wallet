@@ -79,12 +79,13 @@ class TopoHeightWidget extends ConsumerWidget {
                     );
                   },
                 ),
+                const SizedBox(height: Spaces.extraSmall),
                 FittedBox(
                   fit: BoxFit.fitWidth,
                   child: Text(
                     loc.rescan,
                     maxLines: 1,
-                    style: context.labelMedium,
+                    style: context.labelLarge,
                   ),
                 ),
               ],

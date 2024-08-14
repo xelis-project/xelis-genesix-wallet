@@ -65,11 +65,13 @@ class _TransactionEntryScreenState
     final transactionEntry = extra.transactionEntry;
     final entryType = transactionEntry.txEntryType;
 
+    String hashPath = 'txs/';
     switch (entryType) {
       case sdk.CoinbaseEntry():
         entryTypeName = loc.coinbase;
         coinbase = entryType;
         icon = const Icon(Icons.square_rounded);
+        hashPath = 'blocks/';
       case sdk.BurnEntry():
         entryTypeName = loc.burn;
         burn = entryType;
@@ -88,10 +90,10 @@ class _TransactionEntryScreenState
     switch (network) {
       case Network.mainnet || Network.dev:
         url = Uri.parse(
-            '${AppResources.explorerMainnetUrl}txs/${transactionEntry.hash}');
+            '${AppResources.explorerMainnetUrl}$hashPath${transactionEntry.hash}');
       case Network.testnet:
         url = Uri.parse(
-            '${AppResources.explorerTestnetUrl}txs/${transactionEntry.hash}');
+            '${AppResources.explorerTestnetUrl}$hashPath${transactionEntry.hash}');
     }
 
     var displayTopoheight = NumberFormat().format(transactionEntry.topoHeight);
@@ -162,7 +164,15 @@ class _TransactionEntryScreenState
               ),
 
             // BURN
-            if (entryType is sdk.BurnEntry)
+            if (entryType is sdk.BurnEntry) ...[
+              const SizedBox(height: Spaces.medium),
+              Text(loc.fee, style: context.headlineSmall),
+              const SizedBox(height: Spaces.small),
+              SelectableText(
+                '${formatXelis(burn!.fee)} XEL',
+                style: context.bodyLarge!
+                    .copyWith(color: context.moreColors.mutedColor),
+              ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -176,6 +186,7 @@ class _TransactionEntryScreenState
                   ),
                 ],
               ),
+            ],
 
             // OUTGOING
             if (entryType is sdk.OutgoingEntry) ...[

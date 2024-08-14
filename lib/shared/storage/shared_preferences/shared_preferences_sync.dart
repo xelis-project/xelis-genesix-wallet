@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:genesix/shared/logger.dart';
+import 'package:genesix/features/logger/logger.dart';
 
 class SharedPreferencesSync {
   SharedPreferencesSync(this.prefs);
@@ -12,20 +12,20 @@ class SharedPreferencesSync {
     required String key,
     required Map<String, dynamic> value,
   }) async {
-    logger.info('save key: $key');
+    talker.info('save key: $key');
     final jsonString = jsonEncode(value);
     return prefs.setString(key, jsonString);
   }
 
   dynamic get({required String key}) {
     if (!prefs.containsKey(key)) {
-      logger.warning('This key does not exist: "$key".');
+      talker.warning('This key does not exist: "$key".');
       return null;
     }
 
     final jsonString = prefs.getString(key);
     if (jsonString == null) {
-      logger.warning('Unable to getString for key: "$key".');
+      talker.warning('Unable to getString for key: "$key".');
       return null;
     }
     final value = jsonDecode(jsonString);
@@ -33,7 +33,7 @@ class SharedPreferencesSync {
   }
 
   Future<bool> delete({required String key}) async {
-    logger.info('remove key: $key');
+    talker.info('remove key: $key');
     return prefs.remove(key);
   }
 }

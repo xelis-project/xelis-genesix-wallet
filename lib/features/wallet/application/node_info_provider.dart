@@ -2,10 +2,10 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/daemon_info_snapshot.dart';
 
-part 'node_provider.g.dart';
+part 'node_info_provider.g.dart';
 
 @riverpod
-Future<DaemonInfoSnapshot?> getInfo(GetInfoRef ref) async {
+Future<DaemonInfoSnapshot?> nodeInfo(NodeInfoRef ref) async {
   final walletState = ref.watch(walletStateProvider);
   final repository = walletState.nativeWalletRepository;
   if (repository != null) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/rust_bridge/api/network.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/widgets/components/confirm_dialog.dart';
 import 'package:go_router/go_router.dart';
@@ -13,6 +14,7 @@ import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/input_dialog.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
+import 'package:intl/intl.dart';
 
 class SettingsTab extends ConsumerWidget {
   const SettingsTab({super.key});
@@ -117,11 +119,8 @@ class SettingsTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
-    final hideZeroTransfer =
-        ref.watch(settingsProvider.select((value) => value.hideZeroTransfer));
-    final hideExtraData =
-        ref.watch(settingsProvider.select((value) => value.hideExtraData));
     final name = ref.watch(walletStateProvider.select((state) => state.name));
+    final settings = ref.watch(settingsProvider);
 
     return ListView(
       padding: const EdgeInsets.all(Spaces.large),
@@ -155,6 +154,68 @@ class SettingsTab extends ConsumerWidget {
           ),
         ),
         const Divider(),
+        ExpansionTile(
+          leading: const Icon(Icons.wallet_membership_rounded),
+          title: Text(
+            toBeginningOfSentenceCase(loc.wallet_parameters),
+            style: context.titleLarge,
+          ),
+          children: [
+            if (settings.network == Network.mainnet)
+              FormBuilderSwitch(
+                name: 'show_balance_usdt_switch',
+                initialValue: settings.showBalanceUSDT,
+                decoration:
+                    const InputDecoration(fillColor: Colors.transparent),
+                title: Text(toBeginningOfSentenceCase(loc.show_balance_usdt),
+                    style: context.bodyLarge),
+                onChanged: (value) {
+                  ref
+                      .read(settingsProvider.notifier)
+                      .setShowBalanceUSDT(value!);
+                },
+              ),
+            FormBuilderSwitch(
+              name: 'unlock_burn_switch',
+              initialValue: settings.unlockBurn,
+              decoration: const InputDecoration(fillColor: Colors.transparent),
+              title: Text(toBeginningOfSentenceCase(loc.unlock_burn_transfer),
+                  style: context.bodyLarge),
+              onChanged: (value) {
+                ref.read(settingsProvider.notifier).setUnlockBurn(value!);
+              },
+            ),
+          ],
+        ),
+        const Divider(),
+        ExpansionTile(
+          leading: const Icon(Icons.widgets_outlined),
+          title: Text(
+            loc.history_parameters,
+            style: context.titleLarge,
+          ),
+          children: [
+            FormBuilderSwitch(
+              name: 'zero_transfer_switch',
+              initialValue: settings.hideZeroTransfer,
+              decoration: const InputDecoration(fillColor: Colors.transparent),
+              title: Text(loc.hide_zero_transfers, style: context.bodyLarge),
+              onChanged: (value) {
+                ref.read(settingsProvider.notifier).setHideZeroTransfer(value!);
+              },
+            ),
+            FormBuilderSwitch(
+              name: 'extra_data_switch',
+              initialValue: settings.hideExtraData,
+              decoration: const InputDecoration(fillColor: Colors.transparent),
+              title: Text(loc.hide_extra_data, style: context.bodyLarge),
+              onChanged: (value) {
+                ref.read(settingsProvider.notifier).setHideExtraData(value!);
+              },
+            ),
+          ],
+        ),
+        const Divider(),
         ListTile(
           leading: const Icon(Icons.edit),
           title: Text(
@@ -181,34 +242,6 @@ class SettingsTab extends ConsumerWidget {
           trailing: const Icon(
             Icons.keyboard_arrow_right_rounded,
           ),
-        ),
-        const Divider(),
-        ExpansionTile(
-          leading: const Icon(Icons.widgets_outlined),
-          title: Text(
-            loc.history_parameters,
-            style: context.titleLarge,
-          ),
-          children: [
-            FormBuilderSwitch(
-              name: 'zero_transfer_switch',
-              initialValue: hideZeroTransfer,
-              decoration: const InputDecoration(fillColor: Colors.transparent),
-              title: Text(loc.hide_zero_transfers, style: context.bodyLarge),
-              onChanged: (value) {
-                ref.read(settingsProvider.notifier).setHideZeroTransfer(value!);
-              },
-            ),
-            FormBuilderSwitch(
-              name: 'extra_data_switch',
-              initialValue: hideExtraData,
-              decoration: const InputDecoration(fillColor: Colors.transparent),
-              title: Text(loc.hide_extra_data, style: context.bodyLarge),
-              onChanged: (value) {
-                ref.read(settingsProvider.notifier).setHideExtraData(value!);
-              },
-            ),
-          ],
         ),
         const Divider(),
         const SizedBox(height: Spaces.medium),

@@ -3,15 +3,16 @@ enum AuthAppScreen {
   changePassword,
   walletSeedScreen,
   walletSeedDialog,
-  transfer,
-  burn,
-  transactionEntry,
 }
 
 enum AppScreen {
   openWallet,
   createWallet,
   settings,
+  transfer,
+  burn,
+  transactionEntry,
+  logger,
 }
 
 extension AppScreenExtension on AppScreen {
@@ -23,6 +24,14 @@ extension AppScreenExtension on AppScreen {
         return '/open_wallet';
       case AppScreen.settings:
         return '/settings';
+      case AppScreen.transfer:
+        return '/transfer';
+      case AppScreen.burn:
+        return '/burn';
+      case AppScreen.transactionEntry:
+        return '/transaction_entry';
+      case AppScreen.logger:
+        return '/logger';
     }
   }
 }
@@ -38,12 +47,6 @@ extension AuthAppScreenExtension on AuthAppScreen {
         return '/wallet_seed';
       case AuthAppScreen.walletSeedDialog:
         return '/wallet_seed_dialog';
-      case AuthAppScreen.transfer:
-        return '/transfer';
-      case AuthAppScreen.burn:
-        return '/burn';
-      case AuthAppScreen.transactionEntry:
-        return '/transaction_entry';
     }
   }
 }
