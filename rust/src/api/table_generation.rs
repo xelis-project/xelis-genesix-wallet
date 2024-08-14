@@ -1,6 +1,6 @@
 use std::ops::ControlFlow;
 
-use log::debug;
+use log::trace;
 use xelis_common::crypto::ecdlp;
 use xelis_wallet::precomputed_tables;
 
@@ -16,7 +16,7 @@ impl ecdlp::ProgressTableGenerationReportFunction for LogProgressTableGeneration
             step: step_str,
             message: None,
         });
-        debug!("Progress: {:.2}% on step {:?}", progress * 100.0, step);
+        trace!("Progress: {:.2}% on step {:?}", progress * 100.0, step);
 
         ControlFlow::Continue(())
     }
