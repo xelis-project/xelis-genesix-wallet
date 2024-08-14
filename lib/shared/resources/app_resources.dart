@@ -1,6 +1,8 @@
+import 'package:country_flags/country_flags.dart';
 import 'package:flutter/widgets.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 // import 'package:jovial_svg/jovial_svg.dart';
 
 class AppResources {
@@ -99,4 +101,64 @@ class AppResources {
 //   si: AppResources.svgBannerWhite,
 //   scale: 0.15,
 // );
+
+  static List<CountryFlag> countryFlags = List.generate(
+    AppLocalizations.supportedLocales.length,
+    (int index) {
+      String languageCode =
+          AppLocalizations.supportedLocales[index].languageCode;
+      switch (languageCode) {
+        case 'zh':
+          return CountryFlag.fromCountryCode(
+            'CN',
+            height: 24,
+            width: 30,
+            shape: const RoundedRectangle(8),
+          );
+        case 'ru' || 'pt' || 'nl' || 'pl':
+          return CountryFlag.fromCountryCode(
+            languageCode,
+            height: 24,
+            width: 30,
+            shape: const RoundedRectangle(8),
+          );
+        case 'ko':
+          return CountryFlag.fromCountryCode(
+            'KR',
+            height: 24,
+            width: 30,
+            shape: const RoundedRectangle(8),
+          );
+        case 'ms':
+          return CountryFlag.fromCountryCode(
+            'MY',
+            height: 24,
+            width: 30,
+            shape: const RoundedRectangle(8),
+          );
+        case 'uk':
+          return CountryFlag.fromCountryCode(
+            'UA',
+            height: 24,
+            width: 30,
+            shape: const RoundedRectangle(8),
+          );
+        case 'ja':
+          return CountryFlag.fromCountryCode(
+            'JP',
+            height: 24,
+            width: 30,
+            shape: const RoundedRectangle(8),
+          );
+        default:
+          return CountryFlag.fromLanguageCode(
+            AppLocalizations.supportedLocales[index].languageCode,
+            height: 24,
+            width: 30,
+            shape: const RoundedRectangle(8),
+          );
+      }
+    },
+    growable: false,
+  );
 }
