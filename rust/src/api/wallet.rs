@@ -5,7 +5,7 @@ use std::sync::Arc;
 use anyhow::{anyhow, bail, Context, Result};
 use flutter_rust_bridge::frb;
 use log::{debug, error, info, warn};
-use parking_lot::RwLock;
+use parking_lot::{Mutex, RwLock};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use xelis_common::api::{DataElement, DataValue};
@@ -44,6 +44,9 @@ pub struct XelisWallet {
     pending_transactions: RwLock<HashMap<Hash, (Transaction, TransactionBuilderState)>>,
 }
 
+// Precomputed tables for the wallet
+static CACHED_TABLES: Mutex<Option<precomputed_tables::PrecomputedTablesShared>> = Mutex::new(None);
+
 pub async fn create_xelis_wallet(
     name: String,
     password: String,
@@ -51,11 +54,21 @@ pub async fn create_xelis_wallet(
     seed: Option<String>,
     precomputed_tables_path: Option<String>,
 ) -> Result<XelisWallet> {
-    let precomputed_tables = precomputed_tables::read_or_generate_precomputed_tables(
-        precomputed_tables_path,
-        LogProgressTableGenerationReportFunction,
-    )
-    .await?;
+    let mut lock = CACHED_TABLES.lock();
+    let precomputed_tables = match lock.as_ref() {
+        Some(precomputed_tables) => precomputed_tables.clone(),
+        None => {
+            let tables = precomputed_tables::read_or_generate_precomputed_tables(
+                precomputed_tables_path,
+                LogProgressTableGenerationReportFunction,
+            )
+            .await?;
+
+            *lock = Some(tables.clone());
+            tables
+        }
+    };
+
     let xelis_wallet = Wallet::create(name, password, seed, network, precomputed_tables)?;
     Ok(XelisWallet {
         wallet: xelis_wallet,
