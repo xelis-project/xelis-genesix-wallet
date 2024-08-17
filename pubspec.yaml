@@ -51,8 +51,8 @@ dependencies:
   #  flutter_hooks: ^0.20.5
   #  hooks_riverpod: ^2.4.10
   #  flutter_animate: ^4.5.0
-  #  workmanager: ^0.5.2
 
+  #  workmanager: ^0.5.2
   flutter_rust_bridge: 2.2.0
   rust_builder:
     path: rust_builder

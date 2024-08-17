@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/wallet/application/xelis_price_provider.dart';
@@ -28,20 +27,23 @@ class BalanceWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
     final settings = ref.watch(settingsProvider);
+
     final xelisBalance =
         ref.watch(walletStateProvider.select((state) => state.xelisBalance));
+    var displayedBalance = (double.tryParse(xelisBalance) ?? 0.0).toString();
 
     XelisTicker? xelisTicker;
     if (settings.showBalanceUSDT && settings.network == Network.mainnet) {
       xelisTicker = ref.watch(xelisPriceProvider).valueOrNull;
     }
-    var xelisPrice =
-        (xelisTicker?.price ?? 0.0) * (double.tryParse(xelisBalance) ?? 0.0);
 
-    var displayBalance = xelisBalance;
+    final usdtBalance =
+        (xelisTicker?.price ?? 0.0) * (double.tryParse(xelisBalance) ?? 0.0);
+    var displayedUSDTBalance = '${usdtBalance.toStringAsFixed(2)} USDT';
+
     if (settings.hideBalance) {
-      displayBalance = loc.hidden;
-      xelisPrice = 0.0;
+      displayedBalance = loc.hidden;
+      displayedUSDTBalance = '';
     }
 
     return GridTile(
@@ -54,55 +56,46 @@ class BalanceWidget extends ConsumerWidget {
             style: context.headlineSmall!
                 .copyWith(color: context.moreColors.mutedColor),
           ),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 250),
-            child: Row(
-              key: UniqueKey(),
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SelectionArea(
-                        child: AutoSizeText(
-                          displayBalance,
-                          maxLines: 1,
-                          style: context.displayMedium,
-                          minFontSize: 20,
-                        ),
-                      ),
-                      if (settings.showBalanceUSDT &&
-                          settings.network == Network.mainnet) ...[
-                        const SizedBox(height: 3),
-                        SelectableText('${xelisPrice.toStringAsFixed(2)} USDT',
-                            style: context.bodyLarge)
-                      ],
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SelectableText(
+                      displayedBalance,
+                      style: context.displayMedium,
+                    ),
+                    if (settings.showBalanceUSDT &&
+                        settings.network == Network.mainnet) ...[
+                      const SizedBox(height: 3),
+                      SelectableText(
+                        displayedUSDTBalance,
+                        style: context.bodyLarge,
+                      )
                     ],
-                  ),
+                  ],
                 ),
-                const SizedBox(width: Spaces.medium),
-                IconButton.filled(
-                  icon: settings.hideBalance
-                      ? const Icon(
-                          Icons.visibility_rounded,
-                        )
-                      : const Icon(
-                          Icons.visibility_off_rounded,
-                        ),
-                  tooltip: settings.hideBalance
-                      ? loc.show_balance
-                      : loc.hide_balance,
-                  onPressed: () => ref
-                      .read(settingsProvider.notifier)
-                      .setHideBalance(!settings.hideBalance),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(width: Spaces.medium),
+              IconButton.filled(
+                icon: settings.hideBalance
+                    ? const Icon(
+                        Icons.visibility_rounded,
+                      )
+                    : const Icon(
+                        Icons.visibility_off_rounded,
+                      ),
+                tooltip:
+                    settings.hideBalance ? loc.show_balance : loc.hide_balance,
+                onPressed: () => ref
+                    .read(settingsProvider.notifier)
+                    .setHideBalance(!settings.hideBalance),
+              ),
+            ],
           ),
           const SizedBox(height: Spaces.large),
           Wrap(
-            alignment: WrapAlignment.start,
             spacing: Spaces.medium,
             children: [
               Column(

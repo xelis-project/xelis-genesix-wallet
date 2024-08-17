@@ -48,13 +48,9 @@ class TopoHeightWidget extends ConsumerWidget {
                   style: context.titleMedium!
                       .copyWith(color: context.moreColors.mutedColor),
                 ),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: AppDurations.animFast),
-                  child: SelectableText(
-                    key: ValueKey<String>(displayTopo),
-                    displayTopo,
-                    style: context.headlineLarge,
-                  ),
+                SelectableText(
+                  displayTopo,
+                  style: context.headlineLarge,
                 ),
               ],
             ),
