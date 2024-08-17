@@ -1,8 +1,9 @@
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/widgets.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:genesix/features/wallet/domain/asset.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 // import 'package:jovial_svg/jovial_svg.dart';
 
 class AppResources {
@@ -10,16 +11,26 @@ class AppResources {
 
   static const String userWalletsFolderName = 'Genesix wallets';
 
+  static const Map<String, String> defaultAssets = {
+    sdk.xelisAsset: '0.00000000',
+  };
+
   static const int xelisDecimals = 8;
 
-  static const Map<String, String> defaultAssets = {
-    xelisAsset: '0.00000000',
-  };
+  static const Asset xelisAsset = Asset(
+    hash: sdk.xelisAsset,
+    name: 'Xelis',
+    imagePath: greenBackgroundBlackIconPath,
+    // imageURL:
+    //     "https://raw.githubusercontent.com/xelis-project/xelis-assets/master/icons/png/circle/green_background_black_logo.png",
+    decimals: xelisDecimals,
+    ticker: 'XEL',
+  );
 
   static List<NodeAddress> mainnetNodes = [
     const NodeAddress(
       name: 'Official Seed Node #1',
-      url: 'https://$mainnetNodeURL',
+      url: 'https://${sdk.mainnetNodeURL}',
     ),
     const NodeAddress(
       name: 'Official Seed Node #FR',
@@ -34,14 +45,14 @@ class AppResources {
   static List<NodeAddress> testnetNodes = [
     const NodeAddress(
       name: 'Official XELIS Testnet',
-      url: 'https://$testnetNodeURL',
+      url: 'https://${sdk.testnetNodeURL}',
     )
   ];
 
   static List<NodeAddress> devNodes = [
     const NodeAddress(
       name: 'Default Local Node',
-      url: 'http://$localhostAddress',
+      url: 'http://${sdk.localhostAddress}',
     ),
   ];
 
@@ -80,7 +91,9 @@ class AppResources {
   //     'assets/banners/svg/transparent_background_black_logo.svg';
   // static String svgBannerWhitePath =
   //     'assets/banners/svg/transparent_background_white_logo.svg';
-  static String bgDotsPath = 'assets/bg_dots.png';
+  static const String greenBackgroundBlackIconPath =
+      'assets/icons/png/circle/green_background_black_logo.png';
+  static const String bgDotsPath = 'assets/bg_dots.png';
 
   // static late ScalableImage svgBannerGreen;
   // static late ScalableImage svgBannerWhite;
