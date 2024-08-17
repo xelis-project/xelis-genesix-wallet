@@ -19,103 +19,6 @@ import 'package:intl/intl.dart';
 class SettingsTab extends ConsumerWidget {
   const SettingsTab({super.key});
 
-  void _deleteWallet(WidgetRef ref) {
-    showDialog<void>(
-      context: ref.context,
-      builder: (context) {
-        return ConfirmDialog(
-          onConfirm: (yes) async {
-            if (yes) {
-              final walletSnapshot = ref.read(walletStateProvider);
-              final wallets = ref.read(walletsProvider.notifier);
-              final loc = ref.read(appLocalizationsProvider);
-
-              try {
-                await wallets.deleteWallet(walletSnapshot.name);
-                ref
-                    .read(snackBarMessengerProvider.notifier)
-                    .showInfo(loc.wallet_deleted);
-              } catch (e) {
-                ref
-                    .read(snackBarMessengerProvider.notifier)
-                    .showError(e.toString());
-              }
-            }
-          },
-        );
-      },
-    );
-  }
-
-  void _showDeleteWalletInput(WidgetRef ref) {
-    showDialog<void>(
-        context: ref.context,
-        builder: (context) {
-          return PasswordDialog(
-            closeOnValid: false,
-            onValid: () {
-              _deleteWallet(ref);
-            },
-          );
-        });
-  }
-
-  void _renameWallet(WidgetRef ref, String newName) {
-    showDialog<void>(
-      context: ref.context,
-      builder: (context) {
-        return ConfirmDialog(
-          onConfirm: (yes) async {
-            if (yes) {
-              try {
-                final walletSnapshot = ref.read(walletStateProvider);
-                final wallets = ref.read(walletsProvider.notifier);
-                final loc = ref.read(appLocalizationsProvider);
-
-                await wallets.renameWallet(walletSnapshot.name, newName);
-                ref
-                    .read(snackBarMessengerProvider.notifier)
-                    .showInfo(loc.wallet_renamed);
-              } catch (e) {
-                ref
-                    .read(snackBarMessengerProvider.notifier)
-                    .showError(e.toString());
-              }
-            }
-          },
-        );
-      },
-    );
-  }
-
-  void _showRenameWalletInput(WidgetRef ref) {
-    showDialog<void>(
-      context: ref.context,
-      builder: (context) {
-        final loc = ref.read(appLocalizationsProvider);
-        return InputDialog(
-          hintText: loc.new_name,
-          onEnter: (value) {
-            _renameWallet(ref, value);
-          },
-        );
-      },
-    );
-  }
-
-  void _showSeedInput(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (context) {
-        return PasswordDialog(
-          onValid: () {
-            context.push(AuthAppScreen.walletSeedScreen.toPath);
-          },
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
@@ -125,10 +28,10 @@ class SettingsTab extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(Spaces.large),
       children: [
-        Text(
-          loc.settings,
-          style: context.headlineLarge!.copyWith(fontWeight: FontWeight.bold),
-        ),
+        // Text(
+        //   loc.settings,
+        //   style: context.headlineLarge!.copyWith(fontWeight: FontWeight.bold),
+        // ),
         const SizedBox(height: Spaces.medium),
         ListTile(
           leading: const Icon(Icons.settings_applications),
@@ -264,6 +167,103 @@ class SettingsTab extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  void _showDeleteWalletInput(WidgetRef ref) {
+    showDialog<void>(
+        context: ref.context,
+        builder: (context) {
+          return PasswordDialog(
+            closeOnValid: false,
+            onValid: () {
+              _deleteWallet(ref);
+            },
+          );
+        });
+  }
+
+  void _renameWallet(WidgetRef ref, String newName) {
+    showDialog<void>(
+      context: ref.context,
+      builder: (context) {
+        return ConfirmDialog(
+          onConfirm: (yes) async {
+            if (yes) {
+              try {
+                final walletSnapshot = ref.read(walletStateProvider);
+                final wallets = ref.read(walletsProvider.notifier);
+                final loc = ref.read(appLocalizationsProvider);
+
+                await wallets.renameWallet(walletSnapshot.name, newName);
+                ref
+                    .read(snackBarMessengerProvider.notifier)
+                    .showInfo(loc.wallet_renamed);
+              } catch (e) {
+                ref
+                    .read(snackBarMessengerProvider.notifier)
+                    .showError(e.toString());
+              }
+            }
+          },
+        );
+      },
+    );
+  }
+
+  void _showRenameWalletInput(WidgetRef ref) {
+    showDialog<void>(
+      context: ref.context,
+      builder: (context) {
+        final loc = ref.read(appLocalizationsProvider);
+        return InputDialog(
+          hintText: loc.new_name,
+          onEnter: (value) {
+            _renameWallet(ref, value);
+          },
+        );
+      },
+    );
+  }
+
+  void _deleteWallet(WidgetRef ref) {
+    showDialog<void>(
+      context: ref.context,
+      builder: (context) {
+        return ConfirmDialog(
+          onConfirm: (yes) async {
+            if (yes) {
+              final walletSnapshot = ref.read(walletStateProvider);
+              final wallets = ref.read(walletsProvider.notifier);
+              final loc = ref.read(appLocalizationsProvider);
+
+              try {
+                await wallets.deleteWallet(walletSnapshot.name);
+                ref
+                    .read(snackBarMessengerProvider.notifier)
+                    .showInfo(loc.wallet_deleted);
+              } catch (e) {
+                ref
+                    .read(snackBarMessengerProvider.notifier)
+                    .showError(e.toString());
+              }
+            }
+          },
+        );
+      },
+    );
+  }
+
+  void _showSeedInput(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return PasswordDialog(
+          onValid: () {
+            context.push(AuthAppScreen.walletSeedScreen.toPath);
+          },
+        );
+      },
     );
   }
 }
