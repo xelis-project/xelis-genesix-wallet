@@ -16,15 +16,14 @@ import 'package:genesix/shared/widgets/components/global_bottom_loader_widget.da
 import 'package:genesix/shared/widgets/components/network_bar_widget.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class XelisWalletApp extends ConsumerStatefulWidget {
-  const XelisWalletApp({super.key});
+class Genesix extends ConsumerStatefulWidget {
+  const Genesix({super.key});
 
   @override
-  ConsumerState<XelisWalletApp> createState() => _XelisWalletAppState();
+  ConsumerState<Genesix> createState() => _GenesixState();
 }
 
-class _XelisWalletAppState extends ConsumerState<XelisWalletApp>
-    with WindowListener {
+class _GenesixState extends ConsumerState<Genesix> with WindowListener {
   final _lightTheme = lightTheme();
   final _darkTheme = darkTheme();
   final _xelisTheme = xelisTheme();

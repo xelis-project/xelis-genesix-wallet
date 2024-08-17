@@ -10,7 +10,7 @@ import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/storage/shared_preferences/shared_preferences_provider.dart';
 import 'package:genesix/shared/theme/extensions.dart';
-import 'package:genesix/shared/widgets/xelis_wallet_app.dart';
+import 'package:genesix/shared/widgets/genesix_app.dart';
 import 'package:genesix/rust_bridge/frb_generated.dart';
 import 'package:localstorage/localstorage.dart';
 
@@ -42,6 +42,7 @@ Future<void> main() async {
       skipTaskbar: false,
       titleBarStyle: TitleBarStyle.normal,
     );
+
     windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
       await windowManager.focus();
@@ -81,7 +82,7 @@ Future<void> main() async {
               printStateFullData: kDebugMode ? true : false,
             ))
       ],
-      child: const XelisWalletApp(),
+      child: const Genesix(),
     ),
   );
 }
