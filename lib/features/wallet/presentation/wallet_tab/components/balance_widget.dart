@@ -42,8 +42,10 @@ class BalanceWidget extends ConsumerWidget {
     var displayedUSDTBalance = '${usdtBalance.toStringAsFixed(2)} USDT';
 
     if (settings.hideBalance) {
-      displayedBalance = loc.hidden;
-      displayedUSDTBalance = '';
+      String hidden = '********';
+      // displayedBalance = loc.hidden;
+      displayedBalance = hidden;
+      displayedUSDTBalance = hidden;
     }
 
     return GridTile(
@@ -62,22 +64,28 @@ class BalanceWidget extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SelectableText(
-                      displayedBalance,
-                      style: context.displayMedium,
+                    FittedBox(
+                      fit: BoxFit.fitWidth,
+                      child: SelectableText(
+                        displayedBalance,
+                        style: context.displayLarge,
+                      ),
                     ),
                     if (settings.showBalanceUSDT &&
                         settings.network == Network.mainnet) ...[
-                      const SizedBox(height: 3),
-                      SelectableText(
-                        displayedUSDTBalance,
-                        style: context.bodyLarge,
+                      const SizedBox(height: Spaces.extraSmall),
+                      FittedBox(
+                        fit: BoxFit.fitWidth,
+                        child: SelectableText(
+                          displayedUSDTBalance,
+                          style: context.headlineSmall,
+                        ),
                       )
                     ],
                   ],
                 ),
               ),
-              const SizedBox(width: Spaces.medium),
+              const SizedBox(width: Spaces.large),
               IconButton.filled(
                 icon: settings.hideBalance
                     ? const Icon(

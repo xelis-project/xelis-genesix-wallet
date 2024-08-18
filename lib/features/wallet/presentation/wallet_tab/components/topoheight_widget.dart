@@ -17,7 +17,7 @@ class TopoHeightWidget extends ConsumerWidget {
     final topoheight =
         ref.watch(walletStateProvider.select((state) => state.topoheight));
 
-    var displayTopo = NumberFormat().format(topoheight);
+    var displayedTopoheight = NumberFormat().format(topoheight);
 
     ValueNotifier<bool> isRescanningNotifier = ValueNotifier(false);
 
@@ -49,7 +49,7 @@ class TopoHeightWidget extends ConsumerWidget {
                       .copyWith(color: context.moreColors.mutedColor),
                 ),
                 SelectableText(
-                  displayTopo,
+                  displayedTopoheight,
                   style: context.headlineLarge,
                 ),
               ],
