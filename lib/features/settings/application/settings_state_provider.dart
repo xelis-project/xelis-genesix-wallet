@@ -2,10 +2,10 @@ import 'dart:ui';
 
 import 'package:genesix/rust_bridge/api/network.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:genesix/features/settings/data/settings_state.repository.dart';
+import 'package:genesix/features/settings/data/settings_state_repository.dart';
 import 'package:genesix/features/settings/domain/settings_state.dart';
 import 'package:genesix/shared/storage/shared_preferences/shared_preferences_provider.dart';
-import 'package:genesix/shared/storage/shared_preferences/shared_preferences_sync.dart';
+import 'package:genesix/shared/storage/shared_preferences/genesix_shared_preferences.dart';
 
 part 'settings_state_provider.g.dart';
 
@@ -15,14 +15,14 @@ class Settings extends _$Settings {
   SettingsState build() {
     final prefs = ref.watch(sharedPreferencesProvider);
     final settingsStateRepository =
-        SettingsStateRepository(SharedPreferencesSync(prefs));
+        SettingsStateRepository(GenesixSharedPreferences(prefs));
     return settingsStateRepository.fromStorage();
   }
 
   void setState(SettingsState state) {
     final prefs = ref.read(sharedPreferencesProvider);
     final settingsStateRepository =
-        SettingsStateRepository(SharedPreferencesSync(prefs));
+        SettingsStateRepository(GenesixSharedPreferences(prefs));
     settingsStateRepository.localSave(state);
   }
 

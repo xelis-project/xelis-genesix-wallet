@@ -1,7 +1,7 @@
 abstract class PersistentState<T> {
-  Future<bool> localSave(T state);
+  Future<void> localSave(T state);
 
-  Future<bool> localDelete();
+  Future<void> localDelete();
 
   T fromStorage();
 }

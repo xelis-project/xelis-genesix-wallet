@@ -1,20 +1,31 @@
 import 'dart:convert';
 
+import 'package:genesix/features/settings/data/settings_state_repository.dart';
+import 'package:genesix/features/wallet/data/network_nodes_state_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:genesix/features/logger/logger.dart';
 
-class SharedPreferencesSync {
-  SharedPreferencesSync(this.prefs);
+class GenesixSharedPreferences {
+  GenesixSharedPreferences(this.prefs);
 
-  final SharedPreferences prefs;
+  final SharedPreferencesWithCache prefs;
 
-  Future<bool> save({
+  static Future<SharedPreferencesWithCache> setUp() async {
+    return SharedPreferencesWithCache.create(
+      cacheOptions: const SharedPreferencesWithCacheOptions(allowList: {
+        SettingsStateRepository.storageKey,
+        NetworkNodesStateRepository.storageKey
+      }),
+    );
+  }
+
+  Future<void> save({
     required String key,
     required Map<String, dynamic> value,
   }) async {
     talker.info('save key: $key');
     final jsonString = jsonEncode(value);
-    return prefs.setString(key, jsonString);
+    await prefs.setString(key, jsonString);
   }
 
   dynamic get({required String key}) {
@@ -32,8 +43,8 @@ class SharedPreferencesSync {
     return value;
   }
 
-  Future<bool> delete({required String key}) async {
+  Future<void> delete({required String key}) async {
     talker.info('remove key: $key');
-    return prefs.remove(key);
+    await prefs.remove(key);
   }
 }

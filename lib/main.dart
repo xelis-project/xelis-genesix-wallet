@@ -2,8 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:jovial_svg/jovial_svg.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:genesix/shared/storage/shared_preferences/genesix_shared_preferences.dart';
 import 'package:talker_riverpod_logger/talker_riverpod_logger.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:genesix/features/logger/logger.dart';
@@ -13,6 +12,7 @@ import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/genesix_app.dart';
 import 'package:genesix/rust_bridge/frb_generated.dart';
 import 'package:localstorage/localstorage.dart';
+// import 'package:jovial_svg/jovial_svg.dart';
 
 Future<void> main() async {
   talker.info('Starting Genesix...');
@@ -64,7 +64,7 @@ Future<void> main() async {
   AppResources.bgDots = Image.asset(AppResources.bgDotsPath);
   //----------------------------------------------------------------------------
 
-  final prefs = await SharedPreferences.getInstance();
+  final prefs = await GenesixSharedPreferences.setUp();
 
   talker.info('initialisation done!');
   FlutterNativeSplash.remove();

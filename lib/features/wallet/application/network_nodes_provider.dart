@@ -4,7 +4,7 @@ import 'package:genesix/features/wallet/data/network_nodes_state_repository.dart
 import 'package:genesix/features/wallet/domain/network_nodes_state.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
 import 'package:genesix/shared/storage/shared_preferences/shared_preferences_provider.dart';
-import 'package:genesix/shared/storage/shared_preferences/shared_preferences_sync.dart';
+import 'package:genesix/shared/storage/shared_preferences/genesix_shared_preferences.dart';
 
 part 'network_nodes_provider.g.dart';
 
@@ -14,14 +14,14 @@ class NetworkNodes extends _$NetworkNodes {
   NetworkNodesState build() {
     final prefs = ref.watch(sharedPreferencesProvider);
     final networkNodesStateRepository =
-        NetworkNodesStateRepository(SharedPreferencesSync(prefs));
+        NetworkNodesStateRepository(GenesixSharedPreferences(prefs));
     return networkNodesStateRepository.fromStorage();
   }
 
   void setNodes(Network network, List<NodeAddress> nodes) {
     final prefs = ref.read(sharedPreferencesProvider);
     final networkNodesStateRepository =
-        NetworkNodesStateRepository(SharedPreferencesSync(prefs));
+        NetworkNodesStateRepository(GenesixSharedPreferences(prefs));
 
     switch (network) {
       case Network.mainnet:
@@ -44,7 +44,7 @@ class NetworkNodes extends _$NetworkNodes {
   void setNodeAddress(Network network, NodeAddress address) {
     final prefs = ref.read(sharedPreferencesProvider);
     final networkNodesStateRepository =
-        NetworkNodesStateRepository(SharedPreferencesSync(prefs));
+        NetworkNodesStateRepository(GenesixSharedPreferences(prefs));
 
     switch (network) {
       case Network.mainnet:
