@@ -413,10 +413,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_rust_bridge
-      sha256: "7beb9cb4690916a6c4fd151d91dba53555ea258dbc029dd5f1bfba2e7bd32b86"
+      sha256: b0271cc147d5afccf9774809e4eef52b7357babe1a1a31db649df6f02dd27580
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0"
+    version: "2.3.0"
   flutter_svg:
     dependency: transitive
     description:
@@ -922,10 +922,10 @@ packages:
     dependency: transitive
     description:
       name: riverpod_analyzer_utils
-      sha256: ee72770090078e6841d51355292335f1bc254907c6694283389dcb8156d99a4d
+      sha256: ac28d7bc678471ec986b42d88e5a0893513382ff7542c7ac9634463b044ac72c
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.3"
+    version: "0.5.4"
   riverpod_annotation:
     dependency: "direct main"
     description:
@@ -938,18 +938,18 @@ packages:
     dependency: "direct dev"
     description:
       name: riverpod_generator
-      sha256: "1ad626afbd8b01d168870b13c0b036f8a5bdb57c14cd426dc5b4595466bd6e2f"
+      sha256: "63311e361ffc578d655dfc31b48dfa4ed3bc76fd06f9be845e9bf97c5c11a429"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.2"
+    version: "2.4.3"
   riverpod_lint:
     dependency: "direct dev"
     description:
       name: riverpod_lint
-      sha256: b95a8cdc6102397f7d51037131c25ce7e51be900be021af4bf0c2d6f1b8f7aa7
+      sha256: a35a92f2c2a4b7a5d95671c96c5432b42c20f26bb3e985e83d0b186471b61a85
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.12"
+    version: "2.3.13"
   rust_builder:
     dependency: "direct main"
     description:
@@ -1390,10 +1390,10 @@ packages:
     dependency: "direct main"
     description:
       name: window_manager
-      sha256: e052224c7d8f0d1d0b2e03b7b1047bb08ea800d919a79453518311839881fa5f
+      sha256: ab8b2a7f97543d3db2b506c9d875e637149d48ee0c6a5cb5f5fd6e0dac463792
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.0"
+    version: "0.4.2"
   xdg_directories:
     dependency: transitive
     description:
