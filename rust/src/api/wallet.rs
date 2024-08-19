@@ -54,18 +54,21 @@ pub async fn create_xelis_wallet(
     seed: Option<String>,
     precomputed_tables_path: Option<String>,
 ) -> Result<XelisWallet> {
-    let mut lock = CACHED_TABLES.lock();
-    let precomputed_tables = match lock.as_ref() {
-        Some(precomputed_tables) => precomputed_tables.clone(),
-        None => {
-            let tables = precomputed_tables::read_or_generate_precomputed_tables(
-                precomputed_tables_path,
-                LogProgressTableGenerationReportFunction,
-            )
-            .await?;
-
-            *lock = Some(tables.clone());
-            tables
+    let precomputed_tables = {
+        let tables = CACHED_TABLES.lock().clone();
+        match tables {
+            Some(tables) => tables,
+            None => {
+                let tables = precomputed_tables::read_or_generate_precomputed_tables(
+                    precomputed_tables_path,
+                    LogProgressTableGenerationReportFunction,
+                )
+                .await?;
+    
+                // It is done in two steps to avoid the "Future is not Send" error
+                CACHED_TABLES.lock().replace(tables.clone());
+                tables
+            }
         }
     };
 
