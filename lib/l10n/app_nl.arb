@@ -171,5 +171,7 @@
   "reset": "Resetten",
   "reset_preferences_dialog": "Je staat op het punt om alle instellingen, taal, thema en lijst met nodes te resetten.",
   "do_you_want_to_continue": "Wilt u doorgaan?",
-  "preferences_reset_snackbar": "Voorkeuren zijn gereset!"
+  "preferences_reset_snackbar": "Voorkeuren zijn gereset!",
+  "seed_error_not_enough_words": "Niet genoeg woorden",
+  "seed_error_too_many_words": "Te veel woorden"
 }

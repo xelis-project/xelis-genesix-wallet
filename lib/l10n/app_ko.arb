@@ -171,5 +171,7 @@
   "reset": "재설정하다",
   "reset_preferences_dialog": "모든 설정, 언어, 테마 및 노드 목록을 초기화하려고 합니다.",
   "do_you_want_to_continue": "계속하시겠습니까?",
-  "preferences_reset_snackbar": "설정이 초기화되었습니다!"
+  "preferences_reset_snackbar": "설정이 초기화되었습니다!",
+  "seed_error_not_enough_words": "충분한 단어가 없습니다.",
+  "seed_error_too_many_words": "너무 많은 단어입니다."
 }

@@ -171,5 +171,7 @@
   "reset": "Tetapkan semul",
   "reset_preferences_dialog": "Anda akan memulakan semula semua tetapan, bahasa, tema dan senarai nod.",
   "do_you_want_to_continue": "Adakah anda ingin meneruskan?",
-  "preferences_reset_snackbar": "Tetapan telah ditetapkan semula!"
+  "preferences_reset_snackbar": "Tetapan telah ditetapkan semula!",
+  "seed_error_not_enough_words": "Tidak cukup kata",
+  "seed_error_too_many_words": "Terlalu banyak kata"
 }

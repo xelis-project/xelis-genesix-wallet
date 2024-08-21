@@ -171,5 +171,7 @@
   "reset": "Сбросить",
   "reset_preferences_dialog": "Вы собираетесь сбросить все настройки, язык, тему и список узлов.",
   "do_you_want_to_continue": "Хотите продолжить?",
-  "preferences_reset_snackbar": "Настройки сброшены!"
+  "preferences_reset_snackbar": "Настройки сброшены!",
+  "seed_error_not_enough_words": "Недостаточно слов",
+  "seed_error_too_many_words": "Слишком много слов"
 }

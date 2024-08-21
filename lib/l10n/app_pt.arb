@@ -171,5 +171,7 @@
   "reset": "Reiniciar",
   "reset_preferences_dialog": "Está prestes a redefinir todas as suas configurações, idioma, tema e lista de nós.",
   "do_you_want_to_continue": "Quer continuar?",
-  "preferences_reset_snackbar": "Preferências redefinidas!"
+  "preferences_reset_snackbar": "Preferências redefinidas!",
+  "seed_error_not_enough_words": "Não há palavras suficientes",
+  "seed_error_too_many_words": "Muitas palavras"
 }

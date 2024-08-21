@@ -171,5 +171,7 @@
   "reset": "Нулирай",
   "reset_preferences_dialog": "За да се нулират всички настройки, език, тема и списък с възела.",
   "do_you_want_to_continue": "Дали искате да продължите?",
-  "preferences_reset_snackbar": "Настройките са нулирани!"
+  "preferences_reset_snackbar": "Настройките са нулирани!",
+  "seed_error_not_enough_words": "Липсващи думи",
+  "seed_error_too_many_words": "Прекалено много думи"
 }

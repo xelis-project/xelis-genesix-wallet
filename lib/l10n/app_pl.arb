@@ -171,5 +171,7 @@
   "reset": "Zresetowa",
   "reset_preferences_dialog": "Jesteś w trakcie resetowania wszystkich ustawień, języka, motywu i listy węzłów.",
   "do_you_want_to_continue": "Czy chcesz kontynuować?",
-  "preferences_reset_snackbar": "Preferencje zresetowane!"
+  "preferences_reset_snackbar": "Preferencje zresetowane!",
+  "seed_error_not_enough_words": "Za mało słów",
+  "seed_error_too_many_words": "Zbyt wiele słów"
 }

@@ -171,5 +171,7 @@
   "reset": "रीसेट करें",
   "reset_preferences_dialog": "आप सभी सेटिंग्स, भाषा, थीम और नोड्स की सूची को रीसेट करने वाले हैं।",
   "do_you_want_to_continue": "क्या आप जारी रखना चाहते हैं?",
-  "preferences_reset_snackbar": "पसंदें रीसेट!"
+  "preferences_reset_snackbar": "पसंदें रीसेट!",
+  "seed_error_not_enough_words": "पर्याप्त शब्द नहीं हैं",
+  "seed_error_too_many_words": "बहुत से शब्द"
 }

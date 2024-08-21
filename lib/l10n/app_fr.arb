@@ -171,5 +171,7 @@
   "reset": "Réinitialiser",
   "reset_preferences_dialog": "Vous êtes sur le point de réinitialiser toutes vos configurations, langue, thème et liste de nœuds.",
   "do_you_want_to_continue": "Voulez-vous continuer ?",
-  "preferences_reset_snackbar": "Préférences réinitialisées !"
+  "preferences_reset_snackbar": "Préférences réinitialisées !",
+  "seed_error_not_enough_words": "Pas assez de mots",
+  "seed_error_too_many_words": "Trop de mots"
 }

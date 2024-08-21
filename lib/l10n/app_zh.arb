@@ -171,5 +171,7 @@
   "reset": "重置",
   "reset_preferences_dialog": "你即将重置所有设置、语言、主题和节点列表。",
   "do_you_want_to_continue": "你想要继续吗？",
-  "preferences_reset_snackbar": "偏好设置已重置！"
+  "preferences_reset_snackbar": "偏好设置已重置！",
+  "seed_error_not_enough_words": "词语不足",
+  "seed_error_too_many_words": "词语过多"
 }

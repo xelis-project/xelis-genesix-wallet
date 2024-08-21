@@ -171,5 +171,7 @@
   "reset": "Sıfırla",
   "reset_preferences_dialog": "Tüm ayarları, dili, temasını ve düğüm listesini sıfırlamaya hazırlanıyorsunuz.",
   "do_you_want_to_continue": "Devam etmek ister misiniz?",
-  "preferences_reset_snackbar": "Tercihler sıfırlandı!"
+  "preferences_reset_snackbar": "Tercihler sıfırlandı!",
+  "seed_error_not_enough_words": "Yeterli kelime yok",
+  "seed_error_too_many_words": "Çok fazla kelime"
 }

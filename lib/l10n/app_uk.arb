@@ -171,5 +171,7 @@
   "reset": "Скинути",
   "reset_preferences_dialog": "Ви на шляху до скидання всіх налаштувань, мови, теми та списку вузлів.",
   "do_you_want_to_continue": "Чи хочете продовжити?",
-  "preferences_reset_snackbar": "Налаштування скинуто!"
+  "preferences_reset_snackbar": "Налаштування скинуто!",
+  "seed_error_not_enough_words": "Не вистачає слів",
+  "seed_error_too_many_words": "Занадто багато слів"
 }

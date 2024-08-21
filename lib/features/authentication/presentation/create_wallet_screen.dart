@@ -151,18 +151,16 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                         ),
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(),
-                          // FormBuilderValidators.match(
-                          //   '(?:[a-zA-Z]+ ){24}[a-zA-Z]+',
-                          //   errorText: loc.invalid_seed,
-                          // ),
-                          // TODO: add a better localized error msg
                           FormBuilderValidators.minWordsCount(
                             24,
-                            errorText: loc.invalid_seed,
+                            // errorText: loc.invalid_seed,
+                            errorText:
+                                '${loc.seed_error_not_enough_words} (⩾24)',
                           ),
                           FormBuilderValidators.maxWordsCount(
                             25,
-                            errorText: loc.invalid_seed,
+                            // errorText: loc.invalid_seed,
+                            errorText: '${loc.seed_error_too_many_words} (⩽25)',
                           ),
                         ]),
                       ),

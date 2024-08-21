@@ -171,5 +171,7 @@
   "reset": "Restablecer",
   "reset_preferences_dialog": "Estás a punto de restablecer todas tus configuraciones, idioma, tema y lista de nodos.",
   "do_you_want_to_continue": "¿Desea continuar?",
-  "preferences_reset_snackbar": "Preferencias reseteadas!"
+  "preferences_reset_snackbar": "Preferencias reseteadas!",
+  "seed_error_not_enough_words": "No hay suficientes palabras",
+  "seed_error_too_many_words": "Demasiadas palabras"
 }

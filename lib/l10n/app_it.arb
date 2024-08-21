@@ -171,5 +171,7 @@
   "reset": "Reimpostare",
   "reset_preferences_dialog": "Stai per reimpostare tutte le impostazioni, lingua, tema e lista dei nodi.",
   "do_you_want_to_continue": "Vuoi continuare?",
-  "preferences_reset_snackbar": "Preferenze reimpostate!"
+  "preferences_reset_snackbar": "Preferenze reimpostate!",
+  "seed_error_not_enough_words": "Non ci sono abbastanza parole",
+  "seed_error_too_many_words": "Troppe parole"
 }

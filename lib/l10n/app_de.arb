@@ -171,5 +171,7 @@
   "reset": "Zurücksetzen",
   "reset_preferences_dialog": "Sie stehen kurz vor dem Zurücksetzen aller Einstellungen, Sprache, Thema und Liste der Knoten.",
   "do_you_want_to_continue": "Möchten Sie fortfahren?",
-  "preferences_reset_snackbar": "Einstellungen zurückgesetzt!"
+  "preferences_reset_snackbar": "Einstellungen zurückgesetzt!",
+  "seed_error_not_enough_words": "Nicht genug Wörter",
+  "seed_error_too_many_words": "Zu viele Wörter"
 }

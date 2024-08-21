@@ -171,5 +171,7 @@
   "reset": "Reset",
   "reset_preferences_dialog": "You are about to reset all your settings, language, theme, and list of nodes.",
   "do_you_want_to_continue": "Do you want to continue?",
-  "preferences_reset_snackbar": "Preferences reset!"
+  "preferences_reset_snackbar": "Preferences reset!",
+  "seed_error_not_enough_words": "Not enough words",
+  "seed_error_too_many_words": "Too many words"
 }
