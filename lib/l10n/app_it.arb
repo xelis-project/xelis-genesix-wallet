@@ -166,5 +166,10 @@
   "destination": "Destinazione",
   "integrated_address_detected": "Indirizzo integrazione rilevato",
   "payment_id": "Identificatore di pagamento",
-  "show_balance_usdt": "Mostra il saldo in USDT"
+  "show_balance_usdt": "Mostra il saldo in USDT",
+  "reset_preferences": "Ripristina le preferenze",
+  "reset": "Reimpostare",
+  "reset_preferences_dialog": "Stai per reimpostare tutte le impostazioni, lingua, tema e lista dei nodi.",
+  "do_you_want_to_continue": "Vuoi continuare?",
+  "preferences_reset_snackbar": "Preferenze reimpostate!"
 }

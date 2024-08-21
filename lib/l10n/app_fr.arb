@@ -125,7 +125,7 @@
   "new_name": "Nouveau nom",
   "view_seed": "Voir la graine",
   "history_parameters": "Paramètres de l'historique",
-  "hide_zero_transfers": "Cacher les transferts vides",
+  "hide_zero_transfers": "Cacher les transferts vide",
   "hide_extra_data": "Cacher les données supplémentaires",
   "delete_wallet": "Supprimer le portefeuille",
   "light": "Clair",
@@ -166,5 +166,10 @@
   "destination": "Destination",
   "integrated_address_detected": "Adresse intégrée détectée",
   "payment_id": "ID de paiement",
-  "show_balance_usdt": "Afficher le solde en USDT"
+  "show_balance_usdt": "Afficher le solde en USDT",
+  "reset_preferences": "Réinitialiser les préférences",
+  "reset": "Réinitialiser",
+  "reset_preferences_dialog": "Vous êtes sur le point de réinitialiser toutes vos configurations, langue, thème et liste de nœuds.",
+  "do_you_want_to_continue": "Voulez-vous continuer ?",
+  "preferences_reset_snackbar": "Préférences réinitialisées !"
 }

@@ -7,7 +7,6 @@ import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/storage/shared_preferences/shared_preferences_provider.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/presentation/components/layout_widget.dart';
@@ -54,21 +53,42 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     });
   }
 
-  Future<void> _clearCache(BuildContext context) async {
+  Future<void> _resetPreferences(BuildContext context) async {
     final loc = ref.read(appLocalizationsProvider);
     try {
-      context.loaderOverlay.show();
-
       await ref.read(sharedPreferencesProvider).clear();
+      ref.invalidate(settingsProvider);
 
-      ref.read(snackBarMessengerProvider.notifier).showInfo(loc.cache_cleared);
+      ref
+          .read(snackBarMessengerProvider.notifier)
+          .showInfo(loc.preferences_reset_snackbar);
     } catch (e) {
       ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
     }
+  }
 
-    if (context.mounted) {
-      context.loaderOverlay.hide();
-    }
+  void _showResetPreferencesDialog(BuildContext context) {
+    final loc = ref.read(appLocalizationsProvider);
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(loc.reset_preferences),
+          content: Text(
+              '${loc.reset_preferences_dialog}\n\n${loc.do_you_want_to_continue}'),
+          actions: [
+            TextButton(
+              onPressed: () => context.pop(),
+              child: Text(loc.cancel_button),
+            ),
+            TextButton(
+              onPressed: () => context.pop(_resetPreferences(context)),
+              child: Text(loc.reset),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -112,9 +132,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 title: loc.wallets_directory, value: _walletsPath),
             const Divider(),
             VerticalContainer(title: loc.cache_directory, value: _cachePath),
+            const Divider(),
             const SizedBox(height: Spaces.medium),
             OutlinedButton(
-                onPressed: () => _clearCache(context),
+                onPressed: () => _showResetPreferencesDialog(context),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.all(Spaces.medium + 4),
                   side: BorderSide(
@@ -123,7 +144,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
                 child: Text(
-                  loc.clear_cache,
+                  loc.reset_preferences,
                   style: context.titleMedium!
                       .copyWith(color: context.colors.error),
                 )),

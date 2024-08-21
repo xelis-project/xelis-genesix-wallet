@@ -166,5 +166,10 @@
   "destination": "宛先",
   "integrated_address_detected": "統合アドレス検出",
   "payment_id": "決済ID",
-  "show_balance_usdt": "USDTでバランスを表示する"
+  "show_balance_usdt": "USDTでバランスを表示する",
+  "reset_preferences": "設定をリセットする",
+  "reset": "リセットする",
+  "reset_preferences_dialog": "すべての設定、言語、テーマ、およびノードリストをリセットする準備ができています。",
+  "do_you_want_to_continue": "続行しますか？",
+  "preferences_reset_snackbar": "設定がリセットされました！"
 }

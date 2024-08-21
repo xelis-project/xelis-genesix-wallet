@@ -166,5 +166,10 @@
   "destination": "목적지",
   "integrated_address_detected": "통합 주소 검출됨",
   "payment_id": "결제ID",
-  "show_balance_usdt": "USDT에 잔액을 보여주세요"
+  "show_balance_usdt": "USDT에 잔액을 보여주세요",
+  "reset_preferences": "설정을 초기화합니다",
+  "reset": "재설정하다",
+  "reset_preferences_dialog": "모든 설정, 언어, 테마 및 노드 목록을 초기화하려고 합니다.",
+  "do_you_want_to_continue": "계속하시겠습니까?",
+  "preferences_reset_snackbar": "설정이 초기화되었습니다!"
 }

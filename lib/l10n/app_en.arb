@@ -166,5 +166,10 @@
   "destination": "Destination",
   "integrated_address_detected": "Integrated address detected",
   "payment_id": "Payment ID",
-  "show_balance_usdt": "Show balance in USDT"
+  "show_balance_usdt": "Show balance in USDT",
+  "reset_preferences": "Reset preferences",
+  "reset": "Reset",
+  "reset_preferences_dialog": "You are about to reset all your settings, language, theme, and list of nodes.",
+  "do_you_want_to_continue": "Do you want to continue?",
+  "preferences_reset_snackbar": "Preferences reset!"
 }

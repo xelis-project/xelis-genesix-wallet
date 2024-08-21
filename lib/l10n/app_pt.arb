@@ -166,5 +166,10 @@
   "destination": "Destino",
   "integrated_address_detected": "Endereço integrado detectado",
   "payment_id": "Identificador de pagamento",
-  "show_balance_usdt": "Mostre o saldo em USDT"
+  "show_balance_usdt": "Mostre o saldo em USDT",
+  "reset_preferences": "Reiniciar preferências",
+  "reset": "Reiniciar",
+  "reset_preferences_dialog": "Está prestes a redefinir todas as suas configurações, idioma, tema e lista de nós.",
+  "do_you_want_to_continue": "Quer continuar?",
+  "preferences_reset_snackbar": "Preferências redefinidas!"
 }

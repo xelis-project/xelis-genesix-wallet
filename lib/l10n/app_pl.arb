@@ -166,5 +166,10 @@
   "destination": "Cel",
   "integrated_address_detected": "Zintegrowana adresa wykryta",
   "payment_id": "Numer identyfikacji płatności",
-  "show_balance_usdt": "Pokaż saldo w USDT"
+  "show_balance_usdt": "Pokaż saldo w USDT",
+  "reset_preferences": "Zresetować preferencje",
+  "reset": "Zresetowa",
+  "reset_preferences_dialog": "Jesteś w trakcie resetowania wszystkich ustawień, języka, motywu i listy węzłów.",
+  "do_you_want_to_continue": "Czy chcesz kontynuować?",
+  "preferences_reset_snackbar": "Preferencje zresetowane!"
 }

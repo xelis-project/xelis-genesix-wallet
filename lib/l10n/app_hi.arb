@@ -166,5 +166,10 @@
   "destination": "गंतव्यस्थान",
   "integrated_address_detected": "एकीकृत पता पहचाना गया",
   "payment_id": "भुगतान ID",
-  "show_balance_usdt": "यूएसडीटी में शेष दिखाएं"
+  "show_balance_usdt": "यूएसडीटी में शेष दिखाएं",
+  "reset_preferences": "पसंदों को रीसेट करें",
+  "reset": "रीसेट करें",
+  "reset_preferences_dialog": "आप सभी सेटिंग्स, भाषा, थीम और नोड्स की सूची को रीसेट करने वाले हैं।",
+  "do_you_want_to_continue": "क्या आप जारी रखना चाहते हैं?",
+  "preferences_reset_snackbar": "पसंदें रीसेट!"
 }

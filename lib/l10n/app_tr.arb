@@ -166,5 +166,10 @@
   "destination": "Hedef",
   "integrated_address_detected": "Entegre adres tanımlanıyor",
   "payment_id": "Ödeme kimliği",
-  "show_balance_usdt": "USDT'de bakiye gösterin"
+  "show_balance_usdt": "USDT'de bakiye gösterin",
+  "reset_preferences": "Tercihleri sıfırla",
+  "reset": "Sıfırla",
+  "reset_preferences_dialog": "Tüm ayarları, dili, temasını ve düğüm listesini sıfırlamaya hazırlanıyorsunuz.",
+  "do_you_want_to_continue": "Devam etmek ister misiniz?",
+  "preferences_reset_snackbar": "Tercihler sıfırlandı!"
 }

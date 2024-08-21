@@ -166,5 +166,10 @@
   "destination": "Дестинация",
   "integrated_address_detected": "Интегрирана адреса детектирана",
   "payment_id": "ИД на плащение",
-  "show_balance_usdt": "Покажи баланса в USDT"
+  "show_balance_usdt": "Покажи баланса в USDT",
+  "reset_preferences": "Рестартирай предпочитанията",
+  "reset": "Нулирай",
+  "reset_preferences_dialog": "За да се нулират всички настройки, език, тема и списък с възела.",
+  "do_you_want_to_continue": "Дали искате да продължите?",
+  "preferences_reset_snackbar": "Настройките са нулирани!"
 }

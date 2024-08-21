@@ -166,5 +166,10 @@
   "destination": "目的地",
   "integrated_address_detected": "整合地址检测到",
   "payment_id": "支付ID",
-  "show_balance_usdt": "展示在USDT中的余额"
+  "show_balance_usdt": "展示在USDT中的余额",
+  "reset_preferences": "重置偏好",
+  "reset": "重置",
+  "reset_preferences_dialog": "你即将重置所有设置、语言、主题和节点列表。",
+  "do_you_want_to_continue": "你想要继续吗？",
+  "preferences_reset_snackbar": "偏好设置已重置！"
 }

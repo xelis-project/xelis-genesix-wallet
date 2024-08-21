@@ -166,5 +166,10 @@
   "destination": "Направление",
   "integrated_address_detected": "Интегрированная адреса обнаружена",
   "payment_id": "ИД платежа",
-  "show_balance_usdt": "Покажите баланс в USDT"
+  "show_balance_usdt": "Покажите баланс в USDT",
+  "reset_preferences": "Сбросить настройки",
+  "reset": "Сбросить",
+  "reset_preferences_dialog": "Вы собираетесь сбросить все настройки, язык, тему и список узлов.",
+  "do_you_want_to_continue": "Хотите продолжить?",
+  "preferences_reset_snackbar": "Настройки сброшены!"
 }

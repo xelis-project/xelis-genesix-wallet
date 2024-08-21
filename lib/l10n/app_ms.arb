@@ -166,5 +166,10 @@
   "destination": "Tujuan",
   "integrated_address_detected": "Alamat terintegrasi dikesan",
   "payment_id": "ID Pembayaran",
-  "show_balance_usdt": "Tunjukkan saldo dalam USDT"
+  "show_balance_usdt": "Tunjukkan saldo dalam USDT",
+  "reset_preferences": "Tetapkan semula pilihan",
+  "reset": "Tetapkan semul",
+  "reset_preferences_dialog": "Anda akan memulakan semula semua tetapan, bahasa, tema dan senarai nod.",
+  "do_you_want_to_continue": "Adakah anda ingin meneruskan?",
+  "preferences_reset_snackbar": "Tetapan telah ditetapkan semula!"
 }

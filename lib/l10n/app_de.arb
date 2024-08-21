@@ -166,5 +166,10 @@
   "destination": "Ziel",
   "integrated_address_detected": "Integrierte Adresse erkannt",
   "payment_id": "Zahlungs-ID",
-  "show_balance_usdt": "Zeige den Saldo in USDT"
+  "show_balance_usdt": "Zeige den Saldo in USDT",
+  "reset_preferences": "Präferenzen zurücksetzen",
+  "reset": "Zurücksetzen",
+  "reset_preferences_dialog": "Sie stehen kurz vor dem Zurücksetzen aller Einstellungen, Sprache, Thema und Liste der Knoten.",
+  "do_you_want_to_continue": "Möchten Sie fortfahren?",
+  "preferences_reset_snackbar": "Einstellungen zurückgesetzt!"
 }

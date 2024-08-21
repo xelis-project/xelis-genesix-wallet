@@ -166,5 +166,10 @@
   "destination": "Bestemming",
   "integrated_address_detected": "Geïntegreerde adres gedetecteerd",
   "payment_id": "Betalings-ID",
-  "show_balance_usdt": "Toon de balans in USDT"
+  "show_balance_usdt": "Toon de balans in USDT",
+  "reset_preferences": "Voorkeuren resetten",
+  "reset": "Resetten",
+  "reset_preferences_dialog": "Je staat op het punt om alle instellingen, taal, thema en lijst met nodes te resetten.",
+  "do_you_want_to_continue": "Wilt u doorgaan?",
+  "preferences_reset_snackbar": "Voorkeuren zijn gereset!"
 }

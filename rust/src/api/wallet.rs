@@ -64,7 +64,7 @@ pub async fn create_xelis_wallet(
                     LogProgressTableGenerationReportFunction,
                 )
                 .await?;
-    
+
                 // It is done in two steps to avoid the "Future is not Send" error
                 CACHED_TABLES.lock().replace(tables.clone());
                 tables

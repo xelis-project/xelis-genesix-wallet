@@ -166,5 +166,10 @@
   "destination": "Місце призначення",
   "integrated_address_detected": "Інтегрована адреса виявлена",
   "payment_id": "ІД платіжі",
-  "show_balance_usdt": "Показати баланс в USDT"
+  "show_balance_usdt": "Показати баланс в USDT",
+  "reset_preferences": "Скинути налаштування",
+  "reset": "Скинути",
+  "reset_preferences_dialog": "Ви на шляху до скидання всіх налаштувань, мови, теми та списку вузлів.",
+  "do_you_want_to_continue": "Чи хочете продовжити?",
+  "preferences_reset_snackbar": "Налаштування скинуто!"
 }
