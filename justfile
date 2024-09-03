@@ -31,6 +31,6 @@ prep:
     cargo install 'flutter_rust_bridge_codegen'
     cd rust && cargo update
 
-serve_web:
-    flutter_rust_bridge_codegen build-web --verbose --cargo-build-args --no-default-features --cargo-build-args --features="network_handler"
-#    flutter_rust_bridge_serve --crate rust --features="network_handler" --no-default-features
+run_web:
+    flutter_rust_bridge_codegen build-web --verbose --cargo-build-args --no-default-features --cargo-build-args --features="network_handler" --release
+    flutter run -d chrome --web-header=Cross-Origin-Opener-Policy=same-origin --web-header=Cross-Origin-Embedder-Policy=require-corp
