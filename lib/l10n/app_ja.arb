@@ -70,7 +70,7 @@
   "rescan_limitation_toast_error": "再スキャンを実行するには、フルノードに接続する必要があります。",
   "disconnecting_toast_error": "切断中に問題が発生しました...",
   "transfer_failed": "転送に失敗しました。",
-  "seed_warning": "警告：",
+  "warning": "警告",
   "seed_warning_message_1": "シードフレーズを公開しないでください。共有すると資金が失われる可能性があります。",
   "seed_warning_message_2": "財布の回復フレーズは",
   "seed_warning_message_3": "安全な場所に保存してください。紙に書くこともできます。",
@@ -173,5 +173,8 @@
   "do_you_want_to_continue": "続行しますか？",
   "preferences_reset_snackbar": "設定がリセットされました！",
   "seed_error_not_enough_words": "単語が足りません。",
-  "seed_error_too_many_words": "単語が多すぎる。"
+  "seed_error_too_many_words": "単語が多すぎる。",
+  "burn_transfer_warning_message": "バーントランザクションをアンロックすると、資金をバーンアドレスに送信できます。資金は永遠に失われます。",
+  "do_you_want_to_activate_burn_transfer": "本当に、バーン トランザクションをアンロックすることにしたいのですか？",
+  "burn_transfer_unlock": "バーン トランザクションをアンロックしました。"
 }

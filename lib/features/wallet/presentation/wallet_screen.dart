@@ -30,7 +30,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
       const HistoryTab(),
       const WalletTab(),
       const AssetsTab(),
-      const SettingsTab(),
+      SettingsTab(),
     ][_currentPageIndex];
 
     Widget mainWidget;

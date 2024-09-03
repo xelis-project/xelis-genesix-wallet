@@ -70,7 +70,7 @@
   "rescan_limitation_toast_error": "Sie müssen mit einem vollständigen Knoten verbunden sein, um einen Rescan durchzuführen.",
   "disconnecting_toast_error": "Beim Trennen der Verbindung ist ein Fehler aufgetreten...",
   "transfer_failed": "Überweisung fehlgeschlagen.",
-  "seed_warning": "Warnung:",
+  "warning": "Warnung",
   "seed_warning_message_1": "Geben Sie niemals Ihren Seed bekannt. Die Weitergabe kann zum Verlust von Geldern führen.",
   "seed_warning_message_2": "Ihr Wallet-Wiederherstellungs-Seed lautet:",
   "seed_warning_message_3": "Bewahren Sie ihn an einem sicheren Ort auf. Sie können ihn auf ein Blatt Papier schreiben.",
@@ -173,5 +173,8 @@
   "do_you_want_to_continue": "Möchten Sie fortfahren?",
   "preferences_reset_snackbar": "Einstellungen zurückgesetzt!",
   "seed_error_not_enough_words": "Nicht genug Wörter",
-  "seed_error_too_many_words": "Zu viele Wörter"
+  "seed_error_too_many_words": "Zu viele Wörter",
+  "burn_transfer_warning_message": "Die Aktivierung von Burn-Transfer wird es Ihnen ermöglichen, Geld an ein Burn-Adresse zu senden. Diese Aktion ist rückgängig und die Mittel werden für immer verloren sein.",
+  "do_you_want_to_activate_burn_transfer": "Sind Sie sicher, dass Sie die Aktivierung von Burn-Transfer wünschen?",
+  "burn_transfer_unlock": "Burn-Transfer wurde aktiviert."
 }

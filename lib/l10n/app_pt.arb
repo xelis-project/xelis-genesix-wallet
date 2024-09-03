@@ -70,7 +70,7 @@
   "rescan_limitation_toast_error": "É necessário estar ligado a um nó completo para efetuar uma nova análise.",
   "disconnecting_toast_error": "Algo correu mal durante a desconexão...",
   "transfer_failed": "A transferência falhou.",
-  "seed_warning": "Aviso:",
+  "warning": "Aviso",
   "seed_warning_message_1": "Nunca divulgue a sua frase-semente. A sua partilha pode resultar na perda de fundos.",
   "seed_warning_message_2": "A frase de recuperação da carteira é:",
   "seed_warning_message_3": "Guarde-a num lugar seguro. Pode escrevê-lo numa folha de papel.",
@@ -173,5 +173,8 @@
   "do_you_want_to_continue": "Quer continuar?",
   "preferences_reset_snackbar": "Preferências redefinidas!",
   "seed_error_not_enough_words": "Não há palavras suficientes",
-  "seed_error_too_many_words": "Muitas palavras"
+  "seed_error_too_many_words": "Muitas palavras",
+  "burn_transfer_warning_message": "A ativação de transferência de queima permitirá-lhe enviar fundos para uma direção de destruição permanente, sem possibilidade de recuperação. Esta ação é irreversível e os fundos serão perdidos para sempre.",
+  "do_you_want_to_activate_burn_transfer": "Está seguro que deseja ativar a transferência de queima ?",
+  "burn_transfer_unlock": "A transferência de queima foi ativada."
 }

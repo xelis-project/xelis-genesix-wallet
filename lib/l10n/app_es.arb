@@ -70,7 +70,7 @@
   "rescan_limitation_toast_error": "Debe estar conectado a un nodo completo para realizar un reescaneo.",
   "disconnecting_toast_error": "Algo salió mal durante la desconexión...",
   "transfer_failed": "La transferencia ha fallado.",
-  "seed_warning": "Advertencia:",
+  "warning": "Advertencia",
   "seed_warning_message_1": "Nunca reveles tu frase inicial. Compartirla puede resultar en la pérdida de fondos.",
   "seed_warning_message_2": "Tu frase de recuperación de billetera es:",
   "seed_warning_message_3": "Guárdala en un lugar seguro. Puedes escribirla en un papel.",
@@ -173,5 +173,8 @@
   "do_you_want_to_continue": "¿Desea continuar?",
   "preferences_reset_snackbar": "Preferencias reseteadas!",
   "seed_error_not_enough_words": "No hay suficientes palabras",
-  "seed_error_too_many_words": "Demasiadas palabras"
+  "seed_error_too_many_words": "Demasiadas palabras",
+  "burn_transfer_warning_message": "Darse de baja en el envío de quemado te permitirá enviar fondos a una dirección de quemado. Esta acción es irreparable y los fondos se perderán para siempre.",
+  "do_you_want_to_activate_burn_transfer": "¿Estás seguro de que deseas darte de baja en el envío de quemado?",
+  "burn_transfer_unlock": "El envío de quemado se ha desbloqueado."
 }

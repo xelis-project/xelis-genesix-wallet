@@ -70,7 +70,7 @@
   "rescan_limitation_toast_error": "Anda perlu menyambung ke nod penuh untuk melakukan imbasan semula.",
   "disconnecting_toast_error": "Ralat berlaku semasa memutuskan sambungan...",
   "transfer_failed": "Pemindahan gagal.",
-  "seed_warning": "Amaran:",
+  "warning": "Amaranan",
   "seed_warning_message_1": "Jangan dedahkan biji pemulihan anda. Berkongsi biji boleh menyebabkan kehilangan dana.",
   "seed_warning_message_2": "Biji pemulihan dompet anda adalah:",
   "seed_warning_message_3": "Simpan di tempat yang selamat. Anda boleh menulisnya di sehelai kertas.",
@@ -173,5 +173,8 @@
   "do_you_want_to_continue": "Adakah anda ingin meneruskan?",
   "preferences_reset_snackbar": "Tetapan telah ditetapkan semula!",
   "seed_error_not_enough_words": "Tidak cukup kata",
-  "seed_error_too_many_words": "Terlalu banyak kata"
+  "seed_error_too_many_words": "Terlalu banyak kata",
+  "burn_transfer_warning_message": "Membuka burn transfer akan memungkinkan anda menghantar dana ke alamat pembakaran. Tindakan ini tidak boleh dibatalkan dan dana itu akan hilang selamanya.",
+  "do_you_want_to_activate_burn_transfer": "Adakah anda yakin ingin membuka transfer burn?",
+  "burn_transfer_unlock": "Membuka transfer burn telah dilakukan."
 }

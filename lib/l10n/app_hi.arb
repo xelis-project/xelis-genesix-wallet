@@ -70,7 +70,7 @@
   "rescan_limitation_toast_error": "पुनः स्कैन करने के लिए आपको पूर्ण नोड से कनेक्ट होना होगा।",
   "disconnecting_toast_error": "कनेक्शन काटते समय कुछ गड़बड़ हो गई...",
   "transfer_failed": "स्थानांतरण विफल हो गया है.",
-  "seed_warning": "चेतावनी:",
+  "warning": "चेतावनी",
   "seed_warning_message_1": "अपना बीज वाक्यांश कभी भी प्रकट न करें। इसे साझा करने से धन की हानि हो सकती है।",
   "seed_warning_message_2": "आपका वॉलेट पुनर्प्राप्ति वाक्यांश है:",
   "seed_warning_message_3": "इसे किसी सुरक्षित जगह पर रख लें। आप इसे कागज़ के एक टुकड़े पर लिख सकते हैं।",
@@ -173,5 +173,8 @@
   "do_you_want_to_continue": "क्या आप जारी रखना चाहते हैं?",
   "preferences_reset_snackbar": "पसंदें रीसेट!",
   "seed_error_not_enough_words": "पर्याप्त शब्द नहीं हैं",
-  "seed_error_too_many_words": "बहुत से शब्द"
+  "seed_error_too_many_words": "बहुत से शब्द",
+  "burn_transfer_warning_message": "ब्रन ट्रांसफर अनलॉक करने के लिए आपको फंड्स को एक ब्रन एड्रेस पर भेजने की अनुमति मिलेगी। यह कार्रवाई अपरिवर्तनीय है और फंड्स हमेशा खो जाएंगे।",
+  "do_you_want_to_activate_burn_transfer": "क्या आप सुनिश्चित हैं कि आप ब्रन ट्रांसफर अनलॉक करना चाहते हैं ?",
+  "burn_transfer_unlock": "ब्रन ट्रांसफर अनलॉक किया गया।"
 }

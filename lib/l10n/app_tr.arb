@@ -70,7 +70,7 @@
   "rescan_limitation_toast_error": "Yeniden tarama yapabilmek için tam bir düğüme bağlı olmanız gerekmektedir.",
   "disconnecting_toast_error": "Bağlantı kesilirken bir hata oluştu...",
   "transfer_failed": "Transfer başarısız oldu.",
-  "seed_warning": "Uyarı:",
+  "warning": "Uyarı",
   "seed_warning_message_1": "Tohum ifadenizi asla açıklamayın. Paylaşmak fon kaybına neden olabilir.",
   "seed_warning_message_2": "Cüzdan kurtarma ifadeniz:",
   "seed_warning_message_3": "Güvenli bir yere kaydedin. Bir kağıda yazabilirsiniz.",
@@ -173,5 +173,8 @@
   "do_you_want_to_continue": "Devam etmek ister misiniz?",
   "preferences_reset_snackbar": "Tercihler sıfırlandı!",
   "seed_error_not_enough_words": "Yeterli kelime yok",
-  "seed_error_too_many_words": "Çok fazla kelime"
+  "seed_error_too_many_words": "Çok fazla kelime",
+  "burn_transfer_warning_message": "Yakan transferi unlock edilecek olursa, size yakan adresine para gönderme yetkisi verecektir. Para kaybolacak ve asla geri alınamayacak.",
+  "do_you_want_to_activate_burn_transfer": "Yakan transferi unlock etmek istiyor musunuz?",
+  "burn_transfer_unlock": "Yakan transferi aktif hale getirildi."
 }

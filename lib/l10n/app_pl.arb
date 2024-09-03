@@ -70,7 +70,7 @@
   "rescan_limitation_toast_error": "Aby przeskanować ponownie, musisz być połączony z pełnym węzłem.",
   "disconnecting_toast_error": "Coś poszło nie tak podczas rozłączania...",
   "transfer_failed": "Przelew nie powiódł się.",
-  "seed_warning": "Ostrzeżenie:",
+  "warning": "Ostrzeżenie",
   "seed_warning_message_1": "Nigdy nie ujawniaj swojego seed. Udostępnienie go może prowadzić do utraty środków.",
   "seed_warning_message_2": "Twój seed do odzyskiwania portfela to:",
   "seed_warning_message_3": "Zapisz go w bezpiecznym miejscu. Możesz go zapisać na kartce papieru.",
@@ -173,5 +173,8 @@
   "do_you_want_to_continue": "Czy chcesz kontynuować?",
   "preferences_reset_snackbar": "Preferencje zresetowane!",
   "seed_error_not_enough_words": "Za mało słów",
-  "seed_error_too_many_words": "Zbyt wiele słów"
+  "seed_error_too_many_words": "Zbyt wiele słów",
+  "burn_transfer_warning_message": "Włączenie przekazu na palenie pozwoli Ci wysłać fundusze do adresu na zniszczenie trwałe, bez możliwości odzyskania. Ta operacja jest nieodwracalna i fundusze będą utracone na zawsze.",
+  "do_you_want_to_activate_burn_transfer": "Czy jesteś pewien, że chcesz włączyć przekaz na palenie?",
+  "burn_transfer_unlock": "Przekaz na palenie został włączony."
 }

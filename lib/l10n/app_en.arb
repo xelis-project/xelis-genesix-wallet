@@ -70,7 +70,7 @@
   "rescan_limitation_toast_error": "You must be connected to a full node to perform a rescan.",
   "disconnecting_toast_error": "Something went wrong during disconnection...",
   "transfer_failed": "The transfer has failed.",
-  "seed_warning": "Warning:",
+  "warning": "Warning",
   "seed_warning_message_1": "Never disclose your seed phrase. Sharing it may result in a lost of funds.",
   "seed_warning_message_2": "Your wallet recovery phrase is:",
   "seed_warning_message_3": "Save it somewhere safe. You can write it down on a piece of paper.",
@@ -173,5 +173,8 @@
   "do_you_want_to_continue": "Do you want to continue?",
   "preferences_reset_snackbar": "Preferences reset!",
   "seed_error_not_enough_words": "Not enough words",
-  "seed_error_too_many_words": "Too many words"
+  "seed_error_too_many_words": "Too many words",
+  "burn_transfer_warning_message": "Unlocking burn transfer will allow you to send funds to a burn address. This action is irreversible and the funds will be lost forever.",
+  "do_you_want_to_activate_burn_transfer": "Are you sure you want to unlock burn transfer?",
+  "burn_transfer_unlock": "Burn transfer unlocked."
 }

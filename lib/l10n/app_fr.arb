@@ -70,7 +70,7 @@
   "rescan_limitation_toast_error": "Vous devez être connecté à un nœud complet pour effectuer un rescan.",
   "disconnecting_toast_error": "Quelque chose s'est mal passé lors de la déconnexion...",
   "transfer_failed": "Le transfert n'a pas abouti.",
-  "seed_warning": "Attention :",
+  "warning": "Avertissement",
   "seed_warning_message_1": "Ne divulguez jamais votre phrase-clé. Le fait de la partager peut entraîner une perte de fonds.",
   "seed_warning_message_2": "La phrase de récupération de votre portefeuille est :",
   "seed_warning_message_3": "Conservez-la dans un endroit sûr. Vous pouvez l'écrire sur une feuille de papier.",
@@ -173,5 +173,8 @@
   "do_you_want_to_continue": "Voulez-vous continuer ?",
   "preferences_reset_snackbar": "Préférences réinitialisées !",
   "seed_error_not_enough_words": "Pas assez de mots",
-  "seed_error_too_many_words": "Trop de mots"
+  "seed_error_too_many_words": "Trop de mots",
+  "burn_transfer_warning_message": "L'activation du transfert de type Burn vous permettra d'envoyer des fonds à une adresse de destruction permanente, sans possibilité de récupération. Ce processus est irreversible et les fonds seront perdus définitivement.",
+  "do_you_want_to_activate_burn_transfer": "Êtes-vous sûr de vouloir activer le transfert de type Burn ?",
+  "burn_transfer_unlock": "Le transfert de type Burn est désormais activé."
 }

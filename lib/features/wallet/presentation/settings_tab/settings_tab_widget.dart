@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/wallet/presentation/settings_tab/components/burn_warning_dialog.dart';
 import 'package:genesix/rust_bridge/api/network.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/widgets/components/confirm_dialog.dart';
@@ -17,7 +18,10 @@ import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:intl/intl.dart';
 
 class SettingsTab extends ConsumerWidget {
-  const SettingsTab({super.key});
+  SettingsTab({super.key});
+
+  final _burnSwitchKey =
+      GlobalKey<FormBuilderFieldState>(debugLabel: '_burnSwitchKey');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -80,12 +84,17 @@ class SettingsTab extends ConsumerWidget {
               ),
             FormBuilderSwitch(
               name: 'unlock_burn_switch',
+              key: _burnSwitchKey,
               initialValue: settings.unlockBurn,
               decoration: const InputDecoration(fillColor: Colors.transparent),
               title: Text(toBeginningOfSentenceCase(loc.unlock_burn_transfer),
                   style: context.bodyLarge),
               onChanged: (value) {
-                ref.read(settingsProvider.notifier).setUnlockBurn(value!);
+                if (value ?? false) {
+                  _showBurnWarningDialog(ref);
+                } else {
+                  ref.read(settingsProvider.notifier).setUnlockBurn(false);
+                }
               },
             ),
           ],
@@ -265,5 +274,17 @@ class SettingsTab extends ConsumerWidget {
         );
       },
     );
+  }
+
+  Future<void> _showBurnWarningDialog(WidgetRef ref) async {
+    await showDialog<void>(
+      context: ref.context,
+      builder: (context) {
+        return BurnWarningDialog(_burnSwitchKey);
+      },
+    );
+    if (!ref.read(settingsProvider).unlockBurn) {
+      _burnSwitchKey.currentState?.didChange(false);
+    }
   }
 }

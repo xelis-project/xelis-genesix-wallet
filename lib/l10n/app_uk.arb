@@ -70,7 +70,7 @@
   "rescan_limitation_toast_error": "Для пересканування потрібно підключитися до повного вузла.",
   "disconnecting_toast_error": "Під час відключення сталася помилка...",
   "transfer_failed": "Переказ не відбувся.",
-  "seed_warning": "Увага:",
+  "warning": "Перед увагою",
   "seed_warning_message_1": "Ніколи не розголошуйте свій seed. Його розголошення може призвести до втрати коштів.",
   "seed_warning_message_2": "Ваш seed для відновлення гаманця:",
   "seed_warning_message_3": "Збережіть його в безпечному місці. Можете записати його на папері.",
@@ -173,5 +173,8 @@
   "do_you_want_to_continue": "Чи хочете продовжити?",
   "preferences_reset_snackbar": "Налаштування скинуто!",
   "seed_error_not_enough_words": "Не вистачає слів",
-  "seed_error_too_many_words": "Занадто багато слів"
+  "seed_error_too_many_words": "Занадто багато слів",
+  "burn_transfer_warning_message": "Активація знищення-перерахування дозволить вам відправляти кошти на адресу знищення. Кошти будуть втрачені назавжди.",
+  "do_you_want_to_activate_burn_transfer": "Вже впевнений, що хочете активацію знищення-перерахування?",
+  "burn_transfer_unlock": "Знищення-перерахування було активаційне."
 }

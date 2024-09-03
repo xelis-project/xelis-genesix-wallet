@@ -70,7 +70,7 @@
   "rescan_limitation_toast_error": "您必须连接到完整节点才能执行重新扫描。",
   "disconnecting_toast_error": "断开连接时出了问题...",
   "transfer_failed": "转账失败。",
-  "seed_warning": "警告",
+  "warning": "警告",
   "seed_warning_message_1": "切勿透露您的种子词组。分享可能会导致资金损失。",
   "seed_warning_message_2": "您的钱包恢复短语是",
   "seed_warning_message_3": "请将其保存在安全的地方。您可以将其写在纸上。",
@@ -173,5 +173,8 @@
   "do_you_want_to_continue": "你想要继续吗？",
   "preferences_reset_snackbar": "偏好设置已重置！",
   "seed_error_not_enough_words": "词语不足",
-  "seed_error_too_many_words": "词语过多"
+  "seed_error_too_many_words": "词语过多",
+  "burn_transfer_warning_message": "解锁烧毁转移将使您能够发送资金到烧毁地址。资金将永远丢失，无法恢复。",
+  "do_you_want_to_activate_burn_transfer": "确定要解锁烧毁转移吗？",
+  "burn_transfer_unlock": "烧毁转移已解锁。"
 }

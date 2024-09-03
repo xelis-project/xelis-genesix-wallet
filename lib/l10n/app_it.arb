@@ -70,7 +70,7 @@
   "rescan_limitation_toast_error": "Per eseguire una nuova scansione è necessario essere connessi a un nodo completo.",
   "disconnecting_toast_error": "Qualcosa è andato storto durante la disconnessione...",
   "transfer_failed": "Il trasferimento è fallito.",
-  "seed_warning": "Attenzione:",
+  "warning": "Avviso",
   "seed_warning_message_1": "Non rivelate mai il vostro seme. Condividerla può comportare la perdita di fondi.",
   "seed_warning_message_2": "Il seme di recupero del portafoglio è:",
   "seed_warning_message_3": "Conservatelo in un posto sicuro. Potete scriverlo su un foglio di carta.",
@@ -173,5 +173,8 @@
   "do_you_want_to_continue": "Vuoi continuare?",
   "preferences_reset_snackbar": "Preferenze reimpostate!",
   "seed_error_not_enough_words": "Non ci sono abbastanza parole",
-  "seed_error_too_many_words": "Troppe parole"
+  "seed_error_too_many_words": "Troppe parole",
+  "burn_transfer_warning_message": "L'attivazione del trasferimento di bruciamento le permetterà di inviare fondi a un indirizzo di distruzione permanente, senza possibilità di recupero. Questa operazione è irreversibile e i fondi saranno persi per sempre.",
+  "do_you_want_to_activate_burn_transfer": "Sei sicuro di voler attivare il trasferimento di bruciamento?",
+  "burn_transfer_unlock": "Il trasferimento di bruciamento è stato attivato."
 }

@@ -70,7 +70,7 @@
   "rescan_limitation_toast_error": "Je moet verbonden zijn met een volledige node om opnieuw te kunnen scannen.",
   "disconnecting_toast_error": "Er is iets fout gegaan bij het verbreken van de verbinding...",
   "transfer_failed": "Overdracht mislukt.",
-  "seed_warning": "Waarschuwing:",
+  "warning": "Waarschuwing",
   "seed_warning_message_1": "Deel je seed phrase nooit. Het delen ervan kan leiden tot verlies van fondsen.",
   "seed_warning_message_2": "De herstelzin voor je portemonnee is:",
   "seed_warning_message_3": "Bewaar het op een veilige plek. Je kunt het opschrijven op een stuk papier.",
@@ -173,5 +173,8 @@
   "do_you_want_to_continue": "Wilt u doorgaan?",
   "preferences_reset_snackbar": "Voorkeuren zijn gereset!",
   "seed_error_not_enough_words": "Niet genoeg woorden",
-  "seed_error_too_many_words": "Te veel woorden"
+  "seed_error_too_many_words": "Te veel woorden",
+  "burn_transfer_warning_message": "De uitvoeren van brandtransfers zal u in staat stellen om geld naar een brandadres te sturen, waarna het definitief verloren is gegaan.",
+  "do_you_want_to_activate_burn_transfer": "Bent u zeker dat u de uitvoering van brandtransfers wilt starten?",
+  "burn_transfer_unlock": "De brandtransfers is geactiveerd."
 }

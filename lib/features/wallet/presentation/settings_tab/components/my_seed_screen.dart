@@ -55,21 +55,25 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                 padding: const EdgeInsets.all(Spaces.medium),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.warning_amber,
-                      color: context.colors.primary,
-                      size: 30,
-                    ),
-                    const SizedBox(width: Spaces.medium),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            loc.seed_warning,
-                            style: context.bodyMedium?.copyWith(
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.warning_amber,
                                 color: context.colors.primary,
-                                fontWeight: FontWeight.bold),
+                                size: 30,
+                              ),
+                              const SizedBox(width: Spaces.medium),
+                              Text(
+                                loc.warning,
+                                style: context.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: context.colors.primary),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: Spaces.extraSmall),
                           SelectableText(
@@ -88,7 +92,8 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
               style: context.titleMedium,
             ),
             const SizedBox(height: Spaces.medium),
-            Card.outlined(
+            Card(
+              borderOnForeground: false,
               margin: const EdgeInsets.all(Spaces.none),
               child: Center(
                 child: Padding(
