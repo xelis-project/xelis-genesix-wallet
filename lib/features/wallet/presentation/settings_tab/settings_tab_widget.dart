@@ -20,8 +20,8 @@ import 'package:intl/intl.dart';
 class SettingsTab extends ConsumerWidget {
   SettingsTab({super.key});
 
-  final _burnSwitchKey =
-      GlobalKey<FormBuilderFieldState>(debugLabel: '_burnSwitchKey');
+  final _burnSwitchKey = GlobalKey<FormBuilderFieldState<dynamic, dynamic>>(
+      debugLabel: '_burnSwitchKey');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

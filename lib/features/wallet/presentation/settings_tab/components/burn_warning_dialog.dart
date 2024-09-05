@@ -12,7 +12,7 @@ import 'package:go_router/go_router.dart';
 class BurnWarningDialog extends ConsumerWidget {
   const BurnWarningDialog(this._settingSwitchKey, {super.key});
 
-  final GlobalKey<FormBuilderFieldState> _settingSwitchKey;
+  final GlobalKey<FormBuilderFieldState<dynamic, dynamic>> _settingSwitchKey;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
