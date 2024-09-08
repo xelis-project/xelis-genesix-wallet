@@ -10,6 +10,14 @@ ThemeData darkTheme() {
   const backgroundColor = Color.fromARGB(255, 19, 19, 19);
   var borderRadius = BorderRadius.circular(10.0);
 
+  WidgetStateProperty<Color> switchStateProperty =
+      WidgetStateProperty.resolveWith((states) {
+    if (states.contains(WidgetState.selected)) {
+      return primaryColor;
+    }
+    return textColor.withOpacity(0.6);
+  });
+
   return ThemeData(
     useMaterial3: true,
     // splashFactory: InkSparkle.splashFactory,
@@ -219,9 +227,9 @@ ThemeData darkTheme() {
 
     // SWITCH
     switchTheme: SwitchThemeData(
-      thumbColor: const WidgetStatePropertyAll(primaryColor),
+      thumbColor: switchStateProperty,
       trackColor: WidgetStatePropertyAll(primaryColor.withOpacity(.2)),
-      trackOutlineColor: const WidgetStatePropertyAll(primaryColor),
+      trackOutlineColor: switchStateProperty,
     ),
 
     // TAB BAR

@@ -122,6 +122,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
               FormBuilderSwitch(
                 name: 'seed_switch',
                 initialValue: _seedRequired,
+                inactiveThumbColor: context.moreColors.mutedColor,
                 title: Text(loc.create_from_seed, style: context.bodyLarge),
                 onChanged: (value) {
                   setState(() {
