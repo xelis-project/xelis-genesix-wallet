@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/more_colors.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 ThemeData darkTheme() {
   const textColor = Colors.white;
@@ -18,7 +19,7 @@ ThemeData darkTheme() {
     return textColor.withOpacity(0.6);
   });
 
-  return ThemeData(
+  final baseTheme = ThemeData(
     useMaterial3: true,
     // splashFactory: InkSparkle.splashFactory,
     splashFactory: NoSplash.splashFactory,
@@ -52,21 +53,36 @@ ThemeData darkTheme() {
 
     // TEXT
     textTheme: TextTheme(
-      bodyLarge: TextStyle(color: textColor, height: lineHeight),
-      bodyMedium: TextStyle(color: textColor, height: lineHeight),
-      bodySmall: TextStyle(color: textColor, height: lineHeight),
-      displayLarge: TextStyle(color: textColor, height: lineHeight),
-      displayMedium: TextStyle(color: textColor, height: lineHeight),
-      displaySmall: TextStyle(color: textColor, height: lineHeight),
-      titleLarge: TextStyle(color: textColor, height: lineHeight),
-      titleMedium: TextStyle(color: textColor, height: lineHeight),
-      titleSmall: TextStyle(color: textColor, height: lineHeight),
-      labelLarge: TextStyle(color: textColor, height: lineHeight),
-      labelMedium: TextStyle(color: textColor, height: lineHeight),
-      labelSmall: TextStyle(color: textColor, height: lineHeight),
-      headlineLarge: TextStyle(color: textColor, height: lineHeight),
-      headlineMedium: TextStyle(color: textColor, height: lineHeight),
-      headlineSmall: TextStyle(color: textColor, height: lineHeight),
+      bodyLarge: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      bodyMedium: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      bodySmall: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      displayLarge: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      displayMedium: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      displaySmall: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      titleLarge: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      titleMedium: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      titleSmall: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      labelLarge: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      labelMedium: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      labelSmall: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      headlineLarge: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      headlineMedium: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      headlineSmall: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
     ),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: textColor,
@@ -263,5 +279,9 @@ ThemeData darkTheme() {
     scaffoldBackgroundColor: Colors.transparent,
     appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent),
     dividerColor: Colors.transparent,
+  );
+
+  return baseTheme.copyWith(
+    textTheme: GoogleFonts.juraTextTheme(baseTheme.textTheme),
   );
 }
