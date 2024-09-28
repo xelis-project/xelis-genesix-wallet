@@ -1,11 +1,11 @@
 {
-    "name": "genesix_wallet",
-    "short_name": "genesix_wallet",
+    "name": "Genesix Wallet",
+    "short_name": "Genesix",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "XELIS - Genesix Web Wallet",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
