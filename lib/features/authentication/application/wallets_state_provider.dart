@@ -14,6 +14,8 @@ part 'wallets_state_provider.g.dart';
 
 @riverpod
 class Wallets extends _$Wallets {
+  final String _addressFileName = "addr.txt";
+  final String _orderingFileName = "ordering.json";
   late Network _network;
   List<String> _ordering = [];
 
@@ -38,7 +40,7 @@ class Wallets extends _$Wallets {
 
   Future<String> _getOrderingFilePath() async {
     final walletsDir = await _getWalletsDir();
-    return p.join(walletsDir.path, "ordering.json");
+    return p.join(walletsDir.path, _orderingFileName);
   }
 
   Future<void> _loadOrdering() async {
@@ -84,7 +86,7 @@ class Wallets extends _$Wallets {
 
   Future<String> _getWalletAddressPath(String name) async {
     final walletsDir = await _getWalletsDir();
-    return p.join(walletsDir.path, name, "addr.txt");
+    return p.join(walletsDir.path, name, _addressFileName);
   }
 
   Future<String> _getWalletAddress(String name) async {
@@ -120,8 +122,8 @@ class Wallets extends _$Wallets {
       for (int i = 0; i < localStorage.length; i++) {
         var key = localStorage.key(i)!;
         if (key.startsWith(walletsPath) &&
-            !key.endsWith("addr.txt") &&
-            !key.endsWith("ordering.json")) {
+            !key.endsWith(_addressFileName) &&
+            !key.endsWith(_orderingFileName)) {
           var name = p.basename(key);
 
           var addr = await _getWalletAddress(name);
