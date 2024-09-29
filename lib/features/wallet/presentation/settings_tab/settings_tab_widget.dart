@@ -172,7 +172,8 @@ class SettingsTab extends ConsumerWidget {
           onPressed: () => _showDeleteWalletInput(ref),
           label: Text(
             loc.delete_wallet,
-            style: context.titleMedium!.copyWith(color: context.colors.error),
+            style: context.titleMedium!.copyWith(
+                color: context.colors.error, fontWeight: FontWeight.w800),
           ),
         ),
       ],

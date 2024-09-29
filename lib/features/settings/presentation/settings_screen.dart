@@ -145,8 +145,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 child: Text(
                   loc.reset_preferences,
-                  style: context.titleMedium!
-                      .copyWith(color: context.colors.error),
+                  style: context.titleMedium!.copyWith(
+                      color: context.colors.error, fontWeight: FontWeight.w800),
                 )),
           ],
         ),

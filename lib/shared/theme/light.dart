@@ -132,6 +132,7 @@ ThemeData lightTheme() {
         shape: RoundedRectangleBorder(
           borderRadius: borderRadius,
         ),
+        textStyle: GoogleFonts.jura(fontWeight: FontWeight.w800),
       ),
     ),
     iconButtonTheme: IconButtonThemeData(
