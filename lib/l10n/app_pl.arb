@@ -11,6 +11,7 @@
   "invalid_wallet_folder": "Nieprawidłowa folder portfela",
   "error_when_opening_wallet": "Błąd podczas otwierania portfela",
   "error_when_creating_wallet": "Błąd podczas tworzenia portfela",
+  "wrong_password": "Niepoprawne hasło",
   "password_not_match": "Hasła nie pasują do siebie",
   "add_a_wallet": "Dodaj portfel",
   "create_new_wallet": "Utwórz nowy portfel",

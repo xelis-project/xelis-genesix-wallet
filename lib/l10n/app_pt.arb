@@ -11,6 +11,7 @@
   "invalid_wallet_folder": "Pasta da carteira inválida",
   "error_when_opening_wallet": "Erro ao abrir a carteira",
   "error_when_creating_wallet": "Erro ao criar a carteira",
+  "wrong_password": "Senha incorreta",
   "password_not_match": "não corresponde à palavra-passe",
   "add_a_wallet": "Adicionar uma carteira",
   "create_new_wallet": "Criar uma nova carteira",

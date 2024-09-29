@@ -11,6 +11,7 @@
   "invalid_wallet_folder": "Mappa portemonnee ongeldig",
   "error_when_opening_wallet": "Fout bij het openen van de portemonnee",
   "error_when_creating_wallet": "Fout bij het maken van de portemonnee",
+  "wrong_password": "Wachtwoord incorrect",
   "password_not_match": "Wachtwoord komt niet overeen",
   "add_a_wallet": "Een portemonnee toevoegen",
   "create_new_wallet": "Nieuwe portemonnee aanmaken",

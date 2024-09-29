@@ -11,6 +11,7 @@
   "invalid_wallet_folder": "Невалиден портфейл фолдер",
   "error_when_opening_wallet": "Грешка при отваряне на портфейла",
   "error_when_creating_wallet": "Грешка при създаване на портфейла",
+  "wrong_password": "Грешно парол",
   "password_not_match": "не съвпада с паролата",
   "add_a_wallet": "Добави портфейл",
   "create_new_wallet": "Създаване на нов портфейл",

@@ -11,6 +11,7 @@
   "invalid_wallet_folder": "Dokumen poket tidak sah",
   "error_when_opening_wallet": "Kesalahan saat membuka dompet",
   "error_when_creating_wallet": "Kesalahan saat membuat dompet",
+  "wrong_password": "Kata sandi salah",
   "password_not_match": "tidak sepadan dengan kata laluan",
   "add_a_wallet": "Tambahkan dompet",
   "create_new_wallet": "Cipta dompet baru",

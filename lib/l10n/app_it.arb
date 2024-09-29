@@ -11,6 +11,7 @@
   "invalid_wallet_folder": "Cartella portafoglio non valida",
   "error_when_opening_wallet": "Errore durante l'apertura del portafoglio",
   "error_when_creating_wallet": "Errore durante la creazione del portafoglio",
+  "wrong_password": "Password errato",
   "password_not_match": "non corrisponde alla password",
   "add_a_wallet": "Aggiungi un portafoglio",
   "create_new_wallet": "Crea un nuovo portafoglio",

@@ -11,6 +11,7 @@
   "invalid_wallet_folder": "Ungültiger Wallet-Ordner",
   "error_when_opening_wallet": "Fehler beim Öffnen des Wallets",
   "error_when_creating_wallet": "Fehler beim Erstellen des Wallets",
+  "wrong_password": "Falsches Passwort",
   "password_not_match": "Passwort stimmt nicht überein",
   "add_a_wallet": "Eine Wallet hinzufügen",
   "create_new_wallet": "Neue Wallet erstellen",

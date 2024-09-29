@@ -11,6 +11,7 @@
   "invalid_wallet_folder": "Dossier de portefeuille invalide",
   "error_when_opening_wallet": "Erreur lors de l'ouverture du portefeuille",
   "error_when_creating_wallet": "Erreur lors de la création du portefeuille",
+  "wrong_password": "Mot de passe incorrect",
   "password_not_match": "ne correspond pas au mot de passe",
   "add_a_wallet": "Ajouter un portefeuille",
   "create_new_wallet": "Créer un nouveau portefeuille",

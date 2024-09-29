@@ -11,6 +11,7 @@
   "invalid_wallet_folder": "비정상적인 지갑 폴더",
   "error_when_opening_wallet": "지갑 열기 오류",
   "error_when_creating_wallet": "지갑 생성 중 오류",
+  "wrong_password": "잘못된 비밀번호",
   "password_not_match": "비밀번호가 일치하지 않습니다.",
   "add_a_wallet": "지갑 추가하기",
   "create_new_wallet": "새 지갑 만들기",

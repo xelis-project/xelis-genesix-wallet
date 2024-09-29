@@ -11,6 +11,7 @@
   "invalid_wallet_folder": "財布フォルダが無効",
   "error_when_opening_wallet": "財布を開くエラー",
   "error_when_creating_wallet": "財布の作成中にエラー",
+  "wrong_password": "誤ったパスワード",
   "password_not_match": "パスワードが一致しません",
   "add_a_wallet": "財布を追加する",
   "create_new_wallet": "新しい財布を作成する",

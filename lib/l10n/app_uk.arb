@@ -11,6 +11,7 @@
   "invalid_wallet_folder": "Недійсний гаманець-папка",
   "error_when_opening_wallet": "Помилка під час відкриття гаманця",
   "error_when_creating_wallet": "Помилка під час створення гаманця",
+  "wrong_password": "неправильний пароль",
   "password_not_match": "Паролі не співпадають",
   "add_a_wallet": "Додати гаманець",
   "create_new_wallet": "Створити новий гаманець",

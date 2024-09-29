@@ -11,6 +11,7 @@
   "invalid_wallet_folder": "अमान्य वॉलेट फ़ोल्डर",
   "error_when_opening_wallet": "वॉलेट खोलते समय त्रुटि",
   "error_when_creating_wallet": "वॉलेट बनाते समय त्रुटि",
+  "wrong_password": "गलत पासवर्ड",
   "password_not_match": "पासवर्ड से मेल नहीं खाता",
   "add_a_wallet": "वॉलेट जोड़ें",
   "create_new_wallet": "नया वॉलेट बनाएं",

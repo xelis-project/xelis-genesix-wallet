@@ -11,6 +11,7 @@
   "invalid_wallet_folder": "文件夹无效",
   "error_when_opening_wallet": "钱包打开错误",
   "error_when_creating_wallet": "钱包创建错误",
+  "wrong_password": "错误的密码",
   "password_not_match": "与密码不匹配",
   "add_a_wallet": "添加钱包",
   "create_new_wallet": "创建新钱包",

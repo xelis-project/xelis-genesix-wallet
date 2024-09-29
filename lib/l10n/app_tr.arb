@@ -11,6 +11,7 @@
   "invalid_wallet_folder": "Hatalı cüzdan klasörü",
   "error_when_opening_wallet": "Hata açılırken cüzdan",
   "error_when_creating_wallet": "Hatalı cüzdan oluşturulurken",
+  "wrong_password": "Yanlış parola",
   "password_not_match": "Parola eşleşmiyor",
   "add_a_wallet": "Bir cüzdan ekle",
   "create_new_wallet": "Yeni cüzdan oluştur",

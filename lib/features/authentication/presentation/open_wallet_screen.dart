@@ -115,9 +115,15 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
           .openWallet(name, password);
     } catch (e) {
       talker.critical('Opening wallet failed: $e');
-      ref
-          .read(snackBarMessengerProvider.notifier)
-          .showError(loc.error_when_opening_wallet);
+      if (e.toString().contains('Invalid password')) {
+        ref
+            .read(snackBarMessengerProvider.notifier)
+            .showError(loc.wrong_password);
+      } else {
+        ref
+            .read(snackBarMessengerProvider.notifier)
+            .showError(loc.error_when_opening_wallet);
+      }
       if (mounted) {
         // Dismiss TableGenerationProgressDialog if error occurs
         context.pop();

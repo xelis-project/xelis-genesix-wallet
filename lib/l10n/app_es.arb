@@ -11,6 +11,7 @@
   "invalid_wallet_folder": "Carpeta de billetera no válida",
   "error_when_opening_wallet": "Error al abrir la cartera",
   "error_when_creating_wallet": "Error al crear la billetera",
+  "wrong_password": "Contraseña incorrecta",
   "password_not_match": "la contraseña no coincide",
   "add_a_wallet": "Agregar una billetera",
   "create_new_wallet": "Crear una nueva billetera",
