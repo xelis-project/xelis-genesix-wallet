@@ -50,6 +50,23 @@ class CreateWalletRoute extends GoRouteData {
   }
 }
 
+@TypedGoRoute<RecoverWalletRoute>(
+    name: 'recover_wallet', path: '/recover_wallet')
+class RecoverWalletRoute extends GoRouteData {
+  const RecoverWalletRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      const CreateWalletScreen(isFromSeed: true),
+      state.pageKey,
+      state.fullPath,
+      state.extra,
+      AppDurations.animFast,
+    );
+  }
+}
+
 @TypedGoRoute<ChangePasswordRoute>(
     name: 'change_password', path: '/change_password')
 class ChangePasswordRoute extends GoRouteData {

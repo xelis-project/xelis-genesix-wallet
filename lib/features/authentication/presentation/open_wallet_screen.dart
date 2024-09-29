@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/authentication/presentation/components/add_wallet_modal_bottom_sheet.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
@@ -24,7 +25,7 @@ class OpenWalletScreen extends ConsumerStatefulWidget {
 }
 
 class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
-  void _showTableGenerationProgressDialog(BuildContext context) {
+  void _showTableGenerationProgressDialog() {
     showDialog<void>(
       barrierDismissible: false,
       context: context,
@@ -32,13 +33,79 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
     );
   }
 
-  void _openWallet(String name, String password) async {
+  Future<void> _showAddWalletModalBottomSheetMenu() async {
+    final importedWalletData =
+        await showModalBottomSheet<({String path, String walletName})?>(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.black87,
+            builder: (context) {
+              return const AddWalletModalBottomSheetMenu();
+            });
+
+    // only used for desktop wallet import
+    if (importedWalletData != null) {
+      final password = await _getPassword();
+      if (password != null) {
+        _openImportedWallet(
+            importedWalletData.path, importedWalletData.walletName, password);
+      }
+    }
+  }
+
+  Future<void> _openImportedWallet(
+      String path, String walletName, String password) async {
+    final loc = ref.read(appLocalizationsProvider);
     try {
       if (!await ref
               .read(authenticationProvider.notifier)
               .isPrecomputedTablesExists() &&
           mounted) {
-        _showTableGenerationProgressDialog(context);
+        _showTableGenerationProgressDialog();
+      } else {
+        context.loaderOverlay.show();
+      }
+
+      await ref
+          .read(authenticationProvider.notifier)
+          .openImportedWallet(path, walletName, password);
+    } catch (e) {
+      talker.critical('Opening wallet failed: $e');
+      ref
+          .read(snackBarMessengerProvider.notifier)
+          .showError(loc.error_when_opening_wallet);
+      if (mounted) {
+        // Dismiss TableGenerationProgressDialog if error occurs
+        context.pop();
+      }
+    }
+
+    if (mounted && context.loaderOverlay.visible) {
+      context.loaderOverlay.hide();
+    }
+  }
+
+  Future<String?> _getPassword() async {
+    return showDialog<String>(
+      context: context,
+      builder: (context) {
+        return PasswordDialog(
+          onEnter: (password) {
+            context.pop(password);
+          },
+        );
+      },
+    );
+  }
+
+  void _openWallet(String name, String password) async {
+    final loc = ref.read(appLocalizationsProvider);
+    try {
+      if (!await ref
+              .read(authenticationProvider.notifier)
+              .isPrecomputedTablesExists() &&
+          mounted) {
+        _showTableGenerationProgressDialog();
       } else {
         context.loaderOverlay.show();
       }
@@ -50,7 +117,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
       talker.critical('Opening wallet failed: $e');
       ref
           .read(snackBarMessengerProvider.notifier)
-          .showError('Error when opening wallet');
+          .showError(loc.error_when_opening_wallet);
       if (mounted) {
         // Dismiss TableGenerationProgressDialog if error occurs
         context.pop();
@@ -74,10 +141,25 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                loc.your_wallets,
-                style: context.headlineMedium!
-                    .copyWith(fontWeight: FontWeight.w500),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    loc.your_wallets,
+                    style: context.headlineMedium,
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      context.push(AppScreen.settings.toPath);
+                    },
+                    icon: Icon(
+                      Icons.settings,
+                      color: context.moreColors.mutedColor,
+                      size: 30,
+                    ),
+                    tooltip: loc.settings,
+                  )
+                ],
               ),
               const SizedBox(height: Spaces.small),
               Expanded(
@@ -100,7 +182,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                             );
                           },
                           children: <Widget>[
-                            for (var name in wallets.keys)
+                            for (final name in wallets.keys)
                               Material(
                                 color: Colors.transparent,
                                 key: Key(name),
@@ -182,34 +264,21 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
               ),
               const SizedBox(height: Spaces.large),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Flexible(
-                    child: TextButton.icon(
-                      onPressed: () {
-                        context.push(AppScreen.createWallet.toPath);
-                      },
-                      icon: const Icon(Icons.wallet),
-                      label: Text(
-                        loc.create_new_wallet,
-                        style: context.titleMedium!
-                            .copyWith(color: context.colors.onPrimary),
-                        overflow: TextOverflow.ellipsis,
-                        softWrap: false,
-                      ),
+                  IconButton.filled(
+                    onPressed: () => _showAddWalletModalBottomSheetMenu(),
+                    icon: Icon(
+                      Icons.add_rounded,
+                      size: 30,
+                      color: context.colors.onPrimary,
                     ),
                   ),
-                  const SizedBox(width: Spaces.large),
-                  IconButton.filled(
-                    onPressed: () {
-                      context.push(AppScreen.settings.toPath);
-                    },
-                    icon: const Icon(
-                      Icons.settings_applications,
-                    ),
-                  )
+                  const SizedBox(width: Spaces.small),
+                  Text(loc.add_a_wallet,
+                      style: context.bodyLarge!
+                          .copyWith(color: context.moreColors.mutedColor)),
                 ],
-              )
+              ),
             ],
           ),
         ),

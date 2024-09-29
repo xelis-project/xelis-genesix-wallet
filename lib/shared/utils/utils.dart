@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'package:genesix/features/wallet/domain/address.dart';
 import 'package:genesix/rust_bridge/api/network.dart';
@@ -47,6 +48,21 @@ Future<String> getWalletPath(Network network, String name) async {
   var walletsDir = await getAppWalletsDirPath();
   var path = p.join(walletsDir, network.name, name);
   return path;
+}
+
+Future<bool> isWalletFolderValid(String path) async {
+  if (await File('$path/db').exists() &&
+      await File('$path/conf').exists() &&
+      await Directory('$path/blobs').exists()) {
+    return true;
+  }
+  return false;
+}
+
+Future<bool> isWalletAlreadyExists(String path, Network network) async {
+  final walletName = path.split(p.separator).last;
+  final walletsDir = await getAppWalletsDirPath();
+  return Directory(p.join(walletsDir, network.name, walletName)).exists();
 }
 
 String truncateText(String text, {int maxLength = 8}) {

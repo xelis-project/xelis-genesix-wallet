@@ -124,7 +124,6 @@ class Wallets extends _$Wallets {
             !key.endsWith("ordering.json")) {
           var name = p.basename(key);
 
-          // talker.info(name);
           var addr = await _getWalletAddress(name);
           wallets[name] = addr;
         }

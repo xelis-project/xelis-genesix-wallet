@@ -1,7 +1,3 @@
-import 'dart:async';
-import 'dart:io';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,7 +17,9 @@ import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
 import 'package:genesix/shared/widgets/components/password_textfield_widget.dart';
 
 class CreateWalletScreen extends ConsumerStatefulWidget {
-  const CreateWalletScreen({super.key});
+  const CreateWalletScreen({super.key, this.isFromSeed = false});
+
+  final bool isFromSeed;
 
   @override
   ConsumerState createState() => _CreateWalletWidgetState();
@@ -31,26 +29,12 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
   final _createFormKey =
       GlobalKey<FormBuilderState>(debugLabel: '_createFormKey');
 
-  bool _seedRequired = false;
-
   void _showTableGenerationProgressDialog(BuildContext context) {
     showDialog<void>(
       barrierDismissible: false,
       context: context,
       builder: (_) => const TableGenerationProgressDialog(),
     );
-  }
-
-  Future<void> _loadSeedFromFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-
-    if (result != null) {
-      File file = File(result.files.single.path!);
-      var seed = await file.readAsString();
-      _createFormKey.currentState?.patchValue({
-        'seed': seed,
-      });
-    }
   }
 
   void _createWallet() async {
@@ -84,13 +68,14 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
             context.loaderOverlay.show();
           }
 
-          await ref.read(authenticationProvider.notifier).createWallet(
-              walletName, password, _seedRequired ? createSeed : null);
+          await ref
+              .read(authenticationProvider.notifier)
+              .createWallet(walletName, password, createSeed);
         } catch (e) {
           talker.critical('Creating wallet failed: $e');
           ref
               .read(snackBarMessengerProvider.notifier)
-              .showError('Error when creating wallet');
+              .showError(loc.error_when_creating_wallet);
           if (mounted) {
             // Dismiss TableGenerationProgressDialog if error occurs
             context.pop();
@@ -111,7 +96,10 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
 
     return Background(
       child: Scaffold(
-        appBar: GenericAppBar(title: loc.create_new_wallet),
+        appBar: GenericAppBar(
+            title: widget.isFromSeed
+                ? loc.recover_from_mnemonic_phrase
+                : loc.create_new_wallet),
         body: FormBuilder(
           key: _createFormKey,
           onChanged: () => _createFormKey.currentState!.save(),
@@ -119,73 +107,39 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
             padding: const EdgeInsets.fromLTRB(
                 Spaces.large, 0, Spaces.large, Spaces.large),
             children: [
-              FormBuilderSwitch(
-                name: 'seed_switch',
-                initialValue: _seedRequired,
-                inactiveThumbColor: context.moreColors.mutedColor,
-                title: Text(loc.create_from_seed, style: context.bodyLarge),
-                onChanged: (value) {
-                  setState(() {
-                    _seedRequired = value!;
-                  });
-                },
-              ),
-              const SizedBox(height: Spaces.small),
-              const Divider(),
-              Visibility(
-                visible: _seedRequired,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      constraints: const BoxConstraints(maxHeight: 150),
-                      child: FormBuilderTextField(
-                        name: 'seed',
-                        style: context.bodyLarge,
-                        maxLines: null,
-                        minLines: 5,
-                        autocorrect: false,
-                        keyboardType: TextInputType.multiline,
-                        decoration: InputDecoration(
-                          labelText: loc.seed,
-                          alignLabelWithHint: true,
-                        ),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(),
-                          FormBuilderValidators.minWordsCount(
-                            24,
-                            // errorText: loc.invalid_seed,
-                            errorText:
-                                '${loc.seed_error_not_enough_words} (⩾24)',
-                          ),
-                          FormBuilderValidators.maxWordsCount(
-                            25,
-                            // errorText: loc.invalid_seed,
-                            errorText: '${loc.seed_error_too_many_words} (⩽25)',
-                          ),
-                        ]),
-                      ),
+              if (widget.isFromSeed) ...[
+                Text(loc.seed, style: context.bodyLarge),
+                const SizedBox(height: Spaces.small),
+                Container(
+                  constraints: const BoxConstraints(maxHeight: 150),
+                  child: FormBuilderTextField(
+                    name: 'seed',
+                    style: context.bodyLarge,
+                    maxLines: null,
+                    minLines: 5,
+                    autocorrect: false,
+                    keyboardType: TextInputType.multiline,
+                    decoration: InputDecoration(
+                      labelText: loc.paste_your_seed,
+                      alignLabelWithHint: true,
                     ),
-                    const SizedBox(height: Spaces.small),
-                    TextButton.icon(
-                      onPressed: () {
-                        _loadSeedFromFile();
-                      },
-                      icon: const Icon(
-                        Icons.file_open_outlined,
-                        size: 18,
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(),
+                      FormBuilderValidators.minWordsCount(
+                        24,
+                        // errorText: loc.invalid_seed,
+                        errorText: '${loc.seed_error_not_enough_words} (⩾24)',
                       ),
-                      label: Text(
-                        loc.load_from_file,
-                        style: context.titleMedium!.copyWith(
-                            color: context.colors.onPrimary, fontSize: 14),
+                      FormBuilderValidators.maxWordsCount(
+                        25,
+                        // errorText: loc.invalid_seed,
+                        errorText: '${loc.seed_error_too_many_words} (⩽25)',
                       ),
-                    ),
-                    const Divider(),
-                  ],
+                    ]),
+                  ),
                 ),
-              ),
-              const SizedBox(height: Spaces.small),
+                const SizedBox(height: Spaces.large),
+              ],
               Text(loc.wallet_name, style: context.bodyLarge),
               const SizedBox(height: Spaces.small),
               FormBuilderTextField(
@@ -193,7 +147,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                 style: context.bodyLarge,
                 autocorrect: false,
                 decoration: InputDecoration(
-                  labelText: loc.wallet_name,
+                  labelText: loc.set_a_wallet_name,
                 ),
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
@@ -208,7 +162,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                   },
                 ]),
               ),
-              const SizedBox(height: Spaces.small),
+              const SizedBox(height: Spaces.large),
               Text(loc.password, style: context.bodyLarge),
               const SizedBox(height: Spaces.small),
               PasswordTextField(
@@ -217,12 +171,12 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                   style: context.bodyLarge,
                   autocorrect: false,
                   decoration: InputDecoration(
-                    labelText: loc.password,
+                    labelText: loc.choose_strong_password,
                   ),
                   validator: FormBuilderValidators.required(),
                 ),
               ),
-              const SizedBox(height: Spaces.small),
+              const SizedBox(height: Spaces.large),
               Text(loc.confirm_password, style: context.bodyLarge),
               const SizedBox(height: Spaces.small),
               PasswordTextField(
@@ -231,19 +185,19 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                   style: context.bodyLarge,
                   autocorrect: false,
                   decoration: InputDecoration(
-                    labelText: loc.confirm_password,
+                    labelText: loc.confirm_your_password,
                   ),
                   validator: FormBuilderValidators.required(),
                 ),
               ),
-              const SizedBox(height: Spaces.medium),
+              const SizedBox(height: Spaces.large),
               TextButton.icon(
                 onPressed: () {
                   _createWallet();
                 },
                 icon: const Icon(Icons.wallet),
                 label: Text(
-                  loc.create,
+                  widget.isFromSeed ? loc.recover_button : loc.create_button,
                   style: context.titleMedium!
                       .copyWith(color: context.colors.onPrimary),
                 ),
