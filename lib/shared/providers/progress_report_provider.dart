@@ -19,12 +19,13 @@ Raw<Stream<Report_TableGeneration>> tableGenerationProgress(
     // TODO
     // case AsyncValue(:final error?):
     //   {}
-    case AsyncValue(valueOrNull: final value?):
+    case AsyncValue(valueOrNull: final value):
       {
         switch (value) {
           case Report_TableGeneration():
             yield value;
           case Report_Misc():
+          case null:
         }
       }
   }
