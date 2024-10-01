@@ -187,5 +187,9 @@
   "seed_error_too_many_words": "Terlalu banyak kata",
   "burn_transfer_warning_message": "Membuka burn transfer akan memungkinkan anda menghantar dana ke alamat pembakaran. Tindakan ini tidak boleh dibatalkan dan dana itu akan hilang selamanya.",
   "do_you_want_to_activate_burn_transfer": "Adakah anda yakin ingin membuka transfer burn?",
-  "burn_transfer_unlock": "Membuka transfer burn telah dilakukan."
+  "burn_transfer_unlock": "Membuka transfer burn telah dilakukan.",
+  "export_csv_tooltip": "Ekspor CSV",
+  "csv_exported_successfully": "CSV telah dieksport dengan berjaya",
+  "no_transactions_to_export": "Tidak ada transaksi untuk dieksportir",
+  "error_exporting_csv": "Kesalahan mengekspor CSV"
 }

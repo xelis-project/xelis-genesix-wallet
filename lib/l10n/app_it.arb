@@ -187,5 +187,9 @@
   "seed_error_too_many_words": "Troppe parole",
   "burn_transfer_warning_message": "L'attivazione del trasferimento di bruciamento le permetterà di inviare fondi a un indirizzo di distruzione permanente, senza possibilità di recupero. Questa operazione è irreversibile e i fondi saranno persi per sempre.",
   "do_you_want_to_activate_burn_transfer": "Sei sicuro di voler attivare il trasferimento di bruciamento?",
-  "burn_transfer_unlock": "Il trasferimento di bruciamento è stato attivato."
+  "burn_transfer_unlock": "Il trasferimento di bruciamento è stato attivato.",
+  "export_csv_tooltip": "Esportare CSV",
+  "csv_exported_successfully": "Il CSV è stato esportato con successo",
+  "no_transactions_to_export": "Nessuna transazione da esportare",
+  "error_exporting_csv": "Errore durante l'esportazione di CSV"
 }

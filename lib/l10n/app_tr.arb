@@ -187,5 +187,9 @@
   "seed_error_too_many_words": "Çok fazla kelime",
   "burn_transfer_warning_message": "Yakan transferi unlock edilecek olursa, size yakan adresine para gönderme yetkisi verecektir. Para kaybolacak ve asla geri alınamayacak.",
   "do_you_want_to_activate_burn_transfer": "Yakan transferi unlock etmek istiyor musunuz?",
-  "burn_transfer_unlock": "Yakan transferi aktif hale getirildi."
+  "burn_transfer_unlock": "Yakan transferi aktif hale getirildi.",
+  "export_csv_tooltip": "CSV dışa aktar",
+  "csv_exported_successfully": "CSV başarıyla dışa aktarılmıştır",
+  "no_transactions_to_export": "İçerişten işlem bulunmamaktadır",
+  "error_exporting_csv": "CSV dışa aktarma hatası"
 }

@@ -187,5 +187,9 @@
   "seed_error_too_many_words": "Trop de mots",
   "burn_transfer_warning_message": "L'activation du transfert de type Burn vous permettra d'envoyer des fonds à une adresse de destruction permanente, sans possibilité de récupération. Ce processus est irreversible et les fonds seront perdus définitivement.",
   "do_you_want_to_activate_burn_transfer": "Êtes-vous sûr de vouloir activer le transfert de type Burn ?",
-  "burn_transfer_unlock": "Le transfert de type Burn est désormais activé."
+  "burn_transfer_unlock": "Le transfert de type Burn est désormais activé.",
+  "export_csv_tooltip": "Exporter CSV",
+  "csv_exported_successfully": "CSV exporté avec succès",
+  "no_transactions_to_export": "Aucune transaction à exporter",
+  "error_exporting_csv": "Erreur lors de l'exportation du CSV"
 }

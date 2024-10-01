@@ -179,6 +179,10 @@ class NativeWalletRepository {
     return sdk.GetInfoResult.fromJson(json as Map<String, dynamic>);
   }
 
+  Future<void> exportTransactionsInCSV(String path) async {
+    await _xelisWallet.extractTransactionsInCsv(filePath: path);
+  }
+
   Stream<Event> convertRawEvents() async* {
     final rawEventStream = _xelisWallet.eventsStream();
 

@@ -187,5 +187,9 @@
   "seed_error_too_many_words": "単語が多すぎる。",
   "burn_transfer_warning_message": "バーントランザクションをアンロックすると、資金をバーンアドレスに送信できます。資金は永遠に失われます。",
   "do_you_want_to_activate_burn_transfer": "本当に、バーン トランザクションをアンロックすることにしたいのですか？",
-  "burn_transfer_unlock": "バーン トランザクションをアンロックしました。"
+  "burn_transfer_unlock": "バーン トランザクションをアンロックしました。",
+  "export_csv_tooltip": "CSV をエクスポートする",
+  "csv_exported_successfully": "CSVが正常にエクスポートされました",
+  "no_transactions_to_export": "エクスポートするトランザクションはありません",
+  "error_exporting_csv": "CSV エクスポート中にエラー"
 }

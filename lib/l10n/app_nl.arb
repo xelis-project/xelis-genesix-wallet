@@ -187,5 +187,9 @@
   "seed_error_too_many_words": "Te veel woorden",
   "burn_transfer_warning_message": "De uitvoeren van brandtransfers zal u in staat stellen om geld naar een brandadres te sturen, waarna het definitief verloren is gegaan.",
   "do_you_want_to_activate_burn_transfer": "Bent u zeker dat u de uitvoering van brandtransfers wilt starten?",
-  "burn_transfer_unlock": "De brandtransfers is geactiveerd."
+  "burn_transfer_unlock": "De brandtransfers is geactiveerd.",
+  "export_csv_tooltip": "Exporteer CSV",
+  "csv_exported_successfully": "CSV is succesvol geëxporteerd",
+  "no_transactions_to_export": "Geen transacties om te exporteren",
+  "error_exporting_csv": "Fout bij het exporteren van CSV"
 }

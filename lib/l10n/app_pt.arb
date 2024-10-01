@@ -187,5 +187,9 @@
   "seed_error_too_many_words": "Muitas palavras",
   "burn_transfer_warning_message": "A ativação de transferência de queima permitirá-lhe enviar fundos para uma direção de destruição permanente, sem possibilidade de recuperação. Esta ação é irreversível e os fundos serão perdidos para sempre.",
   "do_you_want_to_activate_burn_transfer": "Está seguro que deseja ativar a transferência de queima ?",
-  "burn_transfer_unlock": "A transferência de queima foi ativada."
+  "burn_transfer_unlock": "A transferência de queima foi ativada.",
+  "export_csv_tooltip": "Exportar CSV",
+  "csv_exported_successfully": "O CSV foi exportado com sucesso",
+  "no_transactions_to_export": "Nenhuma transação para exportar",
+  "error_exporting_csv": "Erro ao exportar CSV"
 }

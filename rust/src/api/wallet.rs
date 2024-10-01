@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 use std::fmt::Debug;
+use std::fs::File;
+use std::path::Path;
 use std::sync::Arc;
 
 use anyhow::{anyhow, bail, Context, Result};
@@ -579,6 +581,21 @@ impl XelisWallet {
         };
 
         Ok(format_coin(atomic_amount, decimals))
+    }
+
+    // Export transactions to a CSV file
+    pub async fn extract_transactions_in_csv(&self, file_path: String) -> Result<()> {
+        let path = Path::new(&file_path);
+        let storage = self.wallet.get_storage().read().await;
+        let transactions = storage.get_transactions()?;
+        if transactions.is_empty() {
+            return Err(anyhow!("No transactions to export"));
+        }
+        let mut file = File::create(&path).context("Error while creating CSV file")?;
+        self.wallet
+            .export_transactions_in_csv(transactions, &mut file)
+            .context("Error while exporting transactions to CSV")?;
+        Ok(())
     }
 
     // Private method to create TransactionTypeBuilder from transfers

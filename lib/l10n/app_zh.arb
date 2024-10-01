@@ -187,5 +187,9 @@
   "seed_error_too_many_words": "词语过多",
   "burn_transfer_warning_message": "解锁烧毁转移将使您能够发送资金到烧毁地址。资金将永远丢失，无法恢复。",
   "do_you_want_to_activate_burn_transfer": "确定要解锁烧毁转移吗？",
-  "burn_transfer_unlock": "烧毁转移已解锁。"
+  "burn_transfer_unlock": "烧毁转移已解锁。",
+  "export_csv_tooltip": "导出 CSV",
+  "csv_exported_successfully": "CSV文件已成功导出",
+  "no_transactions_to_export": "没有交易可导出",
+  "error_exporting_csv": "导出 CSV 时出错"
 }

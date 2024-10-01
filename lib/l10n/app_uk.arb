@@ -187,5 +187,9 @@
   "seed_error_too_many_words": "Занадто багато слів",
   "burn_transfer_warning_message": "Активація знищення-перерахування дозволить вам відправляти кошти на адресу знищення. Кошти будуть втрачені назавжди.",
   "do_you_want_to_activate_burn_transfer": "Вже впевнений, що хочете активацію знищення-перерахування?",
-  "burn_transfer_unlock": "Знищення-перерахування було активаційне."
+  "burn_transfer_unlock": "Знищення-перерахування було активаційне.",
+  "export_csv_tooltip": "Експортувати CSV",
+  "csv_exported_successfully": "CSV успішно експортовано",
+  "no_transactions_to_export": "Немає операцій для експорту",
+  "error_exporting_csv": "Помилка під час експорту CSV"
 }

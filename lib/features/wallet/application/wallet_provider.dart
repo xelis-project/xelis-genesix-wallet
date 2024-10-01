@@ -188,6 +188,13 @@ class WalletState extends _$WalletState {
     return BigInt.zero;
   }
 
+  Future<void> exportCsv(String path) async {
+    if (state.nativeWalletRepository != null) {
+      return state.nativeWalletRepository!
+          .exportTransactionsInCSV('$path/genesix_transactions.csv');
+    }
+  }
+
   // Handle incoming events
   Future<void> _onEvent(Event event) async {
     final loc = ref.read(appLocalizationsProvider);

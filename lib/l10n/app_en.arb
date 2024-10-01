@@ -187,5 +187,9 @@
   "seed_error_too_many_words": "Too many words",
   "burn_transfer_warning_message": "Unlocking burn transfer will allow you to send funds to a burn address. This action is irreversible and the funds will be lost forever.",
   "do_you_want_to_activate_burn_transfer": "Are you sure you want to unlock burn transfer?",
-  "burn_transfer_unlock": "Burn transfer unlocked."
+  "burn_transfer_unlock": "Burn transfer unlocked.",
+  "export_csv_tooltip": "Export CSV",
+  "csv_exported_successfully": "CSV successfully exported",
+  "no_transactions_to_export": "No transactions to export",
+  "error_exporting_csv": "Error exporting CSV"
 }

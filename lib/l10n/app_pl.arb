@@ -187,5 +187,9 @@
   "seed_error_too_many_words": "Zbyt wiele słów",
   "burn_transfer_warning_message": "Włączenie przekazu na palenie pozwoli Ci wysłać fundusze do adresu na zniszczenie trwałe, bez możliwości odzyskania. Ta operacja jest nieodwracalna i fundusze będą utracone na zawsze.",
   "do_you_want_to_activate_burn_transfer": "Czy jesteś pewien, że chcesz włączyć przekaz na palenie?",
-  "burn_transfer_unlock": "Przekaz na palenie został włączony."
+  "burn_transfer_unlock": "Przekaz na palenie został włączony.",
+  "export_csv_tooltip": "Eksportuj CSV",
+  "csv_exported_successfully": "CSV został pomyślnie wyeksportowany",
+  "no_transactions_to_export": "Nie ma transakcji do eksportu",
+  "error_exporting_csv": "Błąd podczas eksportowania CSV"
 }
