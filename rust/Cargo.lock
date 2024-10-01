@@ -616,9 +616,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.1.22"
+version = "1.1.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9540e661f81799159abee814118cc139a2004b3a3aa3ea37724a1b66530b90e0"
+checksum = "812acba72f0a070b003d3697490d2b55b837230ae7c6c6497f05cc2ddbb8d938"
 dependencies = [
  "jobserver",
  "libc",
@@ -1261,9 +1261,9 @@ dependencies = [
 
 [[package]]
 name = "httparse"
-version = "1.9.4"
+version = "1.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0fcc0b4a115bf80b728eb8ea024ad5bd707b615bfed49e0665b6e0f86fd082d9"
+checksum = "7d71d3574edd2771538b901e6549113b4006ece66150fb69c0fb6d9a2adae946"
 
 [[package]]
 name = "httpdate"
@@ -1696,7 +1696,7 @@ checksum = "1e401f977ab385c9e4e3ab30627d6f26d00e2c73eef317493c4ec6d468726cf8"
 dependencies = [
  "cfg-if",
  "libc",
- "redox_syscall 0.5.6",
+ "redox_syscall 0.5.7",
  "smallvec",
  "windows-targets 0.52.6",
 ]
@@ -1860,9 +1860,9 @@ dependencies = [
 
 [[package]]
 name = "redox_syscall"
-version = "0.5.6"
+version = "0.5.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "355ae415ccd3a04315d3f8246e86d67689ea74d88d915576e1589a351062a13b"
+checksum = "9b6dfecf2c74bce2466cabf93f6664d6998a69eb21e39f4207930065b27b771f"
 dependencies = [
  "bitflags 2.6.0",
 ]
@@ -2939,8 +2939,8 @@ dependencies = [
 
 [[package]]
 name = "xelis_common"
-version = "1.14.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#ab34c7510e1bb578b34c811c34bf9cf5e2dfcd04"
+version = "1.15.0"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#73d45e6e65bda5312da2e79f65b9c0192ee35a07"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -2979,8 +2979,8 @@ dependencies = [
 
 [[package]]
 name = "xelis_wallet"
-version = "1.14.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#ab34c7510e1bb578b34c811c34bf9cf5e2dfcd04"
+version = "1.15.0"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#73d45e6e65bda5312da2e79f65b9c0192ee35a07"
 dependencies = [
  "actix",
  "actix-web",
