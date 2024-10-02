@@ -87,6 +87,7 @@
   "seed_warning_message_3": "Simpan di tempat yang selamat. Anda boleh menulisnya di sehelai kertas.",
   "seed_warning_message_4": "Ya, saya telah menyimpan biji saya.",
   "table_generation_message_1": "Ini adalah proses satu kali untuk mencipta jadual data yang membolehkan dompet menyulitkan baki anda secara langsung.",
+  "table_generation_message_web": "Mencipta jadual data yang membolehkan dompet untuk menyandikan baki anda dengan serta merta",
   "information": "Maklumat",
   "network": "Rangkaian",
   "node_type": "Jenis Nod",

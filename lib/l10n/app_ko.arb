@@ -87,6 +87,7 @@
   "seed_warning_message_3": "안전한 곳에 저장하세요. 종이에 적어두어도 됩니다.",
   "seed_warning_message_4": "예, 씨앗을 저장했습니다.",
   "table_generation_message_1": "이는 일회성 프로세스로, 지갑에서 잔액을 즉시 해독할 수 있는 데이터 테이블을 생성합니다.",
+  "table_generation_message_web": "지갑이 즉시 잔액을 복호화할 수 있도록 데이터 테이블을 만듭니다",
   "information": "정보",
   "network": "네트워크",
   "node_type": "노드 유형",

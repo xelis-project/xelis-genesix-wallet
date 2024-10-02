@@ -87,6 +87,7 @@
   "seed_warning_message_3": "安全な場所に保存してください。紙に書くこともできます。",
   "seed_warning_message_4": "はい、シードを保存しました。",
   "table_generation_message_1": "これは一度だけの処理で、ウォレットが即座に残高を解読できるようにデータテーブルを作成します。",
+  "table_generation_message_web": "ウォレットが即座にあなたの残高を復号化できるようにするデータテーブルの作成",
   "information": "情報",
   "network": "ネットワーク",
   "node_type": "ノードタイプ",

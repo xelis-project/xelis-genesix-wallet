@@ -87,6 +87,7 @@
   "seed_warning_message_3": "Bewaar het op een veilige plek. Je kunt het opschrijven op een stuk papier.",
   "seed_warning_message_4": "Ja, ik heb mijn seed bewaard.",
   "table_generation_message_1": "Dit is een eenmalig proces waarbij een gegevenstabel wordt aangemaakt waarmee de portemonnee je saldo direct kan ontsleutelen.",
+  "table_generation_message_web": "Creëren van een gegevenstabel waarmee de portemonnee uw saldo kan ontsleutelen",
   "information": "Informatie",
   "network": "Netwerk",
   "node_type": "Node Type",

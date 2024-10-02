@@ -87,6 +87,7 @@
   "seed_warning_message_3": "Save it somewhere safe. You can write it down on a piece of paper.",
   "seed_warning_message_4": "Yes, I have saved my seed.",
   "table_generation_message_1": "This is a one-time process, creating a data table that enables the wallet to decrypt your balance instantly.",
+  "table_generation_message_web": "Creating a data table that enables the wallet to decrypt your balance instantly.",
   "information": "Information",
   "network": "Network",
   "node_type": "Node Type",

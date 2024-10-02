@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -65,7 +66,9 @@ class TableGenerationProgressDialog extends ConsumerWidget {
                         ),
                         const SizedBox(height: Spaces.small),
                         Text(
-                          loc.table_generation_message_1,
+                          kIsWeb
+                              ? loc.table_generation_message_web
+                              : loc.table_generation_message_1,
                           style: context.bodyMedium
                               ?.copyWith(color: context.colors.primary),
                         ),

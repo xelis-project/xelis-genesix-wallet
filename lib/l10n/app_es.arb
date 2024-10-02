@@ -87,6 +87,7 @@
   "seed_warning_message_3": "Guárdala en un lugar seguro. Puedes escribirla en un papel.",
   "seed_warning_message_4": "Sí, he guardado mi semilla.",
   "table_generation_message_1": "Este proceso se realiza solo una vez y crea una tabla de datos que permite a la billetera descifrar tu saldo al instante.",
+  "table_generation_message_web": "Creación de una tabla de datos que permite a la billetera descifrar su saldo instantáneamente",
   "information": "Información",
   "network": "Red",
   "node_type": "Tipo de nodo",

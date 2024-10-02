@@ -87,6 +87,7 @@
   "seed_warning_message_3": "Bewahren Sie ihn an einem sicheren Ort auf. Sie können ihn auf ein Blatt Papier schreiben.",
   "seed_warning_message_4": "Ja, ich habe meinen Seed gespeichert.",
   "table_generation_message_1": "Dies ist ein einmaliger Vorgang, bei dem eine Datentabelle erstellt wird, die es dem Wallet ermöglicht, Ihr Guthaben sofort zu entschlüsseln.",
+  "table_generation_message_web": "Erstellung einer Datentabelle, die es dem Wallet ermöglicht, Ihren Kontostand sofort zu entschlüsseln",
   "information": "Informationen",
   "network": "Netzwerk",
   "node_type": "Knoten-Typ",

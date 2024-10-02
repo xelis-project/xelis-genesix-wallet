@@ -87,6 +87,7 @@
   "seed_warning_message_3": "Conservatelo in un posto sicuro. Potete scriverlo su un foglio di carta.",
   "seed_warning_message_4": "Sì, ho conservato il seme.",
   "table_generation_message_1": "Si tratta di un processo che crea una tabella di dati che consente al portafoglio di decifrare istantaneamente il saldo.",
+  "table_generation_message_web": "Creazione di una tabella dati che consente al portafoglio di decifrare il saldo in modo istantaneo",
   "information": "Informazioni",
   "network": "Rete",
   "node_type": "Tipo di nodo",

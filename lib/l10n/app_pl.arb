@@ -87,6 +87,7 @@
   "seed_warning_message_3": "Zapisz go w bezpiecznym miejscu. Możesz go zapisać na kartce papieru.",
   "seed_warning_message_4": "Tak, zapisałem swoje seed.",
   "table_generation_message_1": "To jest jednorazowy proces generowania tabeli danych, który umożliwia portfelowi natychmiastowe odszyfrowanie salda.",
+  "table_generation_message_web": "Tworzenie tabeli danych, która umożliwia portfelowi natychmiastowe odszyfrowanie salda",
   "information": "Informacje",
   "network": "Sieć",
   "node_type": "Typ węzła",

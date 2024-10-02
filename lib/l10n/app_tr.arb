@@ -87,6 +87,7 @@
   "seed_warning_message_3": "Güvenli bir yere kaydedin. Bir kağıda yazabilirsiniz.",
   "seed_warning_message_4": "Evet, tohumlarımı sakladım.",
   "table_generation_message_1": "Bu tek seferlik bir işlemdir ve cüzdanın bakiyenizin şifresini anında çözmesini sağlayan bir veri tablosu oluşturur.",
+  "table_generation_message_web": "Cüzdanın anında bakiyenizi şifrelemeyi sağlayan bir veri tablosunun oluşturulması",
   "information": "Bilgi",
   "network": "Ağ",
   "node_type": "Düğüm Türü",

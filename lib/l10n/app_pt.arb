@@ -87,6 +87,7 @@
   "seed_warning_message_3": "Guarde-a num lugar seguro. Pode escrevê-lo numa folha de papel.",
   "seed_warning_message_4": "Sim, guardei a minha semente.",
   "table_generation_message_1": "Este é um processo único, que cria uma tabela de dados que permite à carteira desencriptar o seu saldo instantaneamente.",
+  "table_generation_message_web": "Criação de uma tabela de dados que permite à carteira descriptografar o saldo instantaneamente",
   "information": "Informações",
   "network": "Rede",
   "node_type": "Tipo de nó",

@@ -87,6 +87,7 @@
   "seed_warning_message_3": "请将其保存在安全的地方。您可以将其写在纸上。",
   "seed_warning_message_4": "是的，我已经保存了我的种子。",
   "table_generation_message_1": "这是一个一次性过程，创建一个数据表，使钱包能够立即解密您的余额。",
+  "table_generation_message_web": "创建一个数据表，使钱包能够立即解密您的余额。",
   "information": "信息",
   "network": "网络",
   "node_type": "节点类型",

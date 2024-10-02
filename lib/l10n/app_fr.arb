@@ -87,6 +87,7 @@
   "seed_warning_message_3": "Conservez-la dans un endroit sûr. Vous pouvez l'écrire sur une feuille de papier.",
   "seed_warning_message_4": "Oui, j'ai sauvegardé ma graine.",
   "table_generation_message_1": "Il s'agit d'un processus à effectuer une seule fois, qui crée une table de données permettant au portefeuille de décrypter votre solde instantanément.",
+  "table_generation_message_web": "Création d'une table de données permettant au portefeuille de décrypter votre solde instantanément",
   "information": "Information",
   "network": "Réseau",
   "node_type": "Type de Noeud",
