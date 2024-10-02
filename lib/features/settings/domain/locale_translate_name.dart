@@ -38,6 +38,8 @@ String translateLocaleName(Locale locale) {
       return 'Polski';
     case 'uk':
       return 'українська';
+    case 'ar':
+      return 'العربية';
     default:
       return 'N/A';
   }

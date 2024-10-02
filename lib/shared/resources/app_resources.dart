@@ -183,6 +183,13 @@ class AppResources {
             width: 30,
             shape: const RoundedRectangle(8),
           );
+        case 'ar':
+          return CountryFlag.fromCountryCode(
+            'SA',
+            height: 24,
+            width: 30,
+            shape: const RoundedRectangle(8),
+          );
         default:
           return CountryFlag.fromLanguageCode(
             AppLocalizations.supportedLocales[index].languageCode,
