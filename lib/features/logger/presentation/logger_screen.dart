@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:genesix/features/logger/presentation/logger_view.dart';
 import 'package:genesix/shared/theme/extensions.dart';
-import 'package:genesix/shared/widgets/components/background_widget.dart';
+import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 class LoggerScreen extends StatelessWidget {
@@ -11,8 +11,7 @@ class LoggerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Background(
-        child: Scaffold(
+    return CustomScaffold(
       backgroundColor: Colors.transparent,
       body: LoggerView(
         talker: talker,
@@ -28,6 +27,6 @@ class LoggerScreen extends StatelessWidget {
           },
         ),
       ),
-    ));
+    );
   }
 }

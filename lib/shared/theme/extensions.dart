@@ -51,6 +51,10 @@ extension DisplayUtils on BuildContext {
 
   Size get mediaSize => MediaQuery.sizeOf(this);
 
+  double get mediaWidth => MediaQuery.of(this).size.width;
+
+  double get mediaHeight => MediaQuery.of(this).size.height;
+
   bool get isDarkMode {
     final brightness = mediaQueryData.platformBrightness;
     return brightness == Brightness.dark;
@@ -62,14 +66,17 @@ bool get isMobileDevice => !kIsWeb && (Platform.isIOS || Platform.isAndroid);
 bool get isDesktopDevice =>
     !kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux);
 
-enum ScreenSize { small, normal, large, extraLarge }
+enum ScreenSize { small, normal, large, extraLarge, extraExtraLarge }
 
 extension FormFactorUtils on BuildContext {
   ScreenSize get formFactor {
-    double deviceWidth = MediaQuery.of(this).size.shortestSide;
+    double deviceWidth = MediaQuery.of(this).size.width;
+    if (deviceWidth > 1600) return ScreenSize.extraExtraLarge;
     if (deviceWidth > 900) return ScreenSize.extraLarge;
     if (deviceWidth > 600) return ScreenSize.large;
     if (deviceWidth > 300) return ScreenSize.normal;
     return ScreenSize.small;
   }
+
+  bool get isWideScreen => formFactor == ScreenSize.extraExtraLarge;
 }

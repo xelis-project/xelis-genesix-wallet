@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/logger/logger.dart';
+import 'package:genesix/shared/widgets/components/background_widget.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
 import 'package:genesix/features/router/router.dart';
@@ -66,17 +67,17 @@ class _GenesixState extends ConsumerState<Genesix> with WindowListener {
       supportedLocales: AppLocalizations.supportedLocales,
       builder: (context, child) {
         return AppProvidersInitializer(
-          child: Material(
-            child: SafeArea(
-              child: GlobalBottomLoader(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const NetworkTopWidget(),
-                    Expanded(
-                      child: child!,
-                    ),
-                  ],
+          child: GlobalBottomLoader(
+            child: Material(
+              child: Background(
+                child: SafeArea(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const NetworkTopWidget(),
+                      Flexible(child: child!),
+                    ],
+                  ),
                 ),
               ),
             ),

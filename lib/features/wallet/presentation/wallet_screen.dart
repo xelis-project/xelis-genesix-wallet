@@ -9,8 +9,9 @@ import 'package:genesix/features/wallet/presentation/history_tab/history_tab_wid
 import 'package:genesix/features/wallet/presentation/settings_tab/settings_tab_widget.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/wallet_tab_widget.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
-import 'package:genesix/shared/widgets/components/background_widget.dart';
+import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});
@@ -36,6 +37,28 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
       SettingsTab(),
     ][_currentPageIndex];
 
+    final List<BottomNavigationBarItem> bottomNavigationBarItems = [
+      BottomNavigationBarItem(
+        icon: const Icon(Icons.explore_rounded),
+        label: loc.node_bottom_app_bar,
+      ),
+      BottomNavigationBarItem(
+        icon: const Icon(Icons.manage_search_rounded),
+        label: loc.history_bottom_app_bar,
+      ),
+      BottomNavigationBarItem(
+        icon: const Icon(Icons.account_balance_wallet_rounded),
+        label: loc.wallet_bottom_app_bar,
+      ),
+      BottomNavigationBarItem(
+        icon: const Icon(Icons.assessment_rounded),
+        label: loc.assets_bottom_app_bar,
+      ),
+      BottomNavigationBarItem(
+        icon: const Icon(Icons.settings_rounded),
+        label: loc.settings_bottom_app_bar,
+      ),
+    ];
     // Export CSV button for HistoryTab
     Widget floatingExportCSVButton = Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -51,45 +74,40 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     Widget mainWidget;
 
     if (isHandset) {
-      mainWidget = Scaffold(
+      mainWidget = CustomScaffold(
         backgroundColor: Colors.transparent,
         body: tabs,
         bottomNavigationBar: BottomNavigationBar(
-          //backgroundColor: Colors.black26,
-          //labelBehavior:NavigationDestinationLabelBehavior.alwaysHide,
-          //animationDuration: Duration.zero,
-          /*indicatorShape: const CircleBorder(
-                  side: BorderSide.none,
-                ),*/
-
           onTap: (int index) {
             setState(() {
               _currentPageIndex = index;
             });
           },
           currentIndex: _currentPageIndex,
-          items: <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.explore_rounded),
-              label: loc.node_bottom_app_bar,
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.manage_search_rounded),
-              label: loc.history_bottom_app_bar,
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.account_balance_wallet_rounded),
-              label: loc.wallet_bottom_app_bar,
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.assessment_rounded),
-              label: loc.assets_bottom_app_bar,
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.settings_rounded),
-              label: loc.settings_bottom_app_bar,
-            ),
-          ],
+          items: bottomNavigationBarItems,
+        ),
+        // if HistoryTab, show export button
+        floatingActionButton:
+            _currentPageIndex == 1 ? floatingExportCSVButton : null,
+      );
+    } else if (context.isWideScreen) {
+      mainWidget = CustomScaffold(
+        backgroundColor: Colors.transparent,
+        body: tabs,
+        bottomNavigationBar: ClipRRect(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(Spaces.extraLarge),
+            topRight: Radius.circular(Spaces.extraLarge),
+          ),
+          child: BottomNavigationBar(
+            onTap: (int index) {
+              setState(() {
+                _currentPageIndex = index;
+              });
+            },
+            currentIndex: _currentPageIndex,
+            items: bottomNavigationBarItems,
+          ),
         ),
         // if HistoryTab, show export button
         floatingActionButton:
@@ -132,7 +150,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
             ],
           ),
           Expanded(
-            child: Scaffold(
+            child: CustomScaffold(
               backgroundColor: Colors.transparent,
               body: tabs,
               // if HistoryTab, show export button
@@ -144,7 +162,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
       );
     }
 
-    return Background(child: mainWidget);
+    return mainWidget;
   }
 
   Future<void> _exportCsv() async {

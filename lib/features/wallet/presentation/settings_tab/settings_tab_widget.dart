@@ -3,6 +3,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/presentation/settings_tab/components/burn_warning_dialog.dart';
+import 'package:genesix/features/wallet/presentation/settings_tab/components/delete_wallet_button.dart';
 import 'package:genesix/rust_bridge/api/network.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/widgets/components/confirm_dialog.dart';
@@ -157,40 +158,15 @@ class SettingsTab extends ConsumerWidget {
         ),
         const Divider(),
         const SizedBox(height: Spaces.medium),
-        OutlinedButton.icon(
-          icon: Icon(
-            Icons.delete_forever,
-            color: context.colors.error,
-          ),
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.all(Spaces.medium + 4),
-            side: BorderSide(
-              color: context.colors.error,
-              width: 1,
-            ),
-          ),
-          onPressed: () => _showDeleteWalletInput(ref),
-          label: Text(
-            loc.delete_wallet,
-            style: context.titleMedium!.copyWith(
-                color: context.colors.error, fontWeight: FontWeight.w800),
-          ),
+        Row(
+          children: [
+            if (context.isWideScreen) Spacer(),
+            Expanded(child: DeleteWalletButton()),
+            if (context.isWideScreen) Spacer(),
+          ],
         ),
       ],
     );
-  }
-
-  void _showDeleteWalletInput(WidgetRef ref) {
-    showDialog<void>(
-        context: ref.context,
-        builder: (context) {
-          return PasswordDialog(
-            closeOnValid: false,
-            onValid: () {
-              _deleteWallet(ref);
-            },
-          );
-        });
   }
 
   void _renameWallet(WidgetRef ref, String newName) {
@@ -230,34 +206,6 @@ class SettingsTab extends ConsumerWidget {
           hintText: loc.new_name,
           onEnter: (value) {
             _renameWallet(ref, value);
-          },
-        );
-      },
-    );
-  }
-
-  void _deleteWallet(WidgetRef ref) {
-    showDialog<void>(
-      context: ref.context,
-      builder: (context) {
-        return ConfirmDialog(
-          onConfirm: (yes) async {
-            if (yes) {
-              final walletSnapshot = ref.read(walletStateProvider);
-              final wallets = ref.read(walletsProvider.notifier);
-              final loc = ref.read(appLocalizationsProvider);
-
-              try {
-                await wallets.deleteWallet(walletSnapshot.name);
-                ref
-                    .read(snackBarMessengerProvider.notifier)
-                    .showInfo(loc.wallet_deleted);
-              } catch (e) {
-                ref
-                    .read(snackBarMessengerProvider.notifier)
-                    .showError(e.toString());
-              }
-            }
           },
         );
       },
