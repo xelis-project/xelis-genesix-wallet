@@ -149,7 +149,7 @@ ThemeData xelisTheme() {
     ),
 
     // NAVIGATION BAR
-    navigationBarTheme: const NavigationBarThemeData(
+    navigationBarTheme: NavigationBarThemeData(
       indicatorShape: CircleBorder(
         side: BorderSide.none,
       ),
@@ -157,29 +157,30 @@ ThemeData xelisTheme() {
       backgroundColor: Colors.black26,
       indicatorColor: Colors.white,
       labelTextStyle: WidgetStatePropertyAll(
-        TextStyle(
-          color: Colors.white,
-        ),
+        GoogleFonts.jura(color: Colors.white),
       ),
     ),
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: Colors.black12,
       selectedItemColor: Colors.white,
       type: BottomNavigationBarType.fixed,
       unselectedItemColor: Colors.white54,
-      selectedLabelStyle: TextStyle(fontSize: 12),
+      selectedLabelStyle:
+          GoogleFonts.jura(fontSize: 12, fontWeight: FontWeight.w600),
       selectedIconTheme: IconThemeData(size: 36),
       //showUnselectedLabels: false,
       //showSelectedLabels: false,
     ),
-    navigationRailTheme: const NavigationRailThemeData(
+    navigationRailTheme: NavigationRailThemeData(
       backgroundColor: Colors.black26,
       indicatorColor: Colors.transparent,
       //useIndicator: false,
-      selectedLabelTextStyle: TextStyle(color: Colors.white, fontSize: 14),
-      unselectedLabelTextStyle: TextStyle(color: Colors.white54, fontSize: 12),
-      selectedIconTheme: IconThemeData(size: 36, color: Colors.white),
-      unselectedIconTheme: IconThemeData(size: 30, color: Colors.white54),
+      selectedLabelTextStyle: GoogleFonts.jura(
+          color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+      unselectedLabelTextStyle: GoogleFonts.jura(
+          color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w600),
+      selectedIconTheme: const IconThemeData(size: 36, color: Colors.white),
+      unselectedIconTheme: const IconThemeData(size: 30, color: Colors.white54),
       /*indicatorShape: CircleBorder(
         side: BorderSide(color: Colors.transparent,width: 0),
       ),*/

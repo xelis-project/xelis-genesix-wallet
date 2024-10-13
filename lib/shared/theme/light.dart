@@ -149,7 +149,7 @@ ThemeData lightTheme() {
     ),
 
     // NAVIGATION BAR
-    navigationBarTheme: const NavigationBarThemeData(
+    navigationBarTheme: NavigationBarThemeData(
       indicatorShape: CircleBorder(
         side: BorderSide.none,
       ),
@@ -157,27 +157,28 @@ ThemeData lightTheme() {
       backgroundColor: Colors.black26,
       indicatorColor: Colors.white,
       labelTextStyle: WidgetStatePropertyAll(
-        TextStyle(
-          color: Colors.white,
-        ),
+        GoogleFonts.jura(color: Colors.white),
       ),
     ),
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: Colors.black12,
       selectedItemColor: primaryColor,
       type: BottomNavigationBarType.fixed,
       unselectedItemColor: Colors.black45,
-      selectedLabelStyle: TextStyle(fontSize: 12),
+      selectedLabelStyle:
+          GoogleFonts.jura(fontSize: 12, fontWeight: FontWeight.w600),
       selectedIconTheme: IconThemeData(size: 36),
       //showUnselectedLabels: false,
       //showSelectedLabels: false,
     ),
-    navigationRailTheme: const NavigationRailThemeData(
+    navigationRailTheme: NavigationRailThemeData(
       backgroundColor: Colors.black12,
       indicatorColor: Colors.transparent,
       //useIndicator: false,
-      selectedLabelTextStyle: TextStyle(color: primaryColor, fontSize: 14),
-      unselectedLabelTextStyle: TextStyle(color: Colors.black45, fontSize: 12),
+      selectedLabelTextStyle: GoogleFonts.jura(
+          color: primaryColor, fontSize: 14, fontWeight: FontWeight.w600),
+      unselectedLabelTextStyle: GoogleFonts.jura(
+          color: Colors.black45, fontSize: 12, fontWeight: FontWeight.w600),
       selectedIconTheme: IconThemeData(size: 36, color: primaryColor),
       unselectedIconTheme: IconThemeData(size: 30, color: Colors.black45),
       /*indicatorShape: CircleBorder(
