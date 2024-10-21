@@ -49,7 +49,7 @@ class SnackBarMessenger extends _$SnackBarMessenger {
       _timer!.cancel();
     }
 
-    _timer = Timer(const Duration(seconds: 3), () {
+    _timer = Timer(const Duration(seconds: 6), () {
       state = state.copyWith(visible: false);
     });
   }
