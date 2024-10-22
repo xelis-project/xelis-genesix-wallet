@@ -191,8 +191,15 @@ class WalletState extends _$WalletState {
   Future<void> exportCsv(String path) async {
     if (state.nativeWalletRepository != null) {
       return state.nativeWalletRepository!
-          .exportTransactionsInCSV('$path/genesix_transactions.csv');
+          .exportTransactionsToCsvFile('$path/genesix_transactions.csv');
     }
+  }
+
+  Future<String?> exportCsvForWeb() async {
+    if (state.nativeWalletRepository != null) {
+      return state.nativeWalletRepository!.convertTransactionsToCsv();
+    }
+    return null;
   }
 
   // Handle incoming events

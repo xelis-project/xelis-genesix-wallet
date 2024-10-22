@@ -1,4 +1,5 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -11,6 +12,7 @@ import 'package:genesix/features/wallet/presentation/wallet_tab/wallet_tab_widge
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
@@ -167,22 +169,32 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
 
   Future<void> _exportCsv() async {
     final loc = ref.read(appLocalizationsProvider);
-    var path = await FilePicker.platform.getDirectoryPath();
-    if (path != null) {
-      try {
-        await ref.read(walletStateProvider.notifier).exportCsv(path);
-        ref
-            .read(snackBarMessengerProvider.notifier)
-            .showInfo(loc.csv_exported_successfully);
-      } catch (e) {
-        if (e.toString().contains(loc.no_transactions_to_export)) {
+    if (kIsWeb) {
+      final content =
+          await ref.read(walletStateProvider.notifier).exportCsvForWeb();
+      if (content != null) {
+        saveTextFile(content, 'genesix_transactions.csv');
+      } else {
+        ref.read(snackBarMessengerProvider.notifier).showError(loc.oups);
+      }
+    } else {
+      var path = await FilePicker.platform.getDirectoryPath();
+      if (path != null) {
+        try {
+          await ref.read(walletStateProvider.notifier).exportCsv(path);
           ref
               .read(snackBarMessengerProvider.notifier)
-              .showError(loc.no_transactions_to_export);
-        } else {
-          ref
-              .read(snackBarMessengerProvider.notifier)
-              .showError(loc.error_exporting_csv);
+              .showInfo(loc.csv_exported_successfully);
+        } catch (e) {
+          if (e.toString().contains(loc.no_transactions_to_export)) {
+            ref
+                .read(snackBarMessengerProvider.notifier)
+                .showError(loc.no_transactions_to_export);
+          } else {
+            ref
+                .read(snackBarMessengerProvider.notifier)
+                .showError(loc.error_exporting_csv);
+          }
         }
       }
     }

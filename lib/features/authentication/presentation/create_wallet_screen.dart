@@ -201,7 +201,9 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                     },
                     icon: const Icon(Icons.wallet),
                     label: Text(
-                      widget.isFromSeed ? loc.recover_button : loc.create_button,
+                      widget.isFromSeed
+                          ? loc.recover_button
+                          : loc.create_button,
                       style: context.titleMedium!
                           .copyWith(color: context.colors.onPrimary),
                     ),

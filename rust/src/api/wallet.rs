@@ -584,7 +584,7 @@ impl XelisWallet {
     }
 
     // Export transactions to a CSV file
-    pub async fn extract_transactions_in_csv(&self, file_path: String) -> Result<()> {
+    pub async fn export_transactions_to_csv_file(&self, file_path: String) -> Result<()> {
         let path = Path::new(&file_path);
         let storage = self.wallet.get_storage().read().await;
         let transactions = storage.get_transactions()?;
@@ -596,6 +596,19 @@ impl XelisWallet {
             .export_transactions_in_csv(transactions, &mut file)
             .context("Error while exporting transactions to CSV")?;
         Ok(())
+    }
+
+    pub async fn convert_transactions_to_csv(&self) -> Result<String> {
+        let storage = self.wallet.get_storage().read().await;
+        let transactions = storage.get_transactions()?;
+        if transactions.is_empty() {
+            return Err(anyhow!("No transactions to export"));
+        }
+        let mut csv = Vec::new();
+        self.wallet
+            .export_transactions_in_csv(transactions, &mut csv)
+            .context("Error while exporting transactions to CSV")?;
+        Ok(String::from_utf8(csv).context("Error while converting CSV to string")?)
     }
 
     // Private method to create TransactionTypeBuilder from transfers
