@@ -52,15 +52,15 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
-  package_info_plus: fa739dd842b393193c5ca93c26798dff6e3d0e0c
+  package_info_plus: f5790acc797bf17c3e959e9d6cf162cc68ff7523
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   rust_builder: f13c21a2eeac6610ade0b050e264af3ff979dd09
   screen_retriever: 59634572a57080243dd1bf715e55b6c54f241a38
-  share_plus: 36537c04ce0c3e3f5bd297ce4318b6d5ee5fd6cf
+  share_plus: a182a58e04e51647c0481aadabbc4de44b3a2bce
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
-  url_launcher_macos: 5f437abeda8c85500ceb03f5c1938a8c5a705399
+  url_launcher_macos: c82c93949963e55b228a30115bd219499a6fe404
   window_manager: 3a1844359a6295ab1e47659b1a777e36773cd6e8
 
-PODFILE CHECKSUM: 236401fc2c932af29a9fcf0e97baeeb2d750d367
+PODFILE CHECKSUM: 73d0feaa9ca8c9b13bc5b5e21fbe09c71472f86f
 
 COCOAPODS: 1.15.2

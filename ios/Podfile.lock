@@ -99,7 +99,7 @@ SPEC CHECKSUMS:
   file_picker: 09aa5ec1ab24135ccd7a1621c46c84134bfd6655
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_native_splash: edf599c81f74d093a4daf8e17bd7a018854bc778
-  package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
+  package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   rust_builder: f6978b592ea8050cb7ffe27cba97bdfb8bca8141
   SDWebImage: a79252b60f4678812d94316c91da69ec83089c9f
