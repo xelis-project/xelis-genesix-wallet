@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/wallet/application/history_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/node_tab/node_tab_widget.dart';
 import 'package:genesix/features/wallet/presentation/assets_tab/assets_tab_widget.dart';
@@ -169,13 +170,31 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
 
   Future<void> _exportCsv() async {
     final loc = ref.read(appLocalizationsProvider);
+
+    final historyState = await ref.read(historyProvider.future);
+    if (historyState.noTransactionAvailable) {
+      ref
+          .read(snackBarMessengerProvider.notifier)
+          .showError(loc.no_transactions_to_export);
+      return;
+    }
+
     if (kIsWeb) {
-      final content =
-          await ref.read(walletStateProvider.notifier).exportCsvForWeb();
-      if (content != null) {
-        saveTextFile(content, 'genesix_transactions.csv');
-      } else {
-        ref.read(snackBarMessengerProvider.notifier).showError(loc.oups);
+      try {
+        final content =
+            await ref.read(walletStateProvider.notifier).exportCsvForWeb();
+        if (content != null) {
+          saveTextFile(content, 'genesix_transactions.csv');
+          ref
+              .read(snackBarMessengerProvider.notifier)
+              .showInfo(loc.csv_exported_successfully);
+        } else {
+          throw Exception();
+        }
+      } catch (e) {
+        ref
+            .read(snackBarMessengerProvider.notifier)
+            .showError(loc.error_exporting_csv);
       }
     } else {
       var path = await FilePicker.platform.getDirectoryPath();
