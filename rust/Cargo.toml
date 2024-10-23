@@ -7,7 +7,7 @@ edition = "2021"
 crate-type = ["lib", "cdylib", "staticlib"]
 
 [dependencies]
-flutter_rust_bridge = { version = "=2.5.0", features = ["log"] }
+flutter_rust_bridge = { version = "=2.5.1", features = ["log"] }
 anyhow = "1"
 log = "0.4"
 parking_lot = "0.12.1"
