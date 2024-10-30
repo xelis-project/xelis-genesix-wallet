@@ -29,8 +29,7 @@ jobs:
 
       - name: Install Flutter Rust bridge
         run: |
-          cargo install 'flutter_rust_bridge_codegen@^2.0.0-dev'
-          cd rust && cargo update
+          cargo install 'flutter_rust_bridge_codegen'
 
       - name: Generate bridge code
         run: flutter_rust_bridge_codegen generate

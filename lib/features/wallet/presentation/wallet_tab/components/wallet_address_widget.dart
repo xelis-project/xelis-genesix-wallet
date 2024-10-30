@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:random_avatar/random_avatar.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
@@ -26,19 +26,21 @@ class WalletAddressWidget extends ConsumerWidget {
     final walletAddress =
         ref.watch(walletStateProvider.select((state) => state.address));
 
-    const double avatarSize = 50;
-    Widget avatar = const SizedBox.square(dimension: avatarSize);
+    const double iconSize = 50;
+    Widget walletIcon = const SizedBox.square(dimension: iconSize);
 
     var address = '';
     if (walletAddress.isNotEmpty) {
-      avatar =
-          RandomAvatar(walletAddress, height: avatarSize, width: avatarSize);
+      walletIcon = HashiconWidget(
+        hash: walletAddress,
+        size: const Size(iconSize, iconSize),
+      );
       address = truncateText(walletAddress);
     }
 
     return Row(
       children: [
-        avatar,
+        walletIcon,
         const SizedBox(width: Spaces.medium),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,

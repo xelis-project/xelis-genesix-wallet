@@ -12,7 +12,7 @@ import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:genesix/shared/logger.dart';
+import 'package:io/io.dart';
 
 part 'authentication_service.g.dart';
 
@@ -30,11 +30,11 @@ class Authentication extends _$Authentication {
   ]) async {
     final precomputedTablesPath = await _getPrecomputedTablesPath();
     final settings = ref.read(settingsProvider);
-    var walletPath = await getWalletPath(settings.network, name);
+    final walletPath = await getWalletPath(settings.network, name);
 
     var walletExists = false;
     if (kIsWeb) {
-      var path = localStorage.getItem(walletPath);
+      final path = localStorage.getItem(walletPath);
       walletExists = path != null;
     } else {
       walletExists = await Directory(walletPath).exists();
@@ -46,7 +46,7 @@ class Authentication extends _$Authentication {
       NativeWalletRepository walletRepository;
 
       // remove prefix for rust call because it's already appended
-      var dbName = walletPath.replaceFirst(localStorageDBPrefix, "");
+      final dbName = walletPath.replaceFirst(localStorageDBPrefix, "");
       if (seed != null) {
         walletRepository = await NativeWalletRepository.recover(
             dbName, password, settings.network,
@@ -123,6 +123,36 @@ class Authentication extends _$Authentication {
     }
   }
 
+  // only used for desktop wallet import
+  Future<void> openImportedWallet(
+      String sourcePath, String walletName, String password) async {
+    final precomputedTablesPath = await _getPrecomputedTablesPath();
+    final network = ref.read(settingsProvider).network;
+
+    NativeWalletRepository walletRepository;
+    try {
+      final targetPath = await getWalletPath(network, walletName);
+      await copyPath(sourcePath, targetPath);
+
+      walletRepository = await NativeWalletRepository.open(
+          targetPath, password, network,
+          precomputeTablesPath: precomputedTablesPath);
+    } catch (e) {
+      rethrow;
+    }
+
+    ref
+        .read(walletsProvider.notifier)
+        .setWalletAddress(walletName, walletRepository.address);
+
+    state = AuthenticationState.signedIn(
+        name: walletName, nativeWallet: walletRepository);
+
+    ref.read(routerProvider).go(AuthAppScreen.wallet.toPath);
+
+    ref.read(walletStateProvider.notifier).connect();
+  }
+
   Future<void> logout() async {
     switch (state) {
       case SignedIn(:final nativeWallet):
@@ -147,11 +177,7 @@ class Authentication extends _$Authentication {
   }
 
   Future<bool> isPrecomputedTablesExists() async {
-    if (kIsWeb) {
-      return true;
-    } else {
-      return precomputedTablesExist(
-          precomputedTablesPath: await _getPrecomputedTablesPath());
-    }
+    return precomputedTablesExist(
+        precomputedTablesPath: await _getPrecomputedTablesPath());
   }
 }

@@ -2,34 +2,34 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:jovial_svg/jovial_svg.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:genesix/shared/storage/shared_preferences/genesix_shared_preferences.dart';
+import 'package:talker_riverpod_logger/talker_riverpod_logger.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:genesix/shared/logger.dart';
+import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/storage/shared_preferences/shared_preferences_provider.dart';
 import 'package:genesix/shared/theme/extensions.dart';
-import 'package:genesix/shared/widgets/xelis_wallet_app.dart';
+import 'package:genesix/shared/widgets/genesix_app.dart';
 import 'package:genesix/rust_bridge/frb_generated.dart';
 import 'package:localstorage/localstorage.dart';
+// import 'package:jovial_svg/jovial_svg.dart';
 
 Future<void> main() async {
-  logger.info('Starting Genesix...');
-  initFlutterLogging();
-  logger.info('initializing Flutter bindings ...');
+  talker.info('Starting Genesix...');
+  talker.info('initializing Flutter bindings ...');
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  logger.info('initializing Rust lib ...');
+  talker.info('initializing Rust lib ...');
   await RustLib.init();
   await initRustLogging();
 
   if (kIsWeb) {
-    logger.info('initializing local storage ...');
+    talker.info('initializing local storage ...');
     await initLocalStorage();
   }
 
   if (isDesktopDevice) {
-    logger.info('initializing window manager ...');
+    talker.info('initializing window manager ...');
     await windowManager.ensureInitialized();
 
     WindowOptions windowOptions = const WindowOptions(
@@ -42,13 +42,14 @@ Future<void> main() async {
       skipTaskbar: false,
       titleBarStyle: TitleBarStyle.normal,
     );
+
     windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
       await windowManager.focus();
     });
   }
 
-  logger.info('loading assets ...');
+  talker.info('loading assets ...');
   //-------------------------- PRELOAD ASSETS ----------------------------------
   // AppResources.svgBannerGreen = await ScalableImage.fromSvgAsset(
   //     rootBundle, AppResources.svgBannerGreenPath,
@@ -63,9 +64,9 @@ Future<void> main() async {
   AppResources.bgDots = Image.asset(AppResources.bgDotsPath);
   //----------------------------------------------------------------------------
 
-  final prefs = await SharedPreferences.getInstance();
+  final prefs = await GenesixSharedPreferences.setUp();
 
-  logger.info('initialisation done!');
+  talker.info('initialisation done!');
   FlutterNativeSplash.remove();
 
   runApp(
@@ -73,8 +74,15 @@ Future<void> main() async {
       overrides: [
         sharedPreferencesProvider.overrideWithValue(prefs),
       ],
-      observers: kDebugMode ? [LoggerProviderObserver()] : null,
-      child: const XelisWalletApp(),
+      observers: [
+        TalkerRiverpodObserver(
+            talker: talker,
+            settings: const TalkerRiverpodLoggerSettings(
+              printProviderDisposed: true,
+              printStateFullData: kDebugMode ? true : false,
+            ))
+      ],
+      child: const Genesix(),
     ),
   );
 }

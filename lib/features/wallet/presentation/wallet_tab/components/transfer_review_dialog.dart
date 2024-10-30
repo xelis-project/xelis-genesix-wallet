@@ -7,11 +7,11 @@ import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:random_avatar/random_avatar.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class TransferReviewDialog extends ConsumerStatefulWidget {
   const TransferReviewDialog(this.tx, {super.key});
@@ -24,9 +24,9 @@ class TransferReviewDialog extends ConsumerStatefulWidget {
 }
 
 class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
-  bool isBroadcast = false;
+  bool _isBroadcast = false;
 
-  Future<void> _sendTransfer(BuildContext context, WidgetRef ref) async {
+  Future<void> _broadcastTransfer(BuildContext context, WidgetRef ref) async {
     final loc = ref.read(appLocalizationsProvider);
     try {
       context.loaderOverlay.show();
@@ -36,7 +36,7 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
           .broadcastTx(hash: widget.tx.hash);
 
       setState(() {
-        isBroadcast = true;
+        _isBroadcast = true;
       });
 
       ref
@@ -54,12 +54,15 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final destination =
-        widget.tx.transactionSummaryType.transferOutEntry!.first.destination;
 
-    // TODO various assets
-    final amount = widget.tx.amounts[xelisAsset] ?? 0;
+    // TODO handle various assets
+    final amount =
+        widget.tx.transactionSummaryType.transferOutEntry!.first.amount;
     final total = amount + widget.tx.fee;
+
+    final rawAddress =
+        widget.tx.transactionSummaryType.transferOutEntry!.first.destination;
+    final destination = splitIntegratedAddress(rawAddress);
 
     return AlertDialog(
       scrollable: true,
@@ -76,7 +79,7 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(loc.amount,
+                Text(toBeginningOfSentenceCase(loc.amount) ?? loc.amount,
                     style: context.bodyLarge!
                         .copyWith(color: context.moreColors.mutedColor)),
                 SelectableText(formatXelis(amount.truncate())),
@@ -103,19 +106,54 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
               ],
             ),
             const SizedBox(height: Spaces.small),
+            if (destination.isIntegrated) ...[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(loc.destination,
+                      style: context.bodyLarge!
+                          .copyWith(color: context.moreColors.mutedColor)),
+                  const SizedBox(width: Spaces.small),
+                  Tooltip(
+                    message: loc.integrated_address_detected,
+                    textStyle: context.bodyMedium
+                        ?.copyWith(color: context.colors.primary),
+                    child: Icon(
+                      Icons.info_outline_rounded,
+                      size: 18,
+                      color: context.moreColors.mutedColor,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: Spaces.small),
+              SelectableText(rawAddress),
+              const SizedBox(height: Spaces.small),
+            ],
             Text(loc.receiver,
                 style: context.bodyLarge!
                     .copyWith(color: context.moreColors.mutedColor)),
             const SizedBox(height: Spaces.small),
             Row(
               children: [
-                RandomAvatar(destination, width: 35, height: 35),
+                HashiconWidget(
+                  hash: destination.address,
+                  size: const Size(35, 35),
+                ),
                 const SizedBox(width: Spaces.small),
                 Expanded(
-                  child: SelectableText(destination),
+                  child: SelectableText(destination.address),
                 ),
               ],
             ),
+            if (destination.isIntegrated) ...[
+              const SizedBox(height: Spaces.small),
+              Text(loc.payment_id,
+                  style: context.bodyLarge!
+                      .copyWith(color: context.moreColors.mutedColor)),
+              const SizedBox(height: 3),
+              SelectableText(destination.data.toString()),
+            ],
             const SizedBox(height: Spaces.small),
             Text(loc.hash,
                 style: context.bodyLarge!
@@ -126,7 +164,7 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
         ),
       ),
       actions: [
-        if (!isBroadcast)
+        if (!_isBroadcast)
           TextButton(
             onPressed: () {
               ref
@@ -138,7 +176,7 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
           ),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: AppDurations.animFast),
-          child: isBroadcast
+          child: _isBroadcast
               ? TextButton(
                   onPressed: () {
                     context.pop();
@@ -151,9 +189,7 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
                       context: context,
                       builder: (context) {
                         return PasswordDialog(
-                          onValid: () {
-                            _sendTransfer(context, ref);
-                          },
+                          onValid: () => _broadcastTransfer(context, ref),
                         );
                       },
                     );

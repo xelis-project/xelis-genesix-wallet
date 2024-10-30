@@ -1,27 +1,11 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/domain/asset.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
-
-class Asset {
-  final String hash;
-  final String name;
-  final String img;
-  final int decimals;
-  final String ticker;
-
-  const Asset({
-    required this.hash,
-    required this.name,
-    required this.img,
-    required this.decimals,
-    required this.ticker,
-  });
-}
+import 'package:transparent_image/transparent_image.dart';
 
 class AssetItemWidget extends ConsumerStatefulWidget {
   const AssetItemWidget({required this.asset, super.key});
@@ -38,9 +22,26 @@ class _AssetItemWidgetState extends ConsumerState<AssetItemWidget> {
     // final loc = ref.watch(appLocalizationsProvider);
 
     final walletSnapshot = ref.read(walletStateProvider);
-    var assets = walletSnapshot.assets ?? {};
-    var balanceAtomic = assets[widget.asset.hash] ?? 0;
-    var balance = balanceAtomic / pow(10, widget.asset.decimals);
+    var assets = walletSnapshot.assets;
+    var balance = assets[widget.asset.hash] ?? '0.00000000';
+
+    Widget logo;
+    if (widget.asset.isNetworkImage) {
+      String url = widget.asset.imageURL!;
+      // final networkImage = NetworkImage(url);
+      // precacheImage(networkImage, context);
+
+      // TODO: Cache image in memory
+      // https://pub.dev/packages/cached_network_image
+      logo = FadeInImage(
+          placeholder: MemoryImage(kTransparentImage),
+          image: NetworkImage(url));
+    } else {
+      logo = Image.asset(
+        widget.asset.imagePath!,
+        fit: BoxFit.cover,
+      );
+    }
 
     return Card(
       elevation: 1,
@@ -53,19 +54,12 @@ class _AssetItemWidgetState extends ConsumerState<AssetItemWidget> {
             Row(
               children: [
                 Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: Image.network(
-                        widget.asset.img,
-                      ).image,
-                    ),
-                  ),
                   width: 40,
                   height: 40,
+                  decoration: const BoxDecoration(shape: BoxShape.circle),
+                  child: logo,
                 ),
-                const SizedBox(
-                  width: Spaces.medium,
-                ),
+                const SizedBox(width: Spaces.medium),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -87,7 +81,7 @@ class _AssetItemWidgetState extends ConsumerState<AssetItemWidget> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 SelectableText(
-                  balance.toStringAsFixed(widget.asset.decimals),
+                  balance,
                   style: context.bodyLarge,
                 ),
                 const SizedBox(height: Spaces.extraSmall),

@@ -10,7 +10,7 @@ import 'package:genesix/rust_bridge/api/utils.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
-import 'package:genesix/shared/widgets/components/background_widget.dart';
+import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:intl/intl.dart' show toBeginningOfSentenceCase;
@@ -40,7 +40,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
             ref.read(walletStateProvider.select((value) => value.xelisBalance));
 
         TransactionSummary? tx;
-        if (amount == xelisBalance) {
+        if (double.parse(amount) == double.parse(xelisBalance)) {
           tx = await ref
               .read(walletStateProvider.notifier)
               .createAllXelisTransaction(destination: address.trim());
@@ -64,7 +64,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
         ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
       }
 
-      if (mounted) {
+      if (mounted && context.loaderOverlay.visible) {
         context.loaderOverlay.hide();
       }
     }
@@ -76,100 +76,103 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
     final xelisBalance =
         ref.watch(walletStateProvider.select((value) => value.xelisBalance));
 
-    return Background(
-      child: Scaffold(
-        appBar: GenericAppBar(title: loc.transfer),
-        body: ListView(
-          padding: const EdgeInsets.fromLTRB(
-              Spaces.large, Spaces.none, Spaces.large, Spaces.large),
-          children: [
-            FormBuilder(
-              key: _transferFormKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    toBeginningOfSentenceCase(loc.amount) ?? '',
-                    style: context.headlineSmall,
-                  ),
-                  const SizedBox(height: Spaces.small),
-                  FormBuilderTextField(
-                    name: 'amount',
-                    style: context.headlineLarge!
+    return CustomScaffold(
+      appBar: GenericAppBar(title: loc.transfer),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(
+            Spaces.large, Spaces.none, Spaces.large, Spaces.large),
+        children: [
+          FormBuilder(
+            key: _transferFormKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  toBeginningOfSentenceCase(loc.amount) ?? loc.amount,
+                  style: context.headlineSmall,
+                ),
+                const SizedBox(height: Spaces.small),
+                FormBuilderTextField(
+                  name: 'amount',
+                  style: context.headlineLarge!
+                      .copyWith(fontWeight: FontWeight.bold),
+                  autocorrect: false,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: '0.00000000',
+                    labelStyle: context.headlineLarge!
                         .copyWith(fontWeight: FontWeight.bold),
-                    autocorrect: false,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: '0.00000000',
-                      labelStyle: context.headlineLarge!
-                          .copyWith(fontWeight: FontWeight.bold),
-                      suffixIcon: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextButton(
-                          onPressed: () {
-                            _transferFormKey.currentState?.fields['amount']
-                                ?.didChange(xelisBalance);
-                          },
-                          child: const Text('max'),
-                        ),
+                    suffixIcon: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextButton(
+                        onPressed: () => _transferFormKey
+                            .currentState?.fields['amount']
+                            ?.didChange(xelisBalance),
+                        child: Text(loc.max),
                       ),
                     ),
-                    validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(
-                          errorText: loc.field_required_error),
-                      FormBuilderValidators.numeric(
-                          errorText: loc.must_be_numeric_error),
-                      (val) {
-                        // if (_remainingBalance < 0) {
-                        //   return loc.insufficient_funds_error;
-                        // }
-                        if (val != null) {
-                          final amount = double.tryParse(val);
-                          if (amount == 0) {
-                            return loc.invalid_amount_error;
-                          }
+                  ),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(
+                        errorText: loc.field_required_error),
+                    FormBuilderValidators.numeric(
+                        errorText: loc.must_be_numeric_error),
+                    (val) {
+                      if (val != null) {
+                        final amount = double.tryParse(val);
+                        if (amount == null || amount == 0) {
+                          return loc.invalid_amount_error;
                         }
-                        return null;
                       }
-                    ]),
+                      return null;
+                    }
+                  ]),
+                ),
+                const SizedBox(height: Spaces.medium),
+                Text(
+                  loc.recipient,
+                  style: context.headlineSmall,
+                ),
+                const SizedBox(height: Spaces.small),
+                FormBuilderTextField(
+                  name: 'address',
+                  style: context.bodyMedium,
+                  autocorrect: false,
+                  decoration: InputDecoration(
+                    labelText: loc.receiver_address,
+                    border: const OutlineInputBorder(),
                   ),
-                  const SizedBox(height: Spaces.medium),
-                  Text(
-                    loc.recipient,
-                    style: context.headlineSmall,
-                  ),
-                  const SizedBox(height: Spaces.small),
-                  FormBuilderTextField(
-                    name: 'address',
-                    style: context.bodyMedium,
-                    autocorrect: false,
-                    decoration: InputDecoration(
-                      labelText: loc.receiver_address,
-                      border: const OutlineInputBorder(),
-                    ),
-                    validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(
-                          errorText: loc.field_required_error),
-                      (val) {
-                        if (val != null &&
-                            !isAddressValid(strAddress: val.trim())) {
-                          return loc.invalid_address_format_error;
-                        }
-                        return null;
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(
+                        errorText: loc.field_required_error),
+                    (val) {
+                      if (val != null &&
+                          !isAddressValid(strAddress: val.trim())) {
+                        return loc.invalid_address_format_error;
                       }
-                    ]),
-                  ),
-                ],
+                      return null;
+                    }
+                  ]),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: Spaces.large),
+          Row(
+            children: [
+              if (context.isWideScreen) const Spacer(),
+              Expanded(
+                flex: 2,
+                child: TextButton.icon(
+                  icon: const Icon(Icons.check_circle),
+                  onPressed: _reviewTransfer,
+                  label: Text(loc.review_send),
+                ),
               ),
-            ),
-            const SizedBox(height: Spaces.large),
-            TextButton.icon(
-              icon: const Icon(Icons.check_circle),
-              onPressed: _reviewTransfer,
-              label: Text(loc.review_send),
-            ),
-          ],
-        ),
+              if (context.isWideScreen) const Spacer(),
+            ],
+          ),
+        ],
       ),
     );
   }

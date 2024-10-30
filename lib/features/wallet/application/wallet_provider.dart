@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/rust_bridge/api/wallet.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/utils/utils.dart';
+import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/features/authentication/application/authentication_service.dart';
@@ -13,8 +15,7 @@ import 'package:genesix/features/wallet/application/network_nodes_provider.dart'
 import 'package:genesix/features/wallet/domain/event.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
 import 'package:genesix/features/wallet/domain/wallet_snapshot.dart';
-import 'package:genesix/shared/logger.dart';
-import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/features/logger/logger.dart';
 
 part 'wallet_provider.g.dart';
 
@@ -26,7 +27,11 @@ class WalletState extends _$WalletState {
 
     switch (authenticationState) {
       case SignedIn(:final name, :final nativeWallet):
-        return WalletSnapshot(name: name, nativeWalletRepository: nativeWallet);
+        return WalletSnapshot(
+          name: name,
+          nativeWalletRepository: nativeWallet,
+          address: nativeWallet.address,
+        );
       case SignedOut():
         return const WalletSnapshot();
     }
@@ -34,13 +39,6 @@ class WalletState extends _$WalletState {
 
   Future<void> connect() async {
     if (state.nativeWalletRepository != null) {
-      if (state.address.isEmpty) {
-        final nonce = await state.nativeWalletRepository!.nonce;
-        state = state.copyWith(
-            address: state.nativeWalletRepository!.address,
-            nonce: nonce.toInt());
-      }
-
       StreamSubscription<void> sub =
           state.nativeWalletRepository!.convertRawEvents().listen(_onEvent);
       state = state.copyWith(streamSubscription: sub);
@@ -62,12 +60,14 @@ class WalletState extends _$WalletState {
             .showError(loc.cannot_connect_toast_error);
       });
 
-      if (await state.nativeWalletRepository!.hasXelisBalance()) {
-        final xelisBalance =
-            await state.nativeWalletRepository!.getXelisBalance();
-        state = state.copyWith(xelisBalance: xelisBalance);
+      final xelisBalance =
+          await state.nativeWalletRepository!.getXelisBalance();
+      final assets = await state.nativeWalletRepository!.getAssetBalances();
+
+      if (assets.isNotEmpty) {
+        state = state.copyWith(xelisBalance: xelisBalance, assets: assets);
       } else {
-        state = state.copyWith(xelisBalance: formatXelis(0));
+        state = state.copyWith(xelisBalance: xelisBalance);
       }
     }
   }
@@ -78,13 +78,13 @@ class WalletState extends _$WalletState {
     try {
       await state.nativeWalletRepository?.setOffline();
     } catch (e) {
-      logger.warning('Something went wrong when disconnecting...');
+      talker.warning('Something went wrong when disconnecting: $e');
     }
 
     try {
       await state.nativeWalletRepository?.close();
     } catch (e) {
-      logger.warning('Something went wrong when closing wallet...');
+      talker.warning('Something went wrong when closing wallet: $e');
     }
 
     await state.streamSubscription?.cancel();
@@ -102,17 +102,22 @@ class WalletState extends _$WalletState {
   }
 
   Future<void> rescan() async {
-    var nodeInfo = await state.nativeWalletRepository?.getDaemonInfo();
     final loc = ref.read(appLocalizationsProvider);
-    if (nodeInfo?.prunedTopoHeight == null) {
-      // We are connected to a full node, so we can rescan from 0.
-      await state.nativeWalletRepository?.rescan(topoHeight: 0);
-      ref.read(snackBarMessengerProvider.notifier).showInfo(loc.rescan_done);
-    } else {
-      // We are connected to a pruned node, rescan is not available.
-      ref
-          .read(snackBarMessengerProvider.notifier)
-          .showError(loc.rescan_limitation_toast_error);
+    try {
+      final nodeInfo = await state.nativeWalletRepository?.getDaemonInfo();
+      if (nodeInfo?.prunedTopoHeight == null) {
+        // We are connected to a full node, so we can rescan from 0.
+        await state.nativeWalletRepository?.rescan(topoHeight: 0);
+        ref.read(snackBarMessengerProvider.notifier).showInfo(loc.rescan_done);
+      } else {
+        // We are connected to a pruned node, rescan is not available for simplicity.
+        ref
+            .read(snackBarMessengerProvider.notifier)
+            .showError(loc.rescan_limitation_toast_error);
+      }
+    } catch (e) {
+      final loc = ref.read(appLocalizationsProvider);
+      ref.read(snackBarMessengerProvider.notifier).showError(loc.oups);
     }
   }
 
@@ -130,6 +135,24 @@ class WalletState extends _$WalletState {
     if (state.nativeWalletRepository != null) {
       return state.nativeWalletRepository!
           .createSimpleTransferTransaction(address: destination);
+    }
+    return null;
+  }
+
+  Future<TransactionSummary?> createBurnTransaction(
+      {required double amount, required String asset}) async {
+    if (state.nativeWalletRepository != null) {
+      return state.nativeWalletRepository!
+          .createBurnTransaction(amount: amount, assetHash: asset);
+    }
+    return null;
+  }
+
+  Future<TransactionSummary?> createBurnAllTransaction(
+      {required String asset}) async {
+    if (state.nativeWalletRepository != null) {
+      return state.nativeWalletRepository!
+          .createBurnTransaction(assetHash: asset);
     }
     return null;
   }
@@ -165,6 +188,21 @@ class WalletState extends _$WalletState {
     return BigInt.zero;
   }
 
+  Future<void> exportCsv(String path) async {
+    if (state.nativeWalletRepository != null) {
+      return state.nativeWalletRepository!
+          .exportTransactionsToCsvFile('$path/genesix_transactions.csv');
+    }
+  }
+
+  Future<String?> exportCsvForWeb() async {
+    if (state.nativeWalletRepository != null) {
+      return state.nativeWalletRepository!.convertTransactionsToCsv();
+    }
+    return null;
+  }
+
+  // Handle incoming events
   Future<void> _onEvent(Event event) async {
     final loc = ref.read(appLocalizationsProvider);
     switch (event) {
@@ -172,62 +210,102 @@ class WalletState extends _$WalletState {
         state = state.copyWith(topoheight: event.topoHeight);
 
       case NewTransaction():
-        logger.info(event);
+        talker.info(event);
         if (state.topoheight != 0 &&
             event.transactionEntry.topoHeight >= state.topoheight) {
-          ref.read(snackBarMessengerProvider.notifier).showInfo(
-              '${loc.new_transaction_toast_info} ${event.transactionEntry}');
+          final txType = event.transactionEntry.txEntryType;
+
+          switch (txType) {
+            case sdk.IncomingEntry():
+              String message;
+              if (txType.isMultiTransfer()) {
+                message =
+                    '${toBeginningOfSentenceCase(loc.new_incoming_transaction)}.\n${toBeginningOfSentenceCase(loc.multiple_transfers_detected)}';
+              } else {
+                final atomicAmount = txType.transfers.first.amount;
+                final assetHash = txType.transfers.first.asset;
+                final amount = await state.nativeWalletRepository!
+                    .formatCoin(atomicAmount, assetHash);
+                final asset = assetHash == sdk.xelisAsset
+                    ? 'XELIS'
+                    : truncateText(assetHash);
+                message =
+                    '${toBeginningOfSentenceCase(loc.new_incoming_transaction)}.\n${loc.asset}: $asset\n${loc.amount}: +$amount';
+              }
+
+              ref.read(snackBarMessengerProvider.notifier).showInfo(message);
+
+            case sdk.OutgoingEntry():
+              ref.read(snackBarMessengerProvider.notifier).showInfo(
+                  '(#${txType.nonce}) ${toBeginningOfSentenceCase(loc.outgoing_transaction_confirmed)}');
+
+            case sdk.CoinbaseEntry():
+              final amount = await state.nativeWalletRepository!
+                  .formatCoin(txType.reward, sdk.xelisAsset);
+              ref.read(snackBarMessengerProvider.notifier).showInfo(
+                  '${toBeginningOfSentenceCase(loc.new_mining_reward)}:\n+$amount XEL');
+
+            case sdk.BurnEntry():
+              final amount = await state.nativeWalletRepository!
+                  .formatCoin(txType.amount, txType.asset);
+              final asset = txType.asset == sdk.xelisAsset
+                  ? 'XELIS'
+                  : truncateText(txType.asset);
+              ref.read(snackBarMessengerProvider.notifier).showInfo(
+                  '${toBeginningOfSentenceCase(loc.burn_transaction_confirmed)}\n${loc.asset}: $asset\n${loc.amount}: -$amount');
+          }
 
           // Temporary workaround to update XELIS balance on new outgoing transaction.
           // Normally there should be a BalanceChanged event for this case ...
-          if (await state.nativeWalletRepository?.hasXelisBalance() ?? false) {
-            state = state.copyWith(
-                xelisBalance:
-                    await state.nativeWalletRepository!.getXelisBalance());
-          }
+          state = state.copyWith(
+            xelisBalance: await state.nativeWalletRepository!.getXelisBalance(),
+          );
         }
 
       case BalanceChanged():
-        logger.info(event);
-        final nonce = await state.nativeWalletRepository!.nonce;
-
-        var updatedAssets = <String, int>{};
-        if (state.assets == null) {
-          updatedAssets = {
-            event.balanceChanged.assetHash: event.balanceChanged.balance
-          };
-        } else {
-          final updatedAssets = Map<String, int>.from(state.assets!);
-          updatedAssets[event.balanceChanged.assetHash] =
-              event.balanceChanged.balance;
-        }
+        talker.info(event);
+        final asset = event.balanceChanged.assetHash;
+        final newBalance = await state.nativeWalletRepository!
+            .formatCoin(event.balanceChanged.balance, asset);
+        final updatedAssets = Map<String, String>.from(state.assets);
+        updatedAssets[event.balanceChanged.assetHash] = newBalance;
 
         if (event.balanceChanged.assetHash == sdk.xelisAsset) {
           final xelisBalance =
               await state.nativeWalletRepository!.getXelisBalance();
-          state = state.copyWith(
-              nonce: nonce.toInt(),
-              assets: updatedAssets,
-              xelisBalance: xelisBalance);
+          state =
+              state.copyWith(assets: updatedAssets, xelisBalance: xelisBalance);
         } else {
-          state = state.copyWith(nonce: nonce.toInt(), assets: updatedAssets);
+          state = state.copyWith(assets: updatedAssets);
         }
 
       case NewAsset():
-        logger.info(event);
+        talker.info(event);
 
       case Rescan():
-        logger.info(event);
+        talker.info(event);
 
       case Online():
-        logger.info(event);
+        talker.info(event);
         state = state.copyWith(isOnline: true);
-      // ref.read(snackBarMessengerProvider.notifier).showInfo(loc.connected);
 
       case Offline():
-        logger.info(event);
+        talker.info(event);
         state = state.copyWith(isOnline: false);
-      // ref.read(snackBarMessengerProvider.notifier).showInfo(loc.disconnected);
+    }
+  }
+}
+
+// utility extension for TransactionEntryType
+// TODO move to xelis_dart_sdk
+extension TransactionUtils on sdk.TransactionEntryType {
+  bool isMultiTransfer() {
+    if (this is sdk.IncomingEntry) {
+      return (this as sdk.IncomingEntry).transfers.length > 1;
+    } else if (this is sdk.OutgoingEntry) {
+      return (this as sdk.OutgoingEntry).transfers.length > 1;
+    } else {
+      return false;
     }
   }
 }

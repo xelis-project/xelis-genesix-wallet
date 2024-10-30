@@ -87,9 +87,11 @@ class _TransactionEntryWidgetState
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(loc.topoheight, style: context.labelMedium
-                    //?.copyWith(color: context.colors.primary),
-                    ),
+                Text(
+                  loc.topoheight,
+                  style: context.labelMedium
+                      ?.copyWith(color: context.moreColors.mutedColor),
+                ),
                 const SizedBox(height: Spaces.extraSmall),
                 SelectableText(
                   displayTopoheight,
@@ -100,14 +102,15 @@ class _TransactionEntryWidgetState
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(loc.amount,
-                    /*_transferEntry == null ||
+                Text(
+                  loc.amount,
+                  /*_transferEntry == null ||
                             _transferEntry?.asset == xelisAsset
                         ? loc.amount.capitalize
                         : '${loc.amount.capitalize} (${loc.atomic_units})',*/
-                    style: context.labelMedium
-                    //?.copyWith(color: context.colors.primary),
-                    ),
+                  style: context.labelMedium
+                      ?.copyWith(color: context.moreColors.mutedColor),
+                ),
                 const SizedBox(height: Spaces.extraSmall),
                 SelectableText(
                   displayAmount,

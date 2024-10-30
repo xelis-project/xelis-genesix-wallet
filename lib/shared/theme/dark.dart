@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/more_colors.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 ThemeData darkTheme() {
   const textColor = Colors.white;
@@ -10,7 +11,15 @@ ThemeData darkTheme() {
   const backgroundColor = Color.fromARGB(255, 19, 19, 19);
   var borderRadius = BorderRadius.circular(10.0);
 
-  return ThemeData(
+  WidgetStateProperty<Color> switchStateProperty =
+      WidgetStateProperty.resolveWith((states) {
+    if (states.contains(WidgetState.selected)) {
+      return primaryColor;
+    }
+    return textColor.withOpacity(0.6);
+  });
+
+  final baseTheme = ThemeData(
     useMaterial3: true,
     // splashFactory: InkSparkle.splashFactory,
     splashFactory: NoSplash.splashFactory,
@@ -44,21 +53,36 @@ ThemeData darkTheme() {
 
     // TEXT
     textTheme: TextTheme(
-      bodyLarge: TextStyle(color: textColor, height: lineHeight),
-      bodyMedium: TextStyle(color: textColor, height: lineHeight),
-      bodySmall: TextStyle(color: textColor, height: lineHeight),
-      displayLarge: TextStyle(color: textColor, height: lineHeight),
-      displayMedium: TextStyle(color: textColor, height: lineHeight),
-      displaySmall: TextStyle(color: textColor, height: lineHeight),
-      titleLarge: TextStyle(color: textColor, height: lineHeight),
-      titleMedium: TextStyle(color: textColor, height: lineHeight),
-      titleSmall: TextStyle(color: textColor, height: lineHeight),
-      labelLarge: TextStyle(color: textColor, height: lineHeight),
-      labelMedium: TextStyle(color: textColor, height: lineHeight),
-      labelSmall: TextStyle(color: textColor, height: lineHeight),
-      headlineLarge: TextStyle(color: textColor, height: lineHeight),
-      headlineMedium: TextStyle(color: textColor, height: lineHeight),
-      headlineSmall: TextStyle(color: textColor, height: lineHeight),
+      bodyLarge: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      bodyMedium: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      bodySmall: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      displayLarge: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      displayMedium: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      displaySmall: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      titleLarge: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      titleMedium: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      titleSmall: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      labelLarge: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      labelMedium: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      labelSmall: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      headlineLarge: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      headlineMedium: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+      headlineSmall: TextStyle(
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
     ),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: textColor,
@@ -108,6 +132,7 @@ ThemeData darkTheme() {
         shape: RoundedRectangleBorder(
           borderRadius: borderRadius,
         ),
+        textStyle: GoogleFonts.jura(fontWeight: FontWeight.w800),
       ),
     ),
     iconButtonTheme: IconButtonThemeData(
@@ -124,7 +149,7 @@ ThemeData darkTheme() {
     ),
 
     // NAVIGATION BAR
-    navigationBarTheme: const NavigationBarThemeData(
+    navigationBarTheme: NavigationBarThemeData(
       indicatorShape: CircleBorder(
         side: BorderSide.none,
       ),
@@ -132,27 +157,28 @@ ThemeData darkTheme() {
       backgroundColor: Colors.black26,
       indicatorColor: Colors.white,
       labelTextStyle: WidgetStatePropertyAll(
-        TextStyle(
-          color: Colors.white,
-        ),
+        GoogleFonts.jura(color: Colors.white),
       ),
     ),
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: Colors.black12,
       selectedItemColor: Colors.white,
       type: BottomNavigationBarType.fixed,
       unselectedItemColor: Colors.white54,
-      selectedLabelStyle: TextStyle(fontSize: 12),
+      selectedLabelStyle:
+          GoogleFonts.jura(fontSize: 12, fontWeight: FontWeight.w600),
       selectedIconTheme: IconThemeData(size: 36),
       //showUnselectedLabels: false,
       //showSelectedLabels: false,
     ),
-    navigationRailTheme: const NavigationRailThemeData(
+    navigationRailTheme: NavigationRailThemeData(
       backgroundColor: Colors.black26,
       indicatorColor: Colors.transparent,
       //useIndicator: false,
-      selectedLabelTextStyle: TextStyle(color: Colors.white, fontSize: 14),
-      unselectedLabelTextStyle: TextStyle(color: Colors.white54, fontSize: 12),
+      selectedLabelTextStyle: GoogleFonts.jura(
+          color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+      unselectedLabelTextStyle: GoogleFonts.jura(
+          color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w600),
       selectedIconTheme: IconThemeData(size: 36, color: Colors.white),
       unselectedIconTheme: IconThemeData(size: 30, color: Colors.white54),
       /*indicatorShape: CircleBorder(
@@ -219,9 +245,9 @@ ThemeData darkTheme() {
 
     // SWITCH
     switchTheme: SwitchThemeData(
-      thumbColor: const WidgetStatePropertyAll(primaryColor),
+      thumbColor: switchStateProperty,
       trackColor: WidgetStatePropertyAll(primaryColor.withOpacity(.2)),
-      trackOutlineColor: const WidgetStatePropertyAll(primaryColor),
+      trackOutlineColor: switchStateProperty,
     ),
 
     // TAB BAR
@@ -255,5 +281,9 @@ ThemeData darkTheme() {
     scaffoldBackgroundColor: Colors.transparent,
     appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent),
     dividerColor: Colors.transparent,
+  );
+
+  return baseTheme.copyWith(
+    textTheme: GoogleFonts.juraTextTheme(baseTheme.textTheme),
   );
 }

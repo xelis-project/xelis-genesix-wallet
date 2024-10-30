@@ -9,7 +9,6 @@ class GlobalBottomLoader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlobalLoaderOverlay(
-      useDefaultLoading: false,
       overlayColor: Colors.black45,
       overlayWidgetBuilder: (_) {
         return const Align(

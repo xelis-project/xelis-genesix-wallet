@@ -24,8 +24,6 @@ String translateLocaleName(Locale locale) {
       return 'Русский';
     case 'tr':
       return 'Turkiye';
-    case 'ar':
-      return 'اللغة العربية';
     case 'nl':
       return 'Nederlands';
     case 'bg':
@@ -38,6 +36,8 @@ String translateLocaleName(Locale locale) {
       return 'Polski';
     case 'uk':
       return 'українська';
+    case 'ar':
+      return 'العربية';
     default:
       return 'N/A';
   }

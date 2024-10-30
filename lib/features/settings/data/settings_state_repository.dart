@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:genesix/features/settings/domain/settings_state.dart';
 import 'package:genesix/shared/storage/persistent_state.dart';
-import 'package:genesix/shared/logger.dart';
-import 'package:genesix/shared/storage/shared_preferences/shared_preferences_sync.dart';
+import 'package:genesix/features/logger/logger.dart';
+import 'package:genesix/shared/storage/shared_preferences/genesix_shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SettingsStateRepository extends PersistentState<SettingsState> {
-  SettingsStateRepository(this.sharedPreferencesSync);
+  SettingsStateRepository(this.genesixSharedPreferences);
 
-  SharedPreferencesSync sharedPreferencesSync;
-  static const _storageKey = 'settings';
+  GenesixSharedPreferences genesixSharedPreferences;
+  static const storageKey = 'settings';
 
   @override
   SettingsState fromStorage() {
     try {
-      final value =
-          sharedPreferencesSync.get(key: _storageKey) as Map<String, dynamic>?;
+      final value = genesixSharedPreferences.get(key: storageKey)
+          as Map<String, dynamic>?;
       if (value == null) {
         var locale = const Locale('en');
 
@@ -31,21 +31,21 @@ class SettingsStateRepository extends PersistentState<SettingsState> {
 
       return SettingsState.fromJson(value);
     } catch (e) {
-      logger.severe('SettingsStateRepository: $e');
+      talker.critical('SettingsStateRepository: $e');
       rethrow;
     }
   }
 
   @override
-  Future<bool> localDelete() async {
-    return sharedPreferencesSync.delete(key: _storageKey);
+  Future<void> localDelete() async {
+    await genesixSharedPreferences.delete(key: storageKey);
   }
 
   @override
-  Future<bool> localSave(SettingsState state) async {
+  Future<void> localSave(SettingsState state) async {
     final value = state.toJson();
-    return sharedPreferencesSync.save(
-      key: _storageKey,
+    await genesixSharedPreferences.save(
+      key: storageKey,
       value: value,
     );
   }

@@ -1,9 +1,8 @@
 use std::ops::ControlFlow;
-use std::path::Path;
 
-use flutter_rust_bridge::frb;
-use log::debug;
+use log::trace;
 use xelis_common::crypto::ecdlp;
+use xelis_wallet::precomputed_tables;
 
 use crate::api::progress_report::{add_progress_report, Report};
 
@@ -17,14 +16,14 @@ impl ecdlp::ProgressTableGenerationReportFunction for LogProgressTableGeneration
             step: step_str,
             message: None,
         });
-        debug!("Progress: {:.2}% on step {:?}", progress * 100.0, step);
+        trace!("Progress: {:.2}% on step {:?}", progress * 100.0, step);
 
         ControlFlow::Continue(())
     }
 }
 
-#[frb(sync)]
-pub fn precomputed_tables_exist(precomputed_tables_path: String) -> bool {
-    let file_path = format!("{precomputed_tables_path}precomputed_tables_26.bin");
-    return Path::new(&file_path).is_file();
+pub async fn precomputed_tables_exist(precomputed_tables_path: String) -> bool {
+    precomputed_tables::has_precomputed_tables(Some(precomputed_tables_path))
+        .await
+        .expect("Failed to check precomputed tables existence")
 }

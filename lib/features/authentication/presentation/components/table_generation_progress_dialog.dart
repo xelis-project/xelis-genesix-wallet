@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -53,17 +54,21 @@ class TableGenerationProgressDialog extends ConsumerWidget {
                               size: 30,
                             ),
                             const SizedBox(width: Spaces.medium),
-                            Text(
-                              loc.wait,
-                              style: context.bodyLarge?.copyWith(
-                                  color: context.colors.primary,
-                                  fontWeight: FontWeight.bold),
+                            Expanded(
+                              child: Text(
+                                loc.wait,
+                                style: context.bodyLarge?.copyWith(
+                                    color: context.colors.primary,
+                                    fontWeight: FontWeight.bold),
+                              ),
                             ),
                           ],
                         ),
                         const SizedBox(height: Spaces.small),
                         Text(
-                          loc.table_generation_message_1,
+                          kIsWeb
+                              ? loc.table_generation_message_web
+                              : loc.table_generation_message_1,
                           style: context.bodyMedium
                               ?.copyWith(color: context.colors.primary),
                         ),
@@ -81,6 +86,7 @@ class TableGenerationProgressDialog extends ConsumerWidget {
                 LinearProgressIndicator(
                   value: progressValue,
                   borderRadius: BorderRadius.circular(8.0),
+                  backgroundColor: context.moreColors.mutedColor,
                   minHeight: 10,
                 ),
                 const SizedBox(height: Spaces.small),

@@ -1,12 +1,13 @@
+use flutter_rust_bridge::frb;
 use lazy_static::lazy_static;
-pub use log::LevelFilter;
 use log::{error, warn, Log, Metadata, Record};
+pub use log::{Level, LevelFilter};
 use simplelog::{CombinedLogger, Config, SharedLogger};
 use std::sync::Once;
 
 use crate::frb_generated::StreamSink;
 
-use super::time;
+// use super::time;
 
 lazy_static! {
     pub static ref SEND_TO_DART_LOGGER_STREAM_SINK: parking_lot::RwLock<Option<StreamSink<LogEntry>>> =
@@ -31,10 +32,18 @@ pub fn init_logger() {
 }
 
 pub struct LogEntry {
-    pub time_millis: u64,
-    pub level: String,
+    pub level: Level,
     pub tag: String,
     pub msg: String,
+}
+
+#[frb(mirror(Level))]
+pub enum _Level {
+    Error,
+    Warn,
+    Info,
+    Debug,
+    Trace,
 }
 
 pub struct SendToDartLogger {
@@ -59,19 +68,11 @@ impl SendToDartLogger {
     }
 
     fn record_to_entry(record: &Record) -> LogEntry {
-        let time_millis = time::get_current_time_millis();
-        let level = record.level().to_string();
-
+        let level = record.level();
         let tag = record.file().unwrap_or_else(|| record.target()).to_owned();
-
         let msg = format!("{}", record.args());
 
-        LogEntry {
-            time_millis,
-            level,
-            tag,
-            msg,
-        }
+        LogEntry { level, tag, msg }
     }
 }
 

@@ -23,7 +23,6 @@ class NodeSelectorWidget extends ConsumerStatefulWidget {
 class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
   void _onDismissed(NodeAddress node) {
     final settings = ref.read(settingsProvider);
-
     ref.read(networkNodesProvider.notifier).removeNode(settings.network, node);
   }
 

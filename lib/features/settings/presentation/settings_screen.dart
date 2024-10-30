@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
-import 'package:genesix/shared/storage/shared_preferences/shared_preferences_provider.dart';
+import 'package:genesix/features/router/route_utils.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/settings/presentation/components/logger_selector_widget.dart';
+import 'package:genesix/features/settings/presentation/components/reset_preference_button.dart';
 import 'package:genesix/shared/theme/extensions.dart';
-import 'package:loader_overlay/loader_overlay.dart';
+import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
+import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/presentation/components/layout_widget.dart';
@@ -12,7 +15,6 @@ import 'package:genesix/features/settings/presentation/components/language_selec
 import 'package:genesix/features/settings/presentation/components/network_selector_widget.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/shared/widgets/components/background_widget.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -50,63 +52,55 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     });
   }
 
-  Future<void> _clearCache(BuildContext context) async {
-    final loc = ref.read(appLocalizationsProvider);
-    try {
-      context.loaderOverlay.show();
-
-      await ref.read(sharedPreferencesProvider).clear();
-
-      ref.read(snackBarMessengerProvider.notifier).showInfo(loc.cache_cleared);
-    } catch (e) {
-      ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
-    }
-
-    if (context.mounted) {
-      context.loaderOverlay.hide();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
+    final activateLogger =
+        ref.watch(settingsProvider.select((state) => state.activateLogger));
 
-    return Background(
-      child: Scaffold(
-        appBar: GenericAppBar(title: loc.app_settings),
-        body: ListView(
-          padding: const EdgeInsets.fromLTRB(
-              Spaces.large, Spaces.none, Spaces.large, Spaces.large),
-          children: [
-            const NetworkSelectorWidget(),
-            const Divider(),
-            const ThemeSelectorWidget(),
-            const Divider(),
-            const LanguageSelectorWidget(),
-            const Divider(),
-            HorizontalContainer(title: loc.version, value: _version),
-            const Divider(),
-            VerticalContainer(
-                title: loc.wallets_directory, value: _walletsPath),
-            const Divider(),
-            VerticalContainer(title: loc.cache_directory, value: _cachePath),
-            const SizedBox(height: Spaces.medium),
-            OutlinedButton(
-                onPressed: () => _clearCache(context),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.all(Spaces.medium + 4),
-                  side: BorderSide(
-                    color: context.colors.error,
-                    width: 1,
-                  ),
-                ),
-                child: Text(
-                  loc.clear_cache,
-                  style: context.titleMedium!
-                      .copyWith(color: context.colors.error),
-                )),
-          ],
-        ),
+    return CustomScaffold(
+      appBar: GenericAppBar(
+          title: loc.app_settings,
+          actions: activateLogger
+              ? [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                        Spaces.none, Spaces.medium, Spaces.small, Spaces.none),
+                    child: IconButton(
+                      onPressed: () => context.push(AppScreen.logger.toPath),
+                      icon: const Icon(Icons.feed_outlined),
+                      tooltip: loc.logger,
+                    ),
+                  )
+                ]
+              : null),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(
+            Spaces.large, Spaces.none, Spaces.large, Spaces.large),
+        children: [
+          const NetworkSelectorWidget(),
+          const Divider(),
+          const ThemeSelectorWidget(),
+          const Divider(),
+          const LanguageSelectorWidget(),
+          const Divider(),
+          const LoggerSelectorWidget(),
+          const Divider(),
+          HorizontalContainer(title: loc.version, value: _version),
+          const Divider(),
+          VerticalContainer(title: loc.wallets_directory, value: _walletsPath),
+          const Divider(),
+          VerticalContainer(title: loc.cache_directory, value: _cachePath),
+          const Divider(),
+          const SizedBox(height: Spaces.medium),
+          Row(
+            children: [
+              if (context.isWideScreen) Spacer(),
+              Expanded(flex: 2, child: ResetPreferenceButton()),
+              if (context.isWideScreen) Spacer(),
+            ],
+          ),
+        ],
       ),
     );
   }

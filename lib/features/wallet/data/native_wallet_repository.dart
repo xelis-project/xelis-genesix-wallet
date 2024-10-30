@@ -5,7 +5,7 @@ import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/rust_bridge/api/network.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/features/wallet/domain/event.dart';
-import 'package:genesix/shared/logger.dart';
+import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/rust_bridge/api/wallet.dart';
 
 class NativeWalletRepository {
@@ -21,7 +21,7 @@ class NativeWalletRepository {
         password: pwd,
         network: network,
         precomputedTablesPath: precomputeTablesPath);
-    logger.info('new XELIS Wallet created: $walletPath');
+    talker.info('new XELIS Wallet created: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }
 
@@ -34,7 +34,7 @@ class NativeWalletRepository {
         seed: seed,
         network: network,
         precomputedTablesPath: precomputeTablesPath);
-    logger.info('XELIS Wallet recovered from seed: $walletPath');
+    talker.info('XELIS Wallet recovered from seed: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }
 
@@ -46,7 +46,7 @@ class NativeWalletRepository {
         password: pwd,
         network: network,
         precomputedTablesPath: precomputeTablesPath);
-    logger.info('XELIS Wallet open: $walletPath');
+    talker.info('XELIS Wallet open: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }
 
@@ -56,7 +56,7 @@ class NativeWalletRepository {
 
   void dispose() {
     _xelisWallet.dispose();
-    if (_xelisWallet.isDisposed) logger.info('Rust Wallet disposed');
+    if (_xelisWallet.isDisposed) talker.info('Rust Wallet disposed');
   }
 
   XelisWallet get nativeWallet => _xelisWallet;
@@ -132,21 +132,26 @@ class NativeWalletRepository {
   }
 
   Future<TransactionSummary> createBurnTransaction(
-      {required double amount, required String assetHash}) async {
-    final rawTx = await _xelisWallet.createBurnTransaction(
-        floatAmount: amount, assetHash: assetHash);
+      {double? amount, required String assetHash}) async {
+    String rawTx;
+    if (amount == null) {
+      rawTx = await _xelisWallet.createBurnAllTransaction(assetHash: assetHash);
+    } else {
+      rawTx = await _xelisWallet.createBurnTransaction(
+          floatAmount: amount, assetHash: assetHash);
+    }
     final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
     return TransactionSummary.fromJson(jsonTx);
   }
 
   Future<void> broadcastTransaction(String hash) async {
     await _xelisWallet.broadcastTransaction(txHash: hash);
-    logger.info('Transaction successfully broadcast: $hash');
+    talker.info('Transaction successfully broadcast: $hash');
   }
 
   Future<void> clearTransaction(String hash) async {
     await _xelisWallet.clearTransaction(txHash: hash);
-    logger.info('Transaction canceled: $hash');
+    talker.info('Transaction canceled: $hash');
   }
 
   Future<List<sdk.TransactionEntry>> allHistory() async {
@@ -160,18 +165,26 @@ class NativeWalletRepository {
 
   Future<void> setOnline({required String daemonAddress}) async {
     await _xelisWallet.onlineMode(daemonAddress: daemonAddress);
-    logger.info('XELIS Wallet connected to: $daemonAddress');
+    talker.info('XELIS Wallet connected to: $daemonAddress');
   }
 
   Future<void> setOffline() async {
     await _xelisWallet.offlineMode();
-    logger.info('XELIS Wallet offline');
+    talker.info('XELIS Wallet offline');
   }
 
   Future<sdk.GetInfoResult> getDaemonInfo() async {
     var rawData = await _xelisWallet.getDaemonInfo();
     final json = jsonDecode(rawData);
     return sdk.GetInfoResult.fromJson(json as Map<String, dynamic>);
+  }
+
+  Future<void> exportTransactionsToCsvFile(String path) async {
+    await _xelisWallet.exportTransactionsToCsvFile(filePath: path);
+  }
+
+  Future<String> convertTransactionsToCsv() async {
+    return _xelisWallet.convertTransactionsToCsv();
   }
 
   Stream<Event> convertRawEvents() async* {

@@ -1,6 +1,9 @@
+import 'package:country_flags/country_flags.dart';
 import 'package:flutter/widgets.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:genesix/features/wallet/domain/asset.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 // import 'package:jovial_svg/jovial_svg.dart';
 
 class AppResources {
@@ -8,34 +11,68 @@ class AppResources {
 
   static const String userWalletsFolderName = 'Genesix wallets';
 
+  static const Map<String, String> defaultAssets = {
+    sdk.xelisAsset: '0.00000000',
+  };
+
   static const int xelisDecimals = 8;
 
+  static const Asset xelisAsset = Asset(
+    hash: sdk.xelisAsset,
+    name: 'Xelis',
+    imagePath: greenBackgroundBlackIconPath,
+    // imageURL:
+    //     "https://raw.githubusercontent.com/xelis-project/xelis-assets/master/icons/png/circle/green_background_black_logo.png",
+    decimals: xelisDecimals,
+    ticker: 'XEL',
+  );
+
   static List<NodeAddress> mainnetNodes = [
+    // const NodeAddress(
+    //   name: 'Official Seed Node #1',
+    //   url: 'https://${sdk.mainnetNodeURL}',
+    // ),
     const NodeAddress(
-      name: 'Official Seed Node #1',
-      url: 'https://$mainnetNodeURL',
+      name: 'Seed Node US #1',
+      url: 'https://us-node.xelis.io/',
     ),
     const NodeAddress(
-      name: 'Official Seed Node #FR',
+      name: 'Seed Node France #1',
       url: 'https://fr-node.xelis.io/',
     ),
     const NodeAddress(
-      name: 'Official Seed Node #US',
-      url: 'https://us-node.xelis.io/',
+      name: 'Seed Node Germany #1',
+      url: 'https://de-node.xelis.io/',
+    ),
+    const NodeAddress(
+      name: 'Seed Node Poland #1',
+      url: 'https://pl-node.xelis.io/',
+    ),
+    const NodeAddress(
+      name: 'Seed Node Singapore #1',
+      url: 'https://sg-node.xelis.io/',
+    ),
+    const NodeAddress(
+      name: 'Seed Node United Kingdom #1',
+      url: 'https://uk-node.xelis.io/',
+    ),
+    const NodeAddress(
+      name: 'Seed Node Canada #1',
+      url: 'https://ca-node.xelis.io/',
     ),
   ];
 
   static List<NodeAddress> testnetNodes = [
     const NodeAddress(
       name: 'Official XELIS Testnet',
-      url: 'https://$testnetNodeURL',
+      url: 'https://${sdk.testnetNodeURL}',
     )
   ];
 
   static List<NodeAddress> devNodes = [
     const NodeAddress(
       name: 'Default Local Node',
-      url: 'http://$localhostAddress',
+      url: 'http://${sdk.localhostAddress}',
     ),
   ];
 
@@ -74,7 +111,9 @@ class AppResources {
   //     'assets/banners/svg/transparent_background_black_logo.svg';
   // static String svgBannerWhitePath =
   //     'assets/banners/svg/transparent_background_white_logo.svg';
-  static String bgDotsPath = 'assets/bg_dots.png';
+  static const String greenBackgroundBlackIconPath =
+      'assets/icons/png/circle/green_background_black_logo.png';
+  static const String bgDotsPath = 'assets/bg_dots.png';
 
   // static late ScalableImage svgBannerGreen;
   // static late ScalableImage svgBannerWhite;
@@ -95,4 +134,71 @@ class AppResources {
 //   si: AppResources.svgBannerWhite,
 //   scale: 0.15,
 // );
+
+  static List<CountryFlag> countryFlags = List.generate(
+    AppLocalizations.supportedLocales.length,
+    (int index) {
+      String languageCode =
+          AppLocalizations.supportedLocales[index].languageCode;
+      switch (languageCode) {
+        case 'zh':
+          return CountryFlag.fromCountryCode(
+            'CN',
+            height: 24,
+            width: 30,
+            shape: const RoundedRectangle(8),
+          );
+        case 'ru' || 'pt' || 'nl' || 'pl':
+          return CountryFlag.fromCountryCode(
+            languageCode,
+            height: 24,
+            width: 30,
+            shape: const RoundedRectangle(8),
+          );
+        case 'ko':
+          return CountryFlag.fromCountryCode(
+            'KR',
+            height: 24,
+            width: 30,
+            shape: const RoundedRectangle(8),
+          );
+        case 'ms':
+          return CountryFlag.fromCountryCode(
+            'MY',
+            height: 24,
+            width: 30,
+            shape: const RoundedRectangle(8),
+          );
+        case 'uk':
+          return CountryFlag.fromCountryCode(
+            'UA',
+            height: 24,
+            width: 30,
+            shape: const RoundedRectangle(8),
+          );
+        case 'ja':
+          return CountryFlag.fromCountryCode(
+            'JP',
+            height: 24,
+            width: 30,
+            shape: const RoundedRectangle(8),
+          );
+        case 'ar':
+          return CountryFlag.fromCountryCode(
+            'SA',
+            height: 24,
+            width: 30,
+            shape: const RoundedRectangle(8),
+          );
+        default:
+          return CountryFlag.fromLanguageCode(
+            AppLocalizations.supportedLocales[index].languageCode,
+            height: 24,
+            width: 30,
+            shape: const RoundedRectangle(8),
+          );
+      }
+    },
+    growable: false,
+  );
 }

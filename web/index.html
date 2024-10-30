@@ -24,8 +24,8 @@
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="genesix_wallet">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <meta name="apple-mobile-web-app-title" content="Genesix Wallet">
+  <link rel="apple-touch-icon" href="icons/ios_web_clip_thumbnail.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
@@ -33,6 +33,8 @@
   <title>Genesix Wallet</title>
   <link rel="manifest" href="manifest.json">
   <style id="splash-screen-style">
+    @import url('https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap');
+
     html {
       height: 100%
     }
@@ -88,6 +90,7 @@
       text-align: center;
       position: absolute;
       bottom: 0;
+      font-family: "Jura", sans-serif;
 
       @media only screen and (min-width: 600px) {
 
@@ -127,7 +130,7 @@
       document.body.style.background = "transparent";
     }
   </script>
-  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 
 <body>
@@ -142,10 +145,15 @@
   </picture>
   <div id="msg">
     <div>Loading assets...</div>
-    <div>Please be patient. If this is your first time loading, it might take up to 1 minute to download the precomputed
-      table before it is cached on your device.</div>
+<!--    <div>Please be patient. If this is your first time loading, it might take up to 1 minute to download the precomputed-->
+<!--      table before it is cached on your device.</div>-->
   </div>
-
+  <script>
+    // Polyfill for old browsers that don't support WeakRef.
+    // (See https://github.com/ungap/weakrefs/blob/v0.1.0/min.js)
+    /*! (c) Andrea Giammarchi - ISC */
+    var self=this||{};try{self.WeakRef=WeakRef,self.FinalizationGroup=FinalizationGroup}catch(e){!function(e,t){var i=new e;function n(e){i.set(this,e)}t(n.prototype,{deref:{value:function(){return i.get(this)}}});var a=new e;function r(e){a.set(this,[])}t(r.prototype,{register:{value:function(e,t){var i=a.get(this);i.indexOf(t)<0&&i.push(t)}},unregister:{value:function(e,t){var i=a.get(this),n=i.indexOf(t);return-1<n&&i.splice(n,1),-1<n}},cleanupSome:{value:function(e){e(a.get(this))}}}),self.WeakRef=n,self.FinalizationGroup=r}(WeakMap,Object.defineProperties)}
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 
