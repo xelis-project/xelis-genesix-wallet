@@ -23,7 +23,7 @@ impl ecdlp::ProgressTableGenerationReportFunction for LogProgressTableGeneration
 }
 
 pub async fn precomputed_tables_exist(precomputed_tables_path: String) -> bool {
-    precomputed_tables::has_precomputed_tables(Some(precomputed_tables_path))
+    precomputed_tables::has_precomputed_tables(Some(precomputed_tables_path.as_str()), 13)
         .await
         .expect("Failed to check precomputed tables existence")
 }

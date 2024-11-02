@@ -56,13 +56,15 @@ pub async fn create_xelis_wallet(
     seed: Option<String>,
     precomputed_tables_path: Option<String>,
 ) -> Result<XelisWallet> {
+    info!("creating xelis wallet");
     let precomputed_tables = {
         let tables = CACHED_TABLES.lock().clone();
         match tables {
             Some(tables) => tables,
             None => {
                 let tables = precomputed_tables::read_or_generate_precomputed_tables(
-                    precomputed_tables_path,
+                    precomputed_tables_path.as_deref(),
+                    13,
                     LogProgressTableGenerationReportFunction,
                 )
                 .await?;
@@ -74,7 +76,7 @@ pub async fn create_xelis_wallet(
         }
     };
 
-    let xelis_wallet = Wallet::create(name, password, seed, network, precomputed_tables)?;
+    let xelis_wallet = Wallet::create(name.as_str(), password.as_str(), seed.as_deref(), network, precomputed_tables)?;
     Ok(XelisWallet {
         wallet: xelis_wallet,
         pending_transactions: RwLock::new(HashMap::new()),
@@ -88,11 +90,12 @@ pub async fn open_xelis_wallet(
     precomputed_tables_path: Option<String>,
 ) -> Result<XelisWallet> {
     let precomputed_tables = precomputed_tables::read_or_generate_precomputed_tables(
-        precomputed_tables_path,
+        precomputed_tables_path.as_deref(),
+        13,
         LogProgressTableGenerationReportFunction,
     )
     .await?;
-    let xelis_wallet = Wallet::open(name, password, network, precomputed_tables)?;
+    let xelis_wallet = Wallet::open(name.as_str(), password.as_str(), network, precomputed_tables)?;
     Ok(XelisWallet {
         wallet: xelis_wallet,
         pending_transactions: RwLock::new(HashMap::new()),
@@ -102,7 +105,7 @@ pub async fn open_xelis_wallet(
 impl XelisWallet {
     // Change the wallet password
     pub async fn change_password(&self, old_password: String, new_password: String) -> Result<()> {
-        self.wallet.set_password(old_password, new_password).await
+        self.wallet.set_password(old_password.as_str(), new_password.as_str()).await
     }
 
     // set the wallet to online mode
@@ -150,7 +153,7 @@ impl XelisWallet {
 
     // check if the password is valid
     pub async fn is_valid_password(&self, password: String) -> Result<()> {
-        self.wallet.is_valid_password(password).await
+        self.wallet.is_valid_password(password.as_str()).await
     }
 
     // check if the wallet has a Xelis balance
