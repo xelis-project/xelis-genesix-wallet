@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -38,8 +39,21 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
     final wallet = ref.read(walletStateProvider);
     try {
       context.loaderOverlay.show();
+
+      // check if password is valid
       await wallet.nativeWalletRepository!.isValidPassword(password);
+
+      // call onValid callback
       widget.onValid!();
+
+      // unlock biometric auth if locked
+      if (ref.read(biometricAuthProvider) ==
+          BiometricAuthProviderStatus.locked) {
+        ref
+            .read(biometricAuthProvider.notifier)
+            .updateStatus(BiometricAuthProviderStatus.ready);
+      }
+
       if (widget.closeOnValid == true && context.mounted) {
         context.pop(); // hide the dialog
       }
@@ -62,7 +76,6 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
     return AlertDialog(
       scrollable: false,
       contentPadding: const EdgeInsets.all(Spaces.small),
-      //iconPadding: const EdgeInsets.all(Spaces.small),
       content: FormBuilder(
         key: _passwordFormKey,
         child: PasswordTextField(

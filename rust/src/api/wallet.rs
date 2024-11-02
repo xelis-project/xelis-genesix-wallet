@@ -102,7 +102,7 @@ pub async fn open_xelis_wallet(
 impl XelisWallet {
     // Change the wallet password
     pub async fn change_password(&self, old_password: String, new_password: String) -> Result<()> {
-        self.wallet.set_password(old_password, new_password).await
+        Ok(self.wallet.set_password(old_password, new_password).await?)
     }
 
     // set the wallet to online mode

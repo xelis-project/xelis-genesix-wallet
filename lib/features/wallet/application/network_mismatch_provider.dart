@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/node_info_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -7,7 +8,7 @@ import 'package:genesix/rust_bridge/api/network.dart' as rust;
 part 'network_mismatch_provider.g.dart';
 
 @riverpod
-bool networkMismatch(NetworkMismatchRef ref) {
+bool networkMismatch(Ref ref) {
   final walletNetwork =
       ref.watch(settingsProvider.select((state) => state.network));
   final nodeNetwork =

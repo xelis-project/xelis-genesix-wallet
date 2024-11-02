@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/presentation/settings_tab/components/burn_warning_dialog.dart';
 import 'package:genesix/features/wallet/presentation/settings_tab/components/delete_wallet_button.dart';
@@ -15,28 +16,25 @@ import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/input_dialog.dart';
-import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:intl/intl.dart';
 
-class SettingsTab extends ConsumerWidget {
-  SettingsTab({super.key});
+final _burnSwitchKey =
+    GlobalKey<FormBuilderState>(debugLabel: '_burnSwitchKey');
 
-  final _burnSwitchKey = GlobalKey<FormBuilderFieldState<dynamic, dynamic>>(
-      debugLabel: '_burnSwitchKey');
+class SettingsTab extends ConsumerWidget {
+  const SettingsTab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
     final name = ref.watch(walletStateProvider.select((state) => state.name));
     final settings = ref.watch(settingsProvider);
+    final isBiometricAuthLocked =
+        ref.watch(biometricAuthProvider) == BiometricAuthProviderStatus.locked;
 
     return ListView(
       padding: const EdgeInsets.all(Spaces.large),
       children: [
-        // Text(
-        //   loc.settings,
-        //   style: context.headlineLarge!.copyWith(fontWeight: FontWeight.bold),
-        // ),
         const SizedBox(height: Spaces.medium),
         ListTile(
           leading: const Icon(Icons.settings_applications),
@@ -56,7 +54,11 @@ class SettingsTab extends ConsumerWidget {
             loc.view_seed,
             style: context.titleLarge,
           ),
-          onTap: () => _showSeedInput(context),
+          onTap: () => startWithBiometricAuth(
+            ref,
+            callback: (ref) =>
+                ref.context.push(AuthAppScreen.walletSeedScreen.toPath),
+          ),
           trailing: const Icon(
             Icons.keyboard_arrow_right_rounded,
           ),
@@ -69,6 +71,22 @@ class SettingsTab extends ConsumerWidget {
             style: context.titleLarge,
           ),
           children: [
+            FormBuilderSwitch(
+              name: 'biometric_auth_switch',
+              initialValue: settings.activateBiometricAuth,
+              decoration: const InputDecoration(fillColor: Colors.transparent),
+              title: Text(
+                'Enable biometric authentication',
+                style: context.bodyLarge,
+              ),
+              onChanged: isBiometricAuthLocked
+                  ? null
+                  : (value) {
+                      ref
+                          .read(settingsProvider.notifier)
+                          .setActivateBiometricAuth(value!);
+                    },
+            ),
             if (settings.network == Network.mainnet)
               FormBuilderSwitch(
                 name: 'show_balance_usdt_switch',
@@ -83,20 +101,18 @@ class SettingsTab extends ConsumerWidget {
                       .setShowBalanceUSDT(value!);
                 },
               ),
-            FormBuilderSwitch(
-              name: 'unlock_burn_switch',
+            FormBuilder(
               key: _burnSwitchKey,
-              initialValue: settings.unlockBurn,
-              decoration: const InputDecoration(fillColor: Colors.transparent),
-              title: Text(toBeginningOfSentenceCase(loc.unlock_burn_transfer),
-                  style: context.bodyLarge),
-              onChanged: (value) {
-                if (value ?? false) {
-                  _showBurnWarningDialog(ref);
-                } else {
-                  ref.read(settingsProvider.notifier).setUnlockBurn(false);
-                }
-              },
+              child: FormBuilderSwitch(
+                name: 'unlock_burn_switch',
+                initialValue: settings.unlockBurn,
+                decoration:
+                    const InputDecoration(fillColor: Colors.transparent),
+                title: Text(toBeginningOfSentenceCase(loc.unlock_burn_transfer),
+                    style: context.bodyLarge),
+                onChanged: (value) =>
+                    _showBurnWarningDialog(ref, value ?? false),
+              ),
             ),
           ],
         ),
@@ -212,28 +228,23 @@ class SettingsTab extends ConsumerWidget {
     );
   }
 
-  void _showSeedInput(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (context) {
-        return PasswordDialog(
-          onValid: () {
-            context.push(AuthAppScreen.walletSeedScreen.toPath);
-          },
-        );
-      },
-    );
-  }
-
-  Future<void> _showBurnWarningDialog(WidgetRef ref) async {
-    await showDialog<void>(
-      context: ref.context,
-      builder: (context) {
-        return BurnWarningDialog(_burnSwitchKey);
-      },
-    );
-    if (!ref.read(settingsProvider).unlockBurn) {
-      _burnSwitchKey.currentState?.didChange(false);
+  Future<void> _showBurnWarningDialog(WidgetRef ref, bool switchValue) async {
+    _burnSwitchKey.currentState?.save();
+    if (switchValue) {
+      await showDialog<void>(
+        context: ref.context,
+        builder: (context) {
+          return BurnWarningDialog();
+        },
+      );
+      final unlockBurn = ref.read(settingsProvider).unlockBurn;
+      // If the user cancels or aborts the burn unlock, we need to reset the switch
+      if (!unlockBurn) {
+        _burnSwitchKey.currentState?.fields['unlock_burn_switch']
+            ?.didChange(false);
+      }
+    } else {
+      ref.read(settingsProvider.notifier).setUnlockBurn(false);
     }
   }
 }

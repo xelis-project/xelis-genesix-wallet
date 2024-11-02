@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
-import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:go_router/go_router.dart';
 
 class BurnWarningDialog extends ConsumerWidget {
-  const BurnWarningDialog(this._settingSwitchKey, {super.key});
-
-  final GlobalKey<FormBuilderFieldState<dynamic, dynamic>> _settingSwitchKey;
+  const BurnWarningDialog({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -62,36 +59,29 @@ class BurnWarningDialog extends ConsumerWidget {
           ),
           const SizedBox(height: Spaces.medium),
           Text(loc.do_you_want_to_activate_burn_transfer),
-          // const SizedBox(height: Spaces.medium),
         ],
       ),
       actions: [
         TextButton(
           onPressed: () {
-            // ref.read(settingsProvider.notifier).setUnlockBurn(false);
-            _settingSwitchKey.currentState?.didChange(false);
+            ref.read(settingsProvider.notifier).setUnlockBurn(false);
             context.pop();
           },
           child: Text(loc.cancel_button),
         ),
         TextButton(
-          onPressed: () => showDialog<void>(
-            context: context,
-            builder: (context) {
-              return PasswordDialog(
-                onValid: () {
-                  ref.read(settingsProvider.notifier).setUnlockBurn(true);
-                  context.pop();
-                  ref
-                      .read(snackBarMessengerProvider.notifier)
-                      .showInfo(loc.burn_transfer_unlock);
-                },
-              );
-            },
-          ),
+          onPressed: () => startWithBiometricAuth(ref, callback: _unlockBurn),
           child: Text(loc.confirm_button),
         ),
       ],
     );
+  }
+
+  void _unlockBurn(WidgetRef ref) {
+    final loc = ref.read(appLocalizationsProvider);
+    ref.read(settingsProvider.notifier).setUnlockBurn(true);
+    ref
+        .read(snackBarMessengerProvider.notifier)
+        .showInfo(loc.burn_transfer_unlock);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
@@ -8,7 +9,6 @@ import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
-import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -26,10 +26,10 @@ class TransferReviewDialog extends ConsumerStatefulWidget {
 class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
   bool _isBroadcast = false;
 
-  Future<void> _broadcastTransfer(BuildContext context, WidgetRef ref) async {
+  Future<void> _broadcastTransfer(WidgetRef ref) async {
     final loc = ref.read(appLocalizationsProvider);
     try {
-      context.loaderOverlay.show();
+      ref.context.loaderOverlay.show();
 
       await ref
           .read(walletStateProvider.notifier)
@@ -46,8 +46,8 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
       ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
     }
 
-    if (context.mounted) {
-      context.loaderOverlay.hide();
+    if (ref.context.mounted) {
+      ref.context.loaderOverlay.hide();
     }
   }
 
@@ -184,16 +184,11 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
                   child: Text(loc.ok_button),
                 )
               : TextButton.icon(
-                  onPressed: () {
-                    showDialog<void>(
-                      context: context,
-                      builder: (context) {
-                        return PasswordDialog(
-                          onValid: () => _broadcastTransfer(context, ref),
-                        );
-                      },
-                    );
-                  },
+                  onPressed: () => startWithBiometricAuth(
+                    ref,
+                    callback: _broadcastTransfer,
+                    closeCurrentDialog: false,
+                  ),
                   icon: const Icon(Icons.send, size: 18),
                   label: Text(loc.broadcast),
                 ),
