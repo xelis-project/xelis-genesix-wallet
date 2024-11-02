@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
+import 'package:flutter/foundation.dart';
+import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/rust_bridge/api/wallet.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
@@ -265,6 +267,21 @@ class WalletState extends _$WalletState {
       return state.nativeWalletRepository!.convertTransactionsToCsv();
     }
     return null;
+  }
+
+  Future<void> changePassword(String oldPassword, String newPassword) async {
+    if (state.nativeWalletRepository != null) {
+      await state.nativeWalletRepository!
+          .changePassword(oldPassword: oldPassword, newPassword: newPassword);
+
+      // Update password in secure storage if not running in web
+      if (!kIsWeb) {
+        await ref.read(secureStorageProvider).write(
+              key: state.name,
+              value: newPassword,
+            );
+      }
+    }
   }
 
   // Handle incoming events

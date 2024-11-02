@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -55,8 +56,21 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
     final wallet = ref.read(walletStateProvider);
     try {
       context.loaderOverlay.show();
+
+      // check if password is valid
       await wallet.nativeWalletRepository!.isValidPassword(password);
+
+      // call onValid callback
       widget.onValid!();
+
+      // unlock biometric auth if locked
+      if (ref.read(biometricAuthProvider) ==
+          BiometricAuthProviderStatus.locked) {
+        ref
+            .read(biometricAuthProvider.notifier)
+            .updateStatus(BiometricAuthProviderStatus.ready);
+      }
+
       if (widget.closeOnValid == true && context.mounted) {
         context.pop(); // hide the dialog
       }

@@ -4,8 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
 import 'package:genesix/rust_bridge/api/table_generation.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/storage/secure_storage/secure_storage_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
 import 'package:genesix/features/router/route_utils.dart';
@@ -22,8 +24,11 @@ part 'authentication_service.g.dart';
 
 @riverpod
 class Authentication extends _$Authentication {
+  late SecureStorageRepository _secureStorage;
+
   @override
   AuthenticationState build() {
+    _secureStorage = ref.watch(secureStorageProvider);
     return const AuthenticationState.signedOut();
   }
 
@@ -87,6 +92,11 @@ class Authentication extends _$Authentication {
           .read(walletsProvider.notifier)
           .setWalletAddress(name, walletRepository.address);
 
+      // save password in secure storage on all platforms except web
+      if (!kIsWeb) {
+        await _secureStorage.write(key: name, value: password);
+      }
+
       state = AuthenticationState.signedIn(
           name: name, nativeWallet: walletRepository);
 
@@ -114,19 +124,18 @@ class Authentication extends _$Authentication {
     final settings = ref.read(settingsProvider);
     final precomputedTablesPath = await _getPrecomputedTablesPath();
 
-    var walletPath = await getWalletPath(settings.network, name);
+    final walletPath = await getWalletPath(settings.network, name);
 
     var walletExists = false;
     if (kIsWeb) {
-      var path = localStorage.getItem(walletPath);
-      walletExists = path != null;
+      walletExists = localStorage.getItem(walletPath) != null;
     } else {
       walletExists = await Directory(walletPath).exists();
     }
 
     if (walletExists) {
       NativeWalletRepository walletRepository;
-      var dbName = walletPath.replaceFirst(localStorageDBPrefix, "");
+      final dbName = walletPath.replaceFirst(localStorageDBPrefix, "");
       try {
         walletRepository = await NativeWalletRepository.open(
             dbName, password, settings.network,
@@ -144,6 +153,11 @@ class Authentication extends _$Authentication {
             .read(snackBarMessengerProvider.notifier)
             .showError(loc.error_when_opening_wallet);
         rethrow;
+      }
+
+      // save password in secure storage on all platforms except web
+      if (!kIsWeb && !await _secureStorage.containsKey(key: name)) {
+        await _secureStorage.write(key: name, value: password);
       }
 
       ref

@@ -28,5 +28,7 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSFaceIDUsageDescription</key>
+    <string>$(PRODUCT_NAME) Authentication with TouchId or FaceID</string>
 </dict>
 </plist>

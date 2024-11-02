@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
@@ -7,7 +8,6 @@ import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/components/confirm_dialog.dart';
-import 'package:genesix/shared/widgets/components/password_dialog.dart';
 
 class DeleteWalletButton extends ConsumerStatefulWidget {
   const DeleteWalletButton({super.key});
@@ -32,7 +32,11 @@ class _DeleteWalletButtonState extends ConsumerState<DeleteWalletButton> {
           width: 1,
         ),
       ),
-      onPressed: () => _showDeleteWalletInput(ref),
+      onPressed: () => startWithBiometricAuth(
+        ref,
+        callback: _deleteWallet,
+        closeCurrentDialog: false,
+      ),
       label: Text(
         loc.delete_wallet,
         style: context.titleMedium!
@@ -41,21 +45,8 @@ class _DeleteWalletButtonState extends ConsumerState<DeleteWalletButton> {
     );
   }
 
-  void _showDeleteWalletInput(WidgetRef ref) {
-    showDialog<void>(
-        context: ref.context,
-        builder: (context) {
-          return PasswordDialog(
-            closeOnValid: false,
-            onValid: () {
-              _deleteWallet(ref);
-            },
-          );
-        });
-  }
-
-  void _deleteWallet(WidgetRef ref) {
-    showDialog<void>(
+  Future<void> _deleteWallet(WidgetRef ref) async {
+    await showDialog<void>(
       context: ref.context,
       builder: (context) {
         return ConfirmDialog(

@@ -36,7 +36,7 @@ GoRouter router(Ref ref) {
 
       return null;
     },
-    // debugLogDiagnostics: true,
+    debugLogDiagnostics: true,
     routes: $appRoutes,
   );
 

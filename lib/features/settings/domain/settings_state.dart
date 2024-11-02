@@ -24,6 +24,9 @@ class SettingsState with _$SettingsState {
     @JsonKey(name: 'hide_zero_transfer') @Default(false) bool hideZeroTransfer,
     @JsonKey(name: 'unlock_burn') @Default(false) bool unlockBurn,
     @JsonKey(name: 'show_balance_usdt') @Default(false) bool showBalanceUSDT,
+    @JsonKey(name: 'activate_biometric_auth')
+    @Default(false)
+    bool activateBiometricAuth,
     @JsonKey(name: 'network') @Default(Network.mainnet) Network network,
     @JsonKey(name: 'theme') @Default(AppTheme.xelis) AppTheme theme,
     @LocaleJsonConverter() required Locale locale,
