@@ -77,11 +77,12 @@ class BiometricAuth extends _$BiometricAuth {
         return await _biometricAuthRepository.authenticate(reason);
       } on PlatformException catch (e) {
         talker.warning('BiometricAuthProvider:authenticate', e);
+        print(e);
         if (e.code == lockedOut || e.code == permanentlyLockedOut) {
           state = BiometricAuthProviderStatus.locked;
           ref.read(snackBarMessengerProvider.notifier).showError(
               'Biometric authentication is locked, please use your password to unlock it.');
-        } else {
+        } else if (e.message != null && !e.message!.contains('canceled')) {
           ref.read(snackBarMessengerProvider.notifier).showError(
               'Biometric authentication is not available, please check your device settings.');
         }

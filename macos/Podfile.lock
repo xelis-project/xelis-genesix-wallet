@@ -1,5 +1,10 @@
 PODS:
+  - flutter_secure_storage_macos (6.1.1):
+    - FlutterMacOS
   - FlutterMacOS (1.0.0)
+  - local_auth_darwin (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - package_info_plus (0.0.1):
     - FlutterMacOS
   - path_provider_foundation (0.0.1):
@@ -20,7 +25,9 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - flutter_secure_storage_macos (from `Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_macos/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
+  - local_auth_darwin (from `Flutter/ephemeral/.symlinks/plugins/local_auth_darwin/darwin`)
   - package_info_plus (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos`)
   - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
   - rust_builder (from `Flutter/ephemeral/.symlinks/plugins/rust_builder/macos`)
@@ -31,8 +38,12 @@ DEPENDENCIES:
   - window_manager (from `Flutter/ephemeral/.symlinks/plugins/window_manager/macos`)
 
 EXTERNAL SOURCES:
+  flutter_secure_storage_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_macos/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
+  local_auth_darwin:
+    :path: Flutter/ephemeral/.symlinks/plugins/local_auth_darwin/darwin
   package_info_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos
   path_provider_foundation:
@@ -51,12 +62,14 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/window_manager/macos
 
 SPEC CHECKSUMS:
+  flutter_secure_storage_macos: 59459653abe1adb92abbc8ea747d79f8d19866c9
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
-  package_info_plus: 12f1c5c2cfe8727ca46cbd0b26677728972d9a5b
+  local_auth_darwin: 66e40372f1c29f383a314c738c7446e2f7fdadc3
+  package_info_plus: f5790acc797bf17c3e959e9d6cf162cc68ff7523
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   rust_builder: f13c21a2eeac6610ade0b050e264af3ff979dd09
   screen_retriever_macos: 776e0fa5d42c6163d2bf772d22478df4b302b161
-  share_plus: 1fa619de8392a4398bfaf176d441853922614e89
+  share_plus: fd717ef89a2801d3491e737630112b80c310640e
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   url_launcher_macos: c82c93949963e55b228a30115bd219499a6fe404
   window_manager: 3a1844359a6295ab1e47659b1a777e36773cd6e8
