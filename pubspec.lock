@@ -368,10 +368,10 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "3a2eba9dcd54fa1f7da41f41ad431817f14db7a2"
-      url: "https://github.com/g45t345rt/flutter_hashicon.git"
+      resolved-ref: "3d8d8f78512eb0b51f526535ea294f66e4f8cf74"
+      url: "https://github.com/xelis-project/flutter-hashicon.git"
     source: git
-    version: "0.0.1"
+    version: "0.0.2"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -522,10 +522,10 @@ packages:
     dependency: transitive
     description:
       name: hashlib
-      sha256: d41795742c10947930630118c6836608deeb9047cd05aee32d2baeb697afd66a
+      sha256: f572f2abce09fc7aee53f15927052b9732ea1053e540af8cae211111ee0b99b1
       url: "https://pub.dev"
     source: hosted
-    version: "1.19.2"
+    version: "1.21.0"
   hashlib_codecs:
     dependency: transitive
     description:

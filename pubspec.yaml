@@ -59,7 +59,7 @@ dependencies:
   rust_builder:
     path: rust_builder
   flutter_hashicon:
-    git: https://github.com/g45t345rt/flutter_hashicon.git
+    git: https://github.com/xelis-project/flutter-hashicon.git
 
 dev_dependencies:
   build_runner: ^2.4.13
