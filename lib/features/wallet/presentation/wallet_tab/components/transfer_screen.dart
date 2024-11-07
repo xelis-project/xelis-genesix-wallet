@@ -40,7 +40,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
             ref.read(walletStateProvider.select((value) => value.xelisBalance));
 
         TransactionSummary? tx;
-        if (double.parse(amount) == double.parse(xelisBalance)) {
+        if (amount.trim() == xelisBalance) {
           tx = await ref
               .read(walletStateProvider.notifier)
               .createAllXelisTransaction(destination: address.trim());
