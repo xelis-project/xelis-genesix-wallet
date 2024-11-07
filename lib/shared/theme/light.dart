@@ -26,6 +26,8 @@ ThemeData lightTheme() {
     // TODO deactivated until we find a better combo color/shape
     hoverColor: Colors.transparent,
     highlightColor: Colors.transparent,
+    scaffoldBackgroundColor: Colors.transparent,
+    dividerColor: Colors.transparent,
 
     // COLORS
     colorScheme: const ColorScheme(
@@ -147,6 +149,9 @@ ThemeData lightTheme() {
           //hoverColor: primaryColor.lighten(15),
           ),
     ),
+
+    // APP BAR
+    appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent),
 
     // NAVIGATION BAR
     navigationBarTheme: NavigationBarThemeData(
@@ -281,15 +286,9 @@ ThemeData lightTheme() {
 
     expansionTileTheme: const ExpansionTileThemeData(
         collapsedIconColor: primaryColor, iconColor: primaryColor),
-    scaffoldBackgroundColor: Colors.transparent,
-
-    appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.transparent, foregroundColor: primaryColor),
 
     radioTheme:
         RadioThemeData(fillColor: WidgetStateProperty.all(primaryColor)),
-
-    dividerColor: Colors.transparent,
   );
 
   return baseTheme.copyWith(

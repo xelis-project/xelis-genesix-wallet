@@ -26,6 +26,8 @@ ThemeData xelisTheme() {
     // TODO deactivated until we find a better combo color/shape
     hoverColor: Colors.transparent,
     highlightColor: Colors.transparent,
+    scaffoldBackgroundColor: Colors.transparent,
+    dividerColor: Colors.transparent,
 
     // COLORS
     colorScheme: const ColorScheme(
@@ -50,6 +52,9 @@ ThemeData xelisTheme() {
         mutedColor: textColor.withOpacity(0.6),
       )
     ],
+
+    // APP BAR
+    appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent),
 
     // TEXT
     textTheme: TextTheme(
@@ -277,10 +282,6 @@ ThemeData xelisTheme() {
       tileColor: Colors.transparent,
       //minVerticalPadding: 5,
     ),
-
-    scaffoldBackgroundColor: Colors.transparent,
-    appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent),
-    dividerColor: Colors.transparent,
   );
 
   return baseTheme.copyWith(
