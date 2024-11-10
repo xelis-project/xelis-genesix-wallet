@@ -137,7 +137,7 @@
   "new_name": "Nouveau nom",
   "view_seed": "Voir la graine",
   "history_parameters": "Paramètres de l'historique",
-  "hide_zero_transfers": "Cacher les transferts vide",
+  "hide_zero_transfers": "Cacher les transferts vides",
   "hide_extra_data": "Cacher les données supplémentaires",
   "delete_wallet": "Supprimer le portefeuille",
   "light": "Clair",
