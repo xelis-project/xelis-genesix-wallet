@@ -4,12 +4,13 @@ import 'package:genesix/shared/theme/more_colors.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 ThemeData lightTheme() {
-  const textColor = Colors.black;
-  var lineHeight = 1.2;
-  const primaryColor = Color.fromARGB(255, 34, 34, 34);
+  const textColor = Colors.black87;
+  final lineHeight = 1.2;
+  // const primaryColor = Color.fromARGB(255, 34, 34, 34);
+  const primaryColor = Color.fromARGB(255, 122, 250, 211);
   const secondaryColor = Color.fromARGB(255, 122, 203, 250);
   const backgroundColor = Color.fromARGB(255, 221, 221, 221);
-  var borderRadius = BorderRadius.circular(10.0);
+  final borderRadius = BorderRadius.circular(10.0);
 
   WidgetStateProperty<Color> switchStateProperty =
       WidgetStateProperty.resolveWith((states) {
@@ -21,19 +22,18 @@ ThemeData lightTheme() {
 
   final baseTheme = ThemeData(
     useMaterial3: true,
-    // splashFactory: InkSparkle.splashFactory,
+    // splashFactory: InkSplash.splashFactory,
     splashFactory: NoSplash.splashFactory,
-    // TODO deactivated until we find a better combo color/shape
     hoverColor: Colors.transparent,
     highlightColor: Colors.transparent,
     scaffoldBackgroundColor: Colors.transparent,
     dividerColor: Colors.transparent,
 
     // COLORS
-    colorScheme: const ColorScheme(
+    colorScheme: ColorScheme(
       brightness: Brightness.light,
-      primary: primaryColor,
-      onPrimary: Colors.white,
+      primary: primaryColor.withOpacity(0.8),
+      onPrimary: Colors.black87,
       secondary: secondaryColor,
       onSecondary: Colors.white,
       error: Colors.red,
@@ -56,35 +56,35 @@ ThemeData lightTheme() {
     // TEXT
     textTheme: TextTheme(
       bodyLarge: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w700),
       bodyMedium: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w700),
       bodySmall: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w700),
       displayLarge: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w700),
       displayMedium: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w700),
       displaySmall: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w700),
       titleLarge: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w700),
       titleMedium: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w700),
       titleSmall: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w700),
       labelLarge: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w700),
       labelMedium: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w700),
       labelSmall: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w700),
       headlineLarge: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w700),
       headlineMedium: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w700),
       headlineSmall: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+          color: textColor, height: lineHeight, fontWeight: FontWeight.w700),
     ),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: textColor,
@@ -115,9 +115,6 @@ ThemeData lightTheme() {
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        //backgroundColor: primaryColor,
-        //foregroundColor: Colors.black,
-        //textStyle: TextStyle(color: Colors.black),
         padding: const EdgeInsets.symmetric(
             vertical: Spaces.medium, horizontal: Spaces.medium),
         shape: RoundedRectangleBorder(
@@ -128,26 +125,15 @@ ThemeData lightTheme() {
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         backgroundColor: primaryColor,
-        foregroundColor: Colors.white,
+        foregroundColor: Colors.black87,
         padding: const EdgeInsets.symmetric(
             vertical: Spaces.medium, horizontal: Spaces.medium),
-        shape: RoundedRectangleBorder(
-          borderRadius: borderRadius,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: borderRadius),
         textStyle: GoogleFonts.jura(fontWeight: FontWeight.w800),
       ),
     ),
     iconButtonTheme: IconButtonThemeData(
-      style: IconButton.styleFrom(
-          //backgroundColor: primaryColor,
-          //foregroundColor: Colors.black87,
-          //shape: const CircleBorder(
-          //  side: BorderSide(color: Colors.transparent),
-          //),
-          //highlightColor: primaryColor.darken(10),
-          //focusColor: primaryColor.lighten(15),
-          //hoverColor: primaryColor.lighten(15),
-          ),
+      style: IconButton.styleFrom(foregroundColor: Colors.black87),
     ),
 
     // APP BAR
@@ -166,29 +152,25 @@ ThemeData lightTheme() {
       ),
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      elevation: 0,
       backgroundColor: Colors.black12,
       selectedItemColor: primaryColor,
       type: BottomNavigationBarType.fixed,
       unselectedItemColor: Colors.black45,
       selectedLabelStyle:
-          GoogleFonts.jura(fontSize: 12, fontWeight: FontWeight.w600),
+          GoogleFonts.jura(fontSize: 12, fontWeight: FontWeight.w700),
       selectedIconTheme: IconThemeData(size: 36),
-      //showUnselectedLabels: false,
-      //showSelectedLabels: false,
     ),
     navigationRailTheme: NavigationRailThemeData(
       backgroundColor: Colors.black12,
       indicatorColor: Colors.transparent,
       //useIndicator: false,
       selectedLabelTextStyle: GoogleFonts.jura(
-          color: primaryColor, fontSize: 14, fontWeight: FontWeight.w600),
+          color: primaryColor, fontSize: 14, fontWeight: FontWeight.w700),
       unselectedLabelTextStyle: GoogleFonts.jura(
-          color: Colors.black45, fontSize: 12, fontWeight: FontWeight.w600),
+          color: Colors.black45, fontSize: 12, fontWeight: FontWeight.w700),
       selectedIconTheme: IconThemeData(size: 36, color: primaryColor),
       unselectedIconTheme: IconThemeData(size: 30, color: Colors.black45),
-      /*indicatorShape: CircleBorder(
-        side: BorderSide(color: Colors.transparent,width: 0),
-      ),*/
     ),
 
     // INPUT
@@ -203,8 +185,6 @@ ThemeData lightTheme() {
       filled: true,
       fillColor: Colors.black26,
       iconColor: Colors.black26,
-      suffixIconColor: primaryColor,
-      prefixIconColor: primaryColor,
       floatingLabelBehavior: FloatingLabelBehavior.never,
       enabledBorder: OutlineInputBorder(
         borderRadius: borderRadius,
@@ -232,7 +212,6 @@ ThemeData lightTheme() {
     // SNACKBAR
     snackBarTheme: SnackBarThemeData(
       backgroundColor: backgroundColor,
-      // actionTextColor: Colors.amber,
       shape: RoundedRectangleBorder(
         borderRadius: borderRadius,
       ),
@@ -277,18 +256,10 @@ ThemeData lightTheme() {
     ),
 
     listTileTheme: const ListTileThemeData(
-        contentPadding: EdgeInsets.all(10),
-        dense: true,
-        tileColor: Colors.transparent,
-        iconColor: primaryColor
-        //minVerticalPadding: 5,
-        ),
-
-    expansionTileTheme: const ExpansionTileThemeData(
-        collapsedIconColor: primaryColor, iconColor: primaryColor),
-
-    radioTheme:
-        RadioThemeData(fillColor: WidgetStateProperty.all(primaryColor)),
+      contentPadding: EdgeInsets.all(10),
+      dense: true,
+      tileColor: Colors.transparent,
+    ),
   );
 
   return baseTheme.copyWith(

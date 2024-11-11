@@ -6,10 +6,11 @@ import 'package:google_fonts/google_fonts.dart';
 ThemeData darkTheme() {
   const textColor = Colors.white;
   var lineHeight = 1.2;
-  const primaryColor = Color.fromARGB(255, 216, 216, 216);
+  // const primaryColor = Color.fromARGB(255, 216, 216, 216);
+  const primaryColor = Color.fromARGB(255, 122, 250, 211);
   const secondaryColor = Color.fromARGB(255, 122, 203, 250);
   const backgroundColor = Color.fromARGB(255, 19, 19, 19);
-  var borderRadius = BorderRadius.circular(10.0);
+  final borderRadius = BorderRadius.circular(10.0);
 
   WidgetStateProperty<Color> switchStateProperty =
       WidgetStateProperty.resolveWith((states) {
@@ -23,7 +24,6 @@ ThemeData darkTheme() {
     useMaterial3: true,
     // splashFactory: InkSparkle.splashFactory,
     splashFactory: NoSplash.splashFactory,
-    // TODO deactivated until we find a better combo color/shape
     hoverColor: Colors.transparent,
     highlightColor: Colors.transparent,
     scaffoldBackgroundColor: Colors.transparent,
@@ -115,9 +115,6 @@ ThemeData darkTheme() {
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        //backgroundColor: primaryColor,
-        //foregroundColor: Colors.black,
-        //textStyle: TextStyle(color: Colors.black),
         padding: const EdgeInsets.symmetric(
             vertical: Spaces.medium, horizontal: Spaces.medium),
         shape: RoundedRectangleBorder(
@@ -137,18 +134,6 @@ ThemeData darkTheme() {
         textStyle: GoogleFonts.jura(fontWeight: FontWeight.w800),
       ),
     ),
-    iconButtonTheme: IconButtonThemeData(
-      style: IconButton.styleFrom(
-          //backgroundColor: primaryColor,
-          //foregroundColor: Colors.black87,
-          //shape: const CircleBorder(
-          //  side: BorderSide(color: Colors.transparent),
-          //),
-          //highlightColor: primaryColor.darken(10),
-          //focusColor: primaryColor.lighten(15),
-          //hoverColor: primaryColor.lighten(15),
-          ),
-    ),
 
     // APP BAR
     appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent),
@@ -166,15 +151,14 @@ ThemeData darkTheme() {
       ),
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
-      backgroundColor: Colors.black12,
+      elevation: 0,
+      backgroundColor: Colors.black26,
       selectedItemColor: Colors.white,
       type: BottomNavigationBarType.fixed,
       unselectedItemColor: Colors.white54,
       selectedLabelStyle:
           GoogleFonts.jura(fontSize: 12, fontWeight: FontWeight.w600),
       selectedIconTheme: IconThemeData(size: 36),
-      //showUnselectedLabels: false,
-      //showSelectedLabels: false,
     ),
     navigationRailTheme: NavigationRailThemeData(
       backgroundColor: Colors.black26,
@@ -186,9 +170,6 @@ ThemeData darkTheme() {
           color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w600),
       selectedIconTheme: IconThemeData(size: 36, color: Colors.white),
       unselectedIconTheme: IconThemeData(size: 30, color: Colors.white54),
-      /*indicatorShape: CircleBorder(
-        side: BorderSide(color: Colors.transparent,width: 0),
-      ),*/
     ),
 
     // INPUT

@@ -70,20 +70,32 @@ class _TransactionEntryScreenState
       case sdk.CoinbaseEntry():
         entryTypeName = loc.coinbase;
         coinbase = entryType;
-        icon = const Icon(Icons.square_rounded);
+        icon = Icon(
+          Icons.square_rounded,
+          color: context.colors.primary,
+        );
         hashPath = 'blocks/';
       case sdk.BurnEntry():
         entryTypeName = loc.burn;
         burn = entryType;
-        icon = const Icon(Icons.local_fire_department_rounded);
+        icon = Icon(
+          Icons.local_fire_department_rounded,
+          color: context.colors.primary,
+        );
       case sdk.IncomingEntry():
         entryTypeName = loc.incoming;
         incoming = entryType;
-        icon = const Icon(Icons.arrow_downward);
+        icon = Icon(
+          Icons.arrow_downward,
+          color: context.colors.primary,
+        );
       case sdk.OutgoingEntry():
         entryTypeName = loc.outgoing;
         outgoing = entryType;
-        icon = const Icon(Icons.arrow_upward);
+        icon = Icon(
+          Icons.arrow_upward,
+          color: context.colors.primary,
+        );
     }
 
     Uri url;

@@ -9,7 +9,7 @@ ThemeData xelisTheme() {
   const primaryColor = Color.fromARGB(255, 122, 250, 211);
   const secondaryColor = Color.fromARGB(255, 122, 203, 250);
   const backgroundColor = Color.fromARGB(255, 19, 19, 19);
-  var borderRadius = BorderRadius.circular(10.0);
+  final borderRadius = BorderRadius.circular(10.0);
 
   WidgetStateProperty<Color> switchStateProperty =
       WidgetStateProperty.resolveWith((states) {
@@ -23,7 +23,6 @@ ThemeData xelisTheme() {
     useMaterial3: true,
     // splashFactory: InkSparkle.splashFactory,
     splashFactory: NoSplash.splashFactory,
-    // TODO deactivated until we find a better combo color/shape
     hoverColor: Colors.transparent,
     highlightColor: Colors.transparent,
     scaffoldBackgroundColor: Colors.transparent,
@@ -140,18 +139,6 @@ ThemeData xelisTheme() {
         textStyle: GoogleFonts.jura(fontWeight: FontWeight.w800),
       ),
     ),
-    iconButtonTheme: IconButtonThemeData(
-      style: IconButton.styleFrom(
-          //backgroundColor: primaryColor,
-          //foregroundColor: Colors.black87,
-          //shape: const CircleBorder(
-          //  side: BorderSide(color: Colors.transparent),
-          //),
-          //highlightColor: primaryColor.darken(10),
-          //focusColor: primaryColor.lighten(15),
-          //hoverColor: primaryColor.lighten(15),
-          ),
-    ),
 
     // NAVIGATION BAR
     navigationBarTheme: NavigationBarThemeData(
@@ -166,15 +153,14 @@ ThemeData xelisTheme() {
       ),
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
-      backgroundColor: Colors.black12,
+      elevation: 0,
+      backgroundColor: Colors.black26,
       selectedItemColor: Colors.white,
       type: BottomNavigationBarType.fixed,
       unselectedItemColor: Colors.white54,
       selectedLabelStyle:
           GoogleFonts.jura(fontSize: 12, fontWeight: FontWeight.w600),
       selectedIconTheme: IconThemeData(size: 36),
-      //showUnselectedLabels: false,
-      //showSelectedLabels: false,
     ),
     navigationRailTheme: NavigationRailThemeData(
       backgroundColor: Colors.black26,
@@ -186,9 +172,6 @@ ThemeData xelisTheme() {
           color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w600),
       selectedIconTheme: const IconThemeData(size: 36, color: Colors.white),
       unselectedIconTheme: const IconThemeData(size: 30, color: Colors.white54),
-      /*indicatorShape: CircleBorder(
-        side: BorderSide(color: Colors.transparent,width: 0),
-      ),*/
     ),
 
     // INPUT
@@ -280,7 +263,6 @@ ThemeData xelisTheme() {
       contentPadding: EdgeInsets.all(10),
       dense: true,
       tileColor: Colors.transparent,
-      //minVerticalPadding: 5,
     ),
   );
 
