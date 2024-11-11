@@ -240,6 +240,17 @@ ThemeData lightTheme() {
       overlayColor: WidgetStatePropertyAll(Colors.transparent),
     ),
 
+    // MODAL BOTTOM SHEET
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: backgroundColor.withOpacity(0.9),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+    ),
+
     // MISC
     tooltipTheme: TooltipThemeData(
       decoration: BoxDecoration(
