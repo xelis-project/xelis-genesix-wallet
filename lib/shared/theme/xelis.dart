@@ -119,12 +119,12 @@ ThemeData xelisTheme() {
       style: FilledButton.styleFrom(
         //backgroundColor: primaryColor,
         //foregroundColor: Colors.black,
-        //textStyle: TextStyle(color: Colors.black),
         padding: const EdgeInsets.symmetric(
             vertical: Spaces.medium, horizontal: Spaces.medium),
         shape: RoundedRectangleBorder(
           borderRadius: borderRadius,
         ),
+        textStyle: GoogleFonts.jura(fontWeight: FontWeight.bold),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
@@ -136,7 +136,7 @@ ThemeData xelisTheme() {
         shape: RoundedRectangleBorder(
           borderRadius: borderRadius,
         ),
-        textStyle: GoogleFonts.jura(fontWeight: FontWeight.w800),
+        textStyle: GoogleFonts.jura(fontWeight: FontWeight.bold),
       ),
     ),
 
@@ -228,7 +228,7 @@ ThemeData xelisTheme() {
       shape: RoundedRectangleBorder(
         borderRadius: borderRadius,
       ),
-      //actionsPadding: EdgeInsets.all(10)
+      actionsPadding: const EdgeInsets.all(Spaces.medium),
     ),
 
     // SWITCH

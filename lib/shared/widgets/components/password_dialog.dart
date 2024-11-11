@@ -81,7 +81,6 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
           Spaces.none, Spaces.none, Spaces.none, Spaces.medium),
       contentPadding: const EdgeInsets.fromLTRB(
           Spaces.medium, Spaces.small, Spaces.medium, Spaces.large),
-      actionsPadding: const EdgeInsets.all(Spaces.medium),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -73,12 +73,33 @@ class _ModifyNodeDialogState extends ConsumerState<ModifyNodeDialog> {
 
     return AlertDialog(
       scrollable: true,
-      title: Padding(
-        padding: const EdgeInsets.all(Spaces.small),
-        child: Text(
-          loc.edit_node,
-          style: context.titleLarge,
-        ),
+      titlePadding: const EdgeInsets.fromLTRB(
+          Spaces.none, Spaces.none, Spaces.none, Spaces.medium),
+      contentPadding: const EdgeInsets.fromLTRB(
+          Spaces.medium, Spaces.small, Spaces.medium, Spaces.large),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding:
+                const EdgeInsets.only(left: Spaces.medium, top: Spaces.large),
+            child: Text(
+              loc.edit_node,
+              style: context.titleLarge,
+            ),
+          ),
+          Padding(
+            padding:
+                const EdgeInsets.only(right: Spaces.small, top: Spaces.small),
+            child: IconButton(
+              onPressed: () {
+                context.pop();
+              },
+              icon: const Icon(Icons.close),
+            ),
+          ),
+        ],
       ),
       content: Builder(builder: (context) {
         final width = context.mediaSize.width * 0.8;
@@ -116,10 +137,6 @@ class _ModifyNodeDialogState extends ConsumerState<ModifyNodeDialog> {
         );
       }),
       actions: <Widget>[
-        FilledButton(
-          onPressed: () => context.pop(),
-          child: Text(loc.cancel_button),
-        ),
         FilledButton(
           onPressed: () => _modifyNodeAddress(nodes),
           child: Text(loc.confirm_button),

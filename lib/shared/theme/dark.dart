@@ -120,6 +120,7 @@ ThemeData darkTheme() {
         shape: RoundedRectangleBorder(
           borderRadius: borderRadius,
         ),
+        textStyle: GoogleFonts.jura(fontWeight: FontWeight.bold),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
@@ -131,7 +132,7 @@ ThemeData darkTheme() {
         shape: RoundedRectangleBorder(
           borderRadius: borderRadius,
         ),
-        textStyle: GoogleFonts.jura(fontWeight: FontWeight.w800),
+        textStyle: GoogleFonts.jura(fontWeight: FontWeight.bold),
       ),
     ),
 
@@ -226,7 +227,7 @@ ThemeData darkTheme() {
       shape: RoundedRectangleBorder(
         borderRadius: borderRadius,
       ),
-      //actionsPadding: EdgeInsets.all(10)
+      actionsPadding: const EdgeInsets.all(Spaces.medium),
     ),
 
     // SWITCH

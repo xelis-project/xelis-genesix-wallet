@@ -69,12 +69,33 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
 
     return AlertDialog(
       scrollable: true,
-      title: Padding(
-        padding: const EdgeInsets.all(Spaces.small),
-        child: Text(
-          loc.add_new_node_title,
-          style: context.titleLarge,
-        ),
+      titlePadding: const EdgeInsets.fromLTRB(
+          Spaces.none, Spaces.none, Spaces.none, Spaces.medium),
+      contentPadding: const EdgeInsets.fromLTRB(
+          Spaces.medium, Spaces.small, Spaces.medium, Spaces.large),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding:
+                const EdgeInsets.only(left: Spaces.medium, top: Spaces.large),
+            child: Text(
+              loc.add_new_node_title,
+              style: context.titleLarge,
+            ),
+          ),
+          Padding(
+            padding:
+                const EdgeInsets.only(right: Spaces.small, top: Spaces.small),
+            child: IconButton(
+              onPressed: () {
+                context.pop();
+              },
+              icon: const Icon(Icons.close),
+            ),
+          ),
+        ],
       ),
       content: Builder(builder: (context) {
         final width = context.mediaSize.width * 0.8;
@@ -111,12 +132,8 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
       }),
       actions: <Widget>[
         FilledButton(
-          onPressed: () => context.pop(),
-          child: Text(loc.cancel_button),
-        ),
-        FilledButton(
           onPressed: () => _addNodeAddress(nodes),
-          child: Text(loc.ok_button),
+          child: Text(loc.confirm_button),
         ),
       ],
     );
