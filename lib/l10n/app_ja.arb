@@ -192,5 +192,8 @@
   "export_csv_tooltip": "CSV をエクスポートする",
   "csv_exported_successfully": "CSVが正常にエクスポートされました",
   "no_transactions_to_export": "エクスポートするトランザクションはありません",
-  "error_exporting_csv": "CSV エクスポート中にエラー"
+  "error_exporting_csv": "CSV エクスポート中にエラー",
+  "authentication": "認証",
+  "authentication_message": "パスワードを入力して続行してください。",
+  "next": "次へ"
 }

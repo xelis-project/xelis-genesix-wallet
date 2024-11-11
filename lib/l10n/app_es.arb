@@ -192,5 +192,8 @@
   "export_csv_tooltip": "Exportar CSV",
   "csv_exported_successfully": "El CSV se exportó con éxito",
   "no_transactions_to_export": "No hay transacciones para exportar",
-  "error_exporting_csv": "Error al exportar CSV"
+  "error_exporting_csv": "Error al exportar CSV",
+  "authentication": "autenticación",
+  "authentication_message": "Introduzca su contraseña de monedero para continuar.",
+  "next": "Siguiente"
 }

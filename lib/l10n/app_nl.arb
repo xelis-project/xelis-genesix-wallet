@@ -192,5 +192,8 @@
   "export_csv_tooltip": "Exporteer CSV",
   "csv_exported_successfully": "CSV is succesvol geëxporteerd",
   "no_transactions_to_export": "Geen transacties om te exporteren",
-  "error_exporting_csv": "Fout bij het exporteren van CSV"
+  "error_exporting_csv": "Fout bij het exporteren van CSV",
+  "authentication": "authenticatie",
+  "authentication_message": "Voer uw portemonnee wachtwoord in om door te gaan.",
+  "next": "Volgende"
 }

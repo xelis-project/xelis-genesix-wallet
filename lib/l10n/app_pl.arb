@@ -192,5 +192,8 @@
   "export_csv_tooltip": "Eksportuj CSV",
   "csv_exported_successfully": "CSV został pomyślnie wyeksportowany",
   "no_transactions_to_export": "Nie ma transakcji do eksportu",
-  "error_exporting_csv": "Błąd podczas eksportowania CSV"
+  "error_exporting_csv": "Błąd podczas eksportowania CSV",
+  "authentication": "uwierzytelnienie",
+  "authentication_message": "Wprowadź hasło do portfela, aby kontynuować.",
+  "next": "Dalej"
 }

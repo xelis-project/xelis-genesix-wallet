@@ -192,5 +192,8 @@
   "export_csv_tooltip": "CSV dışa aktar",
   "csv_exported_successfully": "CSV başarıyla dışa aktarılmıştır",
   "no_transactions_to_export": "İçerişten işlem bulunmamaktadır",
-  "error_exporting_csv": "CSV dışa aktarma hatası"
+  "error_exporting_csv": "CSV dışa aktarma hatası",
+  "authentication": "kimlik doğrulama",
+  "authentication_message": "Lütfen cüzdan parolanızı girin devam etmek için.",
+  "next": "Bir Sonra"
 }

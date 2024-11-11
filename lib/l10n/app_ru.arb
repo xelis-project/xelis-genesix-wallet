@@ -192,5 +192,8 @@
   "export_csv_tooltip": "Экспортировать CSV",
   "csv_exported_successfully": "CSV успешно экспортирован",
   "no_transactions_to_export": "Нет транзакций для экспорта",
-  "error_exporting_csv": "Ошибка при экспорте CSV"
+  "error_exporting_csv": "Ошибка при экспорте CSV",
+  "authentication": "аутентификация",
+  "authentication_message": "Введите пароль вашей кошелёк, чтобы продолжить.",
+  "next": "Далее"
 }

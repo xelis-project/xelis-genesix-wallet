@@ -192,5 +192,8 @@
   "export_csv_tooltip": "Експортирай CSV",
   "csv_exported_successfully": "CSV-то беше успешно извлечено",
   "no_transactions_to_export": "Няма транзакции за извличане",
-  "error_exporting_csv": "Грешка при извличането на CSV"
+  "error_exporting_csv": "Грешка при извличането на CSV",
+  "authentication": "автентификация",
+  "authentication_message": "Моля, въведете парола на портфейла си, за да продължите.",
+  "next": "Напред"
 }

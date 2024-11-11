@@ -293,7 +293,9 @@ impl XelisWallet {
             .context("Error while estimating fees")?;
 
         if asset == XELIS_ASSET {
-            amount = amount.checked_sub(estimated_fees).context("Insufficient balance for fees")?;
+            amount = amount
+                .checked_sub(estimated_fees)
+                .context("Insufficient balance for fees")?;
         }
 
         let transfer = TransferBuilder {

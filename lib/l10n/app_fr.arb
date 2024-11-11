@@ -192,5 +192,8 @@
   "export_csv_tooltip": "Exporter CSV",
   "csv_exported_successfully": "CSV exporté avec succès",
   "no_transactions_to_export": "Aucune transaction à exporter",
-  "error_exporting_csv": "Erreur lors de l'exportation du CSV"
+  "error_exporting_csv": "Erreur lors de l'exportation du CSV",
+  "authentication": "authentification",
+  "authentication_message": "Veuillez entrer le mot de passe de votre portefeuille pour continuer.",
+  "next": "Suivant"
 }

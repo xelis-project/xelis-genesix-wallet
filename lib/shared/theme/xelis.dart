@@ -180,7 +180,7 @@ ThemeData xelisTheme() {
       errorStyle: const TextStyle(
         color: Colors.red,
         fontSize: 14,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w800,
       ),
       contentPadding: const EdgeInsets.all(15),
       filled: true,
@@ -223,7 +223,7 @@ ThemeData xelisTheme() {
 
     // DIALOG
     dialogTheme: DialogTheme(
-      backgroundColor: backgroundColor,
+      backgroundColor: backgroundColor.withOpacity(0.9),
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: borderRadius,

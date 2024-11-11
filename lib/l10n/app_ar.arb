@@ -192,5 +192,8 @@
   "export_csv_tooltip": "تصدير ملف CSV",
   "csv_exported_successfully": "تم تصدير ملف CSV بنجاح",
   "no_transactions_to_export": "لا توجد عمليات لتصديرها",
-  "error_exporting_csv": "حدث خطأ أثناء تصدير ملف CSV"
+  "error_exporting_csv": "حدث خطأ أثناء تصدير ملف CSV",
+  "authentication": "التحقق",
+  "authentication_message": "يرجى إدخال كلمة مرور محفظتك للانتقال إلى الأمام.",
+  "next": "التالي"
 }

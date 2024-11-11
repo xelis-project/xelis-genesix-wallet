@@ -3,12 +3,14 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/input_decoration.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/components/password_textfield_widget.dart';
+import 'package:intl/intl.dart';
 
 class PasswordDialog extends ConsumerStatefulWidget {
   final void Function(String password)? onEnter;
@@ -31,6 +33,20 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
 
   final _passwordFormKey =
       GlobalKey<FormBuilderState>(debugLabel: '_passwordFormKey');
+
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
 
   void _checkWalletPassword(BuildContext context) async {
     final password = _passwordFormKey.currentState?.value['password'] as String;
@@ -61,43 +77,110 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
 
     return AlertDialog(
       scrollable: false,
-      contentPadding: const EdgeInsets.all(Spaces.small),
-      //iconPadding: const EdgeInsets.all(Spaces.small),
-      content: FormBuilder(
-        key: _passwordFormKey,
-        child: PasswordTextField(
-          textField: FormBuilderTextField(
-            name: 'password',
-            autocorrect: false,
-            autofocus: true,
-            style: context.bodyLarge,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.lock),
-              fillColor: Colors.transparent,
-              hintText: loc.password,
-              errorText: _passwordError,
-              errorMaxLines: 2,
+      titlePadding: const EdgeInsets.fromLTRB(
+          Spaces.none, Spaces.none, Spaces.none, Spaces.medium),
+      contentPadding: const EdgeInsets.fromLTRB(
+          Spaces.medium, Spaces.small, Spaces.medium, Spaces.large),
+      actionsPadding: const EdgeInsets.all(Spaces.medium),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding:
+                const EdgeInsets.only(left: Spaces.medium, top: Spaces.large),
+            child: Text(
+              toBeginningOfSentenceCase(loc.authentication),
+              style: context.titleLarge,
             ),
-            onChanged: (_) {
-              setState(() {
-                _passwordError = null;
-              });
-            },
-            onSubmitted: (value) {
-              if (_passwordFormKey.currentState?.saveAndValidate() ?? false) {
-                if (widget.onEnter != null) {
-                  widget.onEnter!(value!);
-                }
+          ),
+          Padding(
+            padding:
+                const EdgeInsets.only(right: Spaces.small, top: Spaces.small),
+            child: IconButton(
+              onPressed: () {
+                context.pop();
+              },
+              icon: const Icon(Icons.close),
+            ),
+          ),
+        ],
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            loc.authentication_message,
+            style: context.bodyMedium
+                ?.copyWith(color: context.moreColors.mutedColor),
+          ),
+          const SizedBox(height: Spaces.large),
+          FormBuilder(
+            key: _passwordFormKey,
+            child: PasswordTextField(
+              textField: FormBuilderTextField(
+                name: 'password',
+                autocorrect: false,
+                autofocus: true,
+                focusNode: _focusNode,
+                style: context.bodyLarge,
+                decoration: context.textInputDecoration.copyWith(
+                  prefixIcon: const Icon(Icons.lock),
+                  labelText: loc.password,
+                  errorText: _passwordError,
+                ),
+                onChanged: (_) {
+                  setState(() {
+                    _passwordError = null;
+                  });
+                },
+                onSubmitted: (value) {
+                  if (_passwordFormKey.currentState?.saveAndValidate() ??
+                      false) {
+                    if (widget.onEnter != null) {
+                      widget.onEnter!(value!);
+                    }
 
-                if (widget.onValid != null) {
-                  _checkWalletPassword(context);
-                }
+                    if (widget.onValid != null) {
+                      _checkWalletPassword(context);
+                    }
+
+                    _focusNode.unfocus();
+                  }
+                },
+                validator: FormBuilderValidators.required(),
+              ),
+            ),
+          ),
+        ],
+      ),
+      actionsAlignment: MainAxisAlignment.end,
+      actions: [
+        TextButton.icon(
+          onPressed: () {
+            if (_passwordFormKey.currentState?.saveAndValidate() ?? false) {
+              if (widget.onEnter != null) {
+                widget.onEnter!(
+                    _passwordFormKey.currentState!.value['password'] as String);
               }
-            },
-            validator: FormBuilderValidators.required(),
+
+              if (widget.onValid != null) {
+                _checkWalletPassword(context);
+              }
+
+              _focusNode.unfocus();
+            }
+          },
+          label: Text(
+            loc.next,
+          ),
+          icon: Icon(
+            Icons.arrow_forward_rounded,
+            size: 18,
           ),
         ),
-      ),
+      ],
     );
   }
 }

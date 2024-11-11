@@ -192,5 +192,8 @@
   "export_csv_tooltip": "CSV निर्यात करें",
   "csv_exported_successfully": "CSV सफलतापूर्वक निर्यात किया गया",
   "no_transactions_to_export": "निर्यात करने के लिए कोई लेनदेन नहीं",
-  "error_exporting_csv": "CSV निर्यात करते समय त्रुटि"
+  "error_exporting_csv": "CSV निर्यात करते समय त्रुटि",
+  "authentication": "प्रमाणीकरण",
+  "authentication_message": "कृपया अपना वॉलेट पासवर्ड दर्ज करें ताकि आप आगे बढ़ सकें.",
+  "next": "अगला"
 }

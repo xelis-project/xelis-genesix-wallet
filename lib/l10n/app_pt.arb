@@ -192,5 +192,8 @@
   "export_csv_tooltip": "Exportar CSV",
   "csv_exported_successfully": "O CSV foi exportado com sucesso",
   "no_transactions_to_export": "Nenhuma transação para exportar",
-  "error_exporting_csv": "Erro ao exportar CSV"
+  "error_exporting_csv": "Erro ao exportar CSV",
+  "authentication": "autenticação",
+  "authentication_message": "Insira a sua senha da carteira para continuar.",
+  "next": "Próximo"
 }

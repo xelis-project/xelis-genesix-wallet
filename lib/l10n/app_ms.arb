@@ -192,5 +192,8 @@
   "export_csv_tooltip": "Ekspor CSV",
   "csv_exported_successfully": "CSV telah dieksport dengan berjaya",
   "no_transactions_to_export": "Tidak ada transaksi untuk dieksportir",
-  "error_exporting_csv": "Kesalahan mengekspor CSV"
+  "error_exporting_csv": "Kesalahan mengekspor CSV",
+  "authentication": "pengesahan",
+  "authentication_message": "Sila masukkan kata laluan dompet anda untuk meneruskan.",
+  "next": "Seterusnya"
 }

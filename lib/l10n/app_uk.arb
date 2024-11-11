@@ -192,5 +192,8 @@
   "export_csv_tooltip": "Експортувати CSV",
   "csv_exported_successfully": "CSV успішно експортовано",
   "no_transactions_to_export": "Немає операцій для експорту",
-  "error_exporting_csv": "Помилка під час експорту CSV"
+  "error_exporting_csv": "Помилка під час експорту CSV",
+  "authentication": "авторизація",
+  "authentication_message": "Введіть пароль до гаманця, щоб продовжити.",
+  "next": "Далі"
 }

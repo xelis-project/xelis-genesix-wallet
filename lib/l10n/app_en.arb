@@ -192,5 +192,8 @@
   "export_csv_tooltip": "Export CSV",
   "csv_exported_successfully": "CSV successfully exported",
   "no_transactions_to_export": "No transactions to export",
-  "error_exporting_csv": "Error exporting CSV"
+  "error_exporting_csv": "Error exporting CSV",
+  "authentication": "authentication",
+  "authentication_message": "Please enter your wallet password to continue.",
+  "next": "Next"
 }

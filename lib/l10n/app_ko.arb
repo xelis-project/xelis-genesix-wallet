@@ -192,5 +192,8 @@
   "export_csv_tooltip": "CSV를 내보내기",
   "csv_exported_successfully": "CSV가 성공적으로 내보내졌습니다",
   "no_transactions_to_export": "내보내는 거래가 없습니다",
-  "error_exporting_csv": "CSV 내보내는 중 오류"
+  "error_exporting_csv": "CSV 내보내는 중 오류",
+  "authentication": "인증",
+  "authentication_message": "지갑 비밀번호를 입력하여 계속하십시오.",
+  "next": "다음으로"
 }

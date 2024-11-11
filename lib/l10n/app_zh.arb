@@ -192,5 +192,8 @@
   "export_csv_tooltip": "导出 CSV",
   "csv_exported_successfully": "CSV文件已成功导出",
   "no_transactions_to_export": "没有交易可导出",
-  "error_exporting_csv": "导出 CSV 时出错"
+  "error_exporting_csv": "导出 CSV 时出错",
+  "authentication": "认证",
+  "authentication_message": "请输入您的钱包密码以继续",
+  "next": "下一步"
 }
