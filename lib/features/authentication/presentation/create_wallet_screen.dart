@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/theme/input_decoration.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -118,7 +119,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                   minLines: 5,
                   autocorrect: false,
                   keyboardType: TextInputType.multiline,
-                  decoration: InputDecoration(
+                  decoration: context.textInputDecoration.copyWith(
                     labelText: loc.paste_your_seed,
                     alignLabelWithHint: true,
                   ),
@@ -145,7 +146,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
               name: 'wallet_name',
               style: context.bodyLarge,
               autocorrect: false,
-              decoration: InputDecoration(
+              decoration: context.textInputDecoration.copyWith(
                 labelText: loc.set_a_wallet_name,
               ),
               validator: FormBuilderValidators.compose([
@@ -169,7 +170,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                 name: 'password',
                 style: context.bodyLarge,
                 autocorrect: false,
-                decoration: InputDecoration(
+                decoration: context.textInputDecoration.copyWith(
                   labelText: loc.choose_strong_password,
                 ),
                 validator: FormBuilderValidators.required(),
@@ -183,7 +184,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                 name: 'confirm_password',
                 style: context.bodyLarge,
                 autocorrect: false,
-                decoration: InputDecoration(
+                decoration: context.textInputDecoration.copyWith(
                   labelText: loc.confirm_your_password,
                 ),
                 validator: FormBuilderValidators.required(),

@@ -3,6 +3,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/shared/theme/input_decoration.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
@@ -88,9 +89,8 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
                   name: 'name',
                   style: context.bodyMedium,
                   autocorrect: false,
-                  decoration: InputDecoration(
+                  decoration: context.textInputDecoration.copyWith(
                     labelText: loc.name,
-                    border: const OutlineInputBorder(),
                   ),
                   validator: FormBuilderValidators.required(),
                 ),
@@ -99,9 +99,8 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
                   name: 'url',
                   style: context.bodyMedium,
                   autocorrect: false,
-                  decoration: InputDecoration(
+                  decoration: context.textInputDecoration.copyWith(
                     labelText: loc.url,
-                    border: const OutlineInputBorder(),
                   ),
                   validator: FormBuilderValidators.required(),
                 ),

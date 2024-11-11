@@ -3,6 +3,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/theme/input_decoration.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -81,43 +82,37 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               const SizedBox(height: Spaces.large),
-              // Text(loc.old_password, style: context.bodyLarge),
-              // const SizedBox(height: Spaces.small),
               PasswordTextField(
                 textField: FormBuilderTextField(
                   name: 'old_password',
                   style: context.bodyLarge,
                   autocorrect: false,
-                  decoration: InputDecoration(
-                    hintText: loc.old_password,
+                  decoration: context.textInputDecoration.copyWith(
+                    labelText: loc.old_password,
                   ),
                   validator: FormBuilderValidators.required(),
                 ),
               ),
               const SizedBox(height: Spaces.medium),
-              // Text(loc.new_password, style: context.bodyLarge),
-              // const SizedBox(height: Spaces.small),
               PasswordTextField(
                 textField: FormBuilderTextField(
                   name: 'new_password',
                   style: context.bodyLarge,
                   autocorrect: false,
-                  decoration: InputDecoration(
-                    hintText: loc.new_password,
+                  decoration: context.textInputDecoration.copyWith(
+                    labelText: loc.new_password,
                   ),
                   validator: FormBuilderValidators.required(),
                 ),
               ),
               const SizedBox(height: Spaces.medium),
-              // Text(loc.confirm_password, style: context.bodyLarge),
-              // const SizedBox(height: Spaces.small),
               PasswordTextField(
                 textField: FormBuilderTextField(
                   name: 'confirm_new_password',
                   style: context.bodyLarge,
                   autocorrect: false,
-                  decoration: InputDecoration(
-                    hintText: loc.confirm_password,
+                  decoration: context.textInputDecoration.copyWith(
+                    labelText: loc.confirm_password,
                   ),
                   validator: FormBuilderValidators.required(),
                 ),
