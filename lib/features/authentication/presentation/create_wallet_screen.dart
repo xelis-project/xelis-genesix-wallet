@@ -71,7 +71,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
 
           await ref
               .read(authenticationProvider.notifier)
-              .createWallet(walletName, password, createSeed);
+              .createWallet(walletName, password, createSeed?.trim());
         } catch (e) {
           talker.critical('Creating wallet failed: $e');
           ref
