@@ -66,16 +66,40 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
 
     return AlertDialog(
       scrollable: true,
+      titlePadding: const EdgeInsets.fromLTRB(
+          Spaces.none, Spaces.none, Spaces.none, Spaces.medium),
+      contentPadding: const EdgeInsets.fromLTRB(
+          Spaces.medium, Spaces.small, Spaces.medium, Spaces.large),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding:
+                const EdgeInsets.only(left: Spaces.medium, top: Spaces.large),
+            child: Text(
+              loc.review,
+              style: context.headlineSmall,
+            ),
+          ),
+          if (!_isBroadcast)
+            Padding(
+              padding:
+                  const EdgeInsets.only(right: Spaces.small, top: Spaces.small),
+              child: IconButton(
+                onPressed: () {
+                  context.pop();
+                },
+                icon: const Icon(Icons.close_rounded),
+              ),
+            ),
+        ],
+      ),
       content: Container(
         constraints: const BoxConstraints(maxWidth: 300),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              loc.review,
-              style: context.headlineSmall,
-            ),
-            const SizedBox(height: Spaces.medium),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -164,16 +188,6 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
         ),
       ),
       actions: [
-        if (!_isBroadcast)
-          TextButton(
-            onPressed: () {
-              ref
-                  .read(walletStateProvider.notifier)
-                  .cancelTransaction(hash: widget.tx.hash);
-              context.pop();
-            },
-            child: Text(loc.cancel_button),
-          ),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: AppDurations.animFast),
           child: _isBroadcast
