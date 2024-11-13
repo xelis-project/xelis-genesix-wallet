@@ -18,31 +18,28 @@ class GenericAppBar extends StatelessWidget implements PreferredSizeWidget {
         Flexible(
           flex: 2,
           child: AppBar(
-            titleSpacing: Spaces.small,
+            automaticallyImplyLeading: false,
+            centerTitle: true,
             surfaceTintColor: Colors.transparent,
-            leading: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  Spaces.small, Spaces.medium, Spaces.none, Spaces.none),
-              child: IconButton(
-                onPressed: () {
-                  context.pop();
-                },
-                icon: const Icon(
-                  Icons.arrow_back,
-                  // size: 30,
-                ),
-              ),
-            ),
             title: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  Spaces.none, Spaces.medium, Spaces.none, Spaces.none),
+              padding: const EdgeInsets.only(top: Spaces.medium),
               child: Text(
                 title,
                 style: context.headlineMedium!
                     .copyWith(fontWeight: FontWeight.bold),
               ),
             ),
-            actions: actions,
+            actions: [
+              if (actions != null) ...actions!,
+              Padding(
+                padding: const EdgeInsets.only(
+                    right: Spaces.small, top: Spaces.small),
+                child: IconButton(
+                  onPressed: () => context.pop(),
+                  icon: Icon(Icons.close_rounded),
+                ),
+              )
+            ],
           ),
         ),
         if (context.isWideScreen) Spacer(),

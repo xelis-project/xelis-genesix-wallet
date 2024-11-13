@@ -71,7 +71,7 @@ class _SnackBarWidgetState extends ConsumerState<SnackBarWidget> {
                                   .hide();
                             },
                             color: color,
-                            icon: const Icon(Icons.close),
+                            icon: const Icon(Icons.close_rounded),
                           ),
                         ],
                       ),

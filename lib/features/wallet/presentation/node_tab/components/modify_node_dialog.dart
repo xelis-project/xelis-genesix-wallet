@@ -96,7 +96,7 @@ class _ModifyNodeDialogState extends ConsumerState<ModifyNodeDialog> {
               onPressed: () {
                 context.pop();
               },
-              icon: const Icon(Icons.close),
+              icon: const Icon(Icons.close_rounded),
             ),
           ),
         ],

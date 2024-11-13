@@ -64,8 +64,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           actions: activateLogger
               ? [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                        Spaces.none, Spaces.medium, Spaces.small, Spaces.none),
+                    padding: const EdgeInsets.only(
+                        top: Spaces.small, right: Spaces.small),
                     child: IconButton(
                       onPressed: () => context.push(AppScreen.logger.toPath),
                       icon: const Icon(Icons.feed_outlined),

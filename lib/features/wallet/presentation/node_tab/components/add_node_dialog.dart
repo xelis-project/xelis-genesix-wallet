@@ -92,7 +92,7 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
               onPressed: () {
                 context.pop();
               },
-              icon: const Icon(Icons.close),
+              icon: const Icon(Icons.close_rounded),
             ),
           ),
         ],
