@@ -7,6 +7,7 @@ import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -77,12 +78,7 @@ class _BurnReviewDialogState extends ConsumerState<BurnReviewDialog> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
 
-    return AlertDialog(
-      scrollable: true,
-      titlePadding: const EdgeInsets.fromLTRB(
-          Spaces.none, Spaces.none, Spaces.none, Spaces.medium),
-      contentPadding: const EdgeInsets.fromLTRB(
-          Spaces.medium, Spaces.small, Spaces.medium, Spaces.large),
+    return GenericDialog(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,

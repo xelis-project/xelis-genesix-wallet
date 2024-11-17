@@ -222,6 +222,7 @@ ThemeData lightTheme() {
     dialogTheme: DialogTheme(
       backgroundColor: backgroundColor.withOpacity(0.9),
       surfaceTintColor: Colors.transparent,
+      barrierColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: borderRadius,
       ),

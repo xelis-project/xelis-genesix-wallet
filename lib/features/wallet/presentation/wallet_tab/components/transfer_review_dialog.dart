@@ -7,6 +7,7 @@ import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:go_router/go_router.dart';
@@ -64,12 +65,7 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
         widget.tx.transactionSummaryType.transferOutEntry!.first.destination;
     final destination = splitIntegratedAddress(rawAddress);
 
-    return AlertDialog(
-      scrollable: true,
-      titlePadding: const EdgeInsets.fromLTRB(
-          Spaces.none, Spaces.none, Spaces.none, Spaces.medium),
-      contentPadding: const EdgeInsets.fromLTRB(
-          Spaces.medium, Spaces.small, Spaces.medium, Spaces.large),
+    return GenericDialog(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,

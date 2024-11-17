@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 
 class InputDialog extends ConsumerStatefulWidget {
   final String? hintText;
@@ -25,9 +25,8 @@ class _InputDialogState extends ConsumerState<InputDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return GenericDialog(
       scrollable: false,
-      contentPadding: const EdgeInsets.all(Spaces.small),
       content: Builder(
         builder: (BuildContext context) {
           return FormBuilder(

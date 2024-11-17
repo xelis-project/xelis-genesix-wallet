@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
+import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -75,12 +76,8 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
 
-    return AlertDialog(
+    return GenericDialog(
       scrollable: false,
-      titlePadding: const EdgeInsets.fromLTRB(
-          Spaces.none, Spaces.none, Spaces.none, Spaces.medium),
-      contentPadding: const EdgeInsets.fromLTRB(
-          Spaces.medium, Spaces.small, Spaces.medium, Spaces.large),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,7 +151,6 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
           ),
         ],
       ),
-      actionsAlignment: MainAxisAlignment.end,
       actions: [
         TextButton.icon(
           onPressed: () {

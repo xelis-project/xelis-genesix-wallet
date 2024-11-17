@@ -6,6 +6,7 @@ import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/storage/shared_preferences/shared_preferences_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:go_router/go_router.dart';
 
 class ResetPreferenceButton extends ConsumerStatefulWidget {
@@ -53,12 +54,19 @@ class _ResetPreferenceButtonState extends ConsumerState<ResetPreferenceButton> {
     final loc = ref.read(appLocalizationsProvider);
     showDialog<void>(
       context: context,
-      useSafeArea: false,
       builder: (context) {
-        return AlertDialog(
-          title: Text(loc.reset_preferences),
-          content: Text(
-              '${loc.reset_preferences_dialog}\n\n${loc.do_you_want_to_continue}'),
+        return GenericDialog(
+          // title: Text(loc.reset_preferences, style: context.titleLarge),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(loc.reset_preferences_dialog),
+              const SizedBox(height: Spaces.medium),
+              Text(loc.do_you_want_to_continue,
+                  style: context.bodyMedium
+                      ?.copyWith(color: context.moreColors.mutedColor))
+            ],
+          ),
           actions: [
             TextButton(
               onPressed: () => context.pop(),

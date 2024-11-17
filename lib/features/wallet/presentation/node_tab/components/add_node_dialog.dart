@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
+import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
@@ -67,12 +68,7 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
     final networkNodes = ref.watch(networkNodesProvider);
     var nodes = networkNodes.getNodes(network);
 
-    return AlertDialog(
-      scrollable: true,
-      titlePadding: const EdgeInsets.fromLTRB(
-          Spaces.none, Spaces.none, Spaces.none, Spaces.medium),
-      contentPadding: const EdgeInsets.fromLTRB(
-          Spaces.medium, Spaces.small, Spaces.medium, Spaces.large),
+    return GenericDialog(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,7 +126,7 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
           ),
         );
       }),
-      actions: <Widget>[
+      actions: [
         FilledButton(
           onPressed: () => _addNodeAddress(nodes),
           child: Text(loc.confirm_button),
