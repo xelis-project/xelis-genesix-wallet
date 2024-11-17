@@ -173,7 +173,6 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                                 padding: const EdgeInsets.only(
                                     left: Spaces.medium, right: Spaces.medium),
                                 child: Row(
-                                  // mainAxisAlignment: MainAxisAlignment.spaceAround,
                                   children: [
                                     Expanded(
                                       child: FittedBox(
@@ -191,7 +190,6 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                                       flex: 2,
                                       child: FittedBox(
                                         fit: BoxFit.scaleDown,
-                                        // alignment: Alignment.centerLeft,
                                         child: Text(
                                           tuple.$2,
                                           style: context.titleMedium,

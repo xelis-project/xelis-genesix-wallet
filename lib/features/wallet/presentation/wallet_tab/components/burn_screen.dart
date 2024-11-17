@@ -26,6 +26,7 @@ class BurnScreen extends ConsumerStatefulWidget {
 class _BurnScreenState extends ConsumerState<BurnScreen> {
   final _burnFormKey = GlobalKey<FormBuilderState>(debugLabel: '_burnFormKey');
   late String _selectedAssetBalance;
+
   late FocusNode _focusNodeAmount;
 
   @override

@@ -49,8 +49,7 @@ class _SnackBarWidgetState extends ConsumerState<SnackBarWidget> {
                       color: context.colors.surface,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    constraints: const BoxConstraints(
-                        /*maxHeight: 200, minWidth: double.infinity,*/ maxWidth: 800),
+                    constraints: const BoxConstraints(maxWidth: 800),
                     child: Padding(
                       padding: const EdgeInsets.all(Spaces.medium),
                       child: Row(

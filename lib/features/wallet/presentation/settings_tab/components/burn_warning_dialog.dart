@@ -51,8 +51,7 @@ class BurnWarningDialog extends ConsumerWidget {
                   const SizedBox(height: Spaces.small),
                   Text(
                     loc.burn_transfer_warning_message,
-                    style: context.bodyMedium/*
-                        ?.copyWith(color: context.colors.primary)*/,
+                    style: context.bodyMedium,
                   ),
                 ],
               ),

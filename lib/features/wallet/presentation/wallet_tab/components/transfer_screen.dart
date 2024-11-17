@@ -11,10 +11,12 @@ import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
+import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:intl/intl.dart' show toBeginningOfSentenceCase;
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class TransferScreen extends ConsumerStatefulWidget {
   const TransferScreen({super.key});
@@ -26,6 +28,7 @@ class TransferScreen extends ConsumerStatefulWidget {
 class _TransferScreenState extends ConsumerState<TransferScreen> {
   final _transferFormKey =
       GlobalKey<FormBuilderState>(debugLabel: '_transferFormKey');
+  late String _selectedAssetBalance;
 
   late FocusNode _focusNodeAmount;
   late FocusNode _focusNodeAddress;
@@ -35,6 +38,9 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
     super.initState();
     _focusNodeAmount = FocusNode();
     _focusNodeAddress = FocusNode();
+    final Map<String, String> assets =
+        ref.read(walletStateProvider.select((value) => value.assets));
+    _selectedAssetBalance = assets[assets.entries.first.key]!;
   }
 
   @override
@@ -47,8 +53,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final xelisBalance =
-        ref.watch(walletStateProvider.select((value) => value.xelisBalance));
+    final Map<String, String> assets =
+        ref.watch(walletStateProvider.select((value) => value.assets));
 
     return CustomScaffold(
       appBar: GenericAppBar(title: loc.transfer),
@@ -82,7 +88,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                       child: TextButton(
                         onPressed: () => _transferFormKey
                             .currentState?.fields['amount']
-                            ?.didChange(xelisBalance),
+                            ?.didChange(_selectedAssetBalance),
                         child: Text(loc.max),
                       ),
                     ),
@@ -102,6 +108,41 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                       return null;
                     }
                   ]),
+                ),
+                const SizedBox(height: Spaces.medium),
+                Text(
+                  loc.asset,
+                  style: context.headlineSmall,
+                ),
+                const SizedBox(height: Spaces.small),
+                FormBuilderDropdown<String>(
+                  name: 'assets',
+                  initialValue: assets.entries.first.key,
+                  items: assets.entries
+                      .map((asset) => DropdownMenuItem(
+                            value: asset.key,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(asset.key == xelisAsset
+                                    ? 'XELIS'
+                                    : truncateText(asset.key)),
+                                Text(asset.value),
+                              ],
+                            ),
+                          ))
+                      .toList(),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(
+                        errorText: loc.field_required_error),
+                  ]),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() {
+                        _selectedAssetBalance = assets[val]!;
+                      });
+                    }
+                  },
                 ),
                 const SizedBox(height: Spaces.medium),
                 Text(
