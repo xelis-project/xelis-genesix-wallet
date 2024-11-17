@@ -26,54 +26,21 @@ class BurnScreen extends ConsumerStatefulWidget {
 class _BurnScreenState extends ConsumerState<BurnScreen> {
   final _burnFormKey = GlobalKey<FormBuilderState>(debugLabel: '_burnFormKey');
   late String _selectedAssetBalance;
+  late FocusNode _focusNodeAmount;
 
   @override
   void initState() {
     super.initState();
+    _focusNodeAmount = FocusNode();
     final Map<String, String> assets =
         ref.read(walletStateProvider.select((value) => value.assets));
     _selectedAssetBalance = assets[assets.entries.first.key]!;
   }
 
-  void _reviewBurn() async {
-    if (_burnFormKey.currentState?.saveAndValidate() ?? false) {
-      final amount =
-          _burnFormKey.currentState?.fields['amount']?.value as String;
-      final asset =
-          _burnFormKey.currentState?.fields['assets']?.value as String;
-
-      try {
-        context.loaderOverlay.show();
-
-        TransactionSummary? tx;
-        if (double.parse(amount) == double.parse(_selectedAssetBalance)) {
-          tx = await ref
-              .read(walletStateProvider.notifier)
-              .createBurnAllTransaction(asset: asset);
-        } else {
-          tx = await ref
-              .read(walletStateProvider.notifier)
-              .createBurnTransaction(
-                  amount: double.parse(amount), asset: asset);
-        }
-
-        if (mounted) {
-          showDialog<void>(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) {
-              return BurnReviewDialog(tx!);
-            },
-          );
-        }
-      } catch (e) {
-        ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
-      }
-
-      if (mounted && context.loaderOverlay.visible) {
-        context.loaderOverlay.hide();
-      }
-    }
+  @override
+  dispose() {
+    _focusNodeAmount.dispose();
+    super.dispose();
   }
 
   @override
@@ -100,6 +67,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
                 const SizedBox(height: Spaces.small),
                 FormBuilderTextField(
                   name: 'amount',
+                  focusNode: _focusNodeAmount,
                   style: context.headlineLarge!
                       .copyWith(fontWeight: FontWeight.bold),
                   autocorrect: false,
@@ -189,5 +157,48 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
         ],
       ),
     );
+  }
+
+  void _reviewBurn() async {
+    if (_burnFormKey.currentState?.saveAndValidate() ?? false) {
+      final amount =
+          _burnFormKey.currentState?.fields['amount']?.value as String;
+      final asset =
+          _burnFormKey.currentState?.fields['assets']?.value as String;
+
+      _focusNodeAmount.unfocus();
+
+      try {
+        context.loaderOverlay.show();
+
+        TransactionSummary? tx;
+        if (double.parse(amount) == double.parse(_selectedAssetBalance)) {
+          tx = await ref
+              .read(walletStateProvider.notifier)
+              .createBurnAllTransaction(asset: asset);
+        } else {
+          tx = await ref
+              .read(walletStateProvider.notifier)
+              .createBurnTransaction(
+                  amount: double.parse(amount), asset: asset);
+        }
+
+        if (mounted) {
+          showDialog<void>(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) {
+              return BurnReviewDialog(tx!);
+            },
+          );
+        }
+      } catch (e) {
+        ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
+      }
+
+      if (mounted && context.loaderOverlay.visible) {
+        context.loaderOverlay.hide();
+      }
+    }
   }
 }

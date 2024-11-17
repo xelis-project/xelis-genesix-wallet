@@ -24,40 +24,21 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
   final nodeAddressFormKey =
       GlobalKey<FormBuilderState>(debugLabel: '_nodeAddressFormKey');
 
-  void _add(NodeAddress? value) {
-    if (value != null) {
-      final settings = ref.read(settingsProvider);
-      ref.read(networkNodesProvider.notifier).addNode(settings.network, value);
-      // set the newly added node as the current node
-      ref.read(walletStateProvider.notifier).reconnect(value);
-    }
+  late FocusNode _focusNodeName;
+  late FocusNode _focusNodeUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNodeName = FocusNode();
+    _focusNodeUrl = FocusNode();
   }
 
-  void _addNodeAddress(List<NodeAddress> nodes) {
-    final loc = ref.read(appLocalizationsProvider);
-
-    final name =
-        nodeAddressFormKey.currentState?.fields['name']?.value as String?;
-    final url =
-        nodeAddressFormKey.currentState?.fields['url']?.value as String?;
-
-    if (nodeAddressFormKey.currentState?.saveAndValidate() ?? false) {
-      for (final node in nodes) {
-        if (node.name == name) {
-          nodeAddressFormKey.currentState?.fields['name']
-              ?.invalidate(loc.name_already_exists);
-        }
-        if (node.url == url) {
-          nodeAddressFormKey.currentState?.fields['url']
-              ?.invalidate(loc.url_already_exists);
-        }
-      }
-
-      if (name != null && url != null) {
-        _add(NodeAddress(name: name, url: url));
-        context.pop();
-      }
-    }
+  @override
+  void dispose() {
+    _focusNodeName.dispose();
+    _focusNodeUrl.dispose();
+    super.dispose();
   }
 
   @override
@@ -104,6 +85,7 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
               children: [
                 FormBuilderTextField(
                   name: 'name',
+                  focusNode: _focusNodeName,
                   style: context.bodyMedium,
                   autocorrect: false,
                   decoration: context.textInputDecoration.copyWith(
@@ -114,6 +96,7 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
                 const SizedBox(height: Spaces.medium),
                 FormBuilderTextField(
                   name: 'url',
+                  focusNode: _focusNodeUrl,
                   style: context.bodyMedium,
                   autocorrect: false,
                   decoration: context.textInputDecoration.copyWith(
@@ -133,5 +116,47 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
         ),
       ],
     );
+  }
+
+  void _add(NodeAddress? value) {
+    if (value != null) {
+      final settings = ref.read(settingsProvider);
+      ref.read(networkNodesProvider.notifier).addNode(settings.network, value);
+      // set the newly added node as the current node
+      ref.read(walletStateProvider.notifier).reconnect(value);
+    }
+  }
+
+  void _addNodeAddress(List<NodeAddress> nodes) {
+    final loc = ref.read(appLocalizationsProvider);
+
+    final name =
+        nodeAddressFormKey.currentState?.fields['name']?.value as String?;
+    final url =
+        nodeAddressFormKey.currentState?.fields['url']?.value as String?;
+
+    if (nodeAddressFormKey.currentState?.saveAndValidate() ?? false) {
+      for (final node in nodes) {
+        if (node.name == name) {
+          nodeAddressFormKey.currentState?.fields['name']
+              ?.invalidate(loc.name_already_exists);
+        }
+        if (node.url == url) {
+          nodeAddressFormKey.currentState?.fields['url']
+              ?.invalidate(loc.url_already_exists);
+        }
+      }
+
+      if (name != null && url != null) {
+        _unfocusNodes();
+        _add(NodeAddress(name: name, url: url));
+        context.pop();
+      }
+    }
+  }
+
+  void _unfocusNodes() {
+    _focusNodeName.unfocus();
+    _focusNodeUrl.unfocus();
   }
 }

@@ -27,48 +27,21 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
   final _transferFormKey =
       GlobalKey<FormBuilderState>(debugLabel: '_transferFormKey');
 
-  void _reviewTransfer() async {
-    if (_transferFormKey.currentState?.saveAndValidate() ?? false) {
-      final amount =
-          _transferFormKey.currentState?.fields['amount']?.value as String;
-      final address =
-          _transferFormKey.currentState?.fields['address']?.value as String;
+  late FocusNode _focusNodeAmount;
+  late FocusNode _focusNodeAddress;
 
-      try {
-        context.loaderOverlay.show();
+  @override
+  void initState() {
+    super.initState();
+    _focusNodeAmount = FocusNode();
+    _focusNodeAddress = FocusNode();
+  }
 
-        final xelisBalance =
-            ref.read(walletStateProvider.select((value) => value.xelisBalance));
-
-        TransactionSummary? tx;
-        if (amount.trim() == xelisBalance) {
-          tx = await ref
-              .read(walletStateProvider.notifier)
-              .createAllXelisTransaction(destination: address.trim());
-        } else {
-          tx = await ref
-              .read(walletStateProvider.notifier)
-              .createXelisTransaction(
-                  amount: double.parse(amount), destination: address.trim());
-        }
-
-        if (mounted) {
-          showDialog<void>(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) {
-              return TransferReviewDialog(tx!);
-            },
-          );
-        }
-      } catch (e) {
-        ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
-      }
-
-      if (mounted && context.loaderOverlay.visible) {
-        context.loaderOverlay.hide();
-      }
-    }
+  @override
+  dispose() {
+    _focusNodeAmount.dispose();
+    _focusNodeAddress.dispose();
+    super.dispose();
   }
 
   @override
@@ -95,6 +68,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                 const SizedBox(height: Spaces.small),
                 FormBuilderTextField(
                   name: 'amount',
+                  focusNode: _focusNodeAmount,
                   style: context.headlineLarge!
                       .copyWith(fontWeight: FontWeight.bold),
                   autocorrect: false,
@@ -137,6 +111,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                 const SizedBox(height: Spaces.small),
                 FormBuilderTextField(
                   name: 'address',
+                  focusNode: _focusNodeAddress,
                   style: context.bodyMedium,
                   autocorrect: false,
                   decoration: context.textInputDecoration.copyWith(
@@ -175,5 +150,56 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
         ],
       ),
     );
+  }
+
+  void _reviewTransfer() async {
+    if (_transferFormKey.currentState?.saveAndValidate() ?? false) {
+      final amount =
+          _transferFormKey.currentState?.fields['amount']?.value as String;
+      final address =
+          _transferFormKey.currentState?.fields['address']?.value as String;
+
+      _unfocusNodes();
+
+      try {
+        context.loaderOverlay.show();
+
+        final xelisBalance =
+            ref.read(walletStateProvider.select((value) => value.xelisBalance));
+
+        TransactionSummary? tx;
+        if (amount.trim() == xelisBalance) {
+          tx = await ref
+              .read(walletStateProvider.notifier)
+              .createAllXelisTransaction(destination: address.trim());
+        } else {
+          tx = await ref
+              .read(walletStateProvider.notifier)
+              .createXelisTransaction(
+                  amount: double.parse(amount), destination: address.trim());
+        }
+
+        if (mounted) {
+          showDialog<void>(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) {
+              return TransferReviewDialog(tx!);
+            },
+          );
+        }
+      } catch (e) {
+        ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
+      }
+
+      if (mounted && context.loaderOverlay.visible) {
+        context.loaderOverlay.hide();
+      }
+    }
+  }
+
+  void _unfocusNodes() {
+    _focusNodeAmount.unfocus();
+    _focusNodeAddress.unfocus();
   }
 }

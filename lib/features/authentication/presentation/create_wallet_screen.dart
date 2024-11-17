@@ -30,64 +30,27 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
   final _createFormKey =
       GlobalKey<FormBuilderState>(debugLabel: '_createFormKey');
 
-  void _showTableGenerationProgressDialog(BuildContext context) {
-    showDialog<void>(
-      barrierDismissible: false,
-      context: context,
-      builder: (_) => const TableGenerationProgressDialog(),
-    );
+  late FocusNode _focusNodeSeed;
+  late FocusNode _focusNodeName;
+  late FocusNode _focusNodePassword;
+  late FocusNode _focusNodeConfirmPassword;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNodeSeed = FocusNode();
+    _focusNodeName = FocusNode();
+    _focusNodePassword = FocusNode();
+    _focusNodeConfirmPassword = FocusNode();
   }
 
-  void _createWallet() async {
-    final loc = ref.read(appLocalizationsProvider);
-
-    if (_createFormKey.currentState?.saveAndValidate() ?? false) {
-      final walletName =
-          _createFormKey.currentState?.value['wallet_name'] as String?;
-      final password =
-          _createFormKey.currentState?.value['password'] as String?;
-      final confirmPassword =
-          _createFormKey.currentState?.value['confirm_password'] as String?;
-      final createSeed = _createFormKey.currentState?.value['seed'] as String?;
-
-      if (password != confirmPassword) {
-        _createFormKey.currentState?.fields['confirm_password']
-            ?.invalidate(loc.password_not_match);
-      } else if (walletName != null &&
-          password != null &&
-          password == confirmPassword) {
-        try {
-          if (!await ref
-                  .read(authenticationProvider.notifier)
-                  .isPrecomputedTablesExists() &&
-              mounted) {
-            talker
-                .info('Creating wallet: show table generation progress dialog');
-            _showTableGenerationProgressDialog(context);
-          } else {
-            talker.info('Creating wallet: show loader overlay');
-            context.loaderOverlay.show();
-          }
-
-          await ref
-              .read(authenticationProvider.notifier)
-              .createWallet(walletName, password, createSeed?.trim());
-        } catch (e) {
-          talker.critical('Creating wallet failed: $e');
-          ref
-              .read(snackBarMessengerProvider.notifier)
-              .showError(loc.error_when_creating_wallet);
-          if (mounted) {
-            // Dismiss TableGenerationProgressDialog if error occurs
-            context.pop();
-          }
-        }
-
-        if (mounted && context.loaderOverlay.visible) {
-          context.loaderOverlay.hide();
-        }
-      }
-    }
+  @override
+  dispose() {
+    _focusNodeSeed.dispose();
+    _focusNodeName.dispose();
+    _focusNodePassword.dispose();
+    _focusNodeConfirmPassword.dispose();
+    super.dispose();
   }
 
   @override
@@ -105,7 +68,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
         onChanged: () => _createFormKey.currentState!.save(),
         child: ListView(
           padding: const EdgeInsets.fromLTRB(
-              Spaces.large, 0, Spaces.large, Spaces.large),
+              Spaces.large, Spaces.none, Spaces.large, Spaces.large),
           children: [
             if (widget.isFromSeed) ...[
               Text(loc.seed, style: context.bodyLarge),
@@ -114,6 +77,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                 constraints: const BoxConstraints(maxHeight: 150),
                 child: FormBuilderTextField(
                   name: 'seed',
+                  focusNode: _focusNodeSeed,
                   style: context.bodyLarge,
                   maxLines: null,
                   minLines: 5,
@@ -127,12 +91,10 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                     FormBuilderValidators.required(),
                     FormBuilderValidators.minWordsCount(
                       24,
-                      // errorText: loc.invalid_seed,
                       errorText: '${loc.seed_error_not_enough_words} (⩾24)',
                     ),
                     FormBuilderValidators.maxWordsCount(
                       25,
-                      // errorText: loc.invalid_seed,
                       errorText: '${loc.seed_error_too_many_words} (⩽25)',
                     ),
                   ]),
@@ -144,6 +106,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
             const SizedBox(height: Spaces.small),
             FormBuilderTextField(
               name: 'wallet_name',
+              focusNode: _focusNodeName,
               style: context.bodyLarge,
               autocorrect: false,
               decoration: context.textInputDecoration.copyWith(
@@ -168,6 +131,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
             PasswordTextField(
               textField: FormBuilderTextField(
                 name: 'password',
+                focusNode: _focusNodePassword,
                 style: context.bodyLarge,
                 autocorrect: false,
                 decoration: context.textInputDecoration.copyWith(
@@ -182,6 +146,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
             PasswordTextField(
               textField: FormBuilderTextField(
                 name: 'confirm_password',
+                focusNode: _focusNodeConfirmPassword,
                 style: context.bodyLarge,
                 autocorrect: false,
                 decoration: context.textInputDecoration.copyWith(
@@ -217,5 +182,74 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
         ),
       ),
     );
+  }
+
+  void _showTableGenerationProgressDialog(BuildContext context) {
+    showDialog<void>(
+      barrierDismissible: false,
+      context: context,
+      builder: (_) => const TableGenerationProgressDialog(),
+    );
+  }
+
+  void _createWallet() async {
+    final loc = ref.read(appLocalizationsProvider);
+
+    if (_createFormKey.currentState?.saveAndValidate() ?? false) {
+      final walletName =
+          _createFormKey.currentState?.value['wallet_name'] as String?;
+      final password =
+          _createFormKey.currentState?.value['password'] as String?;
+      final confirmPassword =
+          _createFormKey.currentState?.value['confirm_password'] as String?;
+      final createSeed = _createFormKey.currentState?.value['seed'] as String?;
+
+      if (password != confirmPassword) {
+        _createFormKey.currentState?.fields['confirm_password']
+            ?.invalidate(loc.password_not_match);
+      } else if (walletName != null &&
+          password != null &&
+          password == confirmPassword) {
+        _unfocusNodes();
+
+        try {
+          if (!await ref
+                  .read(authenticationProvider.notifier)
+                  .isPrecomputedTablesExists() &&
+              mounted) {
+            talker
+                .info('Creating wallet: show table generation progress dialog');
+            _showTableGenerationProgressDialog(context);
+          } else {
+            talker.info('Creating wallet: show loader overlay');
+            context.loaderOverlay.show();
+          }
+
+          await ref
+              .read(authenticationProvider.notifier)
+              .createWallet(walletName, password, createSeed?.trim());
+        } catch (e) {
+          talker.critical('Creating wallet failed: $e');
+          ref
+              .read(snackBarMessengerProvider.notifier)
+              .showError(loc.error_when_creating_wallet);
+          if (mounted) {
+            // Dismiss TableGenerationProgressDialog if error occurs
+            context.pop();
+          }
+        }
+
+        if (mounted && context.loaderOverlay.visible) {
+          context.loaderOverlay.hide();
+        }
+      }
+    }
+  }
+
+  void _unfocusNodes() {
+    _focusNodeSeed.unfocus();
+    _focusNodeName.unfocus();
+    _focusNodePassword.unfocus();
+    _focusNodeConfirmPassword.unfocus();
   }
 }

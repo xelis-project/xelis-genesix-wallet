@@ -23,6 +23,20 @@ class _InputDialogState extends ConsumerState<InputDialog> {
   final _inputFormKey =
       GlobalKey<FormBuilderState>(debugLabel: '_inputFormKey');
 
+  late FocusNode _focusNodeInput;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNodeInput = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _focusNodeInput.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GenericDialog(
@@ -33,6 +47,7 @@ class _InputDialogState extends ConsumerState<InputDialog> {
             key: _inputFormKey,
             child: FormBuilderTextField(
               name: 'input',
+              focusNode: _focusNodeInput,
               autocorrect: false,
               autofocus: true,
               style: context.bodyLarge,
@@ -42,6 +57,7 @@ class _InputDialogState extends ConsumerState<InputDialog> {
               ),
               onSubmitted: (value) {
                 if (widget.onEnter != null) {
+                  _focusNodeInput.unfocus();
                   widget.onEnter!(value!);
                 }
               },

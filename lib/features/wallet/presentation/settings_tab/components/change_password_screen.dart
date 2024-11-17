@@ -25,45 +25,24 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
   final _changePasswordKey =
       GlobalKey<FormBuilderState>(debugLabel: '_openFormKey');
 
-  void _changePassword() async {
-    if (_changePasswordKey.currentState?.saveAndValidate() ?? false) {
-      final loc = ref.read(appLocalizationsProvider);
+  late FocusNode _focusNodeOldPassword;
+  late FocusNode _focusNodeNewPassword;
+  late FocusNode _focusNodeConfirmNewPassword;
 
-      final oldPassword =
-          _changePasswordKey.currentState?.value['old_password'] as String;
-      final newPassword =
-          _changePasswordKey.currentState?.value['new_password'] as String;
-      final confirmNewPassword = _changePasswordKey
-          .currentState?.value['confirm_new_password'] as String;
+  @override
+  void initState() {
+    super.initState();
+    _focusNodeOldPassword = FocusNode();
+    _focusNodeNewPassword = FocusNode();
+    _focusNodeConfirmNewPassword = FocusNode();
+  }
 
-      if (oldPassword == newPassword) {
-        _changePasswordKey.currentState?.fields['new_password']
-            ?.invalidate(loc.same_old_new_password_error);
-      } else if (newPassword != confirmNewPassword) {
-        _changePasswordKey.currentState?.fields['confirm_new_password']
-            ?.invalidate(loc.not_match_new_password_error);
-      } else {
-        try {
-          context.loaderOverlay.show();
-
-          await ref
-              .read(walletStateProvider)
-              .nativeWalletRepository!
-              .changePassword(
-                  oldPassword: oldPassword, newPassword: newPassword);
-
-          ref
-              .read(snackBarMessengerProvider.notifier)
-              .showInfo(loc.password_changed);
-        } catch (e) {
-          ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
-        }
-
-        if (mounted && context.loaderOverlay.visible) {
-          context.loaderOverlay.hide();
-        }
-      }
-    }
+  @override
+  dispose() {
+    _focusNodeOldPassword.dispose();
+    _focusNodeNewPassword.dispose();
+    _focusNodeConfirmNewPassword.dispose();
+    super.dispose();
   }
 
   @override
@@ -85,6 +64,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
               PasswordTextField(
                 textField: FormBuilderTextField(
                   name: 'old_password',
+                  focusNode: _focusNodeOldPassword,
                   style: context.bodyLarge,
                   autocorrect: false,
                   decoration: context.textInputDecoration.copyWith(
@@ -97,6 +77,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
               PasswordTextField(
                 textField: FormBuilderTextField(
                   name: 'new_password',
+                  focusNode: _focusNodeNewPassword,
                   style: context.bodyLarge,
                   autocorrect: false,
                   decoration: context.textInputDecoration.copyWith(
@@ -109,6 +90,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
               PasswordTextField(
                 textField: FormBuilderTextField(
                   name: 'confirm_new_password',
+                  focusNode: _focusNodeConfirmNewPassword,
                   style: context.bodyLarge,
                   autocorrect: false,
                   decoration: context.textInputDecoration.copyWith(
@@ -134,5 +116,54 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
         ),
       ),
     );
+  }
+
+  void _changePassword() async {
+    if (_changePasswordKey.currentState?.saveAndValidate() ?? false) {
+      final loc = ref.read(appLocalizationsProvider);
+
+      final oldPassword =
+          _changePasswordKey.currentState?.value['old_password'] as String;
+      final newPassword =
+          _changePasswordKey.currentState?.value['new_password'] as String;
+      final confirmNewPassword = _changePasswordKey
+          .currentState?.value['confirm_new_password'] as String;
+
+      if (oldPassword == newPassword) {
+        _changePasswordKey.currentState?.fields['new_password']
+            ?.invalidate(loc.same_old_new_password_error);
+      } else if (newPassword != confirmNewPassword) {
+        _changePasswordKey.currentState?.fields['confirm_new_password']
+            ?.invalidate(loc.not_match_new_password_error);
+      } else {
+        _unfocusNodes();
+
+        try {
+          context.loaderOverlay.show();
+
+          await ref
+              .read(walletStateProvider)
+              .nativeWalletRepository!
+              .changePassword(
+                  oldPassword: oldPassword, newPassword: newPassword);
+
+          ref
+              .read(snackBarMessengerProvider.notifier)
+              .showInfo(loc.password_changed);
+        } catch (e) {
+          ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
+        }
+
+        if (mounted && context.loaderOverlay.visible) {
+          context.loaderOverlay.hide();
+        }
+      }
+    }
+  }
+
+  void _unfocusNodes() {
+    _focusNodeOldPassword.unfocus();
+    _focusNodeNewPassword.unfocus();
+    _focusNodeConfirmNewPassword.unfocus();
   }
 }
