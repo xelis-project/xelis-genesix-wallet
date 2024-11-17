@@ -62,14 +62,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.12.0"
-  auto_size_text:
-    dependency: "direct main"
-    description:
-      name: auto_size_text
-      sha256: "3f5261cd3fb5f2a9ab4e2fc3fba84fd9fcaac8821f20a1d4e71f557521b22599"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.0"
   back_button_interceptor:
     dependency: transitive
     description:
@@ -330,10 +322,10 @@ packages:
     dependency: "direct dev"
     description:
       name: ffigen
-      sha256: a0ca4853028c6a9e4d9a0a40bb744fceb898c89d75931d08e87b3987d0087060
+      sha256: e0bdaa4ff30106aab68e7fa19311df4ced2035dc07be30f2e112855e8dcd3259
       url: "https://pub.dev"
     source: hosted
-    version: "15.0.0"
+    version: "16.0.0"
   file:
     dependency: transitive
     description:
@@ -490,10 +482,10 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: ce89c5a993ca5eea74535f798478502c30a625ecb10a1de4d7fef5cd1bcac2a4
+      sha256: "8ae664a70174163b9f65ea68dd8673e29db8f9095de7b5cd00e167c621f4fef5"
       url: "https://pub.dev"
     source: hosted
-    version: "14.4.1"
+    version: "14.6.0"
   go_router_builder:
     dependency: "direct dev"
     description:
@@ -530,10 +522,10 @@ packages:
     dependency: transitive
     description:
       name: hashlib
-      sha256: f572f2abce09fc7aee53f15927052b9732ea1053e540af8cae211111ee0b99b1
+      sha256: e13e8237d93fb275cd1c55fc339bb90638994d1a4f140c7ee270173b51f3d169
       url: "https://pub.dev"
     source: hosted
-    version: "1.21.0"
+    version: "1.21.1"
   hashlib_codecs:
     dependency: transitive
     description:
@@ -1190,34 +1182,34 @@ packages:
     dependency: transitive
     description:
       name: talker
-      sha256: "30bbc526bb2e7d465c630f087479616b6b84570728539fde536a3b652acad2f6"
+      sha256: "9d1c777f12ac49db3bf7b3e3977a09041a23da0fc65b7c12f0530c2045128104"
       url: "https://pub.dev"
     source: hosted
-    version: "4.4.1"
+    version: "4.4.7"
   talker_flutter:
     dependency: "direct main"
     description:
       name: talker_flutter
-      sha256: "51e1f26a726dced6952c2070ae2bc7e23393c319e2f98def2009fdbcdfbda7aa"
+      sha256: "7557c3088dbf341d1f9b6aac12ed1a15663e5e6a0165a29787070320c7edaa4e"
       url: "https://pub.dev"
     source: hosted
-    version: "4.4.1"
+    version: "4.4.7"
   talker_logger:
     dependency: transitive
     description:
       name: talker_logger
-      sha256: "515d2e5803928b2bab42108f710c814743965f939be2b4261f9c3045ef8a3fba"
+      sha256: e2b59c1708c2677d15017c1b248357a6f55c68bd4c415e878ff5addaba8aaab4
       url: "https://pub.dev"
     source: hosted
-    version: "4.4.1"
+    version: "4.4.7"
   talker_riverpod_logger:
     dependency: "direct main"
     description:
       name: talker_riverpod_logger
-      sha256: "6b8efe833b851f68353d5d32ae2dbf265a617e89e53b2b4f2fcd6548a259bf20"
+      sha256: "03ff7fe838c13b1dcbdc6dc27c81d3ea7123f9b0f51905bbbee05a7a3d691624"
       url: "https://pub.dev"
     source: hosted
-    version: "4.4.1"
+    version: "4.4.7"
   term_glyph:
     dependency: transitive
     description:
@@ -1294,10 +1286,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_linux
-      sha256: e2b9622b4007f97f504cd64c0128309dfb978ae66adbe944125ed9e1750f06af
+      sha256: "4e9ba368772369e3e08f231d2301b4ef72b9ff87c31192ef471b380ef29a4935"
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.0"
+    version: "3.2.1"
   url_launcher_macos:
     dependency: transitive
     description:
