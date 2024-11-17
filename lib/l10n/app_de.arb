@@ -70,7 +70,7 @@
   "coming_soon": "Demnächst...",
   "wallet_creation_failed_toast_error": "Wallet-Erstellung fehlgeschlagen.",
   "wallet_opening_failed_toast_error": "Wallet-Öffnung fehlgeschlagen.",
-  "copied": "Kopiert",
+  "copied": "Kopiert!",
   "rescan": "Erneut scannen",
   "rescan_done": "Rescan abgeschlossen!",
   "hidden": "VERSTECKT",
@@ -195,5 +195,7 @@
   "error_exporting_csv": "Fehler beim Exportieren von CSV",
   "authentication": "Authentifizierung",
   "authentication_message": "Geben Sie Ihr Wallet-Passwort ein, um fortzufahren.",
-  "next": "Weiter"
+  "next": "Weiter",
+  "copy": "Kopieren",
+  "copy_recovery_phrase": "Kopieren Sie Ihren Wiederherstellungs-Phrase"
 }

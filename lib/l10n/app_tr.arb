@@ -70,7 +70,7 @@
   "coming_soon": "Çok Yakında...",
   "wallet_creation_failed_toast_error": "Cüzdan oluşturma başarısız oldu.",
   "wallet_opening_failed_toast_error": "Cüzdan açma işlemi başarısız oldu.",
-  "copied": "Kopyalandı",
+  "copied": "Kopyalandı!",
   "rescan": "Yeniden Tara",
   "rescan_done": "Yeniden tarama tamamlandı!",
   "hidden": "GİZLİ",
@@ -195,5 +195,7 @@
   "error_exporting_csv": "CSV dışa aktarma hatası",
   "authentication": "kimlik doğrulama",
   "authentication_message": "Lütfen cüzdan parolanızı girin devam etmek için.",
-  "next": "Bir Sonra"
+  "next": "Bir Sonra",
+  "copy": "Kopyala",
+  "copy_recovery_phrase": "Kopyala kurtarma cümleyi"
 }

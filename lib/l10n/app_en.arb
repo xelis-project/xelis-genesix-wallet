@@ -70,7 +70,7 @@
   "coming_soon": "Coming soon...",
   "wallet_creation_failed_toast_error": "Wallet creation has failed.",
   "wallet_opening_failed_toast_error": "Wallet opening has failed.",
-  "copied": "Copied",
+  "copied": "Copied!",
   "rescan": "Rescan",
   "rescan_done": "Rescan complete!",
   "hidden": "HIDDEN",
@@ -195,5 +195,7 @@
   "error_exporting_csv": "Error exporting CSV",
   "authentication": "authentication",
   "authentication_message": "Please enter your wallet password to continue.",
-  "next": "Next"
+  "next": "Next",
+  "copy": "Copy",
+  "copy_recovery_phrase": "Copy your recovery phrase"
 }

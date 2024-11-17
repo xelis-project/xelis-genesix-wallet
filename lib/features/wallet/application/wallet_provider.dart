@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/rust_bridge/api/wallet.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
@@ -293,6 +294,15 @@ class WalletState extends _$WalletState {
         talker.info(event);
         state = state.copyWith(isOnline: false);
     }
+  }
+
+  Future<List<String>> getSeed(MnemonicLanguage language) async {
+    if (state.nativeWalletRepository != null) {
+      final seed = await state.nativeWalletRepository!
+          .getSeed(languageIndex: language.rustIndex);
+      return seed.split(' ');
+    }
+    return [];
   }
 }
 

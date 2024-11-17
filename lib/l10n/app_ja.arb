@@ -70,7 +70,7 @@
   "coming_soon": "近日公開...",
   "wallet_creation_failed_toast_error": "財布の作成に失敗しました。",
   "wallet_opening_failed_toast_error": "財布のオープンに失敗しました。",
-  "copied": "コピーしました",
+  "copied": "コピーしました！",
   "rescan": "再スキャン",
   "rescan_done": "再スキャンが完了しました！",
   "hidden": "非表示",
@@ -195,5 +195,7 @@
   "error_exporting_csv": "CSV エクスポート中にエラー",
   "authentication": "認証",
   "authentication_message": "パスワードを入力して続行してください。",
-  "next": "次へ"
+  "next": "次へ",
+  "copy": "コピー",
+  "copy_recovery_phrase": "コピーしてください"
 }

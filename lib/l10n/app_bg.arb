@@ -70,7 +70,7 @@
   "coming_soon": "Очаквайте скоро...",
   "wallet_creation_failed_toast_error": "Създаването на портфейл е неуспешно.",
   "wallet_opening_failed_toast_error": "Отварянето на портфейла е неуспешно.",
-  "copied": "Копиран",
+  "copied": "Копиран!",
   "rescan": "Повторно сканиране",
   "rescan_done": "Повторното сканиране е завършено!",
   "hidden": "СКРИТ",
@@ -195,5 +195,7 @@
   "error_exporting_csv": "Грешка при извличането на CSV",
   "authentication": "автентификация",
   "authentication_message": "Моля, въведете парола на портфейла си, за да продължите.",
-  "next": "Напред"
+  "next": "Напред",
+  "copy": "Копирайт",
+  "copy_recovery_phrase": "Копирайте своя фраза за възстановяване"
 }

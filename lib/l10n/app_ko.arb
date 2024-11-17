@@ -70,7 +70,7 @@
   "coming_soon": "곧 출시됩니다...",
   "wallet_creation_failed_toast_error": "지갑을 만들지 못했습니다.",
   "wallet_opening_failed_toast_error": "지갑을 열지 못했습니다.",
-  "copied": "복사되었습니다",
+  "copied": "복사되었습니다!",
   "rescan": "재검색",
   "rescan_done": "재검색 완료!",
   "hidden": "숨김",
@@ -195,5 +195,7 @@
   "error_exporting_csv": "CSV 내보내는 중 오류",
   "authentication": "인증",
   "authentication_message": "지갑 비밀번호를 입력하여 계속하십시오.",
-  "next": "다음으로"
+  "next": "다음으로",
+  "copy": "복사",
+  "copy_recovery_phrase": "복구 문구를 복사하세요."
 }

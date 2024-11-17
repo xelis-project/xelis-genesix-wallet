@@ -70,7 +70,7 @@
   "coming_soon": "जल्द आ रहा है...",
   "wallet_creation_failed_toast_error": "वॉलेट निर्माण विफल हो गया है.",
   "wallet_opening_failed_toast_error": "बटुआ खोलना असफल हो गया है.",
-  "copied": "कॉपी कर लिया है",
+  "copied": "कॉपी कर लिया है!",
   "rescan": "पुन: स्कैन",
   "rescan_done": "पुनः स्कैन पूर्ण!",
   "hidden": "छिपा हुआ",
@@ -195,5 +195,7 @@
   "error_exporting_csv": "CSV निर्यात करते समय त्रुटि",
   "authentication": "प्रमाणीकरण",
   "authentication_message": "कृपया अपना वॉलेट पासवर्ड दर्ज करें ताकि आप आगे बढ़ सकें.",
-  "next": "अगला"
+  "next": "अगला",
+  "copy": "कॉपी करें",
+  "copy_recovery_phrase": "आपकी रिकवरी फ्रेज़ को कॉपी करें"
 }

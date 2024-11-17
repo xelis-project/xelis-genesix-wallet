@@ -195,5 +195,7 @@
   "error_exporting_csv": "Erro ao exportar CSV",
   "authentication": "autenticação",
   "authentication_message": "Insira a sua senha da carteira para continuar.",
-  "next": "Próximo"
+  "next": "Próximo",
+  "copy": "Copiar",
+  "copy_recovery_phrase": "Copie a sua frase de recuperação"
 }

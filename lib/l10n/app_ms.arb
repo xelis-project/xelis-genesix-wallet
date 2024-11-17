@@ -70,7 +70,7 @@
   "coming_soon": "Akan datang...",
   "wallet_creation_failed_toast_error": "Gagal mencipta dompet.",
   "wallet_opening_failed_toast_error": "Gagal membuka dompet.",
-  "copied": "Disalin",
+  "copied": "Disalin!",
   "rescan": "Imbas semula",
   "rescan_done": "Imbasan semula selesai!",
   "hidden": "TERSEMBUNYI",
@@ -195,5 +195,7 @@
   "error_exporting_csv": "Kesalahan mengekspor CSV",
   "authentication": "pengesahan",
   "authentication_message": "Sila masukkan kata laluan dompet anda untuk meneruskan.",
-  "next": "Seterusnya"
+  "next": "Seterusnya",
+  "copy": "Salin",
+  "copy_recovery_phrase": "Salin frasa pemulihan anda"
 }

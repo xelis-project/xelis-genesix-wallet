@@ -70,7 +70,7 @@
   "coming_soon": "Questa funzionalità sarà disponibile prossimamente...",
   "wallet_creation_failed_toast_error": "La creazione del portafoglio è fallita.",
   "wallet_opening_failed_toast_error": "L'apertura del portafoglio non è riuscita.",
-  "copied": "Copiato",
+  "copied": "Copiato!",
   "rescan": "Riscansiona",
   "rescan_done": "Scansione completata!",
   "hidden": "NASCOSTO",
@@ -195,5 +195,7 @@
   "error_exporting_csv": "Errore durante l'esportazione di CSV",
   "authentication": "autenticazione",
   "authentication_message": "Inserire la password del portafoglio per continuare.",
-  "next": "Avanti"
+  "next": "Avanti",
+  "copy": "Copiare",
+  "copy_recovery_phrase": "Copiare la tua frase di recupero"
 }

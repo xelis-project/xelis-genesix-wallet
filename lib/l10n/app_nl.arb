@@ -70,7 +70,7 @@
   "coming_soon": "Binnenkort...",
   "wallet_creation_failed_toast_error": "Het aanmaken van de portemonnee is mislukt.",
   "wallet_opening_failed_toast_error": "Het openen van de portemonnee is mislukt.",
-  "copied": "Gekopieerd",
+  "copied": "Gekopieerd!",
   "rescan": "Opnieuw scannen",
   "rescan_done": "Opnieuw scannen voltooid!",
   "hidden": "VERBORGEN",
@@ -195,5 +195,7 @@
   "error_exporting_csv": "Fout bij het exporteren van CSV",
   "authentication": "authenticatie",
   "authentication_message": "Voer uw portemonnee wachtwoord in om door te gaan.",
-  "next": "Volgende"
+  "next": "Volgende",
+  "copy": "Kopieer",
+  "copy_recovery_phrase": "Kopieer uw herstelzin"
 }

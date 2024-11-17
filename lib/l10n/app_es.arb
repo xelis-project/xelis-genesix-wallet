@@ -70,7 +70,7 @@
   "coming_soon": "Próximamente...",
   "wallet_creation_failed_toast_error": "La creación de la billetera ha fallado.",
   "wallet_opening_failed_toast_error": "La apertura de la billetera ha fallado.",
-  "copied": "Copiado",
+  "copied": "¡Copiado!",
   "rescan": "Volver a escanear",
   "rescan_done": "¡Reescaneo completado!",
   "hidden": "OCULTO",
@@ -195,5 +195,7 @@
   "error_exporting_csv": "Error al exportar CSV",
   "authentication": "autenticación",
   "authentication_message": "Introduzca su contraseña de monedero para continuar.",
-  "next": "Siguiente"
+  "next": "Siguiente",
+  "copy": "Copiar",
+  "copy_recovery_phrase": "Copie su frase de recuperación"
 }

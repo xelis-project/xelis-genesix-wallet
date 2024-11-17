@@ -70,7 +70,7 @@
   "coming_soon": "Скоро...",
   "wallet_creation_failed_toast_error": "Создание кошелька не удалось.",
   "wallet_opening_failed_toast_error": "Открытие кошелька не удалось.",
-  "copied": "Скопировано",
+  "copied": "Скопировано!",
   "rescan": "Повторное сканирование",
   "rescan_done": "Повторное сканирование завершено!",
   "hidden": "HIDDEN",
@@ -195,5 +195,7 @@
   "error_exporting_csv": "Ошибка при экспорте CSV",
   "authentication": "аутентификация",
   "authentication_message": "Введите пароль вашей кошелёк, чтобы продолжить.",
-  "next": "Далее"
+  "next": "Далее",
+  "copy": "Скопировать",
+  "copy_recovery_phrase": "Скопировать свой код восстановления"
 }

@@ -70,7 +70,7 @@
   "coming_soon": "Już wkrótce...",
   "wallet_creation_failed_toast_error": "Nie udało się utworzyć portfela.",
   "wallet_opening_failed_toast_error": "Nie udało się otworzyć portfela.",
-  "copied": "Kopiowano",
+  "copied": "Kopiowano!",
   "rescan": "Przeskanuj",
   "rescan_done": "Przeskanowanie zakończone!",
   "hidden": "UKRYTY",
@@ -195,5 +195,7 @@
   "error_exporting_csv": "Błąd podczas eksportowania CSV",
   "authentication": "uwierzytelnienie",
   "authentication_message": "Wprowadź hasło do portfela, aby kontynuować.",
-  "next": "Dalej"
+  "next": "Dalej",
+  "copy": "Kopiuj",
+  "copy_recovery_phrase": "Skopiuj swój ciąg odzyskiwania"
 }

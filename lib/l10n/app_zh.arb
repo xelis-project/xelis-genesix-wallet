@@ -195,5 +195,7 @@
   "error_exporting_csv": "导出 CSV 时出错",
   "authentication": "认证",
   "authentication_message": "请输入您的钱包密码以继续",
-  "next": "下一步"
+  "next": "下一步",
+  "copy": "复制",
+  "copy_recovery_phrase": "复制您的恢复短语"
 }

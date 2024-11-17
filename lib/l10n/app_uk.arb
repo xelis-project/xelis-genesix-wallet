@@ -195,5 +195,7 @@
   "error_exporting_csv": "Помилка під час експорту CSV",
   "authentication": "авторизація",
   "authentication_message": "Введіть пароль до гаманця, щоб продовжити.",
-  "next": "Далі"
+  "next": "Далі",
+  "copy": "Копіювати",
+  "copy_recovery_phrase": "Копіювати свій рядок відновлення"
 }
