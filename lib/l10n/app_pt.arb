@@ -186,7 +186,7 @@
   "preferences_reset_snackbar": "Preferências redefinidas!",
   "seed_error_not_enough_words": "Não há palavras suficientes",
   "seed_error_too_many_words": "Muitas palavras",
-  "burn_transfer_warning_message": "A ativação de transferência de queima permitirá-lhe enviar fundos para uma direção de destruição permanente, sem possibilidade de recuperação. Esta ação é irreversível e os fundos serão perdidos para sempre.",
+  "burn_unlock_warning_message": "A ativação de transferência de queima permitirá-lhe enviar fundos para uma direção de destruição permanente, sem possibilidade de recuperação. Esta ação é irreversível e os fundos serão perdidos para sempre.",
   "do_you_want_to_activate_burn_transfer": "Está seguro que deseja ativar a transferência de queima ?",
   "burn_transfer_unlock": "A transferência de queima foi ativada.",
   "export_csv_tooltip": "Exportar CSV",
@@ -197,5 +197,6 @@
   "authentication_message": "Insira a sua senha da carteira para continuar.",
   "next": "Próximo",
   "copy": "Copiar",
-  "copy_recovery_phrase": "Copie a sua frase de recuperação"
+  "copy_recovery_phrase": "Copie a sua frase de recuperação",
+  "burn_screen_warning_message": "Esta acção é irreversível e os fundos serão perdidos para sempre."
 }

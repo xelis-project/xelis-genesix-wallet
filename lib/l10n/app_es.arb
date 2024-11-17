@@ -186,7 +186,7 @@
   "preferences_reset_snackbar": "Preferencias reseteadas!",
   "seed_error_not_enough_words": "No hay suficientes palabras",
   "seed_error_too_many_words": "Demasiadas palabras",
-  "burn_transfer_warning_message": "Darse de baja en el envío de quemado te permitirá enviar fondos a una dirección de quemado. Esta acción es irreparable y los fondos se perderán para siempre.",
+  "burn_unlock_warning_message": "Darse de baja en el envío de quemado te permitirá enviar fondos a una dirección de quemado. Esta acción es irreparable y los fondos se perderán para siempre.",
   "do_you_want_to_activate_burn_transfer": "¿Estás seguro de que deseas darte de baja en el envío de quemado?",
   "burn_transfer_unlock": "El envío de quemado se ha desbloqueado.",
   "export_csv_tooltip": "Exportar CSV",
@@ -197,5 +197,6 @@
   "authentication_message": "Introduzca su contraseña de monedero para continuar.",
   "next": "Siguiente",
   "copy": "Copiar",
-  "copy_recovery_phrase": "Copie su frase de recuperación"
+  "copy_recovery_phrase": "Copie su frase de recuperación",
+  "burn_screen_warning_message": "Esta acción es irreversible y los fondos se perderán para siempre."
 }

@@ -186,7 +186,7 @@
   "preferences_reset_snackbar": "Préférences réinitialisées !",
   "seed_error_not_enough_words": "Pas assez de mots",
   "seed_error_too_many_words": "Trop de mots",
-  "burn_transfer_warning_message": "L'activation du transfert de type Burn vous permettra d'envoyer des fonds à une adresse de destruction permanente, sans possibilité de récupération. Ce processus est irreversible et les fonds seront perdus définitivement.",
+  "burn_unlock_warning_message": "L'activation du transfert de type Burn vous permettra d'envoyer des fonds à une adresse de destruction permanente, sans possibilité de récupération. Ce processus est irreversible et les fonds seront perdus définitivement.",
   "do_you_want_to_activate_burn_transfer": "Êtes-vous sûr de vouloir activer le transfert de type Burn ?",
   "burn_transfer_unlock": "Le transfert de type Burn est désormais activé.",
   "export_csv_tooltip": "Exporter CSV",
@@ -197,5 +197,6 @@
   "authentication_message": "Veuillez entrer le mot de passe de votre portefeuille pour continuer.",
   "next": "Suivant",
   "copy": "Copier",
-  "copy_recovery_phrase": "Copiez votre phrase de récupération"
+  "copy_recovery_phrase": "Copiez votre phrase de récupération",
+  "burn_screen_warning_message": "Cette action est irréversible et les fonds seront perdus à jamais."
 }

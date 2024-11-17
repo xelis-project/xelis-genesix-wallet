@@ -186,7 +186,7 @@
   "preferences_reset_snackbar": "Voorkeuren zijn gereset!",
   "seed_error_not_enough_words": "Niet genoeg woorden",
   "seed_error_too_many_words": "Te veel woorden",
-  "burn_transfer_warning_message": "De uitvoeren van brandtransfers zal u in staat stellen om geld naar een brandadres te sturen, waarna het definitief verloren is gegaan.",
+  "burn_unlock_warning_message": "De uitvoeren van brandtransfers zal u in staat stellen om geld naar een brandadres te sturen, waarna het definitief verloren is gegaan.",
   "do_you_want_to_activate_burn_transfer": "Bent u zeker dat u de uitvoering van brandtransfers wilt starten?",
   "burn_transfer_unlock": "De brandtransfers is geactiveerd.",
   "export_csv_tooltip": "Exporteer CSV",
@@ -197,5 +197,6 @@
   "authentication_message": "Voer uw portemonnee wachtwoord in om door te gaan.",
   "next": "Volgende",
   "copy": "Kopieer",
-  "copy_recovery_phrase": "Kopieer uw herstelzin"
+  "copy_recovery_phrase": "Kopieer uw herstelzin",
+  "burn_screen_warning_message": "Deze actie is onomkeerbaar en de fondsen zullen voor altijd verloren gaan."
 }

@@ -186,7 +186,7 @@
   "preferences_reset_snackbar": "Einstellungen zurückgesetzt!",
   "seed_error_not_enough_words": "Nicht genug Wörter",
   "seed_error_too_many_words": "Zu viele Wörter",
-  "burn_transfer_warning_message": "Die Aktivierung von Burn-Transfer wird es Ihnen ermöglichen, Geld an ein Burn-Adresse zu senden. Diese Aktion ist rückgängig und die Mittel werden für immer verloren sein.",
+  "burn_unlock_warning_message": "Die Aktivierung von Burn-Transfer wird es Ihnen ermöglichen, Geld an ein Burn-Adresse zu senden. Diese Aktion ist rückgängig und die Mittel werden für immer verloren sein.",
   "do_you_want_to_activate_burn_transfer": "Sind Sie sicher, dass Sie die Aktivierung von Burn-Transfer wünschen?",
   "burn_transfer_unlock": "Burn-Transfer wurde aktiviert.",
   "export_csv_tooltip": "Exportieren Sie CSV",
@@ -197,5 +197,6 @@
   "authentication_message": "Geben Sie Ihr Wallet-Passwort ein, um fortzufahren.",
   "next": "Weiter",
   "copy": "Kopieren",
-  "copy_recovery_phrase": "Kopieren Sie Ihren Wiederherstellungs-Phrase"
+  "copy_recovery_phrase": "Kopieren Sie Ihren Wiederherstellungs-Phrase",
+  "burn_screen_warning_message": "Diese Aktion ist unwiderruflich und die Mittel werden für immer verloren gehen."
 }

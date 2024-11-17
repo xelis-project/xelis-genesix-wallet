@@ -186,7 +186,7 @@
   "preferences_reset_snackbar": "Tetapan telah ditetapkan semula!",
   "seed_error_not_enough_words": "Tidak cukup kata",
   "seed_error_too_many_words": "Terlalu banyak kata",
-  "burn_transfer_warning_message": "Membuka burn transfer akan memungkinkan anda menghantar dana ke alamat pembakaran. Tindakan ini tidak boleh dibatalkan dan dana itu akan hilang selamanya.",
+  "burn_unlock_warning_message": "Membuka burn transfer akan memungkinkan anda menghantar dana ke alamat pembakaran. Tindakan ini tidak boleh dibatalkan dan dana itu akan hilang selamanya.",
   "do_you_want_to_activate_burn_transfer": "Adakah anda yakin ingin membuka transfer burn?",
   "burn_transfer_unlock": "Membuka transfer burn telah dilakukan.",
   "export_csv_tooltip": "Ekspor CSV",
@@ -197,5 +197,6 @@
   "authentication_message": "Sila masukkan kata laluan dompet anda untuk meneruskan.",
   "next": "Seterusnya",
   "copy": "Salin",
-  "copy_recovery_phrase": "Salin frasa pemulihan anda"
+  "copy_recovery_phrase": "Salin frasa pemulihan anda",
+  "burn_screen_warning_message": "Tindakan ini tidak dapat dibatalkan dan dana akan hilang selamanya."
 }

@@ -186,7 +186,7 @@
   "preferences_reset_snackbar": "Preferenze reimpostate!",
   "seed_error_not_enough_words": "Non ci sono abbastanza parole",
   "seed_error_too_many_words": "Troppe parole",
-  "burn_transfer_warning_message": "L'attivazione del trasferimento di bruciamento le permetterà di inviare fondi a un indirizzo di distruzione permanente, senza possibilità di recupero. Questa operazione è irreversibile e i fondi saranno persi per sempre.",
+  "burn_unlock_warning_message": "L'attivazione del trasferimento di bruciamento le permetterà di inviare fondi a un indirizzo di distruzione permanente, senza possibilità di recupero. Questa operazione è irreversibile e i fondi saranno persi per sempre.",
   "do_you_want_to_activate_burn_transfer": "Sei sicuro di voler attivare il trasferimento di bruciamento?",
   "burn_transfer_unlock": "Il trasferimento di bruciamento è stato attivato.",
   "export_csv_tooltip": "Esportare CSV",
@@ -197,5 +197,6 @@
   "authentication_message": "Inserire la password del portafoglio per continuare.",
   "next": "Avanti",
   "copy": "Copiare",
-  "copy_recovery_phrase": "Copiare la tua frase di recupero"
+  "copy_recovery_phrase": "Copiare la tua frase di recupero",
+  "burn_screen_warning_message": "Questa azione è irreversibile e i fondi saranno persi per sempre."
 }

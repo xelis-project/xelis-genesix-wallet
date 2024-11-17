@@ -186,7 +186,7 @@
   "preferences_reset_snackbar": "설정이 초기화되었습니다!",
   "seed_error_not_enough_words": "충분한 단어가 없습니다.",
   "seed_error_too_many_words": "너무 많은 단어입니다.",
-  "burn_transfer_warning_message": "Burn Transfer를 활성화하면 자금을 Burn 주소로 보내는 것을 허용합니다. 이 행동은 불가피하고 자금은 영원히 잃어버립니다.",
+  "burn_unlock_warning_message": "Burn Transfer를 활성화하면 자금을 Burn 주소로 보내는 것을 허용합니다. 이 행동은 불가피하고 자금은 영원히 잃어버립니다.",
   "do_you_want_to_activate_burn_transfer": "정말로 버른 트랜스퍼를 활성화하고 싶은가요 ?",
   "burn_transfer_unlock": "버른 트랜스퍼를 활성화했습니다.",
   "export_csv_tooltip": "CSV를 내보내기",
@@ -197,5 +197,6 @@
   "authentication_message": "지갑 비밀번호를 입력하여 계속하십시오.",
   "next": "다음으로",
   "copy": "복사",
-  "copy_recovery_phrase": "복구 문구를 복사하세요."
+  "copy_recovery_phrase": "복구 문구를 복사하세요.",
+  "burn_screen_warning_message": "이 작업은 되돌릴 수 없으며 자금이 영구적으로 손실됩니다."
 }

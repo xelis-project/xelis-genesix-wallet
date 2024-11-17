@@ -186,7 +186,7 @@
   "preferences_reset_snackbar": "Tercihler sıfırlandı!",
   "seed_error_not_enough_words": "Yeterli kelime yok",
   "seed_error_too_many_words": "Çok fazla kelime",
-  "burn_transfer_warning_message": "Yakan transferi unlock edilecek olursa, size yakan adresine para gönderme yetkisi verecektir. Para kaybolacak ve asla geri alınamayacak.",
+  "burn_unlock_warning_message": "Yakan transferi unlock edilecek olursa, size yakan adresine para gönderme yetkisi verecektir. Para kaybolacak ve asla geri alınamayacak.",
   "do_you_want_to_activate_burn_transfer": "Yakan transferi unlock etmek istiyor musunuz?",
   "burn_transfer_unlock": "Yakan transferi aktif hale getirildi.",
   "export_csv_tooltip": "CSV dışa aktar",
@@ -197,5 +197,6 @@
   "authentication_message": "Lütfen cüzdan parolanızı girin devam etmek için.",
   "next": "Bir Sonra",
   "copy": "Kopyala",
-  "copy_recovery_phrase": "Kopyala kurtarma cümleyi"
+  "copy_recovery_phrase": "Kopyala kurtarma cümleyi",
+  "burn_screen_warning_message": "Bu işlem geri alınamaz ve fonlar sonsuza kadar kaybolacaktır."
 }

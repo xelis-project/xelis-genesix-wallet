@@ -186,7 +186,7 @@
   "preferences_reset_snackbar": "Preferences reset!",
   "seed_error_not_enough_words": "Not enough words",
   "seed_error_too_many_words": "Too many words",
-  "burn_transfer_warning_message": "Unlocking burn transfer will allow you to send funds to a burn address. This action is irreversible and the funds will be lost forever.",
+  "burn_unlock_warning_message": "Unlocking burn transfer will allow you to send funds to a burn address. This action is irreversible and the funds will be lost forever.",
   "do_you_want_to_activate_burn_transfer": "Are you sure you want to unlock burn transfer?",
   "burn_transfer_unlock": "Burn transfer unlocked.",
   "export_csv_tooltip": "Export CSV",
@@ -197,5 +197,6 @@
   "authentication_message": "Please enter your wallet password to continue.",
   "next": "Next",
   "copy": "Copy",
-  "copy_recovery_phrase": "Copy your recovery phrase"
+  "copy_recovery_phrase": "Copy your recovery phrase",
+  "burn_screen_warning_message": "This action is irreversible and the funds will be lost forever."
 }

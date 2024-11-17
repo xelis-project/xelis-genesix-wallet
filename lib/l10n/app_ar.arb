@@ -186,7 +186,7 @@
   "preferences_reset_snackbar": "تم إعادة تعيين التفضيلات!",
   "seed_error_not_enough_words": "لا يكفي من الكلمات",
   "seed_error_too_many_words": "كثرة الكلمات",
-  "burn_transfer_warning_message": "سيسمح لك بفك قفل عملية نقل الحرق بإرسال الأموال إلى عنوان حرق. هذه العملية غير قابلة للعكس وسيتم فقدان الأموال إلى الأبد.",
+  "burn_unlock_warning_message": "سيسمح لك بفك قفل عملية نقل الحرق بإرسال الأموال إلى عنوان حرق. هذه العملية غير قابلة للعكس وسيتم فقدان الأموال إلى الأبد.",
   "do_you_want_to_activate_burn_transfer": "هل أنت متأكد من أنك تريد فك قفل عملية نقل الحرق؟",
   "burn_transfer_unlock": "تم فك قفل عملية نقل الحرق.",
   "export_csv_tooltip": "تصدير ملف CSV",
@@ -197,5 +197,6 @@
   "authentication_message": "يرجى إدخال كلمة مرور محفظتك للانتقال إلى الأمام.",
   "next": "التالي",
   "copy": "نسخ",
-  "copy_recovery_phrase": "نسخ جملة الاسترداد"
+  "copy_recovery_phrase": "نسخ جملة الاسترداد",
+  "burn_screen_warning_message": "هذه العملية غير قابلة للانعكاس وسيتم فقدان الأموال إلى الأبد."
 }

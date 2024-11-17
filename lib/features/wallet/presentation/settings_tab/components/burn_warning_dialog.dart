@@ -3,6 +3,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/wallet/presentation/settings_tab/components/burn_warning_widget.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
@@ -23,40 +24,7 @@ class BurnWarningDialog extends ConsumerWidget {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: context.colors.primary),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(Spaces.medium),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.warning_amber,
-                        color: context.colors.primary,
-                        size: 30,
-                      ),
-                      const SizedBox(width: Spaces.medium),
-                      Expanded(
-                          child: Text(loc.warning,
-                              style: context.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: context.colors.primary))),
-                    ],
-                  ),
-                  const SizedBox(height: Spaces.small),
-                  Text(
-                    loc.burn_transfer_warning_message,
-                    style: context.bodyMedium,
-                  ),
-                ],
-              ),
-            ),
-          ),
+          BurnWarningWidget(loc.burn_unlock_warning_message),
           const SizedBox(height: Spaces.medium),
           Text(
             loc.do_you_want_to_activate_burn_transfer,
