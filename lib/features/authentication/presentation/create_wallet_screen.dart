@@ -61,7 +61,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
     return CustomScaffold(
       appBar: GenericAppBar(
           title: widget.isFromSeed
-              ? loc.recover_from_mnemonic_phrase
+              ? loc.recover_from_recovery_phrase
               : loc.create_new_wallet),
       body: FormBuilder(
         key: _createFormKey,

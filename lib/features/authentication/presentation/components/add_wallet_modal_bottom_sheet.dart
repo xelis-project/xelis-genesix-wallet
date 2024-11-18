@@ -45,7 +45,7 @@ class _AddWalletModalBottomSheetMenuState
         ListTile(
           title: Center(
               child: Text(
-            loc.recover_from_mnemonic_phrase,
+            loc.recover_from_recovery_phrase,
             style: context.titleLarge,
             textAlign: TextAlign.center,
           )),
