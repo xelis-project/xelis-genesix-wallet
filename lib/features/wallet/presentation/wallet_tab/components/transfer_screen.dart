@@ -199,25 +199,28 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
           _transferFormKey.currentState?.fields['amount']?.value as String;
       final address =
           _transferFormKey.currentState?.fields['address']?.value as String;
+      final asset =
+          _transferFormKey.currentState?.fields['assets']?.value as String;
 
       _unfocusNodes();
 
       try {
         context.loaderOverlay.show();
 
-        final xelisBalance =
-            ref.read(walletStateProvider.select((value) => value.xelisBalance));
-
         TransactionSummary? tx;
-        if (amount.trim() == xelisBalance) {
+        if (amount.trim() == _selectedAssetBalance) {
           tx = await ref
               .read(walletStateProvider.notifier)
-              .createAllXelisTransaction(destination: address.trim());
+              .createAllXelisTransaction(
+                  destination: address.trim(), asset: asset);
         } else {
           tx = await ref
               .read(walletStateProvider.notifier)
               .createXelisTransaction(
-                  amount: double.parse(amount), destination: address.trim());
+                amount: double.parse(amount),
+                destination: address.trim(),
+                asset: asset,
+              );
         }
 
         if (mounted) {

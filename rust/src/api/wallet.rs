@@ -37,7 +37,7 @@ pub struct SummaryTransaction {
 pub struct Transfer {
     pub float_amount: f64,
     pub str_address: String,
-    pub asset_hash: Option<String>,
+    pub asset_hash: String,
     pub extra_data: Option<String>,
 }
 
@@ -618,10 +618,7 @@ impl XelisWallet {
         let mut vec = Vec::new();
 
         for transfer in transfers {
-            let asset = match transfer.asset_hash {
-                None => XELIS_ASSET,
-                Some(value) => Hash::from_hex(value).context("Invalid asset")?,
-            };
+            let asset = Hash::from_hex(transfer.asset_hash).context("Invalid asset")?;
 
             let amount = self
                 .convert_float_amount(transfer.float_amount, &asset)

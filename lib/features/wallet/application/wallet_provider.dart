@@ -122,20 +122,25 @@ class WalletState extends _$WalletState {
     }
   }
 
-  Future<TransactionSummary?> createXelisTransaction(
-      {required double amount, required String destination}) async {
+  Future<TransactionSummary?> createXelisTransaction({
+    required double amount,
+    required String destination,
+    required String asset,
+  }) async {
     if (state.nativeWalletRepository != null) {
       return state.nativeWalletRepository!.createSimpleTransferTransaction(
-          amount: amount, address: destination);
+          amount: amount, address: destination, assetHash: asset);
     }
     return null;
   }
 
-  Future<TransactionSummary?> createAllXelisTransaction(
-      {required String destination}) async {
+  Future<TransactionSummary?> createAllXelisTransaction({
+    required String destination,
+    required String asset,
+  }) async {
     if (state.nativeWalletRepository != null) {
-      return state.nativeWalletRepository!
-          .createSimpleTransferTransaction(address: destination);
+      return state.nativeWalletRepository!.createSimpleTransferTransaction(
+          address: destination, assetHash: asset);
     }
     return null;
   }
@@ -180,11 +185,15 @@ class WalletState extends _$WalletState {
   }
 
   // TODO rework
-  Future<BigInt> estimateFees(
-      {required double amount, required String destination}) async {
+  Future<BigInt> estimateFees({
+    required double amount,
+    required String destination,
+    required String asset,
+  }) async {
     if (state.nativeWalletRepository != null) {
-      return state.nativeWalletRepository!.estimateFees(
-          [Transfer(floatAmount: amount, strAddress: destination)]);
+      return state.nativeWalletRepository!.estimateFees([
+        Transfer(floatAmount: amount, strAddress: destination, assetHash: asset)
+      ]);
     }
     return BigInt.zero;
   }

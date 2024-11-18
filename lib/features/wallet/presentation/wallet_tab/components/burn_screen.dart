@@ -176,7 +176,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
         context.loaderOverlay.show();
 
         TransactionSummary? tx;
-        if (double.parse(amount) == double.parse(_selectedAssetBalance)) {
+        if (amount.trim() == _selectedAssetBalance) {
           tx = await ref
               .read(walletStateProvider.notifier)
               .createBurnAllTransaction(asset: asset);

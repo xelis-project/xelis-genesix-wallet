@@ -108,8 +108,11 @@ class NativeWalletRepository {
     return _xelisWallet.estimateFees(transfers: transfers);
   }
 
-  Future<TransactionSummary> createSimpleTransferTransaction(
-      {double? amount, required String address, String? assetHash}) async {
+  Future<TransactionSummary> createSimpleTransferTransaction({
+    double? amount,
+    required String address,
+    required String assetHash,
+  }) async {
     String rawTx;
     if (amount != null) {
       rawTx = await _xelisWallet.createTransfersTransaction(transfers: [
