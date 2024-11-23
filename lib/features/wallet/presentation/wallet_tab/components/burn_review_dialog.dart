@@ -5,6 +5,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/logo.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -55,18 +56,6 @@ class _BurnReviewDialogState extends ConsumerState<BurnReviewDialog> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
 
-    final xelisLogo = Container(
-      width: 20,
-      height: 20,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-      ),
-      child: Image.asset(
-        AppResources.xelisAsset.imagePath!,
-        fit: BoxFit.cover,
-      ),
-    );
-
     return GenericDialog(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -115,7 +104,10 @@ class _BurnReviewDialogState extends ConsumerState<BurnReviewDialog> {
                         _isXelisTransfer
                             ? Row(
                                 children: [
-                                  xelisLogo,
+                                  Logo(
+                                    imagePath:
+                                        AppResources.xelisAsset.imagePath!,
+                                  ),
                                   const SizedBox(width: Spaces.small),
                                   Text(AppResources.xelisAsset.name),
                                 ],

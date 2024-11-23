@@ -4,6 +4,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/address.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/logo.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -61,18 +62,6 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
 
-    final xelisLogo = Container(
-      width: 20,
-      height: 20,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-      ),
-      child: Image.asset(
-        AppResources.xelisAsset.imagePath!,
-        fit: BoxFit.cover,
-      ),
-    );
-
     return GenericDialog(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -121,7 +110,10 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
                         _isXelisTransfer
                             ? Row(
                                 children: [
-                                  xelisLogo,
+                                  Logo(
+                                    imagePath:
+                                        AppResources.xelisAsset.imagePath!,
+                                  ),
                                   const SizedBox(width: Spaces.extraSmall),
                                   Text(
                                     AppResources.xelisAsset.name,

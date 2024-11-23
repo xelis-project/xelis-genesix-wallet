@@ -5,6 +5,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/assets_dropdown_menu_item.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/transfer_review_dialog.dart';
 import 'package:genesix/rust_bridge/api/utils.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
@@ -15,7 +16,6 @@ import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class TransferScreen extends ConsumerStatefulWidget {
   const TransferScreen({super.key});
@@ -118,18 +118,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                   name: 'assets',
                   initialValue: assets.entries.first.key,
                   items: assets.entries
-                      .map((asset) => DropdownMenuItem(
-                            value: asset.key,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(asset.key == xelisAsset
-                                    ? 'XELIS'
-                                    : truncateText(asset.key)),
-                                Text(asset.value),
-                              ],
-                            ),
-                          ))
+                      .map(
+                          (asset) => AssetsDropdownMenuItem.fromMapEntry(asset))
                       .toList(),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(
