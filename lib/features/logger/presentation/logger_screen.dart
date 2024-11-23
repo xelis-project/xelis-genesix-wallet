@@ -19,11 +19,12 @@ class LoggerScreen extends StatelessWidget {
           backgroundColor: context.colors.surface,
           textColor: context.colors.onSurface,
           logColors: {
-            TalkerLogType.debug: const Color(0xFF56FEA8),
-            TalkerLogType.riverpodAdd: Colors.blue,
-            TalkerLogType.riverpodUpdate: const Color(0xFF63FAFE),
-            TalkerLogType.riverpodDispose: const Color(0xFFFF005F),
-            TalkerLogType.riverpodFail: const Color.fromARGB(255, 198, 40, 40),
+            TalkerLogType.debug.name: const Color(0xFF56FEA8),
+            TalkerLogType.riverpodAdd.name: Colors.blue,
+            TalkerLogType.riverpodUpdate.name: const Color(0xFF63FAFE),
+            TalkerLogType.riverpodDispose.name: const Color(0xFFFF005F),
+            TalkerLogType.riverpodFail.name:
+                const Color.fromARGB(255, 198, 40, 40),
           },
         ),
       ),
