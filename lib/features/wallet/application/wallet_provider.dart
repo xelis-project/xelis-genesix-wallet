@@ -5,7 +5,6 @@ import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/rust_bridge/api/wallet.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/features/authentication/application/authentication_service.dart';
@@ -230,7 +229,7 @@ class WalletState extends _$WalletState {
               String message;
               if (txType.isMultiTransfer()) {
                 message =
-                    '${toBeginningOfSentenceCase(loc.new_incoming_transaction)}.\n${toBeginningOfSentenceCase(loc.multiple_transfers_detected)}';
+                    '${loc.new_incoming_transaction.capitalize()}.\n${loc.multiple_transfers_detected.capitalize()}';
               } else {
                 final atomicAmount = txType.transfers.first.amount;
                 final assetHash = txType.transfers.first.asset;
@@ -240,20 +239,20 @@ class WalletState extends _$WalletState {
                     ? 'XELIS'
                     : truncateText(assetHash);
                 message =
-                    '${toBeginningOfSentenceCase(loc.new_incoming_transaction)}.\n${loc.asset}: $asset\n${loc.amount}: +$amount';
+                    '${loc.new_incoming_transaction.capitalize()}.\n${loc.asset}: $asset\n${loc.amount}: +$amount';
               }
 
               ref.read(snackBarMessengerProvider.notifier).showInfo(message);
 
             case sdk.OutgoingEntry():
               ref.read(snackBarMessengerProvider.notifier).showInfo(
-                  '(#${txType.nonce}) ${toBeginningOfSentenceCase(loc.outgoing_transaction_confirmed)}');
+                  '(#${txType.nonce}) ${loc.outgoing_transaction_confirmed.capitalize()}');
 
             case sdk.CoinbaseEntry():
               final amount = await state.nativeWalletRepository!
                   .formatCoin(txType.reward, sdk.xelisAsset);
               ref.read(snackBarMessengerProvider.notifier).showInfo(
-                  '${toBeginningOfSentenceCase(loc.new_mining_reward)}:\n+$amount XEL');
+                  '${loc.new_mining_reward.capitalize()}:\n+$amount XEL');
 
             case sdk.BurnEntry():
               final amount = await state.nativeWalletRepository!
@@ -262,7 +261,7 @@ class WalletState extends _$WalletState {
                   ? 'XELIS'
                   : truncateText(txType.asset);
               ref.read(snackBarMessengerProvider.notifier).showInfo(
-                  '${toBeginningOfSentenceCase(loc.burn_transaction_confirmed)}\n${loc.asset}: $asset\n${loc.amount}: -$amount');
+                  '${loc.burn_transaction_confirmed.capitalize()}\n${loc.asset}: $asset\n${loc.amount}: -$amount');
           }
 
           // Temporary workaround to update XELIS balance on new outgoing transaction.

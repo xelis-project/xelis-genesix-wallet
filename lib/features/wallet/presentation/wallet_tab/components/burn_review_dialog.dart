@@ -126,7 +126,7 @@ class _BurnReviewDialogState extends ConsumerState<BurnReviewDialog> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(loc.amount.capitalize,
+                        Text(loc.amount.capitalize(),
                             style: context.bodyLarge!.copyWith(
                                 color: context.moreColors.mutedColor)),
                         const SizedBox(height: Spaces.small),

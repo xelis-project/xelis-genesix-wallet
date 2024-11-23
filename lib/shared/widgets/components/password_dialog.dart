@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
+import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -11,7 +12,6 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/components/password_textfield_widget.dart';
-import 'package:intl/intl.dart';
 
 class PasswordDialog extends ConsumerStatefulWidget {
   final void Function(String password)? onEnter;
@@ -86,7 +86,7 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
             padding:
                 const EdgeInsets.only(left: Spaces.medium, top: Spaces.large),
             child: Text(
-              toBeginningOfSentenceCase(loc.authentication),
+              loc.authentication.capitalize(),
               style: context.titleLarge,
             ),
           ),

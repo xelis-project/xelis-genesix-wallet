@@ -15,7 +15,6 @@ import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:intl/intl.dart' show toBeginningOfSentenceCase;
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class TransferScreen extends ConsumerStatefulWidget {
@@ -68,7 +67,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  toBeginningOfSentenceCase(loc.amount) ?? loc.amount,
+                  loc.amount.capitalize(),
                   style: context.headlineSmall,
                 ),
                 const SizedBox(height: Spaces.small),

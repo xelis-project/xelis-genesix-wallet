@@ -75,5 +75,5 @@ String truncateText(String text, {int maxLength = 8}) {
 }
 
 extension StringExtension on String {
-  String get capitalize => toBeginningOfSentenceCase(this);
+  String capitalize() => toBeginningOfSentenceCase(this);
 }

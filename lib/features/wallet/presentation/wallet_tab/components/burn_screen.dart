@@ -13,7 +13,6 @@ import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
 import 'package:genesix/features/wallet/presentation/settings_tab/components/burn_warning_widget.dart';
-import 'package:intl/intl.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
@@ -65,7 +64,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  toBeginningOfSentenceCase(loc.amount) ?? loc.amount,
+                  loc.amount.capitalize(),
                   style: context.headlineSmall,
                 ),
                 const SizedBox(height: Spaces.small),

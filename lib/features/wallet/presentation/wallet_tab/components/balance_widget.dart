@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/wallet/application/xelis_price_provider.dart';
 import 'package:genesix/features/wallet/domain/xelis_price/coinpaprika/xelis_ticker.dart';
 import 'package:genesix/rust_bridge/api/network.dart';
+import 'package:genesix/shared/utils/utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -11,7 +12,6 @@ import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/qr_dialog.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
-import 'package:intl/intl.dart';
 
 class BalanceWidget extends ConsumerWidget {
   const BalanceWidget({super.key});
@@ -127,7 +127,7 @@ class BalanceWidget extends ConsumerWidget {
                     icon: const Icon(Icons.local_fire_department_rounded),
                     tooltip: settings.unlockBurn
                         ? null
-                        : toBeginningOfSentenceCase(loc.unlock_in_settings),
+                        : loc.unlock_in_settings.capitalize(),
                   ),
                   const SizedBox(height: Spaces.extraSmall),
                   Text(
