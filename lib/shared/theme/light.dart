@@ -95,8 +95,9 @@ ThemeData lightTheme() {
     cardTheme: CardTheme(
       color: Colors.white12,
       shape: RoundedRectangleBorder(
-          borderRadius: borderRadius,
-          side: const BorderSide(color: Colors.black12, width: 1)),
+        borderRadius: borderRadius,
+        // side: const BorderSide(color: Colors.black12, width: 1),
+      ),
     ),
 
     // BUTTON
@@ -127,6 +128,7 @@ ThemeData lightTheme() {
       style: TextButton.styleFrom(
         backgroundColor: primaryColor,
         foregroundColor: Colors.black87,
+        disabledBackgroundColor: Colors.black12,
         padding: const EdgeInsets.symmetric(
             vertical: Spaces.medium, horizontal: Spaces.medium),
         shape: RoundedRectangleBorder(borderRadius: borderRadius),

@@ -198,5 +198,6 @@
   "next": "Volgende",
   "copy": "Kopieer",
   "copy_recovery_phrase": "Kopieer uw herstelzin",
-  "burn_screen_warning_message": "Deze actie is onomkeerbaar en de fondsen zullen voor altijd verloren gaan."
+  "burn_screen_warning_message": "Deze actie is onomkeerbaar en de fondsen zullen voor altijd verloren gaan.",
+  "burn_confirmation": "Ik begrijp dat deze actie onomkeerbaar is en dat ik de fondsen niet meer kan terugkrijgen."
 }

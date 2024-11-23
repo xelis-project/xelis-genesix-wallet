@@ -115,7 +115,7 @@
   "review_send": "Semak & Hantar",
   "review": "Semakan",
   "total": "Jumlah",
-  "broadcast": "Siarkan",
+  "broadcast": "Sebarkan",
   "transaction_broadcast_message": "Urus niaga telah disiarkan ke rangkaian.",
   "transfers": "Pemindahan",
   "asset": "Aset",
@@ -198,5 +198,6 @@
   "next": "Seterusnya",
   "copy": "Salin",
   "copy_recovery_phrase": "Salin frasa pemulihan anda",
-  "burn_screen_warning_message": "Tindakan ini tidak dapat dibatalkan dan dana akan hilang selamanya."
+  "burn_screen_warning_message": "Tindakan ini tidak dapat dibatalkan dan dana akan hilang selamanya.",
+  "burn_confirmation": "Saya faham bahawa tindakan ini tidak dapat dibatalkan dan saya tidak akan dapat memulihkan dana tersebut."
 }

@@ -115,7 +115,7 @@
   "review_send": "Überprüfen & Senden",
   "review": "Überprüfen",
   "total": "Gesamt",
-  "broadcast": "Senden",
+  "broadcast": "Broadcasten",
   "transaction_broadcast_message": "Die Transaktion wurde an das Netzwerk gesendet.",
   "transfers": "Überweisungen",
   "asset": "Vermögen",
@@ -198,5 +198,6 @@
   "next": "Weiter",
   "copy": "Kopieren",
   "copy_recovery_phrase": "Kopieren Sie Ihren Wiederherstellungs-Phrase",
-  "burn_screen_warning_message": "Diese Aktion ist unwiderruflich und die Mittel werden für immer verloren gehen."
+  "burn_screen_warning_message": "Diese Aktion ist unwiderruflich und die Mittel werden für immer verloren gehen.",
+  "burn_confirmation": "Ich verstehe, dass dieser Vorgang unwiderruflich ist und ich die Mittel nicht wiederherstellen kann."
 }

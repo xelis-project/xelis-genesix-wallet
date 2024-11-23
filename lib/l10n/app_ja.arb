@@ -115,7 +115,7 @@
   "review_send": "確認と送信",
   "review": "確認",
   "total": "合計",
-  "broadcast": "ブロードキャスト",
+  "broadcast": "発信する",
   "transaction_broadcast_message": "この取引はネットワークにブロードキャストされました。",
   "transfers": "転送",
   "asset": "資産",
@@ -198,5 +198,6 @@
   "next": "次へ",
   "copy": "コピー",
   "copy_recovery_phrase": "コピーしてください",
-  "burn_screen_warning_message": "この操作は取り消せません。資金が永遠に失われます。"
+  "burn_screen_warning_message": "この操作は取り消せません。資金が永遠に失われます。",
+  "burn_confirmation": "私はこの操作が取り消せず、資金を取り戻せないと理解しています。"
 }

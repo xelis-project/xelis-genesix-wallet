@@ -115,7 +115,7 @@
   "review_send": "Przejrzyj i wyślij",
   "review": "Przegląd",
   "total": "Suma",
-  "broadcast": "Transmisja",
+  "broadcast": "Nadaj",
   "transaction_broadcast_message": "Transakcja została przesłana do sieci.",
   "transfers": "Przelewy",
   "asset": "Aktywo",
@@ -198,5 +198,6 @@
   "next": "Dalej",
   "copy": "Kopiuj",
   "copy_recovery_phrase": "Skopiuj swój ciąg odzyskiwania",
-  "burn_screen_warning_message": "To działanie jest nieodwracalne, a fundusze zostaną utracone na zawsze."
+  "burn_screen_warning_message": "To działanie jest nieodwracalne, a fundusze zostaną utracone na zawsze.",
+  "burn_confirmation": "Rozumiem, że to działanie jest nieodwracalne i nie będę mógł odzyskać środków."
 }

@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart' show toBeginningOfSentenceCase;
 
 String formatCoin(int value, int decimals) {
   return (value / pow(10, decimals)).toStringAsFixed(decimals);
@@ -19,8 +20,8 @@ String formatXelis(int value) {
   return formatCoin(value, AppResources.xelisDecimals);
 }
 
-Address splitIntegratedAddress(String address) {
-  var rawData = splitIntegratedAddressJson(integratedAddress: address);
+Address getAddress({required String rawAddress}) {
+  var rawData = splitIntegratedAddressJson(integratedAddress: rawAddress);
   final json = jsonDecode(rawData);
   return Address.fromJson(json as Map<String, dynamic>);
 }
@@ -71,4 +72,8 @@ String truncateText(String text, {int maxLength = 8}) {
   if (text.isEmpty) return "";
   if (text.length <= maxLength) return text;
   return "...${text.substring(text.length - maxLength)}";
+}
+
+extension StringExtension on String {
+  String get capitalize => toBeginningOfSentenceCase(this);
 }

@@ -19,7 +19,7 @@ class AppResources {
 
   static const Asset xelisAsset = Asset(
     hash: sdk.xelisAsset,
-    name: 'Xelis',
+    name: 'XELIS',
     imagePath: greenBackgroundBlackIconPath,
     // imageURL:
     //     "https://raw.githubusercontent.com/xelis-project/xelis-assets/master/icons/png/circle/green_background_black_logo.png",

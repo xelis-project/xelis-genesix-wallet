@@ -115,7 +115,7 @@
   "review_send": "Rever e enviar",
   "review": "Revisão",
   "total": "Total",
-  "broadcast": "Difusão",
+  "broadcast": "Difundir",
   "transaction_broadcast_message": "A transação foi transmitida para a rede.",
   "transfers": "Transferências",
   "asset": "Ativo",
@@ -198,5 +198,6 @@
   "next": "Próximo",
   "copy": "Copiar",
   "copy_recovery_phrase": "Copie a sua frase de recuperação",
-  "burn_screen_warning_message": "Esta acção é irreversível e os fundos serão perdidos para sempre."
+  "burn_screen_warning_message": "Esta acção é irreversível e os fundos serão perdidos para sempre.",
+  "burn_confirmation": "Entendo que esta acção é irreversível e que não poderei recuperar os fundos."
 }

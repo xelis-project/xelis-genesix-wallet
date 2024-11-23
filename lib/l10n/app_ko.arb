@@ -115,7 +115,7 @@
   "review_send": "검토 및 전송",
   "review": "검토",
   "total": "합계",
-  "broadcast": "방송",
+  "broadcast": "방송하십시오.",
   "transaction_broadcast_message": "트랜잭션이 네트워크에 브로드캐스트되었습니다.",
   "transfers": "전송",
   "asset": "자산",
@@ -198,5 +198,6 @@
   "next": "다음으로",
   "copy": "복사",
   "copy_recovery_phrase": "복구 문구를 복사하세요.",
-  "burn_screen_warning_message": "이 작업은 되돌릴 수 없으며 자금이 영구적으로 손실됩니다."
+  "burn_screen_warning_message": "이 작업은 되돌릴 수 없으며 자금이 영구적으로 손실됩니다.",
+  "burn_confirmation": "저는 이 작업이 되돌릴 수 없으며 자금을 되찾을 수 없다는 것을 이해합니다."
 }

@@ -198,5 +198,6 @@
   "next": "Next",
   "copy": "Copy",
   "copy_recovery_phrase": "Copy your recovery phrase",
-  "burn_screen_warning_message": "This action is irreversible and the funds will be lost forever."
+  "burn_screen_warning_message": "This action is irreversible and the funds will be lost forever.",
+  "burn_confirmation": "I understand that this action is irreversible and I will not be able to recover the funds."
 }
