@@ -198,6 +198,6 @@
   "next": "Dalej",
   "copy": "Kopiuj",
   "copy_recovery_phrase": "Skopiuj swój ciąg odzyskiwania",
-  "burn_screen_warning_message": "To działanie jest nieodwracalne, a fundusze zostaną utracone na zawsze.",
+  "burn_screen_warning_message": "Funkcja spalania pozwala Ci na trwałe zniszczenie tokenów. Po wykonaniu tej czynności nie będzie już możliwości odzyskania tokenów.",
   "burn_confirmation": "Rozumiem, że to działanie jest nieodwracalne i nie będę mógł odzyskać środków."
 }

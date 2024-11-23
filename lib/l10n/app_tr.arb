@@ -198,6 +198,6 @@
   "next": "Bir Sonra",
   "copy": "Kopyala",
   "copy_recovery_phrase": "Kopyala kurtarma cümleyi",
-  "burn_screen_warning_message": "Bu işlem geri alınamaz ve fonlar sonsuza kadar kaybolacaktır.",
+  "burn_screen_warning_message": "Tokenleri kalıcı olarak yok etme seçeneği sunan \"Yanma\" fonksiyonu vardır. Bu işlem gerçekleştirildikten sonra tokenleri geri almak mümkün değildir.",
   "burn_confirmation": "Anlayışıyorum ki bu işlem geri alınamaz ve fonları geri alamam."
 }

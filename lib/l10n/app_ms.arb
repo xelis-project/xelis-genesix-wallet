@@ -198,6 +198,6 @@
   "next": "Seterusnya",
   "copy": "Salin",
   "copy_recovery_phrase": "Salin frasa pemulihan anda",
-  "burn_screen_warning_message": "Tindakan ini tidak dapat dibatalkan dan dana akan hilang selamanya.",
+  "burn_screen_warning_message": "Fungsi Bakar membolehkan anda untuk memusnahkan token secara permanen. Setelah tindakan ini dilakukan, tidak akan mungkin lagi untuk memulihkan token tersebut.",
   "burn_confirmation": "Saya faham bahawa tindakan ini tidak dapat dibatalkan dan saya tidak akan dapat memulihkan dana tersebut."
 }

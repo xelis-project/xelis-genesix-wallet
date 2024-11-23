@@ -198,6 +198,6 @@
   "next": "Avanti",
   "copy": "Copiare",
   "copy_recovery_phrase": "Copiare la tua frase di recupero",
-  "burn_screen_warning_message": "Questa azione è irreversibile e i fondi saranno persi per sempre.",
+  "burn_screen_warning_message": "La funzione di bruciore ti permette di distruggere i token in modo permanente. Una volta eseguita questa azione, non sarà più possibile recuperare i token.",
   "burn_confirmation": "Capisco che questa azione è irreversibile e non potrò recuperare i fondi."
 }

@@ -198,6 +198,6 @@
   "next": "Weiter",
   "copy": "Kopieren",
   "copy_recovery_phrase": "Kopieren Sie Ihren Wiederherstellungs-Phrase",
-  "burn_screen_warning_message": "Diese Aktion ist unwiderruflich und die Mittel werden für immer verloren gehen.",
+  "burn_screen_warning_message": "Die Verbrennungsfunktion ermöglicht es Ihnen, Token dauerhaft zu vernichten. Sobald diese Aktion ausgeführt wurde, ist es nicht mehr möglich, die Tokens wiederherzustellen.",
   "burn_confirmation": "Ich verstehe, dass dieser Vorgang unwiderruflich ist und ich die Mittel nicht wiederherstellen kann."
 }

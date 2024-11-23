@@ -198,6 +198,6 @@
   "next": "次へ",
   "copy": "コピー",
   "copy_recovery_phrase": "コピーしてください",
-  "burn_screen_warning_message": "この操作は取り消せません。資金が永遠に失われます。",
+  "burn_screen_warning_message": "機能「バーン」を使用すると、トークンを永久に破壊できます。この操作が行われたら、トークンの回収は不可能になります",
   "burn_confirmation": "私はこの操作が取り消せず、資金を取り戻せないと理解しています。"
 }

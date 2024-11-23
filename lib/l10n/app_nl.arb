@@ -198,6 +198,6 @@
   "next": "Volgende",
   "copy": "Kopieer",
   "copy_recovery_phrase": "Kopieer uw herstelzin",
-  "burn_screen_warning_message": "Deze actie is onomkeerbaar en de fondsen zullen voor altijd verloren gaan.",
+  "burn_screen_warning_message": "De verbrandfunctie laat je tokens permanent vernietigen. Zodra deze actie is voltooid, zal het niet meer mogelijk zijn om de tokens terug te vorderen.",
   "burn_confirmation": "Ik begrijp dat deze actie onomkeerbaar is en dat ik de fondsen niet meer kan terugkrijgen."
 }

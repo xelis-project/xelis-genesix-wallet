@@ -198,6 +198,6 @@
   "next": "Suivant",
   "copy": "Copier",
   "copy_recovery_phrase": "Copiez votre phrase de récupération",
-  "burn_screen_warning_message": "Cette action est irréversible et les fonds seront perdus à jamais.",
+  "burn_screen_warning_message": "La fonction Brûler vous permet de détruire les jetons définitivement. Une fois cette action effectuée, il ne sera plus possible de récupérer les jetons.",
   "burn_confirmation": "Je comprends que cette action est irréversible et que je ne pourrai pas récupérer les fonds."
 }

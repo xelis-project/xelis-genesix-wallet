@@ -9,6 +9,7 @@ import 'package:genesix/features/wallet/presentation/wallet_tab/components/burn_
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/input_decoration.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
@@ -75,12 +76,12 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
                       .copyWith(fontWeight: FontWeight.bold),
                   autocorrect: false,
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
+                  decoration: context.textInputDecoration.copyWith(
                     labelText: '0.00000000',
                     labelStyle: context.headlineLarge!
                         .copyWith(fontWeight: FontWeight.bold),
                     suffixIcon: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(Spaces.small),
                       child: TextButton(
                         onPressed: () => _burnFormKey
                             .currentState?.fields['amount']

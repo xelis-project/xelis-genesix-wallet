@@ -198,6 +198,6 @@
   "next": "Siguiente",
   "copy": "Copiar",
   "copy_recovery_phrase": "Copie su frase de recuperación",
-  "burn_screen_warning_message": "Esta acción es irreversible y los fondos se perderán para siempre.",
+  "burn_screen_warning_message": "La función de quema te permite destruir los tokens permanentemente. Una vez que se haya realizado esta acción, ya no será posible recuperar los tokens.",
   "burn_confirmation": "Comprendo que esta acción es irreversible y no podré recuperar los fondos."
 }

@@ -198,6 +198,6 @@
   "next": "Next",
   "copy": "Copy",
   "copy_recovery_phrase": "Copy your recovery phrase",
-  "burn_screen_warning_message": "This action is irreversible and the funds will be lost forever.",
+  "burn_screen_warning_message": "The Burn function allows you to destroy tokens permanently. Once this action has been performed, it will no longer be possible to recover the tokens.",
   "burn_confirmation": "I understand that this action is irreversible and I will not be able to recover the funds."
 }
