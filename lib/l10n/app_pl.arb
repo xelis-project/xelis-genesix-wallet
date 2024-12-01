@@ -199,5 +199,11 @@
   "copy": "Kopiuj",
   "copy_recovery_phrase": "Skopiuj swój ciąg odzyskiwania",
   "burn_screen_warning_message": "Funkcja spalania pozwala Ci na trwałe zniszczenie tokenów. Po wykonaniu tej czynności nie będzie już możliwości odzyskania tokenów.",
-  "burn_confirmation": "Rozumiem, że to działanie jest nieodwracalne i nie będę mógł odzyskać środków."
+  "burn_confirmation": "Rozumiem, że to działanie jest nieodwracalne i nie będę mógł odzyskać środków.",
+  "transfer_screen_message": "Tutaj możesz przenieść swoje aktywa na inny portfel.",
+  "estimated_fee": "Szacunkowy koszt:",
+  "boost_fees_title": "Podnieś cechę (opcjonalny)",
+  "boost_fees_message": "Pomnóż opłatę, aby przyspieszyć transakcję, jeśli sieć jest obciążona. W większości przypadków wystarczająca jest domyślna opłata.",
+  "no_balance_to_transfer": "Nie masz salda do przekazania. Wybierz inny aktyw.",
+  "no_balance_to_burn": "Nie masz salda do spalenia. Wybierz inny aktyw."
 }

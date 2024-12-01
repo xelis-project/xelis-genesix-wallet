@@ -9,6 +9,7 @@ import 'package:genesix/features/wallet/presentation/wallet_tab/components/asset
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/transfer_review_dialog.dart';
 import 'package:genesix/rust_bridge/api/utils.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
@@ -28,9 +29,10 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
   final _transferFormKey =
       GlobalKey<FormBuilderState>(debugLabel: '_transferFormKey');
   late String _selectedAssetBalance;
-
   late FocusNode _focusNodeAmount;
   late FocusNode _focusNodeAddress;
+  String _estimatedFee = AppResources.zeroBalance;
+  bool _isFeeEstimated = false;
 
   @override
   void initState() {
@@ -58,17 +60,25 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
     return CustomScaffold(
       appBar: GenericAppBar(title: loc.transfer),
       body: ListView(
+        shrinkWrap: true,
         padding: const EdgeInsets.fromLTRB(
             Spaces.large, Spaces.none, Spaces.large, Spaces.large),
         children: [
+          Text(
+            loc.transfer_screen_message,
+            style: context.titleMedium
+                ?.copyWith(color: context.moreColors.mutedColor),
+          ),
+          const SizedBox(height: Spaces.extraLarge),
           FormBuilder(
             key: _transferFormKey,
+            onChanged: _updateEstimatedFee,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   loc.amount.capitalize(),
-                  style: context.headlineSmall,
+                  style: context.titleMedium,
                 ),
                 const SizedBox(height: Spaces.small),
                 FormBuilderTextField(
@@ -79,7 +89,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                   autocorrect: false,
                   keyboardType: TextInputType.number,
                   decoration: context.textInputDecoration.copyWith(
-                    labelText: '0.00000000',
+                    labelText: AppResources.zeroBalance,
                     labelStyle: context.headlineLarge!
                         .copyWith(fontWeight: FontWeight.bold),
                     suffixIcon: Padding(
@@ -108,10 +118,10 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                     }
                   ]),
                 ),
-                const SizedBox(height: Spaces.medium),
+                const SizedBox(height: Spaces.large),
                 Text(
                   loc.asset,
-                  style: context.headlineSmall,
+                  style: context.titleMedium,
                 ),
                 const SizedBox(height: Spaces.small),
                 FormBuilderDropdown<String>(
@@ -133,10 +143,10 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                     }
                   },
                 ),
-                const SizedBox(height: Spaces.medium),
+                const SizedBox(height: Spaces.large),
                 Text(
-                  loc.recipient,
-                  style: context.headlineSmall,
+                  loc.destination,
+                  style: context.titleMedium,
                 ),
                 const SizedBox(height: Spaces.small),
                 FormBuilderTextField(
@@ -144,6 +154,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                   focusNode: _focusNodeAddress,
                   style: context.bodyMedium,
                   autocorrect: false,
+                  keyboardType: TextInputType.text,
                   decoration: context.textInputDecoration.copyWith(
                     labelText: loc.receiver_address,
                   ),
@@ -159,10 +170,56 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                     }
                   ]),
                 ),
+                const SizedBox(height: Spaces.extraLarge),
+                Row(
+                  children: [
+                    Text(
+                      loc.estimated_fee,
+                      style: context.titleMedium,
+                    ),
+                    const SizedBox(width: Spaces.small),
+                    Text(
+                      '$_estimatedFee ${AppResources.xelisAsset.ticker}',
+                      style: context.titleMedium
+                          ?.copyWith(color: context.moreColors.mutedColor),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: Spaces.large),
+                Text(
+                  loc.boost_fees_title,
+                  style: context.titleMedium,
+                ),
+                Text(loc.boost_fees_message,
+                    style: context.labelMedium
+                        ?.copyWith(color: context.moreColors.mutedColor)),
+                const SizedBox(height: Spaces.small),
+                FormBuilderSlider(
+                  name: 'fee',
+                  initialValue: 1,
+                  min: 1,
+                  max: 5,
+                  divisions: 40,
+                  displayValues: DisplayValues.current,
+                  enabled: _isFeeEstimated,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    contentPadding: const EdgeInsets.all(Spaces.none),
+                  ),
+                  valueWidget: (value) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: Spaces.small),
+                      child: Text(
+                        'x$value',
+                        style: context.bodyLarge,
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
           ),
-          const SizedBox(height: Spaces.large),
+          const SizedBox(height: Spaces.extraLarge),
           Row(
             children: [
               if (context.isWideScreen) const Spacer(),
@@ -183,6 +240,14 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
   }
 
   void _reviewTransfer() async {
+    if (_selectedAssetBalance == AppResources.zeroBalance) {
+      final loc = ref.read(appLocalizationsProvider);
+      ref
+          .read(snackBarMessengerProvider.notifier)
+          .showError(loc.no_balance_to_transfer);
+      return;
+    }
+
     if (_transferFormKey.currentState?.saveAndValidate() ?? false) {
       final amount =
           _transferFormKey.currentState?.fields['amount']?.value as String;
@@ -234,5 +299,37 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
   void _unfocusNodes() {
     _focusNodeAmount.unfocus();
     _focusNodeAddress.unfocus();
+  }
+
+  void _updateEstimatedFee() {
+    if (_transferFormKey.currentState?.isValid ?? false) {
+      final amount =
+          _transferFormKey.currentState?.fields['amount']?.value as String;
+      final address =
+          _transferFormKey.currentState?.fields['address']?.value as String;
+      final asset =
+          _transferFormKey.currentState?.fields['assets']?.value as String;
+      ref
+          .read(walletStateProvider.notifier)
+          .estimateFees(
+            amount: double.parse(amount),
+            destination: address.trim(),
+            asset: asset,
+          )
+          .then((value) {
+        setState(() {
+          final estimatedFee = double.parse(value);
+          _isFeeEstimated = estimatedFee > 0;
+          final multiplier =
+              _transferFormKey.currentState?.fields['fee']?.value as double;
+          _estimatedFee = (estimatedFee * multiplier).toStringAsFixed(8);
+        });
+      });
+    } else {
+      setState(() {
+        _isFeeEstimated = false;
+        _estimatedFee = AppResources.zeroBalance;
+      });
+    }
   }
 }

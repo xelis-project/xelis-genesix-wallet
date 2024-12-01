@@ -31,16 +31,18 @@ class BurnWarningWidget extends ConsumerWidget {
                 ),
                 const SizedBox(width: Spaces.medium),
                 Expanded(
-                    child: Text(loc.warning,
-                        style: context.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: context.colors.primary))),
+                  child: Text(
+                    loc.warning,
+                    style: context.titleLarge
+                        ?.copyWith(color: context.colors.primary),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: Spaces.small),
             Text(
               _message,
-              style: context.bodyMedium,
+              style: context.titleMedium,
             ),
           ],
         ),

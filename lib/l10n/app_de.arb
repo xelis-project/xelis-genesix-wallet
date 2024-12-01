@@ -199,5 +199,11 @@
   "copy": "Kopieren",
   "copy_recovery_phrase": "Kopieren Sie Ihren Wiederherstellungs-Phrase",
   "burn_screen_warning_message": "Die Verbrennungsfunktion ermöglicht es Ihnen, Token dauerhaft zu vernichten. Sobald diese Aktion ausgeführt wurde, ist es nicht mehr möglich, die Tokens wiederherzustellen.",
-  "burn_confirmation": "Ich verstehe, dass dieser Vorgang unwiderruflich ist und ich die Mittel nicht wiederherstellen kann."
+  "burn_confirmation": "Ich verstehe, dass dieser Vorgang unwiderruflich ist und ich die Mittel nicht wiederherstellen kann.",
+  "transfer_screen_message": "Hier können Sie Ihre Vermögenswerte an eine andere Wallet überweisen.",
+  "estimated_fee": "Geschätzte Gebühr:",
+  "boost_fees_title": "Gebührenehöhung (optional)",
+  "boost_fees_message": "Verdoppeln Sie die Gebühr, um die Transaktion zu beschleunigen, wenn das Netzwerk überlastet ist. In den meisten Fällen reicht die Standardgebühr aus.",
+  "no_balance_to_transfer": "Keine Guthaben zum Überweisen. Bitte wählen Sie einen anderen Aktiva.",
+  "no_balance_to_burn": "Keine Guthaben zum Verbrennen. Bitte wählen Sie einen anderen Aktiva."
 }

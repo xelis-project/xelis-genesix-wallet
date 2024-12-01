@@ -151,7 +151,8 @@ class _BurnReviewDialogState extends ConsumerState<BurnReviewDialog> {
                   builder:
                       (BuildContext context, AsyncSnapshot<String> snapshot) {
                     if (snapshot.hasData) {
-                      return SelectableText(snapshot.data!);
+                      return SelectableText(
+                          '${snapshot.data!} ${AppResources.xelisAsset.ticker}');
                     } else {
                       return Text("...");
                     }
@@ -168,23 +169,29 @@ class _BurnReviewDialogState extends ConsumerState<BurnReviewDialog> {
             const SizedBox(height: Spaces.extraSmall),
             SelectableText(widget.transactionSummary.hash),
             const SizedBox(height: Spaces.large),
-            FormBuilderCheckbox(
-              name: 'confirm',
-              decoration: InputDecoration(
-                contentPadding: const EdgeInsets.only(top: Spaces.small),
-                isDense: true,
-                fillColor: Colors.transparent,
-              ),
-              title: Text(
-                loc.burn_confirmation,
-                style: context.bodyMedium,
-              ),
-              validator: FormBuilderValidators.required(),
-              onChanged: (value) {
-                setState(() {
-                  _isConfirmed = value as bool;
-                });
-              },
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: AppDurations.animFast),
+              child: _isBroadcast
+                  ? SizedBox.shrink()
+                  : FormBuilderCheckbox(
+                      name: 'confirm',
+                      decoration: InputDecoration(
+                        contentPadding:
+                            const EdgeInsets.only(top: Spaces.small),
+                        isDense: true,
+                        fillColor: Colors.transparent,
+                      ),
+                      title: Text(
+                        loc.burn_confirmation,
+                        style: context.bodyMedium,
+                      ),
+                      validator: FormBuilderValidators.required(),
+                      onChanged: (value) {
+                        setState(() {
+                          _isConfirmed = value as bool;
+                        });
+                      },
+                    ),
             ),
           ],
         ),

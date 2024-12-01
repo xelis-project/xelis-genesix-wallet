@@ -26,7 +26,7 @@ class GenericAppBar extends StatelessWidget implements PreferredSizeWidget {
                     padding: const EdgeInsets.only(top: Spaces.medium),
                     child: Text(
                       title!,
-                      style: context.headlineMedium!
+                      style: context.headlineSmall!
                           .copyWith(fontWeight: FontWeight.bold),
                     ),
                   )

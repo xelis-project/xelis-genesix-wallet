@@ -278,6 +278,11 @@ ThemeData darkTheme() {
       tileColor: Colors.transparent,
       //minVerticalPadding: 5,
     ),
+
+    sliderTheme: SliderThemeData(
+      inactiveTrackColor: Colors.white38,
+      trackHeight: 2,
+    ),
   );
 
   return baseTheme.copyWith(

@@ -199,5 +199,11 @@
   "copy": "Copier",
   "copy_recovery_phrase": "Copiez votre phrase de récupération",
   "burn_screen_warning_message": "La fonction Brûler vous permet de détruire les jetons définitivement. Une fois cette action effectuée, il ne sera plus possible de récupérer les jetons.",
-  "burn_confirmation": "Je comprends que cette action est irréversible et que je ne pourrai pas récupérer les fonds."
+  "burn_confirmation": "Je comprends que cette action est irréversible et que je ne pourrai pas récupérer les fonds.",
+  "transfer_screen_message": "Ici vous pouvez transférer vos actifs vers un autre portefeuille.",
+  "estimated_fee": "Frais estimés:",
+  "boost_fees_title": "Augmenter les frais (optionnel)",
+  "boost_fees_message": "Multiplier la frais pour accélérer la transaction si le réseau est congestionné. Dans la plupart des cas, les frais par défaut sont suffisants.",
+  "no_balance_to_transfer": "Vous n'avez pas de solde à transférer. Veuillez sélectionner un autre actif.",
+  "no_balance_to_burn": "Vous n'avez pas de solde à brûler. Veuillez sélectionner un autre actif."
 }

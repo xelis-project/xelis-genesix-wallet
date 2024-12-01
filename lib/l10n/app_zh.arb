@@ -199,5 +199,11 @@
   "copy": "复制",
   "copy_recovery_phrase": "复制您的恢复短语",
   "burn_screen_warning_message": "销毁功能允许您永久销毁代币。执行此操作后，将无法恢复代币",
-  "burn_confirmation": "我理解，此操作无法撤销，我将无法收回资金"
+  "burn_confirmation": "我理解，此操作无法撤销，我将无法收回资金",
+  "transfer_screen_message": "您可以在此处将您的资产转移到另一个钱包",
+  "estimated_fee": "预计费用:",
+  "boost_fees_title": "加速费用的选项",
+  "boost_fees_message": "加速费用的选项以加速交易，如果网络拥挤。在大多数情况下，默认费用足够了",
+  "no_balance_to_transfer": "没有余额可转移。请选择其他资产。",
+  "no_balance_to_burn": "没有余额可烧。请选择其他资产。"
 }

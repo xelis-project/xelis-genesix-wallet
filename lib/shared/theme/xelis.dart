@@ -278,6 +278,11 @@ ThemeData xelisTheme() {
       dense: true,
       tileColor: Colors.transparent,
     ),
+
+    sliderTheme: SliderThemeData(
+      inactiveTrackColor: Colors.white38,
+      trackHeight: 2,
+    ),
   );
 
   return baseTheme.copyWith(

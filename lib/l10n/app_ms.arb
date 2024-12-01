@@ -199,5 +199,11 @@
   "copy": "Salin",
   "copy_recovery_phrase": "Salin frasa pemulihan anda",
   "burn_screen_warning_message": "Fungsi Bakar membolehkan anda untuk memusnahkan token secara permanen. Setelah tindakan ini dilakukan, tidak akan mungkin lagi untuk memulihkan token tersebut.",
-  "burn_confirmation": "Saya faham bahawa tindakan ini tidak dapat dibatalkan dan saya tidak akan dapat memulihkan dana tersebut."
+  "burn_confirmation": "Saya faham bahawa tindakan ini tidak dapat dibatalkan dan saya tidak akan dapat memulihkan dana tersebut.",
+  "transfer_screen_message": "Di sini anda boleh memindahkan aset anda ke dompet lain.",
+  "estimated_fee": "Biaya diperkirakan:",
+  "boost_fees_title": "Meningkatkan biaya (opsional)",
+  "boost_fees_message": "Naikkan biaya untuk mempercepat transaksi jika jaringan padat. Dalam kebanyakan kasus, biaya default sudah cukup.",
+  "no_balance_to_transfer": "Tiada baki untuk dipindahkan. Sila pilih aset yang lain.",
+  "no_balance_to_burn": "Tiada baki untuk dibakar. Sila pilih aset yang lain."
 }

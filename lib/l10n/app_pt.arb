@@ -199,5 +199,11 @@
   "copy": "Copiar",
   "copy_recovery_phrase": "Copie a sua frase de recuperação",
   "burn_screen_warning_message": "A função queimar permite-lhe destruir os tokens permanentemente. Uma vez executada esta ação, não será possível recuperar os tokens.",
-  "burn_confirmation": "Entendo que esta acção é irreversível e que não poderei recuperar os fundos."
+  "burn_confirmation": "Entendo que esta acção é irreversível e que não poderei recuperar os fundos.",
+  "transfer_screen_message": "Aqui pode transferir os seus activos para outra carteira.",
+  "estimated_fee": "Taxa estimada:",
+  "boost_fees_title": "Aumentar as taxas (opcional)",
+  "boost_fees_message": "Aumente a taxa para acelerar a transação caso a rede esteja congestionada. Na maioria dos casos, a taxa padrão é suficiente.",
+  "no_balance_to_transfer": "Não possui saldo para transferir. Selecione outro ativo.",
+  "no_balance_to_burn": "Não possui saldo para queimar. Selecione outro ativo."
 }

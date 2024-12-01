@@ -199,5 +199,11 @@
   "copy": "Kopieer",
   "copy_recovery_phrase": "Kopieer uw herstelzin",
   "burn_screen_warning_message": "De verbrandfunctie laat je tokens permanent vernietigen. Zodra deze actie is voltooid, zal het niet meer mogelijk zijn om de tokens terug te vorderen.",
-  "burn_confirmation": "Ik begrijp dat deze actie onomkeerbaar is en dat ik de fondsen niet meer kan terugkrijgen."
+  "burn_confirmation": "Ik begrijp dat deze actie onomkeerbaar is en dat ik de fondsen niet meer kan terugkrijgen.",
+  "transfer_screen_message": "Hier kun je uw activa overmaken naar een andere portefeuille.",
+  "estimated_fee": "Geschatte kosten:",
+  "boost_fees_title": "Verhogen van de kosten (optioneel)",
+  "boost_fees_message": "Vermenigvuldig de kosten om de transactie te versnellen als het netwerk verstopt is. In de meeste gevallen is de standaardvergoeding voldoende.",
+  "no_balance_to_transfer": "Geen saldo om over te maken. Kies een andere activa.",
+  "no_balance_to_burn": "Geen saldo om te verbranden. Kies een andere activa."
 }

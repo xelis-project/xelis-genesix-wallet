@@ -104,7 +104,7 @@ class NativeWalletRepository {
     return _xelisWallet.rescan(topoheight: BigInt.from(topoHeight));
   }
 
-  Future<BigInt> estimateFees(List<Transfer> transfers) async {
+  Future<String> estimateFees(List<Transfer> transfers) async {
     return _xelisWallet.estimateFees(transfers: transfers);
   }
 

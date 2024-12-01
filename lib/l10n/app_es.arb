@@ -199,5 +199,11 @@
   "copy": "Copiar",
   "copy_recovery_phrase": "Copie su frase de recuperación",
   "burn_screen_warning_message": "La función de quema te permite destruir los tokens permanentemente. Una vez que se haya realizado esta acción, ya no será posible recuperar los tokens.",
-  "burn_confirmation": "Comprendo que esta acción es irreversible y no podré recuperar los fondos."
+  "burn_confirmation": "Comprendo que esta acción es irreversible y no podré recuperar los fondos.",
+  "transfer_screen_message": "Aquí puede transferir sus activos a otra cartera.",
+  "estimated_fee": "Comisión estimada:",
+  "boost_fees_title": "Aumentar las tarifas (opcional)",
+  "boost_fees_message": "Multiplicar la tarifa para acelerar la transacción si la red está congestionada. En la mayoría de los casos, la tarifa predeterminada es suficiente.",
+  "no_balance_to_transfer": "No tienes saldo para transferir. Por favor, selecciona otro activo.",
+  "no_balance_to_burn": "No tienes saldo para quemar. Por favor, selecciona otro activo."
 }

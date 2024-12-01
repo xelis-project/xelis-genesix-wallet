@@ -8,6 +8,7 @@ import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/assets_dropdown_menu_item.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/burn_review_dialog.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
@@ -16,7 +17,6 @@ import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
 import 'package:genesix/features/wallet/presentation/settings_tab/components/burn_warning_widget.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class BurnScreen extends ConsumerStatefulWidget {
   const BurnScreen({super.key});
@@ -55,11 +55,16 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
     return CustomScaffold(
       appBar: GenericAppBar(title: loc.burn),
       body: ListView(
+        shrinkWrap: true,
         padding: const EdgeInsets.fromLTRB(
-            Spaces.large, Spaces.none, Spaces.large, Spaces.large),
+          Spaces.large,
+          Spaces.none,
+          Spaces.large,
+          Spaces.large,
+        ),
         children: [
           BurnWarningWidget(loc.burn_screen_warning_message),
-          const SizedBox(height: Spaces.medium),
+          const SizedBox(height: Spaces.extraLarge),
           FormBuilder(
             key: _burnFormKey,
             child: Column(
@@ -67,7 +72,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
               children: [
                 Text(
                   loc.amount.capitalize(),
-                  style: context.headlineSmall,
+                  style: context.titleMedium,
                 ),
                 const SizedBox(height: Spaces.small),
                 FormBuilderTextField(
@@ -78,7 +83,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
                   autocorrect: false,
                   keyboardType: TextInputType.number,
                   decoration: context.textInputDecoration.copyWith(
-                    labelText: '0.00000000',
+                    labelText: AppResources.zeroBalance,
                     labelStyle: context.headlineLarge!
                         .copyWith(fontWeight: FontWeight.bold),
                     suffixIcon: Padding(
@@ -107,10 +112,10 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
                     }
                   ]),
                 ),
-                const SizedBox(height: Spaces.medium),
+                const SizedBox(height: Spaces.large),
                 Text(
                   loc.asset,
-                  style: context.headlineSmall,
+                  style: context.titleMedium,
                 ),
                 const SizedBox(height: Spaces.small),
                 FormBuilderDropdown<String>(
@@ -135,7 +140,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
               ],
             ),
           ),
-          const SizedBox(height: Spaces.large),
+          const SizedBox(height: Spaces.extraLarge),
           Row(
             children: [
               if (context.isWideScreen) const Spacer(),
@@ -155,6 +160,14 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
   }
 
   void _reviewBurn() async {
+    if (_selectedAssetBalance == AppResources.zeroBalance) {
+      final loc = ref.read(appLocalizationsProvider);
+      ref
+          .read(snackBarMessengerProvider.notifier)
+          .showError(loc.no_balance_to_burn);
+      return;
+    }
+
     if (_burnFormKey.currentState?.saveAndValidate() ?? false) {
       final amount =
           _burnFormKey.currentState?.fields['amount']?.value as String;

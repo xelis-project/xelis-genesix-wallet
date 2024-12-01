@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:genesix/shared/theme/extensions.dart';
 
 extension InputDecorationUtils on BuildContext {
   InputDecoration get textInputDecoration => InputDecoration(
         errorMaxLines: 2,
+        labelStyle:
+            labelLarge?.copyWith(color: colors.onSurface.withOpacity(0.5)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
-            color: Theme.of(this).colorScheme.onSurface.withOpacity(0.5),
+            color: colors.onSurface.withOpacity(0.5),
             width: 2,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
-            color: Theme.of(this).colorScheme.onSurface,
+            color: colors.onSurface,
             width: 2,
           ),
         ),

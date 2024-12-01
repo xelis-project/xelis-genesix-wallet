@@ -199,5 +199,11 @@
   "copy": "Copiare",
   "copy_recovery_phrase": "Copiare la tua frase di recupero",
   "burn_screen_warning_message": "La funzione di bruciore ti permette di distruggere i token in modo permanente. Una volta eseguita questa azione, non sarà più possibile recuperare i token.",
-  "burn_confirmation": "Capisco che questa azione è irreversibile e non potrò recuperare i fondi."
+  "burn_confirmation": "Capisco che questa azione è irreversibile e non potrò recuperare i fondi.",
+  "transfer_screen_message": "Qui puoi trasferire i tuoi asset a un altro portafoglio.",
+  "estimated_fee": "Commissione stimata:",
+  "boost_fees_title": "Aumentare le tariffe (opzionale)",
+  "boost_fees_message": "Moltiplicare la commissione per velocizzare la transazione se la rete è congestionata. Nella maggior parte dei casi, la commissione predefinita è sufficiente.",
+  "no_balance_to_transfer": "Non hai saldo da trasferire. Seleziona un altro asset.",
+  "no_balance_to_burn": "Non hai saldo da bruciare. Seleziona un altro asset."
 }

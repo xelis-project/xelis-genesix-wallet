@@ -11,8 +11,10 @@ class AppResources {
 
   static const String userWalletsFolderName = 'Genesix wallets';
 
+  static const String zeroBalance = '0.00000000';
+
   static const Map<String, String> defaultAssets = {
-    sdk.xelisAsset: '0.00000000',
+    sdk.xelisAsset: zeroBalance,
   };
 
   static const int xelisDecimals = 8;

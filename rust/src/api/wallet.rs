@@ -196,7 +196,7 @@ impl XelisWallet {
     }
 
     // estimate the fees for a transaction
-    pub async fn estimate_fees(&self, transfers: Vec<Transfer>) -> Result<u64> {
+    pub async fn estimate_fees(&self, transfers: Vec<Transfer>) -> Result<String> {
         let transaction_type_builder = self
             .create_transfers(transfers)
             .await
@@ -208,7 +208,7 @@ impl XelisWallet {
             .await
             .context("Error while estimating fees")?;
 
-        Ok(estimated_fees)
+        Ok(format_coin(estimated_fees, COIN_DECIMALS))
     }
 
     // create a transfer transaction
@@ -352,7 +352,7 @@ impl XelisWallet {
             let storage = self.wallet.get_storage().read().await;
             let decimals = storage
                 .get_asset_decimals(&asset)
-                .context("Invalid asset")?;
+                .context("Cannot retrieve decimals for this asset")?;
             let amount = (float_amount * 10u32.pow(decimals as u32) as f64) as u64;
             (amount, decimals)
         };

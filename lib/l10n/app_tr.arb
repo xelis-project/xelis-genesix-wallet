@@ -199,5 +199,11 @@
   "copy": "Kopyala",
   "copy_recovery_phrase": "Kopyala kurtarma cümleyi",
   "burn_screen_warning_message": "Tokenleri kalıcı olarak yok etme seçeneği sunan \"Yanma\" fonksiyonu vardır. Bu işlem gerçekleştirildikten sonra tokenleri geri almak mümkün değildir.",
-  "burn_confirmation": "Anlayışıyorum ki bu işlem geri alınamaz ve fonları geri alamam."
+  "burn_confirmation": "Anlayışıyorum ki bu işlem geri alınamaz ve fonları geri alamam.",
+  "transfer_screen_message": "Burada varlıklarınızı başka bir cüzdana aktarabilirsiniz.",
+  "estimated_fee": "Tahmini ücret:",
+  "boost_fees_title": "Ücretleri artır (isteğe bağlı)",
+  "boost_fees_message": "Ücretleri çarpın, böylece ağ yoğun ise işlem hızlandırılabilir. Çoğu durumda varsayılan ücret yeterlidir.",
+  "no_balance_to_transfer": "Baki göndermek için yeterli paranız yok. Başka bir varlık seçin.",
+  "no_balance_to_burn": "Baki yakmak için yeterli paranız yok. Başka bir varlık seçin."
 }

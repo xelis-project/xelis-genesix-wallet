@@ -199,5 +199,11 @@
   "copy": "Copy",
   "copy_recovery_phrase": "Copy your recovery phrase",
   "burn_screen_warning_message": "The Burn function allows you to destroy tokens permanently. Once this action has been performed, it will no longer be possible to recover the tokens.",
-  "burn_confirmation": "I understand that this action is irreversible and I will not be able to recover the funds."
+  "burn_confirmation": "I understand that this action is irreversible and I will not be able to recover the funds.",
+  "transfer_screen_message": "Here you can transfer your assets to another wallet.",
+  "estimated_fee": "Estimated Fee:",
+  "boost_fees_title": "Boost fees (optional)",
+  "boost_fees_message": "Multiply the fee to speed up the transaction if the network is congested. In most cases, the default fee is enough.",
+  "no_balance_to_transfer": "You have no balance to transfer. Please select another asset.",
+  "no_balance_to_burn": "You have no balance to burn. Please select another asset."
 }

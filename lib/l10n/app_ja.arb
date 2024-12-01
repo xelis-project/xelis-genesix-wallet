@@ -199,5 +199,11 @@
   "copy": "コピー",
   "copy_recovery_phrase": "コピーしてください",
   "burn_screen_warning_message": "機能「バーン」を使用すると、トークンを永久に破壊できます。この操作が行われたら、トークンの回収は不可能になります",
-  "burn_confirmation": "私はこの操作が取り消せず、資金を取り戻せないと理解しています。"
+  "burn_confirmation": "私はこの操作が取り消せず、資金を取り戻せないと理解しています。",
+  "transfer_screen_message": "ここでは、資産を別のウォレットに転送できます。",
+  "estimated_fee": "推定料金:",
+  "boost_fees_title": "手数料を増やす（オプション）",
+  "boost_fees_message": "倍増手数料をかけて、ネットワークが混雑している場合は取引を高速化します。ほとんどの場合、デフォルト料金は十分です",
+  "no_balance_to_transfer": "資産を送信するバランスがありません。別の資産を選択してください。",
+  "no_balance_to_burn": "資産を焼き切る残高がありません。別の資産を選択してください。"
 }

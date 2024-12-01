@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/wallet/application/xelis_price_provider.dart';
 import 'package:genesix/features/wallet/domain/xelis_price/coinpaprika/xelis_ticker.dart';
 import 'package:genesix/rust_bridge/api/network.dart';
+import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/router/route_utils.dart';
@@ -31,7 +32,7 @@ class BalanceWidget extends ConsumerWidget {
     final xelisBalance =
         ref.watch(walletStateProvider.select((state) => state.xelisBalance));
     var displayedBalance =
-        xelisBalance.isNotEmpty ? xelisBalance : '0.00000000';
+        xelisBalance.isNotEmpty ? xelisBalance : AppResources.zeroBalance;
 
     XelisTicker? xelisTicker;
     if (settings.showBalanceUSDT && settings.network == Network.mainnet) {

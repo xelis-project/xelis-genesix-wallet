@@ -4,6 +4,7 @@ import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/rust_bridge/api/wallet.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
@@ -183,8 +184,7 @@ class WalletState extends _$WalletState {
     }
   }
 
-  // TODO rework
-  Future<BigInt> estimateFees({
+  Future<String> estimateFees({
     required double amount,
     required String destination,
     required String asset,
@@ -194,7 +194,7 @@ class WalletState extends _$WalletState {
         Transfer(floatAmount: amount, strAddress: destination, assetHash: asset)
       ]);
     }
-    return BigInt.zero;
+    return AppResources.zeroBalance;
   }
 
   Future<void> exportCsv(String path) async {
