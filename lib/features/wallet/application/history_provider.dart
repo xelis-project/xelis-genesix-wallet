@@ -20,7 +20,7 @@ Future<HistoryState> history(Ref ref) async {
   );
 
   if (repository != null) {
-    final history = await repository.allHistory();
+    final history = await repository.history();
     for (final entry in history) {
       switch (entry.txEntryType) {
         case CoinbaseEntry():

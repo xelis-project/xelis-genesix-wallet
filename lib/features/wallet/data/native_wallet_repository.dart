@@ -157,7 +157,7 @@ class NativeWalletRepository {
     talker.info('Transaction canceled: $hash');
   }
 
-  Future<List<sdk.TransactionEntry>> allHistory() async {
+  Future<List<sdk.TransactionEntry>> history() async {
     var jsonTransactionsList = await _xelisWallet.allHistory();
     return jsonTransactionsList
         .map((e) => jsonDecode(e))

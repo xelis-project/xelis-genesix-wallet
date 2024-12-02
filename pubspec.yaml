@@ -28,7 +28,7 @@ dependencies:
   path_provider: ^2.1.5
   riverpod_annotation: ^2.6.1
   shared_preferences: ^2.3.3
-  xelis_dart_sdk: ^0.20.0
+  xelis_dart_sdk: ^0.20.1
   loader_overlay: ^4.0.3
   random_avatar: ^0.0.8
   pretty_qr_code: ^3.3.0
@@ -40,8 +40,8 @@ dependencies:
   icons_launcher: ^3.0.0
   url_launcher: ^6.3.1
   localstorage: ^5.0.0
-  talker_flutter: ^4.5.1
-  talker_riverpod_logger: ^4.5.1
+  talker_flutter: ^4.5.2
+  talker_riverpod_logger: ^4.5.2
   group_button: ^5.3.4
   http: ^1.2.2
   transparent_image: ^2.0.1

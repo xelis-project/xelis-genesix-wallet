@@ -14,7 +14,7 @@ pub enum Report {
         message: Option<String>,
     },
     Misc {
-        message: String,
+        message: Option<String>,
     },
 }
 
