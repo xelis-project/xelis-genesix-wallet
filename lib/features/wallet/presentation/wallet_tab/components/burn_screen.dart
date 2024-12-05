@@ -96,6 +96,14 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
                       ),
                     ),
                   ),
+                  onChanged: (value) {
+                    // workaround to reset the error message when the user modifies the field
+                    final hasError =
+                        _burnFormKey.currentState?.fields['amount']?.hasError;
+                    if (hasError ?? false) {
+                      _burnFormKey.currentState?.fields['amount']?.reset();
+                    }
+                  },
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(
                         errorText: loc.field_required_error),
@@ -134,6 +142,12 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
                       setState(() {
                         _selectedAssetBalance = assets[val]!;
                       });
+                    }
+                    // workaround to reset the error message when the user modifies the field
+                    final hasError =
+                        _burnFormKey.currentState?.fields['assets']?.hasError;
+                    if (hasError ?? false) {
+                      _burnFormKey.currentState?.fields['assets']?.reset();
                     }
                   },
                 ),

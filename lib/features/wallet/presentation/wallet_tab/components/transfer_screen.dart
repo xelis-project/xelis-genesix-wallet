@@ -102,6 +102,14 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                       ),
                     ),
                   ),
+                  onChanged: (value) {
+                    // workaround to reset the error message when the user modifies the field
+                    final hasError = _transferFormKey
+                        .currentState?.fields['amount']?.hasError;
+                    if (hasError ?? false) {
+                      _transferFormKey.currentState?.fields['amount']?.reset();
+                    }
+                  },
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(
                         errorText: loc.field_required_error),
@@ -141,6 +149,12 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                         _selectedAssetBalance = assets[val]!;
                       });
                     }
+                    // workaround to reset the error message when the user modifies the field
+                    final hasError = _transferFormKey
+                        .currentState?.fields['assets']?.hasError;
+                    if (hasError ?? false) {
+                      _transferFormKey.currentState?.fields['assets']?.reset();
+                    }
                   },
                 ),
                 const SizedBox(height: Spaces.large),
@@ -158,6 +172,14 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                   decoration: context.textInputDecoration.copyWith(
                     labelText: loc.receiver_address,
                   ),
+                  onChanged: (value) {
+                    // workaround to reset the error message when the user modifies the field
+                    final hasError = _transferFormKey
+                        .currentState?.fields['address']?.hasError;
+                    if (hasError ?? false) {
+                      _transferFormKey.currentState?.fields['address']?.reset();
+                    }
+                  },
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(
                         errorText: loc.field_required_error),

@@ -23,7 +23,7 @@ class ChangePasswordScreen extends ConsumerStatefulWidget {
 
 class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
   final _changePasswordKey =
-      GlobalKey<FormBuilderState>(debugLabel: '_openFormKey');
+      GlobalKey<FormBuilderState>(debugLabel: '_changePasswordFormKey');
 
   late FocusNode _focusNodeOldPassword;
   late FocusNode _focusNodeNewPassword;
@@ -70,6 +70,15 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                   decoration: context.textInputDecoration.copyWith(
                     labelText: loc.old_password,
                   ),
+                  onChanged: (value) {
+                    // workaround to reset the error message when the user modifies the field
+                    final hasError = _changePasswordKey
+                        .currentState?.fields['old_password']?.hasError;
+                    if (hasError ?? false) {
+                      _changePasswordKey.currentState?.fields['old_password']
+                          ?.reset();
+                    }
+                  },
                   validator: FormBuilderValidators.required(),
                 ),
               ),
@@ -83,6 +92,15 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                   decoration: context.textInputDecoration.copyWith(
                     labelText: loc.new_password,
                   ),
+                  onChanged: (value) {
+                    // workaround to reset the error message when the user modifies the field
+                    final hasError = _changePasswordKey
+                        .currentState?.fields['new_password']?.hasError;
+                    if (hasError ?? false) {
+                      _changePasswordKey.currentState?.fields['new_password']
+                          ?.reset();
+                    }
+                  },
                   validator: FormBuilderValidators.required(),
                 ),
               ),
@@ -96,6 +114,16 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                   decoration: context.textInputDecoration.copyWith(
                     labelText: loc.confirm_password,
                   ),
+                  onChanged: (value) {
+                    // workaround to reset the error message when the user modifies the field
+                    final hasError = _changePasswordKey
+                        .currentState?.fields['confirm_new_password']?.hasError;
+                    if (hasError ?? false) {
+                      _changePasswordKey
+                          .currentState?.fields['confirm_new_password']
+                          ?.reset();
+                    }
+                  },
                   validator: FormBuilderValidators.required(),
                 ),
               ),

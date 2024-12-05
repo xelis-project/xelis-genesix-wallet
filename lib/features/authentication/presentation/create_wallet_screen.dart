@@ -70,8 +70,8 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
 
     final message = switch (widget.type) {
       CreateWalletType.newWallet => loc.create_new_wallet_message,
-      CreateWalletType.fromPrivateKey => loc.recover_from_seed_message,
-      CreateWalletType.fromSeed => loc.recover_from_private_key_message,
+      CreateWalletType.fromPrivateKey => loc.recover_from_private_key_message,
+      CreateWalletType.fromSeed => loc.recover_from_seed_message,
     };
 
     final recoverWidget = switch (widget.type) {
@@ -87,7 +87,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
             Container(
               constraints: const BoxConstraints(maxHeight: 150),
               child: FormBuilderTextField(
-                name: 'private key',
+                name: 'private_key',
                 focusNode: _focusNodePrivateKey,
                 style: context.bodyLarge,
                 autocorrect: false,
@@ -96,6 +96,14 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                   labelText: loc.private_key_inputfield,
                   alignLabelWithHint: true,
                 ),
+                onChanged: (value) {
+                  // workaround to reset the error message when the user modifies the field
+                  final hasError = _createFormKey
+                      .currentState?.fields['private_key']?.hasError;
+                  if (hasError ?? false) {
+                    _createFormKey.currentState?.fields['private_key']?.reset();
+                  }
+                },
                 maxLength: 64,
                 buildCounter: (context,
                         {required currentLength,
@@ -138,6 +146,14 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                   labelText: loc.paste_your_seed,
                   alignLabelWithHint: true,
                 ),
+                onChanged: (value) {
+                  // workaround to reset the error message when the user modifies the field
+                  final hasError =
+                      _createFormKey.currentState?.fields['seed']?.hasError;
+                  if (hasError ?? false) {
+                    _createFormKey.currentState?.fields['seed']?.reset();
+                  }
+                },
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
                   FormBuilderValidators.minWordsCount(
@@ -190,6 +206,14 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
               decoration: context.textInputDecoration.copyWith(
                 labelText: loc.set_a_wallet_name,
               ),
+              onChanged: (value) {
+                // workaround to reset the error message when the user modifies the field
+                final hasError = _createFormKey
+                    .currentState?.fields['wallet_name']?.hasError;
+                if (hasError ?? false) {
+                  _createFormKey.currentState?.fields['wallet_name']?.reset();
+                }
+              },
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required(),
                 FormBuilderValidators.minLength(1),
@@ -215,6 +239,14 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                 decoration: context.textInputDecoration.copyWith(
                   labelText: loc.choose_strong_password,
                 ),
+                onChanged: (value) {
+                  // workaround to reset the error message when the user modifies the field
+                  final hasError =
+                      _createFormKey.currentState?.fields['password']?.hasError;
+                  if (hasError ?? false) {
+                    _createFormKey.currentState?.fields['password']?.reset();
+                  }
+                },
                 validator: FormBuilderValidators.required(),
               ),
             ),
@@ -230,6 +262,15 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                 decoration: context.textInputDecoration.copyWith(
                   labelText: loc.confirm_your_password,
                 ),
+                onChanged: (value) {
+                  // workaround to reset the error message when the user modifies the field
+                  final hasError = _createFormKey
+                      .currentState?.fields['confirm_password']?.hasError;
+                  if (hasError ?? false) {
+                    _createFormKey.currentState?.fields['confirm_password']
+                        ?.reset();
+                  }
+                },
                 validator: FormBuilderValidators.required(),
               ),
             ),
