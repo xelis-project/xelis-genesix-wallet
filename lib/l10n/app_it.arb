@@ -184,8 +184,7 @@
   "reset_preferences_dialog": "Stai per reimpostare tutte le impostazioni, lingua, tema e lista dei nodi.",
   "do_you_want_to_continue": "Vuoi continuare?",
   "preferences_reset_snackbar": "Preferenze reimpostate!",
-  "seed_error_not_enough_words": "Non ci sono abbastanza parole",
-  "seed_error_too_many_words": "Troppe parole",
+  "seed_error_wrong_words_count": "Il seme deve essere lungo 24 o 25 parole (checksum).",
   "burn_unlock_warning_message": "L'attivazione del trasferimento di bruciamento le permetterà di inviare fondi a un indirizzo di distruzione permanente, senza possibilità di recupero. Questa operazione è irreversibile e i fondi saranno persi per sempre.",
   "do_you_want_to_activate_burn_transfer": "Sei sicuro di voler attivare il trasferimento di bruciamento?",
   "burn_transfer_unlock": "Il trasferimento di bruciamento è stato attivato.",
@@ -205,5 +204,7 @@
   "boost_fees_title": "Aumentare le tariffe (opzionale)",
   "boost_fees_message": "Moltiplicare la commissione per velocizzare la transazione se la rete è congestionata. Nella maggior parte dei casi, la commissione predefinita è sufficiente.",
   "no_balance_to_transfer": "Non hai saldo da trasferire. Seleziona un altro asset.",
-  "no_balance_to_burn": "Non hai saldo da bruciare. Seleziona un altro asset."
+  "no_balance_to_burn": "Non hai saldo da bruciare. Seleziona un altro asset.",
+  "timestamp": "Data Ora",
+  "not_available": "Non disponibile"
 }

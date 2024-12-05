@@ -184,8 +184,7 @@
   "reset_preferences_dialog": "Tüm ayarları, dili, temasını ve düğüm listesini sıfırlamaya hazırlanıyorsunuz.",
   "do_you_want_to_continue": "Devam etmek ister misiniz?",
   "preferences_reset_snackbar": "Tercihler sıfırlandı!",
-  "seed_error_not_enough_words": "Yeterli kelime yok",
-  "seed_error_too_many_words": "Çok fazla kelime",
+  "seed_error_wrong_words_count": "Tohumun uzunluğunun 24 veya 25 (kontrol toplamı) kelime olmalıdır.",
   "burn_unlock_warning_message": "Yakan transferi unlock edilecek olursa, size yakan adresine para gönderme yetkisi verecektir. Para kaybolacak ve asla geri alınamayacak.",
   "do_you_want_to_activate_burn_transfer": "Yakan transferi unlock etmek istiyor musunuz?",
   "burn_transfer_unlock": "Yakan transferi aktif hale getirildi.",
@@ -205,5 +204,7 @@
   "boost_fees_title": "Ücretleri artır (isteğe bağlı)",
   "boost_fees_message": "Ücretleri çarpın, böylece ağ yoğun ise işlem hızlandırılabilir. Çoğu durumda varsayılan ücret yeterlidir.",
   "no_balance_to_transfer": "Baki göndermek için yeterli paranız yok. Başka bir varlık seçin.",
-  "no_balance_to_burn": "Baki yakmak için yeterli paranız yok. Başka bir varlık seçin."
+  "no_balance_to_burn": "Baki yakmak için yeterli paranız yok. Başka bir varlık seçin.",
+  "timestamp": "Zaman damgası",
+  "not_available": "Kullanılabilir değil"
 }

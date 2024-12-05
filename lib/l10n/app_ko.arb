@@ -184,8 +184,7 @@
   "reset_preferences_dialog": "모든 설정, 언어, 테마 및 노드 목록을 초기화하려고 합니다.",
   "do_you_want_to_continue": "계속하시겠습니까?",
   "preferences_reset_snackbar": "설정이 초기화되었습니다!",
-  "seed_error_not_enough_words": "충분한 단어가 없습니다.",
-  "seed_error_too_many_words": "너무 많은 단어입니다.",
+  "seed_error_wrong_words_count": "시드는 24개 또는 25개의 단어(체크섬)로 구성되어야 합니다.",
   "burn_unlock_warning_message": "Burn Transfer를 활성화하면 자금을 Burn 주소로 보내는 것을 허용합니다. 이 행동은 불가피하고 자금은 영원히 잃어버립니다.",
   "do_you_want_to_activate_burn_transfer": "정말로 버른 트랜스퍼를 활성화하고 싶은가요 ?",
   "burn_transfer_unlock": "버른 트랜스퍼를 활성화했습니다.",
@@ -205,5 +204,7 @@
   "boost_fees_title": "수수료 증가 (선택 사항)",
   "boost_fees_message": "거래가 혼잡한 경우 수수료를 곱하여 거래를 가속화하십시오. 일반적으로 기본 수수료는 충분합니다.",
   "no_balance_to_transfer": "당신은 이전할 잔액이 없습니다. 다른 자산을 선택하십시오.",
-  "no_balance_to_burn": "당신은 태워낼 자산이 없습니다. 다른 자산을 선택하십시오."
+  "no_balance_to_burn": "당신은 태워낼 자산이 없습니다. 다른 자산을 선택하십시오.",
+  "timestamp": "시간표시기",
+  "not_available": "사용할 수 없습니다"
 }

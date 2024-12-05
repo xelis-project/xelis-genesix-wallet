@@ -184,8 +184,7 @@
   "reset_preferences_dialog": "Je staat op het punt om alle instellingen, taal, thema en lijst met nodes te resetten.",
   "do_you_want_to_continue": "Wilt u doorgaan?",
   "preferences_reset_snackbar": "Voorkeuren zijn gereset!",
-  "seed_error_not_enough_words": "Niet genoeg woorden",
-  "seed_error_too_many_words": "Te veel woorden",
+  "seed_error_wrong_words_count": "Het zaad moet 24 of 25 woorden lang zijn (checksum).",
   "burn_unlock_warning_message": "De uitvoeren van brandtransfers zal u in staat stellen om geld naar een brandadres te sturen, waarna het definitief verloren is gegaan.",
   "do_you_want_to_activate_burn_transfer": "Bent u zeker dat u de uitvoering van brandtransfers wilt starten?",
   "burn_transfer_unlock": "De brandtransfers is geactiveerd.",
@@ -205,5 +204,7 @@
   "boost_fees_title": "Verhogen van de kosten (optioneel)",
   "boost_fees_message": "Vermenigvuldig de kosten om de transactie te versnellen als het netwerk verstopt is. In de meeste gevallen is de standaardvergoeding voldoende.",
   "no_balance_to_transfer": "Geen saldo om over te maken. Kies een andere activa.",
-  "no_balance_to_burn": "Geen saldo om te verbranden. Kies een andere activa."
+  "no_balance_to_burn": "Geen saldo om te verbranden. Kies een andere activa.",
+  "timestamp": "Tijdstempel",
+  "not_available": "Niet beschikbaar"
 }

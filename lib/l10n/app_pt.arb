@@ -184,8 +184,7 @@
   "reset_preferences_dialog": "Está prestes a redefinir todas as suas configurações, idioma, tema e lista de nós.",
   "do_you_want_to_continue": "Quer continuar?",
   "preferences_reset_snackbar": "Preferências redefinidas!",
-  "seed_error_not_enough_words": "Não há palavras suficientes",
-  "seed_error_too_many_words": "Muitas palavras",
+  "seed_error_wrong_words_count": "A semente deve ter 24 ou 25 palavras (soma de verificação).",
   "burn_unlock_warning_message": "A ativação de transferência de queima permitirá-lhe enviar fundos para uma direção de destruição permanente, sem possibilidade de recuperação. Esta ação é irreversível e os fundos serão perdidos para sempre.",
   "do_you_want_to_activate_burn_transfer": "Está seguro que deseja ativar a transferência de queima ?",
   "burn_transfer_unlock": "A transferência de queima foi ativada.",
@@ -205,5 +204,7 @@
   "boost_fees_title": "Aumentar as taxas (opcional)",
   "boost_fees_message": "Aumente a taxa para acelerar a transação caso a rede esteja congestionada. Na maioria dos casos, a taxa padrão é suficiente.",
   "no_balance_to_transfer": "Não possui saldo para transferir. Selecione outro ativo.",
-  "no_balance_to_burn": "Não possui saldo para queimar. Selecione outro ativo."
+  "no_balance_to_burn": "Não possui saldo para queimar. Selecione outro ativo.",
+  "timestamp": "Marca de tempo",
+  "not_available": "Não disponível"
 }

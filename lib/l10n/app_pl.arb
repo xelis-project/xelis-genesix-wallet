@@ -184,8 +184,7 @@
   "reset_preferences_dialog": "Jesteś w trakcie resetowania wszystkich ustawień, języka, motywu i listy węzłów.",
   "do_you_want_to_continue": "Czy chcesz kontynuować?",
   "preferences_reset_snackbar": "Preferencje zresetowane!",
-  "seed_error_not_enough_words": "Za mało słów",
-  "seed_error_too_many_words": "Zbyt wiele słów",
+  "seed_error_wrong_words_count": "Siewka musi mieć 24 lub 25 słów (suma kontrolna).",
   "burn_unlock_warning_message": "Włączenie przekazu na palenie pozwoli Ci wysłać fundusze do adresu na zniszczenie trwałe, bez możliwości odzyskania. Ta operacja jest nieodwracalna i fundusze będą utracone na zawsze.",
   "do_you_want_to_activate_burn_transfer": "Czy jesteś pewien, że chcesz włączyć przekaz na palenie?",
   "burn_transfer_unlock": "Przekaz na palenie został włączony.",
@@ -205,5 +204,7 @@
   "boost_fees_title": "Podnieś cechę (opcjonalny)",
   "boost_fees_message": "Pomnóż opłatę, aby przyspieszyć transakcję, jeśli sieć jest obciążona. W większości przypadków wystarczająca jest domyślna opłata.",
   "no_balance_to_transfer": "Nie masz salda do przekazania. Wybierz inny aktyw.",
-  "no_balance_to_burn": "Nie masz salda do spalenia. Wybierz inny aktyw."
+  "no_balance_to_burn": "Nie masz salda do spalenia. Wybierz inny aktyw.",
+  "timestamp": "Wpis czasowy",
+  "not_available": "Nie jest dostępny"
 }

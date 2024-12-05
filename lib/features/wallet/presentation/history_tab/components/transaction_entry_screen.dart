@@ -36,20 +36,10 @@ class _TransactionEntryScreenState
     extends ConsumerState<TransactionEntryScreen> {
   late String entryTypeName;
   late Icon icon;
-
   sdk.CoinbaseEntry? coinbase;
   sdk.OutgoingEntry? outgoing;
   sdk.BurnEntry? burn;
   sdk.IncomingEntry? incoming;
-
-  Future<void> _launchUrl(Uri url) async {
-    if (!await launchUrl(url)) {
-      final loc = ref.read(appLocalizationsProvider);
-      ref
-          .read(snackBarMessengerProvider.notifier)
-          .showError('${loc.launch_url_error} $url');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -141,6 +131,15 @@ class _TransactionEntryScreenState
             style: context.bodyLarge,
           ),
           const SizedBox(height: Spaces.medium),
+          Text(loc.timestamp,
+              style: context.labelLarge
+                  ?.copyWith(color: context.moreColors.mutedColor)),
+          const SizedBox(height: Spaces.extraSmall),
+          SelectableText(
+            transactionEntry.timestamp?.toString() ?? loc.not_available,
+            style: context.bodyLarge,
+          ),
+          const SizedBox(height: Spaces.medium),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -154,7 +153,6 @@ class _TransactionEntryScreenState
               ),
             ],
           ),
-          // const SizedBox(height: Spaces.extraSmall),
           SelectableText(
             transactionEntry.hash,
             style: context.bodyLarge,
@@ -171,8 +169,8 @@ class _TransactionEntryScreenState
                         ?.copyWith(color: context.moreColors.mutedColor)),
                 const SizedBox(height: Spaces.extraSmall),
                 SelectableText(
-                  '+${formatXelis(coinbase!.reward)} XEL',
                   // hmm coinbase could return other asset than XELIS
+                  '+${formatXelis(coinbase!.reward)} ${AppResources.xelisAsset.ticker}',
                   style: context.bodyLarge,
                 ),
               ],
@@ -186,7 +184,7 @@ class _TransactionEntryScreenState
                     ?.copyWith(color: context.moreColors.mutedColor)),
             const SizedBox(height: Spaces.extraSmall),
             SelectableText(
-              '${formatXelis(burn!.fee)} XEL',
+              '${formatXelis(burn!.fee)} ${AppResources.xelisAsset.ticker}',
               style: context.bodyLarge,
             ),
             Column(
@@ -198,7 +196,7 @@ class _TransactionEntryScreenState
                         ?.copyWith(color: context.moreColors.mutedColor)),
                 const SizedBox(height: Spaces.extraSmall),
                 SelectableText(
-                  '-${formatXelis(burn!.amount)} XEL',
+                  '-${formatXelis(burn!.amount)} ${AppResources.xelisAsset.ticker}',
                   style: context.bodyLarge,
                 ),
               ],
@@ -213,7 +211,7 @@ class _TransactionEntryScreenState
                     ?.copyWith(color: context.moreColors.mutedColor)),
             const SizedBox(height: Spaces.extraSmall),
             SelectableText(
-              '${formatXelis(outgoing!.fee)} XEL',
+              '${formatXelis(outgoing!.fee)} ${AppResources.xelisAsset.ticker}',
               style: context.bodyLarge,
             ),
             Column(
@@ -278,7 +276,7 @@ class _TransactionEntryScreenState
                                                     .moreColors.mutedColor)),
                                         SelectableText(
                                             transfer.asset == sdk.xelisAsset
-                                                ? 'XELIS'
+                                                ? AppResources.xelisAsset.name
                                                 : transfer.asset),
                                       ],
                                     ),
@@ -296,7 +294,7 @@ class _TransactionEntryScreenState
                                                     .moreColors.mutedColor)),
                                         SelectableText(transfer.asset ==
                                                 sdk.xelisAsset
-                                            ? '-${formatXelis(transfer.amount)} XEL'
+                                            ? '-${formatXelis(transfer.amount)} ${AppResources.xelisAsset.ticker}'
                                             : '${transfer.amount}'),
                                       ],
                                     ),
@@ -385,7 +383,7 @@ class _TransactionEntryScreenState
                                                 context.moreColors.mutedColor)),
                                     SelectableText(
                                         transfer.asset == sdk.xelisAsset
-                                            ? 'XELIS'
+                                            ? AppResources.xelisAsset.name
                                             : transfer.asset),
                                   ],
                                 ),
@@ -402,7 +400,7 @@ class _TransactionEntryScreenState
                                                 context.moreColors.mutedColor)),
                                     SelectableText(transfer.asset ==
                                             sdk.xelisAsset
-                                        ? '+${formatXelis(transfer.amount)} XEL'
+                                        ? '+${formatXelis(transfer.amount)} ${AppResources.xelisAsset.ticker}'
                                         : '${transfer.amount}'),
                                   ],
                                 ),
@@ -428,5 +426,14 @@ class _TransactionEntryScreenState
         ],
       ),
     );
+  }
+
+  Future<void> _launchUrl(Uri url) async {
+    if (!await launchUrl(url)) {
+      final loc = ref.read(appLocalizationsProvider);
+      ref
+          .read(snackBarMessengerProvider.notifier)
+          .showError('${loc.launch_url_error} $url');
+    }
   }
 }

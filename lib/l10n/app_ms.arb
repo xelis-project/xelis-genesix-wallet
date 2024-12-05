@@ -184,8 +184,7 @@
   "reset_preferences_dialog": "Anda akan memulakan semula semua tetapan, bahasa, tema dan senarai nod.",
   "do_you_want_to_continue": "Adakah anda ingin meneruskan?",
   "preferences_reset_snackbar": "Tetapan telah ditetapkan semula!",
-  "seed_error_not_enough_words": "Tidak cukup kata",
-  "seed_error_too_many_words": "Terlalu banyak kata",
+  "seed_error_wrong_words_count": "Biji mesti panjang 24 atau 25 (cek sum) kata.",
   "burn_unlock_warning_message": "Membuka burn transfer akan memungkinkan anda menghantar dana ke alamat pembakaran. Tindakan ini tidak boleh dibatalkan dan dana itu akan hilang selamanya.",
   "do_you_want_to_activate_burn_transfer": "Adakah anda yakin ingin membuka transfer burn?",
   "burn_transfer_unlock": "Membuka transfer burn telah dilakukan.",
@@ -205,5 +204,7 @@
   "boost_fees_title": "Meningkatkan biaya (opsional)",
   "boost_fees_message": "Naikkan biaya untuk mempercepat transaksi jika jaringan padat. Dalam kebanyakan kasus, biaya default sudah cukup.",
   "no_balance_to_transfer": "Tiada baki untuk dipindahkan. Sila pilih aset yang lain.",
-  "no_balance_to_burn": "Tiada baki untuk dibakar. Sila pilih aset yang lain."
+  "no_balance_to_burn": "Tiada baki untuk dibakar. Sila pilih aset yang lain.",
+  "timestamp": "Captur masa",
+  "not_available": "Tidak tersedia"
 }

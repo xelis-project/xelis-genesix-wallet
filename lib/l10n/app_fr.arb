@@ -184,8 +184,7 @@
   "reset_preferences_dialog": "Vous êtes sur le point de réinitialiser toutes vos configurations, langue, thème et liste de nœuds.",
   "do_you_want_to_continue": "Voulez-vous continuer ?",
   "preferences_reset_snackbar": "Préférences réinitialisées !",
-  "seed_error_not_enough_words": "Pas assez de mots",
-  "seed_error_too_many_words": "Trop de mots",
+  "seed_error_wrong_words_count": "La graine doit faire 24 ou 25 mots (somme de contrôle).",
   "burn_unlock_warning_message": "L'activation du transfert de type Burn vous permettra d'envoyer des fonds à une adresse de destruction permanente, sans possibilité de récupération. Ce processus est irreversible et les fonds seront perdus définitivement.",
   "do_you_want_to_activate_burn_transfer": "Êtes-vous sûr de vouloir activer le transfert de type Burn ?",
   "burn_transfer_unlock": "Le transfert de type Burn est désormais activé.",
@@ -205,5 +204,7 @@
   "boost_fees_title": "Augmenter les frais (optionnel)",
   "boost_fees_message": "Multiplier la frais pour accélérer la transaction si le réseau est congestionné. Dans la plupart des cas, les frais par défaut sont suffisants.",
   "no_balance_to_transfer": "Vous n'avez pas de solde à transférer. Veuillez sélectionner un autre actif.",
-  "no_balance_to_burn": "Vous n'avez pas de solde à brûler. Veuillez sélectionner un autre actif."
+  "no_balance_to_burn": "Vous n'avez pas de solde à brûler. Veuillez sélectionner un autre actif.",
+  "timestamp": "Horodatage",
+  "not_available": "Non disponible"
 }

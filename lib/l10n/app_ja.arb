@@ -184,8 +184,7 @@
   "reset_preferences_dialog": "すべての設定、言語、テーマ、およびノードリストをリセットする準備ができています。",
   "do_you_want_to_continue": "続行しますか？",
   "preferences_reset_snackbar": "設定がリセットされました！",
-  "seed_error_not_enough_words": "単語が足りません。",
-  "seed_error_too_many_words": "単語が多すぎる。",
+  "seed_error_wrong_words_count": "シードは24個または25個の単語（チェックサム）の長さである必要があります。",
   "burn_unlock_warning_message": "バーントランザクションをアンロックすると、資金をバーンアドレスに送信できます。資金は永遠に失われます。",
   "do_you_want_to_activate_burn_transfer": "本当に、バーン トランザクションをアンロックすることにしたいのですか？",
   "burn_transfer_unlock": "バーン トランザクションをアンロックしました。",
@@ -205,5 +204,7 @@
   "boost_fees_title": "手数料を増やす（オプション）",
   "boost_fees_message": "倍増手数料をかけて、ネットワークが混雑している場合は取引を高速化します。ほとんどの場合、デフォルト料金は十分です",
   "no_balance_to_transfer": "資産を送信するバランスがありません。別の資産を選択してください。",
-  "no_balance_to_burn": "資産を焼き切る残高がありません。別の資産を選択してください。"
+  "no_balance_to_burn": "資産を焼き切る残高がありません。別の資産を選択してください。",
+  "timestamp": "タイムスタンプ",
+  "not_available": "利用できません"
 }

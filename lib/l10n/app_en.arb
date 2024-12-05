@@ -184,8 +184,7 @@
   "reset_preferences_dialog": "You are about to reset all your settings, language, theme, and list of nodes.",
   "do_you_want_to_continue": "Do you want to continue?",
   "preferences_reset_snackbar": "Preferences reset!",
-  "seed_error_not_enough_words": "Not enough words",
-  "seed_error_too_many_words": "Too many words",
+  "seed_error_wrong_words_count": "Seed must be 24 or 25 (checksum) words long.",
   "burn_unlock_warning_message": "Unlocking burn transfer will allow you to send funds to a burn address. This action is irreversible and the funds will be lost forever.",
   "do_you_want_to_activate_burn_transfer": "Are you sure you want to unlock burn transfer?",
   "burn_transfer_unlock": "Burn transfer unlocked.",
@@ -205,5 +204,7 @@
   "boost_fees_title": "Boost fees (optional)",
   "boost_fees_message": "Multiply the fee to speed up the transaction if the network is congested. In most cases, the default fee is enough.",
   "no_balance_to_transfer": "You have no balance to transfer. Please select another asset.",
-  "no_balance_to_burn": "You have no balance to burn. Please select another asset."
+  "no_balance_to_burn": "You have no balance to burn. Please select another asset.",
+  "timestamp": "Timestamp",
+  "not_available": "Not available"
 }

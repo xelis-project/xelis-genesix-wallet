@@ -184,8 +184,7 @@
   "reset_preferences_dialog": "Estás a punto de restablecer todas tus configuraciones, idioma, tema y lista de nodos.",
   "do_you_want_to_continue": "¿Desea continuar?",
   "preferences_reset_snackbar": "Preferencias reseteadas!",
-  "seed_error_not_enough_words": "No hay suficientes palabras",
-  "seed_error_too_many_words": "Demasiadas palabras",
+  "seed_error_wrong_words_count": "La semilla debe tener 24 o 25 palabras (suma de comprobación).",
   "burn_unlock_warning_message": "Darse de baja en el envío de quemado te permitirá enviar fondos a una dirección de quemado. Esta acción es irreparable y los fondos se perderán para siempre.",
   "do_you_want_to_activate_burn_transfer": "¿Estás seguro de que deseas darte de baja en el envío de quemado?",
   "burn_transfer_unlock": "El envío de quemado se ha desbloqueado.",
@@ -205,5 +204,7 @@
   "boost_fees_title": "Aumentar las tarifas (opcional)",
   "boost_fees_message": "Multiplicar la tarifa para acelerar la transacción si la red está congestionada. En la mayoría de los casos, la tarifa predeterminada es suficiente.",
   "no_balance_to_transfer": "No tienes saldo para transferir. Por favor, selecciona otro activo.",
-  "no_balance_to_burn": "No tienes saldo para quemar. Por favor, selecciona otro activo."
+  "no_balance_to_burn": "No tienes saldo para quemar. Por favor, selecciona otro activo.",
+  "timestamp": "Marca de tiempo",
+  "not_available": "No disponible"
 }

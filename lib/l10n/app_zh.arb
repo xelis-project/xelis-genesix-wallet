@@ -184,8 +184,7 @@
   "reset_preferences_dialog": "你即将重置所有设置、语言、主题和节点列表。",
   "do_you_want_to_continue": "你想要继续吗？",
   "preferences_reset_snackbar": "偏好设置已重置！",
-  "seed_error_not_enough_words": "词语不足",
-  "seed_error_too_many_words": "词语过多",
+  "seed_error_wrong_words_count": "播种必须是24个或25个（校验和）单词长。",
   "burn_unlock_warning_message": "解锁烧毁转移将使您能够发送资金到烧毁地址。资金将永远丢失，无法恢复。",
   "do_you_want_to_activate_burn_transfer": "确定要解锁烧毁转移吗？",
   "burn_transfer_unlock": "烧毁转移已解锁。",
@@ -205,5 +204,7 @@
   "boost_fees_title": "加速费用的选项",
   "boost_fees_message": "加速费用的选项以加速交易，如果网络拥挤。在大多数情况下，默认费用足够了",
   "no_balance_to_transfer": "没有余额可转移。请选择其他资产。",
-  "no_balance_to_burn": "没有余额可烧。请选择其他资产。"
+  "no_balance_to_burn": "没有余额可烧。请选择其他资产。",
+  "timestamp": "时间戳",
+  "not_available": "不可用"
 }
