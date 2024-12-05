@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:genesix/features/authentication/domain/create_wallet_type_enum.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
@@ -18,9 +19,9 @@ import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
 import 'package:genesix/shared/widgets/components/password_textfield_widget.dart';
 
 class CreateWalletScreen extends ConsumerStatefulWidget {
-  const CreateWalletScreen({super.key, this.isFromSeed = false});
+  const CreateWalletScreen({super.key, required this.type});
 
-  final bool isFromSeed;
+  final CreateWalletType type;
 
   @override
   ConsumerState createState() => _CreateWalletWidgetState();
@@ -31,6 +32,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
       GlobalKey<FormBuilderState>(debugLabel: '_createFormKey');
 
   late FocusNode _focusNodeSeed;
+  late FocusNode _focusNodePrivateKey;
   late FocusNode _focusNodeName;
   late FocusNode _focusNodePassword;
   late FocusNode _focusNodeConfirmPassword;
@@ -39,6 +41,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
   void initState() {
     super.initState();
     _focusNodeSeed = FocusNode();
+    _focusNodePrivateKey = FocusNode();
     _focusNodeName = FocusNode();
     _focusNodePassword = FocusNode();
     _focusNodeConfirmPassword = FocusNode();
@@ -47,6 +50,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
   @override
   dispose() {
     _focusNodeSeed.dispose();
+    _focusNodePrivateKey.dispose();
     _focusNodeName.dispose();
     _focusNodePassword.dispose();
     _focusNodeConfirmPassword.dispose();
@@ -58,50 +62,124 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
     final loc = ref.watch(appLocalizationsProvider);
     final wallets = ref.watch(walletsProvider);
 
+    final title = switch (widget.type) {
+      CreateWalletType.newWallet => loc.new_wallet,
+      CreateWalletType.fromPrivateKey => loc.recover_wallet,
+      CreateWalletType.fromSeed => loc.recover_wallet,
+    };
+
+    final message = switch (widget.type) {
+      CreateWalletType.newWallet => loc.create_new_wallet_message,
+      CreateWalletType.fromPrivateKey => loc.recover_from_seed_message,
+      CreateWalletType.fromSeed => loc.recover_from_private_key_message,
+    };
+
+    final recoverWidget = switch (widget.type) {
+      CreateWalletType.newWallet => SizedBox.shrink(),
+      CreateWalletType.fromPrivateKey => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              loc.private_key,
+              style: context.bodyLarge,
+            ),
+            const SizedBox(height: Spaces.small),
+            Container(
+              constraints: const BoxConstraints(maxHeight: 150),
+              child: FormBuilderTextField(
+                name: 'private key',
+                focusNode: _focusNodePrivateKey,
+                style: context.bodyLarge,
+                autocorrect: false,
+                keyboardType: TextInputType.text,
+                decoration: context.textInputDecoration.copyWith(
+                  labelText: loc.private_key_inputfield,
+                  alignLabelWithHint: true,
+                ),
+                maxLength: 64,
+                buildCounter: (context,
+                        {required currentLength,
+                        required isFocused,
+                        maxLength}) =>
+                    Text(
+                  '$currentLength/$maxLength',
+                ),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(),
+                  FormBuilderValidators.equalLength(64,
+                      errorText: loc.private_key_error_lenght),
+                  FormBuilderValidators.match(RegExp(r'^[0-9a-fA-F]+$'),
+                      errorText: loc.private_key_error_hexa),
+                ]),
+              ),
+            ),
+            const SizedBox(height: Spaces.large),
+          ],
+        ),
+      CreateWalletType.fromSeed => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              loc.seed,
+              style: context.bodyLarge,
+            ),
+            const SizedBox(height: Spaces.small),
+            Container(
+              constraints: const BoxConstraints(maxHeight: 150),
+              child: FormBuilderTextField(
+                name: 'seed',
+                focusNode: _focusNodeSeed,
+                style: context.bodyLarge,
+                maxLines: null,
+                minLines: 5,
+                autocorrect: false,
+                keyboardType: TextInputType.multiline,
+                decoration: context.textInputDecoration.copyWith(
+                  labelText: loc.paste_your_seed,
+                  alignLabelWithHint: true,
+                ),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(),
+                  FormBuilderValidators.minWordsCount(
+                    24,
+                    errorText: loc.seed_error_wrong_words_count,
+                  ),
+                  FormBuilderValidators.maxWordsCount(
+                    25,
+                    errorText: loc.seed_error_wrong_words_count,
+                  ),
+                ]),
+              ),
+            ),
+            const SizedBox(height: Spaces.large),
+          ],
+        ),
+    };
+
+    final buttonLabel = switch (widget.type) {
+      CreateWalletType.newWallet => loc.create_button,
+      CreateWalletType.fromPrivateKey => loc.recover_button,
+      CreateWalletType.fromSeed => loc.recover_button,
+    };
+
     return CustomScaffold(
-      appBar: GenericAppBar(
-          title: widget.isFromSeed
-              ? loc.recover_from_recovery_phrase
-              : loc.create_new_wallet),
+      appBar: GenericAppBar(title: title),
       body: FormBuilder(
         key: _createFormKey,
         onChanged: () => _createFormKey.currentState!.save(),
         child: ListView(
+          shrinkWrap: true,
           padding: const EdgeInsets.fromLTRB(
               Spaces.large, Spaces.none, Spaces.large, Spaces.large),
           children: [
-            if (widget.isFromSeed) ...[
-              Text(loc.seed, style: context.bodyLarge),
-              const SizedBox(height: Spaces.small),
-              Container(
-                constraints: const BoxConstraints(maxHeight: 150),
-                child: FormBuilderTextField(
-                  name: 'seed',
-                  focusNode: _focusNodeSeed,
-                  style: context.bodyLarge,
-                  maxLines: null,
-                  minLines: 5,
-                  autocorrect: false,
-                  keyboardType: TextInputType.multiline,
-                  decoration: context.textInputDecoration.copyWith(
-                    labelText: loc.paste_your_seed,
-                    alignLabelWithHint: true,
-                  ),
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(),
-                    FormBuilderValidators.minWordsCount(
-                      24,
-                      errorText: '${loc.seed_error_not_enough_words} (⩾24)',
-                    ),
-                    FormBuilderValidators.maxWordsCount(
-                      25,
-                      errorText: '${loc.seed_error_too_many_words} (⩽25)',
-                    ),
-                  ]),
-                ),
-              ),
-              const SizedBox(height: Spaces.large),
-            ],
+            const SizedBox(height: Spaces.large),
+            Text(
+              message,
+              style: context.titleSmall
+                  ?.copyWith(color: context.moreColors.mutedColor),
+            ),
+            const SizedBox(height: Spaces.extraLarge),
+            recoverWidget,
             Text(loc.wallet_name, style: context.bodyLarge),
             const SizedBox(height: Spaces.small),
             FormBuilderTextField(
@@ -155,7 +233,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                 validator: FormBuilderValidators.required(),
               ),
             ),
-            const SizedBox(height: Spaces.large),
+            const SizedBox(height: Spaces.extraLarge),
             Row(
               children: [
                 if (context.isWideScreen) const Spacer(),
@@ -167,9 +245,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                     },
                     icon: const Icon(Icons.wallet),
                     label: Text(
-                      widget.isFromSeed
-                          ? loc.recover_button
-                          : loc.create_button,
+                      buttonLabel,
                       style: context.titleMedium!
                           .copyWith(color: context.colors.onPrimary),
                     ),

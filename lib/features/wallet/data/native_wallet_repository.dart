@@ -25,7 +25,7 @@ class NativeWalletRepository {
     return NativeWalletRepository._internal(xelisWallet);
   }
 
-  static Future<NativeWalletRepository> recover(
+  static Future<NativeWalletRepository> recoverFromSeed(
       String walletPath, String pwd, Network network,
       {required String seed, String? precomputeTablesPath}) async {
     final xelisWallet = await createXelisWallet(
@@ -35,6 +35,19 @@ class NativeWalletRepository {
         network: network,
         precomputedTablesPath: precomputeTablesPath);
     talker.info('XELIS Wallet recovered from seed: $walletPath');
+    return NativeWalletRepository._internal(xelisWallet);
+  }
+
+  static Future<NativeWalletRepository> recoverFromPrivateKey(
+      String walletPath, String pwd, Network network,
+      {required String privateKey, String? precomputeTablesPath}) async {
+    final xelisWallet = await createXelisWallet(
+        name: walletPath,
+        password: pwd,
+        privateKey: privateKey,
+        network: network,
+        precomputedTablesPath: precomputeTablesPath);
+    talker.info('XELIS Wallet recovered from private key: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }
 

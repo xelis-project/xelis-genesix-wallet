@@ -27,6 +27,7 @@ class Authentication extends _$Authentication {
     String name,
     String password, [
     String? seed,
+    String? privateKey,
   ]) async {
     final precomputedTablesPath = await _getPrecomputedTablesPath();
     final settings = ref.read(settingsProvider);
@@ -48,9 +49,13 @@ class Authentication extends _$Authentication {
       // remove prefix for rust call because it's already appended
       final dbName = walletPath.replaceFirst(localStorageDBPrefix, "");
       if (seed != null) {
-        walletRepository = await NativeWalletRepository.recover(
+        walletRepository = await NativeWalletRepository.recoverFromSeed(
             dbName, password, settings.network,
             seed: seed, precomputeTablesPath: precomputedTablesPath);
+      } else if (privateKey != null) {
+        walletRepository = await NativeWalletRepository.recoverFromPrivateKey(
+            dbName, password, settings.network,
+            privateKey: privateKey);
       } else {
         walletRepository = await NativeWalletRepository.create(
             dbName, password, settings.network,

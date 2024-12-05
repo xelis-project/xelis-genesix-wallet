@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:genesix/features/authentication/domain/create_wallet_type_enum.dart';
 import 'package:genesix/features/authentication/presentation/components/seed_content_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/burn_screen.dart';
 import 'package:genesix/features/logger/logger.dart';
@@ -34,14 +35,15 @@ class OpenWalletRoute extends GoRouteData {
   }
 }
 
-@TypedGoRoute<CreateWalletRoute>(name: 'create_wallet', path: '/create_wallet')
-class CreateWalletRoute extends GoRouteData {
-  const CreateWalletRoute();
+@TypedGoRoute<CreateNewWalletRoute>(
+    name: 'create_new_wallet', path: '/create_new_wallet')
+class CreateNewWalletRoute extends GoRouteData {
+  const CreateNewWalletRoute();
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
-      const CreateWalletScreen(),
+      const CreateWalletScreen(type: CreateWalletType.newWallet),
       state.pageKey,
       state.fullPath,
       state.extra,
@@ -50,15 +52,33 @@ class CreateWalletRoute extends GoRouteData {
   }
 }
 
-@TypedGoRoute<RecoverWalletRoute>(
-    name: 'recover_wallet', path: '/recover_wallet')
-class RecoverWalletRoute extends GoRouteData {
-  const RecoverWalletRoute();
+@TypedGoRoute<RecoverWalletFromSeedRoute>(
+    name: 'recover_wallet_from_seed', path: '/recover_wallet_from_seed')
+class RecoverWalletFromSeedRoute extends GoRouteData {
+  const RecoverWalletFromSeedRoute();
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
-      const CreateWalletScreen(isFromSeed: true),
+      const CreateWalletScreen(type: CreateWalletType.fromSeed),
+      state.pageKey,
+      state.fullPath,
+      state.extra,
+      AppDurations.animFast,
+    );
+  }
+}
+
+@TypedGoRoute<RecoverWalletFromPrivateKeyRoute>(
+    name: 'recover_wallet_from_private_key',
+    path: '/recover_wallet_from_private_key')
+class RecoverWalletFromPrivateKeyRoute extends GoRouteData {
+  const RecoverWalletFromPrivateKeyRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      const CreateWalletScreen(type: CreateWalletType.fromPrivateKey),
       state.pageKey,
       state.fullPath,
       state.extra,

@@ -10,8 +10,9 @@ enum AuthAppScreen {
 
 enum AppScreen {
   openWallet,
-  createWallet,
-  recoverWallet,
+  createNewWallet,
+  recoverWalletFromSeed,
+  recoverWalletFromPrivateKey,
   settings,
   logger,
 }
@@ -19,10 +20,12 @@ enum AppScreen {
 extension AppScreenExtension on AppScreen {
   String get toPath {
     switch (this) {
-      case AppScreen.createWallet:
-        return '/create_wallet';
-      case AppScreen.recoverWallet:
-        return '/recover_wallet';
+      case AppScreen.createNewWallet:
+        return '/create_new_wallet';
+      case AppScreen.recoverWalletFromSeed:
+        return '/recover_wallet_from_seed';
+      case AppScreen.recoverWalletFromPrivateKey:
+        return '/recover_wallet_from_private_key';
       case AppScreen.openWallet:
         return '/open_wallet';
       case AppScreen.settings:

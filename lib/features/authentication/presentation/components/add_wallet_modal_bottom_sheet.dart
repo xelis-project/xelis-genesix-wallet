@@ -39,7 +39,7 @@ class _AddWalletModalBottomSheetMenuState
           )),
           onTap: () {
             context.pop();
-            context.push(AppScreen.createWallet.toPath);
+            context.push(AppScreen.createNewWallet.toPath);
           },
         ),
         ListTile(
@@ -51,7 +51,19 @@ class _AddWalletModalBottomSheetMenuState
           )),
           onTap: () {
             context.pop();
-            context.push(AppScreen.recoverWallet.toPath);
+            context.push(AppScreen.recoverWalletFromSeed.toPath);
+          },
+        ),
+        ListTile(
+          title: Center(
+              child: Text(
+            loc.recover_from_private_key,
+            style: context.titleLarge,
+            textAlign: TextAlign.center,
+          )),
+          onTap: () {
+            context.pop();
+            context.push(AppScreen.recoverWalletFromPrivateKey.toPath);
           },
         ),
         if (isDesktopDevice)
