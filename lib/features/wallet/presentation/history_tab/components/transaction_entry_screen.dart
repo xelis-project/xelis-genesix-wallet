@@ -102,7 +102,7 @@ class _TransactionEntryScreenState
 
     return CustomScaffold(
       backgroundColor: Colors.transparent,
-      appBar: GenericAppBar(title: loc.transaction_entry),
+      appBar: GenericAppBar(title: loc.transaction),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
             Spaces.large, 0, Spaces.large, Spaces.large),
@@ -170,7 +170,7 @@ class _TransactionEntryScreenState
                 const SizedBox(height: Spaces.extraSmall),
                 SelectableText(
                   // hmm coinbase could return other asset than XELIS
-                  '+${formatXelis(coinbase!.reward)} ${AppResources.xelisAsset.ticker}',
+                  '+${formatXelis(coinbase!.reward)}',
                   style: context.bodyLarge,
                 ),
               ],
@@ -184,7 +184,7 @@ class _TransactionEntryScreenState
                     ?.copyWith(color: context.moreColors.mutedColor)),
             const SizedBox(height: Spaces.extraSmall),
             SelectableText(
-              '${formatXelis(burn!.fee)} ${AppResources.xelisAsset.ticker}',
+              formatXelis(burn!.fee),
               style: context.bodyLarge,
             ),
             Column(
@@ -196,7 +196,7 @@ class _TransactionEntryScreenState
                         ?.copyWith(color: context.moreColors.mutedColor)),
                 const SizedBox(height: Spaces.extraSmall),
                 SelectableText(
-                  '-${formatXelis(burn!.amount)} ${AppResources.xelisAsset.ticker}',
+                  '-${formatXelis(burn!.amount)}',
                   style: context.bodyLarge,
                 ),
               ],
@@ -211,7 +211,7 @@ class _TransactionEntryScreenState
                     ?.copyWith(color: context.moreColors.mutedColor)),
             const SizedBox(height: Spaces.extraSmall),
             SelectableText(
-              '${formatXelis(outgoing!.fee)} ${AppResources.xelisAsset.ticker}',
+              formatXelis(outgoing!.fee),
               style: context.bodyLarge,
             ),
             Column(
@@ -286,15 +286,12 @@ class _TransactionEntryScreenState
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(loc.amount,
-                                            /* transfer.asset == xelisAsset
-                                          ? loc.amount.capitalize
-                                          : '${loc.amount.capitalize} (${loc.atomic_units})',*/
                                             style: context.labelLarge?.copyWith(
                                                 color: context
                                                     .moreColors.mutedColor)),
                                         SelectableText(transfer.asset ==
                                                 sdk.xelisAsset
-                                            ? '-${formatXelis(transfer.amount)} ${AppResources.xelisAsset.ticker}'
+                                            ? '-${formatXelis(transfer.amount)}'
                                             : '${transfer.amount}'),
                                       ],
                                     ),
@@ -392,15 +389,12 @@ class _TransactionEntryScreenState
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(loc.amount,
-                                        /*transfer.asset == xelisAsset
-                                        ? loc.amount.capitalize
-                                        : '${loc.amount.capitalize} (${loc.atomic_units})',*/
                                         style: context.labelMedium?.copyWith(
                                             color:
                                                 context.moreColors.mutedColor)),
                                     SelectableText(transfer.asset ==
                                             sdk.xelisAsset
-                                        ? '+${formatXelis(transfer.amount)} ${AppResources.xelisAsset.ticker}'
+                                        ? '+${formatXelis(transfer.amount)}'
                                         : '${transfer.amount}'),
                                   ],
                                 ),

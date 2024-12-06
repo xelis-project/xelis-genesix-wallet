@@ -10,14 +10,22 @@ import 'package:path_provider/path_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter/foundation.dart';
-import 'package:intl/intl.dart' show toBeginningOfSentenceCase;
+import 'package:intl/intl.dart' show NumberFormat, toBeginningOfSentenceCase;
 
-String formatCoin(int value, int decimals) {
-  return (value / pow(10, decimals)).toStringAsFixed(decimals);
+String formatCoin(int value, int decimals, String ticker) {
+  final formatter = NumberFormat.currency(
+      locale: 'fr_FR', decimalDigits: decimals, symbol: ticker);
+  final xelisValue = value / pow(10, decimals);
+  return formatter.format(xelisValue);
 }
 
 String formatXelis(int value) {
-  return formatCoin(value, AppResources.xelisDecimals);
+  final formatter = NumberFormat.currency(
+      locale: 'fr_FR',
+      decimalDigits: AppResources.xelisDecimals,
+      symbol: AppResources.xelisAsset.ticker);
+  final xelisValue = value / pow(10, AppResources.xelisDecimals);
+  return formatter.format(xelisValue);
 }
 
 Address getAddress({required String rawAddress}) {

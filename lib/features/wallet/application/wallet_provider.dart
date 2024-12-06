@@ -236,7 +236,7 @@ class WalletState extends _$WalletState {
                 final amount = await state.nativeWalletRepository!
                     .formatCoin(atomicAmount, assetHash);
                 final asset = assetHash == sdk.xelisAsset
-                    ? 'XELIS'
+                    ? AppResources.xelisAsset.name
                     : truncateText(assetHash);
                 message =
                     '${loc.new_incoming_transaction.capitalize()}.\n${loc.asset}: $asset\n${loc.amount}: +$amount';
@@ -252,7 +252,7 @@ class WalletState extends _$WalletState {
               final amount = await state.nativeWalletRepository!
                   .formatCoin(txType.reward, sdk.xelisAsset);
               ref.read(snackBarMessengerProvider.notifier).showInfo(
-                  '${loc.new_mining_reward.capitalize()}:\n+$amount XEL');
+                  '${loc.new_mining_reward.capitalize()}:\n+$amount ${AppResources.xelisAsset.ticker}');
 
             case sdk.BurnEntry():
               final amount = await state.nativeWalletRepository!

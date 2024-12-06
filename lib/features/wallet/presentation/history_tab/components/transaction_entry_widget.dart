@@ -42,10 +42,10 @@ class _TransactionEntryWidgetState
 
     switch (entryType) {
       case CoinbaseEntry():
-        displayAmount = '+${formatXelis(entryType.reward)} XEL';
+        displayAmount = '+${formatXelis(entryType.reward)}';
       case BurnEntry():
         if (entryType.asset == xelisAsset) {
-          displayAmount = '-${formatXelis(entryType.amount)} XEL';
+          displayAmount = '-${formatXelis(entryType.amount)}';
         } else {
           // TODO: check asset decimal
           displayAmount = entryType.amount.toString();
@@ -54,7 +54,7 @@ class _TransactionEntryWidgetState
         if (entryType.transfers.length == 1) {
           var transfer = entryType.transfers[0];
           if (transfer.asset == xelisAsset) {
-            displayAmount = '+${formatXelis(transfer.amount)} XEL';
+            displayAmount = '+${formatXelis(transfer.amount)}';
           } else {
             // TODO: check asset decimal
             displayAmount = '+${transfer.amount.toString()}';
@@ -66,7 +66,7 @@ class _TransactionEntryWidgetState
         if (entryType.transfers.length == 1) {
           var transfer = entryType.transfers[0];
           if (transfer.asset == xelisAsset) {
-            displayAmount = '-${formatXelis(transfer.amount)} XEL';
+            displayAmount = '-${formatXelis(transfer.amount)}';
           } else {
             // TODO: check asset decimal
             displayAmount = '-${transfer.amount.toString()}';
@@ -104,10 +104,6 @@ class _TransactionEntryWidgetState
               children: [
                 Text(
                   loc.amount,
-                  /*_transferEntry == null ||
-                            _transferEntry?.asset == xelisAsset
-                        ? loc.amount.capitalize
-                        : '${loc.amount.capitalize} (${loc.atomic_units})',*/
                   style: context.labelMedium
                       ?.copyWith(color: context.moreColors.mutedColor),
                 ),
@@ -124,7 +120,6 @@ class _TransactionEntryWidgetState
                 },
                 icon: const Icon(
                   Icons.info_outline_rounded,
-                  //size: 18,
                 )),
           ],
         ),

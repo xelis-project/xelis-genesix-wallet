@@ -344,7 +344,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
           _isFeeEstimated = estimatedFee > 0;
           final multiplier =
               _transferFormKey.currentState?.fields['fee']?.value as double;
-          _estimatedFee = (estimatedFee * multiplier).toStringAsFixed(8);
+          _estimatedFee = (estimatedFee * multiplier)
+              .toStringAsFixed(AppResources.xelisDecimals);
         });
       });
     } else {
