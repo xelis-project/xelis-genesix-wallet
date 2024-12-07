@@ -215,5 +215,6 @@
   "no_balance_to_transfer": "Baki göndermek için yeterli paranız yok. Başka bir varlık seçin.",
   "no_balance_to_burn": "Baki yakmak için yeterli paranız yok. Başka bir varlık seçin.",
   "timestamp": "Zaman damgası",
-  "not_available": "Kullanılabilir değil"
+  "not_available": "Kullanılabilir değil",
+  "mempool": "İşlem havuz"
 }

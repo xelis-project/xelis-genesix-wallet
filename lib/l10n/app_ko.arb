@@ -215,5 +215,6 @@
   "no_balance_to_transfer": "당신은 이전할 잔액이 없습니다. 다른 자산을 선택하십시오.",
   "no_balance_to_burn": "당신은 태워낼 자산이 없습니다. 다른 자산을 선택하십시오.",
   "timestamp": "시간표시기",
-  "not_available": "사용할 수 없습니다"
+  "not_available": "사용할 수 없습니다",
+  "mempool": "트랜잭션 풀"
 }

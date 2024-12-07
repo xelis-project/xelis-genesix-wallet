@@ -215,5 +215,6 @@
   "no_balance_to_transfer": "Keine Guthaben zum Überweisen. Bitte wählen Sie einen anderen Aktiva.",
   "no_balance_to_burn": "Keine Guthaben zum Verbrennen. Bitte wählen Sie einen anderen Aktiva.",
   "timestamp": "Zeitstempel",
-  "not_available": "Nicht verfügbar"
+  "not_available": "Nicht verfügbar",
+  "mempool": "Transaktionspool"
 }

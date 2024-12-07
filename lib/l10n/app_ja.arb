@@ -215,5 +215,6 @@
   "no_balance_to_transfer": "資産を送信するバランスがありません。別の資産を選択してください。",
   "no_balance_to_burn": "資産を焼き切る残高がありません。別の資産を選択してください。",
   "timestamp": "タイムスタンプ",
-  "not_available": "利用できません"
+  "not_available": "利用できません",
+  "mempool": "거래 수풀"
 }

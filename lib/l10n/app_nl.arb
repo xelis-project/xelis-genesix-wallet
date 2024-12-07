@@ -215,5 +215,6 @@
   "no_balance_to_transfer": "Geen saldo om over te maken. Kies een andere activa.",
   "no_balance_to_burn": "Geen saldo om te verbranden. Kies een andere activa.",
   "timestamp": "Tijdstempel",
-  "not_available": "Niet beschikbaar"
+  "not_available": "Niet beschikbaar",
+  "mempool": "Transactiepot"
 }

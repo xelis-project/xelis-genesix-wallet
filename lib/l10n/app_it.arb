@@ -215,5 +215,6 @@
   "no_balance_to_transfer": "Non hai saldo da trasferire. Seleziona un altro asset.",
   "no_balance_to_burn": "Non hai saldo da bruciare. Seleziona un altro asset.",
   "timestamp": "Data Ora",
-  "not_available": "Non disponibile"
+  "not_available": "Non disponibile",
+  "mempool": "Pool di transazioni"
 }

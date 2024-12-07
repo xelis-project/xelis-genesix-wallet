@@ -215,5 +215,6 @@
   "no_balance_to_transfer": "Nie masz salda do przekazania. Wybierz inny aktyw.",
   "no_balance_to_burn": "Nie masz salda do spalenia. Wybierz inny aktyw.",
   "timestamp": "Wpis czasowy",
-  "not_available": "Nie jest dostępny"
+  "not_available": "Nie jest dostępny",
+  "mempool": "Pule transakcji"
 }

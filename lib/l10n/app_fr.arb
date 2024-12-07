@@ -215,5 +215,6 @@
   "no_balance_to_transfer": "Vous n'avez pas de solde à transférer. Veuillez sélectionner un autre actif.",
   "no_balance_to_burn": "Vous n'avez pas de solde à brûler. Veuillez sélectionner un autre actif.",
   "timestamp": "Horodatage",
-  "not_available": "Non disponible"
+  "not_available": "Non disponible",
+  "mempool": "Mempool"
 }

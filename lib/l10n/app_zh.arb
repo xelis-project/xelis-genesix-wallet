@@ -215,5 +215,6 @@
   "no_balance_to_transfer": "没有余额可转移。请选择其他资产。",
   "no_balance_to_burn": "没有余额可烧。请选择其他资产。",
   "timestamp": "时间戳",
-  "not_available": "不可用"
+  "not_available": "不可用",
+  "mempool": "内存池"
 }

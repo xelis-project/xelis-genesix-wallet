@@ -215,5 +215,6 @@
   "no_balance_to_transfer": "You have no balance to transfer. Please select another asset.",
   "no_balance_to_burn": "You have no balance to burn. Please select another asset.",
   "timestamp": "Timestamp",
-  "not_available": "Not available"
+  "not_available": "Not available",
+  "mempool": "Mempool"
 }

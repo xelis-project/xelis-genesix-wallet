@@ -81,7 +81,7 @@ class NodeInfoWidget extends ConsumerWidget {
         ),
         const SizedBox(height: Spaces.medium),
         Text(
-          'Mempool',
+          loc.mempool,
           style: context.labelLarge?.copyWith(color: context.colors.primary),
         ),
         SelectableText(

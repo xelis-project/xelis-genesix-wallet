@@ -215,5 +215,6 @@
   "no_balance_to_transfer": "Нямате баланс за превод. Моля, изберете друг актив",
   "no_balance_to_burn": "Нямате баланс за изгаряне. Моля, изберете друг актив.",
   "timestamp": "Marcador temporal",
-  "not_available": "Няма"
+  "not_available": "Няма",
+  "mempool": "Пул транзакции"
 }

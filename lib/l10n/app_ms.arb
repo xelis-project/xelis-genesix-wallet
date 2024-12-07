@@ -215,5 +215,6 @@
   "no_balance_to_transfer": "Tiada baki untuk dipindahkan. Sila pilih aset yang lain.",
   "no_balance_to_burn": "Tiada baki untuk dibakar. Sila pilih aset yang lain.",
   "timestamp": "Captur masa",
-  "not_available": "Tidak tersedia"
+  "not_available": "Tidak tersedia",
+  "mempool": "Mempool"
 }

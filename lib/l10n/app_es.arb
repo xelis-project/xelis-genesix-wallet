@@ -215,5 +215,6 @@
   "no_balance_to_transfer": "No tienes saldo para transferir. Por favor, selecciona otro activo.",
   "no_balance_to_burn": "No tienes saldo para quemar. Por favor, selecciona otro activo.",
   "timestamp": "Marca de tiempo",
-  "not_available": "No disponible"
+  "not_available": "No disponible",
+  "mempool": "Memoria de transacciones"
 }
