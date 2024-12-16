@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/logo.dart';
 import 'package:genesix/rust_bridge/api/network.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
@@ -105,7 +106,7 @@ class _TransactionEntryScreenState
       appBar: GenericAppBar(title: loc.transaction),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
-            Spaces.large, 0, Spaces.large, Spaces.large),
+            Spaces.large, Spaces.none, Spaces.large, Spaces.large),
         children: [
           Text(loc.type,
               style: context.labelLarge
@@ -239,11 +240,12 @@ class _TransactionEntryScreenState
                       itemCount: transfers.length,
                       itemBuilder: (BuildContext context, int index) {
                         final transfer = transfers[index];
+                        final isXelis = transfer.asset == sdk.xelisAsset;
+                        final xelisPath = AppResources.xelisAsset.imagePath!;
 
                         return Card(
                           child: Padding(
-                            padding: const EdgeInsets.fromLTRB(Spaces.medium,
-                                Spaces.medium, Spaces.medium, Spaces.medium),
+                            padding: const EdgeInsets.all(Spaces.medium),
                             child: Column(
                               children: [
                                 Row(
@@ -274,10 +276,20 @@ class _TransactionEntryScreenState
                                             style: context.labelLarge?.copyWith(
                                                 color: context
                                                     .moreColors.mutedColor)),
-                                        SelectableText(
-                                            transfer.asset == sdk.xelisAsset
-                                                ? AppResources.xelisAsset.name
-                                                : transfer.asset),
+                                        isXelis
+                                            ? Row(
+                                                children: [
+                                                  Logo(
+                                                    imagePath: xelisPath,
+                                                  ),
+                                                  const SizedBox(
+                                                      width: Spaces.small),
+                                                  Text(AppResources
+                                                      .xelisAsset.name),
+                                                ],
+                                              )
+                                            : Text(
+                                                truncateText(transfer.asset)),
                                       ],
                                     ),
                                     const SizedBox(width: Spaces.medium),
@@ -289,8 +301,7 @@ class _TransactionEntryScreenState
                                             style: context.labelLarge?.copyWith(
                                                 color: context
                                                     .moreColors.mutedColor)),
-                                        SelectableText(transfer.asset ==
-                                                sdk.xelisAsset
+                                        SelectableText(isXelis
                                             ? '-${formatXelis(transfer.amount)}'
                                             : '${transfer.amount}'),
                                       ],
@@ -363,6 +374,8 @@ class _TransactionEntryScreenState
                       itemCount: transfers.length,
                       itemBuilder: (BuildContext context, int index) {
                         final transfer = transfers[index];
+                        final isXelis = transfer.asset == sdk.xelisAsset;
+                        final xelisPath = AppResources.xelisAsset.imagePath!;
 
                         return Card(
                           child: Padding(
@@ -374,28 +387,43 @@ class _TransactionEntryScreenState
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(loc.asset,
-                                        style: context.labelMedium?.copyWith(
-                                            color:
-                                                context.moreColors.mutedColor)),
-                                    SelectableText(
-                                        transfer.asset == sdk.xelisAsset
-                                            ? AppResources.xelisAsset.name
-                                            : transfer.asset),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          bottom: Spaces.extraSmall),
+                                      child: Text(loc.asset,
+                                          style: context.labelMedium?.copyWith(
+                                              color: context
+                                                  .moreColors.mutedColor)),
+                                    ),
+                                    isXelis
+                                        ? Row(
+                                            children: [
+                                              Logo(
+                                                imagePath: xelisPath,
+                                              ),
+                                              const SizedBox(
+                                                  width: Spaces.small),
+                                              Text(
+                                                  AppResources.xelisAsset.name),
+                                            ],
+                                          )
+                                        : Text(truncateText(transfer.asset)),
                                   ],
                                 ),
-                                const SizedBox(width: Spaces.medium),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(loc.amount,
-                                        style: context.labelMedium?.copyWith(
-                                            color:
-                                                context.moreColors.mutedColor)),
-                                    SelectableText(
-                                        transfer.asset == sdk.xelisAsset
-                                            ? '+${formatXelis(transfer.amount)}'
-                                            : '${transfer.amount}'),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          bottom: Spaces.extraSmall),
+                                      child: Text(loc.amount,
+                                          style: context.labelMedium?.copyWith(
+                                              color: context
+                                                  .moreColors.mutedColor)),
+                                    ),
+                                    SelectableText(isXelis
+                                        ? '+${formatXelis(transfer.amount)}'
+                                        : '${transfer.amount}'),
                                   ],
                                 ),
                                 if (transfer.extraData != null &&

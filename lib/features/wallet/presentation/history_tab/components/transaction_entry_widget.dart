@@ -115,9 +115,8 @@ class _TransactionEntryWidgetState
               ],
             ),
             IconButton(
-                onPressed: () {
-                  _showTransactionEntry(context, widget.transactionEntry);
-                },
+                onPressed: () =>
+                    _showTransactionEntry(context, widget.transactionEntry),
                 icon: const Icon(
                   Icons.info_outline_rounded,
                 )),
