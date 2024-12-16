@@ -175,7 +175,6 @@
   "review_burn": "Vérifier & Brûler",
   "logger": "Journal",
   "advanced_parameters": "Paramètres avancés",
-  "activate_logger": "Activer le journal",
   "max": "max",
   "search": "Chercher",
   "actions": "Actions",
@@ -228,5 +227,7 @@
   "seed_error_searchbar_no_word_found": "Pas de mots trouvés",
   "seed_searchbar_label": "Recherchez un mot à ajouter à votre phrase de récupération",
   "your_recovery_phrase": "Votre phrase de récupération",
-  "seed_language_selector_title": "Langue de la phrase de récupération"
+  "seed_language_selector_title": "Langue de la phrase de récupération",
+  "open_button": "Ouvrir",
+  "debug_logger": "Journal de débogage"
 }

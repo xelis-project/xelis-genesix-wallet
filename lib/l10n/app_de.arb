@@ -175,7 +175,6 @@
   "review_burn": "Überprüfen und Verbrennen",
   "logger": "Logger",
   "advanced_parameters": "Fortgeschrittene Parameter",
-  "activate_logger": "Logger aktivieren",
   "max": "max",
   "search": "Suchen",
   "actions": "Aktionen",
@@ -228,5 +227,7 @@
   "seed_error_searchbar_no_word_found": "Keine Wörter gefunden",
   "seed_searchbar_label": "Suche nach einem Wort, das Sie Ihrer Wiederherstellungsphrase hinzufügen möchten",
   "your_recovery_phrase": "Ihre Wiederherstellungsphrase",
-  "seed_language_selector_title": "Sprache der Wiederherstellungsphrase"
+  "seed_language_selector_title": "Sprache der Wiederherstellungsphrase",
+  "open_button": "Öffnen",
+  "debug_logger": "Debug-Logger"
 }

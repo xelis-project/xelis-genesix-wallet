@@ -175,7 +175,6 @@
   "review_burn": "Ревю и Пожар",
   "logger": "Логгер",
   "advanced_parameters": "Напреднащи параметри",
-  "activate_logger": "Активира логгер",
   "max": "макс",
   "search": "Търси",
   "actions": "Действия",
@@ -228,5 +227,7 @@
   "seed_error_searchbar_no_word_found": "Няма намерени думи",
   "seed_searchbar_label": "Търси дума за добавяне към вашата възстановителна фраза",
   "your_recovery_phrase": "Вашата възстановителна фраза",
-  "seed_language_selector_title": "Език на възстановителната фраза"
+  "seed_language_selector_title": "Език на възстановителната фраза",
+  "open_button": "Отвори",
+  "debug_logger": "Дебъг логер"
 }

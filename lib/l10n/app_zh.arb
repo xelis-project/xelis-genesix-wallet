@@ -175,7 +175,6 @@
   "review_burn": "审核与烧毁",
   "logger": "记录器",
   "advanced_parameters": "高级参数",
-  "activate_logger": "激活日志记录器",
   "max": "max",
   "search": "搜索",
   "actions": "动作",
@@ -228,5 +227,7 @@
   "seed_error_searchbar_no_word_found": "没有找到词语",
   "seed_searchbar_label": "查找要添加到您的恢复短语中的词",
   "your_recovery_phrase": "您的恢复短语",
-  "seed_language_selector_title": "语言恢复短语的"
+  "seed_language_selector_title": "语言恢复短语的",
+  "open_button": "打开",
+  "debug_logger": "调试记录器"
 }

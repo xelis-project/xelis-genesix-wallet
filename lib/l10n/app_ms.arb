@@ -175,7 +175,6 @@
   "review_burn": "Kajian dan Letupan",
   "logger": "Pemegang Rekod",
   "advanced_parameters": "Parameter maju",
-  "activate_logger": "Aktifkan pencerita",
   "max": "maks",
   "search": "Cari",
   "actions": "Tindakan",
@@ -228,5 +227,7 @@
   "seed_error_searchbar_no_word_found": "Tidak ada kata yang ditemukan",
   "seed_searchbar_label": "Cari kata untuk ditambahkan ke frasa pemulihan Anda",
   "your_recovery_phrase": "Frasa pemulihan Anda",
-  "seed_language_selector_title": "Bahasa frasa pemulihan"
+  "seed_language_selector_title": "Bahasa frasa pemulihan",
+  "open_button": "Buka",
+  "debug_logger": "Log pengujian"
 }

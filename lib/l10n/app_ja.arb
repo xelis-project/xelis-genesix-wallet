@@ -175,7 +175,6 @@
   "review_burn": "検査 & 焼却",
   "logger": "ロガー",
   "advanced_parameters": "高度なパラメーター",
-  "activate_logger": "ロガーをアクティブ化する",
   "max": "max",
   "search": "検索",
   "actions": "アクション",
@@ -228,5 +227,7 @@
   "seed_error_searchbar_no_word_found": "단어가 없습니다",
   "seed_searchbar_label": "検索してリカバーフレーズに追加する単語",
   "your_recovery_phrase": "あなたのリカバーフレーズ",
-  "seed_language_selector_title": "リカバーフレーズの言語"
+  "seed_language_selector_title": "リカバーフレーズの言語",
+  "open_button": "開く",
+  "debug_logger": "デバッグロガー"
 }

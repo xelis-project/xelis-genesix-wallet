@@ -175,7 +175,6 @@
   "review_burn": "Перегляд і Пожежа",
   "logger": "Логгер",
   "advanced_parameters": "Розширені параметри",
-  "activate_logger": "Активувати логгер",
   "max": "макс",
   "search": "Шукати",
   "actions": "Дії",
@@ -228,5 +227,7 @@
   "seed_error_searchbar_no_word_found": "Не знайдено слів",
   "seed_searchbar_label": "Пошукати слово, щоб додати до своєї фрази відновлення",
   "your_recovery_phrase": "Ваша фраза відновлення",
-  "seed_language_selector_title": "Мова фрази відновлення"
+  "seed_language_selector_title": "Мова фрази відновлення",
+  "open_button": "Відкрити",
+  "debug_logger": "Дебаг лоґер"
 }

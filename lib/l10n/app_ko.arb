@@ -175,7 +175,6 @@
   "review_burn": "검토&소화",
   "logger": "로거",
   "advanced_parameters": "고급 매개 변수",
-  "activate_logger": "로거 활성화 하기",
   "max": "맥스",
   "search": "검색",
   "actions": "동작",
@@ -228,5 +227,7 @@
   "seed_error_searchbar_no_word_found": "단어가 없습니다",
   "seed_searchbar_label": "단어를 검색하여 복구 문장에 추가하십시오",
   "your_recovery_phrase": "복구 문장",
-  "seed_language_selector_title": "복구 문장의 언어"
+  "seed_language_selector_title": "복구 문장의 언어",
+  "open_button": "열기",
+  "debug_logger": "디버그 로거"
 }

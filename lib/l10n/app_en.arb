@@ -175,7 +175,6 @@
   "review_burn": "Review & Burn",
   "logger": "Logger",
   "advanced_parameters": "Advanced parameters",
-  "activate_logger": "Activate logger",
   "max": "max",
   "search": "Search",
   "actions": "Actions",
@@ -228,5 +227,7 @@
   "seed_error_searchbar_no_word_found": "No words found",
   "seed_searchbar_label": "Search for a word to add to your recovery phrase",
   "your_recovery_phrase": "Your recovery phrase",
-  "seed_language_selector_title": "Language of the recovery phrase"
+  "seed_language_selector_title": "Language of the recovery phrase",
+  "open_button": "Open",
+  "debug_logger": "Debug logger"
 }

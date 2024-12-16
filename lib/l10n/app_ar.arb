@@ -175,7 +175,6 @@
   "review_burn": "التحليل والحرق",
   "logger": "سجل الأحداث",
   "advanced_parameters": "الإعدادات المتقدمة",
-  "activate_logger": "تفعيل السجل",
   "max": "الحد الأقصى",
   "search": "البحث",
   "actions": "الإجراءات",
@@ -228,5 +227,7 @@
   "seed_error_searchbar_no_word_found": "لم يتم العثور على كلمات",
   "seed_searchbar_label": "بحث عن كلمة لإضافتها إلى جملتك لاسترجاع",
   "your_recovery_phrase": "عبارة استردادك",
-  "seed_language_selector_title": "لغة عبارة استرداد"
+  "seed_language_selector_title": "لغة عبارة استرداد",
+  "open_button": "افتح",
+  "debug_logger": "مشغل تصحيح الأخطاء"
 }

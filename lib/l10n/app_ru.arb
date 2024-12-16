@@ -175,7 +175,6 @@
   "review_burn": "Ревью и Сжигание",
   "logger": "Логгер",
   "advanced_parameters": "Расширенные параметры",
-  "activate_logger": "Активировать логгер",
   "max": "макс",
   "search": "Поиск",
   "actions": "Действия",
@@ -228,5 +227,7 @@
   "seed_error_searchbar_no_word_found": "Не найдено слов",
   "seed_searchbar_label": "Поиск слова для добавления в фразу восстановления",
   "your_recovery_phrase": "Ваша фраза восстановления",
-  "seed_language_selector_title": "Язык фразы восстановления"
+  "seed_language_selector_title": "Язык фразы восстановления",
+  "open_button": "Открыть",
+  "debug_logger": "Детективный журнал"
 }

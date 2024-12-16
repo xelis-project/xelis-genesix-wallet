@@ -175,7 +175,6 @@
   "review_burn": "Revisión y Quemar",
   "logger": "Logger",
   "advanced_parameters": "Parámetros avanzados",
-  "activate_logger": "Activar el logger",
   "max": "max",
   "search": "Buscar",
   "actions": "Acciones",
@@ -228,5 +227,7 @@
   "seed_error_searchbar_no_word_found": "No palabras encontradas",
   "seed_searchbar_label": "Buscar una palabra para agregar a su frase de recuperación",
   "your_recovery_phrase": "Su frase de recuperación",
-  "seed_language_selector_title": "Idioma de la frase de recuperación"
+  "seed_language_selector_title": "Idioma de la frase de recuperación",
+  "open_button": "Abrir",
+  "debug_logger": "Registro de depuración"
 }

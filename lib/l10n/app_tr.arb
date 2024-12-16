@@ -175,7 +175,6 @@
   "review_burn": "İnceleme ve Yangın",
   "logger": "Kaydedici",
   "advanced_parameters": "Geliştirilmiş parametreler",
-  "activate_logger": "Loggeryi Etkinleştir",
   "max": "max",
   "search": "Ara",
   "actions": "Eylemler",
@@ -228,5 +227,7 @@
   "seed_error_searchbar_no_word_found": "Kelime bulunamadı",
   "seed_searchbar_label": "Araştırma için bir kelime ekleyin geri yükleme ifadesine",
   "your_recovery_phrase": "Geri yükleme cümleiniz",
-  "seed_language_selector_title": "Dil geri yükleme cümlesi"
+  "seed_language_selector_title": "Dil geri yükleme cümlesi",
+  "open_button": "Aç",
+  "debug_logger": "Hata ayıklama kaydı"
 }

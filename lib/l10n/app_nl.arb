@@ -175,7 +175,6 @@
   "review_burn": "Controleren en Verbranding",
   "logger": "Logger",
   "advanced_parameters": "Geavanceerde parameters",
-  "activate_logger": "Logger activeren",
   "max": "max",
   "search": "Zoeken",
   "actions": "Acties",
@@ -228,5 +227,7 @@
   "seed_error_searchbar_no_word_found": "Geen woorden gevonden",
   "seed_searchbar_label": "Zoek een woord om toe te voegen aan uw herstelzin",
   "your_recovery_phrase": "Uw herstelzin",
-  "seed_language_selector_title": "Taal van de herstelzin"
+  "seed_language_selector_title": "Taal van de herstelzin",
+  "open_button": "Openen",
+  "debug_logger": "Debuglogger"
 }
