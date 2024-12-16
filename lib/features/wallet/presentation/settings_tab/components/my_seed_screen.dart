@@ -185,7 +185,6 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                                         ),
                                       ),
                                     ),
-                                    // Spacer(),
                                     Expanded(
                                       flex: 2,
                                       child: FittedBox(

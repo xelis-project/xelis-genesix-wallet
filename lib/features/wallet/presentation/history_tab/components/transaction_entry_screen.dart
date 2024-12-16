@@ -392,10 +392,10 @@ class _TransactionEntryScreenState
                                         style: context.labelMedium?.copyWith(
                                             color:
                                                 context.moreColors.mutedColor)),
-                                    SelectableText(transfer.asset ==
-                                            sdk.xelisAsset
-                                        ? '+${formatXelis(transfer.amount)}'
-                                        : '${transfer.amount}'),
+                                    SelectableText(
+                                        transfer.asset == sdk.xelisAsset
+                                            ? '+${formatXelis(transfer.amount)}'
+                                            : '${transfer.amount}'),
                                   ],
                                 ),
                                 if (transfer.extraData != null &&

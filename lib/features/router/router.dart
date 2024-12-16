@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
@@ -16,7 +17,7 @@ final routerKey = GlobalKey<NavigatorState>(debugLabel: 'routerKey');
 GoRouter router(Ref ref) {
   final router = GoRouter(
     navigatorKey: routerKey,
-    observers: [TalkerRouteObserver(talker)],
+    observers: kDebugMode ? [TalkerRouteObserver(talker)] : null,
     initialLocation: const OpenWalletRoute().location,
     onException: (context, state, router) {
       // if exception like page not found just redirect to openWallet screen

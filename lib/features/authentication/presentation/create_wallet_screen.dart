@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/features/authentication/domain/create_wallet_type_enum.dart';
 import 'package:genesix/features/logger/logger.dart';
+import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
@@ -71,7 +72,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
     final message = switch (widget.type) {
       CreateWalletType.newWallet => loc.create_new_wallet_message,
       CreateWalletType.fromPrivateKey => loc.recover_from_private_key_message,
-      CreateWalletType.fromSeed => loc.recover_from_seed_message,
+      CreateWalletType.fromSeed => '',
     };
 
     final recoverWidget = switch (widget.type) {
@@ -128,43 +129,17 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              loc.seed,
+              loc.your_recovery_phrase,
               style: context.bodyLarge,
             ),
             const SizedBox(height: Spaces.small),
-            Container(
-              constraints: const BoxConstraints(maxHeight: 150),
-              child: FormBuilderTextField(
-                name: 'seed',
-                focusNode: _focusNodeSeed,
-                style: context.bodyLarge,
-                maxLines: null,
-                minLines: 5,
-                autocorrect: false,
-                keyboardType: TextInputType.multiline,
-                decoration: context.textInputDecoration.copyWith(
-                  labelText: loc.paste_your_seed,
-                  alignLabelWithHint: true,
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(Spaces.small),
+                child: SelectableText(
+                  (GoRouterState.of(context).extra! as List<String>).join(' '),
+                  style: context.titleMedium,
                 ),
-                onChanged: (value) {
-                  // workaround to reset the error message when the user modifies the field
-                  final hasError =
-                      _createFormKey.currentState?.fields['seed']?.hasError;
-                  if (hasError ?? false) {
-                    _createFormKey.currentState?.fields['seed']?.reset();
-                  }
-                },
-                validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(),
-                  FormBuilderValidators.minWordsCount(
-                    24,
-                    errorText: loc.seed_error_wrong_words_count,
-                  ),
-                  FormBuilderValidators.maxWordsCount(
-                    25,
-                    errorText: loc.seed_error_wrong_words_count,
-                  ),
-                ]),
               ),
             ),
             const SizedBox(height: Spaces.large),
@@ -178,8 +153,17 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
       CreateWalletType.fromSeed => loc.recover_button,
     };
 
+    final isFromSeed = widget.type == CreateWalletType.fromSeed;
+
     return CustomScaffold(
-      appBar: GenericAppBar(title: title),
+      appBar: isFromSeed
+          ? GenericAppBar(
+              title: title,
+              implyLeading: true,
+              onBack: () {
+                context.go(AppScreen.openWallet.toPath);
+              })
+          : GenericAppBar(title: title),
       body: FormBuilder(
         key: _createFormKey,
         onChanged: () => _createFormKey.currentState!.save(),
@@ -188,12 +172,14 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
           padding: const EdgeInsets.fromLTRB(
               Spaces.large, Spaces.none, Spaces.large, Spaces.large),
           children: [
-            const SizedBox(height: Spaces.large),
-            Text(
-              message,
-              style: context.titleSmall
-                  ?.copyWith(color: context.moreColors.mutedColor),
-            ),
+            if (!isFromSeed) ...[
+              const SizedBox(height: Spaces.large),
+              Text(
+                message,
+                style: context.titleSmall
+                    ?.copyWith(color: context.moreColors.mutedColor),
+              )
+            ],
             const SizedBox(height: Spaces.extraLarge),
             recoverWidget,
             Text(loc.wallet_name, style: context.bodyLarge),

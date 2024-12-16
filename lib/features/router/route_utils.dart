@@ -11,7 +11,8 @@ enum AuthAppScreen {
 enum AppScreen {
   openWallet,
   createNewWallet,
-  recoverWalletFromSeed,
+  recoverWalletFromSeed1,
+  recoverWalletFromSeed2,
   recoverWalletFromPrivateKey,
   settings,
   logger,
@@ -22,8 +23,10 @@ extension AppScreenExtension on AppScreen {
     switch (this) {
       case AppScreen.createNewWallet:
         return '/create_new_wallet';
-      case AppScreen.recoverWalletFromSeed:
-        return '/recover_wallet_from_seed';
+      case AppScreen.recoverWalletFromSeed1:
+        return '/recover_wallet_from_seed/1';
+      case AppScreen.recoverWalletFromSeed2:
+        return '/recover_wallet_from_seed/2';
       case AppScreen.recoverWalletFromPrivateKey:
         return '/recover_wallet_from_private_key';
       case AppScreen.openWallet:

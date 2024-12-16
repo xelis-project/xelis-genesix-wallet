@@ -202,7 +202,10 @@ impl XelisWallet {
     pub async fn get_asset_decimals(&self, asset: String) -> Result<u8> {
         let asset_hash = Hash::from_hex(&asset).context("Invalid asset")?;
         let storage = self.wallet.get_storage().read().await;
-        let asset = storage.get_asset(&asset_hash).await.context("Asset not found in storage")?;
+        let asset = storage
+            .get_asset(&asset_hash)
+            .await
+            .context("Asset not found in storage")?;
         Ok(asset.decimals)
     }
 
@@ -593,7 +596,10 @@ impl XelisWallet {
 
         let decimals = {
             let storage = self.wallet.get_storage().read().await;
-            let asset = storage.get_asset(&asset).await.context("Asset not found in storage")?;
+            let asset = storage
+                .get_asset(&asset)
+                .await
+                .context("Asset not found in storage")?;
             asset.decimals
         };
 

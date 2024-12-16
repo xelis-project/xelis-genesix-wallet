@@ -51,7 +51,7 @@ class _AddWalletModalBottomSheetMenuState
           )),
           onTap: () {
             context.pop();
-            context.push(AppScreen.recoverWalletFromSeed.toPath);
+            context.push(AppScreen.recoverWalletFromSeed1.toPath);
           },
         ),
         ListTile(
