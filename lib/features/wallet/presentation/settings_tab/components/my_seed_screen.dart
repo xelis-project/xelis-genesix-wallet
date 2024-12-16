@@ -104,8 +104,10 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                         name: 'languages_dropdown',
                         initialValue: MnemonicLanguage.english,
                         enableFeedback: true,
-                        dropdownColor: context.colors.surface.withOpacity(0.9),
-                        focusColor: context.colors.surface.withOpacity(0.9),
+                        dropdownColor:
+                            context.colors.surface.withValues(alpha: 0.9),
+                        focusColor:
+                            context.colors.surface.withValues(alpha: 0.9),
                         items: MnemonicLanguage.values
                             .map(
                               (e) => DropdownMenuItem(

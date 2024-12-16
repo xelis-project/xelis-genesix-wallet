@@ -173,13 +173,14 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                   ? Container(
                       padding: const EdgeInsets.all(Spaces.small),
                       decoration: BoxDecoration(
-                        color: context.colors.surface.withOpacity(.5),
+                        color: context.colors.surface.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: ReorderableListView(
                         proxyDecorator: (child, index, animation) {
                           return Material(
-                            color: context.colors.surface.withOpacity(.5),
+                            color:
+                                context.colors.surface.withValues(alpha: 0.5),
                             shape: const RoundedRectangleBorder(
                               borderRadius:
                                   BorderRadius.all(Radius.circular(10)),

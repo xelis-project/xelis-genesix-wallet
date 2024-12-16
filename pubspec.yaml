@@ -34,9 +34,9 @@ dependencies:
   pretty_qr_code: ^3.3.0
   flutter_native_splash: ^2.4.3
   window_manager: ^0.4.3
-  country_flags: ^3.0.0
-  package_info_plus: ^8.1.1
-  file_picker: ^8.1.4
+  country_flags: ^3.1.0
+  package_info_plus: ^8.1.2
+  file_picker: ^8.1.6
   icons_launcher: ^3.0.0
   url_launcher: ^6.3.1
   localstorage: ^5.0.0
@@ -46,7 +46,7 @@ dependencies:
   http: ^1.2.2
   transparent_image: ^2.0.1
   google_fonts: ^6.2.1
-  io: ^1.0.4
+  io: ^1.0.5
   web: ^1.1.0
   #  jovial_svg: ^1.1.20
   #  flutter_hooks: ^0.20.5
@@ -54,7 +54,7 @@ dependencies:
   #  flutter_animate: ^4.5.0
   #  workmanager: ^0.5.2
 
-  flutter_rust_bridge: 2.6.0
+  flutter_rust_bridge: 2.7.0
   rust_builder:
     path: rust_builder
   flutter_hashicon:

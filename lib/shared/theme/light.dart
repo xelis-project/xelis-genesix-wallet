@@ -17,7 +17,7 @@ ThemeData lightTheme() {
     if (states.contains(WidgetState.selected)) {
       return primaryColor;
     }
-    return textColor.withOpacity(0.6);
+    return textColor.withValues(alpha: 0.6);
   });
 
   final baseTheme = ThemeData(
@@ -32,7 +32,7 @@ ThemeData lightTheme() {
     // COLORS
     colorScheme: ColorScheme(
       brightness: Brightness.light,
-      primary: primaryColor.withOpacity(0.8),
+      primary: primaryColor.withValues(alpha: 0.8),
       onPrimary: Colors.black87,
       secondary: secondaryColor,
       onSecondary: Colors.white,
@@ -49,7 +49,7 @@ ThemeData lightTheme() {
         bgRadialColor2: const Color.fromARGB(178, 225, 225, 225),
         bgRadialColor3: const Color.fromARGB(130, 150, 150, 150),
         bgRadialEndColor: const Color.fromARGB(0, 255, 255, 255),
-        mutedColor: textColor.withOpacity(0.6),
+        mutedColor: textColor.withValues(alpha: 0.6),
       )
     ],
 
@@ -88,7 +88,7 @@ ThemeData lightTheme() {
     ),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: textColor,
-      selectionColor: textColor.withOpacity(0.1),
+      selectionColor: textColor.withValues(alpha: 0.1),
     ),
 
     // CARD
@@ -222,7 +222,7 @@ ThemeData lightTheme() {
 
     // DIALOG
     dialogTheme: DialogTheme(
-      backgroundColor: backgroundColor.withOpacity(0.9),
+      backgroundColor: backgroundColor.withValues(alpha: 0.9),
       surfaceTintColor: Colors.transparent,
       barrierColor: Colors.transparent,
       shape: RoundedRectangleBorder(
@@ -234,7 +234,7 @@ ThemeData lightTheme() {
     // SWITCH
     switchTheme: SwitchThemeData(
       thumbColor: switchStateProperty,
-      trackColor: WidgetStatePropertyAll(primaryColor.withOpacity(.2)),
+      trackColor: WidgetStatePropertyAll(primaryColor.withValues(alpha: 0.2)),
       trackOutlineColor: switchStateProperty,
     ),
 
@@ -246,7 +246,7 @@ ThemeData lightTheme() {
 
     // MODAL BOTTOM SHEET
     bottomSheetTheme: BottomSheetThemeData(
-      backgroundColor: backgroundColor.withOpacity(0.9),
+      backgroundColor: backgroundColor.withValues(alpha: 0.9),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),

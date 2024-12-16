@@ -70,10 +70,10 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.black,
-                      Colors.black.withOpacity(0.1),
+                      Colors.black.withValues(alpha: 0.1),
                       Colors.transparent,
                       Colors.transparent,
-                      Colors.black.withOpacity(0.5),
+                      Colors.black.withValues(alpha: 0.5),
                       Colors.black,
                     ],
                     stops: [0.0, 0.01, 0.1, 0.7, 0.95, 1.0],
@@ -154,8 +154,10 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
                         name: 'language',
                         initialValue: _mnemonicLanguage,
                         enableFeedback: true,
-                        dropdownColor: context.colors.surface.withOpacity(0.9),
-                        focusColor: context.colors.surface.withOpacity(0.9),
+                        dropdownColor:
+                            context.colors.surface.withValues(alpha: 0.9),
+                        focusColor:
+                            context.colors.surface.withValues(alpha: 0.9),
                         onChanged: _onLanguageChanged,
                         items: MnemonicLanguage.values
                             .map((MnemonicLanguage language) =>

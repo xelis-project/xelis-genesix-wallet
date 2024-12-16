@@ -17,7 +17,7 @@ ThemeData darkTheme() {
     if (states.contains(WidgetState.selected)) {
       return primaryColor;
     }
-    return textColor.withOpacity(0.6);
+    return textColor.withValues(alpha: 0.6);
   });
 
   final baseTheme = ThemeData(
@@ -49,7 +49,7 @@ ThemeData darkTheme() {
         bgRadialColor2: const Color.fromARGB(178, 100, 100, 100),
         bgRadialColor3: const Color.fromARGB(153, 25, 25, 25),
         bgRadialEndColor: const Color.fromARGB(0, 0, 0, 0),
-        mutedColor: textColor.withOpacity(0.6),
+        mutedColor: textColor.withValues(alpha: 0.6),
       )
     ],
 
@@ -88,7 +88,7 @@ ThemeData darkTheme() {
     ),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: textColor,
-      selectionColor: textColor.withOpacity(0.1),
+      selectionColor: textColor.withValues(alpha: 0.1),
     ),
 
     // CARD
@@ -224,7 +224,7 @@ ThemeData darkTheme() {
 
     // DIALOG
     dialogTheme: DialogTheme(
-      backgroundColor: backgroundColor.withOpacity(0.9),
+      backgroundColor: backgroundColor.withValues(alpha: 0.9),
       surfaceTintColor: Colors.transparent,
       barrierColor: Colors.transparent,
       shape: RoundedRectangleBorder(
@@ -236,7 +236,7 @@ ThemeData darkTheme() {
     // SWITCH
     switchTheme: SwitchThemeData(
       thumbColor: switchStateProperty,
-      trackColor: WidgetStatePropertyAll(primaryColor.withOpacity(.2)),
+      trackColor: WidgetStatePropertyAll(primaryColor.withValues(alpha: 0.2)),
       trackOutlineColor: switchStateProperty,
     ),
 
@@ -248,7 +248,7 @@ ThemeData darkTheme() {
 
     // MODAL BOTTOM SHEET
     bottomSheetTheme: BottomSheetThemeData(
-      backgroundColor: backgroundColor.withOpacity(0.9),
+      backgroundColor: backgroundColor.withValues(alpha: 0.9),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),
