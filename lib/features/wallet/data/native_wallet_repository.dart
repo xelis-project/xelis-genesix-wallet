@@ -208,33 +208,43 @@ class NativeWalletRepository {
 
     await for (final rawData in rawEventStream) {
       final json = jsonDecode(rawData);
-      final eventType = sdk.WalletEvent.fromStr(json['event'] as String);
-      switch (eventType) {
-        case sdk.WalletEvent.newTopoHeight:
-          final newTopoheight =
-              Event.newTopoHeight(json['data']['topoheight'] as int);
-          yield newTopoheight;
-        case sdk.WalletEvent.newAsset:
-          final newAsset = Event.newAsset(
-              sdk.AssetWithData.fromJson(json['data'] as Map<String, dynamic>));
-          yield newAsset;
-        case sdk.WalletEvent.newTransaction:
-          final newTransaction = Event.newTransaction(
-              sdk.TransactionEntry.fromJson(
-                  json['data'] as Map<String, dynamic>));
-          yield newTransaction;
-        case sdk.WalletEvent.balanceChanged:
-          final balanceChanged = Event.balanceChanged(
-              sdk.BalanceChangedEvent.fromJson(
-                  json['data'] as Map<String, dynamic>));
-          yield balanceChanged;
-        case sdk.WalletEvent.rescan:
-          final rescan = Event.rescan(json['data']['start_topoheight'] as int);
-          yield rescan;
-        case sdk.WalletEvent.online:
-          yield const Event.online();
-        case sdk.WalletEvent.offline:
-          yield const Event.offline();
+      try {
+        final eventType = sdk.WalletEvent.fromStr(json['event'] as String);
+        switch (eventType) {
+          case sdk.WalletEvent.newTopoHeight:
+            final newTopoheight =
+                Event.newTopoHeight(json['data']['topoheight'] as int);
+            yield newTopoheight;
+          case sdk.WalletEvent.newAsset:
+            final newAsset = Event.newAsset(sdk.AssetWithData.fromJson(
+                json['data'] as Map<String, dynamic>));
+            yield newAsset;
+          case sdk.WalletEvent.newTransaction:
+            final newTransaction = Event.newTransaction(
+                sdk.TransactionEntry.fromJson(
+                    json['data'] as Map<String, dynamic>));
+            yield newTransaction;
+          case sdk.WalletEvent.balanceChanged:
+            final balanceChanged = Event.balanceChanged(
+                sdk.BalanceChangedEvent.fromJson(
+                    json['data'] as Map<String, dynamic>));
+            yield balanceChanged;
+          case sdk.WalletEvent.rescan:
+            final rescan =
+                Event.rescan(json['data']['start_topoheight'] as int);
+            yield rescan;
+          case sdk.WalletEvent.online:
+            yield const Event.online();
+          case sdk.WalletEvent.offline:
+            yield const Event.offline();
+          case sdk.WalletEvent.historySynced:
+            final historySynced =
+                Event.historySynced(json['data']['topoheight'] as int);
+            yield historySynced;
+        }
+      } catch (e) {
+        talker.error('Unknown event: ${json['event']}');
+        continue;
       }
     }
   }

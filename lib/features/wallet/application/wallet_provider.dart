@@ -301,6 +301,10 @@ class WalletState extends _$WalletState {
       case Offline():
         talker.info(event);
         state = state.copyWith(isOnline: false);
+
+      case HistorySynced():
+        talker.info(event);
+      // TODO: Implement historySynced event handling
     }
   }
 

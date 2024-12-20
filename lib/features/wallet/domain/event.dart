@@ -22,4 +22,6 @@ sealed class Event with _$Event {
   const factory Event.online() = Online;
 
   const factory Event.offline() = Offline;
+
+  const factory Event.historySynced(int topoHeight) = HistorySynced;
 }

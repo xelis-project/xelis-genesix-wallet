@@ -568,19 +568,21 @@ impl XelisWallet {
 
     // Get daemon info (network, version, etc)
     pub async fn get_daemon_info(&self) -> Result<String> {
-        let mutex = self.wallet.get_network_handler();
-        let lock = mutex.lock().await;
-        let network_handler = lock.as_ref().context("network handler not available")?;
-        let api = network_handler.get_api();
+        let network_handler = self.wallet.get_network_handler().lock().await;
+        if let Some(handler) = network_handler.as_ref() {
+            let api = handler.get_api();
 
-        let info = match api.get_info().await {
-            Ok(info) => info,
-            Err(e) => {
-                return Err(e);
-            }
-        };
+            let info = match api.get_info().await {
+                Ok(info) => info,
+                Err(e) => {
+                    return Err(e);
+                }
+            };
 
-        Ok(serde_json::to_string(&info)?)
+            Ok(serde_json::to_string(&info)?)
+        } else {
+            Err(anyhow!("network handler not available"))
+        }
     }
 
     // Format amount to human readable format

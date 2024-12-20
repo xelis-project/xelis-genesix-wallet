@@ -231,7 +231,7 @@ class _TransactionEntryScreenState
 
                     if (hideZeroTransfer) {
                       transfers = transfers.skipWhile((value) {
-                        return value.amount == 0 && value.extraData == null;
+                        return value.amount == 0;
                       }).toList(growable: false);
                     }
 
@@ -308,8 +308,7 @@ class _TransactionEntryScreenState
                                     ),
                                   ],
                                 ),
-                                if (transfer.extraData != null &&
-                                    !hideExtraData) ...[
+                                if (!hideExtraData) ...[
                                   const SizedBox(height: Spaces.medium),
                                   Text(loc.extra_data,
                                       style: context.labelLarge),
@@ -365,7 +364,7 @@ class _TransactionEntryScreenState
 
                     if (hideZeroTransfer) {
                       transfers = transfers.skipWhile((value) {
-                        return value.amount == 0 && value.extraData == null;
+                        return value.amount == 0;
                       }).toList(growable: false);
                     }
 
@@ -426,8 +425,7 @@ class _TransactionEntryScreenState
                                         : '${transfer.amount}'),
                                   ],
                                 ),
-                                if (transfer.extraData != null &&
-                                    !hideExtraData) ...[
+                                if (!hideExtraData) ...[
                                   const SizedBox(height: Spaces.medium),
                                   Text(loc.extra_data,
                                       style: context.labelMedium?.copyWith(
