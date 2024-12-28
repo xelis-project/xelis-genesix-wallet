@@ -191,7 +191,7 @@ impl XelisWallet {
             let balance = storage.get_balance_for(&asset).await?;
             balances.insert(
                 asset.to_string(),
-                format_coin(balance.amount, data.decimals),
+                format_coin(balance.amount, data.get_decimals()),
             );
         }
 
@@ -206,7 +206,7 @@ impl XelisWallet {
             .get_asset(&asset_hash)
             .await
             .context("Asset not found in storage")?;
-        Ok(asset.decimals)
+        Ok(asset.get_decimals())
     }
 
     // rescan the wallet history from a specific height
@@ -371,7 +371,7 @@ impl XelisWallet {
                 .get_asset(&asset)
                 .await
                 .context("Asset not found in storage")?
-                .decimals;
+                .get_decimals();
             let amount: u64 = (float_amount * 10u32.pow(decimals as u32) as f64) as u64;
             (amount, decimals)
         };
@@ -602,7 +602,7 @@ impl XelisWallet {
                 .get_asset(&asset)
                 .await
                 .context("Asset not found in storage")?;
-            asset.decimals
+            asset.get_decimals()
         };
 
         Ok(format_coin(atomic_amount, decimals))
@@ -671,7 +671,7 @@ impl XelisWallet {
     // Private method to convert float amount to atomic format
     async fn convert_float_amount(&self, float_amount: f64, asset: &Hash) -> Result<u64> {
         let storage = self.wallet.get_storage().read().await;
-        let decimals = storage.get_asset(&asset).await?.decimals;
+        let decimals = storage.get_asset(&asset).await?.get_decimals();
         let amount = (float_amount * 10u32.pow(decimals as u32) as f64) as u64;
         Ok(amount)
     }

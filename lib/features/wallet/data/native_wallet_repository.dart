@@ -213,11 +213,11 @@ class NativeWalletRepository {
         switch (eventType) {
           case sdk.WalletEvent.newTopoHeight:
             final newTopoheight =
-                Event.newTopoHeight(json['data']['topoheight'] as int);
+                Event.newTopoheight(json['data']['topoheight'] as int);
             yield newTopoheight;
           case sdk.WalletEvent.newAsset:
-            final newAsset = Event.newAsset(sdk.AssetWithData.fromJson(
-                json['data'] as Map<String, dynamic>));
+            final newAsset = Event.newAsset(
+                sdk.AssetData.fromJson(json['data'] as Map<String, dynamic>));
             yield newAsset;
           case sdk.WalletEvent.newTransaction:
             final newTransaction = Event.newTransaction(

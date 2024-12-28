@@ -216,7 +216,7 @@ class WalletState extends _$WalletState {
     final loc = ref.read(appLocalizationsProvider);
     switch (event) {
       case NewTopoHeight():
-        state = state.copyWith(topoheight: event.topoHeight);
+        state = state.copyWith(topoheight: event.topoheight);
 
       case NewTransaction():
         talker.info(event);

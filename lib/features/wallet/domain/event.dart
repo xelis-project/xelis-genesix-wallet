@@ -7,7 +7,7 @@ part 'event.freezed.dart';
 
 @freezed
 sealed class Event with _$Event {
-  const factory Event.newTopoHeight(int topoHeight) = NewTopoHeight;
+  const factory Event.newTopoheight(int topoheight) = NewTopoHeight;
 
   const factory Event.newTransaction(TransactionEntry transactionEntry) =
       NewTransaction;
@@ -15,7 +15,7 @@ sealed class Event with _$Event {
   const factory Event.balanceChanged(BalanceChangedEvent balanceChanged) =
       BalanceChanged;
 
-  const factory Event.newAsset(AssetWithData assetWithData) = NewAsset;
+  const factory Event.newAsset(AssetData assetData) = NewAsset;
 
   const factory Event.rescan(int topoheight) = Rescan;
 
@@ -23,5 +23,5 @@ sealed class Event with _$Event {
 
   const factory Event.offline() = Offline;
 
-  const factory Event.historySynced(int topoHeight) = HistorySynced;
+  const factory Event.historySynced(int topoheight) = HistorySynced;
 }
