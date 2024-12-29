@@ -28,7 +28,7 @@ dependencies:
   path_provider: ^2.1.5
   riverpod_annotation: ^2.6.1
   shared_preferences: ^2.3.4
-  xelis_dart_sdk: ^0.22.0
+  xelis_dart_sdk: ^0.23.0
   loader_overlay: ^5.0.0
   random_avatar: ^0.0.8
   pretty_qr_code: ^3.3.0
