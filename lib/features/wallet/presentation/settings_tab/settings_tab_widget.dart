@@ -203,6 +203,7 @@ class SettingsTab extends ConsumerWidget {
       builder: (context) {
         final loc = ref.read(appLocalizationsProvider);
         return InputDialog(
+          title: loc.rename_wallet,
           hintText: loc.new_name,
           onEnter: (value) {
             _renameWallet(ref, value);
