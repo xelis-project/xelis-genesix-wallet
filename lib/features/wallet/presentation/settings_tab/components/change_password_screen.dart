@@ -5,6 +5,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
+import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
@@ -174,6 +175,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
               .nativeWalletRepository!
               .changePassword(
                   oldPassword: oldPassword, newPassword: newPassword);
+
+          if (mounted) context.pop();
 
           ref
               .read(snackBarMessengerProvider.notifier)
