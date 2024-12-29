@@ -129,6 +129,7 @@ ThemeData darkTheme() {
         backgroundColor: primaryColor,
         disabledBackgroundColor: Colors.black87,
         foregroundColor: Colors.black87,
+        iconColor: Colors.black87,
         padding: const EdgeInsets.symmetric(
             vertical: Spaces.medium, horizontal: Spaces.medium),
         shape: RoundedRectangleBorder(

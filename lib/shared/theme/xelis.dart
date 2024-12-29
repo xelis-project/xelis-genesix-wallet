@@ -132,6 +132,7 @@ ThemeData xelisTheme() {
       style: TextButton.styleFrom(
         backgroundColor: primaryColor,
         foregroundColor: Colors.black87,
+        iconColor: Colors.black87,
         disabledBackgroundColor: Colors.black87,
         padding: const EdgeInsets.symmetric(
             vertical: Spaces.medium, horizontal: Spaces.medium),

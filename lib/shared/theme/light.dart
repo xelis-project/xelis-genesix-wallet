@@ -128,6 +128,7 @@ ThemeData lightTheme() {
       style: TextButton.styleFrom(
         backgroundColor: primaryColor,
         foregroundColor: Colors.black87,
+        iconColor: Colors.black87,
         disabledBackgroundColor: Colors.black12,
         padding: const EdgeInsets.symmetric(
             vertical: Spaces.medium, horizontal: Spaces.medium),
