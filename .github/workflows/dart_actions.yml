@@ -31,14 +31,14 @@ jobs:
         run: |
           cargo install 'flutter_rust_bridge_codegen'
 
-      - name: Generate bridge code
-        run: flutter_rust_bridge_codegen generate
-
-      - name: Generate Dart code
-        run: dart run build_runner build
-
       - name: Install dependencies
         run: flutter pub get
+
+      - name: Generate Dart code
+        run: dart run build_runner build -d
+
+      - name: Generate bridge code
+        run: flutter_rust_bridge_codegen generate
 
       - name: Check Dart code formatting
         run: dart format --output=none --set-exit-if-changed .
