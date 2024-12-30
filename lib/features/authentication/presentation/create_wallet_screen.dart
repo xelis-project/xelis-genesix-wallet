@@ -304,7 +304,10 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
           _createFormKey.currentState?.value['password'] as String?;
       final confirmPassword =
           _createFormKey.currentState?.value['confirm_password'] as String?;
-      final createSeed = _createFormKey.currentState?.value['seed'] as String?;
+      final privateKey =
+          _createFormKey.currentState?.value['private_key'] as String?;
+      final createSeed =
+          (GoRouterState.of(context).extra as List<String>?)?.join(' ');
 
       if (password != confirmPassword) {
         _createFormKey.currentState?.fields['confirm_password']
@@ -329,7 +332,7 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
 
           await ref
               .read(authenticationProvider.notifier)
-              .createWallet(walletName, password, createSeed?.trim());
+              .createWallet(walletName, password, createSeed, privateKey);
         } catch (e) {
           if (mounted) {
             // Dismiss TableGenerationProgressDialog if error occurs
