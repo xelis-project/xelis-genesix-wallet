@@ -9,6 +9,7 @@ class DaemonInfoSnapshot with _$DaemonInfoSnapshot {
     @Default(0) int topoHeight,
     @Default(false) bool pruned,
     @Default('') String circulatingSupply,
+    @Default('') String burnSupply,
     @Default(Duration()) Duration averageBlockTime,
     @Default(0) int mempoolSize,
     @Default('') String blockReward,
