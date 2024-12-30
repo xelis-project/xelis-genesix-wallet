@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
+import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/address.dart';
@@ -274,7 +276,12 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
       ref
           .read(snackBarMessengerProvider.notifier)
           .showInfo(loc.transaction_broadcast_message);
+    } on AnyhowException catch (e) {
+      talker.error('Cannot broadcast transaction: $e');
+      final xelisMessage = (e).message.split("\n")[0];
+      ref.read(snackBarMessengerProvider.notifier).showError(xelisMessage);
     } catch (e) {
+      talker.error('Cannot broadcast transaction: $e');
       ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
     }
 

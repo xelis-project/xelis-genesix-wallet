@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
@@ -243,7 +245,12 @@ class _BurnReviewDialogState extends ConsumerState<BurnReviewDialog> {
       ref
           .read(snackBarMessengerProvider.notifier)
           .showInfo(loc.transaction_broadcast_message);
+    } on AnyhowException catch (e) {
+      talker.error('Cannot broadcast transaction: $e');
+      final xelisMessage = (e).message.split("\n")[0];
+      ref.read(snackBarMessengerProvider.notifier).showError(xelisMessage);
     } catch (e) {
+      talker.error('Cannot broadcast transaction: $e');
       ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
     }
 

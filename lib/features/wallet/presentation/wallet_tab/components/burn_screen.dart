@@ -190,32 +190,27 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
 
       _focusNodeAmount.unfocus();
 
-      try {
-        context.loaderOverlay.show();
+      context.loaderOverlay.show();
 
-        TransactionSummary? tx;
-        if (amount.trim() == _selectedAssetBalance) {
-          tx = await ref
-              .read(walletStateProvider.notifier)
-              .createBurnAllTransaction(asset: asset);
-        } else {
-          tx = await ref
-              .read(walletStateProvider.notifier)
-              .createBurnTransaction(
-                  amount: double.parse(amount), asset: asset);
-        }
+      TransactionSummary? tx;
+      if (amount.trim() == _selectedAssetBalance) {
+        tx = await ref
+            .read(walletStateProvider.notifier)
+            .createBurnAllTransaction(asset: asset);
+      } else {
+        tx = await ref
+            .read(walletStateProvider.notifier)
+            .createBurnTransaction(amount: double.parse(amount), asset: asset);
+      }
 
-        if (mounted) {
-          showDialog<void>(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) {
-              return BurnReviewDialog(tx!);
-            },
-          );
-        }
-      } catch (e) {
-        ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
+      if (mounted && tx != null) {
+        showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) {
+            return BurnReviewDialog(tx!);
+          },
+        );
       }
 
       if (mounted && context.loaderOverlay.visible) {

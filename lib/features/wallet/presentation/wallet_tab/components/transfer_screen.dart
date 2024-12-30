@@ -280,36 +280,31 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
 
       _unfocusNodes();
 
-      try {
-        context.loaderOverlay.show();
+      context.loaderOverlay.show();
 
-        TransactionSummary? tx;
-        if (amount.trim() == _selectedAssetBalance) {
-          tx = await ref
-              .read(walletStateProvider.notifier)
-              .createAllXelisTransaction(
-                  destination: address.trim(), asset: asset);
-        } else {
-          tx = await ref
-              .read(walletStateProvider.notifier)
-              .createXelisTransaction(
-                amount: double.parse(amount),
-                destination: address.trim(),
-                asset: asset,
-              );
-        }
+      TransactionSummary? tx;
+      if (amount.trim() == _selectedAssetBalance) {
+        tx = await ref
+            .read(walletStateProvider.notifier)
+            .createAllXelisTransaction(
+                destination: address.trim(), asset: asset);
+      } else {
+        tx =
+            await ref.read(walletStateProvider.notifier).createXelisTransaction(
+                  amount: double.parse(amount),
+                  destination: address.trim(),
+                  asset: asset,
+                );
+      }
 
-        if (mounted) {
-          showDialog<void>(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) {
-              return TransferReviewDialog(tx!);
-            },
-          );
-        }
-      } catch (e) {
-        ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
+      if (mounted && tx != null) {
+        showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) {
+            return TransferReviewDialog(tx!);
+          },
+        );
       }
 
       if (mounted && context.loaderOverlay.visible) {

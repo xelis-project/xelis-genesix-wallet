@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/authentication/presentation/components/add_wallet_modal_bottom_sheet.dart';
-import 'package:genesix/features/logger/logger.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:go_router/go_router.dart';
@@ -55,7 +53,6 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
 
   Future<void> _openImportedWallet(
       String path, String walletName, String password) async {
-    final loc = ref.read(appLocalizationsProvider);
     try {
       if (!await ref
               .read(authenticationProvider.notifier)
@@ -70,10 +67,6 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
           .read(authenticationProvider.notifier)
           .openImportedWallet(path, walletName, password);
     } catch (e) {
-      talker.critical('Opening wallet failed: $e');
-      ref
-          .read(snackBarMessengerProvider.notifier)
-          .showError(loc.error_when_opening_wallet);
       if (mounted) {
         // Dismiss TableGenerationProgressDialog if error occurs
         context.pop();
@@ -99,7 +92,6 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
   }
 
   void _openWallet(String name, String password) async {
-    final loc = ref.read(appLocalizationsProvider);
     try {
       if (!await ref
               .read(authenticationProvider.notifier)
@@ -114,17 +106,6 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
           .read(authenticationProvider.notifier)
           .openWallet(name, password);
     } catch (e) {
-      talker.critical('Opening wallet failed: $e');
-      // TODO: handle specific errors
-      if (e.toString().contains('Invalid password')) {
-        ref
-            .read(snackBarMessengerProvider.notifier)
-            .showError(loc.wrong_password);
-      } else {
-        ref
-            .read(snackBarMessengerProvider.notifier)
-            .showError(loc.error_when_opening_wallet);
-      }
       if (mounted) {
         // Dismiss TableGenerationProgressDialog if error occurs
         context.pop();

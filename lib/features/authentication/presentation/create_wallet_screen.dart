@@ -5,7 +5,6 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/features/authentication/domain/create_wallet_type_enum.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/router/route_utils.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:go_router/go_router.dart';
@@ -332,10 +331,6 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
               .read(authenticationProvider.notifier)
               .createWallet(walletName, password, createSeed?.trim());
         } catch (e) {
-          talker.critical('Creating wallet failed: $e');
-          ref
-              .read(snackBarMessengerProvider.notifier)
-              .showError(loc.error_when_creating_wallet);
           if (mounted) {
             // Dismiss TableGenerationProgressDialog if error occurs
             context.pop();
