@@ -1,3 +1,5 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/shared/utils/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/daemon_info_snapshot.dart';
@@ -5,7 +7,7 @@ import 'package:genesix/features/wallet/domain/daemon_info_snapshot.dart';
 part 'node_info_provider.g.dart';
 
 @riverpod
-Future<DaemonInfoSnapshot?> nodeInfo(NodeInfoRef ref) async {
+Future<DaemonInfoSnapshot?> nodeInfo(Ref ref) async {
   final walletState = ref.watch(walletStateProvider);
   final repository = walletState.nativeWalletRepository;
   if (repository != null) {
@@ -17,10 +19,10 @@ Future<DaemonInfoSnapshot?> nodeInfo(NodeInfoRef ref) async {
     return DaemonInfoSnapshot(
       topoHeight: info.topoHeight,
       pruned: info.prunedTopoHeight != null ? true : false,
-      circulatingSupply: await repository.formatCoin(info.circulatingSupply),
+      circulatingSupply: formatXelis(info.circulatingSupply),
       averageBlockTime: Duration(milliseconds: info.averageBlockTime),
       mempoolSize: info.mempoolSize,
-      blockReward: info.blockReward,
+      blockReward: formatXelis(info.blockReward),
       version: info.version,
       network: info.network,
     );

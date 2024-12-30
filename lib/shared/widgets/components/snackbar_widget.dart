@@ -41,21 +41,18 @@ class _SnackBarWidgetState extends ConsumerState<SnackBarWidget> {
           child: switch (snackbarState.visible) {
             true => Align(
                 key: UniqueKey(),
-                alignment: Alignment.bottomLeft,
+                alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: const EdgeInsets.all(Spaces.large),
                   child: Container(
                     decoration: BoxDecoration(
                       color: context.colors.surface,
                       borderRadius: BorderRadius.circular(10),
-                      //border: Border.all(width: Spaces.medium),
                     ),
-                    constraints: const BoxConstraints(
-                        maxHeight: 200, minWidth: double.infinity),
+                    constraints: const BoxConstraints(maxWidth: 800),
                     child: Padding(
                       padding: const EdgeInsets.all(Spaces.medium),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
                             child: Text(
@@ -71,7 +68,7 @@ class _SnackBarWidgetState extends ConsumerState<SnackBarWidget> {
                                   .hide();
                             },
                             color: color,
-                            icon: const Icon(Icons.close),
+                            icon: const Icon(Icons.close_rounded),
                           ),
                         ],
                       ),

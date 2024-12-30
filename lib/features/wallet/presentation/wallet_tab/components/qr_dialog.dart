@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -23,11 +24,10 @@ class QrDialog extends ConsumerWidget {
     final address =
         ref.watch(walletStateProvider.select((state) => state.address));
 
-    return AlertDialog(
-      scrollable: true,
+    return GenericDialog(
       content: ConstrainedBox(
         constraints: const BoxConstraints(
-          maxWidth: 200,
+          maxWidth: 300,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,

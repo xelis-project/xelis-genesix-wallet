@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/asset.dart';
+import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -23,7 +24,7 @@ class _AssetItemWidgetState extends ConsumerState<AssetItemWidget> {
 
     final walletSnapshot = ref.read(walletStateProvider);
     var assets = walletSnapshot.assets;
-    var balance = assets[widget.asset.hash] ?? '0.00000000';
+    var balance = assets[widget.asset.hash] ?? AppResources.zeroBalance;
 
     Widget logo;
     if (widget.asset.isNetworkImage) {

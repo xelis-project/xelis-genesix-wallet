@@ -79,4 +79,7 @@ extension FormFactorUtils on BuildContext {
   }
 
   bool get isWideScreen => formFactor == ScreenSize.extraExtraLarge;
+
+  bool get isHandset =>
+      formFactor == ScreenSize.small || formFactor == ScreenSize.normal;
 }

@@ -5,6 +5,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/shared/providers/progress_report_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 
 class TableGenerationProgressDialog extends ConsumerWidget {
   const TableGenerationProgressDialog({super.key});
@@ -29,10 +30,7 @@ class TableGenerationProgressDialog extends ConsumerWidget {
               displayStep = 'Loading';
           }
 
-          return AlertDialog(
-            scrollable: true,
-            elevation: 10,
-            contentPadding: const EdgeInsets.all(Spaces.medium),
+          return GenericDialog(
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

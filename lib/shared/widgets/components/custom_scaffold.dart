@@ -67,7 +67,22 @@ class CustomScaffold extends StatelessWidget {
           if (context.isWideScreen) Spacer(),
         ],
       ),
-      floatingActionButton: floatingActionButton,
+      floatingActionButton: floatingActionButton != null
+          ? Row(
+              children: [
+                if (context.isWideScreen) Spacer(),
+                Expanded(
+                    flex: 2,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        floatingActionButton!,
+                      ],
+                    )),
+                if (context.isWideScreen) Spacer(),
+              ],
+            )
+          : null,
       floatingActionButtonLocation: floatingActionButtonLocation,
       floatingActionButtonAnimator: floatingActionButtonAnimator,
       persistentFooterButtons: persistentFooterButtons,

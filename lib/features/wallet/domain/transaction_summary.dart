@@ -4,6 +4,7 @@ import 'dart:collection';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary_type.dart';
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 part 'transaction_summary.freezed.dart';
 
@@ -27,9 +28,29 @@ class TransactionSummary with _$TransactionSummary {
 
   bool get isTransfer => transactionSummaryType.transferOutEntry != null;
 
+  bool get isMultiTransfer {
+    return isTransfer && transactionSummaryType.transferOutEntry!.length > 1;
+  }
+
+  bool get isXelisTransfer {
+    if (!isMultiTransfer) {
+      final transfer = getSingleTransfer();
+      return transfer.asset == xelisAsset;
+    }
+    return false;
+  }
+
+  TransferOutEntry getSingleTransfer() {
+    return transactionSummaryType.transferOutEntry!.first;
+  }
+
+  Burn getBurn() {
+    return transactionSummaryType.burn!;
+  }
+
   HashMap<String, int> getAmountsPerAsset() {
     final amounts = HashMap<String, int>();
-    if (transactionSummaryType.transferOutEntry != null) {
+    if (isTransfer) {
       for (final entry in transactionSummaryType.transferOutEntry!) {
         if (amounts.containsKey(entry.asset)) {
           amounts[entry.asset] = amounts[entry.asset]! + entry.amount;

@@ -11,15 +11,17 @@ class AppResources {
 
   static const String userWalletsFolderName = 'Genesix wallets';
 
+  static const String zeroBalance = '0.00000000';
+
   static const Map<String, String> defaultAssets = {
-    sdk.xelisAsset: '0.00000000',
+    sdk.xelisAsset: zeroBalance,
   };
 
   static const int xelisDecimals = 8;
 
   static const Asset xelisAsset = Asset(
     hash: sdk.xelisAsset,
-    name: 'Xelis',
+    name: 'XELIS',
     imagePath: greenBackgroundBlackIconPath,
     // imageURL:
     //     "https://raw.githubusercontent.com/xelis-project/xelis-assets/master/icons/png/circle/green_background_black_logo.png",

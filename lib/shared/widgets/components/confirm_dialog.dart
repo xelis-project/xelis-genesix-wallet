@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/extensions.dart';
@@ -26,11 +26,8 @@ class _ConfirmDialogState extends ConsumerState<ConfirmDialog> {
 
     var title = widget.title ?? loc.are_you_sure;
 
-    return AlertDialog(
+    return GenericDialog(
       scrollable: false,
-      contentPadding: const EdgeInsets.all(Spaces.medium),
-      actionsPadding: const EdgeInsets.fromLTRB(
-          Spaces.medium, 0, Spaces.medium, Spaces.medium),
       content: Text(title, style: context.titleMedium),
       actions: [
         TextButton(

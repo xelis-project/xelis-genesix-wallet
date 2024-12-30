@@ -2,14 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/input_decoration.dart';
+import 'package:genesix/shared/widgets/components/generic_dialog.dart';
+import 'package:go_router/go_router.dart';
 
 class InputDialog extends ConsumerStatefulWidget {
+  final String title;
   final String? hintText;
   final void Function(String value)? onEnter;
 
   const InputDialog({
+    required this.title,
     this.onEnter,
     this.hintText,
     super.key,
@@ -23,26 +29,74 @@ class _InputDialogState extends ConsumerState<InputDialog> {
   final _inputFormKey =
       GlobalKey<FormBuilderState>(debugLabel: '_inputFormKey');
 
+  late FocusNode _focusNodeInput;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNodeInput = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _focusNodeInput.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    final loc = ref.watch(appLocalizationsProvider);
+    return GenericDialog(
       scrollable: false,
-      contentPadding: const EdgeInsets.all(Spaces.small),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding:
+                const EdgeInsets.only(left: Spaces.medium, top: Spaces.large),
+            child: Text(
+              widget.title,
+              style: context.titleLarge,
+            ),
+          ),
+          Padding(
+            padding:
+                const EdgeInsets.only(right: Spaces.small, top: Spaces.small),
+            child: IconButton(
+              onPressed: () {
+                context.pop();
+              },
+              icon: const Icon(Icons.close_rounded),
+            ),
+          ),
+        ],
+      ),
       content: Builder(
         builder: (BuildContext context) {
           return FormBuilder(
             key: _inputFormKey,
             child: FormBuilderTextField(
               name: 'input',
+              focusNode: _focusNodeInput,
               autocorrect: false,
               autofocus: true,
               style: context.bodyLarge,
-              decoration: InputDecoration(
-                fillColor: Colors.transparent,
+              decoration: context.textInputDecoration.copyWith(
                 hintText: widget.hintText,
               ),
+              onChanged: (value) {
+                // workaround to reset the error message when the user modifies the field
+                final hasError =
+                    _inputFormKey.currentState?.fields['input']?.hasError;
+                if (hasError ?? false) {
+                  _inputFormKey.currentState?.fields['input']?.reset();
+                }
+              },
               onSubmitted: (value) {
-                if (widget.onEnter != null) {
+                if (widget.onEnter != null &&
+                    (_inputFormKey.currentState?.saveAndValidate() ?? false)) {
+                  _focusNodeInput.unfocus();
                   widget.onEnter!(value!);
                 }
               },
@@ -51,6 +105,26 @@ class _InputDialogState extends ConsumerState<InputDialog> {
           );
         },
       ),
+      actions: [
+        TextButton.icon(
+          onPressed: () {
+            if (_inputFormKey.currentState?.saveAndValidate() ?? false) {
+              if (widget.onEnter != null) {
+                _focusNodeInput.unfocus();
+                widget.onEnter!(_inputFormKey
+                    .currentState!.fields['input']!.value as String);
+              }
+            }
+          },
+          label: Text(
+            loc.confirm_button,
+          ),
+          // icon: Icon(
+          //   Icons.check,
+          //   size: 18,
+          // ),
+        ),
+      ],
     );
   }
 }

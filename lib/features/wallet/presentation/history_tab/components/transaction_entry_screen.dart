@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/logo.dart';
 import 'package:genesix/rust_bridge/api/network.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
@@ -36,20 +37,10 @@ class _TransactionEntryScreenState
     extends ConsumerState<TransactionEntryScreen> {
   late String entryTypeName;
   late Icon icon;
-
   sdk.CoinbaseEntry? coinbase;
   sdk.OutgoingEntry? outgoing;
   sdk.BurnEntry? burn;
   sdk.IncomingEntry? incoming;
-
-  Future<void> _launchUrl(Uri url) async {
-    if (!await launchUrl(url)) {
-      final loc = ref.read(appLocalizationsProvider);
-      ref
-          .read(snackBarMessengerProvider.notifier)
-          .showError('${loc.launch_url_error} $url');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,20 +61,32 @@ class _TransactionEntryScreenState
       case sdk.CoinbaseEntry():
         entryTypeName = loc.coinbase;
         coinbase = entryType;
-        icon = const Icon(Icons.square_rounded);
+        icon = Icon(
+          Icons.square_rounded,
+          color: context.colors.primary,
+        );
         hashPath = 'blocks/';
       case sdk.BurnEntry():
         entryTypeName = loc.burn;
         burn = entryType;
-        icon = const Icon(Icons.local_fire_department_rounded);
+        icon = Icon(
+          Icons.local_fire_department_rounded,
+          color: context.colors.primary,
+        );
       case sdk.IncomingEntry():
         entryTypeName = loc.incoming;
         incoming = entryType;
-        icon = const Icon(Icons.arrow_downward);
+        icon = Icon(
+          Icons.arrow_downward,
+          color: context.colors.primary,
+        );
       case sdk.OutgoingEntry():
         entryTypeName = loc.outgoing;
         outgoing = entryType;
-        icon = const Icon(Icons.arrow_upward);
+        icon = Icon(
+          Icons.arrow_upward,
+          color: context.colors.primary,
+        );
     }
 
     Uri url;
@@ -100,10 +103,10 @@ class _TransactionEntryScreenState
 
     return CustomScaffold(
       backgroundColor: Colors.transparent,
-      appBar: GenericAppBar(title: loc.transaction_entry),
+      appBar: GenericAppBar(title: loc.transaction),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
-            Spaces.large, 0, Spaces.large, Spaces.large),
+            Spaces.large, Spaces.none, Spaces.large, Spaces.large),
         children: [
           Text(loc.type,
               style: context.labelLarge
@@ -129,6 +132,15 @@ class _TransactionEntryScreenState
             style: context.bodyLarge,
           ),
           const SizedBox(height: Spaces.medium),
+          Text(loc.timestamp,
+              style: context.labelLarge
+                  ?.copyWith(color: context.moreColors.mutedColor)),
+          const SizedBox(height: Spaces.extraSmall),
+          SelectableText(
+            transactionEntry.timestamp?.toString() ?? loc.not_available,
+            style: context.bodyLarge,
+          ),
+          const SizedBox(height: Spaces.medium),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -142,7 +154,6 @@ class _TransactionEntryScreenState
               ),
             ],
           ),
-          // const SizedBox(height: Spaces.extraSmall),
           SelectableText(
             transactionEntry.hash,
             style: context.bodyLarge,
@@ -159,8 +170,8 @@ class _TransactionEntryScreenState
                         ?.copyWith(color: context.moreColors.mutedColor)),
                 const SizedBox(height: Spaces.extraSmall),
                 SelectableText(
-                  '+${formatXelis(coinbase!.reward)} XEL',
                   // hmm coinbase could return other asset than XELIS
+                  '+${formatXelis(coinbase!.reward)}',
                   style: context.bodyLarge,
                 ),
               ],
@@ -174,7 +185,7 @@ class _TransactionEntryScreenState
                     ?.copyWith(color: context.moreColors.mutedColor)),
             const SizedBox(height: Spaces.extraSmall),
             SelectableText(
-              '${formatXelis(burn!.fee)} XEL',
+              formatXelis(burn!.fee),
               style: context.bodyLarge,
             ),
             Column(
@@ -186,7 +197,7 @@ class _TransactionEntryScreenState
                         ?.copyWith(color: context.moreColors.mutedColor)),
                 const SizedBox(height: Spaces.extraSmall),
                 SelectableText(
-                  '-${formatXelis(burn!.amount)} XEL',
+                  '-${formatXelis(burn!.amount)}',
                   style: context.bodyLarge,
                 ),
               ],
@@ -201,7 +212,7 @@ class _TransactionEntryScreenState
                     ?.copyWith(color: context.moreColors.mutedColor)),
             const SizedBox(height: Spaces.extraSmall),
             SelectableText(
-              '${formatXelis(outgoing!.fee)} XEL',
+              formatXelis(outgoing!.fee),
               style: context.bodyLarge,
             ),
             Column(
@@ -220,7 +231,7 @@ class _TransactionEntryScreenState
 
                     if (hideZeroTransfer) {
                       transfers = transfers.skipWhile((value) {
-                        return value.amount == 0 && value.extraData == null;
+                        return value.amount == 0;
                       }).toList(growable: false);
                     }
 
@@ -229,11 +240,12 @@ class _TransactionEntryScreenState
                       itemCount: transfers.length,
                       itemBuilder: (BuildContext context, int index) {
                         final transfer = transfers[index];
+                        final isXelis = transfer.asset == sdk.xelisAsset;
+                        final xelisPath = AppResources.xelisAsset.imagePath!;
 
                         return Card(
                           child: Padding(
-                            padding: const EdgeInsets.fromLTRB(Spaces.medium,
-                                Spaces.medium, Spaces.medium, Spaces.medium),
+                            padding: const EdgeInsets.all(Spaces.medium),
                             child: Column(
                               children: [
                                 Row(
@@ -264,10 +276,20 @@ class _TransactionEntryScreenState
                                             style: context.labelLarge?.copyWith(
                                                 color: context
                                                     .moreColors.mutedColor)),
-                                        SelectableText(
-                                            transfer.asset == sdk.xelisAsset
-                                                ? 'XELIS'
-                                                : transfer.asset),
+                                        isXelis
+                                            ? Row(
+                                                children: [
+                                                  Logo(
+                                                    imagePath: xelisPath,
+                                                  ),
+                                                  const SizedBox(
+                                                      width: Spaces.small),
+                                                  Text(AppResources
+                                                      .xelisAsset.name),
+                                                ],
+                                              )
+                                            : Text(
+                                                truncateText(transfer.asset)),
                                       ],
                                     ),
                                     const SizedBox(width: Spaces.medium),
@@ -276,26 +298,29 @@ class _TransactionEntryScreenState
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(loc.amount,
-                                            /* transfer.asset == xelisAsset
-                                          ? loc.amount.capitalize
-                                          : '${loc.amount.capitalize} (${loc.atomic_units})',*/
                                             style: context.labelLarge?.copyWith(
                                                 color: context
                                                     .moreColors.mutedColor)),
-                                        SelectableText(transfer.asset ==
-                                                sdk.xelisAsset
-                                            ? '-${formatXelis(transfer.amount)} XEL'
+                                        SelectableText(isXelis
+                                            ? '-${formatXelis(transfer.amount)}'
                                             : '${transfer.amount}'),
                                       ],
                                     ),
                                   ],
                                 ),
-                                if (transfer.extraData != null &&
-                                    !hideExtraData) ...[
+                                if (!hideExtraData &&
+                                    transfer.extraData != null) ...[
                                   const SizedBox(height: Spaces.medium),
-                                  Text(loc.extra_data,
-                                      style: context.labelLarge),
-                                  SelectableText(transfer.extraData.toString()),
+                                  Column(
+                                    children: [
+                                      Text(loc.extra_data,
+                                          style: context.labelMedium?.copyWith(
+                                              color: context
+                                                  .moreColors.mutedColor)),
+                                      SelectableText(
+                                          transfer.extraData.toString()),
+                                    ],
+                                  ),
                                 ]
                               ],
                             ),
@@ -310,111 +335,132 @@ class _TransactionEntryScreenState
           ],
 
           // INCOMING
-          if (entryType is sdk.IncomingEntry)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          if (entryType is sdk.IncomingEntry) ...[
+            const SizedBox(height: Spaces.medium),
+            Text(loc.from,
+                style: context.labelLarge
+                    ?.copyWith(color: context.moreColors.mutedColor)),
+            const SizedBox(height: Spaces.extraSmall),
+            Row(
               children: [
-                const SizedBox(height: Spaces.medium),
-                Text(loc.from,
-                    style: context.labelLarge
-                        ?.copyWith(color: context.moreColors.mutedColor)),
-                const SizedBox(height: Spaces.extraSmall),
-                Row(
-                  children: [
-                    HashiconWidget(
-                      hash: incoming!.from,
-                      size: const Size(35, 35),
-                    ),
-                    const SizedBox(width: Spaces.small),
-                    Expanded(
-                      child: SelectableText(
-                        incoming!.from,
-                        style: context.bodyLarge,
-                      ),
-                    ),
-                  ],
+                HashiconWidget(
+                  hash: incoming!.from,
+                  size: const Size(35, 35),
                 ),
-                const SizedBox(height: Spaces.medium),
-                Text(
-                  loc.transfers,
-                  style: context.titleSmall
-                      ?.copyWith(color: context.moreColors.mutedColor),
+                const SizedBox(width: Spaces.small),
+                Expanded(
+                  child: SelectableText(
+                    incoming!.from,
+                    style: context.bodyLarge,
+                  ),
                 ),
-                const Divider(),
-                Builder(
-                  builder: (BuildContext context) {
-                    var transfers = incoming!.transfers;
+              ],
+            ),
+            const SizedBox(height: Spaces.medium),
+            Text(
+              loc.transfers,
+              style: context.titleSmall
+                  ?.copyWith(color: context.moreColors.mutedColor),
+            ),
+            const Divider(),
+            Builder(
+              builder: (BuildContext context) {
+                var transfers = incoming!.transfers;
 
-                    if (hideZeroTransfer) {
-                      transfers = transfers.skipWhile((value) {
-                        return value.amount == 0 && value.extraData == null;
-                      }).toList(growable: false);
-                    }
+                if (hideZeroTransfer) {
+                  transfers = transfers.skipWhile((value) {
+                    return value.amount == 0;
+                  }).toList(growable: false);
+                }
 
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: transfers.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        final transfer = transfers[index];
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: transfers.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final transfer = transfers[index];
+                    final isXelis = transfer.asset == sdk.xelisAsset;
+                    final xelisPath = AppResources.xelisAsset.imagePath!;
 
-                        return Card(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(Spaces.medium,
-                                Spaces.small, Spaces.medium, Spaces.small),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    return Card(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(Spaces.medium,
+                            Spaces.small, Spaces.medium, Spaces.small),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(loc.asset,
-                                        style: context.labelMedium?.copyWith(
-                                            color:
-                                                context.moreColors.mutedColor)),
-                                    SelectableText(
-                                        transfer.asset == sdk.xelisAsset
-                                            ? 'XELIS'
-                                            : transfer.asset),
-                                  ],
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      bottom: Spaces.extraSmall),
+                                  child: Text(loc.asset,
+                                      style: context.labelMedium?.copyWith(
+                                          color:
+                                              context.moreColors.mutedColor)),
                                 ),
-                                const SizedBox(width: Spaces.medium),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(loc.amount,
-                                        /*transfer.asset == xelisAsset
-                                        ? loc.amount.capitalize
-                                        : '${loc.amount.capitalize} (${loc.atomic_units})',*/
-                                        style: context.labelMedium?.copyWith(
-                                            color:
-                                                context.moreColors.mutedColor)),
-                                    SelectableText(transfer.asset ==
-                                            sdk.xelisAsset
-                                        ? '+${formatXelis(transfer.amount)} XEL'
-                                        : '${transfer.amount}'),
-                                  ],
+                                isXelis
+                                    ? Row(
+                                        children: [
+                                          Logo(
+                                            imagePath: xelisPath,
+                                          ),
+                                          const SizedBox(width: Spaces.small),
+                                          Text(AppResources.xelisAsset.name),
+                                        ],
+                                      )
+                                    : Text(truncateText(transfer.asset)),
+                              ],
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      bottom: Spaces.extraSmall),
+                                  child: Text(loc.amount,
+                                      style: context.labelMedium?.copyWith(
+                                          color:
+                                              context.moreColors.mutedColor)),
                                 ),
-                                if (transfer.extraData != null &&
-                                    !hideExtraData) ...[
-                                  const SizedBox(height: Spaces.medium),
+                                SelectableText(isXelis
+                                    ? '+${formatXelis(transfer.amount)}'
+                                    : '${transfer.amount}'),
+                              ],
+                            ),
+                            if (!hideExtraData &&
+                                transfer.extraData != null) ...[
+                              const SizedBox(height: Spaces.medium),
+                              Column(
+                                children: [
                                   Text(loc.extra_data,
                                       style: context.labelMedium?.copyWith(
                                           color:
                                               context.moreColors.mutedColor)),
                                   SelectableText(transfer.extraData.toString()),
-                                ]
-                              ],
-                            ),
-                          ),
-                        );
-                      },
+                                ],
+                              ),
+                            ]
+                          ],
+                        ),
+                      ),
                     );
                   },
-                ),
-              ],
+                );
+              },
             ),
+          ],
         ],
       ),
     );
+  }
+
+  Future<void> _launchUrl(Uri url) async {
+    if (!await launchUrl(url)) {
+      final loc = ref.read(appLocalizationsProvider);
+      ref
+          .read(snackBarMessengerProvider.notifier)
+          .showError('${loc.launch_url_error} $url');
+    }
   }
 }

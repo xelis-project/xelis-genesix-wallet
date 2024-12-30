@@ -11,7 +11,7 @@ class DaemonInfoSnapshot with _$DaemonInfoSnapshot {
     @Default('') String circulatingSupply,
     @Default(Duration()) Duration averageBlockTime,
     @Default(0) int mempoolSize,
-    @Default(0) int blockReward,
+    @Default('') String blockReward,
     @Default('') String version,
     Network? network,
   }) = _DaemonInfoSnapshot;

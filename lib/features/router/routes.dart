@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:genesix/features/authentication/domain/create_wallet_type_enum.dart';
 import 'package:genesix/features/authentication/presentation/components/seed_content_dialog.dart';
+import 'package:genesix/features/authentication/presentation/seed_screen.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/burn_screen.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/shared/widgets/components/dialog_page.dart';
@@ -34,14 +36,15 @@ class OpenWalletRoute extends GoRouteData {
   }
 }
 
-@TypedGoRoute<CreateWalletRoute>(name: 'create_wallet', path: '/create_wallet')
-class CreateWalletRoute extends GoRouteData {
-  const CreateWalletRoute();
+@TypedGoRoute<CreateNewWalletRoute>(
+    name: 'create_new_wallet', path: '/create_new_wallet')
+class CreateNewWalletRoute extends GoRouteData {
+  const CreateNewWalletRoute();
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
-      const CreateWalletScreen(),
+      const CreateWalletScreen(type: CreateWalletType.newWallet),
       state.pageKey,
       state.fullPath,
       state.extra,
@@ -50,15 +53,52 @@ class CreateWalletRoute extends GoRouteData {
   }
 }
 
-@TypedGoRoute<RecoverWalletRoute>(
-    name: 'recover_wallet', path: '/recover_wallet')
-class RecoverWalletRoute extends GoRouteData {
-  const RecoverWalletRoute();
+@TypedGoRoute<RecoverWalletFromSeed1Route>(
+    name: 'recover_wallet_from_seed_1',
+    path: '/recover_wallet_from_seed/1',
+    routes: [])
+class RecoverWalletFromSeed1Route extends GoRouteData {
+  const RecoverWalletFromSeed1Route();
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
-      const CreateWalletScreen(isFromSeed: true),
+      const SeedScreen(),
+      state.pageKey,
+      state.fullPath,
+      state.extra,
+      AppDurations.animFast,
+    );
+  }
+}
+
+@TypedGoRoute<RecoverWalletFromSeed2Route>(
+    name: 'recover_wallet_from_seed_2', path: '/recover_wallet_from_seed/2')
+class RecoverWalletFromSeed2Route extends GoRouteData {
+  const RecoverWalletFromSeed2Route();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      const CreateWalletScreen(type: CreateWalletType.fromSeed),
+      state.pageKey,
+      state.fullPath,
+      state.extra,
+      AppDurations.animFast,
+    );
+  }
+}
+
+@TypedGoRoute<RecoverWalletFromPrivateKeyRoute>(
+    name: 'recover_wallet_from_private_key',
+    path: '/recover_wallet_from_private_key')
+class RecoverWalletFromPrivateKeyRoute extends GoRouteData {
+  const RecoverWalletFromPrivateKeyRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      const CreateWalletScreen(type: CreateWalletType.fromPrivateKey),
       state.pageKey,
       state.fullPath,
       state.extra,

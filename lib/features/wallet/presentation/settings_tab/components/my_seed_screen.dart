@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
+import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -15,23 +19,24 @@ class MySeedScreen extends ConsumerStatefulWidget {
 }
 
 class _MySeedScreenState extends ConsumerState<MySeedScreen> {
-  String _seed = '';
+  List<String> _seedWords = [];
 
   @override
   void initState() {
     super.initState();
     final loc = ref.read(appLocalizationsProvider);
-    final walletRepository = ref.read(
-        walletStateProvider.select((state) => state.nativeWalletRepository));
 
-    walletRepository!.getSeed().then((value) {
+    ref
+        .read(walletStateProvider.notifier)
+        .getSeed(MnemonicLanguage.english)
+        .then((words) {
       setState(() {
-        _seed = value;
+        _seedWords = words;
       });
     },
-        onError: (_, __) => setState(() {
-              _seed = loc.oups;
-            }));
+            onError: (_, __) => ref
+                .read(snackBarMessengerProvider.notifier)
+                .showError(loc.oups));
   }
 
   @override
@@ -40,72 +45,179 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
 
     return CustomScaffold(
       backgroundColor: Colors.transparent,
-      appBar: GenericAppBar(title: loc.seed),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: Spaces.large),
-        children: [
-          const SizedBox(height: Spaces.medium),
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: context.colors.primary),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(Spaces.medium),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+      appBar: GenericAppBar(),
+      body: Center(
+        child: SizedBox(
+          width: 800,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Spaces.large),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: context.colors.primary),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(Spaces.medium),
+                    child: Row(
                       children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.warning_amber,
-                              color: context.colors.primary,
-                              size: 30,
-                            ),
-                            const SizedBox(width: Spaces.medium),
-                            Text(
-                              loc.warning,
-                              style: context.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: context.colors.primary),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: Spaces.extraSmall),
-                        SelectableText(
-                          loc.seed_warning_message_1,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.warning_amber,
+                                    color: context.colors.primary,
+                                    size: 30,
+                                  ),
+                                  const SizedBox(width: Spaces.medium),
+                                  Text(
+                                    loc.warning,
+                                    style: context.titleLarge?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: context.colors.primary),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: Spaces.extraSmall),
+                              SelectableText(
+                                loc.seed_warning_message_1,
+                                style: context.titleMedium,
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: Spaces.medium),
-          Text(
-            loc.seed_warning_message_2,
-            style: context.titleMedium,
-          ),
-          const SizedBox(height: Spaces.medium),
-          Card(
-            borderOnForeground: false,
-            margin: const EdgeInsets.all(Spaces.none),
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(Spaces.medium),
-                child: SelectableText(
-                  _seed,
-                  style: context.bodyLarge,
                 ),
-              ),
+                const SizedBox(height: Spaces.large * 2),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FormBuilderDropdown(
+                        name: 'languages_dropdown',
+                        initialValue: MnemonicLanguage.english,
+                        enableFeedback: true,
+                        dropdownColor:
+                            context.colors.surface.withValues(alpha: 0.9),
+                        focusColor:
+                            context.colors.surface.withValues(alpha: 0.9),
+                        items: MnemonicLanguage.values
+                            .map(
+                              (e) => DropdownMenuItem(
+                                value: e,
+                                child: Text(e.displayName),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (MnemonicLanguage? value) {
+                          ref
+                              .read(walletStateProvider.notifier)
+                              .getSeed(value!)
+                              .then((value) {
+                            setState(() {
+                              _seedWords = value;
+                            });
+                          },
+                                  onError: (_, __) => ref
+                                      .read(snackBarMessengerProvider.notifier)
+                                      .showError(loc.oups));
+                        },
+                      ),
+                    ),
+                    Spacer(),
+                    Column(
+                      children: [
+                        IconButton.filled(
+                          onPressed: () => _copy(_seedWords.join(" ")),
+                          icon: Icon(Icons.copy),
+                          tooltip: loc.copy_recovery_phrase,
+                        ),
+                        const SizedBox(height: Spaces.extraSmall),
+                        Text(
+                          loc.copy,
+                          style: context.labelLarge
+                              ?.copyWith(color: context.moreColors.mutedColor),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: Spaces.large),
+                Text(
+                  loc.seed_warning_message_2,
+                  style: context.titleMedium,
+                ),
+                const SizedBox(height: Spaces.small),
+                Flexible(
+                  child: GridView.count(
+                    crossAxisCount: context.isHandset ? 2 : 3,
+                    semanticChildCount: _seedWords.length,
+                    childAspectRatio: 5,
+                    mainAxisSpacing: Spaces.none,
+                    crossAxisSpacing: Spaces.small,
+                    shrinkWrap: true,
+                    children: _seedWords.indexed
+                        .map<Widget>(
+                          ((int index, String word) tuple) => Padding(
+                            padding: const EdgeInsets.all(Spaces.none),
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                    left: Spaces.medium, right: Spaces.medium),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          '${tuple.$1 + 1}',
+                                          style: context.bodyLarge?.copyWith(
+                                              color: context.colors.primary),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 2,
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          tuple.$2,
+                                          style: context.titleMedium,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
+              ],
             ),
-          )
-        ],
+          ),
+        ),
       ),
     );
+  }
+
+  void _copy(String content) {
+    final loc = ref.read(appLocalizationsProvider);
+    Clipboard.setData(ClipboardData(text: content)).then((_) {
+      ref.read(snackBarMessengerProvider.notifier).showInfo(loc.copied);
+    });
   }
 }

@@ -3,6 +3,8 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/shared/theme/input_decoration.dart';
+import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
@@ -23,6 +25,102 @@ class ModifyNodeDialog extends ConsumerStatefulWidget {
 class _ModifyNodeDialogState extends ConsumerState<ModifyNodeDialog> {
   final nodeAddressFormKey =
       GlobalKey<FormBuilderState>(debugLabel: '_nodeAddressFormKey');
+
+  late FocusNode _focusNodeName;
+  late FocusNode _focusNodeUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNodeName = FocusNode();
+    _focusNodeUrl = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _focusNodeName.dispose();
+    _focusNodeUrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = ref.watch(appLocalizationsProvider);
+    final network =
+        ref.watch(settingsProvider.select((state) => state.network));
+    final networkNodes = ref.watch(networkNodesProvider);
+    var nodes = networkNodes.getNodes(network);
+
+    return GenericDialog(
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding:
+                const EdgeInsets.only(left: Spaces.medium, top: Spaces.large),
+            child: Text(
+              loc.edit_node,
+              style: context.titleLarge,
+            ),
+          ),
+          Padding(
+            padding:
+                const EdgeInsets.only(right: Spaces.small, top: Spaces.small),
+            child: IconButton(
+              onPressed: () {
+                context.pop();
+              },
+              icon: const Icon(Icons.close_rounded),
+            ),
+          ),
+        ],
+      ),
+      content: Builder(builder: (context) {
+        final width = context.mediaSize.width * 0.8;
+
+        return SizedBox(
+          width: isDesktopDevice ? width : null,
+          child: FormBuilder(
+            key: nodeAddressFormKey,
+            child: Column(
+              children: [
+                FormBuilderTextField(
+                  name: 'name',
+                  focusNode: _focusNodeName,
+                  initialValue: widget.oldNodeAddress.name,
+                  style: context.bodyMedium,
+                  autocorrect: false,
+                  decoration: context.textInputDecoration.copyWith(
+                    labelText: loc.name,
+                  ),
+                  validator: FormBuilderValidators.required(),
+                ),
+                const SizedBox(height: Spaces.medium),
+                FormBuilderTextField(
+                  name: 'url',
+                  focusNode: _focusNodeUrl,
+                  initialValue: widget.oldNodeAddress.url,
+                  style: context.bodyMedium,
+                  autocorrect: false,
+                  decoration: context.textInputDecoration.copyWith(
+                    labelText: loc.url,
+                  ),
+                  validator: FormBuilderValidators.required(),
+                ),
+              ],
+            ),
+          ),
+        );
+      }),
+      actions: [
+        FilledButton(
+          onPressed: () => _modifyNodeAddress(nodes),
+          child: Text(loc.confirm_button),
+        ),
+      ],
+    );
+  }
 
   void _modify(NodeAddress? newValue) {
     if (newValue != null) {
@@ -56,76 +154,15 @@ class _ModifyNodeDialogState extends ConsumerState<ModifyNodeDialog> {
       }
 
       if (name != null && url != null) {
+        _unfocusNodes();
         _modify(NodeAddress(name: name, url: url));
         context.pop();
       }
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final loc = ref.watch(appLocalizationsProvider);
-    final network =
-        ref.watch(settingsProvider.select((state) => state.network));
-    final networkNodes = ref.watch(networkNodesProvider);
-    var nodes = networkNodes.getNodes(network);
-
-    return AlertDialog(
-      scrollable: true,
-      title: Padding(
-        padding: const EdgeInsets.all(Spaces.small),
-        child: Text(
-          loc.edit_node,
-          style: context.titleLarge,
-        ),
-      ),
-      content: Builder(builder: (context) {
-        final width = context.mediaSize.width * 0.8;
-
-        return SizedBox(
-          width: isDesktopDevice ? width : null,
-          child: FormBuilder(
-            key: nodeAddressFormKey,
-            child: Column(
-              children: [
-                FormBuilderTextField(
-                  name: 'name',
-                  initialValue: widget.oldNodeAddress.name,
-                  style: context.bodyMedium,
-                  autocorrect: false,
-                  decoration: InputDecoration(
-                    labelText: loc.name,
-                    border: const OutlineInputBorder(),
-                  ),
-                  validator: FormBuilderValidators.required(),
-                ),
-                const SizedBox(height: Spaces.medium),
-                FormBuilderTextField(
-                  name: 'url',
-                  initialValue: widget.oldNodeAddress.url,
-                  style: context.bodyMedium,
-                  autocorrect: false,
-                  decoration: InputDecoration(
-                    labelText: loc.url,
-                    border: const OutlineInputBorder(),
-                  ),
-                  validator: FormBuilderValidators.required(),
-                ),
-              ],
-            ),
-          ),
-        );
-      }),
-      actions: <Widget>[
-        FilledButton(
-          onPressed: () => context.pop(),
-          child: Text(loc.cancel_button),
-        ),
-        FilledButton(
-          onPressed: () => _modifyNodeAddress(nodes),
-          child: Text(loc.confirm_button),
-        ),
-      ],
-    );
+  void _unfocusNodes() {
+    _focusNodeName.unfocus();
+    _focusNodeUrl.unfocus();
   }
 }

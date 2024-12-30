@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/shared/theme/extensions.dart';
-
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 
 class SeedContentDialog extends ConsumerWidget {
   const SeedContentDialog(this.seed, {super.key});
@@ -13,8 +13,7 @@ class SeedContentDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
-    return AlertDialog(
-      scrollable: true,
+    return GenericDialog(
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

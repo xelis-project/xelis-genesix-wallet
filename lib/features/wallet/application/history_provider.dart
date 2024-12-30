@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
@@ -6,7 +7,7 @@ import 'package:genesix/features/wallet/domain/history_state.dart';
 part 'history_provider.g.dart';
 
 @riverpod
-Future<HistoryState> history(HistoryRef ref) async {
+Future<HistoryState> history(Ref ref) async {
   ref.watch(walletStateProvider.select((value) => value.assets));
   final repository = ref.watch(
       walletStateProvider.select((value) => value.nativeWalletRepository));
@@ -19,7 +20,7 @@ Future<HistoryState> history(HistoryRef ref) async {
   );
 
   if (repository != null) {
-    final history = await repository.allHistory();
+    final history = await repository.history();
     for (final entry in history) {
       switch (entry.txEntryType) {
         case CoinbaseEntry():

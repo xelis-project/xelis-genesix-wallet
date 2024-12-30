@@ -6,6 +6,7 @@ import 'package:genesix/features/wallet/presentation/settings_tab/components/bur
 import 'package:genesix/features/wallet/presentation/settings_tab/components/delete_wallet_button.dart';
 import 'package:genesix/rust_bridge/api/network.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/confirm_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
@@ -16,7 +17,6 @@ import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/input_dialog.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
-import 'package:intl/intl.dart';
 
 class SettingsTab extends ConsumerWidget {
   SettingsTab({super.key});
@@ -65,7 +65,7 @@ class SettingsTab extends ConsumerWidget {
         ExpansionTile(
           leading: const Icon(Icons.wallet_membership_rounded),
           title: Text(
-            toBeginningOfSentenceCase(loc.wallet_parameters),
+            loc.wallet_parameters.capitalize(),
             style: context.titleLarge,
           ),
           children: [
@@ -75,7 +75,7 @@ class SettingsTab extends ConsumerWidget {
                 initialValue: settings.showBalanceUSDT,
                 decoration:
                     const InputDecoration(fillColor: Colors.transparent),
-                title: Text(toBeginningOfSentenceCase(loc.show_balance_usdt),
+                title: Text(loc.show_balance_usdt.capitalize(),
                     style: context.bodyLarge),
                 onChanged: (value) {
                   ref
@@ -88,7 +88,7 @@ class SettingsTab extends ConsumerWidget {
               key: _burnSwitchKey,
               initialValue: settings.unlockBurn,
               decoration: const InputDecoration(fillColor: Colors.transparent),
-              title: Text(toBeginningOfSentenceCase(loc.unlock_burn_transfer),
+              title: Text(loc.unlock_burn_transfer.capitalize(),
                   style: context.bodyLarge),
               onChanged: (value) {
                 if (value ?? false) {
@@ -203,6 +203,7 @@ class SettingsTab extends ConsumerWidget {
       builder: (context) {
         final loc = ref.read(appLocalizationsProvider);
         return InputDialog(
+          title: loc.rename_wallet,
           hintText: loc.new_name,
           onEnter: (value) {
             _renameWallet(ref, value);
