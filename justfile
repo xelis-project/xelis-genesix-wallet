@@ -17,7 +17,7 @@ flutter_get:
     flutter pub get
 
 flutter_generate:
-    dart run build_runner build
+    dart run build_runner build -d
 
 lint:
     cd rust && cargo fmt

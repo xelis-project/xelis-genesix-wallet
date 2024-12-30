@@ -26,14 +26,14 @@ jobs:
           cargo install 'flutter_rust_bridge_codegen'
           cd rust && cargo update
 
+      - name: Install dependencies
+        run: flutter pub get
+
       - name: Generate bridge code
         run: flutter_rust_bridge_codegen generate
 
       - name: Generate Dart code
-        run:  dart run build_runner build
-
-      - name: Install dependencies
-        run: flutter pub get
+        run: dart run build_runner build -d
 
       - name: Build Android apk
         run: flutter build apk --split-per-abi
@@ -41,5 +41,5 @@ jobs:
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
-            name: android-build
-            path: build/app/outputs/apk/release/*.apk
+          name: android-build
+          path: build/app/outputs/apk/release/*.apk
