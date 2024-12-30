@@ -1,8 +1,8 @@
-update: flutter_get flutter_generate install_rust_bridge_codegen rust_update gen_rust_bridge lint
+update: flutter_get install_rust_bridge_codegen rust_update gen_rust_bridge flutter_generate lint
 
-init: flutter_get flutter_generate install_rust_bridge_codegen gen_rust_bridge
+init: flutter_get install_rust_bridge_codegen gen_rust_bridge flutter_generate
 
-gen: flutter_get flutter_generate gen_rust_bridge
+gen: flutter_get gen_rust_bridge flutter_generate
 
 watch_rust:
     flutter_rust_bridge_codegen generate --watch
