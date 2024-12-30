@@ -308,11 +308,19 @@ class _TransactionEntryScreenState
                                     ),
                                   ],
                                 ),
-                                if (!hideExtraData) ...[
+                                if (!hideExtraData &&
+                                    transfer.extraData != null) ...[
                                   const SizedBox(height: Spaces.medium),
-                                  Text(loc.extra_data,
-                                      style: context.labelLarge),
-                                  SelectableText(transfer.extraData.toString()),
+                                  Column(
+                                    children: [
+                                      Text(loc.extra_data,
+                                          style: context.labelMedium?.copyWith(
+                                              color: context
+                                                  .moreColors.mutedColor)),
+                                      SelectableText(
+                                          transfer.extraData.toString()),
+                                    ],
+                                  ),
                                 ]
                               ],
                             ),
@@ -327,122 +335,121 @@ class _TransactionEntryScreenState
           ],
 
           // INCOMING
-          if (entryType is sdk.IncomingEntry)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          if (entryType is sdk.IncomingEntry) ...[
+            const SizedBox(height: Spaces.medium),
+            Text(loc.from,
+                style: context.labelLarge
+                    ?.copyWith(color: context.moreColors.mutedColor)),
+            const SizedBox(height: Spaces.extraSmall),
+            Row(
               children: [
-                const SizedBox(height: Spaces.medium),
-                Text(loc.from,
-                    style: context.labelLarge
-                        ?.copyWith(color: context.moreColors.mutedColor)),
-                const SizedBox(height: Spaces.extraSmall),
-                Row(
-                  children: [
-                    HashiconWidget(
-                      hash: incoming!.from,
-                      size: const Size(35, 35),
-                    ),
-                    const SizedBox(width: Spaces.small),
-                    Expanded(
-                      child: SelectableText(
-                        incoming!.from,
-                        style: context.bodyLarge,
-                      ),
-                    ),
-                  ],
+                HashiconWidget(
+                  hash: incoming!.from,
+                  size: const Size(35, 35),
                 ),
-                const SizedBox(height: Spaces.medium),
-                Text(
-                  loc.transfers,
-                  style: context.titleSmall
-                      ?.copyWith(color: context.moreColors.mutedColor),
+                const SizedBox(width: Spaces.small),
+                Expanded(
+                  child: SelectableText(
+                    incoming!.from,
+                    style: context.bodyLarge,
+                  ),
                 ),
-                const Divider(),
-                Builder(
-                  builder: (BuildContext context) {
-                    var transfers = incoming!.transfers;
+              ],
+            ),
+            const SizedBox(height: Spaces.medium),
+            Text(
+              loc.transfers,
+              style: context.titleSmall
+                  ?.copyWith(color: context.moreColors.mutedColor),
+            ),
+            const Divider(),
+            Builder(
+              builder: (BuildContext context) {
+                var transfers = incoming!.transfers;
 
-                    if (hideZeroTransfer) {
-                      transfers = transfers.skipWhile((value) {
-                        return value.amount == 0;
-                      }).toList(growable: false);
-                    }
+                if (hideZeroTransfer) {
+                  transfers = transfers.skipWhile((value) {
+                    return value.amount == 0;
+                  }).toList(growable: false);
+                }
 
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: transfers.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        final transfer = transfers[index];
-                        final isXelis = transfer.asset == sdk.xelisAsset;
-                        final xelisPath = AppResources.xelisAsset.imagePath!;
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: transfers.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final transfer = transfers[index];
+                    final isXelis = transfer.asset == sdk.xelisAsset;
+                    final xelisPath = AppResources.xelisAsset.imagePath!;
 
-                        return Card(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(Spaces.medium,
-                                Spaces.small, Spaces.medium, Spaces.small),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    return Card(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(Spaces.medium,
+                            Spaces.small, Spaces.medium, Spaces.small),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          bottom: Spaces.extraSmall),
-                                      child: Text(loc.asset,
-                                          style: context.labelMedium?.copyWith(
-                                              color: context
-                                                  .moreColors.mutedColor)),
-                                    ),
-                                    isXelis
-                                        ? Row(
-                                            children: [
-                                              Logo(
-                                                imagePath: xelisPath,
-                                              ),
-                                              const SizedBox(
-                                                  width: Spaces.small),
-                                              Text(
-                                                  AppResources.xelisAsset.name),
-                                            ],
-                                          )
-                                        : Text(truncateText(transfer.asset)),
-                                  ],
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      bottom: Spaces.extraSmall),
+                                  child: Text(loc.asset,
+                                      style: context.labelMedium?.copyWith(
+                                          color:
+                                              context.moreColors.mutedColor)),
                                 ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          bottom: Spaces.extraSmall),
-                                      child: Text(loc.amount,
-                                          style: context.labelMedium?.copyWith(
-                                              color: context
-                                                  .moreColors.mutedColor)),
-                                    ),
-                                    SelectableText(isXelis
-                                        ? '+${formatXelis(transfer.amount)}'
-                                        : '${transfer.amount}'),
-                                  ],
+                                isXelis
+                                    ? Row(
+                                        children: [
+                                          Logo(
+                                            imagePath: xelisPath,
+                                          ),
+                                          const SizedBox(width: Spaces.small),
+                                          Text(AppResources.xelisAsset.name),
+                                        ],
+                                      )
+                                    : Text(truncateText(transfer.asset)),
+                              ],
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      bottom: Spaces.extraSmall),
+                                  child: Text(loc.amount,
+                                      style: context.labelMedium?.copyWith(
+                                          color:
+                                              context.moreColors.mutedColor)),
                                 ),
-                                if (!hideExtraData) ...[
-                                  const SizedBox(height: Spaces.medium),
+                                SelectableText(isXelis
+                                    ? '+${formatXelis(transfer.amount)}'
+                                    : '${transfer.amount}'),
+                              ],
+                            ),
+                            if (!hideExtraData &&
+                                transfer.extraData != null) ...[
+                              const SizedBox(height: Spaces.medium),
+                              Column(
+                                children: [
                                   Text(loc.extra_data,
                                       style: context.labelMedium?.copyWith(
                                           color:
                                               context.moreColors.mutedColor)),
                                   SelectableText(transfer.extraData.toString()),
-                                ]
-                              ],
-                            ),
-                          ),
-                        );
-                      },
+                                ],
+                              ),
+                            ]
+                          ],
+                        ),
+                      ),
                     );
                   },
-                ),
-              ],
+                );
+              },
             ),
+          ],
         ],
       ),
     );
