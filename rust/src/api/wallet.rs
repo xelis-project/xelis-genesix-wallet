@@ -62,9 +62,14 @@ pub async fn create_xelis_wallet(
         match tables {
             Some(tables) => tables,
             None => {
+                let precomputed_tables_size = if cfg!(target_arch = "wasm32") {
+                    precomputed_tables::L1_LOW
+                } else {
+                    precomputed_tables::L1_FULL
+                };
                 let tables = precomputed_tables::read_or_generate_precomputed_tables(
                     precomputed_tables_path.as_deref(),
-                    precomputed_tables::L1_FULL,
+                    precomputed_tables_size,
                     LogProgressTableGenerationReportFunction,
                     true,
                 )
@@ -98,9 +103,14 @@ pub async fn open_xelis_wallet(
     network: Network,
     precomputed_tables_path: Option<String>,
 ) -> Result<XelisWallet> {
+    let precomputed_tables_size = if cfg!(target_arch = "wasm32") {
+        precomputed_tables::L1_LOW
+    } else {
+        precomputed_tables::L1_FULL
+    };
     let precomputed_tables = precomputed_tables::read_or_generate_precomputed_tables(
         precomputed_tables_path.as_deref(),
-        precomputed_tables::L1_FULL,
+        precomputed_tables_size,
         LogProgressTableGenerationReportFunction,
         true,
     )
