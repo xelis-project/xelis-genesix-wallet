@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/logger/logger.dart';
@@ -12,10 +14,10 @@ part 'router.g.dart';
 final routerKey = GlobalKey<NavigatorState>(debugLabel: 'routerKey');
 
 @riverpod
-GoRouter router(RouterRef ref) {
+GoRouter router(Ref ref) {
   final router = GoRouter(
     navigatorKey: routerKey,
-    observers: [TalkerRouteObserver(talker)],
+    observers: kDebugMode ? [TalkerRouteObserver(talker)] : null,
     initialLocation: const OpenWalletRoute().location,
     onException: (context, state, router) {
       // if exception like page not found just redirect to openWallet screen

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/wallet/domain/xelis_price/coinpaprika/xelis_ticker.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:http/http.dart' as http;
@@ -11,7 +12,7 @@ final Uri coinPaprikaEndpoint =
     Uri.https('api.coinpaprika.com', '/v1/tickers/xel-xelis');
 
 @riverpod
-Future<XelisTicker> xelisPrice(XelisPriceRef ref) async {
+Future<XelisTicker> xelisPrice(Ref ref) async {
   final timer = Timer(const Duration(seconds: 60), () => ref.invalidateSelf());
   final client = http.Client();
 

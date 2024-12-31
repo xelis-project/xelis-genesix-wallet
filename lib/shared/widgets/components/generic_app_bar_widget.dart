@@ -4,45 +4,52 @@ import 'package:go_router/go_router.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 
 class GenericAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const GenericAppBar({super.key, required this.title, this.actions});
+  const GenericAppBar(
+      {super.key,
+      this.title,
+      this.actions,
+      this.implyLeading = false,
+      this.onBack});
 
-  final String title;
-
+  final String? title;
   final List<Widget>? actions;
+  final bool implyLeading;
+  final void Function()? onBack;
 
   @override
   Widget build(BuildContext context) {
+    final onPressedBack = onBack ?? () => context.pop();
     return Row(
       children: [
         if (context.isWideScreen) Spacer(),
         Flexible(
           flex: 2,
           child: AppBar(
-            titleSpacing: Spaces.small,
+            automaticallyImplyLeading: implyLeading,
+            centerTitle: true,
             surfaceTintColor: Colors.transparent,
-            leading: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  Spaces.small, Spaces.medium, Spaces.none, Spaces.none),
-              child: IconButton(
-                onPressed: () {
-                  context.pop();
-                },
-                icon: const Icon(
-                  Icons.arrow_back,
-                  // size: 30,
+            title: title != null
+                ? Padding(
+                    padding: const EdgeInsets.only(top: Spaces.medium),
+                    child: Text(
+                      title!,
+                      style: context.headlineSmall!
+                          .copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  )
+                : null,
+            actions: [
+              if (actions != null) ...actions!,
+              Padding(
+                padding: const EdgeInsets.only(right: Spaces.small),
+                child: Center(
+                  child: IconButton(
+                    onPressed: onPressedBack,
+                    icon: Icon(Icons.close_rounded),
+                  ),
                 ),
-              ),
-            ),
-            title: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  Spaces.none, Spaces.medium, Spaces.none, Spaces.none),
-              child: Text(
-                title,
-                style: context.headlineMedium!
-                    .copyWith(fontWeight: FontWeight.bold),
-              ),
-            ),
-            actions: actions,
+              )
+            ],
           ),
         ),
         if (context.isWideScreen) Spacer(),

@@ -1,7 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
+import 'package:genesix/features/logger/logger.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/rust_bridge/api/table_generation.dart';
+import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
 import 'package:genesix/features/router/route_utils.dart';
@@ -27,7 +31,9 @@ class Authentication extends _$Authentication {
     String name,
     String password, [
     String? seed,
+    String? privateKey,
   ]) async {
+    final loc = ref.read(appLocalizationsProvider);
     final precomputedTablesPath = await _getPrecomputedTablesPath();
     final settings = ref.read(settingsProvider);
     final walletPath = await getWalletPath(settings.network, name);
@@ -47,14 +53,34 @@ class Authentication extends _$Authentication {
 
       // remove prefix for rust call because it's already appended
       final dbName = walletPath.replaceFirst(localStorageDBPrefix, "");
-      if (seed != null) {
-        walletRepository = await NativeWalletRepository.recover(
-            dbName, password, settings.network,
-            seed: seed, precomputeTablesPath: precomputedTablesPath);
-      } else {
-        walletRepository = await NativeWalletRepository.create(
-            dbName, password, settings.network,
-            precomputeTablesPath: precomputedTablesPath);
+
+      try {
+        if (seed != null) {
+          walletRepository = await NativeWalletRepository.recoverFromSeed(
+              dbName, password, settings.network,
+              seed: seed, precomputeTablesPath: precomputedTablesPath);
+        } else if (privateKey != null) {
+          walletRepository = await NativeWalletRepository.recoverFromPrivateKey(
+              dbName, password, settings.network,
+              privateKey: privateKey);
+        } else {
+          walletRepository = await NativeWalletRepository.create(
+              dbName, password, settings.network,
+              precomputeTablesPath: precomputedTablesPath);
+        }
+      } on AnyhowException catch (e) {
+        talker.critical('Creating wallet failed: $e');
+        final xelisMessage = (e).message.split("\n")[0];
+        ref
+            .read(snackBarMessengerProvider.notifier)
+            .showError('${loc.error_when_creating_wallet}:\n$xelisMessage');
+        rethrow;
+      } catch (e) {
+        talker.critical('Creating wallet failed: $e');
+        ref
+            .read(snackBarMessengerProvider.notifier)
+            .showError(loc.error_when_creating_wallet);
+        rethrow;
       }
 
       ref
@@ -84,6 +110,7 @@ class Authentication extends _$Authentication {
   }
 
   Future<void> openWallet(String name, String password) async {
+    final loc = ref.read(appLocalizationsProvider);
     final settings = ref.read(settingsProvider);
     final precomputedTablesPath = await _getPrecomputedTablesPath();
 
@@ -104,7 +131,18 @@ class Authentication extends _$Authentication {
         walletRepository = await NativeWalletRepository.open(
             dbName, password, settings.network,
             precomputeTablesPath: precomputedTablesPath);
+      } on AnyhowException catch (e) {
+        talker.critical('Opening wallet failed: $e');
+        final xelisMessage = (e).message.split("\n")[0];
+        ref
+            .read(snackBarMessengerProvider.notifier)
+            .showError('${loc.error_when_opening_wallet}:\n$xelisMessage');
+        rethrow;
       } catch (e) {
+        talker.critical('Opening wallet failed: $e');
+        ref
+            .read(snackBarMessengerProvider.notifier)
+            .showError(loc.error_when_opening_wallet);
         rethrow;
       }
 
@@ -126,6 +164,7 @@ class Authentication extends _$Authentication {
   // only used for desktop wallet import
   Future<void> openImportedWallet(
       String sourcePath, String walletName, String password) async {
+    final loc = ref.read(appLocalizationsProvider);
     final precomputedTablesPath = await _getPrecomputedTablesPath();
     final network = ref.read(settingsProvider).network;
 
@@ -137,7 +176,18 @@ class Authentication extends _$Authentication {
       walletRepository = await NativeWalletRepository.open(
           targetPath, password, network,
           precomputeTablesPath: precomputedTablesPath);
+    } on AnyhowException catch (e) {
+      talker.critical('Opening wallet failed: $e');
+      final xelisMessage = (e).message.split("\n")[0];
+      ref
+          .read(snackBarMessengerProvider.notifier)
+          .showError('${loc.error_when_opening_wallet}:\n$xelisMessage');
+      rethrow;
     } catch (e) {
+      talker.critical('Opening wallet failed: $e');
+      ref
+          .read(snackBarMessengerProvider.notifier)
+          .showError(loc.error_when_opening_wallet);
       rethrow;
     }
 

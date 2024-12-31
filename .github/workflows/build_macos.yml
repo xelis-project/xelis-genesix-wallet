@@ -25,14 +25,14 @@ jobs:
         run: |
           cargo install 'flutter_rust_bridge_codegen'
 
+      - name: Install dependencies
+        run: flutter pub get
+
       - name: Generate bridge code
         run: flutter_rust_bridge_codegen generate
 
       - name: Generate Dart code
-        run:  dart run build_runner build
-
-      - name: Install dependencies
-        run: flutter pub get
+        run: dart run build_runner build -d
 
       - name: Build MacOS app
         run: flutter build macos
@@ -43,5 +43,5 @@ jobs:
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
-            name: genesix-macos
-            path: build/macos/Build/Products/Release/genesix.app
+          name: genesix-macos
+          path: build/macos/Build/Products/Release/genesix.app

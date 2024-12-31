@@ -8,7 +8,5 @@ String translateNetworkName(Network network) {
       return 'Testnet';
     case Network.mainnet:
       return 'Mainnet';
-    default:
-      return 'N/A';
   }
 }

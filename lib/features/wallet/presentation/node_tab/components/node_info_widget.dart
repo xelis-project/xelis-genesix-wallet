@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:genesix/shared/utils/utils.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/node_info_provider.dart';
@@ -64,7 +63,7 @@ class NodeInfoWidget extends ConsumerWidget {
         SelectableText(
           switch (info?.circulatingSupply) {
             null => '...',
-            String() => '${info?.circulatingSupply} XEL',
+            String() => info!.circulatingSupply,
           },
           style: context.titleLarge,
         ),
@@ -74,14 +73,15 @@ class NodeInfoWidget extends ConsumerWidget {
           style: context.labelLarge?.copyWith(color: context.colors.primary),
         ),
         SelectableText(
-          info?.blockReward.toString() != null
-              ? '${formatXelis(info!.blockReward)} XEL'
-              : '...',
+          switch (info?.blockReward) {
+            String() => info!.blockReward,
+            null => '...',
+          },
           style: context.titleLarge,
         ),
         const SizedBox(height: Spaces.medium),
         Text(
-          'Mempool',
+          loc.mempool,
           style: context.labelLarge?.copyWith(color: context.colors.primary),
         ),
         SelectableText(

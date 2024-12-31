@@ -107,7 +107,7 @@ class _ActionTile extends StatelessWidget {
         ),
         if (showDivider)
           Divider(
-            color: context.colors.onSurface.withOpacity(0.2),
+            color: context.colors.onSurface.withValues(alpha: 0.2),
             height: 1,
           ),
       ],

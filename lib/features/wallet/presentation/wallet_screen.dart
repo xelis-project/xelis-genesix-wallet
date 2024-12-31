@@ -119,38 +119,44 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     } else {
       mainWidget = Row(
         children: [
-          NavigationRail(
-            selectedIndex: _currentPageIndex,
-            //groupAlignment: -1.0,
-            onDestinationSelected: (int index) {
-              setState(() {
-                _currentPageIndex = index;
-              });
-            },
-            labelType: NavigationRailLabelType.all,
-            //trailing: const SizedBox(),
-            destinations: <NavigationRailDestination>[
-              NavigationRailDestination(
-                icon: const Icon(Icons.explore_rounded),
-                label: Text(loc.node_bottom_app_bar),
-              ),
-              NavigationRailDestination(
-                icon: const Icon(Icons.manage_search_rounded),
-                label: Text(loc.history_bottom_app_bar),
-              ),
-              NavigationRailDestination(
-                icon: const Icon(Icons.account_balance_wallet_rounded),
-                label: Text(loc.wallet_bottom_app_bar),
-              ),
-              NavigationRailDestination(
-                icon: const Icon(Icons.assessment_rounded),
-                label: Text(loc.assets_bottom_app_bar),
-              ),
-              NavigationRailDestination(
-                icon: const Icon(Icons.settings_rounded),
-                label: Text(loc.settings_bottom_app_bar),
-              ),
-            ],
+          MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: context.theme.copyWith(
+              colorScheme: ColorScheme.fromSwatch()
+                  .copyWith(primary: Colors.transparent),
+            ),
+            home: NavigationRail(
+              selectedIndex: _currentPageIndex,
+              onDestinationSelected: (int index) {
+                setState(() {
+                  _currentPageIndex = index;
+                });
+              },
+              labelType: NavigationRailLabelType.all,
+              //trailing: const SizedBox(),
+              destinations: <NavigationRailDestination>[
+                NavigationRailDestination(
+                  icon: const Icon(Icons.explore_rounded),
+                  label: Text(loc.node_bottom_app_bar),
+                ),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.manage_search_rounded),
+                  label: Text(loc.history_bottom_app_bar),
+                ),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.account_balance_wallet_rounded),
+                  label: Text(loc.wallet_bottom_app_bar),
+                ),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.assessment_rounded),
+                  label: Text(loc.assets_bottom_app_bar),
+                ),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.settings_rounded),
+                  label: Text(loc.settings_bottom_app_bar),
+                ),
+              ],
+            ),
           ),
           Expanded(
             child: CustomScaffold(

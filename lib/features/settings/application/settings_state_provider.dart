@@ -61,11 +61,6 @@ class Settings extends _$Settings {
     setState(state);
   }
 
-  void setActivateLogger(bool activateLogger) {
-    state = state.copyWith(activateLogger: activateLogger);
-    setState(state);
-  }
-
   void setShowBalanceUSDT(bool showBalanceUSDT) {
     state = state.copyWith(showBalanceUSDT: showBalanceUSDT);
     setState(state);

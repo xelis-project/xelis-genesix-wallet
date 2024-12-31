@@ -3,6 +3,9 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/input_decoration.dart';
+import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -32,6 +35,20 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
   final _passwordFormKey =
       GlobalKey<FormBuilderState>(debugLabel: '_passwordFormKey');
 
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
   void _checkWalletPassword(BuildContext context) async {
     final password = _passwordFormKey.currentState?.value['password'] as String;
 
@@ -59,45 +76,106 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
 
-    return AlertDialog(
+    return GenericDialog(
       scrollable: false,
-      contentPadding: const EdgeInsets.all(Spaces.small),
-      //iconPadding: const EdgeInsets.all(Spaces.small),
-      content: FormBuilder(
-        key: _passwordFormKey,
-        child: PasswordTextField(
-          textField: FormBuilderTextField(
-            name: 'password',
-            autocorrect: false,
-            autofocus: true,
-            style: context.bodyLarge,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.lock),
-              fillColor: Colors.transparent,
-              hintText: loc.password,
-              errorText: _passwordError,
-              errorMaxLines: 2,
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding:
+                const EdgeInsets.only(left: Spaces.medium, top: Spaces.large),
+            child: Text(
+              loc.authentication.capitalize(),
+              style: context.titleLarge,
             ),
-            onChanged: (_) {
-              setState(() {
-                _passwordError = null;
-              });
-            },
-            onSubmitted: (value) {
-              if (_passwordFormKey.currentState?.saveAndValidate() ?? false) {
-                if (widget.onEnter != null) {
-                  widget.onEnter!(value!);
-                }
+          ),
+          Padding(
+            padding:
+                const EdgeInsets.only(right: Spaces.small, top: Spaces.small),
+            child: IconButton(
+              onPressed: () {
+                context.pop();
+              },
+              icon: const Icon(Icons.close_rounded),
+            ),
+          ),
+        ],
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            loc.authentication_message,
+            style: context.bodyMedium
+                ?.copyWith(color: context.moreColors.mutedColor),
+          ),
+          const SizedBox(height: Spaces.large),
+          FormBuilder(
+            key: _passwordFormKey,
+            child: PasswordTextField(
+              textField: FormBuilderTextField(
+                name: 'password',
+                autocorrect: false,
+                autofocus: true,
+                focusNode: _focusNode,
+                style: context.bodyLarge,
+                decoration: context.textInputDecoration.copyWith(
+                  prefixIcon: const Icon(Icons.lock),
+                  labelText: loc.password,
+                  errorText: _passwordError,
+                ),
+                onChanged: (_) {
+                  setState(() {
+                    _passwordError = null;
+                  });
+                },
+                onSubmitted: (value) {
+                  if (_passwordFormKey.currentState?.saveAndValidate() ??
+                      false) {
+                    if (widget.onEnter != null) {
+                      widget.onEnter!(value!);
+                    }
 
-                if (widget.onValid != null) {
-                  _checkWalletPassword(context);
-                }
+                    if (widget.onValid != null) {
+                      _checkWalletPassword(context);
+                    }
+
+                    _focusNode.unfocus();
+                  }
+                },
+                validator: FormBuilderValidators.required(),
+              ),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton.icon(
+          onPressed: () {
+            if (_passwordFormKey.currentState?.saveAndValidate() ?? false) {
+              if (widget.onEnter != null) {
+                widget.onEnter!(
+                    _passwordFormKey.currentState!.value['password'] as String);
               }
-            },
-            validator: FormBuilderValidators.required(),
+
+              if (widget.onValid != null) {
+                _checkWalletPassword(context);
+              }
+
+              _focusNode.unfocus();
+            }
+          },
+          label: Text(
+            loc.next,
+          ),
+          icon: Icon(
+            Icons.arrow_forward_rounded,
+            size: 18,
           ),
         ),
-      ),
+      ],
     );
   }
 }

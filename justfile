@@ -1,8 +1,8 @@
-update: install_rust_bridge_codegen rust_update gen_rust_bridge flutter_get lint
+update: flutter_get install_rust_bridge_codegen rust_update gen_rust_bridge flutter_generate lint
 
-init: install_rust_bridge_codegen gen_rust_bridge flutter_get
+init: flutter_get install_rust_bridge_codegen gen_rust_bridge flutter_generate
 
-gen: gen_rust_bridge flutter_get
+gen: flutter_get gen_rust_bridge flutter_generate
 
 watch_rust:
     flutter_rust_bridge_codegen generate --watch
@@ -15,6 +15,9 @@ gen_rust_bridge:
 
 flutter_get:
     flutter pub get
+
+flutter_generate:
+    dart run build_runner build -d
 
 lint:
     cd rust && cargo fmt

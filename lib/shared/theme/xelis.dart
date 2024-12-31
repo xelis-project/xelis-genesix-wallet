@@ -9,23 +9,24 @@ ThemeData xelisTheme() {
   const primaryColor = Color.fromARGB(255, 122, 250, 211);
   const secondaryColor = Color.fromARGB(255, 122, 203, 250);
   const backgroundColor = Color.fromARGB(255, 19, 19, 19);
-  var borderRadius = BorderRadius.circular(10.0);
+  final borderRadius = BorderRadius.circular(10.0);
 
   WidgetStateProperty<Color> switchStateProperty =
       WidgetStateProperty.resolveWith((states) {
     if (states.contains(WidgetState.selected)) {
       return primaryColor;
     }
-    return textColor.withOpacity(0.6);
+    return textColor.withValues(alpha: 0.6);
   });
 
   final baseTheme = ThemeData(
     useMaterial3: true,
     // splashFactory: InkSparkle.splashFactory,
     splashFactory: NoSplash.splashFactory,
-    // TODO deactivated until we find a better combo color/shape
     hoverColor: Colors.transparent,
     highlightColor: Colors.transparent,
+    scaffoldBackgroundColor: Colors.transparent,
+    dividerColor: Colors.transparent,
 
     // COLORS
     colorScheme: const ColorScheme(
@@ -47,9 +48,12 @@ ThemeData xelisTheme() {
         bgRadialColor2: const Color.fromARGB(178, 5, 124, 132),
         bgRadialColor3: const Color.fromARGB(153, 0, 170, 150),
         bgRadialEndColor: const Color.fromARGB(255, 0, 0, 0),
-        mutedColor: textColor.withOpacity(0.6),
+        mutedColor: textColor.withValues(alpha: 0.6),
       )
     ],
+
+    // APP BAR
+    appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent),
 
     // TEXT
     textTheme: TextTheme(
@@ -86,15 +90,16 @@ ThemeData xelisTheme() {
     ),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: textColor,
-      selectionColor: textColor.withOpacity(0.1),
+      selectionColor: textColor.withValues(alpha: 0.1),
     ),
 
     // CARD
     cardTheme: CardTheme(
       color: Colors.black12,
       shape: RoundedRectangleBorder(
-          borderRadius: borderRadius,
-          side: const BorderSide(color: Colors.black12, width: 1)),
+        borderRadius: borderRadius,
+        // side: const BorderSide(color: Colors.black12, width: 1),
+      ),
     ),
 
     // BUTTON
@@ -115,37 +120,27 @@ ThemeData xelisTheme() {
       style: FilledButton.styleFrom(
         //backgroundColor: primaryColor,
         //foregroundColor: Colors.black,
-        //textStyle: TextStyle(color: Colors.black),
         padding: const EdgeInsets.symmetric(
             vertical: Spaces.medium, horizontal: Spaces.medium),
         shape: RoundedRectangleBorder(
           borderRadius: borderRadius,
         ),
+        textStyle: GoogleFonts.jura(fontWeight: FontWeight.bold),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         backgroundColor: primaryColor,
         foregroundColor: Colors.black87,
+        iconColor: Colors.black87,
+        disabledBackgroundColor: Colors.black87,
         padding: const EdgeInsets.symmetric(
             vertical: Spaces.medium, horizontal: Spaces.medium),
         shape: RoundedRectangleBorder(
           borderRadius: borderRadius,
         ),
-        textStyle: GoogleFonts.jura(fontWeight: FontWeight.w800),
+        textStyle: GoogleFonts.jura(fontWeight: FontWeight.bold),
       ),
-    ),
-    iconButtonTheme: IconButtonThemeData(
-      style: IconButton.styleFrom(
-          //backgroundColor: primaryColor,
-          //foregroundColor: Colors.black87,
-          //shape: const CircleBorder(
-          //  side: BorderSide(color: Colors.transparent),
-          //),
-          //highlightColor: primaryColor.darken(10),
-          //focusColor: primaryColor.lighten(15),
-          //hoverColor: primaryColor.lighten(15),
-          ),
     ),
 
     // NAVIGATION BAR
@@ -161,15 +156,14 @@ ThemeData xelisTheme() {
       ),
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
-      backgroundColor: Colors.black12,
+      elevation: 0,
+      backgroundColor: Colors.black26,
       selectedItemColor: Colors.white,
       type: BottomNavigationBarType.fixed,
       unselectedItemColor: Colors.white54,
       selectedLabelStyle:
           GoogleFonts.jura(fontSize: 12, fontWeight: FontWeight.w600),
       selectedIconTheme: IconThemeData(size: 36),
-      //showUnselectedLabels: false,
-      //showSelectedLabels: false,
     ),
     navigationRailTheme: NavigationRailThemeData(
       backgroundColor: Colors.black26,
@@ -181,9 +175,6 @@ ThemeData xelisTheme() {
           color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w600),
       selectedIconTheme: const IconThemeData(size: 36, color: Colors.white),
       unselectedIconTheme: const IconThemeData(size: 30, color: Colors.white54),
-      /*indicatorShape: CircleBorder(
-        side: BorderSide(color: Colors.transparent,width: 0),
-      ),*/
     ),
 
     // INPUT
@@ -192,7 +183,7 @@ ThemeData xelisTheme() {
       errorStyle: const TextStyle(
         color: Colors.red,
         fontSize: 14,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w800,
       ),
       contentPadding: const EdgeInsets.all(15),
       filled: true,
@@ -235,18 +226,19 @@ ThemeData xelisTheme() {
 
     // DIALOG
     dialogTheme: DialogTheme(
-      backgroundColor: backgroundColor,
+      backgroundColor: backgroundColor.withValues(alpha: 0.9),
       surfaceTintColor: Colors.transparent,
+      barrierColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: borderRadius,
       ),
-      //actionsPadding: EdgeInsets.all(10)
+      actionsPadding: const EdgeInsets.all(Spaces.medium),
     ),
 
     // SWITCH
     switchTheme: SwitchThemeData(
       thumbColor: switchStateProperty,
-      trackColor: WidgetStatePropertyAll(primaryColor.withOpacity(0.2)),
+      trackColor: WidgetStatePropertyAll(primaryColor.withValues(alpha: 0.2)),
       trackOutlineColor: switchStateProperty,
     ),
 
@@ -254,6 +246,17 @@ ThemeData xelisTheme() {
     tabBarTheme: const TabBarTheme(
       dividerColor: Colors.white30,
       overlayColor: WidgetStatePropertyAll(Colors.transparent),
+    ),
+
+    // MODAL BOTTOM SHEET
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: backgroundColor.withValues(alpha: 0.9),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
     ),
 
     // MISC
@@ -275,12 +278,12 @@ ThemeData xelisTheme() {
       contentPadding: EdgeInsets.all(10),
       dense: true,
       tileColor: Colors.transparent,
-      //minVerticalPadding: 5,
     ),
 
-    scaffoldBackgroundColor: Colors.transparent,
-    appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent),
-    dividerColor: Colors.transparent,
+    sliderTheme: SliderThemeData(
+      inactiveTrackColor: Colors.white38,
+      trackHeight: 2,
+    ),
   );
 
   return baseTheme.copyWith(

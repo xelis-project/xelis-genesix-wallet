@@ -21,22 +21,22 @@ Future<void> initRustLogging() async {
 
     switch (event.level) {
       case Level.error:
-        talker.logTyped(
+        talker.logCustom(
             TalkerLog(title: 'Rust-Error', message, logLevel: LogLevel.error));
       case Level.warn:
-        talker.logTyped(TalkerLog(
+        talker.logCustom(TalkerLog(
             title: 'Rust-Warning', message, logLevel: LogLevel.warning));
       case Level.info:
-        talker.logTyped(
+        talker.logCustom(
             TalkerLog(title: 'Rust-Info', message, logLevel: LogLevel.info));
       case Level.debug:
-        talker.logTyped(TalkerLog(
+        talker.logCustom(TalkerLog(
           title: 'Rust-Debug',
           message,
           logLevel: LogLevel.debug,
         ));
       case Level.trace:
-        talker.logTyped(TalkerLog(
+        talker.logCustom(TalkerLog(
             title: 'Rust-Trace', message, logLevel: LogLevel.verbose));
     }
   });
@@ -50,9 +50,9 @@ extension TalkerDataRust on TalkerData {
 
     Color? color;
     if (key == null && level != null) {
-      color = theme.logColors[TalkerLogType.fromLogLevel(level)];
+      color = theme.logColors[TalkerLogType.fromLogLevel(level).name];
     } else if (key != null) {
-      color = theme.logColors[TalkerLogType.fromKey(key)];
+      color = theme.logColors[TalkerLogType.fromKey(key)?.name];
     }
 
     return color ?? Colors.grey;

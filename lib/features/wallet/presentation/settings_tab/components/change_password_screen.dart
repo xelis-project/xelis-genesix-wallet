@@ -3,7 +3,9 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/theme/input_decoration.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
+import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
@@ -22,47 +24,26 @@ class ChangePasswordScreen extends ConsumerStatefulWidget {
 
 class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
   final _changePasswordKey =
-      GlobalKey<FormBuilderState>(debugLabel: '_openFormKey');
+      GlobalKey<FormBuilderState>(debugLabel: '_changePasswordFormKey');
 
-  void _changePassword() async {
-    if (_changePasswordKey.currentState?.saveAndValidate() ?? false) {
-      final loc = ref.read(appLocalizationsProvider);
+  late FocusNode _focusNodeOldPassword;
+  late FocusNode _focusNodeNewPassword;
+  late FocusNode _focusNodeConfirmNewPassword;
 
-      final oldPassword =
-          _changePasswordKey.currentState?.value['old_password'] as String;
-      final newPassword =
-          _changePasswordKey.currentState?.value['new_password'] as String;
-      final confirmNewPassword = _changePasswordKey
-          .currentState?.value['confirm_new_password'] as String;
+  @override
+  void initState() {
+    super.initState();
+    _focusNodeOldPassword = FocusNode();
+    _focusNodeNewPassword = FocusNode();
+    _focusNodeConfirmNewPassword = FocusNode();
+  }
 
-      if (oldPassword == newPassword) {
-        _changePasswordKey.currentState?.fields['new_password']
-            ?.invalidate(loc.same_old_new_password_error);
-      } else if (newPassword != confirmNewPassword) {
-        _changePasswordKey.currentState?.fields['confirm_new_password']
-            ?.invalidate(loc.not_match_new_password_error);
-      } else {
-        try {
-          context.loaderOverlay.show();
-
-          await ref
-              .read(walletStateProvider)
-              .nativeWalletRepository!
-              .changePassword(
-                  oldPassword: oldPassword, newPassword: newPassword);
-
-          ref
-              .read(snackBarMessengerProvider.notifier)
-              .showInfo(loc.password_changed);
-        } catch (e) {
-          ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
-        }
-
-        if (mounted && context.loaderOverlay.visible) {
-          context.loaderOverlay.hide();
-        }
-      }
-    }
+  @override
+  dispose() {
+    _focusNodeOldPassword.dispose();
+    _focusNodeNewPassword.dispose();
+    _focusNodeConfirmNewPassword.dispose();
+    super.dispose();
   }
 
   @override
@@ -81,44 +62,69 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               const SizedBox(height: Spaces.large),
-              // Text(loc.old_password, style: context.bodyLarge),
-              // const SizedBox(height: Spaces.small),
               PasswordTextField(
                 textField: FormBuilderTextField(
                   name: 'old_password',
+                  focusNode: _focusNodeOldPassword,
                   style: context.bodyLarge,
                   autocorrect: false,
-                  decoration: InputDecoration(
-                    hintText: loc.old_password,
+                  decoration: context.textInputDecoration.copyWith(
+                    labelText: loc.old_password,
                   ),
+                  onChanged: (value) {
+                    // workaround to reset the error message when the user modifies the field
+                    final hasError = _changePasswordKey
+                        .currentState?.fields['old_password']?.hasError;
+                    if (hasError ?? false) {
+                      _changePasswordKey.currentState?.fields['old_password']
+                          ?.reset();
+                    }
+                  },
                   validator: FormBuilderValidators.required(),
                 ),
               ),
               const SizedBox(height: Spaces.medium),
-              // Text(loc.new_password, style: context.bodyLarge),
-              // const SizedBox(height: Spaces.small),
               PasswordTextField(
                 textField: FormBuilderTextField(
                   name: 'new_password',
+                  focusNode: _focusNodeNewPassword,
                   style: context.bodyLarge,
                   autocorrect: false,
-                  decoration: InputDecoration(
-                    hintText: loc.new_password,
+                  decoration: context.textInputDecoration.copyWith(
+                    labelText: loc.new_password,
                   ),
+                  onChanged: (value) {
+                    // workaround to reset the error message when the user modifies the field
+                    final hasError = _changePasswordKey
+                        .currentState?.fields['new_password']?.hasError;
+                    if (hasError ?? false) {
+                      _changePasswordKey.currentState?.fields['new_password']
+                          ?.reset();
+                    }
+                  },
                   validator: FormBuilderValidators.required(),
                 ),
               ),
               const SizedBox(height: Spaces.medium),
-              // Text(loc.confirm_password, style: context.bodyLarge),
-              // const SizedBox(height: Spaces.small),
               PasswordTextField(
                 textField: FormBuilderTextField(
                   name: 'confirm_new_password',
+                  focusNode: _focusNodeConfirmNewPassword,
                   style: context.bodyLarge,
                   autocorrect: false,
-                  decoration: InputDecoration(
-                    hintText: loc.confirm_password,
+                  decoration: context.textInputDecoration.copyWith(
+                    labelText: loc.confirm_password,
                   ),
+                  onChanged: (value) {
+                    // workaround to reset the error message when the user modifies the field
+                    final hasError = _changePasswordKey
+                        .currentState?.fields['confirm_new_password']?.hasError;
+                    if (hasError ?? false) {
+                      _changePasswordKey
+                          .currentState?.fields['confirm_new_password']
+                          ?.reset();
+                    }
+                  },
                   validator: FormBuilderValidators.required(),
                 ),
               ),
@@ -139,5 +145,56 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
         ),
       ),
     );
+  }
+
+  void _changePassword() async {
+    if (_changePasswordKey.currentState?.saveAndValidate() ?? false) {
+      final loc = ref.read(appLocalizationsProvider);
+
+      final oldPassword =
+          _changePasswordKey.currentState?.value['old_password'] as String;
+      final newPassword =
+          _changePasswordKey.currentState?.value['new_password'] as String;
+      final confirmNewPassword = _changePasswordKey
+          .currentState?.value['confirm_new_password'] as String;
+
+      if (oldPassword == newPassword) {
+        _changePasswordKey.currentState?.fields['new_password']
+            ?.invalidate(loc.same_old_new_password_error);
+      } else if (newPassword != confirmNewPassword) {
+        _changePasswordKey.currentState?.fields['confirm_new_password']
+            ?.invalidate(loc.not_match_new_password_error);
+      } else {
+        _unfocusNodes();
+
+        try {
+          context.loaderOverlay.show();
+
+          await ref
+              .read(walletStateProvider)
+              .nativeWalletRepository!
+              .changePassword(
+                  oldPassword: oldPassword, newPassword: newPassword);
+
+          if (mounted) context.pop();
+
+          ref
+              .read(snackBarMessengerProvider.notifier)
+              .showInfo(loc.password_changed);
+        } catch (e) {
+          ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
+        }
+
+        if (mounted && context.loaderOverlay.visible) {
+          context.loaderOverlay.hide();
+        }
+      }
+    }
+  }
+
+  void _unfocusNodes() {
+    _focusNodeOldPassword.unfocus();
+    _focusNodeNewPassword.unfocus();
+    _focusNodeConfirmNewPassword.unfocus();
   }
 }

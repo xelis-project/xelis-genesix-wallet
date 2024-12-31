@@ -10,17 +10,26 @@ import 'package:path_provider/path_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart' show NumberFormat, toBeginningOfSentenceCase;
 
-String formatCoin(int value, int decimals) {
-  return (value / pow(10, decimals)).toStringAsFixed(decimals);
+String formatCoin(int value, int decimals, String ticker) {
+  final formatter = NumberFormat.currency(
+      locale: 'fr_FR', decimalDigits: decimals, symbol: ticker);
+  final xelisValue = value / pow(10, decimals);
+  return formatter.format(xelisValue);
 }
 
 String formatXelis(int value) {
-  return formatCoin(value, AppResources.xelisDecimals);
+  final formatter = NumberFormat.currency(
+      locale: 'fr_FR',
+      decimalDigits: AppResources.xelisDecimals,
+      symbol: AppResources.xelisAsset.ticker);
+  final xelisValue = value / pow(10, AppResources.xelisDecimals);
+  return formatter.format(xelisValue);
 }
 
-Address splitIntegratedAddress(String address) {
-  var rawData = splitIntegratedAddressJson(integratedAddress: address);
+Address getAddress({required String rawAddress}) {
+  var rawData = splitIntegratedAddressJson(integratedAddress: rawAddress);
   final json = jsonDecode(rawData);
   return Address.fromJson(json as Map<String, dynamic>);
 }
@@ -71,4 +80,8 @@ String truncateText(String text, {int maxLength = 8}) {
   if (text.isEmpty) return "";
   if (text.length <= maxLength) return text;
   return "...${text.substring(text.length - maxLength)}";
+}
+
+extension StringExtension on String {
+  String capitalize() => toBeginningOfSentenceCase(this);
 }
