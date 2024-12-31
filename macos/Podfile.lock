@@ -52,11 +52,11 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
-  package_info_plus: f5790acc797bf17c3e959e9d6cf162cc68ff7523
+  package_info_plus: 12f1c5c2cfe8727ca46cbd0b26677728972d9a5b
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   rust_builder: f13c21a2eeac6610ade0b050e264af3ff979dd09
   screen_retriever_macos: 776e0fa5d42c6163d2bf772d22478df4b302b161
-  share_plus: fd717ef89a2801d3491e737630112b80c310640e
+  share_plus: 1fa619de8392a4398bfaf176d441853922614e89
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   url_launcher_macos: c82c93949963e55b228a30115bd219499a6fe404
   window_manager: 3a1844359a6295ab1e47659b1a777e36773cd6e8
