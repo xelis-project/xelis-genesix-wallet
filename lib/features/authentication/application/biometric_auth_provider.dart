@@ -77,7 +77,6 @@ class BiometricAuth extends _$BiometricAuth {
         return await _biometricAuthRepository.authenticate(reason);
       } on PlatformException catch (e) {
         talker.warning('BiometricAuthProvider:authenticate', e);
-        print(e);
         if (e.code == lockedOut || e.code == permanentlyLockedOut) {
           state = BiometricAuthProviderStatus.locked;
           ref.read(snackBarMessengerProvider.notifier).showError(

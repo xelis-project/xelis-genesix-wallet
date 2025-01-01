@@ -7,6 +7,7 @@ import 'package:genesix/features/wallet/presentation/settings_tab/components/bur
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:go_router/go_router.dart';
 
 class BurnWarningDialog extends ConsumerWidget {

@@ -17,7 +17,6 @@ import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/input_dialog.dart';
-import 'package:genesix/shared/widgets/components/password_dialog.dart';
 
 class SettingsTab extends ConsumerWidget {
   SettingsTab({super.key});
@@ -238,8 +237,7 @@ class SettingsTab extends ConsumerWidget {
       final unlockBurn = ref.read(settingsProvider).unlockBurn;
       // If the user cancels or aborts the burn unlock, we need to reset the switch
       if (!unlockBurn) {
-        _burnSwitchKey.currentState?.fields['unlock_burn_switch']
-            ?.didChange(false);
+        _burnSwitchKey.currentState?.didChange(false);
       }
     } else {
       ref.read(settingsProvider.notifier).setUnlockBurn(false);

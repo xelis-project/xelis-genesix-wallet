@@ -15,7 +15,6 @@ import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/generic_dialog.dart';
-import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 
@@ -212,10 +211,10 @@ class _BurnReviewDialogState extends ConsumerState<BurnReviewDialog> {
               : TextButton.icon(
                   onPressed: _isConfirmed
                       ? () => startWithBiometricAuth(
-                    ref,
-                    callback: _broadcastBurn,
-                    closeCurrentDialog: false,
-                  )
+                            ref,
+                            callback: _broadcastBurn,
+                            closeCurrentDialog: false,
+                          )
                       : null,
                   icon: const Icon(Icons.send, size: 18),
                   label: Text(loc.broadcast),

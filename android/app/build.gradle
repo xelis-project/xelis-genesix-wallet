@@ -33,7 +33,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = JavaVersion.VERSION_17
     }
 
     sourceSets {
@@ -57,6 +57,12 @@ android {
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
         }
+    }
+
+    // Required by flutter_secure_storage
+    dependencies {
+        implementation 'com.google.errorprone:error_prone_annotations:2.36.0'
+        implementation 'com.github.spotbugs:spotbugs-annotations:4.8.6'
     }
 }
 
