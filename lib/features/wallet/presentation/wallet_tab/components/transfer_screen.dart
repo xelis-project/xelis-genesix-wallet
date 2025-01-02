@@ -87,7 +87,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                   style: context.headlineLarge!
                       .copyWith(fontWeight: FontWeight.bold),
                   autocorrect: false,
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
                   decoration: context.textInputDecoration.copyWith(
                     labelText: AppResources.zeroBalance,
                     labelStyle: context.headlineLarge!

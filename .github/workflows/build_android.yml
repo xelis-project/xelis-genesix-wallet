@@ -35,7 +35,7 @@ jobs:
         run: dart run build_runner build -d
 
       - name: Build Android apk
-        run: flutter build apk --split-per-abi
+        run: flutter build apk --release
 
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
