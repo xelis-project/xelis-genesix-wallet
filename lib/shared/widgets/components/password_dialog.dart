@@ -144,6 +144,12 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
                   setState(() {
                     _passwordError = null;
                   });
+                  // workaround to reset the error message when the user modifies the field
+                  final hasError = _passwordFormKey
+                      .currentState?.fields['password']?.hasError;
+                  if (hasError ?? false) {
+                    _passwordFormKey.currentState?.fields['password']?.reset();
+                  }
                 },
                 onSubmitted: (value) {
                   if (_passwordFormKey.currentState?.saveAndValidate() ??
