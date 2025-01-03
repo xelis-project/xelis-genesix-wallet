@@ -247,7 +247,7 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
                   onPressed: () => startWithBiometricAuth(
                     ref,
                     callback: _broadcastTransfer,
-                    closeCurrentDialog: false,
+                    reason: 'Please authenticate to broadcast the transaction',
                   ),
                   icon: const Icon(Icons.send, size: 18),
                   label: Text(loc.broadcast),

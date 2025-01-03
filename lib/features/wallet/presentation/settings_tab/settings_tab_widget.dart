@@ -58,6 +58,7 @@ class SettingsTab extends ConsumerWidget {
             ref,
             callback: (ref) =>
                 ref.context.push(AuthAppScreen.walletSeedScreen.toPath),
+            reason: 'Please authenticate to view your seed',
           ),
           trailing: const Icon(
             Icons.keyboard_arrow_right_rounded,

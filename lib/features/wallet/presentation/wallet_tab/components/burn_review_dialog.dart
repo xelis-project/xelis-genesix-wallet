@@ -213,7 +213,8 @@ class _BurnReviewDialogState extends ConsumerState<BurnReviewDialog> {
                       ? () => startWithBiometricAuth(
                             ref,
                             callback: _broadcastBurn,
-                            closeCurrentDialog: false,
+                            reason:
+                                'Please authenticate to broadcast the transaction',
                           )
                       : null,
                   icon: const Icon(Icons.send, size: 18),

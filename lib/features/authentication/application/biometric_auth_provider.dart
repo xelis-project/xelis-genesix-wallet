@@ -16,14 +16,11 @@ part 'biometric_auth_provider.g.dart';
 Future<void> startWithBiometricAuth(
   WidgetRef ref, {
   required void Function(WidgetRef ref) callback,
-  bool closeCurrentDialog = true,
+  required String reason,
+  bool closeCurrentDialog = false,
 }) async {
-  final loc = ref.read(appLocalizationsProvider);
-
-  final authenticated = await ref
-      .read(biometricAuthProvider.notifier)
-      .authenticate(loc.burn_transfer_unlock);
-
+  final authenticated =
+      await ref.read(biometricAuthProvider.notifier).authenticate(reason);
   if (authenticated) {
     callback(ref);
   } else {

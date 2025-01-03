@@ -39,7 +39,12 @@ class BurnWarningDialog extends ConsumerWidget {
           child: Text(loc.cancel_button),
         ),
         TextButton(
-          onPressed: () => startWithBiometricAuth(ref, callback: _unlockBurn),
+          onPressed: () => startWithBiometricAuth(
+            ref,
+            callback: _unlockBurn,
+            reason: 'Please authenticate to unlock burn transfer',
+            closeCurrentDialog: true,
+          ),
           child: Text(loc.confirm_button),
         ),
       ],
