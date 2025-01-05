@@ -421,26 +421,26 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_secure_storage
-      sha256: "165164745e6afb5c0e3e3fcc72a012fb9e58496fb26ffb92cf22e16a821e85d0"
+      sha256: "1913841ac4c7bf57cd2e05b717e1fbff7841b542962feff827b16525a781b3e4"
       url: "https://pub.dev"
     source: hosted
-    version: "9.2.2"
+    version: "9.2.3"
   flutter_secure_storage_linux:
     dependency: transitive
     description:
       name: flutter_secure_storage_linux
-      sha256: "4d91bfc23047422cbcd73ac684bc169859ee766482517c22172c86596bf1464b"
+      sha256: bf7404619d7ab5c0a1151d7c4e802edad8f33535abfbeff2f9e1fe1274e2d705
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.1"
+    version: "1.2.2"
   flutter_secure_storage_macos:
     dependency: transitive
     description:
       name: flutter_secure_storage_macos
-      sha256: "1693ab11121a5f925bbea0be725abfcfbbcf36c1e29e571f84a0c0f436147a81"
+      sha256: "6c0a2795a2d1de26ae202a0d78527d163f4acbb11cde4c75c670f3a0fc064247"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.2"
+    version: "3.1.3"
   flutter_secure_storage_platform_interface:
     dependency: transitive
     description:
@@ -1121,10 +1121,10 @@ packages:
     dependency: "direct main"
     description:
       name: shared_preferences
-      sha256: "3c7e73920c694a436afaf65ab60ce3453d91f84208d761fbd83fc21182134d93"
+      sha256: a752ce92ea7540fc35a0d19722816e04d0e72828a4200e83a98cf1a1eb524c9a
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.4"
+    version: "2.3.5"
   shared_preferences_android:
     dependency: transitive
     description:
@@ -1270,34 +1270,34 @@ packages:
     dependency: transitive
     description:
       name: talker
-      sha256: "055619b04297af0c7fa44224afaef0fb0f9fbdc7663d5cfadce0a28b633354e3"
+      sha256: dff22de27ac0dbe1bb2052fc258ccceee0a2703e6cfe03839ccd337aaf5d291b
       url: "https://pub.dev"
     source: hosted
-    version: "4.5.5"
+    version: "4.6.0"
   talker_flutter:
     dependency: "direct main"
     description:
       name: talker_flutter
-      sha256: "0ceaea02636c9b578ecd8424f41d271ae68140204f963d90d664359934185137"
+      sha256: "92de889557ba076b5ac01dbf8f55149c5dc5f3655c5e60c68443689caeb95266"
       url: "https://pub.dev"
     source: hosted
-    version: "4.5.5"
+    version: "4.6.0"
   talker_logger:
     dependency: transitive
     description:
       name: talker_logger
-      sha256: "53f247ec9c20e56a85902ccf134873163c24a57759490de620087d0d08eef695"
+      sha256: f6af15f038576fb727668131c2a829f986bab0bad379e48805a8f251e3687002
       url: "https://pub.dev"
     source: hosted
-    version: "4.5.5"
+    version: "4.6.0"
   talker_riverpod_logger:
     dependency: "direct main"
     description:
       name: talker_riverpod_logger
-      sha256: "0e8bb4dd5640310b36dc74696b6135a4b960e0f51c44d64e721719b35775a7a3"
+      sha256: "5980057af884dad15f4faae3e749820947aa73e2368ff8fec3046d0ec7e36e97"
       url: "https://pub.dev"
     source: hosted
-    version: "4.5.5"
+    version: "4.6.0"
   term_glyph:
     dependency: transitive
     description:
