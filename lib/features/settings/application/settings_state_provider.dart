@@ -65,4 +65,9 @@ class Settings extends _$Settings {
     state = state.copyWith(showBalanceUSDT: showBalanceUSDT);
     setState(state);
   }
+
+  void setActivateBiometricAuth(bool activateBiometricAuth) {
+    state = state.copyWith(activateBiometricAuth: activateBiometricAuth);
+    setState(state);
+  }
 }

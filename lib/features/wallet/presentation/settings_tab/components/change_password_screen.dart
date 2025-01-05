@@ -171,10 +171,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
           context.loaderOverlay.show();
 
           await ref
-              .read(walletStateProvider)
-              .nativeWalletRepository!
-              .changePassword(
-                  oldPassword: oldPassword, newPassword: newPassword);
+              .read(walletStateProvider.notifier)
+              .changePassword(oldPassword, newPassword);
 
           if (mounted) context.pop();
 

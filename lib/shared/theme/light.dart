@@ -128,8 +128,9 @@ ThemeData lightTheme() {
       style: TextButton.styleFrom(
         backgroundColor: primaryColor,
         foregroundColor: Colors.black87,
-        iconColor: Colors.black87,
         disabledBackgroundColor: Colors.black12,
+        iconColor: Colors.black87,
+        disabledIconColor: Colors.white24,
         padding: const EdgeInsets.symmetric(
             vertical: Spaces.medium, horizontal: Spaces.medium),
         shape: RoundedRectangleBorder(borderRadius: borderRadius),

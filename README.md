@@ -1,6 +1,6 @@
 # Genesix
 
-Genesix is a multiplatform mobile wallet for the XELIS network. Built using the Flutter framework, it provides a convenient and secure way to manage your XELIS cryptocurrency assets.
+Genesix is a multiplatform wallet for the XELIS network. Built using the Flutter framework, it provides a convenient and secure way to manage your XELIS cryptocurrency assets.
 
 This wallet harnesses the power of Rust by incorporating a native Rust library from the XELIS blockchain, ensuring the same level of security as the XELIS Wallet CLI.
 

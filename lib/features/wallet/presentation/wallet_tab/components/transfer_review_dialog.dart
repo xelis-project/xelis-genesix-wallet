@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:genesix/features/logger/logger.dart';
+import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/address.dart';
@@ -14,7 +15,6 @@ import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
-import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 
@@ -244,16 +244,11 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
                   child: Text(loc.ok_button),
                 )
               : TextButton.icon(
-                  onPressed: () {
-                    showDialog<void>(
-                      context: context,
-                      builder: (context) {
-                        return PasswordDialog(
-                          onValid: () => _broadcastTransfer(context, ref),
-                        );
-                      },
-                    );
-                  },
+                  onPressed: () => startWithBiometricAuth(
+                    ref,
+                    callback: _broadcastTransfer,
+                    reason: 'Please authenticate to broadcast the transaction',
+                  ),
                   icon: const Icon(Icons.send, size: 18),
                   label: Text(loc.broadcast),
                 ),
@@ -262,10 +257,10 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
     );
   }
 
-  Future<void> _broadcastTransfer(BuildContext context, WidgetRef ref) async {
+  Future<void> _broadcastTransfer(WidgetRef ref) async {
     final loc = ref.read(appLocalizationsProvider);
     try {
-      context.loaderOverlay.show();
+      ref.context.loaderOverlay.show();
 
       await ref.read(walletStateProvider.notifier).broadcastTx(hash: _txHash);
 
@@ -285,8 +280,8 @@ class _TransferReviewDialogState extends ConsumerState<TransferReviewDialog> {
       ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
     }
 
-    if (context.mounted) {
-      context.loaderOverlay.hide();
+    if (ref.context.mounted) {
+      ref.context.loaderOverlay.hide();
     }
   }
 }
