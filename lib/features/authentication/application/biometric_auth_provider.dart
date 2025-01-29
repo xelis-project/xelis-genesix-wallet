@@ -29,7 +29,6 @@ Future<void> startWithBiometricAuth(
         context: ref.context,
         builder: (context) {
           return PasswordDialog(
-            closeOnValid: closeCurrentDialog,
             onValid: () => callback(ref),
           );
         },

@@ -4,8 +4,9 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
 import 'package:flutter/foundation.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
+import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
-import 'package:genesix/rust_bridge/api/wallet.dart';
+import 'package:genesix/rust_bridge/api/dtos.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -59,15 +60,18 @@ class WalletState extends _$WalletState {
       try {
         await state.nativeWalletRepository!.setOnline(daemonAddress: node.url);
       } on AnyhowException catch (e) {
-        talker.warning('Cannot connect to node: $e');
+        talker.warning('Cannot connect to node: ${e.message}');
         final xelisMessage = (e).message.split("\n")[0];
         ref.read(snackBarMessengerProvider.notifier).showError(
-            '${loc.cannot_connect_toast_error.replaceFirst(RegExp(r'.'), ':')}\n$xelisMessage');
+            '${loc.cannot_connect_toast_error.replaceFirst(RegExp(r'\.'), ':')}\n$xelisMessage');
       } catch (e) {
         talker.warning('Cannot connect to node: $e');
         ref.read(snackBarMessengerProvider.notifier).showError(
-            '${loc.cannot_connect_toast_error.replaceFirst(RegExp(r'.'), ':')}\n$e');
+            '${loc.cannot_connect_toast_error.replaceFirst(RegExp(r'\.'), ':')}\n$e');
       }
+
+      final multisig = await state.nativeWalletRepository!.getMultisigState();
+      if (multisig != null) state = state.copyWith(multisigState: multisig);
 
       final xelisBalance =
           await state.nativeWalletRepository!.getXelisBalance();
@@ -294,7 +298,9 @@ class WalletState extends _$WalletState {
       case NewTransaction():
         talker.info(event);
         if (state.topoheight != 0 &&
-            event.transactionEntry.topoHeight >= state.topoheight) {
+            event.transactionEntry.topoheight >= state.topoheight) {
+          await updateMultisigState();
+
           final txType = event.transactionEntry.txEntryType;
 
           switch (txType) {
@@ -335,10 +341,20 @@ class WalletState extends _$WalletState {
                   : truncateText(txType.asset);
               ref.read(snackBarMessengerProvider.notifier).showInfo(
                   '${loc.burn_transaction_confirmed.capitalize()}\n${loc.asset}: $asset\n${loc.amount}: -$amount');
+            case sdk.MultisigEntry():
+              ref.read(snackBarMessengerProvider.notifier).showInfo(
+                  'Multisig has been deleted successfully at topoheight ${event.transactionEntry.topoheight}');
+            case sdk.InvokeContractEntry():
+              // TODO: Handle this case.
+              throw UnimplementedError();
+            case sdk.DeployContractEntry():
+              // TODO: Handle this case.
+              throw UnimplementedError();
           }
 
           // Temporary workaround to update XELIS balance on new outgoing transaction.
           // Normally there should be a BalanceChanged event for this case ...
+          // TODO: can be removed, to test if it's still needed
           state = state.copyWith(
             xelisBalance: await state.nativeWalletRepository!.getXelisBalance(),
           );
@@ -370,12 +386,16 @@ class WalletState extends _$WalletState {
       case Online():
         talker.info(event);
         state = state.copyWith(isOnline: true);
-        ref.read(snackBarMessengerProvider.notifier).showInfo(loc.connected);
+        ref
+            .read(snackBarMessengerProvider.notifier)
+            .showInfo(loc.connected, durationInSeconds: 1);
 
       case Offline():
         talker.info(event);
         state = state.copyWith(isOnline: false);
-        ref.read(snackBarMessengerProvider.notifier).showInfo(loc.disconnected);
+        ref
+            .read(snackBarMessengerProvider.notifier)
+            .showInfo(loc.disconnected, durationInSeconds: 1);
 
       case HistorySynced():
         talker.info(event);
@@ -390,6 +410,90 @@ class WalletState extends _$WalletState {
       return seed.split(' ');
     }
     return [];
+  }
+
+  Future<TransactionSummary?> setupMultisig({
+    required List<String> participants,
+    required int threshold,
+  }) async {
+    if (state.nativeWalletRepository != null) {
+      try {
+        return state.nativeWalletRepository!.setupMultisig(
+          participants: participants,
+          threshold: threshold,
+        );
+      } on AnyhowException catch (e) {
+        talker.error('Cannot setup multisig: $e');
+        final xelisMessage = (e).message.split("\n")[0];
+        ref.read(snackBarMessengerProvider.notifier).showError(xelisMessage);
+      } catch (e) {
+        talker.error('Cannot setup multisig: $e');
+        final loc = ref.read(appLocalizationsProvider);
+        ref
+            .read(snackBarMessengerProvider.notifier)
+            .showError('${loc.oups}\n$e');
+      }
+    }
+    return null;
+  }
+
+  bool isAddressValidForMultisig(String address) {
+    if (state.nativeWalletRepository != null) {
+      return state.nativeWalletRepository!.isAddressValidForMultisig(address);
+    }
+    return false;
+  }
+
+  Future<String?> startDeleteMultisig() async {
+    if (state.nativeWalletRepository != null) {
+      try {
+        return state.nativeWalletRepository!.initDeleteMultisig();
+      } on AnyhowException catch (e) {
+        talker.error('Cannot start delete multisig: $e');
+        final xelisMessage = (e).message.split("\n")[0];
+        ref.read(snackBarMessengerProvider.notifier).showError(xelisMessage);
+      } catch (e) {
+        talker.error('Cannot start delete multisig: $e');
+        final loc = ref.read(appLocalizationsProvider);
+        ref
+            .read(snackBarMessengerProvider.notifier)
+            .showError('${loc.oups}\n$e');
+      }
+    }
+    return null;
+  }
+
+  Future<TransactionSummary?> finalizeDeleteMultisig({
+    required List<SignatureMultisig> signatures,
+  }) async {
+    if (state.nativeWalletRepository != null) {
+      try {
+        return state.nativeWalletRepository!.finalizeDeleteMultisig(
+          signatures: signatures,
+        );
+      } on AnyhowException catch (e) {
+        talker.error('Cannot finalize delete multisig: $e');
+        final xelisMessage = (e).message.split("\n")[0];
+        ref.read(snackBarMessengerProvider.notifier).showError(xelisMessage);
+      } catch (e) {
+        talker.error('Cannot finalize delete multisig: $e');
+        final loc = ref.read(appLocalizationsProvider);
+        ref
+            .read(snackBarMessengerProvider.notifier)
+            .showError('${loc.oups}\n$e');
+      }
+    }
+    return null;
+  }
+
+  Future<void> updateMultisigState() async {
+    final multisig = await state.nativeWalletRepository!.getMultisigState();
+    final multisigUpdateNeeded =
+        (state.multisigState.isSetup && multisig == null) ||
+            (!state.multisigState.isSetup && multisig != null);
+    if (multisigUpdateNeeded) {
+      state = state.copyWith(multisigState: multisig ?? MultisigState());
+    }
   }
 }
 

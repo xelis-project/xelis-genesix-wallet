@@ -150,6 +150,17 @@ class BalanceWidget extends ConsumerWidget {
                   Text(loc.receive, style: context.labelLarge),
                 ],
               ),
+              Column(
+                children: [
+                  IconButton.filled(
+                    onPressed: () =>
+                        context.push(AuthAppScreen.multisig.toPath),
+                    icon: const Icon(Icons.sign_language),
+                  ),
+                  const SizedBox(height: Spaces.extraSmall),
+                  Text('Multisig', style: context.labelLarge),
+                ],
+              ),
             ],
           ),
         ],

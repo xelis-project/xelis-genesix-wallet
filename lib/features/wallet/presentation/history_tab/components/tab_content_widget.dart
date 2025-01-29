@@ -14,7 +14,7 @@ class TabContentWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
     if (entries.isNotEmpty) {
-      entries.sort((a, b) => b.topoHeight.compareTo(a.topoHeight));
+      entries.sort((a, b) => b.topoheight.compareTo(a.topoheight));
       return ListView.builder(
         itemCount: entries.length,
         itemBuilder: (BuildContext context, int index) {

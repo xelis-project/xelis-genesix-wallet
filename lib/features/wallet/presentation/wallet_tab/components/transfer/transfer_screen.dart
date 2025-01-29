@@ -6,7 +6,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/assets_dropdown_menu_item.dart';
-import 'package:genesix/features/wallet/presentation/wallet_tab/components/transfer_review_dialog.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/transfer/transfer_review_dialog.dart';
 import 'package:genesix/rust_bridge/api/utils.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';

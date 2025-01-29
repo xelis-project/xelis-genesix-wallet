@@ -35,7 +35,7 @@ class _TransactionEntryWidgetState
     final loc = ref.watch(appLocalizationsProvider);
 
     var displayTopoheight =
-        NumberFormat().format(widget.transactionEntry.topoHeight);
+        NumberFormat().format(widget.transactionEntry.topoheight);
     var displayAmount = '';
 
     final entryType = widget.transactionEntry.txEntryType;
@@ -74,6 +74,15 @@ class _TransactionEntryWidgetState
         } else {
           displayAmount = loc.multi_transfer;
         }
+      case MultisigEntry():
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case InvokeContractEntry():
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case DeployContractEntry():
+        // TODO: Handle this case.
+        throw UnimplementedError();
     }
 
     return Card(

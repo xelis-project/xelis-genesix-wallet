@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
+import 'package:genesix/rust_bridge/api/dtos.dart';
 import 'package:genesix/rust_bridge/api/network.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/features/wallet/domain/event.dart';
@@ -79,6 +81,52 @@ class NativeWalletRepository {
   Future<BigInt> get nonce => _xelisWallet.getNonce();
 
   Future<bool> get isOnline => _xelisWallet.isOnline();
+
+  Stream<Event> convertRawEvents() async* {
+    final rawEventStream = _xelisWallet.eventsStream();
+
+    await for (final rawData in rawEventStream) {
+      final json = jsonDecode(rawData);
+      try {
+        final eventType = sdk.WalletEvent.fromStr(json['event'] as String);
+        switch (eventType) {
+          case sdk.WalletEvent.newTopoHeight:
+            final newTopoheight =
+                Event.newTopoheight(json['data']['topoheight'] as int);
+            yield newTopoheight;
+          case sdk.WalletEvent.newAsset:
+            final newAsset = Event.newAsset(
+                sdk.AssetData.fromJson(json['data'] as Map<String, dynamic>));
+            yield newAsset;
+          case sdk.WalletEvent.newTransaction:
+            final newTransaction = Event.newTransaction(
+                sdk.TransactionEntry.fromJson(
+                    json['data'] as Map<String, dynamic>));
+            yield newTransaction;
+          case sdk.WalletEvent.balanceChanged:
+            final balanceChanged = Event.balanceChanged(
+                sdk.BalanceChangedEvent.fromJson(
+                    json['data'] as Map<String, dynamic>));
+            yield balanceChanged;
+          case sdk.WalletEvent.rescan:
+            final rescan =
+                Event.rescan(json['data']['start_topoheight'] as int);
+            yield rescan;
+          case sdk.WalletEvent.online:
+            yield const Event.online();
+          case sdk.WalletEvent.offline:
+            yield const Event.offline();
+          case sdk.WalletEvent.historySynced:
+            final historySynced =
+                Event.historySynced(json['data']['topoheight'] as int);
+            yield historySynced;
+        }
+      } catch (e) {
+        talker.error('Unknown event: ${json['event']}');
+        continue;
+      }
+    }
+  }
 
   Future<String> formatCoin(int amount, [String? assetHash]) async {
     return _xelisWallet.formatCoin(
@@ -171,8 +219,8 @@ class NativeWalletRepository {
   }
 
   Future<List<sdk.TransactionEntry>> history() async {
-    var jsonTransactionsList = await _xelisWallet.allHistory();
-    return jsonTransactionsList
+    final rawData = await _xelisWallet.history();
+    return rawData
         .map((e) => jsonDecode(e))
         .map((entry) =>
             sdk.TransactionEntry.fromJson(entry as Map<String, dynamic>))
@@ -190,7 +238,7 @@ class NativeWalletRepository {
   }
 
   Future<sdk.GetInfoResult> getDaemonInfo() async {
-    var rawData = await _xelisWallet.getDaemonInfo();
+    final rawData = await _xelisWallet.getDaemonInfo();
     final json = jsonDecode(rawData);
     return sdk.GetInfoResult.fromJson(json as Map<String, dynamic>);
   }
@@ -203,49 +251,42 @@ class NativeWalletRepository {
     return _xelisWallet.convertTransactionsToCsv();
   }
 
-  Stream<Event> convertRawEvents() async* {
-    final rawEventStream = _xelisWallet.eventsStream();
-
-    await for (final rawData in rawEventStream) {
-      final json = jsonDecode(rawData);
-      try {
-        final eventType = sdk.WalletEvent.fromStr(json['event'] as String);
-        switch (eventType) {
-          case sdk.WalletEvent.newTopoHeight:
-            final newTopoheight =
-                Event.newTopoheight(json['data']['topoheight'] as int);
-            yield newTopoheight;
-          case sdk.WalletEvent.newAsset:
-            final newAsset = Event.newAsset(
-                sdk.AssetData.fromJson(json['data'] as Map<String, dynamic>));
-            yield newAsset;
-          case sdk.WalletEvent.newTransaction:
-            final newTransaction = Event.newTransaction(
-                sdk.TransactionEntry.fromJson(
-                    json['data'] as Map<String, dynamic>));
-            yield newTransaction;
-          case sdk.WalletEvent.balanceChanged:
-            final balanceChanged = Event.balanceChanged(
-                sdk.BalanceChangedEvent.fromJson(
-                    json['data'] as Map<String, dynamic>));
-            yield balanceChanged;
-          case sdk.WalletEvent.rescan:
-            final rescan =
-                Event.rescan(json['data']['start_topoheight'] as int);
-            yield rescan;
-          case sdk.WalletEvent.online:
-            yield const Event.online();
-          case sdk.WalletEvent.offline:
-            yield const Event.offline();
-          case sdk.WalletEvent.historySynced:
-            final historySynced =
-                Event.historySynced(json['data']['topoheight'] as int);
-            yield historySynced;
-        }
-      } catch (e) {
-        talker.error('Unknown event: ${json['event']}');
-        continue;
-      }
+  Future<MultisigState?> getMultisigState() async {
+    final rawData = await _xelisWallet.getMultisigState();
+    switch (rawData) {
+      case String():
+        final json = jsonDecode(rawData) as Map<String, dynamic>;
+        return MultisigState.fromJson(json);
+      case null:
+        return null;
     }
+  }
+
+  Future<String> signTransaction(String txHash) async {
+    return _xelisWallet.multisigSign(txHash: txHash);
+  }
+
+  Future<TransactionSummary?> setupMultisig(
+      {required List<String> participants, required int threshold}) async {
+    final rawTx = await _xelisWallet.multisigSetup(
+        threshold: threshold, participants: participants);
+    final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
+    return TransactionSummary.fromJson(jsonTx);
+  }
+
+  bool isAddressValidForMultisig(String address) {
+    return _xelisWallet.isAddressValidForMultisig(address: address);
+  }
+
+  Future<String> initDeleteMultisig() async {
+    return _xelisWallet.initDeleteMultisig();
+  }
+
+  Future<TransactionSummary?> finalizeDeleteMultisig(
+      {required List<SignatureMultisig> signatures}) async {
+    final rawTx =
+        await _xelisWallet.finalizeDeleteMultisig(signatures: signatures);
+    final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
+    return TransactionSummary.fromJson(jsonTx);
   }
 }

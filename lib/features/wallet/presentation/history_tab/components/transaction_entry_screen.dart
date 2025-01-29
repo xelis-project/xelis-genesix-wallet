@@ -87,6 +87,15 @@ class _TransactionEntryScreenState
           Icons.arrow_upward,
           color: context.colors.primary,
         );
+      case sdk.MultisigEntry():
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case sdk.InvokeContractEntry():
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case sdk.DeployContractEntry():
+        // TODO: Handle this case.
+        throw UnimplementedError();
     }
 
     Uri url;
@@ -99,7 +108,7 @@ class _TransactionEntryScreenState
             '${AppResources.explorerTestnetUrl}$hashPath${transactionEntry.hash}');
     }
 
-    var displayTopoheight = NumberFormat().format(transactionEntry.topoHeight);
+    var displayTopoheight = NumberFormat().format(transactionEntry.topoheight);
 
     return CustomScaffold(
       backgroundColor: Colors.transparent,

@@ -12,6 +12,9 @@ class HistoryState with _$HistoryState {
     required Set<TransactionEntry> burnEntries,
     required Set<TransactionEntry> incomingEntries,
     required Set<TransactionEntry> outgoingEntries,
+    required Set<TransactionEntry> multisigEntries,
+    required Set<TransactionEntry> invokeContractEntries,
+    required Set<TransactionEntry> deployContractEntries,
   }) = _HistoryState;
 
   bool get noTransactionAvailable =>

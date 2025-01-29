@@ -1,21 +1,23 @@
 use std::collections::HashMap;
-use std::fmt::Debug;
 use std::fs::File;
 use std::path::Path;
 use std::sync::Arc;
 
 use anyhow::{anyhow, bail, Context, Result};
 use flutter_rust_bridge::frb;
+use indexmap::IndexSet;
 use log::{debug, error, info, warn};
 use parking_lot::{Mutex, RwLock};
-use serde::{Deserialize, Serialize};
 use serde_json::json;
 use xelis_common::api::{DataElement, DataValue};
 use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
-use xelis_common::crypto::{Address, Hash, Hashable};
+use xelis_common::crypto::{Address, Hash, Hashable, Signature};
 use xelis_common::network::Network;
 use xelis_common::serializer::Serializer;
-use xelis_common::transaction::builder::{FeeBuilder, TransactionTypeBuilder, TransferBuilder};
+use xelis_common::transaction::builder::{
+    FeeBuilder, MultiSigBuilder, TransactionTypeBuilder, TransferBuilder, UnsignedTransaction,
+};
+use xelis_common::transaction::multisig::{MultiSig, SignatureId};
 use xelis_common::transaction::BurnPayload;
 pub use xelis_common::transaction::Transaction;
 use xelis_common::utils::{format_coin, format_xelis};
@@ -26,24 +28,20 @@ use xelis_wallet::wallet::{RecoverOption, Wallet};
 use crate::api::table_generation::LogProgressTableGenerationReportFunction;
 use crate::frb_generated::StreamSink;
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct SummaryTransaction {
-    hash: String,
-    fee: u64,
-    transaction_type: TransactionTypeBuilder,
-}
-
-#[derive(Clone, Debug)]
-pub struct Transfer {
-    pub float_amount: f64,
-    pub str_address: String,
-    pub asset_hash: String,
-    pub extra_data: Option<String>,
-}
+use super::dtos::{
+    MultisigDartPayload, ParticipantDartPayload, SignatureMultisig, SummaryTransaction, Transfer,
+};
 
 pub struct XelisWallet {
     wallet: Arc<Wallet>,
-    pending_transactions: RwLock<HashMap<Hash, (Transaction, TransactionBuilderState)>>,
+    pending_transaction: RwLock<HashMap<Hash, (Transaction, TransactionBuilderState)>>,
+    pending_unsigned: RwLock<
+        Option<(
+            UnsignedTransaction,
+            TransactionBuilderState,
+            TransactionTypeBuilder,
+        )>,
+    >,
 }
 
 // Precomputed tables for the wallet
@@ -93,7 +91,8 @@ pub async fn create_xelis_wallet(
     let xelis_wallet = Wallet::create(&name, &password, recover, network, precomputed_tables)?;
     Ok(XelisWallet {
         wallet: xelis_wallet,
-        pending_transactions: RwLock::new(HashMap::new()),
+        pending_transaction: RwLock::new(HashMap::new()),
+        pending_unsigned: RwLock::new(None),
     })
 }
 
@@ -118,7 +117,8 @@ pub async fn open_xelis_wallet(
     let xelis_wallet = Wallet::open(&name, &password, network, precomputed_tables)?;
     Ok(XelisWallet {
         wallet: xelis_wallet,
-        pending_transactions: RwLock::new(HashMap::new()),
+        pending_transaction: RwLock::new(HashMap::new()),
+        pending_unsigned: RwLock::new(None),
     })
 }
 
@@ -242,7 +242,7 @@ impl XelisWallet {
 
     // create a transfer transaction
     pub async fn create_transfers_transaction(&self, transfers: Vec<Transfer>) -> Result<String> {
-        self.pending_transactions.write().clear();
+        self.pending_transaction.write().clear();
 
         info!("Building transaction...");
 
@@ -267,9 +267,9 @@ impl XelisWallet {
         info!("Tx Hash: {}", hash);
         let fee = tx.get_fee();
 
-        self.pending_transactions
+        self.pending_transaction
             .write()
-            .insert(hash.clone(), (tx, state));
+            .insert(hash.clone(), (tx.clone(), state));
 
         Ok(json!(SummaryTransaction {
             hash: hash.to_hex(),
@@ -286,7 +286,7 @@ impl XelisWallet {
         asset_hash: Option<String>,
         extra_data: Option<String>,
     ) -> Result<String> {
-        self.pending_transactions.write().clear();
+        self.pending_transaction.write().clear();
 
         info!("Building transfer all transaction...");
 
@@ -351,9 +351,9 @@ impl XelisWallet {
         info!("Tx Hash: {}", hash);
         let fee = tx.get_fee();
 
-        self.pending_transactions
+        self.pending_transaction
             .write()
-            .insert(hash.clone(), (tx, state));
+            .insert(hash.clone(), (tx.clone(), state));
 
         Ok(json!(SummaryTransaction {
             hash: hash.to_hex(),
@@ -369,7 +369,7 @@ impl XelisWallet {
         float_amount: f64,
         asset_hash: String,
     ) -> Result<String> {
-        self.pending_transactions.write().clear();
+        self.pending_transaction.write().clear();
 
         info!("Building burn transaction...");
 
@@ -411,9 +411,9 @@ impl XelisWallet {
         info!("Tx Hash: {}", hash);
         let fee = tx.get_fee();
 
-        self.pending_transactions
+        self.pending_transaction
             .write()
-            .insert(hash.clone(), (tx, state));
+            .insert(hash.clone(), (tx.clone(), state));
 
         Ok(json!(SummaryTransaction {
             hash: hash.to_hex(),
@@ -425,7 +425,7 @@ impl XelisWallet {
 
     // create a burn all transaction for a specific asset
     pub async fn create_burn_all_transaction(&self, asset_hash: String) -> Result<String> {
-        self.pending_transactions.write().clear();
+        self.pending_transaction.write().clear();
 
         info!("Building burn all transaction...");
 
@@ -472,9 +472,9 @@ impl XelisWallet {
         info!("Tx Hash: {}", hash);
         let fee = tx.get_fee();
 
-        self.pending_transactions
+        self.pending_transaction
             .write()
-            .insert(hash.clone(), (tx, state));
+            .insert(hash.clone(), (tx.clone(), state));
 
         Ok(json!(SummaryTransaction {
             hash: hash.to_hex(),
@@ -491,7 +491,7 @@ impl XelisWallet {
     ) -> Result<(Transaction, TransactionBuilderState)> {
         let hash = Hash::from_hex(&tx_hash)?;
         let res = self
-            .pending_transactions
+            .pending_transaction
             .write()
             .remove(&hash)
             .context("Cannot delete pending transaction");
@@ -515,7 +515,7 @@ impl XelisWallet {
 
                 warn!("Inserting back to pending transactions in case of retry...");
                 let hash: Hash = Hash::from_hex(&tx_hash)?;
-                self.pending_transactions.write().insert(hash, (tx, state));
+                self.pending_transaction.write().insert(hash, (tx, state));
 
                 bail!(e)
             } else {
@@ -533,7 +533,7 @@ impl XelisWallet {
     }
 
     // get all the transactions history
-    pub async fn all_history(&self) -> Result<Vec<String>> {
+    pub async fn history(&self) -> Result<Vec<String>> {
         let mut txs: Vec<String> = Vec::new();
 
         let storage = self.wallet.get_storage().read().await;
@@ -646,6 +646,252 @@ impl XelisWallet {
             .await
             .context("Error while exporting transactions to CSV")?;
         Ok(String::from_utf8(csv).context("Error while converting CSV to string")?)
+    }
+
+    // Get multisig state
+    pub async fn get_multisig_state(&self) -> Result<Option<String>> {
+        let storage = self.wallet.get_storage().read().await;
+        let multisig = storage
+            .get_multisig_state()
+            .await
+            .context("Error while reading multisig state")?;
+        match multisig {
+            Some(multisig) => Ok(Some(
+                json!(MultisigDartPayload {
+                    threshold: multisig.payload.threshold,
+                    participants: multisig
+                        .payload
+                        .participants
+                        .iter()
+                        .enumerate()
+                        .map(|(i, p)| {
+                            ParticipantDartPayload {
+                                id: i as u8,
+                                address: p
+                                    .as_address(self.wallet.get_network().is_mainnet())
+                                    .to_string(),
+                            }
+                        })
+                        .collect::<Vec<_>>(),
+                    topoheight: multisig.topoheight
+                })
+                .to_string(),
+            )),
+            None => {
+                // return Err(anyhow!("No multisig configured"));
+                Ok(None)
+            }
+        }
+    }
+
+    pub async fn multisig_setup(&self, threshold: u8, participants: Vec<String>) -> Result<String> {
+        info!("Setting up multisig...");
+        let multisig = {
+            let storage = self.wallet.get_storage().read().await;
+            storage.get_multisig_state().await?
+        };
+
+        match multisig {
+            Some(_multisig) => {
+                return Err(anyhow!("Multisig already configured"));
+            }
+            None => {
+                let mut participant_addresses = IndexSet::with_capacity(participants.len());
+                for participant in participants {
+                    let address = Address::from_string(&participant).context("Invalid address")?;
+                    participant_addresses.insert(address);
+                }
+
+                let payload = MultiSigBuilder {
+                    participants: participant_addresses,
+                    threshold,
+                };
+                let transaction_type_builder = TransactionTypeBuilder::MultiSig(payload);
+
+                let (tx, state) = {
+                    let mut storage = self.wallet.get_storage().write().await;
+                    self.wallet
+                        .create_transaction_with_storage(
+                            &mut storage,
+                            transaction_type_builder.clone(),
+                            FeeBuilder::default(),
+                        )
+                        .await?
+                };
+
+                info!("Transaction created!");
+                let hash = tx.hash();
+                info!("Tx Hash: {}", hash);
+                let fee = tx.get_fee();
+
+                self.pending_transaction
+                    .write()
+                    .insert(hash.clone(), (tx, state));
+
+                Ok(json!(SummaryTransaction {
+                    hash: hash.to_hex(),
+                    fee,
+                    transaction_type: transaction_type_builder
+                })
+                .to_string())
+            }
+        }
+    }
+
+    #[frb(sync)]
+    pub fn is_address_valid_for_multisig(&self, address: String) -> Result<bool> {
+        let address = match Address::from_string(&address) {
+            Ok(address) => address,
+            Err(_) => {
+                warn!("Invalid address");
+                return Ok(false);
+            }
+        };
+
+        if !address.is_normal() {
+            warn!("Address is not normal");
+            return Ok(false);
+        }
+
+        let mainnet = self.wallet.get_network().is_mainnet();
+        if address.is_mainnet() != mainnet {
+            warn!("Address is not from the same network");
+            return Ok(false);
+        }
+
+        if address.get_public_key() == self.wallet.get_public_key() {
+            warn!("Address is the same as the wallet address");
+            return Ok(false);
+        }
+
+        Ok(true)
+    }
+
+    // Initiate the delete multisig process
+    pub async fn init_delete_multisig(&self) -> Result<String> {
+        info!("Deleting multisig...");
+        let multisig = {
+            let storage = self.wallet.get_storage().read().await;
+            storage.get_multisig_state().await?
+        };
+
+        match multisig {
+            Some(multisig) => {
+                let payload = MultiSigBuilder {
+                    participants: IndexSet::new(),
+                    threshold: 0,
+                };
+
+                let transaction_type_builder = TransactionTypeBuilder::MultiSig(payload);
+
+                let (unsigned, state) = self
+                    .generate_unsigned_transaction(
+                        transaction_type_builder.clone(),
+                        FeeBuilder::default(),
+                        multisig.payload.threshold,
+                    )
+                    .await?;
+
+                let hash = unsigned.get_hash_for_multisig().to_hex();
+
+                let mut pending_unsigned = self.pending_unsigned.write();
+
+                *pending_unsigned = Some((unsigned, state, transaction_type_builder));
+
+                info!("Unsigned transaction created: {}", hash);
+
+                Ok(hash)
+            }
+            None => Err(anyhow!("No multisig configured")),
+        }
+    }
+
+    // finalize delete multisig by signing the transaction
+    pub async fn finalize_delete_multisig(
+        &self,
+        signatures: Vec<SignatureMultisig>,
+    ) -> Result<String> {
+        let mut signature_ids = Vec::new();
+        for signature in signatures {
+            let id = signature.id;
+            let signature = Signature::from_hex(&signature.signature)
+                .context(format!("Invalid signature for id: {}", id))?;
+            signature_ids.push(SignatureId { id, signature });
+        }
+
+        let mut multisig = MultiSig::new();
+        for signature in signature_ids {
+            if !multisig.add_signature(signature) {
+                return Err(anyhow!("Invalid signature"));
+            }
+        }
+
+        let (mut unsigned, mut state, transaction_type_builder) = self
+            .pending_unsigned
+            .write()
+            .take()
+            .ok_or_else(|| anyhow!("No unsigned transaction available"))?;
+
+        unsigned.set_multisig(multisig);
+
+        let tx = unsigned.finalize(self.wallet.get_keypair());
+
+        state.set_tx_hash_built(tx.hash());
+
+        let mut storage = self.wallet.get_storage().write().await;
+        state
+            .apply_changes(&mut storage)
+            .await
+            .context("Error while applying changes")?;
+
+        self.pending_transaction
+            .write()
+            .insert(tx.hash().clone(), (tx.clone(), state));
+
+        Ok(json!(SummaryTransaction {
+            hash: tx.hash().to_hex(),
+            fee: tx.get_fee(),
+            transaction_type: transaction_type_builder,
+        })
+        .to_string())
+    }
+
+    // Sign a multisig transaction
+    pub fn multisig_sign(&self, tx_hash: String) -> Result<String> {
+        let hash = Hash::from_hex(&tx_hash)?;
+        let signature = self.wallet.sign_data(hash.as_bytes());
+        Ok(signature.to_hex())
+    }
+
+    // generate an unsigned transaction
+    async fn generate_unsigned_transaction(
+        &self,
+        tx_type: TransactionTypeBuilder,
+        fee: FeeBuilder,
+        threshold: u8,
+    ) -> Result<(UnsignedTransaction, TransactionBuilderState)> {
+        let storage = self.wallet.get_storage().write().await;
+        let mut state = self
+            .wallet
+            .create_transaction_state_with_storage(&storage, &tx_type, &fee, None)
+            .await
+            .context("Error while creating transaction state")?;
+
+        let unsigned = self
+            .wallet
+            .create_unsigned_transaction(
+                &mut state,
+                threshold,
+                tx_type,
+                fee,
+                storage.get_tx_version().await?,
+            )
+            .context("Error while building unsigned transaction")?;
+        info!(
+            "Unsigned transaction created: {}",
+            unsigned.get_hash_for_multisig()
+        );
+        Ok((unsigned, state))
     }
 
     // Private method to create TransactionTypeBuilder from transfers

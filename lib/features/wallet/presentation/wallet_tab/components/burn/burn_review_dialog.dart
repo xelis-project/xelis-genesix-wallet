@@ -32,7 +32,7 @@ class _BurnReviewDialogState extends ConsumerState<BurnReviewDialog> {
   bool _isConfirmed = false;
   late String _asset;
   late Future<String> _formattedAmount;
-  late Future<String> _formattedFee;
+  late String _formattedFee;
   late bool _isXelisTransfer;
 
   @override
@@ -50,8 +50,7 @@ class _BurnReviewDialogState extends ConsumerState<BurnReviewDialog> {
     const repositoryError = "Wallet repository is not available";
     _formattedAmount = walletRepository?.formatCoin(amount, _asset) ??
         Future.error(repositoryError);
-    _formattedFee = walletRepository?.formatCoin(fee, _asset) ??
-        Future.error(repositoryError);
+    _formattedFee = formatXelis(fee);
   }
 
   @override
@@ -148,18 +147,7 @@ class _BurnReviewDialogState extends ConsumerState<BurnReviewDialog> {
                 Text(loc.fee,
                     style: context.bodyLarge!
                         .copyWith(color: context.moreColors.mutedColor)),
-                FutureBuilder(
-                  future: _formattedFee,
-                  builder:
-                      (BuildContext context, AsyncSnapshot<String> snapshot) {
-                    if (snapshot.hasData) {
-                      return SelectableText(
-                          '${snapshot.data!} ${AppResources.xelisAsset.ticker}');
-                    } else {
-                      return Text("...");
-                    }
-                  },
-                ),
+                SelectableText(_formattedFee),
               ],
             ),
             const SizedBox(height: Spaces.small),

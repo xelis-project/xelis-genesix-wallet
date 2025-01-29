@@ -3,8 +3,9 @@ import 'package:flutter/widgets.dart';
 import 'package:genesix/features/authentication/domain/create_wallet_type_enum.dart';
 import 'package:genesix/features/authentication/presentation/components/seed_content_dialog.dart';
 import 'package:genesix/features/authentication/presentation/seed_screen.dart';
-import 'package:genesix/features/wallet/presentation/wallet_tab/components/burn_screen.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/burn/burn_screen.dart';
 import 'package:genesix/features/logger/logger.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/multisig/multisig_screen.dart';
 import 'package:genesix/shared/widgets/components/dialog_page.dart';
 import 'package:genesix/features/logger/presentation/logger_screen.dart';
 import 'package:go_router/go_router.dart';
@@ -15,7 +16,7 @@ import 'package:genesix/features/wallet/presentation/history_tab/components/tran
 import 'package:genesix/features/wallet/presentation/settings_tab/components/change_password_screen.dart';
 import 'package:genesix/features/wallet/presentation/settings_tab/components/my_seed_screen.dart';
 import 'package:genesix/features/wallet/presentation/wallet_screen.dart';
-import 'package:genesix/features/wallet/presentation/wallet_tab/components/transfer_screen.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/transfer/transfer_screen.dart';
 import 'package:genesix/shared/theme/constants.dart';
 
 part 'routes.g.dart';
@@ -242,6 +243,22 @@ class TalkerScreenRoute extends GoRouteData {
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
       LoggerScreen(talker: talker),
+      state.pageKey,
+      state.fullPath,
+      state.extra,
+      AppDurations.animFast,
+    );
+  }
+}
+
+@TypedGoRoute<MultiSigRoute>(name: 'multisig', path: '/multisig')
+class MultiSigRoute extends GoRouteData {
+  const MultiSigRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      const MultisigScreen(),
       state.pageKey,
       state.fullPath,
       state.extra,

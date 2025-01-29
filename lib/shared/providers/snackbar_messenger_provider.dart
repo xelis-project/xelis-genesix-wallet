@@ -38,7 +38,7 @@ class SnackBarMessenger extends _$SnackBarMessenger {
     );
   }
 
-  void showInfo(String message) {
+  void showInfo(String message, {int durationInSeconds = 6}) {
     state = state.copyWith(
       message: message,
       type: SnackBarType.info,
@@ -49,7 +49,7 @@ class SnackBarMessenger extends _$SnackBarMessenger {
       _timer!.cancel();
     }
 
-    _timer = Timer(const Duration(seconds: 6), () {
+    _timer = Timer(Duration(seconds: durationInSeconds), () {
       state = state.copyWith(visible: false);
     });
   }

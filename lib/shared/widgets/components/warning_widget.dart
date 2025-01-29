@@ -4,10 +4,10 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 
-class BurnWarningWidget extends ConsumerWidget {
-  const BurnWarningWidget(this._message, {super.key});
+class WarningWidget extends ConsumerWidget {
+  const WarningWidget(this._messages, {super.key});
 
-  final String _message;
+  final List<String> _messages;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,10 +40,11 @@ class BurnWarningWidget extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: Spaces.small),
-            Text(
-              _message,
-              style: context.titleMedium,
-            ),
+            for (final message in _messages)
+              Text(
+                message,
+                style: context.bodyMedium,
+              ),
           ],
         ),
       ),
