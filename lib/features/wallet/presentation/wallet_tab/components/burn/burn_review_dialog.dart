@@ -175,7 +175,7 @@ class _BurnReviewDialogState extends ConsumerState<BurnReviewDialog> {
                         loc.burn_confirmation,
                         style: context.bodyMedium,
                       ),
-                      validator: FormBuilderValidators.required(),
+                      validator: FormBuilderValidators.required(errorText: loc.field_required_error),
                       onChanged: (value) {
                         setState(() {
                           _isConfirmed = value as bool;
