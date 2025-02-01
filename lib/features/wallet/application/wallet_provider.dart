@@ -343,7 +343,7 @@ class WalletState extends _$WalletState {
                   '${loc.burn_transaction_confirmed.capitalize()}\n${loc.asset}: $asset\n${loc.amount}: -$amount');
             case sdk.MultisigEntry():
               ref.read(snackBarMessengerProvider.notifier).showInfo(
-                  'Multisig has been deleted successfully at topoheight ${event.transactionEntry.topoheight}');
+                  'Multisig has been modified successfully at topoheight ${event.transactionEntry.topoheight}');
             case sdk.InvokeContractEntry():
               // TODO: Handle this case.
               throw UnimplementedError();
