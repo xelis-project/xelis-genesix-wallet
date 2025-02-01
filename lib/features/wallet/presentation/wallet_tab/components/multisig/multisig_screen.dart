@@ -52,7 +52,7 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                   Text('Topoheight',
                       style: context.labelLarge
                           ?.copyWith(color: context.moreColors.mutedColor)),
-                  Text('multisig wallet creation height',
+                  Text('multisig activation height',
                       style: context.labelSmall?.copyWith(
                         color: context.moreColors.mutedColor,
                         fontStyle: FontStyle.italic,

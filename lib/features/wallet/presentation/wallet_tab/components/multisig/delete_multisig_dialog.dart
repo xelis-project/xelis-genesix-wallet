@@ -81,7 +81,7 @@ class _DeleteMultisigDialogState extends ConsumerState<DeleteMultisigDialog> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Transaction to sign',
+                      Text('Transaction hash to sign',
                           style: context.titleMedium
                               ?.copyWith(color: context.moreColors.mutedColor)),
                       IconButton(

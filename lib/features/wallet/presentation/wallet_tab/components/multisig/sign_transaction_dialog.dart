@@ -61,7 +61,7 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-                'In case your signature is required to sign a transaction, '
+                'In case your signature is required to sign a transaction from a multisig wallet, '
                 'please provide the transaction hash below.',
                 style: context.bodyMedium!
                     .copyWith(color: context.moreColors.mutedColor)),
@@ -109,8 +109,12 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
                         snapshot.connectionState != ConnectionState.none) {
                       return Column(
                         children: [
-                          Text('Error:'),
-                          Text((snapshot.error as AnyhowException).message),
+                          Text('Error',
+                              style: context.bodyMedium
+                                  ?.copyWith(color: context.colors.error)),
+                          Text((snapshot.error as AnyhowException).message,
+                              style: context.bodyMedium
+                                  ?.copyWith(color: context.colors.error)),
                         ],
                       );
                     } else if (snapshot.hasData &&
@@ -121,7 +125,7 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text('Signature:',
+                              Text('Signature',
                                   style: context.bodyMedium!.copyWith(
                                       color: context.moreColors.mutedColor)),
                               IconButton(
