@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/multisig_pending_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/multisig/setup_multisig_dialog.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/multisig/sign_transaction_dialog.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
@@ -112,10 +112,11 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                                               .elementAt(index)
                                               .address,
                                           maxLength: 20)),
-                                      onTap: () => _copy(
+                                      onTap: () => copyToClipboard(
                                           multisigState.participants
                                               .elementAt(index)
                                               .address,
+                                          ref,
                                           loc.copied),
                                     ),
                                   ),
@@ -170,17 +171,11 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
               ),
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => {},
+        onPressed: _showSignTransactionDialog,
         tooltip: 'Sign transaction',
         child: const Icon(Icons.key),
       ),
     );
-  }
-
-  void _copy(String content, String message) {
-    Clipboard.setData(ClipboardData(text: content)).then((_) {
-      ref.read(snackBarMessengerProvider.notifier).showInfo(message);
-    });
   }
 
   void _showSetupMultisigDialog() {
@@ -213,5 +208,13 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
         ref.read(snackBarMessengerProvider.notifier).showError(loc.oups);
       }
     }
+  }
+
+  void _showSignTransactionDialog() {
+    showDialog<void>(
+        context: context,
+        builder: (context) {
+          return SignTransactionDialog();
+        });
   }
 }

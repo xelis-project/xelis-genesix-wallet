@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
@@ -13,12 +11,6 @@ import 'package:genesix/shared/utils/utils.dart';
 
 class WalletAddressWidget extends ConsumerWidget {
   const WalletAddressWidget({super.key});
-
-  void _copy(String content, String message, WidgetRef ref) {
-    Clipboard.setData(ClipboardData(text: content)).then((_) {
-      ref.read(snackBarMessengerProvider.notifier).showInfo(message);
-    });
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -51,7 +43,7 @@ class WalletAddressWidget extends ConsumerWidget {
                   .copyWith(color: context.moreColors.mutedColor),
             ),
             InkWell(
-              onTap: () => _copy(walletAddress, loc.copied, ref),
+              onTap: () => copyToClipboard(walletAddress, ref, loc.copied),
               borderRadius: BorderRadius.circular(4),
               child: Text(
                 address,

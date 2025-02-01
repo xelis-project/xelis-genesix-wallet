@@ -3,9 +3,12 @@ export 'unsupported.dart' if (dart.library.html) 'web.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/wallet/domain/address.dart';
 import 'package:genesix/rust_bridge/api/network.dart';
 import 'package:genesix/rust_bridge/api/utils.dart';
+import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:path/path.dart' as p;
@@ -80,6 +83,12 @@ String truncateText(String text, {int maxLength = 8}) {
   if (text.isEmpty) return "";
   if (text.length <= maxLength) return text;
   return "...${text.substring(text.length - maxLength)}";
+}
+
+void copyToClipboard(String content, WidgetRef ref, String snackbarMessage) {
+  Clipboard.setData(ClipboardData(text: content)).then((_) {
+    ref.read(snackBarMessengerProvider.notifier).showInfo(snackbarMessage);
+  });
 }
 
 extension StringExtension on String {

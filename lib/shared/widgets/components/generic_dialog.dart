@@ -31,6 +31,7 @@ class GenericDialog extends StatelessWidget {
             Spaces.medium, Spaces.none, Spaces.medium, Spaces.medium),
         title: title,
         content: AnimatedSize(
+          alignment: Alignment.topCenter,
           duration: const Duration(milliseconds: AppDurations.animFast),
           child: content,
         ),

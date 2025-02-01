@@ -91,7 +91,8 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
                   decoration: context.textInputDecoration.copyWith(
                     labelText: loc.name,
                   ),
-                  validator: FormBuilderValidators.required(errorText: loc.field_required_error),
+                  validator: FormBuilderValidators.required(
+                      errorText: loc.field_required_error),
                 ),
                 const SizedBox(height: Spaces.medium),
                 FormBuilderTextField(
@@ -102,7 +103,8 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
                   decoration: context.textInputDecoration.copyWith(
                     labelText: loc.url,
                   ),
-                  validator: FormBuilderValidators.required(errorText: loc.field_required_error),
+                  validator: FormBuilderValidators.required(
+                      errorText: loc.field_required_error),
                 ),
               ],
             ),

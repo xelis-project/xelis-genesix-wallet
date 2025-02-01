@@ -100,7 +100,8 @@ class _InputDialogState extends ConsumerState<InputDialog> {
                   widget.onEnter!(value!);
                 }
               },
-              validator: FormBuilderValidators.required(errorText: loc.field_required_error),
+              validator: FormBuilderValidators.required(
+                  errorText: loc.field_required_error),
             ),
           );
         },

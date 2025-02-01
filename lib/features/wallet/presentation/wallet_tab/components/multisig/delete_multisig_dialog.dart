@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
@@ -86,8 +85,8 @@ class _DeleteMultisigDialogState extends ConsumerState<DeleteMultisigDialog> {
                           style: context.titleMedium
                               ?.copyWith(color: context.moreColors.mutedColor)),
                       IconButton(
-                        onPressed: () =>
-                            _copy(widget.transactionToSign, loc.copied),
+                        onPressed: () => copyToClipboard(
+                            widget.transactionToSign, ref, loc.copied),
                         icon: const Icon(Icons.copy_rounded, size: 18),
                         tooltip: 'Copy hash transaction',
                       ),
@@ -255,12 +254,6 @@ class _DeleteMultisigDialogState extends ConsumerState<DeleteMultisigDialog> {
               ),
       ],
     );
-  }
-
-  void _copy(String content, String message) {
-    Clipboard.setData(ClipboardData(text: content)).then((_) {
-      ref.read(snackBarMessengerProvider.notifier).showInfo(message);
-    });
   }
 
   Future<void> _processSignatures() async {

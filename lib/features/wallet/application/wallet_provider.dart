@@ -488,6 +488,25 @@ class WalletState extends _$WalletState {
       state = state.copyWith(multisigState: multisig ?? MultisigState());
     }
   }
+
+  Future<String> signTransaction(String transactionHash) async {
+    if (state.nativeWalletRepository != null) {
+      try {
+        return state.nativeWalletRepository!.signTransaction(transactionHash);
+      } on AnyhowException catch (e) {
+        talker.error('Cannot sign transaction: $e');
+        final xelisMessage = (e).message.split("\n")[0];
+        ref.read(snackBarMessengerProvider.notifier).showError(xelisMessage);
+      } catch (e) {
+        talker.error('Cannot sign transaction: $e');
+        final loc = ref.read(appLocalizationsProvider);
+        ref
+            .read(snackBarMessengerProvider.notifier)
+            .showError('${loc.oups}\n$e');
+      }
+    }
+    return '';
+  }
 }
 
 // utility extension for TransactionEntryType

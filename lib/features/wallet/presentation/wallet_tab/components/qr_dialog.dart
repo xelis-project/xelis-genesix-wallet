@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
@@ -11,12 +10,6 @@ import 'package:genesix/shared/theme/extensions.dart';
 
 class QrDialog extends ConsumerWidget {
   const QrDialog({super.key});
-
-  void _copy(String content, String message, WidgetRef ref) {
-    Clipboard.setData(ClipboardData(text: content)).then((_) {
-      ref.read(snackBarMessengerProvider.notifier).showInfo(message);
-    });
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -35,7 +28,7 @@ class QrDialog extends ConsumerWidget {
             const SizedBox(height: Spaces.small),
             InkWell(
               splashColor: Colors.transparent,
-              onTap: () => _copy(address, loc.copied, ref),
+              onTap: () => copyToClipboard(address, ref, loc.copied),
               borderRadius: BorderRadius.circular(4),
               child: Text(
                 address,
