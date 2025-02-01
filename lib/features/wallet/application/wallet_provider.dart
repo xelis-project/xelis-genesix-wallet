@@ -351,13 +351,6 @@ class WalletState extends _$WalletState {
               // TODO: Handle this case.
               throw UnimplementedError();
           }
-
-          // Temporary workaround to update XELIS balance on new outgoing transaction.
-          // Normally there should be a BalanceChanged event for this case ...
-          // TODO: can be removed, to test if it's still needed
-          state = state.copyWith(
-            xelisBalance: await state.nativeWalletRepository!.getXelisBalance(),
-          );
         }
 
       case BalanceChanged():
