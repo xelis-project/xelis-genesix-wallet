@@ -31,145 +31,160 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
     final pendingState = ref.watch(multisigPendingStateProvider);
     return CustomScaffold(
       appBar: GenericAppBar(title: 'Multisig'),
-      body: multisigState.isSetup
-          ? Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  Spaces.large, Spaces.none, Spaces.large, Spaces.large),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: Spaces.large),
-                  Text('Threshold',
-                      style: context.labelLarge
-                          ?.copyWith(color: context.moreColors.mutedColor)),
-                  Text('minimum signatures required',
-                      style: context.labelSmall?.copyWith(
-                        color: context.moreColors.mutedColor,
-                        fontStyle: FontStyle.italic,
-                      )),
-                  SelectableText(multisigState.threshold.toString()),
-                  const SizedBox(height: Spaces.large),
-                  Text('Topoheight',
-                      style: context.labelLarge
-                          ?.copyWith(color: context.moreColors.mutedColor)),
-                  Text('multisig activation height',
-                      style: context.labelSmall?.copyWith(
-                        color: context.moreColors.mutedColor,
-                        fontStyle: FontStyle.italic,
-                      )),
-                  SelectableText(multisigState.topoheight.toString()),
-                  const SizedBox(height: Spaces.large),
-                  Text(
-                    'Participants',
-                    style: context.labelLarge
-                        ?.copyWith(color: context.moreColors.mutedColor),
-                  ),
-                  const Divider(),
-                  ListView.builder(
-                    itemBuilder: (context, index) {
-                      return Card(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(Spaces.medium,
-                              Spaces.small, Spaces.medium, Spaces.small),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        bottom: Spaces.extraSmall),
-                                    child: Text('ID',
-                                        style: context.labelMedium?.copyWith(
-                                            color:
-                                                context.moreColors.mutedColor)),
-                                  ),
-                                  Text(multisigState.participants
-                                      .elementAt(index)
-                                      .id
-                                      .toString()),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        bottom: Spaces.extraSmall),
-                                    child: Text('Address',
-                                        style: context.labelMedium?.copyWith(
-                                            color:
-                                                context.moreColors.mutedColor)),
-                                  ),
-                                  Tooltip(
-                                    message: multisigState.participants
-                                        .elementAt(index)
-                                        .address,
-                                    child: GestureDetector(
-                                      child: Text(truncateText(
-                                          multisigState.participants
-                                              .elementAt(index)
-                                              .address,
-                                          maxLength: 20)),
-                                      onTap: () => copyToClipboard(
-                                          multisigState.participants
-                                              .elementAt(index)
-                                              .address,
-                                          ref,
-                                          loc.copied),
+      body: AnimatedSwitcher(
+        key: ValueKey<bool>(pendingState),
+        duration: const Duration(milliseconds: AppDurations.animFast),
+        child: pendingState
+            ? Center(
+                child: Text('Changes in progress, please wait...',
+                    style: context.titleMedium),
+              )
+            : multisigState.isSetup
+                ? Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                        Spaces.large, Spaces.none, Spaces.large, Spaces.large),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: Spaces.large),
+                        Text('Threshold',
+                            style: context.labelLarge?.copyWith(
+                                color: context.moreColors.mutedColor)),
+                        Text('minimum signatures required',
+                            style: context.labelSmall?.copyWith(
+                              color: context.moreColors.mutedColor,
+                              fontStyle: FontStyle.italic,
+                            )),
+                        SelectableText(multisigState.threshold.toString()),
+                        const SizedBox(height: Spaces.large),
+                        Text('Topoheight',
+                            style: context.labelLarge?.copyWith(
+                                color: context.moreColors.mutedColor)),
+                        Text('multisig activation height',
+                            style: context.labelSmall?.copyWith(
+                              color: context.moreColors.mutedColor,
+                              fontStyle: FontStyle.italic,
+                            )),
+                        SelectableText(multisigState.topoheight.toString()),
+                        const SizedBox(height: Spaces.large),
+                        Text(
+                          'Participants',
+                          style: context.labelLarge
+                              ?.copyWith(color: context.moreColors.mutedColor),
+                        ),
+                        const Divider(),
+                        ListView.builder(
+                          itemBuilder: (context, index) {
+                            return Card(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                    Spaces.medium,
+                                    Spaces.small,
+                                    Spaces.medium,
+                                    Spaces.small),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              bottom: Spaces.extraSmall),
+                                          child: Text('ID',
+                                              style: context.labelMedium
+                                                  ?.copyWith(
+                                                      color: context.moreColors
+                                                          .mutedColor)),
+                                        ),
+                                        Text(multisigState.participants
+                                            .elementAt(index)
+                                            .id
+                                            .toString()),
+                                      ],
                                     ),
-                                  ),
-                                ],
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              bottom: Spaces.extraSmall),
+                                          child: Text('Address',
+                                              style: context.labelMedium
+                                                  ?.copyWith(
+                                                      color: context.moreColors
+                                                          .mutedColor)),
+                                        ),
+                                        Tooltip(
+                                          message: multisigState.participants
+                                              .elementAt(index)
+                                              .address,
+                                          child: GestureDetector(
+                                            child: Text(truncateText(
+                                                multisigState.participants
+                                                    .elementAt(index)
+                                                    .address,
+                                                maxLength: 20)),
+                                            onTap: () => copyToClipboard(
+                                                multisigState.participants
+                                                    .elementAt(index)
+                                                    .address,
+                                                ref,
+                                                loc.copied),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ],
+                            );
+                          },
+                          itemCount: multisigState.participants.length,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                        ),
+                        Spacer(),
+                        Center(
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.all(Spaces.medium),
+                              side: BorderSide(
+                                color: context.colors.error,
+                                width: 1,
+                              ),
+                            ),
+                            onPressed: _showDeleteMultisigDialog,
+                            label: Text(
+                              'Delete multisig configuration',
+                              style: context.titleSmall!.copyWith(
+                                  color: context.colors.error,
+                                  fontWeight: FontWeight.w800),
+                            ),
                           ),
                         ),
-                      );
-                    },
-                    itemCount: multisigState.participants.length,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                  ),
-                  Spacer(),
-                  Center(
-                    child: OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.all(Spaces.medium /* + 4*/),
-                        side: BorderSide(
-                          color: context.colors.error,
-                          width: 1,
+                      ],
+                    ),
+                  )
+                : Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('This wallet is not a multisig wallet',
+                            style: context.titleMedium?.copyWith(
+                                color: context.moreColors.mutedColor)),
+                        const SizedBox(height: Spaces.large),
+                        TextButton(
+                          onPressed: _showSetupMultisigDialog,
+                          child: Text('Setup'),
                         ),
-                      ),
-                      onPressed: pendingState
-                          ? () {}
-                          : () => _showDeleteMultisigDialog(),
-                      label: Text(
-                        'Delete multisig configuration',
-                        style: context.titleSmall!.copyWith(
-                            color: context.colors.error,
-                            fontWeight: FontWeight.w800),
-                      ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            )
-          : Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('This wallet is not a multisig wallet',
-                      style: context.titleMedium
-                          ?.copyWith(color: context.moreColors.mutedColor)),
-                  const SizedBox(height: Spaces.large),
-                  TextButton(
-                    onPressed: pendingState ? () {} : _showSetupMultisigDialog,
-                    child: Text('Setup'),
-                  ),
-                ],
-              ),
-            ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showSignTransactionDialog,
         tooltip: 'Sign transaction',
