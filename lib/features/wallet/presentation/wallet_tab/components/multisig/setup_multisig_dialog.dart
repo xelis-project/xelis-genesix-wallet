@@ -116,13 +116,32 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                                 labelStyle: context.labelMedium!.copyWith(
                                     color: context.moreColors.mutedColor),
                               ),
+                              onChanged: (value) {
+                                // workaround to reset the error message when the user modifies the field
+                                final hasError = _multisigFormKey.currentState
+                                    ?.fields['threshold']?.hasError;
+                                if (hasError ?? false) {
+                                  _multisigFormKey
+                                      .currentState?.fields['threshold']
+                                      ?.reset();
+                                }
+                              },
                               validator: FormBuilderValidators.compose([
                                 FormBuilderValidators.required(
                                     errorText: loc.field_required_error),
                                 FormBuilderValidators.numeric(
                                     errorText: loc.must_be_numeric_error),
                                 FormBuilderValidators.min(1),
-                                FormBuilderValidators.max(255)
+                                FormBuilderValidators.max(255),
+                                (value) {
+                                  final threshold = int.tryParse(value ?? '');
+                                  if (threshold != null &&
+                                      threshold >
+                                          _participantFormFields.length) {
+                                    return 'Threshold must be less than or equal to the number of participants';
+                                  }
+                                  return null;
+                                }
                               ]),
                             ),
                             const SizedBox(height: Spaces.large),
@@ -450,24 +469,19 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
           .map((e) => e.trim())
           .toList() as List<String>;
 
-      if (participants.length < threshold) {
-        _multisigFormKey.currentState?.fields['threshold']?.invalidate(
-            'Threshold must be less than or equal to the number of participants');
-      } else {
-        context.loaderOverlay.show();
+      context.loaderOverlay.show();
 
-        final transactionSummary = await ref
-            .read(walletStateProvider.notifier)
-            .setupMultisig(participants: participants, threshold: threshold);
+      final transactionSummary = await ref
+          .read(walletStateProvider.notifier)
+          .setupMultisig(participants: participants, threshold: threshold);
 
-        if (transactionSummary != null) {
-          if (transactionSummary.isMultiSig) {
-            setState(() {
-              _transactionSummary = transactionSummary;
-            });
-          } else {
-            ref.read(snackBarMessengerProvider.notifier).showError(loc.oups);
-          }
+      if (transactionSummary != null) {
+        if (transactionSummary.isMultiSig) {
+          setState(() {
+            _transactionSummary = transactionSummary;
+          });
+        } else {
+          ref.read(snackBarMessengerProvider.notifier).showError(loc.oups);
         }
       }
 
