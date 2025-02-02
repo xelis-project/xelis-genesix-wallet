@@ -17,6 +17,7 @@ import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/generic_dialog.dart';
+import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 
@@ -116,13 +117,8 @@ class _DeleteMultisigDialogState extends ConsumerState<DeleteMultisigDialog> {
                               const SizedBox(height: Spaces.small),
                               ...List.generate(multisigState.threshold,
                                   (index) {
-                                return FormBuilderDropdown(
+                                return GenericFormBuilderDropdown(
                                   name: 'id_$index',
-                                  enableFeedback: true,
-                                  dropdownColor: context.colors.surface
-                                      .withValues(alpha: 0.9),
-                                  focusColor: context.colors.surface
-                                      .withValues(alpha: 0.9),
                                   items: multisigState.participants
                                       .map(
                                         (participant) => DropdownMenuItem(

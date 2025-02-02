@@ -188,6 +188,7 @@ ThemeData xelisTheme() {
       ),
       contentPadding: const EdgeInsets.all(15),
       filled: true,
+      fillColor: Colors.black26,
       iconColor: Colors.white,
       suffixIconColor: Colors.white,
       prefixIconColor: Colors.white,

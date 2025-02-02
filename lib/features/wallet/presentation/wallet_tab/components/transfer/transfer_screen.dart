@@ -16,6 +16,7 @@ import 'package:genesix/shared/theme/input_decoration.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
+import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 
 class TransferScreen extends ConsumerStatefulWidget {
@@ -132,7 +133,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                   style: context.titleMedium,
                 ),
                 const SizedBox(height: Spaces.small),
-                FormBuilderDropdown<String>(
+                GenericFormBuilderDropdown<String>(
                   name: 'assets',
                   initialValue: assets.entries.first.key,
                   items: assets.entries

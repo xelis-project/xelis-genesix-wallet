@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
@@ -10,6 +9,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
+import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown.dart';
 
 class MySeedScreen extends ConsumerStatefulWidget {
   const MySeedScreen({super.key});
@@ -100,14 +100,9 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: FormBuilderDropdown(
+                      child: GenericFormBuilderDropdown(
                         name: 'languages_dropdown',
                         initialValue: MnemonicLanguage.english,
-                        enableFeedback: true,
-                        dropdownColor:
-                            context.colors.surface.withValues(alpha: 0.9),
-                        focusColor:
-                            context.colors.surface.withValues(alpha: 0.9),
                         items: MnemonicLanguage.values
                             .map(
                               (e) => DropdownMenuItem(
