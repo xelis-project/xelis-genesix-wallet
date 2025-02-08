@@ -5,7 +5,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:genesix/features/wallet/domain/address.dart';
+import 'package:genesix/features/wallet/domain/wallet_address.dart';
 import 'package:genesix/rust_bridge/api/network.dart';
 import 'package:genesix/rust_bridge/api/utils.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
@@ -31,10 +31,10 @@ String formatXelis(int value) {
   return formatter.format(xelisValue);
 }
 
-Address getAddress({required String rawAddress}) {
+WalletAddress getAddress({required String rawAddress}) {
   var rawData = splitIntegratedAddressJson(integratedAddress: rawAddress);
   final json = jsonDecode(rawData);
-  return Address.fromJson(json as Map<String, dynamic>);
+  return WalletAddress.fromJson(json as Map<String, dynamic>);
 }
 
 Future<String> getAppCacheDirPath() async {
@@ -87,7 +87,9 @@ String truncateText(String text, {int maxLength = 8}) {
 
 void copyToClipboard(String content, WidgetRef ref, String snackbarMessage) {
   Clipboard.setData(ClipboardData(text: content)).then((_) {
-    ref.read(snackBarMessengerProvider.notifier).showInfo(snackbarMessage);
+    ref
+        .read(snackBarMessengerProvider.notifier)
+        .showInfo(snackbarMessage, durationInSeconds: 1);
   });
 }
 

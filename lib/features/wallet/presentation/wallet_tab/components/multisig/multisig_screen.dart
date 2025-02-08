@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/multisig_pending_state_provider.dart';
+import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/multisig/delete_multisig_review_content.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/multisig/setup_multisig_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/multisig/sign_transaction_dialog.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/transaction_dialog.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
@@ -12,8 +15,6 @@ import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-
-import 'delete_multisig_dialog.dart';
 
 class MultisigScreen extends ConsumerStatefulWidget {
   const MultisigScreen({super.key});
@@ -170,18 +171,29 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                     ),
                   )
                 : Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('This wallet is not a multisig wallet',
-                            style: context.titleMedium?.copyWith(
-                                color: context.moreColors.mutedColor)),
-                        const SizedBox(height: Spaces.large),
-                        TextButton(
-                          onPressed: _showSetupMultisigDialog,
-                          child: Text('Setup'),
-                        ),
-                      ],
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(Spaces.large,
+                          Spaces.none, Spaces.large, Spaces.large),
+                      child: Column(
+                        children: [
+                          Text(
+                              'Here you can turn this wallet into a multi-signature wallet.\n'
+                              'This means that it will require multiple signatures to authorize transactions.',
+                              style: context.titleMedium?.copyWith(
+                                  color: context.moreColors.mutedColor)),
+                          Spacer(),
+                          Text('No multisig configuration found',
+                              style: context.titleSmall?.copyWith(
+                                  color: context.colors.primary,
+                                  fontStyle: FontStyle.italic)),
+                          const SizedBox(height: Spaces.medium),
+                          TextButton(
+                            onPressed: _showSetupMultisigDialog,
+                            child: Text('Setup'),
+                          ),
+                          Spacer(),
+                        ],
+                      ),
                     ),
                   ),
       ),
@@ -213,10 +225,14 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
       }
 
       if (unsignedTx != null) {
+        ref
+            .read(transactionReviewProvider.notifier)
+            .setTransactionHashToSign(unsignedTx);
+
         showDialog<void>(
             context: context,
             builder: (context) {
-              return DeleteMultisigDialog(unsignedTx);
+              return TransactionDialog(DeleteMultisigReviewContent());
             });
       } else {
         final loc = ref.read(appLocalizationsProvider);

@@ -139,17 +139,24 @@ class WalletState extends _$WalletState {
     }
   }
 
-  Future<TransactionSummary?> createXelisTransaction({
+  Future<(TransactionSummary?, String?)> send({
     required double amount,
     required String destination,
     required String asset,
   }) async {
     if (state.nativeWalletRepository != null) {
       try {
-        final transactionSummary = await state.nativeWalletRepository!
-            .createSimpleTransferTransaction(
-                amount: amount, address: destination, assetHash: asset);
-        return transactionSummary;
+        if (state.multisigState.isSetup) {
+          final transactionHash = await state.nativeWalletRepository!
+              .createMultisigTransferTransaction(
+                  amount: amount, address: destination, assetHash: asset);
+          return (null, transactionHash);
+        } else {
+          final transactionSummary = await state.nativeWalletRepository!
+              .createTransferTransaction(
+                  amount: amount, address: destination, assetHash: asset);
+          return (transactionSummary, null);
+        }
       } on AnyhowException catch (e) {
         talker.error('Cannot create transaction: $e');
         final xelisMessage = (e).message.split("\n")[0];
@@ -162,19 +169,26 @@ class WalletState extends _$WalletState {
             .showError('${loc.oups}\n$e');
       }
     }
-    return null;
+    return (null, null);
   }
 
-  Future<TransactionSummary?> createAllXelisTransaction({
+  Future<(TransactionSummary?, String?)> sendAll({
     required String destination,
     required String asset,
   }) async {
     if (state.nativeWalletRepository != null) {
       try {
-        final transactionSummary = await state.nativeWalletRepository!
-            .createSimpleTransferTransaction(
-                address: destination, assetHash: asset);
-        return transactionSummary;
+        if (state.multisigState.isSetup) {
+          final transactionHash = await state.nativeWalletRepository!
+              .createMultisigTransferTransaction(
+                  address: destination, assetHash: asset);
+          return (null, transactionHash);
+        } else {
+          final transactionSummary = await state.nativeWalletRepository!
+              .createTransferTransaction(
+                  address: destination, assetHash: asset);
+          return (transactionSummary, null);
+        }
       } on AnyhowException catch (e) {
         talker.error('Cannot create transaction: $e');
         final xelisMessage = (e).message.split("\n")[0];
@@ -187,16 +201,22 @@ class WalletState extends _$WalletState {
             .showError('${loc.oups}\n$e');
       }
     }
-    return null;
+    return (null, null);
   }
 
-  Future<TransactionSummary?> createBurnTransaction(
+  Future<(TransactionSummary?, String?)> burn(
       {required double amount, required String asset}) async {
     if (state.nativeWalletRepository != null) {
       try {
-        final transactionSummary = await state.nativeWalletRepository!
-            .createBurnTransaction(amount: amount, assetHash: asset);
-        return transactionSummary;
+        if (state.multisigState.isSetup) {
+          final transactionHash = await state.nativeWalletRepository!
+              .createMultisigBurnTransaction(amount: amount, assetHash: asset);
+          return (null, transactionHash);
+        } else {
+          final transactionSummary = await state.nativeWalletRepository!
+              .createBurnTransaction(amount: amount, assetHash: asset);
+          return (transactionSummary, null);
+        }
       } on AnyhowException catch (e) {
         talker.error('Cannot create transaction: $e');
         final xelisMessage = (e).message.split("\n")[0];
@@ -209,16 +229,22 @@ class WalletState extends _$WalletState {
             .showError('${loc.oups}\n$e');
       }
     }
-    return null;
+    return (null, null);
   }
 
-  Future<TransactionSummary?> createBurnAllTransaction(
+  Future<(TransactionSummary?, String?)> burnAll(
       {required String asset}) async {
     if (state.nativeWalletRepository != null) {
       try {
-        final transactionSummary = await state.nativeWalletRepository!
-            .createBurnTransaction(assetHash: asset);
-        return transactionSummary;
+        if (state.multisigState.isSetup) {
+          final transactionHash = await state.nativeWalletRepository!
+              .createMultisigBurnTransaction(assetHash: asset);
+          return (null, transactionHash);
+        } else {
+          final transactionSummary = await state.nativeWalletRepository!
+              .createBurnTransaction(assetHash: asset);
+          return (transactionSummary, null);
+        }
       } on AnyhowException catch (e) {
         talker.error('Cannot create transaction: $e');
         final xelisMessage = (e).message.split("\n")[0];
@@ -231,7 +257,7 @@ class WalletState extends _$WalletState {
             .showError('${loc.oups}\n$e');
       }
     }
-    return null;
+    return (null, null);
   }
 
   Future<void> cancelTransaction({required String hash}) async {
@@ -461,7 +487,7 @@ class WalletState extends _$WalletState {
   }) async {
     if (state.nativeWalletRepository != null) {
       try {
-        return state.nativeWalletRepository!.finalizeDeleteMultisig(
+        return state.nativeWalletRepository!.finalizeMultisigTransaction(
           signatures: signatures,
         );
       } on AnyhowException catch (e) {
@@ -489,10 +515,11 @@ class WalletState extends _$WalletState {
     }
   }
 
-  Future<String> signTransaction(String transactionHash) async {
+  Future<String> signTransactionHash(String transactionHash) async {
     if (state.nativeWalletRepository != null) {
       try {
-        return state.nativeWalletRepository!.signTransaction(transactionHash);
+        return state.nativeWalletRepository!
+            .signTransactionHash(transactionHash);
       } on AnyhowException catch (e) {
         talker.error('Cannot sign transaction: $e');
         final xelisMessage = (e).message.split("\n")[0];

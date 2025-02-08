@@ -3,10 +3,12 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/assets_dropdown_menu_item.dart';
-import 'package:genesix/features/wallet/presentation/wallet_tab/components/burn/burn_review_dialog.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/burn/burn_review_content.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/transaction_dialog.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -193,23 +195,39 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
 
       context.loaderOverlay.show();
 
-      TransactionSummary? tx;
+      (TransactionSummary?, String?) record;
       if (amount.trim() == _selectedAssetBalance) {
-        tx = await ref
-            .read(walletStateProvider.notifier)
-            .createBurnAllTransaction(asset: asset);
+        record =
+            await ref.read(walletStateProvider.notifier).burnAll(asset: asset);
       } else {
-        tx = await ref
+        record = await ref
             .read(walletStateProvider.notifier)
-            .createBurnTransaction(amount: double.parse(amount), asset: asset);
+            .burn(amount: double.parse(amount), asset: asset);
       }
 
-      if (mounted && tx != null) {
+      if (record.$2 != null) {
+        // multisig is enabled, hash to sign is returned
+        ref.read(transactionReviewProvider.notifier).setTransactionHashToSign(
+              record.$2!,
+            );
+      } else if (record.$1 != null) {
+        // no multisig, transaction summary is returned
+        ref.read(transactionReviewProvider.notifier).setBurnSummary(
+              record.$1!,
+            );
+      } else {
+        if (mounted && context.loaderOverlay.visible) {
+          context.loaderOverlay.hide();
+        }
+        return;
+      }
+
+      if (mounted) {
         showDialog<void>(
           context: context,
           barrierDismissible: false,
           builder: (context) {
-            return BurnReviewDialog(tx!);
+            return TransactionDialog(BurnReviewContent());
           },
         );
       }

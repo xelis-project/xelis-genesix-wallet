@@ -165,7 +165,7 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
         try {
           final future = ref
               .read(walletStateProvider.notifier)
-              .signTransaction(transactionHash.trim());
+              .signTransactionHash(transactionHash.trim());
           setState(() {
             transactionSignature = future;
           });

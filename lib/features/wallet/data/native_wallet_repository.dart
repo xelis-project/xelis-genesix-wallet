@@ -82,6 +82,16 @@ class NativeWalletRepository {
 
   Future<bool> get isOnline => _xelisWallet.isOnline();
 
+  Future<void> setOnline({required String daemonAddress}) async {
+    await _xelisWallet.onlineMode(daemonAddress: daemonAddress);
+    talker.info('XELIS Wallet connected to: $daemonAddress');
+  }
+
+  Future<void> setOffline() async {
+    await _xelisWallet.offlineMode();
+    talker.info('XELIS Wallet offline');
+  }
+
   Stream<Event> convertRawEvents() async* {
     final rawEventStream = _xelisWallet.eventsStream();
 
@@ -161,6 +171,21 @@ class NativeWalletRepository {
     return _xelisWallet.getAssetBalances();
   }
 
+  Future<List<sdk.TransactionEntry>> history() async {
+    final rawData = await _xelisWallet.history();
+    return rawData
+        .map((e) => jsonDecode(e))
+        .map((entry) =>
+            sdk.TransactionEntry.fromJson(entry as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<sdk.GetInfoResult> getDaemonInfo() async {
+    final rawData = await _xelisWallet.getDaemonInfo();
+    final json = jsonDecode(rawData);
+    return sdk.GetInfoResult.fromJson(json as Map<String, dynamic>);
+  }
+
   Future<void> rescan({required int topoheight}) async {
     return _xelisWallet.rescan(topoheight: BigInt.from(topoheight));
   }
@@ -169,7 +194,7 @@ class NativeWalletRepository {
     return _xelisWallet.estimateFees(transfers: transfers);
   }
 
-  Future<TransactionSummary> createSimpleTransferTransaction({
+  Future<TransactionSummary> createTransferTransaction({
     double? amount,
     required String address,
     required String assetHash,
@@ -187,12 +212,33 @@ class NativeWalletRepository {
     return TransactionSummary.fromJson(jsonTx);
   }
 
-  Future<TransactionSummary> createMultiTransferTransaction(
+  Future<String> createMultisigTransferTransaction({
+    double? amount,
+    required String address,
+    required String assetHash,
+  }) async {
+    if (amount != null) {
+      return _xelisWallet.createMultisigTransfersTransaction(transfers: [
+        Transfer(floatAmount: amount, strAddress: address, assetHash: assetHash)
+      ]);
+    } else {
+      return _xelisWallet.createMultisigTransferAllTransaction(
+          strAddress: address, assetHash: assetHash);
+    }
+  }
+
+  Future<TransactionSummary> createTransfersTransaction(
       List<Transfer> transfers) async {
     final rawTx =
         await _xelisWallet.createTransfersTransaction(transfers: transfers);
     final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
     return TransactionSummary.fromJson(jsonTx);
+  }
+
+  Future<String> createMultisigTransfersTransaction(
+      List<Transfer> transfers) async {
+    return _xelisWallet.createMultisigTransfersTransaction(
+        transfers: transfers);
   }
 
   Future<TransactionSummary> createBurnTransaction(
@@ -208,6 +254,17 @@ class NativeWalletRepository {
     return TransactionSummary.fromJson(jsonTx);
   }
 
+  Future<String> createMultisigBurnTransaction(
+      {double? amount, required String assetHash}) async {
+    if (amount == null) {
+      return await _xelisWallet.createMultisigBurnAllTransaction(
+          assetHash: assetHash);
+    } else {
+      return await _xelisWallet.createMultisigBurnTransaction(
+          floatAmount: amount, assetHash: assetHash);
+    }
+  }
+
   Future<void> broadcastTransaction(String hash) async {
     await _xelisWallet.broadcastTransaction(txHash: hash);
     talker.info('Transaction successfully broadcast: $hash');
@@ -216,39 +273,6 @@ class NativeWalletRepository {
   Future<void> clearTransaction(String hash) async {
     await _xelisWallet.clearTransaction(txHash: hash);
     talker.info('Transaction canceled: $hash');
-  }
-
-  Future<List<sdk.TransactionEntry>> history() async {
-    final rawData = await _xelisWallet.history();
-    return rawData
-        .map((e) => jsonDecode(e))
-        .map((entry) =>
-            sdk.TransactionEntry.fromJson(entry as Map<String, dynamic>))
-        .toList();
-  }
-
-  Future<void> setOnline({required String daemonAddress}) async {
-    await _xelisWallet.onlineMode(daemonAddress: daemonAddress);
-    talker.info('XELIS Wallet connected to: $daemonAddress');
-  }
-
-  Future<void> setOffline() async {
-    await _xelisWallet.offlineMode();
-    talker.info('XELIS Wallet offline');
-  }
-
-  Future<sdk.GetInfoResult> getDaemonInfo() async {
-    final rawData = await _xelisWallet.getDaemonInfo();
-    final json = jsonDecode(rawData);
-    return sdk.GetInfoResult.fromJson(json as Map<String, dynamic>);
-  }
-
-  Future<void> exportTransactionsToCsvFile(String path) async {
-    await _xelisWallet.exportTransactionsToCsvFile(filePath: path);
-  }
-
-  Future<String> convertTransactionsToCsv() async {
-    return _xelisWallet.convertTransactionsToCsv();
   }
 
   Future<MultisigState?> getMultisigState() async {
@@ -262,7 +286,7 @@ class NativeWalletRepository {
     }
   }
 
-  Future<String> signTransaction(String txHash) async {
+  Future<String> signTransactionHash(String txHash) async {
     return _xelisWallet.multisigSign(txHash: txHash);
   }
 
@@ -282,11 +306,19 @@ class NativeWalletRepository {
     return _xelisWallet.initDeleteMultisig();
   }
 
-  Future<TransactionSummary?> finalizeDeleteMultisig(
+  Future<TransactionSummary?> finalizeMultisigTransaction(
       {required List<SignatureMultisig> signatures}) async {
     final rawTx =
-        await _xelisWallet.finalizeDeleteMultisig(signatures: signatures);
+        await _xelisWallet.finalizeMultisigTransaction(signatures: signatures);
     final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
     return TransactionSummary.fromJson(jsonTx);
+  }
+
+  Future<void> exportTransactionsToCsvFile(String path) async {
+    await _xelisWallet.exportTransactionsToCsvFile(filePath: path);
+  }
+
+  Future<String> convertTransactionsToCsv() async {
+    return _xelisWallet.convertTransactionsToCsv();
   }
 }

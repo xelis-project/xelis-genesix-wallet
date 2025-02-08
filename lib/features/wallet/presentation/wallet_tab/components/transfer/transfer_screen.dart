@@ -3,10 +3,12 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/assets_dropdown_menu_item.dart';
-import 'package:genesix/features/wallet/presentation/wallet_tab/components/transfer/transfer_review_dialog.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/transaction_dialog.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/transfer/transfer_review_content.dart';
 import 'package:genesix/rust_bridge/api/utils.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
@@ -283,27 +285,42 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
 
       context.loaderOverlay.show();
 
-      TransactionSummary? tx;
+      (TransactionSummary?, String?) record;
       if (amount.trim() == _selectedAssetBalance) {
-        tx = await ref
+        record = await ref
             .read(walletStateProvider.notifier)
-            .createAllXelisTransaction(
-                destination: address.trim(), asset: asset);
+            .sendAll(destination: address.trim(), asset: asset);
       } else {
-        tx =
-            await ref.read(walletStateProvider.notifier).createXelisTransaction(
-                  amount: double.parse(amount),
-                  destination: address.trim(),
-                  asset: asset,
-                );
+        record = await ref.read(walletStateProvider.notifier).send(
+              amount: double.parse(amount),
+              destination: address.trim(),
+              asset: asset,
+            );
       }
 
-      if (mounted && tx != null) {
+      if (record.$2 != null) {
+        // multisig is enabled, hash to sign is returned
+        ref.read(transactionReviewProvider.notifier).setTransactionHashToSign(
+              record.$2!,
+            );
+      } else if (record.$1 != null) {
+        // no multisig, transaction summary is returned
+        ref.read(transactionReviewProvider.notifier).setTransferSummary(
+              record.$1!,
+            );
+      } else {
+        if (mounted && context.loaderOverlay.visible) {
+          context.loaderOverlay.hide();
+        }
+        return;
+      }
+
+      if (mounted) {
         showDialog<void>(
           context: context,
           barrierDismissible: false,
           builder: (context) {
-            return TransferReviewDialog(tx!);
+            return TransactionDialog(TransferReviewContentWidget());
           },
         );
       }

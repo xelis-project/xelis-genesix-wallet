@@ -279,6 +279,52 @@ impl XelisWallet {
         .to_string())
     }
 
+    pub async fn create_multisig_transfers_transaction(
+        &self,
+        transfers: Vec<Transfer>,
+    ) -> Result<String> {
+        info!("Building transaction...");
+
+        let multisig = {
+            let storage = self.wallet.get_storage().read().await;
+            let multisig = storage
+                .get_multisig_state()
+                .await
+                .context("Error while reading multisig state")?;
+            multisig.cloned()
+        };
+
+        match multisig {
+            Some(multisig) => {
+                let transaction_type_builder = self
+                    .create_transfers(transfers)
+                    .await
+                    .context("Error while creating transaction type builder")?;
+
+                let (unsigned, state) = self
+                    .generate_unsigned_transaction(
+                        transaction_type_builder.clone(),
+                        FeeBuilder::default(),
+                        multisig.payload.threshold,
+                    )
+                    .await?;
+
+                let hash = unsigned.get_hash_for_multisig().to_hex();
+
+                let mut pending_unsigned = self.pending_unsigned.write();
+
+                *pending_unsigned = Some((unsigned, state, transaction_type_builder));
+
+                info!("Unsigned transaction created: {}", hash);
+
+                Ok(hash)
+            }
+            None => {
+                bail!("No multisig configured");
+            }
+        }
+    }
+
     // create a transfer all transaction
     pub async fn create_transfer_all_transaction(
         &self,
@@ -363,6 +409,90 @@ impl XelisWallet {
         .to_string())
     }
 
+    pub async fn create_multisig_transfer_all_transaction(
+        &self,
+        str_address: String,
+        asset_hash: Option<String>,
+        extra_data: Option<String>,
+    ) -> Result<String> {
+        info!("Building multisig transfer all transaction...");
+
+        let asset = match asset_hash {
+            None => XELIS_ASSET,
+            Some(value) => Hash::from_hex(&value).context("Invalid asset")?,
+        };
+
+        let (mut amount, multisig) = {
+            let storage = self.wallet.get_storage().read().await;
+            let amount = storage.get_plaintext_balance_for(&asset).await?;
+            let multisig = storage
+                .get_multisig_state()
+                .await
+                .context("Error while reading multisig state")?;
+            (amount, multisig.cloned())
+        };
+
+        match multisig {
+            Some(multisig) => {
+                let address = Address::from_string(&str_address).context("Invalid address")?;
+
+                let extra_data = match extra_data {
+                    None => None,
+                    Some(value) => Some(DataElement::Value(DataValue::String(value))),
+                };
+
+                let transfer = TransferBuilder {
+                    destination: address.clone(),
+                    amount,
+                    asset: asset.clone(),
+                    extra_data: extra_data.clone(),
+                };
+
+                let estimated_fees = self
+                    .wallet
+                    .estimate_fees(TransactionTypeBuilder::Transfers(vec![transfer]))
+                    .await
+                    .context("Error while estimating fees")?;
+
+                if asset == XELIS_ASSET {
+                    amount = amount
+                        .checked_sub(estimated_fees)
+                        .context("Insufficient balance for fees")?;
+                }
+
+                let transfer = TransferBuilder {
+                    destination: address,
+                    amount,
+                    asset: asset.clone(),
+                    extra_data,
+                };
+
+                let transaction_type_builder = TransactionTypeBuilder::Transfers(vec![transfer]);
+
+                let (unsigned, state) = self
+                    .generate_unsigned_transaction(
+                        transaction_type_builder.clone(),
+                        FeeBuilder::default(),
+                        multisig.payload.threshold,
+                    )
+                    .await?;
+
+                let hash = unsigned.get_hash_for_multisig().to_hex();
+
+                let mut pending_unsigned = self.pending_unsigned.write();
+
+                *pending_unsigned = Some((unsigned, state, transaction_type_builder));
+
+                info!("Unsigned transaction created: {}", hash);
+
+                Ok(hash)
+            }
+            None => {
+                bail!("No multisig configured");
+            }
+        }
+    }
+
     // create a burn transaction
     pub async fn create_burn_transaction(
         &self,
@@ -421,6 +551,65 @@ impl XelisWallet {
             transaction_type: transaction_type_builder
         })
         .to_string())
+    }
+
+    pub async fn create_multisig_burn_transaction(
+        &self,
+        float_amount: f64,
+        asset_hash: String,
+    ) -> Result<String> {
+        info!("Building burn transaction...");
+
+        let asset = Hash::from_hex(&asset_hash).context("Invalid asset")?;
+
+        let (amount, decimals, multisig) = {
+            let storage = self.wallet.get_storage().read().await;
+            let decimals = storage
+                .get_asset(&asset)
+                .await
+                .context("Asset not found in storage")?
+                .get_decimals();
+            let amount: u64 = (float_amount * 10u32.pow(decimals as u32) as f64) as u64;
+            let multisig = storage
+                .get_multisig_state()
+                .await
+                .context("Error while reading multisig state")?;
+            (amount, decimals, multisig.cloned())
+        };
+
+        match multisig {
+            Some(multisig) => {
+                info!("Burning {} of {}", format_coin(amount, decimals), asset);
+
+                let payload = BurnPayload {
+                    amount,
+                    asset: asset.clone(),
+                };
+
+                let transaction_type_builder = TransactionTypeBuilder::Burn(payload);
+
+                let (unsigned, state) = self
+                    .generate_unsigned_transaction(
+                        transaction_type_builder.clone(),
+                        FeeBuilder::default(),
+                        multisig.payload.threshold,
+                    )
+                    .await?;
+
+                let hash = unsigned.get_hash_for_multisig().to_hex();
+
+                let mut pending_unsigned = self.pending_unsigned.write();
+
+                *pending_unsigned = Some((unsigned, state, transaction_type_builder));
+
+                info!("Unsigned transaction created: {}", hash);
+
+                Ok(hash)
+            }
+            None => {
+                bail!("No multisig configured");
+            }
+        }
     }
 
     // create a burn all transaction for a specific asset
@@ -484,6 +673,67 @@ impl XelisWallet {
         .to_string())
     }
 
+    pub async fn create_multisig_burn_all_transaction(&self, asset_hash: String) -> Result<String> {
+        info!("Building burn all transaction...");
+
+        let asset = Hash::from_hex(&asset_hash).context("Invalid asset")?;
+
+        let (mut amount, multisig) = {
+            let storage = self.wallet.get_storage().read().await;
+            let amount = storage.get_plaintext_balance_for(&asset).await?;
+            let multisig = storage
+                .get_multisig_state()
+                .await
+                .context("Error while reading multisig state")?;
+            (amount, multisig.cloned())
+        };
+
+        match multisig {
+            Some(multisig) => {
+                info!("Burning all {} of {}", amount, asset);
+
+                let mut payload = BurnPayload {
+                    amount,
+                    asset: asset.clone(),
+                };
+
+                let estimated_fees = self
+                    .wallet
+                    .estimate_fees(TransactionTypeBuilder::Burn(payload.clone()))
+                    .await
+                    .context("Error while estimating fees")?;
+
+                if asset == XELIS_ASSET {
+                    amount -= estimated_fees;
+                    payload.amount = amount;
+                }
+
+                let transaction_type_builder = TransactionTypeBuilder::Burn(payload);
+
+                let (unsigned, state) = self
+                    .generate_unsigned_transaction(
+                        transaction_type_builder.clone(),
+                        FeeBuilder::default(),
+                        multisig.payload.threshold,
+                    )
+                    .await?;
+
+                let hash = unsigned.get_hash_for_multisig().to_hex();
+
+                let mut pending_unsigned = self.pending_unsigned.write();
+
+                *pending_unsigned = Some((unsigned, state, transaction_type_builder));
+
+                info!("Unsigned transaction created: {}", hash);
+
+                Ok(hash)
+            }
+            None => {
+                bail!("No multisig configured");
+            }
+        }
+    }
+
     // clear a pending transaction
     pub fn clear_transaction(
         &self,
@@ -520,13 +770,14 @@ impl XelisWallet {
                 bail!(e)
             } else {
                 info!("Transaction submitted successfully!");
-                state.apply_changes(&mut storage).await?;
+                state
+                    .apply_changes(&mut storage)
+                    .await
+                    .context("Error while applying changes")?;
                 info!("Transaction applied to storage");
             }
         } else {
-            return Err(anyhow!(
-                "Wallet is offline, transaction cannot be submitted"
-            ));
+            bail!("Wallet is offline, transaction cannot be submitted");
         }
 
         Ok(())
@@ -624,7 +875,7 @@ impl XelisWallet {
         let storage = self.wallet.get_storage().read().await;
         let transactions = storage.get_transactions()?;
         if transactions.is_empty() {
-            return Err(anyhow!("No transactions to export"));
+            bail!("No transactions to export");
         }
         let mut file = File::create(&path).context("Error while creating CSV file")?;
         self.wallet
@@ -638,7 +889,7 @@ impl XelisWallet {
         let storage = self.wallet.get_storage().read().await;
         let transactions = storage.get_transactions()?;
         if transactions.is_empty() {
-            return Err(anyhow!("No transactions to export"));
+            bail!("No transactions to export");
         }
         let mut csv = Vec::new();
         self.wallet
@@ -677,10 +928,7 @@ impl XelisWallet {
                 })
                 .to_string(),
             )),
-            None => {
-                // return Err(anyhow!("No multisig configured"));
-                Ok(None)
-            }
+            None => Ok(None),
         }
     }
 
@@ -688,12 +936,16 @@ impl XelisWallet {
         info!("Setting up multisig...");
         let multisig = {
             let storage = self.wallet.get_storage().read().await;
-            storage.get_multisig_state().await?
+            let multisig = storage
+                .get_multisig_state()
+                .await
+                .context("Error while reading multisig state")?;
+            multisig.cloned()
         };
 
         match multisig {
             Some(_multisig) => {
-                return Err(anyhow!("Multisig already configured"));
+                bail!("Multisig already configured");
             }
             None => {
                 let mut participant_addresses = IndexSet::with_capacity(participants.len());
@@ -772,7 +1024,11 @@ impl XelisWallet {
         info!("Deleting multisig...");
         let multisig = {
             let storage = self.wallet.get_storage().read().await;
-            storage.get_multisig_state().await?
+            let multisig = storage
+                .get_multisig_state()
+                .await
+                .context("Error while reading multisig state")?;
+            multisig.cloned()
         };
 
         match multisig {
@@ -802,12 +1058,12 @@ impl XelisWallet {
 
                 Ok(hash)
             }
-            None => Err(anyhow!("No multisig configured")),
+            None => bail!("No multisig configured"),
         }
     }
 
-    // finalize delete multisig by signing the transaction
-    pub async fn finalize_delete_multisig(
+    // finalize multisig by signing the transaction
+    pub async fn finalize_multisig_transaction(
         &self,
         signatures: Vec<SignatureMultisig>,
     ) -> Result<String> {
@@ -822,7 +1078,7 @@ impl XelisWallet {
         let mut multisig = MultiSig::new();
         for signature in signature_ids {
             if !multisig.add_signature(signature) {
-                return Err(anyhow!("Invalid signature"));
+                bail!("Invalid signature");
             }
         }
 
@@ -837,12 +1093,6 @@ impl XelisWallet {
         let tx = unsigned.finalize(self.wallet.get_keypair());
 
         state.set_tx_hash_built(tx.hash());
-
-        let mut storage = self.wallet.get_storage().write().await;
-        state
-            .apply_changes(&mut storage)
-            .await
-            .context("Error while applying changes")?;
 
         self.pending_transaction
             .write()
@@ -881,7 +1131,7 @@ impl XelisWallet {
             .wallet
             .create_unsigned_transaction(
                 &mut state,
-                threshold,
+                Some(threshold),
                 tx_type,
                 fee,
                 storage.get_tx_version().await?,

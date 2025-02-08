@@ -7,9 +7,9 @@ import 'package:genesix/features/authentication/application/biometric_auth_provi
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/multisig_pending_state_provider.dart';
+import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/multisig/multisig_participant.dart';
-import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/rust_bridge/api/dtos.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -21,27 +21,25 @@ import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown.
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 
-class DeleteMultisigDialog extends ConsumerStatefulWidget {
-  const DeleteMultisigDialog(this.transactionToSign, {super.key});
+class TransactionDialog extends ConsumerStatefulWidget {
+  const TransactionDialog(this.reviewContent, {super.key});
 
-  final String transactionToSign;
+  final Widget reviewContent;
 
   @override
-  ConsumerState createState() => _DeleteMultisigDialogState();
+  ConsumerState createState() => _TransactionDialogState();
 }
 
-class _DeleteMultisigDialogState extends ConsumerState<DeleteMultisigDialog> {
+class _TransactionDialogState extends ConsumerState<TransactionDialog> {
   final _signaturesFormKey =
       GlobalKey<FormBuilderState>(debugLabel: '_signaturesFormKey');
-  bool _isBroadcast = false;
-
-  TransactionSummary? _transactionSummary;
 
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final multisigState =
         ref.watch(walletStateProvider.select((value) => value.multisigState));
+    final transactionReview = ref.watch(transactionReviewProvider);
     return GenericDialog(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -53,13 +51,13 @@ class _DeleteMultisigDialogState extends ConsumerState<DeleteMultisigDialog> {
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: AppDurations.animFast),
               child: Text(
-                key: ValueKey(_transactionSummary),
-                _transactionSummary != null ? loc.review : 'Multisig',
+                key: ValueKey(transactionReview.transactionHashToSign),
+                transactionReview.hasSummary ? loc.review : 'Multisig',
                 style: context.headlineSmall,
               ),
             ),
           ),
-          if (!_isBroadcast)
+          if (!transactionReview.isBroadcast)
             Padding(
               padding:
                   const EdgeInsets.only(right: Spaces.small, top: Spaces.small),
@@ -74,9 +72,9 @@ class _DeleteMultisigDialogState extends ConsumerState<DeleteMultisigDialog> {
       ),
       content: Container(
         constraints: BoxConstraints(maxWidth: 600),
-        child: _transactionSummary == null
+        child: !transactionReview.hasSummary
             ? Column(
-                key: ValueKey(_transactionSummary),
+                key: ValueKey(transactionReview.transactionHashToSign),
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
@@ -87,14 +85,16 @@ class _DeleteMultisigDialogState extends ConsumerState<DeleteMultisigDialog> {
                               ?.copyWith(color: context.moreColors.mutedColor)),
                       IconButton(
                         onPressed: () => copyToClipboard(
-                            widget.transactionToSign, ref, loc.copied),
+                            transactionReview.transactionHashToSign!,
+                            ref,
+                            loc.copied),
                         icon: const Icon(Icons.copy_rounded, size: 18),
                         tooltip: 'Copy hash transaction',
                       ),
                     ],
                   ),
                   const SizedBox(height: Spaces.small),
-                  SelectableText(widget.transactionToSign),
+                  SelectableText(transactionReview.transactionHashToSign!),
                   const SizedBox(height: Spaces.small),
                   Divider(),
                   const SizedBox(height: Spaces.small),
@@ -188,66 +188,42 @@ class _DeleteMultisigDialogState extends ConsumerState<DeleteMultisigDialog> {
                   ),
                 ],
               )
-            : Center(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      loc.hash,
-                      style: context.bodyLarge!
-                          .copyWith(color: context.moreColors.mutedColor),
-                    ),
-                    const SizedBox(height: Spaces.extraSmall),
-                    SelectableText(_transactionSummary!.hash),
-                    const SizedBox(height: Spaces.small),
-                    Text(
-                      loc.fee,
-                      style: context.bodyLarge!
-                          .copyWith(color: context.moreColors.mutedColor),
-                    ),
-                    const SizedBox(height: Spaces.extraSmall),
-                    SelectableText(formatXelis(_transactionSummary!.fee)),
-                    const SizedBox(height: Spaces.small),
-                    Text(
-                      'Transaction type',
-                      style: context.bodyLarge!
-                          .copyWith(color: context.moreColors.mutedColor),
-                    ),
-                    const SizedBox(height: Spaces.extraSmall),
-                    SelectableText('Delete Multisig'),
-                  ],
-                ),
-              ),
+            : widget.reviewContent,
       ),
       actions: [
-        _transactionSummary != null
-            ? _isBroadcast
-                ? TextButton(
-                    onPressed: () {
-                      context.pop();
-                    },
-                    child: Text(loc.ok_button),
-                  )
-                : TextButton.icon(
-                    onPressed: () => startWithBiometricAuth(
-                      ref,
-                      callback: _broadcastTransfer,
-                      reason:
-                          'Please authenticate to broadcast the transaction',
-                    ),
-                    icon: const Icon(Icons.send, size: 18),
-                    label: Text(loc.broadcast),
-                  )
-            : TextButton.icon(
-                onPressed: _processSignatures,
-                label: Text(
-                  loc.next,
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: AppDurations.animFast),
+          child: transactionReview.hasSummary
+              ? transactionReview.isBroadcast
+                  ? TextButton(
+                      onPressed: () {
+                        context.pop();
+                      },
+                      child: Text(loc.ok_button),
+                    )
+                  : TextButton.icon(
+                      onPressed: transactionReview.isConfirmed
+                          ? () => startWithBiometricAuth(
+                                ref,
+                                callback: _broadcastTransfer,
+                                reason:
+                                    'Please authenticate to broadcast the transaction',
+                              )
+                          : null,
+                      icon: const Icon(Icons.send, size: 18),
+                      label: Text(loc.broadcast),
+                    )
+              : TextButton.icon(
+                  onPressed: _processSignatures,
+                  label: Text(
+                    loc.next,
+                  ),
+                  icon: Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 18,
+                  ),
                 ),
-                icon: Icon(
-                  Icons.arrow_forward_rounded,
-                  size: 18,
-                ),
-              ),
+        ),
       ],
     );
   }
@@ -271,9 +247,15 @@ class _DeleteMultisigDialogState extends ConsumerState<DeleteMultisigDialog> {
           .finalizeDeleteMultisig(signatures: signatures);
 
       if (tx != null) {
-        setState(() {
-          _transactionSummary = tx;
-        });
+        if (tx.isTransfer) {
+          ref.read(transactionReviewProvider.notifier).setTransferSummary(tx);
+        } else if (tx.isMultiSig) {
+          ref.read(transactionReviewProvider.notifier).setMultisigSummary(tx);
+        } else if (tx.isBurn) {
+          ref.read(transactionReviewProvider.notifier).setBurnSummary(tx);
+        } else {
+          talker.error('Unknown transaction type');
+        }
       }
     }
 
@@ -287,15 +269,17 @@ class _DeleteMultisigDialogState extends ConsumerState<DeleteMultisigDialog> {
     try {
       ref.context.loaderOverlay.show();
 
+      final transactionReview = ref.read(transactionReviewProvider);
+
       await ref
           .read(walletStateProvider.notifier)
-          .broadcastTx(hash: _transactionSummary!.hash);
+          .broadcastTx(hash: transactionReview.finalHash!);
 
-      setState(() {
-        _isBroadcast = true;
-      });
+      ref.read(transactionReviewProvider.notifier).broadcast();
 
-      ref.read(multisigPendingStateProvider.notifier).pendingState();
+      if (transactionReview.summary!.isMultiSig) {
+        ref.read(multisigPendingStateProvider.notifier).pendingState();
+      }
 
       ref
           .read(snackBarMessengerProvider.notifier)
