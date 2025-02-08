@@ -115,19 +115,8 @@ class WalletState extends _$WalletState {
   }
 
   Future<void> rescan() async {
-    final loc = ref.read(appLocalizationsProvider);
     try {
-      final nodeInfo = await state.nativeWalletRepository?.getDaemonInfo();
-      if (nodeInfo?.prunedTopoHeight == null) {
-        // We are connected to a full node, so we can rescan from 0.
-        await state.nativeWalletRepository?.rescan(topoheight: 0);
-        ref.read(snackBarMessengerProvider.notifier).showInfo(loc.rescan_done);
-      } else {
-        // We are connected to a pruned node, rescan is not available for simplicity.
-        ref
-            .read(snackBarMessengerProvider.notifier)
-            .showError(loc.rescan_limitation_toast_error);
-      }
+      await state.nativeWalletRepository?.rescan(topoheight: 0);
     } on AnyhowException catch (e) {
       talker.error('Rescan failed: $e');
       final xelisMessage = (e).message.split("\n")[0];
