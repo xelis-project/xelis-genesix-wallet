@@ -280,6 +280,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
           _transferFormKey.currentState?.fields['address']?.value as String;
       final asset =
           _transferFormKey.currentState?.fields['assets']?.value as String;
+      final feeMultiplier =
+          _transferFormKey.currentState?.fields['fee']?.value as double;
 
       _unfocusNodes();
 
@@ -287,14 +289,16 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
 
       (TransactionSummary?, String?) record;
       if (amount.trim() == _selectedAssetBalance) {
-        record = await ref
-            .read(walletStateProvider.notifier)
-            .sendAll(destination: address.trim(), asset: asset);
+        record = await ref.read(walletStateProvider.notifier).sendAll(
+            destination: address.trim(),
+            asset: asset,
+            feeMultiplier: feeMultiplier != 1 ? feeMultiplier : null);
       } else {
         record = await ref.read(walletStateProvider.notifier).send(
               amount: double.parse(amount),
               destination: address.trim(),
               asset: asset,
+              feeMultiplier: feeMultiplier != 1 ? feeMultiplier : null,
             );
       }
 
@@ -344,21 +348,23 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
           _transferFormKey.currentState?.fields['address']?.value as String;
       final asset =
           _transferFormKey.currentState?.fields['assets']?.value as String;
+      final multiplier =
+          _transferFormKey.currentState?.fields['fee']?.value as double;
+
       ref
           .read(walletStateProvider.notifier)
           .estimateFees(
             amount: double.parse(amount),
             destination: address.trim(),
             asset: asset,
+            feeMultiplier: multiplier,
           )
           .then((value) {
         setState(() {
           final estimatedFee = double.parse(value);
           _isFeeEstimated = estimatedFee > 0;
-          final multiplier =
-              _transferFormKey.currentState?.fields['fee']?.value as double;
-          _estimatedFee = (estimatedFee * multiplier)
-              .toStringAsFixed(AppResources.xelisDecimals);
+          _estimatedFee =
+              estimatedFee.toStringAsFixed(AppResources.xelisDecimals);
         });
       });
     } else {

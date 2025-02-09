@@ -225,7 +225,11 @@ impl XelisWallet {
     }
 
     // estimate the fees for a transaction
-    pub async fn estimate_fees(&self, transfers: Vec<Transfer>) -> Result<String> {
+    pub async fn estimate_fees(
+        &self,
+        transfers: Vec<Transfer>,
+        fee_multiplier: Option<f64>,
+    ) -> Result<String> {
         let transaction_type_builder = self
             .create_transfers(transfers)
             .await
@@ -233,7 +237,13 @@ impl XelisWallet {
 
         let estimated_fees = self
             .wallet
-            .estimate_fees(transaction_type_builder)
+            .estimate_fees(
+                transaction_type_builder,
+                match fee_multiplier {
+                    Some(value) => FeeBuilder::Multiplier(value),
+                    None => FeeBuilder::default(),
+                },
+            )
             .await
             .context("Error while estimating fees")?;
 
@@ -241,7 +251,11 @@ impl XelisWallet {
     }
 
     // create a transfer transaction
-    pub async fn create_transfers_transaction(&self, transfers: Vec<Transfer>) -> Result<String> {
+    pub async fn create_transfers_transaction(
+        &self,
+        transfers: Vec<Transfer>,
+        fee_multiplier: Option<f64>,
+    ) -> Result<String> {
         self.pending_transaction.write().clear();
 
         info!("Building transaction...");
@@ -257,7 +271,10 @@ impl XelisWallet {
                 .create_transaction_with_storage(
                     &mut storage,
                     transaction_type_builder.clone(),
-                    FeeBuilder::default(),
+                    match fee_multiplier {
+                        Some(value) => FeeBuilder::Multiplier(value),
+                        None => FeeBuilder::default(),
+                    },
                 )
                 .await?
         };
@@ -282,6 +299,7 @@ impl XelisWallet {
     pub async fn create_multisig_transfers_transaction(
         &self,
         transfers: Vec<Transfer>,
+        fee_multiplier: Option<f64>,
     ) -> Result<String> {
         info!("Building transaction...");
 
@@ -304,7 +322,10 @@ impl XelisWallet {
                 let (unsigned, state) = self
                     .generate_unsigned_transaction(
                         transaction_type_builder.clone(),
-                        FeeBuilder::default(),
+                        match fee_multiplier {
+                            Some(value) => FeeBuilder::Multiplier(value),
+                            None => FeeBuilder::default(),
+                        },
                         multisig.payload.threshold,
                     )
                     .await?;
@@ -331,6 +352,7 @@ impl XelisWallet {
         str_address: String,
         asset_hash: Option<String>,
         extra_data: Option<String>,
+        fee_multiplier: Option<f64>,
     ) -> Result<String> {
         self.pending_transaction.write().clear();
 
@@ -362,7 +384,13 @@ impl XelisWallet {
 
         let estimated_fees = self
             .wallet
-            .estimate_fees(TransactionTypeBuilder::Transfers(vec![transfer]))
+            .estimate_fees(
+                TransactionTypeBuilder::Transfers(vec![transfer]),
+                match fee_multiplier {
+                    Some(value) => FeeBuilder::Multiplier(value),
+                    None => FeeBuilder::default(),
+                },
+            )
             .await
             .context("Error while estimating fees")?;
 
@@ -387,7 +415,10 @@ impl XelisWallet {
                 .create_transaction_with_storage(
                     &mut storage,
                     transaction_type_builder.clone(),
-                    FeeBuilder::default(),
+                    match fee_multiplier {
+                        Some(value) => FeeBuilder::Multiplier(value),
+                        None => FeeBuilder::default(),
+                    },
                 )
                 .await?
         };
@@ -414,6 +445,7 @@ impl XelisWallet {
         str_address: String,
         asset_hash: Option<String>,
         extra_data: Option<String>,
+        fee_multiplier: Option<f64>,
     ) -> Result<String> {
         info!("Building multisig transfer all transaction...");
 
@@ -450,7 +482,13 @@ impl XelisWallet {
 
                 let estimated_fees = self
                     .wallet
-                    .estimate_fees(TransactionTypeBuilder::Transfers(vec![transfer]))
+                    .estimate_fees(
+                        TransactionTypeBuilder::Transfers(vec![transfer]),
+                        match fee_multiplier {
+                            Some(value) => FeeBuilder::Multiplier(value),
+                            None => FeeBuilder::default(),
+                        },
+                    )
                     .await
                     .context("Error while estimating fees")?;
 
@@ -472,7 +510,10 @@ impl XelisWallet {
                 let (unsigned, state) = self
                     .generate_unsigned_transaction(
                         transaction_type_builder.clone(),
-                        FeeBuilder::default(),
+                        match fee_multiplier {
+                            Some(value) => FeeBuilder::Multiplier(value),
+                            None => FeeBuilder::default(),
+                        },
                         multisig.payload.threshold,
                     )
                     .await?;
@@ -531,7 +572,7 @@ impl XelisWallet {
                 .create_transaction_with_storage(
                     &mut storage,
                     transaction_type_builder.clone(),
-                    FeeBuilder::Multiplier(1f64),
+                    FeeBuilder::default(),
                 )
                 .await?
         };
@@ -634,7 +675,10 @@ impl XelisWallet {
 
         let estimated_fees = self
             .wallet
-            .estimate_fees(TransactionTypeBuilder::Burn(payload.clone()))
+            .estimate_fees(
+                TransactionTypeBuilder::Burn(payload.clone()),
+                FeeBuilder::default(),
+            )
             .await
             .context("Error while estimating fees")?;
 
@@ -699,7 +743,10 @@ impl XelisWallet {
 
                 let estimated_fees = self
                     .wallet
-                    .estimate_fees(TransactionTypeBuilder::Burn(payload.clone()))
+                    .estimate_fees(
+                        TransactionTypeBuilder::Burn(payload.clone()),
+                        FeeBuilder::default(),
+                    )
                     .await
                     .context("Error while estimating fees")?;
 

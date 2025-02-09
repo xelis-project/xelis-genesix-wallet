@@ -132,18 +132,25 @@ class WalletState extends _$WalletState {
     required double amount,
     required String destination,
     required String asset,
+    double? feeMultiplier,
   }) async {
     if (state.nativeWalletRepository != null) {
       try {
         if (state.multisigState.isSetup) {
           final transactionHash = await state.nativeWalletRepository!
               .createMultisigTransferTransaction(
-                  amount: amount, address: destination, assetHash: asset);
+                  amount: amount,
+                  address: destination,
+                  assetHash: asset,
+                  feeMultiplier: feeMultiplier);
           return (null, transactionHash);
         } else {
           final transactionSummary = await state.nativeWalletRepository!
               .createTransferTransaction(
-                  amount: amount, address: destination, assetHash: asset);
+                  amount: amount,
+                  address: destination,
+                  assetHash: asset,
+                  feeMultiplier: feeMultiplier);
           return (transactionSummary, null);
         }
       } on AnyhowException catch (e) {
@@ -164,18 +171,23 @@ class WalletState extends _$WalletState {
   Future<(TransactionSummary?, String?)> sendAll({
     required String destination,
     required String asset,
+    double? feeMultiplier,
   }) async {
     if (state.nativeWalletRepository != null) {
       try {
         if (state.multisigState.isSetup) {
           final transactionHash = await state.nativeWalletRepository!
               .createMultisigTransferTransaction(
-                  address: destination, assetHash: asset);
+                  address: destination,
+                  assetHash: asset,
+                  feeMultiplier: feeMultiplier);
           return (null, transactionHash);
         } else {
           final transactionSummary = await state.nativeWalletRepository!
               .createTransferTransaction(
-                  address: destination, assetHash: asset);
+                  address: destination,
+                  assetHash: asset,
+                  feeMultiplier: feeMultiplier);
           return (transactionSummary, null);
         }
       } on AnyhowException catch (e) {
@@ -265,11 +277,16 @@ class WalletState extends _$WalletState {
     required double amount,
     required String destination,
     required String asset,
+    double? feeMultiplier,
   }) async {
     if (state.nativeWalletRepository != null) {
-      return state.nativeWalletRepository!.estimateFees([
-        Transfer(floatAmount: amount, strAddress: destination, assetHash: asset)
-      ]);
+      return state.nativeWalletRepository!.estimateFees(
+        [
+          Transfer(
+              floatAmount: amount, strAddress: destination, assetHash: asset)
+        ],
+        feeMultiplier,
+      );
     }
     return AppResources.zeroBalance;
   }

@@ -190,23 +190,34 @@ class NativeWalletRepository {
     return _xelisWallet.rescan(topoheight: BigInt.from(topoheight));
   }
 
-  Future<String> estimateFees(List<Transfer> transfers) async {
-    return _xelisWallet.estimateFees(transfers: transfers);
+  Future<String> estimateFees(
+    List<Transfer> transfers,
+    double? feeMultiplier,
+  ) async {
+    return _xelisWallet.estimateFees(
+        transfers: transfers, feeMultiplier: feeMultiplier);
   }
 
   Future<TransactionSummary> createTransferTransaction({
     double? amount,
     required String address,
     required String assetHash,
+    double? feeMultiplier,
   }) async {
     String rawTx;
     if (amount != null) {
-      rawTx = await _xelisWallet.createTransfersTransaction(transfers: [
-        Transfer(floatAmount: amount, strAddress: address, assetHash: assetHash)
-      ]);
+      rawTx = await _xelisWallet.createTransfersTransaction(
+        transfers: [
+          Transfer(
+              floatAmount: amount, strAddress: address, assetHash: assetHash)
+        ],
+        feeMultiplier: feeMultiplier,
+      );
     } else {
       rawTx = await _xelisWallet.createTransferAllTransaction(
-          strAddress: address, assetHash: assetHash);
+          strAddress: address,
+          assetHash: assetHash,
+          feeMultiplier: feeMultiplier);
     }
     final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
     return TransactionSummary.fromJson(jsonTx);
@@ -216,14 +227,21 @@ class NativeWalletRepository {
     double? amount,
     required String address,
     required String assetHash,
+    double? feeMultiplier,
   }) async {
     if (amount != null) {
-      return _xelisWallet.createMultisigTransfersTransaction(transfers: [
-        Transfer(floatAmount: amount, strAddress: address, assetHash: assetHash)
-      ]);
+      return _xelisWallet.createMultisigTransfersTransaction(
+        transfers: [
+          Transfer(
+              floatAmount: amount, strAddress: address, assetHash: assetHash)
+        ],
+        feeMultiplier: feeMultiplier,
+      );
     } else {
       return _xelisWallet.createMultisigTransferAllTransaction(
-          strAddress: address, assetHash: assetHash);
+          strAddress: address,
+          assetHash: assetHash,
+          feeMultiplier: feeMultiplier);
     }
   }
 
