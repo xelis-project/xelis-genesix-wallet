@@ -36,6 +36,7 @@ class WalletState extends _$WalletState {
           name: name,
           nativeWalletRepository: nativeWallet,
           address: nativeWallet.address,
+          streamSubscription: nativeWallet.convertRawEvents().listen(_onEvent),
         );
       case SignedOut():
         return const WalletSnapshot();
@@ -45,9 +46,6 @@ class WalletState extends _$WalletState {
   Future<void> connect() async {
     if (state.nativeWalletRepository != null) {
       final loc = ref.read(appLocalizationsProvider);
-      StreamSubscription<void> sub =
-          state.nativeWalletRepository!.convertRawEvents().listen(_onEvent);
-      state = state.copyWith(streamSubscription: sub);
 
       if (await state.nativeWalletRepository!.isOnline) {
         await disconnect();
