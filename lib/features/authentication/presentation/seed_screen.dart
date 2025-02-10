@@ -29,7 +29,9 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
   int? _wordIndex;
   MnemonicLanguage _mnemonicLanguage = MnemonicLanguage.english;
   List<String>? _searchResults;
-  final List<String> _recoveryPhrase = List.filled(25, '');
+  final Map<int, String> _recoveryPhraseMap = {
+    for (var item in List.generate(25, (index) => index + 1)) item: ''
+  };
   List<String>? _invalidWords;
   late FocusNode _searchBarFocusNode;
 
@@ -37,6 +39,7 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
   void initState() {
     super.initState();
     _searchBarFocusNode = FocusNode();
+    _searchBarFocusNode.addListener(_onSearchBarFocus);
   }
 
   @override
@@ -210,10 +213,7 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
               children: [
                 Text(
                   loc.your_recovery_phrase,
-                  style: context
-                      .titleMedium /*
-                      ?.copyWith(color: context.moreColors.mutedColor)*/
-                  ,
+                  style: context.titleMedium,
                 ),
                 if (_invalidWords?.isNotEmpty == true)
                   Padding(
@@ -250,14 +250,13 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
                     : context.isWideScreen
                         ? 5
                         : 3,
-                // semanticChildCount: _currentRecoveryPhrase.length,
                 childAspectRatio: 5,
                 mainAxisSpacing: Spaces.none,
                 crossAxisSpacing: Spaces.small,
                 shrinkWrap: true,
-                children: _recoveryPhrase.indexed
+                children: _recoveryPhraseMap.entries
                     .map<Widget>(
-                      ((int index, String word) tuple) => Padding(
+                      (word) => Padding(
                         padding: const EdgeInsets.all(Spaces.none),
                         child: GestureDetector(
                           onTap: () {
@@ -265,10 +264,10 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
                               if (_selectedItem != null) {
                                 _selectedItem = null;
                               }
-                              if (_wordIndex == tuple.$1) {
+                              if (_wordIndex == word.key) {
                                 _wordIndex = null;
                               } else {
-                                _wordIndex = tuple.$1;
+                                _wordIndex = word.key;
                               }
                             });
                           },
@@ -276,9 +275,10 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                               side: BorderSide(
-                                color: _wordIndex == tuple.$1
+                                color: _wordIndex == word.key
                                     ? context.colors.primary
-                                    : _invalidWords?.contains(tuple.$2) ?? false
+                                    : _invalidWords?.contains(word.value) ??
+                                            false
                                         ? context.colors.error
                                         : context.moreColors.mutedColor,
                                 width: 2,
@@ -290,13 +290,13 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
                               child: Row(
                                 children: [
                                   Text(
-                                    '${tuple.$1 + 1}',
+                                    '${word.key}',
                                     style: context.bodyLarge?.copyWith(
                                         color: context.colors.primary),
                                   ),
                                   const SizedBox(width: Spaces.small),
                                   Text(
-                                    tuple.$2,
+                                    word.value,
                                     style: context.titleMedium,
                                   )
                                 ],
@@ -333,16 +333,17 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
         _selectedItem = null;
         return;
       }
+
       // Remove the invalid word from the list of invalid words
-      if (_invalidWords?.contains(_recoveryPhrase[_wordIndex!]) ?? false) {
-        _invalidWords!.remove(_recoveryPhrase[_wordIndex!]);
+      if (_invalidWords?.contains(_recoveryPhraseMap[_wordIndex!]) ?? false) {
+        _invalidWords!.remove(_recoveryPhraseMap[_wordIndex!]);
       }
 
       // Add the selected word from the search results to the recovery phrase
-      _recoveryPhrase[_wordIndex!] = _selectedItem!.$1;
+      _recoveryPhraseMap[_wordIndex!] = _selectedItem!.$1;
 
       // Select the next empty word in the recovery phrase
-      if (_wordIndex! < _recoveryPhrase.length - 1) {
+      if (_wordIndex! < _recoveryPhraseMap.length) {
         _wordIndex = _wordIndex! + 1;
       } else {
         _wordIndex = null;
@@ -380,30 +381,41 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
 
       setState(() {
         _clearRecoveryPhrase();
-        _recoveryPhrase.setAll(0, words);
+
+        // Update the recovery phrase with the pasted words
+        _recoveryPhraseMap.updateAll(
+            (key, value) => key <= words.length ? words[key - 1] : value);
+
+        // Check if the seed is valid
         final SeedSearchEngineRepository searchEngineRepository =
             SeedSearchEngineRepository(_mnemonicLanguage);
-        _invalidWords = searchEngineRepository.checkSeed(_recoveryPhrase);
+        _invalidWords = searchEngineRepository.checkSeed(_recoveryPhraseMap
+            .values
+            .where((element) => element.isNotEmpty)
+            .toList());
       });
     });
   }
 
   void _clearRecoveryPhrase() {
     setState(() {
-      _recoveryPhrase.fillRange(0, _recoveryPhrase.length, '');
+      _recoveryPhraseMap.updateAll((key, value) => '');
       _invalidWords = null;
       _selectedItem = null;
       _wordIndex = null;
     });
+    _searchBarFocusNode.unfocus();
   }
 
   void _onLanguageChanged(MnemonicLanguage? value) {
-    setState(() {
-      _mnemonicLanguage = value ?? MnemonicLanguage.english;
-      _searchResults = null;
-      _searchBarFormKey.currentState?.reset();
-      _clearRecoveryPhrase();
-    });
+    if (value != null && value != _mnemonicLanguage) {
+      setState(() {
+        _mnemonicLanguage = value;
+        _searchResults = null;
+        _searchBarFormKey.currentState?.reset();
+        _clearRecoveryPhrase();
+      });
+    }
   }
 
   void _continue() {
@@ -414,8 +426,12 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
           .showError(loc.seed_error_invalid_words);
       return;
     }
-    if (_recoveryPhrase.any((word) => word.isEmpty) ||
-        _recoveryPhrase.length < 24) {
+
+    bool allFirst24NonEmpty = _recoveryPhraseMap.entries
+        .take(24)
+        .every((entry) => entry.value.isNotEmpty);
+
+    if (!allFirst24NonEmpty) {
       ref
           .read(snackBarMessengerProvider.notifier)
           .showError(loc.seed_error_phrase_incomplete);
@@ -423,7 +439,9 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
     }
 
     context.push(AppScreen.recoverWalletFromSeed2.toPath,
-        extra: _recoveryPhrase);
+        extra: _recoveryPhraseMap.values
+            .where((element) => element.isNotEmpty)
+            .toList());
   }
 
   void _onSearchBarChanged(String? value) {
@@ -478,7 +496,7 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
         _searchResults!.isNotEmpty) {
       setState(() {
         _selectedItem = (_searchResults!.first, 0);
-        _wordIndex = _recoveryPhrase.indexOf('');
+        _wordIndex = _firstEmptyRecoveryWordIndex;
       });
     }
   }
@@ -488,8 +506,8 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
       if (event.logicalKey == LogicalKeyboardKey.tab) {
         setState(() {
           if (_wordIndex == null) {
-            _wordIndex = 0;
-          } else if (_wordIndex! < _recoveryPhrase.length - 1) {
+            _wordIndex = 1;
+          } else if (_wordIndex! < _recoveryPhraseMap.length) {
             _wordIndex = _wordIndex! + 1;
           } else {
             _wordIndex = null;
@@ -499,5 +517,25 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
       }
     }
     return KeyEventResult.ignored;
+  }
+
+  void _onSearchBarFocus() {
+    setState(() {
+      if (_searchBarFocusNode.hasFocus) {
+        _wordIndex ??= _firstEmptyRecoveryWordIndex;
+      } else {
+        _wordIndex = null;
+      }
+    });
+  }
+
+  int? get _firstEmptyRecoveryWordIndex {
+    try {
+      return _recoveryPhraseMap.entries
+          .firstWhere((element) => element.value.isEmpty)
+          .key;
+    } on StateError {
+      return null;
+    }
   }
 }
