@@ -295,9 +295,12 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
                                         color: context.colors.primary),
                                   ),
                                   const SizedBox(width: Spaces.small),
-                                  Text(
-                                    word.value,
-                                    style: context.titleMedium,
+                                  Expanded(
+                                    child: Text(
+                                      word.value,
+                                      style: context.titleMedium,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   )
                                 ],
                               ),
