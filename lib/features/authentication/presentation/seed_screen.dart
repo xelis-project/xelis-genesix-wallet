@@ -369,8 +369,7 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
         return;
       }
 
-      final List<String> words =
-          data.text!.trim().split(' ').map((word) => word.trim()).toList();
+      final List<String> words = data.text!.trim().split(RegExp(r'\s+'));
 
       if (words.length > 25) {
         ref
