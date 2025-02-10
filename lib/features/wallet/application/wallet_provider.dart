@@ -367,13 +367,13 @@ class WalletState extends _$WalletState {
               final amount = await state.nativeWalletRepository!
                   .formatCoin(txType.amount, txType.asset);
               final asset = txType.asset == sdk.xelisAsset
-                  ? 'XELIS'
+                  ? AppResources.xelisAsset.name
                   : truncateText(txType.asset);
               ref.read(snackBarMessengerProvider.notifier).showInfo(
                   '${loc.burn_transaction_confirmed.capitalize()}\n${loc.asset}: $asset\n${loc.amount}: -$amount');
             case sdk.MultisigEntry():
               ref.read(snackBarMessengerProvider.notifier).showInfo(
-                  'Multisig has been modified successfully at topoheight ${event.transactionEntry.topoheight}');
+                  '${loc.multisig_modified_successfully_event} ${event.transactionEntry.topoheight}');
             case sdk.InvokeContractEntry():
               // TODO: Handle this case.
               throw UnimplementedError();

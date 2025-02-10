@@ -38,7 +38,7 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
             padding:
                 const EdgeInsets.only(left: Spaces.medium, top: Spaces.large),
             child: Text(
-              'Sign Transaction',
+              loc.sign_transaction,
               style: context.headlineSmall,
             ),
           ),
@@ -60,9 +60,7 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-                'In case your signature is required to sign a transaction from a multisig wallet, '
-                'please provide the transaction hash below.',
+            Text(loc.sign_transaction_dialog_message,
                 style: context.bodyMedium!
                     .copyWith(color: context.moreColors.mutedColor)),
             const SizedBox(height: Spaces.large),
@@ -74,7 +72,7 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
                   autocorrect: false,
                   keyboardType: TextInputType.text,
                   decoration: context.textInputDecoration.copyWith(
-                    labelText: 'Transaction Hash',
+                    labelText: loc.transaction_hash,
                     suffixIcon: IconButton(
                       hoverColor: Colors.transparent,
                       onPressed: () {
@@ -96,7 +94,7 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
                     FormBuilderValidators.required(
                         errorText: loc.field_required_error),
                     FormBuilderValidators.equalLength(64,
-                        errorText: 'Invalid hash, must be 64 characters long'),
+                        errorText: loc.sign_transaction_formfield_error),
                   ]),
                 )),
             const SizedBox(height: Spaces.large),
@@ -109,7 +107,7 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
                         snapshot.connectionState != ConnectionState.none) {
                       return Column(
                         children: [
-                          Text('Error',
+                          Text(loc.error,
                               style: context.bodyMedium
                                   ?.copyWith(color: context.colors.error)),
                           Text((snapshot.error as AnyhowException).message,
@@ -125,14 +123,14 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text('Signature',
+                              Text(loc.signature,
                                   style: context.bodyMedium!.copyWith(
                                       color: context.moreColors.mutedColor)),
                               IconButton(
                                 onPressed: () => copyToClipboard(
                                     snapshot.requireData, ref, loc.copied),
                                 icon: const Icon(Icons.copy_rounded, size: 18),
-                                tooltip: 'Copy signature',
+                                tooltip: loc.copy_signature,
                               ),
                             ],
                           ),
@@ -151,7 +149,7 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
       actions: [
         TextButton(
           onPressed: _signTransaction,
-          child: Text('Sign'),
+          child: Text(loc.sign),
         ),
       ],
     );

@@ -66,7 +66,9 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
               duration: const Duration(milliseconds: AppDurations.animFast),
               child: Text(
                 key: ValueKey(_transactionSummary),
-                _transactionSummary != null ? loc.review : 'Multisig Setup',
+                _transactionSummary != null
+                    ? loc.review
+                    : loc.multisig_setup_title,
                 style: context.headlineSmall,
               ),
             ),
@@ -95,9 +97,9 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
             children: [
               if (!transactionReadyToBroadcast) ...[
                 WarningWidget([
-                  'Make sure you have the correct participants and threshold before proceeding.\n',
-                  'it will no longer be possible to transfer funds or deactivate the multisig without access to participating wallets.\n',
-                  'Incorrect setup can result in a loss of funds.',
+                  '${loc.multisig_setup_message_1}\n',
+                  '${loc.multisig_setup_message_2}\n',
+                  (loc.multisig_setup_message_3),
                 ]),
                 const SizedBox(height: Spaces.large)
               ],
@@ -108,18 +110,17 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Threshold',
+                          Text(loc.threshold,
                               style: context.labelLarge?.copyWith(
                                   color: context.moreColors.mutedColor)),
                           const SizedBox(height: Spaces.extraSmall),
                           FormBuilderTextField(
                             name: 'threshold',
-                            // initialValue: '1',
                             style: context.bodyMedium,
                             autocorrect: false,
                             keyboardType: TextInputType.number,
                             decoration: context.textInputDecoration.copyWith(
-                              labelText: 'minimum signatures required is 1',
+                              labelText: loc.threshold_formfield_label_text,
                               labelStyle: context.labelMedium!.copyWith(
                                   color: context.moreColors.mutedColor),
                             ),
@@ -144,7 +145,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                                 final threshold = int.tryParse(value ?? '');
                                 if (threshold != null &&
                                     threshold > _participantFormFields.length) {
-                                  return 'Threshold must be less than or equal to the number of participants';
+                                  return loc.threshold_formfield_error;
                                 }
                                 return null;
                               }
@@ -154,7 +155,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Participants',
+                              Text(loc.participants,
                                   style: context.labelLarge?.copyWith(
                                       color: context.moreColors.mutedColor)),
                               Row(
@@ -203,7 +204,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                                             Padding(
                                               padding: const EdgeInsets.only(
                                                   bottom: Spaces.extraSmall),
-                                              child: Text('ID',
+                                              child: Text(loc.id,
                                                   style: context.labelLarge
                                                       ?.copyWith(
                                                           color: context
@@ -249,7 +250,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                           SelectableText(formatXelis(_transactionSummary!.fee)),
                           const SizedBox(height: Spaces.small),
                           Text(
-                            'Threshold',
+                            loc.threshold,
                             style: context.bodyLarge!
                                 .copyWith(color: context.moreColors.mutedColor),
                           ),
@@ -259,7 +260,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                               .toString()),
                           const SizedBox(height: Spaces.small),
                           Text(
-                            'Participants',
+                            loc.participants,
                             style: context.bodyLarge!
                                 .copyWith(color: context.moreColors.mutedColor),
                           ),
@@ -291,7 +292,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                                                       const EdgeInsets.only(
                                                           bottom: Spaces
                                                               .extraSmall),
-                                                  child: Text('ID',
+                                                  child: Text(loc.id,
                                                       style: context.labelMedium
                                                           ?.copyWith(
                                                               color: context
@@ -315,7 +316,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                                                         const EdgeInsets.only(
                                                             bottom: Spaces
                                                                 .extraSmall),
-                                                    child: Text('Address',
+                                                    child: Text(loc.address,
                                                         style: context
                                                             .labelMedium
                                                             ?.copyWith(
@@ -355,7 +356,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                                       fillColor: Colors.transparent,
                                     ),
                                     title: Text(
-                                      'I confirm that the multisig configuration is correct and participant wallets can be accessed by their owners.',
+                                      loc.multisig_setup_confirmation_message,
                                       style: context.bodyMedium,
                                     ),
                                     validator: FormBuilderValidators.required(
@@ -388,8 +389,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                         ? () => startWithBiometricAuth(
                               ref,
                               callback: _broadcastTransfer,
-                              reason:
-                                  'Please authenticate to broadcast the transaction',
+                              reason: loc.please_authenticate_tx,
                             )
                         : null,
                     icon: const Icon(Icons.send, size: 18),
@@ -452,7 +452,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                     !ref
                         .read(walletStateProvider.notifier)
                         .isAddressValidForMultisig(value)) {
-                  return 'This is address is not valid for multisig';
+                  return loc.multisig_address_validation_error;
                 }
                 return null;
               },
@@ -470,7 +470,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                       .cast<String>()
                       .toList();
                   if (participants?.contains(value) ?? false) {
-                    return 'This participant is duplicated';
+                    return loc.multisig_participant_duplicated;
                   }
                 }
                 return null;

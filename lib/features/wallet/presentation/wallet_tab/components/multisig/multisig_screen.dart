@@ -31,14 +31,14 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
         ref.watch(walletStateProvider.select((value) => value.multisigState));
     final pendingState = ref.watch(multisigPendingStateProvider);
     return CustomScaffold(
-      appBar: GenericAppBar(title: 'Multisig'),
+      appBar: GenericAppBar(title: loc.multisig),
       body: AnimatedSwitcher(
         key: ValueKey<bool>(pendingState),
         duration: const Duration(milliseconds: AppDurations.animFast),
         child: pendingState
             ? Center(
-                child: Text('Changes in progress, please wait...',
-                    style: context.titleMedium),
+                child:
+                    Text(loc.changes_in_progress, style: context.titleMedium),
               )
             : multisigState.isSetup
                 ? Padding(
@@ -48,20 +48,20 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: Spaces.large),
-                        Text('Threshold',
+                        Text(loc.threshold,
                             style: context.labelLarge?.copyWith(
                                 color: context.moreColors.mutedColor)),
-                        Text('minimum signatures required',
+                        Text(loc.minimum_signatures_required.toLowerCase(),
                             style: context.labelSmall?.copyWith(
                               color: context.moreColors.mutedColor,
                               fontStyle: FontStyle.italic,
                             )),
                         SelectableText(multisigState.threshold.toString()),
                         const SizedBox(height: Spaces.large),
-                        Text('Topoheight',
+                        Text(loc.topoheight,
                             style: context.labelLarge?.copyWith(
                                 color: context.moreColors.mutedColor)),
-                        Text('multisig activation height',
+                        Text(loc.multisig_activation_height.toLowerCase(),
                             style: context.labelSmall?.copyWith(
                               color: context.moreColors.mutedColor,
                               fontStyle: FontStyle.italic,
@@ -69,7 +69,7 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                         SelectableText(multisigState.topoheight.toString()),
                         const SizedBox(height: Spaces.large),
                         Text(
-                          'Participants',
+                          loc.participants,
                           style: context.labelLarge
                               ?.copyWith(color: context.moreColors.mutedColor),
                         ),
@@ -94,7 +94,7 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                                         Padding(
                                           padding: const EdgeInsets.only(
                                               bottom: Spaces.extraSmall),
-                                          child: Text('ID',
+                                          child: Text(loc.id,
                                               style: context.labelMedium
                                                   ?.copyWith(
                                                       color: context.moreColors
@@ -113,7 +113,7 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                                         Padding(
                                           padding: const EdgeInsets.only(
                                               bottom: Spaces.extraSmall),
-                                          child: Text('Address',
+                                          child: Text(loc.address,
                                               style: context.labelMedium
                                                   ?.copyWith(
                                                       color: context.moreColors
@@ -160,7 +160,7 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                             ),
                             onPressed: _showDeleteMultisigDialog,
                             label: Text(
-                              'Delete multisig configuration',
+                              loc.delete_multisig_configuration,
                               style: context.titleSmall!.copyWith(
                                   color: context.colors.error,
                                   fontWeight: FontWeight.w800),
@@ -177,19 +177,18 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                       child: Column(
                         children: [
                           Text(
-                              'Here you can turn this wallet into a multi-signature wallet.\n'
-                              'This means that it will require multiple signatures to authorize transactions.',
+                              '${loc.multisig_intro_message_1}\n${loc.multisig_intro_message_2}',
                               style: context.titleMedium?.copyWith(
                                   color: context.moreColors.mutedColor)),
                           Spacer(),
-                          Text('No multisig configuration found',
+                          Text(loc.no_multisig_configuration_found,
                               style: context.titleSmall?.copyWith(
                                   color: context.colors.primary,
                                   fontStyle: FontStyle.italic)),
                           const SizedBox(height: Spaces.medium),
                           TextButton(
                             onPressed: _showSetupMultisigDialog,
-                            child: Text('Setup'),
+                            child: Text(loc.setup),
                           ),
                           Spacer(),
                         ],
@@ -199,7 +198,7 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showSignTransactionDialog,
-        tooltip: 'Sign transaction',
+        tooltip: loc.sign_transaction,
         child: const Icon(Icons.key),
       ),
     );

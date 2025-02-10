@@ -288,11 +288,11 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
   }
 
   Future<bool> _openWalletWithBiometrics(String name) async {
-    // final loc = ref.read(appLocalizationsProvider);
+    final loc = ref.read(appLocalizationsProvider);
     final secureStorage = ref.read(secureStorageProvider);
     final authenticated = await ref
         .read(biometricAuthProvider.notifier)
-        .authenticate('Please authenticate to unlock your wallet');
+        .authenticate(loc.please_authenticate_open_wallet);
     if (authenticated) {
       final password = await secureStorage.read(key: name);
       if (password != null) {
@@ -301,7 +301,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
       } else {
         ref
             .read(snackBarMessengerProvider.notifier)
-            .showError('Password not found');
+            .showError(loc.password_not_found);
       }
     }
     return false;

@@ -52,7 +52,7 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
               duration: const Duration(milliseconds: AppDurations.animFast),
               child: Text(
                 key: ValueKey(transactionReview.transactionHashToSign),
-                transactionReview.hasSummary ? loc.review : 'Multisig',
+                transactionReview.hasSummary ? loc.review : loc.multisig,
                 style: context.headlineSmall,
               ),
             ),
@@ -80,7 +80,7 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Transaction hash to sign',
+                      Text(loc.transaction_hash_to_sign,
                           style: context.titleMedium
                               ?.copyWith(color: context.moreColors.mutedColor)),
                       IconButton(
@@ -89,7 +89,7 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
                             ref,
                             loc.copied),
                         icon: const Icon(Icons.copy_rounded, size: 18),
-                        tooltip: 'Copy hash transaction',
+                        tooltip: loc.copy_hash_transaction,
                       ),
                     ],
                   ),
@@ -98,8 +98,7 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
                   const SizedBox(height: Spaces.small),
                   Divider(),
                   const SizedBox(height: Spaces.small),
-                  Text(
-                      'As Multisig is activated, you need to provide the required signatures to continue.',
+                  Text(loc.multisig_barrier_message,
                       style: context.labelMedium
                           ?.copyWith(color: context.moreColors.mutedColor)),
                   const SizedBox(height: Spaces.large),
@@ -111,7 +110,7 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
                         Expanded(
                           child: Column(
                             children: [
-                              Text('Participant ID',
+                              Text(loc.participant_id,
                                   style: context.labelMedium?.copyWith(
                                       color: context.moreColors.mutedColor)),
                               const SizedBox(height: Spaces.small),
@@ -153,7 +152,7 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
                           flex: 2,
                           child: Column(
                             children: [
-                              Text('Signature',
+                              Text(loc.signature,
                                   style: context.labelMedium?.copyWith(
                                       color: context.moreColors.mutedColor)),
                               const SizedBox(height: Spaces.small),
@@ -206,8 +205,7 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
                           ? () => startWithBiometricAuth(
                                 ref,
                                 callback: _broadcastTransfer,
-                                reason:
-                                    'Please authenticate to broadcast the transaction',
+                                reason: loc.please_authenticate_tx,
                               )
                           : null,
                       icon: const Icon(Icons.send, size: 18),

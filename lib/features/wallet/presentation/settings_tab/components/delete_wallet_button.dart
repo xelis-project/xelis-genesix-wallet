@@ -35,7 +35,7 @@ class _DeleteWalletButtonState extends ConsumerState<DeleteWalletButton> {
       onPressed: () => startWithBiometricAuth(
         ref,
         callback: _deleteWallet,
-        reason: 'Please authenticate to delete this wallet',
+        reason: loc.please_authenticate_delete_wallet,
       ),
       label: Text(
         loc.delete_wallet,

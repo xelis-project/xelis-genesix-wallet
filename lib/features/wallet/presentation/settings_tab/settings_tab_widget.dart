@@ -58,7 +58,7 @@ class SettingsTab extends ConsumerWidget {
             ref,
             callback: (ref) =>
                 ref.context.push(AuthAppScreen.walletSeedScreen.toPath),
-            reason: 'Please authenticate to view your seed',
+            reason: loc.please_authenticate_view_seed,
           ),
           trailing: const Icon(
             Icons.keyboard_arrow_right_rounded,
@@ -77,7 +77,7 @@ class SettingsTab extends ConsumerWidget {
               initialValue: settings.activateBiometricAuth,
               decoration: const InputDecoration(fillColor: Colors.transparent),
               title: Text(
-                'Enable biometric authentication',
+                loc.enable_biometric_auth,
                 style: context.bodyLarge,
               ),
               onChanged: isBiometricAuthLocked

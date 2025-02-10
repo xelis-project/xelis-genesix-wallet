@@ -33,12 +33,12 @@ class DeleteMultisigReviewContent extends ConsumerWidget {
           SelectableText(transactionReview.fee!),
           const SizedBox(height: Spaces.small),
           Text(
-            'Transaction type',
+            loc.transaction_type,
             style: context.bodyLarge!
                 .copyWith(color: context.moreColors.mutedColor),
           ),
           const SizedBox(height: Spaces.extraSmall),
-          SelectableText('Delete Multisig'),
+          SelectableText(loc.multisig_removal),
         ],
       ),
     );
