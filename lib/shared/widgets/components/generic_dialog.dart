@@ -30,7 +30,11 @@ class GenericDialog extends StatelessWidget {
         actionsPadding: const EdgeInsets.fromLTRB(
             Spaces.medium, Spaces.none, Spaces.medium, Spaces.medium),
         title: title,
-        content: content,
+        content: AnimatedSize(
+          alignment: Alignment.topCenter,
+          duration: const Duration(milliseconds: AppDurations.animFast),
+          child: content,
+        ),
         actions: actions,
       ),
     );

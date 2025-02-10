@@ -80,7 +80,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                           ?.reset();
                     }
                   },
-                  validator: FormBuilderValidators.required(),
+                  validator: FormBuilderValidators.required(
+                      errorText: loc.field_required_error),
                 ),
               ),
               const SizedBox(height: Spaces.medium),
@@ -102,7 +103,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                           ?.reset();
                     }
                   },
-                  validator: FormBuilderValidators.required(),
+                  validator: FormBuilderValidators.required(
+                      errorText: loc.field_required_error),
                 ),
               ),
               const SizedBox(height: Spaces.medium),
@@ -125,7 +127,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                           ?.reset();
                     }
                   },
-                  validator: FormBuilderValidators.required(),
+                  validator: FormBuilderValidators.required(
+                      errorText: loc.field_required_error),
                 ),
               ),
               const SizedBox(height: Spaces.large),

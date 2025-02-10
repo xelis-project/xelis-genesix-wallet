@@ -165,7 +165,8 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
                     _focusNode.unfocus();
                   }
                 },
-                validator: FormBuilderValidators.required(),
+                validator: FormBuilderValidators.required(
+                    errorText: loc.field_required_error),
               ),
             ),
           ),

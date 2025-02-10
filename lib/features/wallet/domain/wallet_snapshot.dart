@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
+import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 
 part 'wallet_snapshot.freezed.dart';
@@ -18,6 +19,7 @@ class WalletSnapshot with _$WalletSnapshot {
         assets, // key: asset hash, value: balance (already formatted as string)
     @Default('') String address,
     @Default('') String name,
+    @Default(MultisigState()) MultisigState multisigState,
     NativeWalletRepository? nativeWalletRepository,
     StreamSubscription<void>? streamSubscription,
   }) = _WalletSnapshot;

@@ -29,7 +29,6 @@ Future<void> startWithBiometricAuth(
         context: ref.context,
         builder: (context) {
           return PasswordDialog(
-            closeOnValid: closeCurrentDialog,
             onValid: () => callback(ref),
           );
         },
@@ -76,11 +75,13 @@ class BiometricAuth extends _$BiometricAuth {
         talker.warning('BiometricAuthProvider:authenticate', e);
         if (e.code == lockedOut || e.code == permanentlyLockedOut) {
           state = BiometricAuthProviderStatus.locked;
-          ref.read(snackBarMessengerProvider.notifier).showError(
-              'Biometric authentication is locked, please use your password to unlock it.');
+          ref
+              .read(snackBarMessengerProvider.notifier)
+              .showError(loc.biometric_locked_warning);
         } else if (e.message != null && !e.message!.contains('canceled')) {
-          ref.read(snackBarMessengerProvider.notifier).showError(
-              'Biometric authentication is not available, please check your device settings.');
+          ref
+              .read(snackBarMessengerProvider.notifier)
+              .showError(loc.biometric_not_available_warning);
         }
       } catch (e) {
         talker.error('BiometricAuthProvider:authenticate', e);

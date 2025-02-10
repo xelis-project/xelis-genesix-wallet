@@ -11,7 +11,8 @@ part 'transaction_summary_type.g.dart';
 class TransactionSummaryType with _$TransactionSummaryType {
   const factory TransactionSummaryType({
     @JsonKey(name: "transfers") List<TransferOutEntry>? transferOutEntry,
-    @JsonKey(name: "burn") Burn? burn,
+    @JsonKey(name: "burn") BurnPayload? burn,
+    @JsonKey(name: "multi_sig") MultisigPayload? multisig,
   }) = _TransactionSummaryType;
 
   factory TransactionSummaryType.fromJson(Map<String, dynamic> json) =>

@@ -25,6 +25,7 @@ class _PasswordTextFieldState extends ConsumerState<PasswordTextField> {
       obscureText: _hidePassword,
       decoration: widget.textField.decoration.copyWith(
         suffixIcon: IconButton(
+          hoverColor: Colors.transparent,
           icon: _hidePassword
               ? const Icon(Icons.visibility_off_rounded)
               : const Icon(Icons.visibility_rounded),

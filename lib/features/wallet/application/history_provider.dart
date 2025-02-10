@@ -17,6 +17,9 @@ Future<HistoryState> history(Ref ref) async {
     burnEntries: <TransactionEntry>{},
     incomingEntries: <TransactionEntry>{},
     outgoingEntries: <TransactionEntry>{},
+    multisigEntries: <TransactionEntry>{},
+    invokeContractEntries: <TransactionEntry>{},
+    deployContractEntries: <TransactionEntry>{},
   );
 
   if (repository != null) {
@@ -31,6 +34,12 @@ Future<HistoryState> history(Ref ref) async {
           state.incomingEntries.add(entry);
         case OutgoingEntry():
           state.outgoingEntries.add(entry);
+        case MultisigEntry():
+          state.multisigEntries.add(entry);
+        case InvokeContractEntry():
+          state.invokeContractEntries.add(entry);
+        case DeployContractEntry():
+          state.deployContractEntries.add(entry);
       }
     }
   }

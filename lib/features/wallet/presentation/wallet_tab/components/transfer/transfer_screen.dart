@@ -3,10 +3,12 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/assets_dropdown_menu_item.dart';
-import 'package:genesix/features/wallet/presentation/wallet_tab/components/transfer_review_dialog.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/transaction_dialog.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/transfer/transfer_review_content.dart';
 import 'package:genesix/rust_bridge/api/utils.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
@@ -16,6 +18,7 @@ import 'package:genesix/shared/theme/input_decoration.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
+import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 
 class TransferScreen extends ConsumerStatefulWidget {
@@ -132,7 +135,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                   style: context.titleMedium,
                 ),
                 const SizedBox(height: Spaces.small),
-                FormBuilderDropdown<String>(
+                GenericFormBuilderDropdown<String>(
                   name: 'assets',
                   initialValue: assets.entries.first.key,
                   items: assets.entries
@@ -277,32 +280,51 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
           _transferFormKey.currentState?.fields['address']?.value as String;
       final asset =
           _transferFormKey.currentState?.fields['assets']?.value as String;
+      final feeMultiplier =
+          _transferFormKey.currentState?.fields['fee']?.value as double;
 
       _unfocusNodes();
 
       context.loaderOverlay.show();
 
-      TransactionSummary? tx;
+      (TransactionSummary?, String?) record;
       if (amount.trim() == _selectedAssetBalance) {
-        tx = await ref
-            .read(walletStateProvider.notifier)
-            .createAllXelisTransaction(
-                destination: address.trim(), asset: asset);
+        record = await ref.read(walletStateProvider.notifier).sendAll(
+            destination: address.trim(),
+            asset: asset,
+            feeMultiplier: feeMultiplier != 1 ? feeMultiplier : null);
       } else {
-        tx =
-            await ref.read(walletStateProvider.notifier).createXelisTransaction(
-                  amount: double.parse(amount),
-                  destination: address.trim(),
-                  asset: asset,
-                );
+        record = await ref.read(walletStateProvider.notifier).send(
+              amount: double.parse(amount),
+              destination: address.trim(),
+              asset: asset,
+              feeMultiplier: feeMultiplier != 1 ? feeMultiplier : null,
+            );
       }
 
-      if (mounted && tx != null) {
+      if (record.$2 != null) {
+        // multisig is enabled, hash to sign is returned
+        ref.read(transactionReviewProvider.notifier).setTransactionHashToSign(
+              record.$2!,
+            );
+      } else if (record.$1 != null) {
+        // no multisig, transaction summary is returned
+        ref.read(transactionReviewProvider.notifier).setTransferSummary(
+              record.$1!,
+            );
+      } else {
+        if (mounted && context.loaderOverlay.visible) {
+          context.loaderOverlay.hide();
+        }
+        return;
+      }
+
+      if (mounted) {
         showDialog<void>(
           context: context,
           barrierDismissible: false,
           builder: (context) {
-            return TransferReviewDialog(tx!);
+            return TransactionDialog(TransferReviewContentWidget());
           },
         );
       }
@@ -326,21 +348,23 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
           _transferFormKey.currentState?.fields['address']?.value as String;
       final asset =
           _transferFormKey.currentState?.fields['assets']?.value as String;
+      final multiplier =
+          _transferFormKey.currentState?.fields['fee']?.value as double;
+
       ref
           .read(walletStateProvider.notifier)
           .estimateFees(
             amount: double.parse(amount),
             destination: address.trim(),
             asset: asset,
+            feeMultiplier: multiplier,
           )
           .then((value) {
         setState(() {
           final estimatedFee = double.parse(value);
           _isFeeEstimated = estimatedFee > 0;
-          final multiplier =
-              _transferFormKey.currentState?.fields['fee']?.value as double;
-          _estimatedFee = (estimatedFee * multiplier)
-              .toStringAsFixed(AppResources.xelisDecimals);
+          _estimatedFee =
+              estimatedFee.toStringAsFixed(AppResources.xelisDecimals);
         });
       });
     } else {

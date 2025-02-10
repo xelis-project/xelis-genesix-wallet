@@ -24,6 +24,8 @@ class TransactionSummary with _$TransactionSummary {
   factory TransactionSummary.fromJson(Map<String, dynamic> json) =>
       _$TransactionSummaryFromJson(json);
 
+  bool get isMultiSig => transactionSummaryType.multisig != null;
+
   bool get isBurn => transactionSummaryType.burn != null;
 
   bool get isTransfer => transactionSummaryType.transferOutEntry != null;
@@ -44,7 +46,7 @@ class TransactionSummary with _$TransactionSummary {
     return transactionSummaryType.transferOutEntry!.first;
   }
 
-  Burn getBurn() {
+  BurnPayload getBurn() {
     return transactionSummaryType.burn!;
   }
 

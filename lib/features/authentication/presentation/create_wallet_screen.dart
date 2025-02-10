@@ -113,7 +113,8 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                   '$currentLength/$maxLength',
                 ),
                 validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(),
+                  FormBuilderValidators.required(
+                      errorText: loc.field_required_error),
                   FormBuilderValidators.equalLength(64,
                       errorText: loc.private_key_error_lenght),
                   FormBuilderValidators.match(RegExp(r'^[0-9a-fA-F]+$'),
@@ -200,7 +201,8 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                 }
               },
               validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(),
+                FormBuilderValidators.required(
+                    errorText: loc.field_required_error),
                 FormBuilderValidators.minLength(1),
                 FormBuilderValidators.maxLength(64),
                 (val) {
@@ -232,7 +234,8 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                     _createFormKey.currentState?.fields['password']?.reset();
                   }
                 },
-                validator: FormBuilderValidators.required(),
+                validator: FormBuilderValidators.required(
+                    errorText: loc.field_required_error),
               ),
             ),
             const SizedBox(height: Spaces.large),
@@ -256,7 +259,8 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                         ?.reset();
                   }
                 },
-                validator: FormBuilderValidators.required(),
+                validator: FormBuilderValidators.required(
+                    errorText: loc.field_required_error),
               ),
             ),
             const SizedBox(height: Spaces.extraLarge),

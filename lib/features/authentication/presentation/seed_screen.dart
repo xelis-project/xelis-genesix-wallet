@@ -12,6 +12,7 @@ import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
+import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown.dart';
 import 'package:go_router/go_router.dart';
 
 class SeedScreen extends ConsumerStatefulWidget {
@@ -150,14 +151,9 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
                             ?.copyWith(color: context.moreColors.mutedColor),
                       ),
                       const SizedBox(height: Spaces.extraSmall),
-                      FormBuilderDropdown(
+                      GenericFormBuilderDropdown(
                         name: 'language',
                         initialValue: _mnemonicLanguage,
-                        enableFeedback: true,
-                        dropdownColor:
-                            context.colors.surface.withValues(alpha: 0.9),
-                        focusColor:
-                            context.colors.surface.withValues(alpha: 0.9),
                         onChanged: _onLanguageChanged,
                         items: MnemonicLanguage.values
                             .map((MnemonicLanguage language) =>

@@ -1,8 +1,9 @@
 use anyhow::{Context, Result};
 use flutter_rust_bridge::frb;
-use serde::{Deserialize, Serialize};
 use serde_json::json;
-use xelis_common::{api::DataElement, crypto::Address};
+use xelis_common::crypto::Address;
+
+use super::dtos::IntegratedAddress;
 
 // Check if the given address is valid
 #[frb(sync)]
@@ -11,12 +12,6 @@ pub fn is_address_valid(str_address: String) -> bool {
         Ok(_) => true,
         Err(_) => false,
     }
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct IntegratedAddress {
-    address: Address,
-    data: Option<DataElement>,
 }
 
 // Split integrated address (if any) into address and data
