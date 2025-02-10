@@ -885,9 +885,9 @@ dependencies = [
 
 [[package]]
 name = "data-encoding"
-version = "2.7.0"
+version = "2.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0e60eed09d8c01d3cee5b7d30acb059b76614c918fa0f992e0dd6eeb10daad6f"
+checksum = "575f75dfd25738df5b91b8e43e14d44bda14637a58fae779fd2b064f8bf3e010"
 
 [[package]]
 name = "delegate-attr"
@@ -3200,9 +3200,9 @@ checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
 
 [[package]]
 name = "winnow"
-version = "0.7.1"
+version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "86e376c75f4f43f44db463cf729e0d3acbf954d13e22c51e26e4c264b4ab545f"
+checksum = "59690dea168f2198d1a3b0cac23b8063efcd11012f10ae4698f284808c8ef603"
 dependencies = [
  "memchr",
 ]
@@ -3324,7 +3324,7 @@ dependencies = [
 [[package]]
 name = "xelis_common"
 version = "1.16.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#0457cd6d5840005da659154b1e6ba9a43a34bc35"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#9bb9555483fe431e71164826b65e25bbf610e06c"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -3369,7 +3369,7 @@ dependencies = [
 [[package]]
 name = "xelis_wallet"
 version = "1.16.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#0457cd6d5840005da659154b1e6ba9a43a34bc35"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#9bb9555483fe431e71164826b65e25bbf610e06c"
 dependencies = [
  "actix",
  "actix-web",
