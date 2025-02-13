@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/logo.dart';
-import 'package:genesix/rust_bridge/api/network.dart';
+import 'package:genesix/src/generated/rust_bridge/api/network.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
@@ -45,12 +45,19 @@ class _TransactionEntryScreenState
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final network =
-        ref.watch(settingsProvider.select((state) => state.network));
-    final hideZeroTransfer =
-        ref.watch(settingsProvider.select((value) => value.hideZeroTransfer));
-    final hideExtraData =
-        ref.watch(settingsProvider.select((value) => value.hideExtraData));
+    final network = ref.watch(
+      settingsProvider.select((state) => state.network),
+    );
+    final hideZeroTransfer = ref.watch(
+      settingsProvider.select(
+        (value) => value.historyFilterState.hideZeroTransfer,
+      ),
+    );
+    final hideExtraData = ref.watch(
+      settingsProvider.select(
+        (value) => value.historyFilterState.hideExtraData,
+      ),
+    );
 
     final extra = widget.routerState.extra as TransactionEntryScreenExtra;
     final transactionEntry = extra.transactionEntry;
@@ -61,10 +68,7 @@ class _TransactionEntryScreenState
       case sdk.CoinbaseEntry():
         entryTypeName = loc.coinbase;
         coinbase = entryType;
-        icon = Icon(
-          Icons.square_rounded,
-          color: context.colors.primary,
-        );
+        icon = Icon(Icons.square_rounded, color: context.colors.primary);
         hashPath = 'blocks/';
       case sdk.BurnEntry():
         entryTypeName = loc.burn;
@@ -76,17 +80,11 @@ class _TransactionEntryScreenState
       case sdk.IncomingEntry():
         entryTypeName = loc.incoming;
         incoming = entryType;
-        icon = Icon(
-          Icons.arrow_downward,
-          color: context.colors.primary,
-        );
+        icon = Icon(Icons.arrow_downward, color: context.colors.primary);
       case sdk.OutgoingEntry():
         entryTypeName = loc.outgoing;
         outgoing = entryType;
-        icon = Icon(
-          Icons.arrow_upward,
-          color: context.colors.primary,
-        );
+        icon = Icon(Icons.arrow_upward, color: context.colors.primary);
       case sdk.MultisigEntry():
         // TODO: Handle this case.
         throw UnimplementedError();
@@ -102,10 +100,12 @@ class _TransactionEntryScreenState
     switch (network) {
       case Network.mainnet || Network.dev:
         url = Uri.parse(
-            '${AppResources.explorerMainnetUrl}$hashPath${transactionEntry.hash}');
+          '${AppResources.explorerMainnetUrl}$hashPath${transactionEntry.hash}',
+        );
       case Network.testnet:
         url = Uri.parse(
-            '${AppResources.explorerTestnetUrl}$hashPath${transactionEntry.hash}');
+          '${AppResources.explorerTestnetUrl}$hashPath${transactionEntry.hash}',
+        );
     }
 
     var displayTopoheight = NumberFormat().format(transactionEntry.topoheight);
@@ -115,35 +115,42 @@ class _TransactionEntryScreenState
       appBar: GenericAppBar(title: loc.transaction),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
-            Spaces.large, Spaces.none, Spaces.large, Spaces.large),
+          Spaces.large,
+          Spaces.none,
+          Spaces.large,
+          Spaces.large,
+        ),
         children: [
-          Text(loc.type,
-              style: context.labelLarge
-                  ?.copyWith(color: context.moreColors.mutedColor)),
+          Text(
+            loc.type,
+            style: context.labelLarge?.copyWith(
+              color: context.moreColors.mutedColor,
+            ),
+          ),
           const SizedBox(height: Spaces.extraSmall),
           Row(
             children: [
               icon,
               const SizedBox(width: Spaces.small),
-              SelectableText(
-                entryTypeName,
-                style: context.bodyLarge,
-              ),
+              SelectableText(entryTypeName, style: context.bodyLarge),
             ],
           ),
           const SizedBox(height: Spaces.medium),
-          Text(loc.topoheight,
-              style: context.labelLarge
-                  ?.copyWith(color: context.moreColors.mutedColor)),
-          const SizedBox(height: Spaces.extraSmall),
-          SelectableText(
-            displayTopoheight,
-            style: context.bodyLarge,
+          Text(
+            loc.topoheight,
+            style: context.labelLarge?.copyWith(
+              color: context.moreColors.mutedColor,
+            ),
           ),
+          const SizedBox(height: Spaces.extraSmall),
+          SelectableText(displayTopoheight, style: context.bodyLarge),
           const SizedBox(height: Spaces.medium),
-          Text(loc.timestamp,
-              style: context.labelLarge
-                  ?.copyWith(color: context.moreColors.mutedColor)),
+          Text(
+            loc.timestamp,
+            style: context.labelLarge?.copyWith(
+              color: context.moreColors.mutedColor,
+            ),
+          ),
           const SizedBox(height: Spaces.extraSmall),
           SelectableText(
             transactionEntry.timestamp?.toString() ?? loc.not_available,
@@ -153,9 +160,12 @@ class _TransactionEntryScreenState
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(loc.hash,
-                  style: context.labelLarge
-                      ?.copyWith(color: context.moreColors.mutedColor)),
+              Text(
+                loc.hash,
+                style: context.labelLarge?.copyWith(
+                  color: context.moreColors.mutedColor,
+                ),
+              ),
               IconButton(
                 onPressed: () => _launchUrl(url),
                 icon: const Icon(Icons.link),
@@ -163,10 +173,7 @@ class _TransactionEntryScreenState
               ),
             ],
           ),
-          SelectableText(
-            transactionEntry.hash,
-            style: context.bodyLarge,
-          ),
+          SelectableText(transactionEntry.hash, style: context.bodyLarge),
 
           // COINBASE
           if (entryType is sdk.CoinbaseEntry)
@@ -174,9 +181,12 @@ class _TransactionEntryScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: Spaces.medium),
-                Text(loc.amount,
-                    style: context.labelLarge
-                        ?.copyWith(color: context.moreColors.mutedColor)),
+                Text(
+                  loc.amount,
+                  style: context.labelLarge?.copyWith(
+                    color: context.moreColors.mutedColor,
+                  ),
+                ),
                 const SizedBox(height: Spaces.extraSmall),
                 SelectableText(
                   // hmm coinbase could return other asset than XELIS
@@ -189,21 +199,24 @@ class _TransactionEntryScreenState
           // BURN
           if (entryType is sdk.BurnEntry) ...[
             const SizedBox(height: Spaces.medium),
-            Text(loc.fee,
-                style: context.labelLarge
-                    ?.copyWith(color: context.moreColors.mutedColor)),
-            const SizedBox(height: Spaces.extraSmall),
-            SelectableText(
-              formatXelis(burn!.fee),
-              style: context.bodyLarge,
+            Text(
+              loc.fee,
+              style: context.labelLarge?.copyWith(
+                color: context.moreColors.mutedColor,
+              ),
             ),
+            const SizedBox(height: Spaces.extraSmall),
+            SelectableText(formatXelis(burn!.fee), style: context.bodyLarge),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: Spaces.medium),
-                Text(loc.burn,
-                    style: context.labelLarge
-                        ?.copyWith(color: context.moreColors.mutedColor)),
+                Text(
+                  loc.burn,
+                  style: context.labelLarge?.copyWith(
+                    color: context.moreColors.mutedColor,
+                  ),
+                ),
                 const SizedBox(height: Spaces.extraSmall),
                 SelectableText(
                   '-${formatXelis(burn!.amount)}',
@@ -216,9 +229,12 @@ class _TransactionEntryScreenState
           // OUTGOING
           if (entryType is sdk.OutgoingEntry) ...[
             const SizedBox(height: Spaces.medium),
-            Text(loc.fee,
-                style: context.labelLarge
-                    ?.copyWith(color: context.moreColors.mutedColor)),
+            Text(
+              loc.fee,
+              style: context.labelLarge?.copyWith(
+                color: context.moreColors.mutedColor,
+              ),
+            ),
             const SizedBox(height: Spaces.extraSmall),
             SelectableText(
               formatXelis(outgoing!.fee),
@@ -230,8 +246,9 @@ class _TransactionEntryScreenState
                 const SizedBox(height: Spaces.medium),
                 Text(
                   loc.transfers,
-                  style: context.labelLarge
-                      ?.copyWith(color: context.moreColors.mutedColor),
+                  style: context.labelLarge?.copyWith(
+                    color: context.moreColors.mutedColor,
+                  ),
                 ),
                 const Divider(),
                 Builder(
@@ -239,9 +256,11 @@ class _TransactionEntryScreenState
                     var transfers = outgoing!.transfers;
 
                     if (hideZeroTransfer) {
-                      transfers = transfers.skipWhile((value) {
-                        return value.amount == 0;
-                      }).toList(growable: false);
+                      transfers = transfers
+                          .skipWhile((value) {
+                            return value.amount == 0;
+                          })
+                          .toList(growable: false);
                     }
 
                     return ListView.builder(
@@ -281,24 +300,28 @@ class _TransactionEntryScreenState
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(loc.asset,
-                                            style: context.labelLarge?.copyWith(
-                                                color: context
-                                                    .moreColors.mutedColor)),
+                                        Text(
+                                          loc.asset,
+                                          style: context.labelLarge?.copyWith(
+                                            color:
+                                                context.moreColors.mutedColor,
+                                          ),
+                                        ),
                                         isXelis
                                             ? Row(
-                                                children: [
-                                                  Logo(
-                                                    imagePath: xelisPath,
-                                                  ),
-                                                  const SizedBox(
-                                                      width: Spaces.small),
-                                                  Text(AppResources
-                                                      .xelisAsset.name),
-                                                ],
-                                              )
+                                              children: [
+                                                Logo(imagePath: xelisPath),
+                                                const SizedBox(
+                                                  width: Spaces.small,
+                                                ),
+                                                Text(
+                                                  AppResources.xelisAsset.name,
+                                                ),
+                                              ],
+                                            )
                                             : Text(
-                                                truncateText(transfer.asset)),
+                                              truncateText(transfer.asset),
+                                            ),
                                       ],
                                     ),
                                     const SizedBox(width: Spaces.medium),
@@ -306,13 +329,18 @@ class _TransactionEntryScreenState
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(loc.amount,
-                                            style: context.labelLarge?.copyWith(
-                                                color: context
-                                                    .moreColors.mutedColor)),
-                                        SelectableText(isXelis
-                                            ? '-${formatXelis(transfer.amount)}'
-                                            : '${transfer.amount}'),
+                                        Text(
+                                          loc.amount,
+                                          style: context.labelLarge?.copyWith(
+                                            color:
+                                                context.moreColors.mutedColor,
+                                          ),
+                                        ),
+                                        SelectableText(
+                                          isXelis
+                                              ? '-${formatXelis(transfer.amount)}'
+                                              : '${transfer.amount}',
+                                        ),
                                       ],
                                     ),
                                   ],
@@ -322,15 +350,18 @@ class _TransactionEntryScreenState
                                   const SizedBox(height: Spaces.medium),
                                   Column(
                                     children: [
-                                      Text(loc.extra_data,
-                                          style: context.labelMedium?.copyWith(
-                                              color: context
-                                                  .moreColors.mutedColor)),
+                                      Text(
+                                        loc.extra_data,
+                                        style: context.labelMedium?.copyWith(
+                                          color: context.moreColors.mutedColor,
+                                        ),
+                                      ),
                                       SelectableText(
-                                          transfer.extraData.toString()),
+                                        transfer.extraData.toString(),
+                                      ),
                                     ],
                                   ),
-                                ]
+                                ],
                               ],
                             ),
                           ),
@@ -338,7 +369,7 @@ class _TransactionEntryScreenState
                       },
                     );
                   },
-                )
+                ),
               ],
             ),
           ],
@@ -346,16 +377,16 @@ class _TransactionEntryScreenState
           // INCOMING
           if (entryType is sdk.IncomingEntry) ...[
             const SizedBox(height: Spaces.medium),
-            Text(loc.from,
-                style: context.labelLarge
-                    ?.copyWith(color: context.moreColors.mutedColor)),
+            Text(
+              loc.from,
+              style: context.labelLarge?.copyWith(
+                color: context.moreColors.mutedColor,
+              ),
+            ),
             const SizedBox(height: Spaces.extraSmall),
             Row(
               children: [
-                HashiconWidget(
-                  hash: incoming!.from,
-                  size: const Size(35, 35),
-                ),
+                HashiconWidget(hash: incoming!.from, size: const Size(35, 35)),
                 const SizedBox(width: Spaces.small),
                 Expanded(
                   child: SelectableText(
@@ -368,8 +399,9 @@ class _TransactionEntryScreenState
             const SizedBox(height: Spaces.medium),
             Text(
               loc.transfers,
-              style: context.titleSmall
-                  ?.copyWith(color: context.moreColors.mutedColor),
+              style: context.titleSmall?.copyWith(
+                color: context.moreColors.mutedColor,
+              ),
             ),
             const Divider(),
             Builder(
@@ -377,9 +409,11 @@ class _TransactionEntryScreenState
                 var transfers = incoming!.transfers;
 
                 if (hideZeroTransfer) {
-                  transfers = transfers.skipWhile((value) {
-                    return value.amount == 0;
-                  }).toList(growable: false);
+                  transfers = transfers
+                      .skipWhile((value) {
+                        return value.amount == 0;
+                      })
+                      .toList(growable: false);
                 }
 
                 return ListView.builder(
@@ -392,8 +426,12 @@ class _TransactionEntryScreenState
 
                     return Card(
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(Spaces.medium,
-                            Spaces.small, Spaces.medium, Spaces.small),
+                        padding: const EdgeInsets.fromLTRB(
+                          Spaces.medium,
+                          Spaces.small,
+                          Spaces.medium,
+                          Spaces.small,
+                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -402,22 +440,23 @@ class _TransactionEntryScreenState
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.only(
-                                      bottom: Spaces.extraSmall),
-                                  child: Text(loc.asset,
-                                      style: context.labelMedium?.copyWith(
-                                          color:
-                                              context.moreColors.mutedColor)),
+                                    bottom: Spaces.extraSmall,
+                                  ),
+                                  child: Text(
+                                    loc.asset,
+                                    style: context.labelMedium?.copyWith(
+                                      color: context.moreColors.mutedColor,
+                                    ),
+                                  ),
                                 ),
                                 isXelis
                                     ? Row(
-                                        children: [
-                                          Logo(
-                                            imagePath: xelisPath,
-                                          ),
-                                          const SizedBox(width: Spaces.small),
-                                          Text(AppResources.xelisAsset.name),
-                                        ],
-                                      )
+                                      children: [
+                                        Logo(imagePath: xelisPath),
+                                        const SizedBox(width: Spaces.small),
+                                        Text(AppResources.xelisAsset.name),
+                                      ],
+                                    )
                                     : Text(truncateText(transfer.asset)),
                               ],
                             ),
@@ -426,15 +465,20 @@ class _TransactionEntryScreenState
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.only(
-                                      bottom: Spaces.extraSmall),
-                                  child: Text(loc.amount,
-                                      style: context.labelMedium?.copyWith(
-                                          color:
-                                              context.moreColors.mutedColor)),
+                                    bottom: Spaces.extraSmall,
+                                  ),
+                                  child: Text(
+                                    loc.amount,
+                                    style: context.labelMedium?.copyWith(
+                                      color: context.moreColors.mutedColor,
+                                    ),
+                                  ),
                                 ),
-                                SelectableText(isXelis
-                                    ? '+${formatXelis(transfer.amount)}'
-                                    : '${transfer.amount}'),
+                                SelectableText(
+                                  isXelis
+                                      ? '+${formatXelis(transfer.amount)}'
+                                      : '${transfer.amount}',
+                                ),
                               ],
                             ),
                             if (!hideExtraData &&
@@ -442,14 +486,16 @@ class _TransactionEntryScreenState
                               const SizedBox(height: Spaces.medium),
                               Column(
                                 children: [
-                                  Text(loc.extra_data,
-                                      style: context.labelMedium?.copyWith(
-                                          color:
-                                              context.moreColors.mutedColor)),
+                                  Text(
+                                    loc.extra_data,
+                                    style: context.labelMedium?.copyWith(
+                                      color: context.moreColors.mutedColor,
+                                    ),
+                                  ),
                                   SelectableText(transfer.extraData.toString()),
                                 ],
                               ),
-                            ]
+                            ],
                           ],
                         ),
                       ),

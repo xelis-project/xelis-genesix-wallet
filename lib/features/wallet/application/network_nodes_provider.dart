@@ -1,4 +1,4 @@
-import 'package:genesix/rust_bridge/api/network.dart';
+import 'package:genesix/src/generated/rust_bridge/api/network.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:genesix/features/wallet/data/network_nodes_state_repository.dart';
 import 'package:genesix/features/wallet/domain/network_nodes_state.dart';
@@ -13,29 +13,25 @@ class NetworkNodes extends _$NetworkNodes {
   @override
   NetworkNodesState build() {
     final prefs = ref.watch(sharedPreferencesProvider);
-    final networkNodesStateRepository =
-        NetworkNodesStateRepository(GenesixSharedPreferences(prefs));
+    final networkNodesStateRepository = NetworkNodesStateRepository(
+      GenesixSharedPreferences(prefs),
+    );
     return networkNodesStateRepository.fromStorage();
   }
 
   void setNodes(Network network, List<NodeAddress> nodes) {
     final prefs = ref.read(sharedPreferencesProvider);
-    final networkNodesStateRepository =
-        NetworkNodesStateRepository(GenesixSharedPreferences(prefs));
+    final networkNodesStateRepository = NetworkNodesStateRepository(
+      GenesixSharedPreferences(prefs),
+    );
 
     switch (network) {
       case Network.mainnet:
-        state = state.copyWith(
-          mainnetNodes: nodes,
-        );
+        state = state.copyWith(mainnetNodes: nodes);
       case Network.testnet:
-        state = state.copyWith(
-          testnetNodes: nodes,
-        );
+        state = state.copyWith(testnetNodes: nodes);
       case Network.dev:
-        state = state.copyWith(
-          devNodes: nodes,
-        );
+        state = state.copyWith(devNodes: nodes);
     }
 
     networkNodesStateRepository.localSave(state);
@@ -43,22 +39,17 @@ class NetworkNodes extends _$NetworkNodes {
 
   void setNodeAddress(Network network, NodeAddress address) {
     final prefs = ref.read(sharedPreferencesProvider);
-    final networkNodesStateRepository =
-        NetworkNodesStateRepository(GenesixSharedPreferences(prefs));
+    final networkNodesStateRepository = NetworkNodesStateRepository(
+      GenesixSharedPreferences(prefs),
+    );
 
     switch (network) {
       case Network.mainnet:
-        state = state.copyWith(
-          mainnetAddress: address,
-        );
+        state = state.copyWith(mainnetAddress: address);
       case Network.testnet:
-        state = state.copyWith(
-          testnetAddress: address,
-        );
+        state = state.copyWith(testnetAddress: address);
       case Network.dev:
-        state = state.copyWith(
-          devAddress: address,
-        );
+        state = state.copyWith(devAddress: address);
     }
 
     networkNodesStateRepository.localSave(state);
@@ -73,7 +64,10 @@ class NetworkNodes extends _$NetworkNodes {
   }
 
   void updateNode(
-      Network network, NodeAddress oldNodeAddress, NodeAddress newNodeAddress) {
+    Network network,
+    NodeAddress oldNodeAddress,
+    NodeAddress newNodeAddress,
+  ) {
     if (state.nodeExists(network, oldNodeAddress)) {
       var nodes = state.getNodes(network);
       final index = nodes.indexOf(oldNodeAddress);

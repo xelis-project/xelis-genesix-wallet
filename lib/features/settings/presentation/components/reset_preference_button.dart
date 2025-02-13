@@ -21,19 +21,19 @@ class _ResetPreferenceButtonState extends ConsumerState<ResetPreferenceButton> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     return OutlinedButton(
-        onPressed: () => _showResetPreferencesDialog(context),
-        style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.all(Spaces.medium + 4),
-          side: BorderSide(
-            color: context.colors.error,
-            width: 1,
-          ),
+      onPressed: () => _showResetPreferencesDialog(context),
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.all(Spaces.medium + 4),
+        side: BorderSide(color: context.colors.error, width: 1),
+      ),
+      child: Text(
+        loc.reset_preferences,
+        style: context.titleMedium!.copyWith(
+          color: context.colors.error,
+          fontWeight: FontWeight.w800,
         ),
-        child: Text(
-          loc.reset_preferences,
-          style: context.titleMedium!.copyWith(
-              color: context.colors.error, fontWeight: FontWeight.w800),
-        ));
+      ),
+    );
   }
 
   Future<void> _resetPreferences(BuildContext context) async {
@@ -62,9 +62,12 @@ class _ResetPreferenceButtonState extends ConsumerState<ResetPreferenceButton> {
             children: [
               Text(loc.reset_preferences_dialog),
               const SizedBox(height: Spaces.medium),
-              Text(loc.do_you_want_to_continue,
-                  style: context.bodyMedium
-                      ?.copyWith(color: context.moreColors.mutedColor))
+              Text(
+                loc.do_you_want_to_continue,
+                style: context.bodyMedium?.copyWith(
+                  color: context.moreColors.mutedColor,
+                ),
+              ),
             ],
           ),
           actions: [

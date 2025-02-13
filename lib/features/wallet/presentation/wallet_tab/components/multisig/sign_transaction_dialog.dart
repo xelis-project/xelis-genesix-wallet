@@ -20,8 +20,9 @@ class SignTransactionDialog extends ConsumerStatefulWidget {
 }
 
 class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
-  final _signTransactionFormKey =
-      GlobalKey<FormBuilderState>(debugLabel: '_signFormKey');
+  final _signTransactionFormKey = GlobalKey<FormBuilderState>(
+    debugLabel: '_signFormKey',
+  );
 
   Future<String>? transactionSignature;
 
@@ -35,16 +36,17 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding:
-                const EdgeInsets.only(left: Spaces.medium, top: Spaces.large),
-            child: Text(
-              loc.sign_transaction,
-              style: context.headlineSmall,
+            padding: const EdgeInsets.only(
+              left: Spaces.medium,
+              top: Spaces.large,
             ),
+            child: Text(loc.sign_transaction, style: context.headlineSmall),
           ),
           Padding(
-            padding:
-                const EdgeInsets.only(right: Spaces.small, top: Spaces.small),
+            padding: const EdgeInsets.only(
+              right: Spaces.small,
+              top: Spaces.small,
+            ),
             child: IconButton(
               onPressed: () {
                 context.pop();
@@ -60,105 +62,123 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(loc.sign_transaction_dialog_message,
-                style: context.bodyMedium!
-                    .copyWith(color: context.moreColors.mutedColor)),
+            Text(
+              loc.sign_transaction_dialog_message,
+              style: context.bodyMedium!.copyWith(
+                color: context.moreColors.mutedColor,
+              ),
+            ),
             const SizedBox(height: Spaces.large),
             FormBuilder(
-                key: _signTransactionFormKey,
-                child: FormBuilderTextField(
-                  name: 'transactionHash',
-                  style: context.bodyMedium,
-                  autocorrect: false,
-                  keyboardType: TextInputType.text,
-                  decoration: context.textInputDecoration.copyWith(
-                    labelText: loc.transaction_hash,
-                    suffixIcon: IconButton(
-                      hoverColor: Colors.transparent,
-                      onPressed: () {
-                        _signTransactionFormKey
-                            .currentState?.fields['transactionHash']
-                            ?.reset();
-                        setState(() {
-                          transactionSignature = null;
-                        });
-                      },
-                      icon: Icon(
-                        Icons.clear,
-                        size: 18,
-                        color: context.moreColors.mutedColor,
-                      ),
+              key: _signTransactionFormKey,
+              child: FormBuilderTextField(
+                name: 'transactionHash',
+                style: context.bodyMedium,
+                autocorrect: false,
+                keyboardType: TextInputType.text,
+                decoration: context.textInputDecoration.copyWith(
+                  labelText: loc.transaction_hash,
+                  suffixIcon: IconButton(
+                    hoverColor: Colors.transparent,
+                    onPressed: () {
+                      _signTransactionFormKey
+                          .currentState
+                          ?.fields['transactionHash']
+                          ?.reset();
+                      setState(() {
+                        transactionSignature = null;
+                      });
+                    },
+                    icon: Icon(
+                      Icons.clear,
+                      size: 18,
+                      color: context.moreColors.mutedColor,
                     ),
                   ),
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(
-                        errorText: loc.field_required_error),
-                    FormBuilderValidators.equalLength(64,
-                        errorText: loc.sign_transaction_formfield_error),
-                  ]),
-                )),
+                ),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(
+                    errorText: loc.field_required_error,
+                  ),
+                  FormBuilderValidators.equalLength(
+                    64,
+                    errorText: loc.sign_transaction_formfield_error,
+                  ),
+                ]),
+              ),
+            ),
             const SizedBox(height: Spaces.large),
             AnimatedContainer(
               duration: Duration(milliseconds: 300),
               child: FutureBuilder(
-                  future: transactionSignature,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError &&
-                        snapshot.connectionState != ConnectionState.none) {
-                      return Column(
-                        children: [
-                          Text(loc.error,
-                              style: context.bodyMedium
-                                  ?.copyWith(color: context.colors.error)),
-                          Text((snapshot.error as AnyhowException).message,
-                              style: context.bodyMedium
-                                  ?.copyWith(color: context.colors.error)),
-                        ],
-                      );
-                    } else if (snapshot.hasData &&
-                        snapshot.connectionState != ConnectionState.none) {
-                      return Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(loc.signature,
-                                  style: context.bodyMedium!.copyWith(
-                                      color: context.moreColors.mutedColor)),
-                              IconButton(
-                                onPressed: () => copyToClipboard(
-                                    snapshot.requireData, ref, loc.copied),
-                                icon: const Icon(Icons.copy_rounded, size: 18),
-                                tooltip: loc.copy_signature,
-                              ),
-                            ],
+                future: transactionSignature,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError &&
+                      snapshot.connectionState != ConnectionState.none) {
+                    return Column(
+                      children: [
+                        Text(
+                          loc.error,
+                          style: context.bodyMedium?.copyWith(
+                            color: context.colors.error,
                           ),
-                          const SizedBox(height: Spaces.small),
-                          SelectableText(snapshot.data as String),
-                        ],
-                      );
-                    } else {
-                      return SizedBox.shrink();
-                    }
-                  }),
+                        ),
+                        Text(
+                          (snapshot.error as AnyhowException).message,
+                          style: context.bodyMedium?.copyWith(
+                            color: context.colors.error,
+                          ),
+                        ),
+                      ],
+                    );
+                  } else if (snapshot.hasData &&
+                      snapshot.connectionState != ConnectionState.none) {
+                    return Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              loc.signature,
+                              style: context.bodyMedium!.copyWith(
+                                color: context.moreColors.mutedColor,
+                              ),
+                            ),
+                            IconButton(
+                              onPressed:
+                                  () => copyToClipboard(
+                                    snapshot.requireData,
+                                    ref,
+                                    loc.copied,
+                                  ),
+                              icon: const Icon(Icons.copy_rounded, size: 18),
+                              tooltip: loc.copy_signature,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: Spaces.small),
+                        SelectableText(snapshot.data as String),
+                      ],
+                    );
+                  } else {
+                    return SizedBox.shrink();
+                  }
+                },
+              ),
             ),
           ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: _signTransaction,
-          child: Text(loc.sign),
-        ),
-      ],
+      actions: [TextButton(onPressed: _signTransaction, child: Text(loc.sign))],
     );
   }
 
   Future<void> _signTransaction() async {
     if (_signTransactionFormKey.currentState?.saveAndValidate() ?? false) {
-      final transactionHash = _signTransactionFormKey
-          .currentState?.value['transactionHash'] as String?;
+      final transactionHash =
+          _signTransactionFormKey.currentState?.value['transactionHash']
+              as String?;
       if (transactionHash != null) {
         try {
           final future = ref

@@ -12,9 +12,7 @@ import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 
 class NodeSelectorWidget extends ConsumerStatefulWidget {
-  const NodeSelectorWidget({
-    super.key,
-  });
+  const NodeSelectorWidget({super.key});
 
   @override
   ConsumerState createState() => NodeSelectorWidgetState();
@@ -50,10 +48,12 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final networkNodes = ref.watch(networkNodesProvider);
-    final network =
-        ref.watch(settingsProvider.select((state) => state.network));
-    final isOnline =
-        ref.watch(walletStateProvider.select((value) => value.isOnline));
+    final network = ref.watch(
+      settingsProvider.select((state) => state.network),
+    );
+    final isOnline = ref.watch(
+      walletStateProvider.select((value) => value.isOnline),
+    );
     bool mismatch = ref.watch(networkMismatchProvider);
 
     var nodeAddress = networkNodes.getNodeAddress(network);
@@ -67,31 +67,34 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
         ),
         child: ExpansionTile(
           leading: Tooltip(
-            message: isOnline
-                ? loc.connected
-                : mismatch
+            message:
+                isOnline
+                    ? loc.connected
+                    : mismatch
                     ? loc.network_mismatch
                     : loc.disconnected,
             child: Icon(
               isOnline
                   ? Icons.sensors
                   : mismatch
-                      ? Icons.warning_amber
-                      : Icons.sensors_off,
+                  ? Icons.warning_amber
+                  : Icons.sensors_off,
               color: isOnline ? context.colors.primary : context.colors.error,
             ),
           ),
           expandedCrossAxisAlignment: CrossAxisAlignment.start,
           tilePadding: const EdgeInsets.fromLTRB(
-              Spaces.medium, Spaces.small, Spaces.medium, Spaces.small),
-          title: Text(
-            nodeAddress.name,
-            style: context.titleLarge,
+            Spaces.medium,
+            Spaces.small,
+            Spaces.medium,
+            Spaces.small,
           ),
+          title: Text(nodeAddress.name, style: context.titleLarge),
           subtitle: Text(
             nodeAddress.url,
-            style: context.titleMedium!
-                .copyWith(color: context.moreColors.mutedColor),
+            style: context.titleMedium!.copyWith(
+              color: context.moreColors.mutedColor,
+            ),
           ),
           children: [
             ...List<Dismissible>.generate(
@@ -102,24 +105,22 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
                   _onDismissed(nodes[index]);
                 },
                 child: ListTile(
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: Spaces.medium),
-                  title: Text(
-                    nodes[index].name,
-                    style: context.bodyLarge,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: Spaces.medium,
                   ),
-                  subtitle: Text(
-                    nodes[index].url,
-                    style: context.bodyMedium,
-                  ),
+                  title: Text(nodes[index].name, style: context.bodyLarge),
+                  subtitle: Text(nodes[index].url, style: context.bodyMedium),
                   leading: Radio<NodeAddress>(
                     value: nodes[index],
                     groupValue: nodeAddress,
                     onChanged: _onNodeAddressSelected,
                   ),
                   trailing: MenuAnchor(
-                    builder: (BuildContext context, MenuController controller,
-                        Widget? child) {
+                    builder: (
+                      BuildContext context,
+                      MenuController controller,
+                      Widget? child,
+                    ) {
                       return IconButton(
                         onPressed: () {
                           if (controller.isOpen) {
@@ -133,33 +134,24 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
                     },
                     menuChildren: [
                       MenuItemButton(
-                        child: Text(
-                          loc.modify,
-                          style: context.bodyMedium,
-                        ),
+                        child: Text(loc.modify, style: context.bodyMedium),
                         onPressed: () {
                           _showUpdateAddressDialog(context, nodes[index]);
                         },
                       ),
                       if (nodeAddress == nodes[index])
                         MenuItemButton(
-                          child: Text(
-                            loc.reconnect,
-                            style: context.bodyMedium,
-                          ),
+                          child: Text(loc.reconnect, style: context.bodyMedium),
                           onPressed: () {
                             _onNodeAddressSelected(nodes[index]);
                           },
                         ),
                       MenuItemButton(
-                        child: Text(
-                          loc.remove,
-                          style: context.bodyMedium,
-                        ),
+                        child: Text(loc.remove, style: context.bodyMedium),
                         onPressed: () {
                           _onDismissed(nodes[index]);
                         },
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -169,9 +161,7 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
               padding: const EdgeInsets.all(Spaces.medium),
               child: FilledButton(
                 onPressed: () => _showNewAddressDialog(context),
-                child: Text(
-                  loc.add_node_button,
-                ),
+                child: Text(loc.add_node_button),
               ),
             ),
           ],

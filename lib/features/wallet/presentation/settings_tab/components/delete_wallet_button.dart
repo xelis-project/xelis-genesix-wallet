@@ -21,26 +21,23 @@ class _DeleteWalletButtonState extends ConsumerState<DeleteWalletButton> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     return OutlinedButton.icon(
-      icon: Icon(
-        Icons.delete_forever,
-        color: context.colors.error,
-      ),
+      icon: Icon(Icons.delete_forever, color: context.colors.error),
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.all(Spaces.medium + 4),
-        side: BorderSide(
-          color: context.colors.error,
-          width: 1,
-        ),
+        side: BorderSide(color: context.colors.error, width: 1),
       ),
-      onPressed: () => startWithBiometricAuth(
-        ref,
-        callback: _deleteWallet,
-        reason: loc.please_authenticate_delete_wallet,
-      ),
+      onPressed:
+          () => startWithBiometricAuth(
+            ref,
+            callback: _deleteWallet,
+            reason: loc.please_authenticate_delete_wallet,
+          ),
       label: Text(
         loc.delete_wallet,
-        style: context.titleMedium!
-            .copyWith(color: context.colors.error, fontWeight: FontWeight.w800),
+        style: context.titleMedium!.copyWith(
+          color: context.colors.error,
+          fontWeight: FontWeight.w800,
+        ),
       ),
     );
   }

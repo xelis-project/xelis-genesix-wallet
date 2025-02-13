@@ -6,8 +6,8 @@ import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/wallet/domain/wallet_address.dart';
-import 'package:genesix/rust_bridge/api/network.dart';
-import 'package:genesix/rust_bridge/api/utils.dart';
+import 'package:genesix/src/generated/rust_bridge/api/network.dart';
+import 'package:genesix/src/generated/rust_bridge/api/utils.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
@@ -17,16 +17,20 @@ import 'package:intl/intl.dart' show NumberFormat, toBeginningOfSentenceCase;
 
 String formatCoin(int value, int decimals, String ticker) {
   final formatter = NumberFormat.currency(
-      locale: 'fr_FR', decimalDigits: decimals, symbol: ticker);
+    locale: 'fr_FR',
+    decimalDigits: decimals,
+    symbol: ticker,
+  );
   final xelisValue = value / pow(10, decimals);
   return formatter.format(xelisValue);
 }
 
 String formatXelis(int value) {
   final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      decimalDigits: AppResources.xelisDecimals,
-      symbol: AppResources.xelisAsset.ticker);
+    locale: 'fr_FR',
+    decimalDigits: AppResources.xelisDecimals,
+    symbol: AppResources.xelisAsset.ticker,
+  );
   final xelisValue = value / pow(10, AppResources.xelisDecimals);
   return formatter.format(xelisValue);
 }

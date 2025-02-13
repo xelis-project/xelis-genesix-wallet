@@ -10,13 +10,8 @@ class Logo extends StatelessWidget {
     return Container(
       width: 20,
       height: 20,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-      ),
-      child: Image.asset(
-        imagePath,
-        fit: BoxFit.cover,
-      ),
+      decoration: const BoxDecoration(shape: BoxShape.circle),
+      child: Image.asset(imagePath, fit: BoxFit.cover),
     );
   }
 }

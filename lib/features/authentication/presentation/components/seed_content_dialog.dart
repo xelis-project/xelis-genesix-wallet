@@ -17,25 +17,16 @@ class SeedContentDialog extends ConsumerWidget {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            loc.seed_warning_message_2,
-            style: context.titleLarge,
-          ),
-          const SizedBox(
-            height: Spaces.medium,
-          ),
+          Text(loc.seed_warning_message_2, style: context.titleLarge),
+          const SizedBox(height: Spaces.medium),
           SelectableText(
             seed,
-            style: context.bodyLarge!
-                .copyWith(color: context.moreColors.mutedColor),
+            style: context.bodyLarge!.copyWith(
+              color: context.moreColors.mutedColor,
+            ),
           ),
-          const SizedBox(
-            height: Spaces.medium,
-          ),
-          Text(
-            loc.seed_warning_message_3,
-            style: context.titleMedium,
-          ),
+          const SizedBox(height: Spaces.medium),
+          Text(loc.seed_warning_message_3, style: context.titleMedium),
         ],
       ),
       actions: [
@@ -44,7 +35,7 @@ class SeedContentDialog extends ConsumerWidget {
             Navigator.pop(context);
           },
           child: Text(loc.seed_warning_message_4),
-        )
+        ),
       ],
     );
   }

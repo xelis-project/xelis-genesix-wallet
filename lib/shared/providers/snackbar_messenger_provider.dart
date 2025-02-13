@@ -55,8 +55,6 @@ class SnackBarMessenger extends _$SnackBarMessenger {
   }
 
   void hide() {
-    state = state.copyWith(
-      visible: false,
-    );
+    state = state.copyWith(visible: false);
   }
 }

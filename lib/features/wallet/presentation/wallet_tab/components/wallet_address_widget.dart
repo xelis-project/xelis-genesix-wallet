@@ -15,8 +15,9 @@ class WalletAddressWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
-    final walletAddress =
-        ref.watch(walletStateProvider.select((state) => state.address));
+    final walletAddress = ref.watch(
+      walletStateProvider.select((state) => state.address),
+    );
 
     const double iconSize = 50;
     Widget walletIcon = const SizedBox.square(dimension: iconSize);
@@ -39,24 +40,20 @@ class WalletAddressWidget extends ConsumerWidget {
           children: [
             Text(
               loc.wallet_address_capitalize,
-              style: context.labelLarge!
-                  .copyWith(color: context.moreColors.mutedColor),
+              style: context.labelLarge!.copyWith(
+                color: context.moreColors.mutedColor,
+              ),
             ),
             InkWell(
               onTap: () => copyToClipboard(walletAddress, ref, loc.copied),
               borderRadius: BorderRadius.circular(4),
-              child: Text(
-                address,
-                style: context.headlineSmall,
-              ),
+              child: Text(address, style: context.headlineSmall),
             ),
           ],
         ),
         const Spacer(),
         IconButton.filled(
-          icon: const Icon(
-            Icons.logout,
-          ),
+          icon: const Icon(Icons.logout),
           tooltip: loc.logout,
           onPressed: () async {
             context.loaderOverlay.show();

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:genesix/rust_bridge/api/network.dart';
+import 'package:genesix/src/generated/rust_bridge/api/network.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
@@ -15,9 +15,7 @@ const List<Network> networks = <Network>[
 ];
 
 class NetworkSelectorWidget extends ConsumerWidget {
-  const NetworkSelectorWidget({
-    super.key,
-  });
+  const NetworkSelectorWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -29,10 +27,7 @@ class NetworkSelectorWidget extends ConsumerWidget {
       tilePadding: EdgeInsets.zero,
       shape: Border.all(color: Colors.transparent, width: 0),
       collapsedShape: Border.all(color: Colors.transparent, width: 0),
-      title: Text(
-        loc.network,
-        style: context.titleLarge,
-      ),
+      title: Text(loc.network, style: context.titleLarge),
       subtitle: Text(
         translateNetworkName(settings.network),
         style: context.titleMedium!.copyWith(color: context.colors.primary),

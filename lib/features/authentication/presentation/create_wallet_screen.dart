@@ -28,8 +28,9 @@ class CreateWalletScreen extends ConsumerStatefulWidget {
 }
 
 class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
-  final _createFormKey =
-      GlobalKey<FormBuilderState>(debugLabel: '_createFormKey');
+  final _createFormKey = GlobalKey<FormBuilderState>(
+    debugLabel: '_createFormKey',
+  );
 
   late FocusNode _focusNodeSeed;
   late FocusNode _focusNodePrivateKey;
@@ -77,74 +78,76 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
     final recoverWidget = switch (widget.type) {
       CreateWalletType.newWallet => SizedBox.shrink(),
       CreateWalletType.fromPrivateKey => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              loc.private_key,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(loc.private_key, style: context.bodyLarge),
+          const SizedBox(height: Spaces.small),
+          Container(
+            constraints: const BoxConstraints(maxHeight: 150),
+            child: FormBuilderTextField(
+              name: 'private_key',
+              focusNode: _focusNodePrivateKey,
               style: context.bodyLarge,
-            ),
-            const SizedBox(height: Spaces.small),
-            Container(
-              constraints: const BoxConstraints(maxHeight: 150),
-              child: FormBuilderTextField(
-                name: 'private_key',
-                focusNode: _focusNodePrivateKey,
-                style: context.bodyLarge,
-                autocorrect: false,
-                keyboardType: TextInputType.text,
-                decoration: context.textInputDecoration.copyWith(
-                  labelText: loc.private_key_inputfield,
-                  alignLabelWithHint: true,
-                ),
-                onChanged: (value) {
-                  // workaround to reset the error message when the user modifies the field
-                  final hasError = _createFormKey
-                      .currentState?.fields['private_key']?.hasError;
-                  if (hasError ?? false) {
-                    _createFormKey.currentState?.fields['private_key']?.reset();
-                  }
-                },
-                maxLength: 64,
-                buildCounter: (context,
-                        {required currentLength,
-                        required isFocused,
-                        maxLength}) =>
-                    Text(
-                  '$currentLength/$maxLength',
-                ),
-                validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(
-                      errorText: loc.field_required_error),
-                  FormBuilderValidators.equalLength(64,
-                      errorText: loc.private_key_error_lenght),
-                  FormBuilderValidators.match(RegExp(r'^[0-9a-fA-F]+$'),
-                      errorText: loc.private_key_error_hexa),
-                ]),
+              autocorrect: false,
+              keyboardType: TextInputType.text,
+              decoration: context.textInputDecoration.copyWith(
+                labelText: loc.private_key_inputfield,
+                alignLabelWithHint: true,
               ),
+              onChanged: (value) {
+                // workaround to reset the error message when the user modifies the field
+                final hasError =
+                    _createFormKey
+                        .currentState
+                        ?.fields['private_key']
+                        ?.hasError;
+                if (hasError ?? false) {
+                  _createFormKey.currentState?.fields['private_key']?.reset();
+                }
+              },
+              maxLength: 64,
+              buildCounter:
+                  (
+                    context, {
+                    required currentLength,
+                    required isFocused,
+                    maxLength,
+                  }) => Text('$currentLength/$maxLength'),
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(
+                  errorText: loc.field_required_error,
+                ),
+                FormBuilderValidators.equalLength(
+                  64,
+                  errorText: loc.private_key_error_lenght,
+                ),
+                FormBuilderValidators.match(
+                  RegExp(r'^[0-9a-fA-F]+$'),
+                  errorText: loc.private_key_error_hexa,
+                ),
+              ]),
             ),
-            const SizedBox(height: Spaces.large),
-          ],
-        ),
+          ),
+          const SizedBox(height: Spaces.large),
+        ],
+      ),
       CreateWalletType.fromSeed => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              loc.your_recovery_phrase,
-              style: context.bodyLarge,
-            ),
-            const SizedBox(height: Spaces.small),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(Spaces.small),
-                child: SelectableText(
-                  (GoRouterState.of(context).extra! as List<String>).join(' '),
-                  style: context.titleMedium,
-                ),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(loc.your_recovery_phrase, style: context.bodyLarge),
+          const SizedBox(height: Spaces.small),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(Spaces.small),
+              child: SelectableText(
+                (GoRouterState.of(context).extra! as List<String>).join(' '),
+                style: context.titleMedium,
               ),
             ),
-            const SizedBox(height: Spaces.large),
-          ],
-        ),
+          ),
+          const SizedBox(height: Spaces.large),
+        ],
+      ),
     };
 
     final buttonLabel = switch (widget.type) {
@@ -156,29 +159,36 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
     final isFromSeed = widget.type == CreateWalletType.fromSeed;
 
     return CustomScaffold(
-      appBar: isFromSeed
-          ? GenericAppBar(
-              title: title,
-              implyLeading: true,
-              onBack: () {
-                context.go(AppScreen.openWallet.toPath);
-              })
-          : GenericAppBar(title: title),
+      appBar:
+          isFromSeed
+              ? GenericAppBar(
+                title: title,
+                implyLeading: true,
+                onBack: () {
+                  context.go(AppScreen.openWallet.toPath);
+                },
+              )
+              : GenericAppBar(title: title),
       body: FormBuilder(
         key: _createFormKey,
         onChanged: () => _createFormKey.currentState!.save(),
         child: ListView(
           shrinkWrap: true,
           padding: const EdgeInsets.fromLTRB(
-              Spaces.large, Spaces.none, Spaces.large, Spaces.large),
+            Spaces.large,
+            Spaces.none,
+            Spaces.large,
+            Spaces.large,
+          ),
           children: [
             if (!isFromSeed) ...[
               const SizedBox(height: Spaces.large),
               Text(
                 message,
-                style: context.titleSmall
-                    ?.copyWith(color: context.moreColors.mutedColor),
-              )
+                style: context.titleSmall?.copyWith(
+                  color: context.moreColors.mutedColor,
+                ),
+              ),
             ],
             const SizedBox(height: Spaces.extraLarge),
             recoverWidget,
@@ -194,15 +204,19 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
               ),
               onChanged: (value) {
                 // workaround to reset the error message when the user modifies the field
-                final hasError = _createFormKey
-                    .currentState?.fields['wallet_name']?.hasError;
+                final hasError =
+                    _createFormKey
+                        .currentState
+                        ?.fields['wallet_name']
+                        ?.hasError;
                 if (hasError ?? false) {
                   _createFormKey.currentState?.fields['wallet_name']?.reset();
                 }
               },
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required(
-                    errorText: loc.field_required_error),
+                  errorText: loc.field_required_error,
+                ),
                 FormBuilderValidators.minLength(1),
                 FormBuilderValidators.maxLength(64),
                 (val) {
@@ -235,7 +249,8 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                   }
                 },
                 validator: FormBuilderValidators.required(
-                    errorText: loc.field_required_error),
+                  errorText: loc.field_required_error,
+                ),
               ),
             ),
             const SizedBox(height: Spaces.large),
@@ -252,15 +267,19 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                 ),
                 onChanged: (value) {
                   // workaround to reset the error message when the user modifies the field
-                  final hasError = _createFormKey
-                      .currentState?.fields['confirm_password']?.hasError;
+                  final hasError =
+                      _createFormKey
+                          .currentState
+                          ?.fields['confirm_password']
+                          ?.hasError;
                   if (hasError ?? false) {
                     _createFormKey.currentState?.fields['confirm_password']
                         ?.reset();
                   }
                 },
                 validator: FormBuilderValidators.required(
-                    errorText: loc.field_required_error),
+                  errorText: loc.field_required_error,
+                ),
               ),
             ),
             const SizedBox(height: Spaces.extraLarge),
@@ -276,14 +295,15 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                     icon: const Icon(Icons.wallet),
                     label: Text(
                       buttonLabel,
-                      style: context.titleMedium!
-                          .copyWith(color: context.colors.onPrimary),
+                      style: context.titleMedium!.copyWith(
+                        color: context.colors.onPrimary,
+                      ),
                     ),
                   ),
                 ),
                 if (context.isWideScreen) const Spacer(),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -310,12 +330,13 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
           _createFormKey.currentState?.value['confirm_password'] as String?;
       final privateKey =
           _createFormKey.currentState?.value['private_key'] as String?;
-      final createSeed =
-          (GoRouterState.of(context).extra as List<String>?)?.join(' ');
+      final createSeed = (GoRouterState.of(context).extra as List<String>?)
+          ?.join(' ');
 
       if (password != confirmPassword) {
-        _createFormKey.currentState?.fields['confirm_password']
-            ?.invalidate(loc.password_not_match);
+        _createFormKey.currentState?.fields['confirm_password']?.invalidate(
+          loc.password_not_match,
+        );
       } else if (walletName != null &&
           password != null &&
           password == confirmPassword) {
@@ -326,8 +347,9 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                   .read(authenticationProvider.notifier)
                   .isPrecomputedTablesExists() &&
               mounted) {
-            talker
-                .info('Creating wallet: show table generation progress dialog');
+            talker.info(
+              'Creating wallet: show table generation progress dialog',
+            );
             _showTableGenerationProgressDialog(context);
           } else {
             talker.info('Creating wallet: show loader overlay');

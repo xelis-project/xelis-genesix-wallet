@@ -1,7 +1,7 @@
 // ignore_for_file: invalid_annotation_target
 
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:genesix/rust_bridge/api/network.dart';
+import 'package:genesix/src/generated/rust_bridge/api/network.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
 
 part 'network_nodes_state.freezed.dart';

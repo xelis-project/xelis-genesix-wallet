@@ -37,37 +37,45 @@ class _TransferReviewWidgetState
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(loc.asset,
-                          style: context.bodyLarge!
-                              .copyWith(color: context.moreColors.mutedColor)),
+                      Text(
+                        loc.asset,
+                        style: context.bodyLarge!.copyWith(
+                          color: context.moreColors.mutedColor,
+                        ),
+                      ),
                       const SizedBox(height: Spaces.small),
                       transactionReview.isXelisTransfer
                           ? Row(
-                              children: [
-                                Logo(
-                                  imagePath: AppResources.xelisAsset.imagePath!,
-                                ),
-                                const SizedBox(width: Spaces.extraSmall),
-                                Text(
-                                  AppResources.xelisAsset.name,
-                                  style: context.bodyLarge,
-                                ),
-                              ],
-                            )
+                            children: [
+                              Logo(
+                                imagePath: AppResources.xelisAsset.imagePath!,
+                              ),
+                              const SizedBox(width: Spaces.extraSmall),
+                              Text(
+                                AppResources.xelisAsset.name,
+                                style: context.bodyLarge,
+                              ),
+                            ],
+                          )
                           : Text(truncateText(transactionReview.asset!)),
                     ],
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(loc.amount.capitalize(),
-                          style: context.bodyLarge!
-                              .copyWith(color: context.moreColors.mutedColor)),
+                      Text(
+                        loc.amount.capitalize(),
+                        style: context.bodyLarge!.copyWith(
+                          color: context.moreColors.mutedColor,
+                        ),
+                      ),
                       const SizedBox(height: Spaces.small),
                       FutureBuilder(
                         future: transactionReview.amount!,
-                        builder: (BuildContext context,
-                            AsyncSnapshot<String> snapshot) {
+                        builder: (
+                          BuildContext context,
+                          AsyncSnapshot<String> snapshot,
+                        ) {
                           if (snapshot.hasData) {
                             return SelectableText(snapshot.data!);
                           } else {
@@ -87,8 +95,9 @@ class _TransferReviewWidgetState
             children: [
               Text(
                 loc.fee,
-                style: context.bodyLarge!
-                    .copyWith(color: context.moreColors.mutedColor),
+                style: context.bodyLarge!.copyWith(
+                  color: context.moreColors.mutedColor,
+                ),
               ),
               SelectableText(transactionReview.fee!),
             ],
@@ -96,9 +105,12 @@ class _TransferReviewWidgetState
           const SizedBox(height: Spaces.small),
           Divider(),
           const SizedBox(height: Spaces.small),
-          Text(loc.hash,
-              style: context.bodyLarge!
-                  .copyWith(color: context.moreColors.mutedColor)),
+          Text(
+            loc.hash,
+            style: context.bodyLarge!.copyWith(
+              color: context.moreColors.mutedColor,
+            ),
+          ),
           const SizedBox(height: Spaces.extraSmall),
           SelectableText(transactionReview.finalHash!),
           const SizedBox(height: Spaces.small),
@@ -106,14 +118,18 @@ class _TransferReviewWidgetState
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(loc.destination,
-                    style: context.bodyLarge!
-                        .copyWith(color: context.moreColors.mutedColor)),
+                Text(
+                  loc.destination,
+                  style: context.bodyLarge!.copyWith(
+                    color: context.moreColors.mutedColor,
+                  ),
+                ),
                 const SizedBox(width: Spaces.small),
                 Tooltip(
                   message: loc.integrated_address_detected,
-                  textStyle: context.bodyMedium
-                      ?.copyWith(color: context.colors.primary),
+                  textStyle: context.bodyMedium?.copyWith(
+                    color: context.colors.primary,
+                  ),
                   child: Icon(
                     Icons.info_outline_rounded,
                     size: 18,
@@ -126,9 +142,12 @@ class _TransferReviewWidgetState
             SelectableText(transactionReview.destination!),
             const SizedBox(height: Spaces.small),
           ],
-          Text(loc.receiver,
-              style: context.bodyLarge!
-                  .copyWith(color: context.moreColors.mutedColor)),
+          Text(
+            loc.receiver,
+            style: context.bodyLarge!.copyWith(
+              color: context.moreColors.mutedColor,
+            ),
+          ),
           const SizedBox(height: Spaces.extraSmall),
           Row(
             children: [
@@ -144,9 +163,12 @@ class _TransferReviewWidgetState
           ),
           if (transactionReview.walletAddress!.isIntegrated) ...[
             const SizedBox(height: Spaces.small),
-            Text(loc.payment_id,
-                style: context.bodyLarge!
-                    .copyWith(color: context.moreColors.mutedColor)),
+            Text(
+              loc.payment_id,
+              style: context.bodyLarge!.copyWith(
+                color: context.moreColors.mutedColor,
+              ),
+            ),
             const SizedBox(height: Spaces.extraSmall),
             SelectableText(transactionReview.walletAddress!.data.toString()),
           ],

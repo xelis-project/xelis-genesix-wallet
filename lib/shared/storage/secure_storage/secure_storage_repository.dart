@@ -12,14 +12,13 @@ class SecureStorageRepository {
     );
   }
 
-  IOSOptions _getIOSOptions() => IOSOptions(
-        accountName: _namespace,
-      );
+  IOSOptions _getIOSOptions() => IOSOptions(accountName: _namespace);
 
   AndroidOptions _getAndroidOptions() => AndroidOptions(
-      encryptedSharedPreferences: true,
-      sharedPreferencesName: _namespace,
-      preferencesKeyPrefix: 'genesix');
+    encryptedSharedPreferences: true,
+    sharedPreferencesName: _namespace,
+    preferencesKeyPrefix: 'genesix',
+  );
 
   MacOsOptions _getMacOsOptions() => MacOsOptions(accountName: _namespace);
 

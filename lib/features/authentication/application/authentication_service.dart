@@ -5,9 +5,9 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
-import 'package:genesix/rust_bridge/api/table_generation.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/storage/secure_storage/secure_storage_repository.dart';
+import 'package:genesix/src/generated/rust_bridge/api/table_generation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
 import 'package:genesix/features/router/route_utils.dart';
@@ -62,16 +62,26 @@ class Authentication extends _$Authentication {
       try {
         if (seed != null) {
           walletRepository = await NativeWalletRepository.recoverFromSeed(
-              dbName, password, settings.network,
-              seed: seed, precomputeTablesPath: precomputedTablesPath);
+            dbName,
+            password,
+            settings.network,
+            seed: seed,
+            precomputeTablesPath: precomputedTablesPath,
+          );
         } else if (privateKey != null) {
           walletRepository = await NativeWalletRepository.recoverFromPrivateKey(
-              dbName, password, settings.network,
-              privateKey: privateKey);
+            dbName,
+            password,
+            settings.network,
+            privateKey: privateKey,
+          );
         } else {
           walletRepository = await NativeWalletRepository.create(
-              dbName, password, settings.network,
-              precomputeTablesPath: precomputedTablesPath);
+            dbName,
+            password,
+            settings.network,
+            precomputeTablesPath: precomputedTablesPath,
+          );
         }
       } on AnyhowException catch (e) {
         talker.critical('Creating wallet failed: $e');
@@ -98,7 +108,9 @@ class Authentication extends _$Authentication {
       }
 
       state = AuthenticationState.signedIn(
-          name: name, nativeWallet: walletRepository);
+        name: name,
+        nativeWallet: walletRepository,
+      );
 
       ref.read(routerProvider).go(AuthAppScreen.wallet.toPath);
 
@@ -138,8 +150,11 @@ class Authentication extends _$Authentication {
       final dbName = walletPath.replaceFirst(localStorageDBPrefix, "");
       try {
         walletRepository = await NativeWalletRepository.open(
-            dbName, password, settings.network,
-            precomputeTablesPath: precomputedTablesPath);
+          dbName,
+          password,
+          settings.network,
+          precomputeTablesPath: precomputedTablesPath,
+        );
       } on AnyhowException catch (e) {
         talker.critical('Opening wallet failed: $e');
         final xelisMessage = (e).message.split("\n")[0];
@@ -165,7 +180,9 @@ class Authentication extends _$Authentication {
           .setWalletAddress(name, walletRepository.address);
 
       state = AuthenticationState.signedIn(
-          name: name, nativeWallet: walletRepository);
+        name: name,
+        nativeWallet: walletRepository,
+      );
 
       ref.read(routerProvider).go(AuthAppScreen.wallet.toPath);
 
@@ -177,7 +194,10 @@ class Authentication extends _$Authentication {
 
   // only used for desktop wallet import
   Future<void> openImportedWallet(
-      String sourcePath, String walletName, String password) async {
+    String sourcePath,
+    String walletName,
+    String password,
+  ) async {
     final loc = ref.read(appLocalizationsProvider);
     final precomputedTablesPath = await _getPrecomputedTablesPath();
     final network = ref.read(settingsProvider).network;
@@ -188,8 +208,11 @@ class Authentication extends _$Authentication {
       await copyPath(sourcePath, targetPath);
 
       walletRepository = await NativeWalletRepository.open(
-          targetPath, password, network,
-          precomputeTablesPath: precomputedTablesPath);
+        targetPath,
+        password,
+        network,
+        precomputeTablesPath: precomputedTablesPath,
+      );
     } on AnyhowException catch (e) {
       talker.critical('Opening wallet failed: $e');
       final xelisMessage = (e).message.split("\n")[0];
@@ -210,7 +233,9 @@ class Authentication extends _$Authentication {
         .setWalletAddress(walletName, walletRepository.address);
 
     state = AuthenticationState.signedIn(
-        name: walletName, nativeWallet: walletRepository);
+      name: walletName,
+      nativeWallet: walletRepository,
+    );
 
     ref.read(routerProvider).go(AuthAppScreen.wallet.toPath);
 
@@ -242,6 +267,7 @@ class Authentication extends _$Authentication {
 
   Future<bool> isPrecomputedTablesExists() async {
     return precomputedTablesExist(
-        precomputedTablesPath: await _getPrecomputedTablesPath());
+      precomputedTablesPath: await _getPrecomputedTablesPath(),
+    );
   }
 }

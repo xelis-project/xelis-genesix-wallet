@@ -14,14 +14,13 @@ class QrDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
-    final address =
-        ref.watch(walletStateProvider.select((state) => state.address));
+    final address = ref.watch(
+      walletStateProvider.select((state) => state.address),
+    );
 
     return GenericDialog(
       content: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: 300,
-        ),
+        constraints: const BoxConstraints(maxWidth: 300),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [

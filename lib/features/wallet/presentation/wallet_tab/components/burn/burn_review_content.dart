@@ -37,34 +37,42 @@ class _BurnReviewContentState extends ConsumerState<BurnReviewContent> {
                   Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(loc.asset,
-                          style: context.bodyLarge!
-                              .copyWith(color: context.moreColors.mutedColor)),
+                      Text(
+                        loc.asset,
+                        style: context.bodyLarge!.copyWith(
+                          color: context.moreColors.mutedColor,
+                        ),
+                      ),
                       const SizedBox(height: Spaces.small),
                       transactionReview.isXelisTransfer
                           ? Row(
-                              children: [
-                                Logo(
-                                  imagePath: AppResources.xelisAsset.imagePath!,
-                                ),
-                                const SizedBox(width: Spaces.small),
-                                Text(AppResources.xelisAsset.name),
-                              ],
-                            )
+                            children: [
+                              Logo(
+                                imagePath: AppResources.xelisAsset.imagePath!,
+                              ),
+                              const SizedBox(width: Spaces.small),
+                              Text(AppResources.xelisAsset.name),
+                            ],
+                          )
                           : Text(truncateText(transactionReview.asset!)),
                     ],
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(loc.amount.capitalize(),
-                          style: context.bodyLarge!
-                              .copyWith(color: context.moreColors.mutedColor)),
+                      Text(
+                        loc.amount.capitalize(),
+                        style: context.bodyLarge!.copyWith(
+                          color: context.moreColors.mutedColor,
+                        ),
+                      ),
                       const SizedBox(height: Spaces.small),
                       FutureBuilder(
                         future: transactionReview.amount,
-                        builder: (BuildContext context,
-                            AsyncSnapshot<String> snapshot) {
+                        builder: (
+                          BuildContext context,
+                          AsyncSnapshot<String> snapshot,
+                        ) {
                           if (snapshot.hasData) {
                             return SelectableText(snapshot.data!);
                           } else {
@@ -82,44 +90,54 @@ class _BurnReviewContentState extends ConsumerState<BurnReviewContent> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(loc.fee,
-                  style: context.bodyLarge!
-                      .copyWith(color: context.moreColors.mutedColor)),
+              Text(
+                loc.fee,
+                style: context.bodyLarge!.copyWith(
+                  color: context.moreColors.mutedColor,
+                ),
+              ),
               SelectableText(transactionReview.fee!),
             ],
           ),
           const SizedBox(height: Spaces.small),
           Divider(),
           SizedBox(height: Spaces.small),
-          Text(loc.hash,
-              style: context.bodyLarge!
-                  .copyWith(color: context.moreColors.mutedColor)),
+          Text(
+            loc.hash,
+            style: context.bodyLarge!.copyWith(
+              color: context.moreColors.mutedColor,
+            ),
+          ),
           const SizedBox(height: Spaces.extraSmall),
           SelectableText(transactionReview.finalHash!),
           const SizedBox(height: Spaces.large),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: AppDurations.animFast),
-            child: transactionReview.isBroadcast
-                ? SizedBox.shrink()
-                : FormBuilderCheckbox(
-                    name: 'confirm',
-                    decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.only(top: Spaces.small),
-                      isDense: true,
-                      fillColor: Colors.transparent,
+            child:
+                transactionReview.isBroadcast
+                    ? SizedBox.shrink()
+                    : FormBuilderCheckbox(
+                      name: 'confirm',
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.only(
+                          top: Spaces.small,
+                        ),
+                        isDense: true,
+                        fillColor: Colors.transparent,
+                      ),
+                      title: Text(
+                        loc.burn_confirmation,
+                        style: context.bodyMedium,
+                      ),
+                      validator: FormBuilderValidators.required(
+                        errorText: loc.field_required_error,
+                      ),
+                      onChanged: (value) {
+                        ref
+                            .read(transactionReviewProvider.notifier)
+                            .setConfirmation(value as bool);
+                      },
                     ),
-                    title: Text(
-                      loc.burn_confirmation,
-                      style: context.bodyMedium,
-                    ),
-                    validator: FormBuilderValidators.required(
-                        errorText: loc.field_required_error),
-                    onChanged: (value) {
-                      ref
-                          .read(transactionReviewProvider.notifier)
-                          .setConfirmation(value as bool);
-                    },
-                  ),
           ),
         ],
       ),

@@ -8,14 +8,15 @@ import 'package:go_router/go_router.dart';
 import 'package:group_button/group_button.dart';
 
 class LoggerViewAppBar extends ConsumerWidget {
-  const LoggerViewAppBar(
-      {super.key,
-      required this.titlesController,
-      required this.controller,
-      required this.titles,
-      required this.uniqueTitles,
-      required this.onActionsTap,
-      required this.onToggleTitle});
+  const LoggerViewAppBar({
+    super.key,
+    required this.titlesController,
+    required this.controller,
+    required this.titles,
+    required this.uniqueTitles,
+    required this.onActionsTap,
+    required this.onToggleTitle,
+  });
 
   final GroupButtonController titlesController;
   final LoggerViewController controller;
@@ -45,7 +46,11 @@ class LoggerViewAppBar extends ConsumerWidget {
       toolbarHeight: 60,
       leading: Padding(
         padding: const EdgeInsets.fromLTRB(
-            Spaces.small, Spaces.medium, Spaces.none, Spaces.none),
+          Spaces.small,
+          Spaces.medium,
+          Spaces.none,
+          Spaces.none,
+        ),
         child: IconButton(
           onPressed: () {
             context.pop();
@@ -55,19 +60,28 @@ class LoggerViewAppBar extends ConsumerWidget {
       ),
       actions: [
         Padding(
-            padding: const EdgeInsets.fromLTRB(
-                Spaces.none, Spaces.medium, Spaces.small, Spaces.none),
-            child: UnconstrainedBox(
-              child: IconButton(
-                onPressed: onActionsTap,
-                icon: const Icon(Icons.menu_rounded),
-              ),
-            )),
+          padding: const EdgeInsets.fromLTRB(
+            Spaces.none,
+            Spaces.medium,
+            Spaces.small,
+            Spaces.none,
+          ),
+          child: UnconstrainedBox(
+            child: IconButton(
+              onPressed: onActionsTap,
+              icon: const Icon(Icons.menu_rounded),
+            ),
+          ),
+        ),
         const SizedBox(width: 10),
       ],
       title: Padding(
         padding: const EdgeInsets.fromLTRB(
-            Spaces.none, Spaces.medium, Spaces.none, Spaces.none),
+          Spaces.none,
+          Spaces.medium,
+          Spaces.none,
+          Spaces.none,
+        ),
         child: Text(
           loc.logger,
           style: context.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -95,45 +109,50 @@ class LoggerViewAppBar extends ConsumerWidget {
                           return Container(
                             padding: const EdgeInsets.all(Spaces.small),
                             decoration: BoxDecoration(
-                              border:
-                                  Border.all(color: context.colors.onSurface),
+                              border: Border.all(
+                                color: context.colors.onSurface,
+                              ),
                               borderRadius: BorderRadius.circular(10),
-                              color: selected
-                                  ? context.colors.primaryContainer
-                                  : context.colors.surfaceContainer,
+                              color:
+                                  selected
+                                      ? context.colors.primaryContainer
+                                      : context.colors.surfaceContainer,
                             ),
                             child: Row(
                               children: [
                                 Text(
                                   '$count',
-                                  style: selected
-                                      ? context.bodySmall?.copyWith(
-                                          color: context.colors.onPrimary)
-                                      : context.bodySmall,
+                                  style:
+                                      selected
+                                          ? context.bodySmall?.copyWith(
+                                            color: context.colors.onPrimary,
+                                          )
+                                          : context.bodySmall,
                                 ),
                                 const SizedBox(width: Spaces.extraSmall),
                                 Text(
                                   '$value',
-                                  style: selected
-                                      ? context.bodySmall?.copyWith(
-                                          color: context.colors.onPrimary)
-                                      : context.bodySmall,
+                                  style:
+                                      selected
+                                          ? context.bodySmall?.copyWith(
+                                            color: context.colors.onPrimary,
+                                          )
+                                          : context.bodySmall,
                                 ),
                               ],
                             ),
                           );
                         },
-                        onSelected: (_, i, selected) =>
-                            _onToggle(uniqueTitles[i], selected),
+                        onSelected:
+                            (_, i, selected) =>
+                                _onToggle(uniqueTitles[i], selected),
                         buttons: uniqueTitles,
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: Spaces.extraSmall),
-                _SearchTextField(
-                  controller: controller,
-                ),
+                _SearchTextField(controller: controller),
               ],
             ),
           ),
@@ -144,9 +163,7 @@ class LoggerViewAppBar extends ConsumerWidget {
 }
 
 class _SearchTextField extends ConsumerWidget {
-  const _SearchTextField({
-    required this.controller,
-  });
+  const _SearchTextField({required this.controller});
 
   final LoggerViewController controller;
 
@@ -172,10 +189,7 @@ class _SearchTextField extends ConsumerWidget {
             borderRadius: BorderRadius.circular(10),
           ),
           contentPadding: const EdgeInsets.symmetric(vertical: Spaces.medium),
-          prefixIcon: const Icon(
-            Icons.search,
-            size: 20,
-          ),
+          prefixIcon: const Icon(Icons.search, size: 20),
           hintText: '${loc.search} ...',
           hintStyle: context.bodyLarge,
         ),

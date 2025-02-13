@@ -2,7 +2,7 @@ import 'package:country_flags/country_flags.dart';
 import 'package:flutter/widgets.dart';
 import 'package:genesix/features/wallet/domain/asset.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 // import 'package:jovial_svg/jovial_svg.dart';
 
@@ -68,7 +68,7 @@ class AppResources {
     const NodeAddress(
       name: 'Official XELIS Testnet',
       url: 'https://${sdk.testnetNodeURL}',
-    )
+    ),
   ];
 
   static List<NodeAddress> devNodes = [
@@ -122,20 +122,20 @@ class AppResources {
   // static late ScalableImage svgBannerBlack;
   static late Image bgDots;
 
-// static ScalableImageWidget svgBannerGreenWidget = ScalableImageWidget(
-//   si: AppResources.svgBannerGreen,
-//   scale: 0.15,
-// );
-//
-// static ScalableImageWidget svgBannerBlackWidget = ScalableImageWidget(
-//   si: AppResources.svgBannerBlack,
-//   scale: 0.15,
-// );
-//
-// static ScalableImageWidget svgBannerWhiteWidget = ScalableImageWidget(
-//   si: AppResources.svgBannerWhite,
-//   scale: 0.15,
-// );
+  // static ScalableImageWidget svgBannerGreenWidget = ScalableImageWidget(
+  //   si: AppResources.svgBannerGreen,
+  //   scale: 0.15,
+  // );
+  //
+  // static ScalableImageWidget svgBannerBlackWidget = ScalableImageWidget(
+  //   si: AppResources.svgBannerBlack,
+  //   scale: 0.15,
+  // );
+  //
+  // static ScalableImageWidget svgBannerWhiteWidget = ScalableImageWidget(
+  //   si: AppResources.svgBannerWhite,
+  //   scale: 0.15,
+  // );
 
   static List<CountryFlag> countryFlags = List.generate(
     AppLocalizations.supportedLocales.length,

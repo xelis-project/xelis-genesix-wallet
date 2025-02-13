@@ -21,8 +21,9 @@ class AddNodeDialog extends ConsumerStatefulWidget {
 }
 
 class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
-  final nodeAddressFormKey =
-      GlobalKey<FormBuilderState>(debugLabel: '_nodeAddressFormKey');
+  final nodeAddressFormKey = GlobalKey<FormBuilderState>(
+    debugLabel: '_nodeAddressFormKey',
+  );
 
   late FocusNode _focusNodeName;
   late FocusNode _focusNodeUrl;
@@ -44,8 +45,9 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final network =
-        ref.watch(settingsProvider.select((state) => state.network));
+    final network = ref.watch(
+      settingsProvider.select((state) => state.network),
+    );
     final networkNodes = ref.watch(networkNodesProvider);
     var nodes = networkNodes.getNodes(network);
 
@@ -55,16 +57,17 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding:
-                const EdgeInsets.only(left: Spaces.medium, top: Spaces.large),
-            child: Text(
-              loc.add_new_node_title,
-              style: context.titleLarge,
+            padding: const EdgeInsets.only(
+              left: Spaces.medium,
+              top: Spaces.large,
             ),
+            child: Text(loc.add_new_node_title, style: context.titleLarge),
           ),
           Padding(
-            padding:
-                const EdgeInsets.only(right: Spaces.small, top: Spaces.small),
+            padding: const EdgeInsets.only(
+              right: Spaces.small,
+              top: Spaces.small,
+            ),
             child: IconButton(
               onPressed: () {
                 context.pop();
@@ -74,43 +77,47 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
           ),
         ],
       ),
-      content: Builder(builder: (context) {
-        final width = context.mediaSize.width * 0.8;
+      content: Builder(
+        builder: (context) {
+          final width = context.mediaSize.width * 0.8;
 
-        return SizedBox(
-          width: isDesktopDevice ? width : null,
-          child: FormBuilder(
-            key: nodeAddressFormKey,
-            child: Column(
-              children: [
-                FormBuilderTextField(
-                  name: 'name',
-                  focusNode: _focusNodeName,
-                  style: context.bodyMedium,
-                  autocorrect: false,
-                  decoration: context.textInputDecoration.copyWith(
-                    labelText: loc.name,
+          return SizedBox(
+            width: isDesktopDevice ? width : null,
+            child: FormBuilder(
+              key: nodeAddressFormKey,
+              child: Column(
+                children: [
+                  FormBuilderTextField(
+                    name: 'name',
+                    focusNode: _focusNodeName,
+                    style: context.bodyMedium,
+                    autocorrect: false,
+                    decoration: context.textInputDecoration.copyWith(
+                      labelText: loc.name,
+                    ),
+                    validator: FormBuilderValidators.required(
+                      errorText: loc.field_required_error,
+                    ),
                   ),
-                  validator: FormBuilderValidators.required(
-                      errorText: loc.field_required_error),
-                ),
-                const SizedBox(height: Spaces.medium),
-                FormBuilderTextField(
-                  name: 'url',
-                  focusNode: _focusNodeUrl,
-                  style: context.bodyMedium,
-                  autocorrect: false,
-                  decoration: context.textInputDecoration.copyWith(
-                    labelText: loc.url,
+                  const SizedBox(height: Spaces.medium),
+                  FormBuilderTextField(
+                    name: 'url',
+                    focusNode: _focusNodeUrl,
+                    style: context.bodyMedium,
+                    autocorrect: false,
+                    decoration: context.textInputDecoration.copyWith(
+                      labelText: loc.url,
+                    ),
+                    validator: FormBuilderValidators.required(
+                      errorText: loc.field_required_error,
+                    ),
                   ),
-                  validator: FormBuilderValidators.required(
-                      errorText: loc.field_required_error),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      }),
+          );
+        },
+      ),
       actions: [
         FilledButton(
           onPressed: () => _addNodeAddress(nodes),
@@ -140,12 +147,14 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
     if (nodeAddressFormKey.currentState?.saveAndValidate() ?? false) {
       for (final node in nodes) {
         if (node.name == name) {
-          nodeAddressFormKey.currentState?.fields['name']
-              ?.invalidate(loc.name_already_exists);
+          nodeAddressFormKey.currentState?.fields['name']?.invalidate(
+            loc.name_already_exists,
+          );
         }
         if (node.url == url) {
-          nodeAddressFormKey.currentState?.fields['url']
-              ?.invalidate(loc.url_already_exists);
+          nodeAddressFormKey.currentState?.fields['url']?.invalidate(
+            loc.url_already_exists,
+          );
         }
       }
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/wallet/application/xelis_price_provider.dart';
 import 'package:genesix/features/wallet/domain/xelis_price/coinpaprika/xelis_ticker.dart';
-import 'package:genesix/rust_bridge/api/network.dart';
+import 'package:genesix/src/generated/rust_bridge/api/network.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:go_router/go_router.dart';
@@ -18,10 +18,7 @@ class BalanceWidget extends ConsumerWidget {
   const BalanceWidget({super.key});
 
   void _showQrDialog(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (_) => const QrDialog(),
-    );
+    showDialog<void>(context: context, builder: (_) => const QrDialog());
   }
 
   @override
@@ -29,8 +26,9 @@ class BalanceWidget extends ConsumerWidget {
     final loc = ref.watch(appLocalizationsProvider);
     final settings = ref.watch(settingsProvider);
 
-    final xelisBalance =
-        ref.watch(walletStateProvider.select((state) => state.xelisBalance));
+    final xelisBalance = ref.watch(
+      walletStateProvider.select((state) => state.xelisBalance),
+    );
     var displayedBalance =
         xelisBalance.isNotEmpty ? xelisBalance : AppResources.zeroBalance;
 
@@ -45,7 +43,6 @@ class BalanceWidget extends ConsumerWidget {
 
     if (settings.hideBalance) {
       String hidden = '********';
-      // displayedBalance = loc.hidden;
       displayedBalance = hidden;
       displayedUSDTBalance = hidden;
     }
@@ -57,8 +54,9 @@ class BalanceWidget extends ConsumerWidget {
         children: [
           Text(
             loc.balance,
-            style: context.headlineSmall!
-                .copyWith(color: context.moreColors.mutedColor),
+            style: context.headlineSmall!.copyWith(
+              color: context.moreColors.mutedColor,
+            ),
           ),
           Row(
             children: [
@@ -82,25 +80,23 @@ class BalanceWidget extends ConsumerWidget {
                           displayedUSDTBalance,
                           style: context.titleLarge,
                         ),
-                      )
+                      ),
                     ],
                   ],
                 ),
               ),
               const SizedBox(width: Spaces.large),
               IconButton.filled(
-                icon: settings.hideBalance
-                    ? const Icon(
-                        Icons.visibility_rounded,
-                      )
-                    : const Icon(
-                        Icons.visibility_off_rounded,
-                      ),
+                icon:
+                    settings.hideBalance
+                        ? const Icon(Icons.visibility_rounded)
+                        : const Icon(Icons.visibility_off_rounded),
                 tooltip:
                     settings.hideBalance ? loc.show_balance : loc.hide_balance,
-                onPressed: () => ref
-                    .read(settingsProvider.notifier)
-                    .setHideBalance(!settings.hideBalance),
+                onPressed:
+                    () => ref
+                        .read(settingsProvider.notifier)
+                        .setHideBalance(!settings.hideBalance),
               ),
             ],
           ),
@@ -111,8 +107,8 @@ class BalanceWidget extends ConsumerWidget {
               Column(
                 children: [
                   IconButton.filled(
-                    onPressed: () =>
-                        context.push(AuthAppScreen.transfer.toPath),
+                    onPressed:
+                        () => context.push(AuthAppScreen.transfer.toPath),
                     icon: const Icon(Icons.call_made_rounded),
                   ),
                   const SizedBox(height: Spaces.extraSmall),
@@ -122,21 +118,25 @@ class BalanceWidget extends ConsumerWidget {
               Column(
                 children: [
                   IconButton.filled(
-                    onPressed: settings.unlockBurn
-                        ? () => context.push(AuthAppScreen.burn.toPath)
-                        : null,
+                    onPressed:
+                        settings.unlockBurn
+                            ? () => context.push(AuthAppScreen.burn.toPath)
+                            : null,
                     icon: const Icon(Icons.local_fire_department_rounded),
-                    tooltip: settings.unlockBurn
-                        ? null
-                        : loc.unlock_in_settings.capitalize(),
+                    tooltip:
+                        settings.unlockBurn
+                            ? null
+                            : loc.unlock_in_settings.capitalize(),
                   ),
                   const SizedBox(height: Spaces.extraSmall),
                   Text(
                     loc.burn,
                     style: context.labelLarge?.copyWith(
-                        color: settings.unlockBurn
-                            ? context.colors.onSurface
-                            : context.moreColors.mutedColor),
+                      color:
+                          settings.unlockBurn
+                              ? context.colors.onSurface
+                              : context.moreColors.mutedColor,
+                    ),
                   ),
                 ],
               ),
@@ -153,8 +153,8 @@ class BalanceWidget extends ConsumerWidget {
               Column(
                 children: [
                   IconButton.filled(
-                    onPressed: () =>
-                        context.push(AuthAppScreen.multisig.toPath),
+                    onPressed:
+                        () => context.push(AuthAppScreen.multisig.toPath),
                     icon: const Icon(Icons.sign_language),
                   ),
                   const SizedBox(height: Spaces.extraSmall),

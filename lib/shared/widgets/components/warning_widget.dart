@@ -33,22 +33,27 @@ class WarningWidget extends ConsumerWidget {
                 Expanded(
                   child: Text(
                     loc.warning,
-                    style: context.titleLarge
-                        ?.copyWith(color: context.colors.primary),
+                    style: context.titleLarge?.copyWith(
+                      color: context.colors.primary,
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: Spaces.small),
             RichText(
-                text: TextSpan(
-              children: _messages
-                  .map((message) => TextSpan(
-                        text: message,
-                        style: context.bodyMedium,
-                      ))
-                  .toList(),
-            )),
+              text: TextSpan(
+                children:
+                    _messages
+                        .map(
+                          (message) => TextSpan(
+                            text: message,
+                            style: context.bodyMedium,
+                          ),
+                        )
+                        .toList(),
+              ),
+            ),
           ],
         ),
       ),

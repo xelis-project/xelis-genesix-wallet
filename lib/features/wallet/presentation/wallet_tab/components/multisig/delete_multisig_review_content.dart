@@ -18,24 +18,27 @@ class DeleteMultisigReviewContent extends ConsumerWidget {
         children: [
           Text(
             loc.hash,
-            style: context.bodyLarge!
-                .copyWith(color: context.moreColors.mutedColor),
+            style: context.bodyLarge!.copyWith(
+              color: context.moreColors.mutedColor,
+            ),
           ),
           const SizedBox(height: Spaces.extraSmall),
           SelectableText(transactionReview.finalHash!),
           const SizedBox(height: Spaces.small),
           Text(
             loc.fee,
-            style: context.bodyLarge!
-                .copyWith(color: context.moreColors.mutedColor),
+            style: context.bodyLarge!.copyWith(
+              color: context.moreColors.mutedColor,
+            ),
           ),
           const SizedBox(height: Spaces.extraSmall),
           SelectableText(transactionReview.fee!),
           const SizedBox(height: Spaces.small),
           Text(
             loc.transaction_type,
-            style: context.bodyLarge!
-                .copyWith(color: context.moreColors.mutedColor),
+            style: context.bodyLarge!.copyWith(
+              color: context.moreColors.mutedColor,
+            ),
           ),
           const SizedBox(height: Spaces.extraSmall),
           SelectableText(loc.multisig_removal),

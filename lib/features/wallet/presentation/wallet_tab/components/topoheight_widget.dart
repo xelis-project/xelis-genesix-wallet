@@ -14,8 +14,9 @@ class TopoHeightWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
     bool mismatch = ref.watch(networkMismatchProvider);
-    final topoheight =
-        ref.watch(walletStateProvider.select((state) => state.topoheight));
+    final topoheight = ref.watch(
+      walletStateProvider.select((state) => state.topoheight),
+    );
 
     var displayedTopoheight = NumberFormat().format(topoheight);
 
@@ -26,68 +27,69 @@ class TopoHeightWidget extends ConsumerWidget {
       child: Padding(
         padding: const EdgeInsets.all(Spaces.medium),
         child: GridTile(
-            child: Row(
-          children: [
-            if (mismatch) ...[
-              Tooltip(
-                message: loc.network_mismatch,
-                child: Icon(
-                  Icons.warning_amber,
-                  color: context.colors.error,
+          child: Row(
+            children: [
+              if (mismatch) ...[
+                Tooltip(
+                  message: loc.network_mismatch,
+                  child: Icon(Icons.warning_amber, color: context.colors.error),
                 ),
-              ),
-              const SizedBox(
-                width: Spaces.medium,
-              )
-            ],
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  loc.topoheight,
-                  style: context.titleMedium!
-                      .copyWith(color: context.moreColors.mutedColor),
-                ),
-                SelectableText(
-                  displayedTopoheight,
-                  style: context.headlineLarge,
-                ),
+                const SizedBox(width: Spaces.medium),
               ],
-            ),
-            const Spacer(),
-            Column(
-              children: [
-                ValueListenableBuilder(
-                  valueListenable: isRescanningNotifier,
-                  builder:
-                      (BuildContext context, bool isRescanning, Widget? _) {
-                    return IconButton.outlined(
-                      onPressed: isRescanning
-                          ? null
-                          : () async {
-                              isRescanningNotifier.value = true;
-                              await ref
-                                  .read(walletStateProvider.notifier)
-                                  .rescan();
-                              isRescanningNotifier.value = false;
-                            },
-                      icon: const Icon(Icons.sync_rounded),
-                    );
-                  },
-                ),
-                const SizedBox(height: Spaces.extraSmall),
-                FittedBox(
-                  fit: BoxFit.fitWidth,
-                  child: Text(
-                    loc.rescan,
-                    maxLines: 1,
-                    style: context.labelLarge,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    loc.topoheight,
+                    style: context.titleMedium!.copyWith(
+                      color: context.moreColors.mutedColor,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
-        )),
+                  SelectableText(
+                    displayedTopoheight,
+                    style: context.headlineLarge,
+                  ),
+                ],
+              ),
+              const Spacer(),
+              Column(
+                children: [
+                  ValueListenableBuilder(
+                    valueListenable: isRescanningNotifier,
+                    builder: (
+                      BuildContext context,
+                      bool isRescanning,
+                      Widget? _,
+                    ) {
+                      return IconButton.outlined(
+                        onPressed:
+                            isRescanning
+                                ? null
+                                : () async {
+                                  isRescanningNotifier.value = true;
+                                  await ref
+                                      .read(walletStateProvider.notifier)
+                                      .rescan();
+                                  isRescanningNotifier.value = false;
+                                },
+                        icon: const Icon(Icons.sync_rounded),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: Spaces.extraSmall),
+                  FittedBox(
+                    fit: BoxFit.fitWidth,
+                    child: Text(
+                      loc.rescan,
+                      maxLines: 1,
+                      style: context.labelLarge,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

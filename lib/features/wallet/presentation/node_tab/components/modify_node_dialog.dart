@@ -23,8 +23,9 @@ class ModifyNodeDialog extends ConsumerStatefulWidget {
 }
 
 class _ModifyNodeDialogState extends ConsumerState<ModifyNodeDialog> {
-  final nodeAddressFormKey =
-      GlobalKey<FormBuilderState>(debugLabel: '_nodeAddressFormKey');
+  final nodeAddressFormKey = GlobalKey<FormBuilderState>(
+    debugLabel: '_nodeAddressFormKey',
+  );
 
   late FocusNode _focusNodeName;
   late FocusNode _focusNodeUrl;
@@ -46,8 +47,9 @@ class _ModifyNodeDialogState extends ConsumerState<ModifyNodeDialog> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final network =
-        ref.watch(settingsProvider.select((state) => state.network));
+    final network = ref.watch(
+      settingsProvider.select((state) => state.network),
+    );
     final networkNodes = ref.watch(networkNodesProvider);
     var nodes = networkNodes.getNodes(network);
 
@@ -57,16 +59,17 @@ class _ModifyNodeDialogState extends ConsumerState<ModifyNodeDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding:
-                const EdgeInsets.only(left: Spaces.medium, top: Spaces.large),
-            child: Text(
-              loc.edit_node,
-              style: context.titleLarge,
+            padding: const EdgeInsets.only(
+              left: Spaces.medium,
+              top: Spaces.large,
             ),
+            child: Text(loc.edit_node, style: context.titleLarge),
           ),
           Padding(
-            padding:
-                const EdgeInsets.only(right: Spaces.small, top: Spaces.small),
+            padding: const EdgeInsets.only(
+              right: Spaces.small,
+              top: Spaces.small,
+            ),
             child: IconButton(
               onPressed: () {
                 context.pop();
@@ -76,45 +79,49 @@ class _ModifyNodeDialogState extends ConsumerState<ModifyNodeDialog> {
           ),
         ],
       ),
-      content: Builder(builder: (context) {
-        final width = context.mediaSize.width * 0.8;
+      content: Builder(
+        builder: (context) {
+          final width = context.mediaSize.width * 0.8;
 
-        return SizedBox(
-          width: isDesktopDevice ? width : null,
-          child: FormBuilder(
-            key: nodeAddressFormKey,
-            child: Column(
-              children: [
-                FormBuilderTextField(
-                  name: 'name',
-                  focusNode: _focusNodeName,
-                  initialValue: widget.oldNodeAddress.name,
-                  style: context.bodyMedium,
-                  autocorrect: false,
-                  decoration: context.textInputDecoration.copyWith(
-                    labelText: loc.name,
+          return SizedBox(
+            width: isDesktopDevice ? width : null,
+            child: FormBuilder(
+              key: nodeAddressFormKey,
+              child: Column(
+                children: [
+                  FormBuilderTextField(
+                    name: 'name',
+                    focusNode: _focusNodeName,
+                    initialValue: widget.oldNodeAddress.name,
+                    style: context.bodyMedium,
+                    autocorrect: false,
+                    decoration: context.textInputDecoration.copyWith(
+                      labelText: loc.name,
+                    ),
+                    validator: FormBuilderValidators.required(
+                      errorText: loc.field_required_error,
+                    ),
                   ),
-                  validator: FormBuilderValidators.required(
-                      errorText: loc.field_required_error),
-                ),
-                const SizedBox(height: Spaces.medium),
-                FormBuilderTextField(
-                  name: 'url',
-                  focusNode: _focusNodeUrl,
-                  initialValue: widget.oldNodeAddress.url,
-                  style: context.bodyMedium,
-                  autocorrect: false,
-                  decoration: context.textInputDecoration.copyWith(
-                    labelText: loc.url,
+                  const SizedBox(height: Spaces.medium),
+                  FormBuilderTextField(
+                    name: 'url',
+                    focusNode: _focusNodeUrl,
+                    initialValue: widget.oldNodeAddress.url,
+                    style: context.bodyMedium,
+                    autocorrect: false,
+                    decoration: context.textInputDecoration.copyWith(
+                      labelText: loc.url,
+                    ),
+                    validator: FormBuilderValidators.required(
+                      errorText: loc.field_required_error,
+                    ),
                   ),
-                  validator: FormBuilderValidators.required(
-                      errorText: loc.field_required_error),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      }),
+          );
+        },
+      ),
       actions: [
         FilledButton(
           onPressed: () => _modifyNodeAddress(nodes),
@@ -146,12 +153,14 @@ class _ModifyNodeDialogState extends ConsumerState<ModifyNodeDialog> {
     if (nodeAddressFormKey.currentState?.saveAndValidate() ?? false) {
       for (final node in nodes) {
         if (node.name == name) {
-          nodeAddressFormKey.currentState?.fields['name']
-              ?.invalidate(loc.name_already_exists);
+          nodeAddressFormKey.currentState?.fields['name']?.invalidate(
+            loc.name_already_exists,
+          );
         }
         if (node.url == url) {
-          nodeAddressFormKey.currentState?.fields['url']
-              ?.invalidate(loc.url_already_exists);
+          nodeAddressFormKey.currentState?.fields['url']?.invalidate(
+            loc.url_already_exists,
+          );
         }
       }
 

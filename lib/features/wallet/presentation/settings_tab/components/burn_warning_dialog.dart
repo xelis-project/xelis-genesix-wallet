@@ -25,8 +25,9 @@ class BurnWarningDialog extends ConsumerWidget {
           const SizedBox(height: Spaces.medium),
           Text(
             loc.do_you_want_to_activate_burn_transfer,
-            style: context.bodyMedium
-                ?.copyWith(color: context.moreColors.mutedColor),
+            style: context.bodyMedium?.copyWith(
+              color: context.moreColors.mutedColor,
+            ),
           ),
         ],
       ),
@@ -39,12 +40,13 @@ class BurnWarningDialog extends ConsumerWidget {
           child: Text(loc.cancel_button),
         ),
         TextButton(
-          onPressed: () => startWithBiometricAuth(
-            ref,
-            callback: _unlockBurn,
-            reason: loc.please_authenticate_burn_tx,
-            closeCurrentDialog: true,
-          ),
+          onPressed:
+              () => startWithBiometricAuth(
+                ref,
+                callback: _unlockBurn,
+                reason: loc.please_authenticate_burn_tx,
+                closeCurrentDialog: true,
+              ),
           child: Text(loc.confirm_button),
         ),
       ],

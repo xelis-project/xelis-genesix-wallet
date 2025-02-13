@@ -15,14 +15,12 @@ class AssetsDropdownMenuItem {
         children: [
           isXelis
               ? Row(
-                  children: [
-                    Logo(
-                      imagePath: xelisPath,
-                    ),
-                    const SizedBox(width: Spaces.small),
-                    Text(AppResources.xelisAsset.name),
-                  ],
-                )
+                children: [
+                  Logo(imagePath: xelisPath),
+                  const SizedBox(width: Spaces.small),
+                  Text(AppResources.xelisAsset.name),
+                ],
+              )
               : Text(truncateText(asset.key)),
           Text(asset.value),
         ],

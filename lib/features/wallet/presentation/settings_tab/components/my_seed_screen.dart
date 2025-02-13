@@ -29,14 +29,17 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
     ref
         .read(walletStateProvider.notifier)
         .getSeed(MnemonicLanguage.english)
-        .then((words) {
-      setState(() {
-        _seedWords = words;
-      });
-    },
-            onError: (_, __) => ref
-                .read(snackBarMessengerProvider.notifier)
-                .showError(loc.oups));
+        .then(
+          (words) {
+            setState(() {
+              _seedWords = words;
+            });
+          },
+          onError:
+              (_, __) => ref
+                  .read(snackBarMessengerProvider.notifier)
+                  .showError(loc.oups),
+        );
   }
 
   @override
@@ -79,8 +82,9 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                                   Text(
                                     loc.warning,
                                     style: context.titleLarge?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: context.colors.primary),
+                                      fontWeight: FontWeight.bold,
+                                      color: context.colors.primary,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -103,26 +107,32 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                       child: GenericFormBuilderDropdown(
                         name: 'languages_dropdown',
                         initialValue: MnemonicLanguage.english,
-                        items: MnemonicLanguage.values
-                            .map(
-                              (e) => DropdownMenuItem(
-                                value: e,
-                                child: Text(e.displayName),
-                              ),
-                            )
-                            .toList(),
+                        items:
+                            MnemonicLanguage.values
+                                .map(
+                                  (e) => DropdownMenuItem(
+                                    value: e,
+                                    child: Text(e.displayName),
+                                  ),
+                                )
+                                .toList(),
                         onChanged: (MnemonicLanguage? value) {
                           ref
                               .read(walletStateProvider.notifier)
                               .getSeed(value!)
-                              .then((value) {
-                            setState(() {
-                              _seedWords = value;
-                            });
-                          },
-                                  onError: (_, __) => ref
-                                      .read(snackBarMessengerProvider.notifier)
-                                      .showError(loc.oups));
+                              .then(
+                                (value) {
+                                  setState(() {
+                                    _seedWords = value;
+                                  });
+                                },
+                                onError:
+                                    (_, __) => ref
+                                        .read(
+                                          snackBarMessengerProvider.notifier,
+                                        )
+                                        .showError(loc.oups),
+                              );
                         },
                       ),
                     ),
@@ -137,18 +147,16 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                         const SizedBox(height: Spaces.extraSmall),
                         Text(
                           loc.copy,
-                          style: context.labelLarge
-                              ?.copyWith(color: context.moreColors.mutedColor),
+                          style: context.labelLarge?.copyWith(
+                            color: context.moreColors.mutedColor,
+                          ),
                         ),
                       ],
                     ),
                   ],
                 ),
                 const SizedBox(height: Spaces.large),
-                Text(
-                  loc.seed_warning_message_2,
-                  style: context.titleMedium,
-                ),
+                Text(loc.seed_warning_message_2, style: context.titleMedium),
                 const SizedBox(height: Spaces.small),
                 Flexible(
                   child: GridView.count(
@@ -158,47 +166,53 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                     mainAxisSpacing: Spaces.none,
                     crossAxisSpacing: Spaces.small,
                     shrinkWrap: true,
-                    children: _seedWords.indexed
-                        .map<Widget>(
-                          ((int index, String word) tuple) => Padding(
-                            padding: const EdgeInsets.all(Spaces.none),
-                            child: Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                    left: Spaces.medium, right: Spaces.medium),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          '${tuple.$1 + 1}',
-                                          style: context.bodyLarge?.copyWith(
-                                              color: context.colors.primary),
-                                        ),
-                                      ),
+                    children:
+                        _seedWords.indexed
+                            .map<Widget>(
+                              ((int index, String word) tuple) => Padding(
+                                padding: const EdgeInsets.all(Spaces.none),
+                                child: Card(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: Spaces.medium,
+                                      right: Spaces.medium,
                                     ),
-                                    Expanded(
-                                      flex: 2,
-                                      child: FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        child: Text(
-                                          tuple.$2,
-                                          style: context.titleMedium,
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              '${tuple.$1 + 1}',
+                                              style: context.bodyLarge
+                                                  ?.copyWith(
+                                                    color:
+                                                        context.colors.primary,
+                                                  ),
+                                            ),
+                                          ),
                                         ),
-                                      ),
+                                        Expanded(
+                                          flex: 2,
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: Text(
+                                              tuple.$2,
+                                              style: context.titleMedium,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                        )
-                        .toList(),
+                            )
+                            .toList(),
                   ),
                 ),
               ],

@@ -33,8 +33,9 @@ class PasswordDialog extends ConsumerStatefulWidget {
 class _PasswordDialogState extends ConsumerState<PasswordDialog> {
   String? _passwordError;
 
-  final _passwordFormKey =
-      GlobalKey<FormBuilderState>(debugLabel: '_passwordFormKey');
+  final _passwordFormKey = GlobalKey<FormBuilderState>(
+    debugLabel: '_passwordFormKey',
+  );
 
   late FocusNode _focusNode;
 
@@ -97,16 +98,20 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding:
-                const EdgeInsets.only(left: Spaces.medium, top: Spaces.large),
+            padding: const EdgeInsets.only(
+              left: Spaces.medium,
+              top: Spaces.large,
+            ),
             child: Text(
               loc.authentication.capitalize(),
               style: context.titleLarge,
             ),
           ),
           Padding(
-            padding:
-                const EdgeInsets.only(right: Spaces.small, top: Spaces.small),
+            padding: const EdgeInsets.only(
+              right: Spaces.small,
+              top: Spaces.small,
+            ),
             child: IconButton(
               onPressed: () {
                 context.pop();
@@ -122,8 +127,9 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
         children: [
           Text(
             loc.authentication_message,
-            style: context.bodyMedium
-                ?.copyWith(color: context.moreColors.mutedColor),
+            style: context.bodyMedium?.copyWith(
+              color: context.moreColors.mutedColor,
+            ),
           ),
           const SizedBox(height: Spaces.large),
           FormBuilder(
@@ -145,8 +151,11 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
                     _passwordError = null;
                   });
                   // workaround to reset the error message when the user modifies the field
-                  final hasError = _passwordFormKey
-                      .currentState?.fields['password']?.hasError;
+                  final hasError =
+                      _passwordFormKey
+                          .currentState
+                          ?.fields['password']
+                          ?.hasError;
                   if (hasError ?? false) {
                     _passwordFormKey.currentState?.fields['password']?.reset();
                   }
@@ -166,7 +175,8 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
                   }
                 },
                 validator: FormBuilderValidators.required(
-                    errorText: loc.field_required_error),
+                  errorText: loc.field_required_error,
+                ),
               ),
             ),
           ),
@@ -178,7 +188,8 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
             if (_passwordFormKey.currentState?.saveAndValidate() ?? false) {
               if (widget.onEnter != null) {
                 widget.onEnter!(
-                    _passwordFormKey.currentState!.value['password'] as String);
+                  _passwordFormKey.currentState!.value['password'] as String,
+                );
               }
 
               if (widget.onValid != null) {
@@ -188,13 +199,8 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
               _focusNode.unfocus();
             }
           },
-          label: Text(
-            loc.next,
-          ),
-          icon: Icon(
-            Icons.arrow_forward_rounded,
-            size: 18,
-          ),
+          label: Text(loc.next),
+          icon: Icon(Icons.arrow_forward_rounded, size: 18),
         ),
       ],
     );

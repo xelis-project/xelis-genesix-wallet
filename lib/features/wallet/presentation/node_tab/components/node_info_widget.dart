@@ -21,64 +21,49 @@ class NodeInfoWidget extends ConsumerWidget {
           loc.network,
           style: context.labelLarge?.copyWith(color: context.colors.primary),
         ),
-        SelectableText(
-          switch (info?.network) {
-            Network.mainnet => 'Mainnet',
-            Network.testnet => 'Testnet',
-            Network.dev => 'Dev',
-            null => '...',
-          },
-          style: context.titleLarge,
-        ),
+        SelectableText(switch (info?.network) {
+          Network.mainnet => 'Mainnet',
+          Network.testnet => 'Testnet',
+          Network.dev => 'Dev',
+          null => '...',
+        }, style: context.titleLarge),
         const SizedBox(height: Spaces.medium),
         Text(
           loc.topoheight,
           style: context.labelLarge?.copyWith(color: context.colors.primary),
         ),
-        SelectableText(
-          switch (info?.topoHeight) {
-            null => '...',
-            int() => info!.topoHeight.toString(),
-          },
-          style: context.titleLarge,
-        ),
+        SelectableText(switch (info?.topoHeight) {
+          null => '...',
+          int() => info!.topoHeight.toString(),
+        }, style: context.titleLarge),
         const SizedBox(height: Spaces.medium),
         Text(
           loc.node_type,
           style: context.labelLarge?.copyWith(color: context.colors.primary),
         ),
-        SelectableText(
-          switch (info?.pruned) {
-            null => '...',
-            true => loc.pruned_node,
-            false => loc.full_node,
-          },
-          style: context.titleLarge,
-        ),
+        SelectableText(switch (info?.pruned) {
+          null => '...',
+          true => loc.pruned_node,
+          false => loc.full_node,
+        }, style: context.titleLarge),
         const SizedBox(height: Spaces.medium),
         Text(
           loc.circulating_supply,
           style: context.labelLarge?.copyWith(color: context.colors.primary),
         ),
-        SelectableText(
-          switch (info?.circulatingSupply) {
-            null => '...',
-            String() => info!.circulatingSupply,
-          },
-          style: context.titleLarge,
-        ),
+        SelectableText(switch (info?.circulatingSupply) {
+          null => '...',
+          String() => info!.circulatingSupply,
+        }, style: context.titleLarge),
         const SizedBox(height: Spaces.medium),
         Text(
           loc.block_reward,
           style: context.labelLarge?.copyWith(color: context.colors.primary),
         ),
-        SelectableText(
-          switch (info?.blockReward) {
-            String() => info!.blockReward,
-            null => '...',
-          },
-          style: context.titleLarge,
-        ),
+        SelectableText(switch (info?.blockReward) {
+          String() => info!.blockReward,
+          null => '...',
+        }, style: context.titleLarge),
         const SizedBox(height: Spaces.medium),
         Text(
           loc.mempool,
@@ -93,23 +78,17 @@ class NodeInfoWidget extends ConsumerWidget {
           loc.average_block_time,
           style: context.labelLarge?.copyWith(color: context.colors.primary),
         ),
-        SelectableText(
-          switch (info?.averageBlockTime) {
-            null => '...',
-            Duration() =>
-              '${info?.averageBlockTime.inSeconds.toString()} ${loc.seconds}'
-          },
-          style: context.titleLarge,
-        ),
+        SelectableText(switch (info?.averageBlockTime) {
+          null => '...',
+          Duration() =>
+            '${info?.averageBlockTime.inSeconds.toString()} ${loc.seconds}',
+        }, style: context.titleLarge),
         const SizedBox(height: Spaces.medium),
         Text(
           loc.version,
           style: context.labelLarge?.copyWith(color: context.colors.primary),
         ),
-        SelectableText(
-          info?.version ?? '...',
-          style: context.titleLarge,
-        ),
+        SelectableText(info?.version ?? '...', style: context.titleLarge),
       ],
     );
   }

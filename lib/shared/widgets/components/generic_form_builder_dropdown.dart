@@ -3,13 +3,14 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 
 class GenericFormBuilderDropdown<T> extends StatelessWidget {
-  const GenericFormBuilderDropdown(
-      {super.key,
-      required this.name,
-      this.initialValue,
-      required this.items,
-      this.onChanged,
-      this.validator});
+  const GenericFormBuilderDropdown({
+    super.key,
+    required this.name,
+    this.initialValue,
+    required this.items,
+    this.onChanged,
+    this.validator,
+  });
 
   final String name;
   final T? initialValue;

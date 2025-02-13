@@ -34,48 +34,50 @@ class _SnackBarWidgetState extends ConsumerState<SnackBarWidget> {
           switchOutCurve: Curves.easeInExpo,
           transitionBuilder: (child, animation) {
             final offset = Tween<Offset>(
-                begin: const Offset(0, .3), end: const Offset(0, 0));
+              begin: const Offset(0, .3),
+              end: const Offset(0, 0),
+            );
             return SlideTransition(
-                position: offset.animate(animation), child: child);
+              position: offset.animate(animation),
+              child: child,
+            );
           },
           child: switch (snackbarState.visible) {
             true => Align(
-                key: UniqueKey(),
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.all(Spaces.large),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: context.colors.surface,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    constraints: const BoxConstraints(maxWidth: 800),
-                    child: Padding(
-                      padding: const EdgeInsets.all(Spaces.medium),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              snackbarState.message,
-                              style: context.bodyLarge!.copyWith(color: color),
-                            ),
+              key: UniqueKey(),
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.all(Spaces.large),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: context.colors.surface,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: Padding(
+                    padding: const EdgeInsets.all(Spaces.medium),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            snackbarState.message,
+                            style: context.bodyLarge!.copyWith(color: color),
                           ),
-                          const SizedBox(width: Spaces.medium),
-                          IconButton(
-                            onPressed: () {
-                              ref
-                                  .read(snackBarMessengerProvider.notifier)
-                                  .hide();
-                            },
-                            color: color,
-                            icon: const Icon(Icons.close_rounded),
-                          ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(width: Spaces.medium),
+                        IconButton(
+                          onPressed: () {
+                            ref.read(snackBarMessengerProvider.notifier).hide();
+                          },
+                          color: color,
+                          icon: const Icon(Icons.close_rounded),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
+            ),
             false => const SizedBox.shrink(),
           },
         ),

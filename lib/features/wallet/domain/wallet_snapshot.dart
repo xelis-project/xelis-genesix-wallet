@@ -16,7 +16,7 @@ class WalletSnapshot with _$WalletSnapshot {
     @Default('') String xelisBalance,
     @Default(AppResources.defaultAssets)
     Map<String, String>
-        assets, // key: asset hash, value: balance (already formatted as string)
+    assets, // key: asset hash, value: balance (already formatted as string)
     @Default('') String address,
     @Default('') String name,
     @Default(MultisigState()) MultisigState multisigState,

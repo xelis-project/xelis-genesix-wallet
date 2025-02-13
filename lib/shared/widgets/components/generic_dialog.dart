@@ -5,12 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:genesix/shared/theme/constants.dart';
 
 class GenericDialog extends StatelessWidget {
-  const GenericDialog(
-      {super.key,
-      this.scrollable = true,
-      this.title,
-      this.content,
-      this.actions});
+  const GenericDialog({
+    super.key,
+    this.scrollable = true,
+    this.title,
+    this.content,
+    this.actions,
+  });
 
   final bool scrollable;
   final Widget? title;
@@ -24,11 +25,23 @@ class GenericDialog extends StatelessWidget {
       child: AlertDialog(
         scrollable: scrollable,
         titlePadding: const EdgeInsets.fromLTRB(
-            Spaces.none, Spaces.none, Spaces.none, Spaces.small),
+          Spaces.none,
+          Spaces.none,
+          Spaces.none,
+          Spaces.small,
+        ),
         contentPadding: const EdgeInsets.fromLTRB(
-            Spaces.medium, Spaces.medium, Spaces.medium, Spaces.large),
+          Spaces.medium,
+          Spaces.medium,
+          Spaces.medium,
+          Spaces.large,
+        ),
         actionsPadding: const EdgeInsets.fromLTRB(
-            Spaces.medium, Spaces.none, Spaces.medium, Spaces.medium),
+          Spaces.medium,
+          Spaces.none,
+          Spaces.medium,
+          Spaces.medium,
+        ),
         title: title,
         content: AnimatedSize(
           alignment: Alignment.topCenter,

@@ -10,7 +10,7 @@ import 'package:genesix/features/wallet/application/multisig_pending_state_provi
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/multisig/multisig_participant.dart';
-import 'package:genesix/rust_bridge/api/dtos.dart';
+import 'package:genesix/src/generated/rust_bridge/api/dtos.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
@@ -31,14 +31,16 @@ class TransactionDialog extends ConsumerStatefulWidget {
 }
 
 class _TransactionDialogState extends ConsumerState<TransactionDialog> {
-  final _signaturesFormKey =
-      GlobalKey<FormBuilderState>(debugLabel: '_signaturesFormKey');
+  final _signaturesFormKey = GlobalKey<FormBuilderState>(
+    debugLabel: '_signaturesFormKey',
+  );
 
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final multisigState =
-        ref.watch(walletStateProvider.select((value) => value.multisigState));
+    final multisigState = ref.watch(
+      walletStateProvider.select((value) => value.multisigState),
+    );
     final transactionReview = ref.watch(transactionReviewProvider);
     return GenericDialog(
       title: Row(
@@ -46,8 +48,10 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding:
-                const EdgeInsets.only(left: Spaces.medium, top: Spaces.large),
+            padding: const EdgeInsets.only(
+              left: Spaces.medium,
+              top: Spaces.large,
+            ),
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: AppDurations.animFast),
               child: Text(
@@ -59,8 +63,10 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
           ),
           if (!transactionReview.isBroadcast)
             Padding(
-              padding:
-                  const EdgeInsets.only(right: Spaces.small, top: Spaces.small),
+              padding: const EdgeInsets.only(
+                right: Spaces.small,
+                top: Spaces.small,
+              ),
               child: IconButton(
                 onPressed: () {
                   context.pop();
@@ -72,155 +78,176 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
       ),
       content: Container(
         constraints: BoxConstraints(maxWidth: 600),
-        child: !transactionReview.hasSummary
-            ? Column(
-                key: ValueKey(transactionReview.transactionHashToSign),
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(loc.transaction_hash_to_sign,
-                          style: context.titleMedium
-                              ?.copyWith(color: context.moreColors.mutedColor)),
-                      IconButton(
-                        onPressed: () => copyToClipboard(
-                            transactionReview.transactionHashToSign!,
-                            ref,
-                            loc.copied),
-                        icon: const Icon(Icons.copy_rounded, size: 18),
-                        tooltip: loc.copy_hash_transaction,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: Spaces.small),
-                  SelectableText(transactionReview.transactionHashToSign!),
-                  const SizedBox(height: Spaces.small),
-                  Divider(),
-                  const SizedBox(height: Spaces.small),
-                  Text(loc.multisig_barrier_message,
-                      style: context.labelMedium
-                          ?.copyWith(color: context.moreColors.mutedColor)),
-                  const SizedBox(height: Spaces.large),
-                  FormBuilder(
-                    key: _signaturesFormKey,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+        child:
+            !transactionReview.hasSummary
+                ? Column(
+                  key: ValueKey(transactionReview.transactionHashToSign),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(
-                          child: Column(
-                            children: [
-                              Text(loc.participant_id,
-                                  style: context.labelMedium?.copyWith(
-                                      color: context.moreColors.mutedColor)),
-                              const SizedBox(height: Spaces.small),
-                              ...List.generate(multisigState.threshold,
-                                  (index) {
-                                return GenericFormBuilderDropdown(
-                                  name: 'id_$index',
-                                  items: multisigState.participants
-                                      .map(
-                                        (participant) => DropdownMenuItem(
-                                          value: participant,
-                                          child:
-                                              Text(participant.id.toString()),
-                                        ),
-                                      )
-                                      .toList(),
-                                  validator: FormBuilderValidators.required<
-                                          MultisigParticipant>(
-                                      errorText: loc.field_required_error),
-                                  onChanged: (value) {
-                                    // workaround to reset the error message when the user modifies the field
-                                    final hasError = _signaturesFormKey
-                                        .currentState
-                                        ?.fields['id_$index']
-                                        ?.hasError;
-                                    if (hasError ?? false) {
-                                      _signaturesFormKey
-                                          .currentState?.fields['id_$index']
-                                          ?.reset();
-                                    }
-                                  },
-                                );
-                              }),
-                            ],
+                        Text(
+                          loc.transaction_hash_to_sign,
+                          style: context.titleMedium?.copyWith(
+                            color: context.moreColors.mutedColor,
                           ),
                         ),
-                        const SizedBox(width: Spaces.medium),
-                        Expanded(
-                          flex: 2,
-                          child: Column(
-                            children: [
-                              Text(loc.signature,
-                                  style: context.labelMedium?.copyWith(
-                                      color: context.moreColors.mutedColor)),
-                              const SizedBox(height: Spaces.small),
-                              ...List.generate(multisigState.threshold,
-                                  (index) {
-                                return FormBuilderTextField(
-                                  name: 'signature_$index',
-                                  autocorrect: false,
-                                  keyboardType: TextInputType.text,
-                                  decoration: context.textInputDecoration,
-                                  validator: FormBuilderValidators.required(
-                                      errorText: loc.field_required_error),
-                                  onChanged: (value) {
-                                    // workaround to reset the error message when the user modifies the field
-                                    final hasError = _signaturesFormKey
-                                        .currentState
-                                        ?.fields['signature_$index']
-                                        ?.hasError;
-                                    if (hasError ?? false) {
-                                      _signaturesFormKey.currentState
-                                          ?.fields['signature_$index']
-                                          ?.reset();
-                                    }
-                                  },
-                                );
-                              }),
-                            ],
-                          ),
-                        )
+                        IconButton(
+                          onPressed:
+                              () => copyToClipboard(
+                                transactionReview.transactionHashToSign!,
+                                ref,
+                                loc.copied,
+                              ),
+                          icon: const Icon(Icons.copy_rounded, size: 18),
+                          tooltip: loc.copy_hash_transaction,
+                        ),
                       ],
                     ),
-                  ),
-                ],
-              )
-            : widget.reviewContent,
+                    const SizedBox(height: Spaces.small),
+                    SelectableText(transactionReview.transactionHashToSign!),
+                    const SizedBox(height: Spaces.small),
+                    Divider(),
+                    const SizedBox(height: Spaces.small),
+                    Text(
+                      loc.multisig_barrier_message,
+                      style: context.labelMedium?.copyWith(
+                        color: context.moreColors.mutedColor,
+                      ),
+                    ),
+                    const SizedBox(height: Spaces.large),
+                    FormBuilder(
+                      key: _signaturesFormKey,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              children: [
+                                Text(
+                                  loc.participant_id,
+                                  style: context.labelMedium?.copyWith(
+                                    color: context.moreColors.mutedColor,
+                                  ),
+                                ),
+                                const SizedBox(height: Spaces.small),
+                                ...List.generate(multisigState.threshold, (
+                                  index,
+                                ) {
+                                  return GenericFormBuilderDropdown(
+                                    name: 'id_$index',
+                                    items:
+                                        multisigState.participants
+                                            .map(
+                                              (participant) => DropdownMenuItem(
+                                                value: participant,
+                                                child: Text(
+                                                  participant.id.toString(),
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                    validator: FormBuilderValidators.required<
+                                      MultisigParticipant
+                                    >(errorText: loc.field_required_error),
+                                    onChanged: (value) {
+                                      // workaround to reset the error message when the user modifies the field
+                                      final hasError =
+                                          _signaturesFormKey
+                                              .currentState
+                                              ?.fields['id_$index']
+                                              ?.hasError;
+                                      if (hasError ?? false) {
+                                        _signaturesFormKey
+                                            .currentState
+                                            ?.fields['id_$index']
+                                            ?.reset();
+                                      }
+                                    },
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: Spaces.medium),
+                          Expanded(
+                            flex: 2,
+                            child: Column(
+                              children: [
+                                Text(
+                                  loc.signature,
+                                  style: context.labelMedium?.copyWith(
+                                    color: context.moreColors.mutedColor,
+                                  ),
+                                ),
+                                const SizedBox(height: Spaces.small),
+                                ...List.generate(multisigState.threshold, (
+                                  index,
+                                ) {
+                                  return FormBuilderTextField(
+                                    name: 'signature_$index',
+                                    autocorrect: false,
+                                    keyboardType: TextInputType.text,
+                                    decoration: context.textInputDecoration,
+                                    validator: FormBuilderValidators.required(
+                                      errorText: loc.field_required_error,
+                                    ),
+                                    onChanged: (value) {
+                                      // workaround to reset the error message when the user modifies the field
+                                      final hasError =
+                                          _signaturesFormKey
+                                              .currentState
+                                              ?.fields['signature_$index']
+                                              ?.hasError;
+                                      if (hasError ?? false) {
+                                        _signaturesFormKey
+                                            .currentState
+                                            ?.fields['signature_$index']
+                                            ?.reset();
+                                      }
+                                    },
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+                : widget.reviewContent,
       ),
       actions: [
         AnimatedSwitcher(
           duration: const Duration(milliseconds: AppDurations.animFast),
-          child: transactionReview.hasSummary
-              ? transactionReview.isBroadcast
-                  ? TextButton(
-                      onPressed: () {
-                        context.pop();
-                      },
-                      child: Text(loc.ok_button),
-                    )
+          child:
+              transactionReview.hasSummary
+                  ? transactionReview.isBroadcast
+                      ? TextButton(
+                        onPressed: () {
+                          context.pop();
+                        },
+                        child: Text(loc.ok_button),
+                      )
+                      : TextButton.icon(
+                        onPressed:
+                            transactionReview.isConfirmed
+                                ? () => startWithBiometricAuth(
+                                  ref,
+                                  callback: _broadcastTransfer,
+                                  reason: loc.please_authenticate_tx,
+                                )
+                                : null,
+                        icon: const Icon(Icons.send, size: 18),
+                        label: Text(loc.broadcast),
+                      )
                   : TextButton.icon(
-                      onPressed: transactionReview.isConfirmed
-                          ? () => startWithBiometricAuth(
-                                ref,
-                                callback: _broadcastTransfer,
-                                reason: loc.please_authenticate_tx,
-                              )
-                          : null,
-                      icon: const Icon(Icons.send, size: 18),
-                      label: Text(loc.broadcast),
-                    )
-              : TextButton.icon(
-                  onPressed: _processSignatures,
-                  label: Text(
-                    loc.next,
+                    onPressed: _processSignatures,
+                    label: Text(loc.next),
+                    icon: Icon(Icons.arrow_forward_rounded, size: 18),
                   ),
-                  icon: Icon(
-                    Icons.arrow_forward_rounded,
-                    size: 18,
-                  ),
-                ),
         ),
       ],
     );
@@ -231,14 +258,20 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
 
     if (_signaturesFormKey.currentState?.saveAndValidate() ?? false) {
       List<SignatureMultisig> signatures = List.generate(
-          ref.read(walletStateProvider).multisigState.threshold, (index) {
-        final multisigParticipant = _signaturesFormKey
-            .currentState?.fields['id_$index']?.value as MultisigParticipant;
-        final signature = _signaturesFormKey
-            .currentState?.fields['signature_$index']?.value as String;
-        return SignatureMultisig(
-            id: multisigParticipant.id, signature: signature);
-      });
+        ref.read(walletStateProvider).multisigState.threshold,
+        (index) {
+          final multisigParticipant =
+              _signaturesFormKey.currentState?.fields['id_$index']?.value
+                  as MultisigParticipant;
+          final signature =
+              _signaturesFormKey.currentState?.fields['signature_$index']?.value
+                  as String;
+          return SignatureMultisig(
+            id: multisigParticipant.id,
+            signature: signature,
+          );
+        },
+      );
 
       final tx = await ref
           .read(walletStateProvider.notifier)

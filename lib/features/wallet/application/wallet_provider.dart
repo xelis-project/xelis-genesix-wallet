@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
 import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
-import 'package:genesix/rust_bridge/api/dtos.dart';
+import 'package:genesix/src/generated/rust_bridge/api/dtos.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -60,12 +60,18 @@ class WalletState extends _$WalletState {
       } on AnyhowException catch (e) {
         talker.warning('Cannot connect to node: ${e.message}');
         final xelisMessage = (e).message.split("\n")[0];
-        ref.read(snackBarMessengerProvider.notifier).showError(
-            '${loc.cannot_connect_toast_error.replaceFirst(RegExp(r'\.'), ':')}\n$xelisMessage');
+        ref
+            .read(snackBarMessengerProvider.notifier)
+            .showError(
+              '${loc.cannot_connect_toast_error.replaceFirst(RegExp(r'\.'), ':')}\n$xelisMessage',
+            );
       } catch (e) {
         talker.warning('Cannot connect to node: $e');
-        ref.read(snackBarMessengerProvider.notifier).showError(
-            '${loc.cannot_connect_toast_error.replaceFirst(RegExp(r'\.'), ':')}\n$e');
+        ref
+            .read(snackBarMessengerProvider.notifier)
+            .showError(
+              '${loc.cannot_connect_toast_error.replaceFirst(RegExp(r'\.'), ':')}\n$e',
+            );
       }
 
       final multisig = await state.nativeWalletRepository!.getMultisigState();
@@ -137,18 +143,20 @@ class WalletState extends _$WalletState {
         if (state.multisigState.isSetup) {
           final transactionHash = await state.nativeWalletRepository!
               .createMultisigTransferTransaction(
-                  amount: amount,
-                  address: destination,
-                  assetHash: asset,
-                  feeMultiplier: feeMultiplier);
+                amount: amount,
+                address: destination,
+                assetHash: asset,
+                feeMultiplier: feeMultiplier,
+              );
           return (null, transactionHash);
         } else {
           final transactionSummary = await state.nativeWalletRepository!
               .createTransferTransaction(
-                  amount: amount,
-                  address: destination,
-                  assetHash: asset,
-                  feeMultiplier: feeMultiplier);
+                amount: amount,
+                address: destination,
+                assetHash: asset,
+                feeMultiplier: feeMultiplier,
+              );
           return (transactionSummary, null);
         }
       } on AnyhowException catch (e) {
@@ -176,16 +184,18 @@ class WalletState extends _$WalletState {
         if (state.multisigState.isSetup) {
           final transactionHash = await state.nativeWalletRepository!
               .createMultisigTransferTransaction(
-                  address: destination,
-                  assetHash: asset,
-                  feeMultiplier: feeMultiplier);
+                address: destination,
+                assetHash: asset,
+                feeMultiplier: feeMultiplier,
+              );
           return (null, transactionHash);
         } else {
           final transactionSummary = await state.nativeWalletRepository!
               .createTransferTransaction(
-                  address: destination,
-                  assetHash: asset,
-                  feeMultiplier: feeMultiplier);
+                address: destination,
+                assetHash: asset,
+                feeMultiplier: feeMultiplier,
+              );
           return (transactionSummary, null);
         }
       } on AnyhowException catch (e) {
@@ -203,8 +213,10 @@ class WalletState extends _$WalletState {
     return (null, null);
   }
 
-  Future<(TransactionSummary?, String?)> burn(
-      {required double amount, required String asset}) async {
+  Future<(TransactionSummary?, String?)> burn({
+    required double amount,
+    required String asset,
+  }) async {
     if (state.nativeWalletRepository != null) {
       try {
         if (state.multisigState.isSetup) {
@@ -231,8 +243,9 @@ class WalletState extends _$WalletState {
     return (null, null);
   }
 
-  Future<(TransactionSummary?, String?)> burnAll(
-      {required String asset}) async {
+  Future<(TransactionSummary?, String?)> burnAll({
+    required String asset,
+  }) async {
     if (state.nativeWalletRepository != null) {
       try {
         if (state.multisigState.isSetup) {
@@ -278,21 +291,22 @@ class WalletState extends _$WalletState {
     double? feeMultiplier,
   }) async {
     if (state.nativeWalletRepository != null) {
-      return state.nativeWalletRepository!.estimateFees(
-        [
-          Transfer(
-              floatAmount: amount, strAddress: destination, assetHash: asset)
-        ],
-        feeMultiplier,
-      );
+      return state.nativeWalletRepository!.estimateFees([
+        Transfer(
+          floatAmount: amount,
+          strAddress: destination,
+          assetHash: asset,
+        ),
+      ], feeMultiplier);
     }
     return AppResources.zeroBalance;
   }
 
   Future<void> exportCsv(String path) async {
     if (state.nativeWalletRepository != null) {
-      return state.nativeWalletRepository!
-          .exportTransactionsToCsvFile('$path/genesix_transactions.csv');
+      return state.nativeWalletRepository!.exportTransactionsToCsvFile(
+        '$path/genesix_transactions.csv',
+      );
     }
   }
 
@@ -305,15 +319,16 @@ class WalletState extends _$WalletState {
 
   Future<void> changePassword(String oldPassword, String newPassword) async {
     if (state.nativeWalletRepository != null) {
-      await state.nativeWalletRepository!
-          .changePassword(oldPassword: oldPassword, newPassword: newPassword);
+      await state.nativeWalletRepository!.changePassword(
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+      );
 
       // Update password in secure storage if not running in web
       if (!kIsWeb) {
-        await ref.read(secureStorageProvider).write(
-              key: state.name,
-              value: newPassword,
-            );
+        await ref
+            .read(secureStorageProvider)
+            .write(key: state.name, value: newPassword);
       }
     }
   }
@@ -342,11 +357,14 @@ class WalletState extends _$WalletState {
               } else {
                 final atomicAmount = txType.transfers.first.amount;
                 final assetHash = txType.transfers.first.asset;
-                final amount = await state.nativeWalletRepository!
-                    .formatCoin(atomicAmount, assetHash);
-                final asset = assetHash == sdk.xelisAsset
-                    ? AppResources.xelisAsset.name
-                    : truncateText(assetHash);
+                final amount = await state.nativeWalletRepository!.formatCoin(
+                  atomicAmount,
+                  assetHash,
+                );
+                final asset =
+                    assetHash == sdk.xelisAsset
+                        ? AppResources.xelisAsset.name
+                        : truncateText(assetHash);
                 message =
                     '${loc.new_incoming_transaction.capitalize()}.\n${loc.asset}: $asset\n${loc.amount}: +$amount';
               }
@@ -354,26 +372,43 @@ class WalletState extends _$WalletState {
               ref.read(snackBarMessengerProvider.notifier).showInfo(message);
 
             case sdk.OutgoingEntry():
-              ref.read(snackBarMessengerProvider.notifier).showInfo(
-                  '(#${txType.nonce}) ${loc.outgoing_transaction_confirmed.capitalize()}');
+              ref
+                  .read(snackBarMessengerProvider.notifier)
+                  .showInfo(
+                    '(#${txType.nonce}) ${loc.outgoing_transaction_confirmed.capitalize()}',
+                  );
 
             case sdk.CoinbaseEntry():
-              final amount = await state.nativeWalletRepository!
-                  .formatCoin(txType.reward, sdk.xelisAsset);
-              ref.read(snackBarMessengerProvider.notifier).showInfo(
-                  '${loc.new_mining_reward.capitalize()}:\n+$amount ${AppResources.xelisAsset.ticker}');
+              final amount = await state.nativeWalletRepository!.formatCoin(
+                txType.reward,
+                sdk.xelisAsset,
+              );
+              ref
+                  .read(snackBarMessengerProvider.notifier)
+                  .showInfo(
+                    '${loc.new_mining_reward.capitalize()}:\n+$amount ${AppResources.xelisAsset.ticker}',
+                  );
 
             case sdk.BurnEntry():
-              final amount = await state.nativeWalletRepository!
-                  .formatCoin(txType.amount, txType.asset);
-              final asset = txType.asset == sdk.xelisAsset
-                  ? AppResources.xelisAsset.name
-                  : truncateText(txType.asset);
-              ref.read(snackBarMessengerProvider.notifier).showInfo(
-                  '${loc.burn_transaction_confirmed.capitalize()}\n${loc.asset}: $asset\n${loc.amount}: -$amount');
+              final amount = await state.nativeWalletRepository!.formatCoin(
+                txType.amount,
+                txType.asset,
+              );
+              final asset =
+                  txType.asset == sdk.xelisAsset
+                      ? AppResources.xelisAsset.name
+                      : truncateText(txType.asset);
+              ref
+                  .read(snackBarMessengerProvider.notifier)
+                  .showInfo(
+                    '${loc.burn_transaction_confirmed.capitalize()}\n${loc.asset}: $asset\n${loc.amount}: -$amount',
+                  );
             case sdk.MultisigEntry():
-              ref.read(snackBarMessengerProvider.notifier).showInfo(
-                  '${loc.multisig_modified_successfully_event} ${event.transactionEntry.topoheight}');
+              ref
+                  .read(snackBarMessengerProvider.notifier)
+                  .showInfo(
+                    '${loc.multisig_modified_successfully_event} ${event.transactionEntry.topoheight}',
+                  );
             case sdk.InvokeContractEntry():
               // TODO: Handle this case.
               throw UnimplementedError();
@@ -386,16 +421,20 @@ class WalletState extends _$WalletState {
       case BalanceChanged():
         talker.info(event);
         final asset = event.balanceChanged.assetHash;
-        final newBalance = await state.nativeWalletRepository!
-            .formatCoin(event.balanceChanged.balance, asset);
+        final newBalance = await state.nativeWalletRepository!.formatCoin(
+          event.balanceChanged.balance,
+          asset,
+        );
         final updatedAssets = Map<String, String>.from(state.assets);
         updatedAssets[event.balanceChanged.assetHash] = newBalance;
 
         if (event.balanceChanged.assetHash == sdk.xelisAsset) {
           final xelisBalance =
               await state.nativeWalletRepository!.getXelisBalance();
-          state =
-              state.copyWith(assets: updatedAssets, xelisBalance: xelisBalance);
+          state = state.copyWith(
+            assets: updatedAssets,
+            xelisBalance: xelisBalance,
+          );
         } else {
           state = state.copyWith(assets: updatedAssets);
         }
@@ -428,8 +467,9 @@ class WalletState extends _$WalletState {
 
   Future<List<String>> getSeed(MnemonicLanguage language) async {
     if (state.nativeWalletRepository != null) {
-      final seed = await state.nativeWalletRepository!
-          .getSeed(languageIndex: language.rustIndex);
+      final seed = await state.nativeWalletRepository!.getSeed(
+        languageIndex: language.rustIndex,
+      );
       return seed.split(' ');
     }
     return [];
@@ -513,7 +553,7 @@ class WalletState extends _$WalletState {
     final multisig = await state.nativeWalletRepository!.getMultisigState();
     final multisigUpdateNeeded =
         (state.multisigState.isSetup && multisig == null) ||
-            (!state.multisigState.isSetup && multisig != null);
+        (!state.multisigState.isSetup && multisig != null);
     if (multisigUpdateNeeded) {
       state = state.copyWith(multisigState: multisig ?? MultisigState());
     }
@@ -522,8 +562,9 @@ class WalletState extends _$WalletState {
   Future<String> signTransactionHash(String transactionHash) async {
     if (state.nativeWalletRepository != null) {
       try {
-        return state.nativeWalletRepository!
-            .signTransactionHash(transactionHash);
+        return state.nativeWalletRepository!.signTransactionHash(
+          transactionHash,
+        );
       } on AnyhowException catch (e) {
         talker.error('Cannot sign transaction: $e');
         final xelisMessage = (e).message.split("\n")[0];

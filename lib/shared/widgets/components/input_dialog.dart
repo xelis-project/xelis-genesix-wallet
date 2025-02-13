@@ -26,8 +26,9 @@ class InputDialog extends ConsumerStatefulWidget {
 }
 
 class _InputDialogState extends ConsumerState<InputDialog> {
-  final _inputFormKey =
-      GlobalKey<FormBuilderState>(debugLabel: '_inputFormKey');
+  final _inputFormKey = GlobalKey<FormBuilderState>(
+    debugLabel: '_inputFormKey',
+  );
 
   late FocusNode _focusNodeInput;
 
@@ -53,16 +54,17 @@ class _InputDialogState extends ConsumerState<InputDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding:
-                const EdgeInsets.only(left: Spaces.medium, top: Spaces.large),
-            child: Text(
-              widget.title,
-              style: context.titleLarge,
+            padding: const EdgeInsets.only(
+              left: Spaces.medium,
+              top: Spaces.large,
             ),
+            child: Text(widget.title, style: context.titleLarge),
           ),
           Padding(
-            padding:
-                const EdgeInsets.only(right: Spaces.small, top: Spaces.small),
+            padding: const EdgeInsets.only(
+              right: Spaces.small,
+              top: Spaces.small,
+            ),
             child: IconButton(
               onPressed: () {
                 context.pop();
@@ -101,7 +103,8 @@ class _InputDialogState extends ConsumerState<InputDialog> {
                 }
               },
               validator: FormBuilderValidators.required(
-                  errorText: loc.field_required_error),
+                errorText: loc.field_required_error,
+              ),
             ),
           );
         },
@@ -112,14 +115,13 @@ class _InputDialogState extends ConsumerState<InputDialog> {
             if (_inputFormKey.currentState?.saveAndValidate() ?? false) {
               if (widget.onEnter != null) {
                 _focusNodeInput.unfocus();
-                widget.onEnter!(_inputFormKey
-                    .currentState!.fields['input']!.value as String);
+                widget.onEnter!(
+                  _inputFormKey.currentState!.fields['input']!.value as String,
+                );
               }
             }
           },
-          label: Text(
-            loc.confirm_button,
-          ),
+          label: Text(loc.confirm_button),
           // icon: Icon(
           //   Icons.check,
           //   size: 18,

@@ -3,12 +3,12 @@ import 'dart:convert';
 
 import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
-import 'package:genesix/rust_bridge/api/dtos.dart';
-import 'package:genesix/rust_bridge/api/network.dart';
+import 'package:genesix/src/generated/rust_bridge/api/dtos.dart';
+import 'package:genesix/src/generated/rust_bridge/api/network.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/features/wallet/domain/event.dart';
 import 'package:genesix/features/logger/logger.dart';
-import 'package:genesix/rust_bridge/api/wallet.dart';
+import 'package:genesix/src/generated/rust_bridge/api/wallet.dart';
 
 class NativeWalletRepository {
   NativeWalletRepository._internal(this._xelisWallet);
@@ -16,51 +16,69 @@ class NativeWalletRepository {
   final XelisWallet _xelisWallet;
 
   static Future<NativeWalletRepository> create(
-      String walletPath, String pwd, Network network,
-      {String? precomputeTablesPath}) async {
+    String walletPath,
+    String pwd,
+    Network network, {
+    String? precomputeTablesPath,
+  }) async {
     final xelisWallet = await createXelisWallet(
-        name: walletPath,
-        password: pwd,
-        network: network,
-        precomputedTablesPath: precomputeTablesPath);
+      name: walletPath,
+      password: pwd,
+      network: network,
+      precomputedTablesPath: precomputeTablesPath,
+    );
     talker.info('new XELIS Wallet created: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }
 
   static Future<NativeWalletRepository> recoverFromSeed(
-      String walletPath, String pwd, Network network,
-      {required String seed, String? precomputeTablesPath}) async {
+    String walletPath,
+    String pwd,
+    Network network, {
+    required String seed,
+    String? precomputeTablesPath,
+  }) async {
     final xelisWallet = await createXelisWallet(
-        name: walletPath,
-        password: pwd,
-        seed: seed,
-        network: network,
-        precomputedTablesPath: precomputeTablesPath);
+      name: walletPath,
+      password: pwd,
+      seed: seed,
+      network: network,
+      precomputedTablesPath: precomputeTablesPath,
+    );
     talker.info('XELIS Wallet recovered from seed: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }
 
   static Future<NativeWalletRepository> recoverFromPrivateKey(
-      String walletPath, String pwd, Network network,
-      {required String privateKey, String? precomputeTablesPath}) async {
+    String walletPath,
+    String pwd,
+    Network network, {
+    required String privateKey,
+    String? precomputeTablesPath,
+  }) async {
     final xelisWallet = await createXelisWallet(
-        name: walletPath,
-        password: pwd,
-        privateKey: privateKey,
-        network: network,
-        precomputedTablesPath: precomputeTablesPath);
+      name: walletPath,
+      password: pwd,
+      privateKey: privateKey,
+      network: network,
+      precomputedTablesPath: precomputeTablesPath,
+    );
     talker.info('XELIS Wallet recovered from private key: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }
 
   static Future<NativeWalletRepository> open(
-      String walletPath, String pwd, Network network,
-      {String? precomputeTablesPath}) async {
+    String walletPath,
+    String pwd,
+    Network network, {
+    String? precomputeTablesPath,
+  }) async {
     final xelisWallet = await openXelisWallet(
-        name: walletPath,
-        password: pwd,
-        network: network,
-        precomputedTablesPath: precomputeTablesPath);
+      name: walletPath,
+      password: pwd,
+      network: network,
+      precomputedTablesPath: precomputeTablesPath,
+    );
     talker.info('XELIS Wallet open: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }
@@ -101,34 +119,42 @@ class NativeWalletRepository {
         final eventType = sdk.WalletEvent.fromStr(json['event'] as String);
         switch (eventType) {
           case sdk.WalletEvent.newTopoHeight:
-            final newTopoheight =
-                Event.newTopoheight(json['data']['topoheight'] as int);
+            final newTopoheight = Event.newTopoheight(
+              json['data']['topoheight'] as int,
+            );
             yield newTopoheight;
           case sdk.WalletEvent.newAsset:
             final newAsset = Event.newAsset(
-                sdk.AssetData.fromJson(json['data'] as Map<String, dynamic>));
+              sdk.AssetData.fromJson(json['data'] as Map<String, dynamic>),
+            );
             yield newAsset;
           case sdk.WalletEvent.newTransaction:
             final newTransaction = Event.newTransaction(
-                sdk.TransactionEntry.fromJson(
-                    json['data'] as Map<String, dynamic>));
+              sdk.TransactionEntry.fromJson(
+                json['data'] as Map<String, dynamic>,
+              ),
+            );
             yield newTransaction;
           case sdk.WalletEvent.balanceChanged:
             final balanceChanged = Event.balanceChanged(
-                sdk.BalanceChangedEvent.fromJson(
-                    json['data'] as Map<String, dynamic>));
+              sdk.BalanceChangedEvent.fromJson(
+                json['data'] as Map<String, dynamic>,
+              ),
+            );
             yield balanceChanged;
           case sdk.WalletEvent.rescan:
-            final rescan =
-                Event.rescan(json['data']['start_topoheight'] as int);
+            final rescan = Event.rescan(
+              json['data']['start_topoheight'] as int,
+            );
             yield rescan;
           case sdk.WalletEvent.online:
             yield const Event.online();
           case sdk.WalletEvent.offline:
             yield const Event.offline();
           case sdk.WalletEvent.historySynced:
-            final historySynced =
-                Event.historySynced(json['data']['topoheight'] as int);
+            final historySynced = Event.historySynced(
+              json['data']['topoheight'] as int,
+            );
             yield historySynced;
         }
       } catch (e) {
@@ -140,19 +166,25 @@ class NativeWalletRepository {
 
   Future<String> formatCoin(int amount, [String? assetHash]) async {
     return _xelisWallet.formatCoin(
-        atomicAmount: BigInt.from(amount), assetHash: assetHash);
+      atomicAmount: BigInt.from(amount),
+      assetHash: assetHash,
+    );
   }
 
-  Future<void> changePassword(
-      {required String oldPassword, required String newPassword}) async {
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
     return _xelisWallet.changePassword(
-        oldPassword: oldPassword, newPassword: newPassword);
+      oldPassword: oldPassword,
+      newPassword: newPassword,
+    );
   }
 
   Future<String> getSeed({int? languageIndex}) async {
     return _xelisWallet.getSeed(
-        languageIndex:
-            languageIndex == null ? null : BigInt.from(languageIndex));
+      languageIndex: languageIndex == null ? null : BigInt.from(languageIndex),
+    );
   }
 
   Future<void> isValidPassword(String password) async {
@@ -171,12 +203,23 @@ class NativeWalletRepository {
     return _xelisWallet.getAssetBalances();
   }
 
-  Future<List<sdk.TransactionEntry>> history() async {
-    final rawData = await _xelisWallet.history();
+  Future<int> getHistoryCount() async {
+    final count = await _xelisWallet.getHistoryCount();
+    if (count.isValidInt) {
+      return count.toInt();
+    } else {
+      throw Exception('Invalid history count');
+    }
+  }
+
+  Future<List<sdk.TransactionEntry>> history(HistoryPageFilter filter) async {
+    final rawData = await _xelisWallet.history(filter: filter);
     return rawData
         .map((e) => jsonDecode(e))
-        .map((entry) =>
-            sdk.TransactionEntry.fromJson(entry as Map<String, dynamic>))
+        .map(
+          (entry) =>
+              sdk.TransactionEntry.fromJson(entry as Map<String, dynamic>),
+        )
         .toList();
   }
 
@@ -195,7 +238,9 @@ class NativeWalletRepository {
     double? feeMultiplier,
   ) async {
     return _xelisWallet.estimateFees(
-        transfers: transfers, feeMultiplier: feeMultiplier);
+      transfers: transfers,
+      feeMultiplier: feeMultiplier,
+    );
   }
 
   Future<TransactionSummary> createTransferTransaction({
@@ -209,15 +254,19 @@ class NativeWalletRepository {
       rawTx = await _xelisWallet.createTransfersTransaction(
         transfers: [
           Transfer(
-              floatAmount: amount, strAddress: address, assetHash: assetHash)
+            floatAmount: amount,
+            strAddress: address,
+            assetHash: assetHash,
+          ),
         ],
         feeMultiplier: feeMultiplier,
       );
     } else {
       rawTx = await _xelisWallet.createTransferAllTransaction(
-          strAddress: address,
-          assetHash: assetHash,
-          feeMultiplier: feeMultiplier);
+        strAddress: address,
+        assetHash: assetHash,
+        feeMultiplier: feeMultiplier,
+      );
     }
     final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
     return TransactionSummary.fromJson(jsonTx);
@@ -233,53 +282,70 @@ class NativeWalletRepository {
       return _xelisWallet.createMultisigTransfersTransaction(
         transfers: [
           Transfer(
-              floatAmount: amount, strAddress: address, assetHash: assetHash)
+            floatAmount: amount,
+            strAddress: address,
+            assetHash: assetHash,
+          ),
         ],
         feeMultiplier: feeMultiplier,
       );
     } else {
       return _xelisWallet.createMultisigTransferAllTransaction(
-          strAddress: address,
-          assetHash: assetHash,
-          feeMultiplier: feeMultiplier);
+        strAddress: address,
+        assetHash: assetHash,
+        feeMultiplier: feeMultiplier,
+      );
     }
   }
 
   Future<TransactionSummary> createTransfersTransaction(
-      List<Transfer> transfers) async {
-    final rawTx =
-        await _xelisWallet.createTransfersTransaction(transfers: transfers);
+    List<Transfer> transfers,
+  ) async {
+    final rawTx = await _xelisWallet.createTransfersTransaction(
+      transfers: transfers,
+    );
     final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
     return TransactionSummary.fromJson(jsonTx);
   }
 
   Future<String> createMultisigTransfersTransaction(
-      List<Transfer> transfers) async {
+    List<Transfer> transfers,
+  ) async {
     return _xelisWallet.createMultisigTransfersTransaction(
-        transfers: transfers);
+      transfers: transfers,
+    );
   }
 
-  Future<TransactionSummary> createBurnTransaction(
-      {double? amount, required String assetHash}) async {
+  Future<TransactionSummary> createBurnTransaction({
+    double? amount,
+    required String assetHash,
+  }) async {
     String rawTx;
     if (amount == null) {
       rawTx = await _xelisWallet.createBurnAllTransaction(assetHash: assetHash);
     } else {
       rawTx = await _xelisWallet.createBurnTransaction(
-          floatAmount: amount, assetHash: assetHash);
+        floatAmount: amount,
+        assetHash: assetHash,
+      );
     }
     final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
     return TransactionSummary.fromJson(jsonTx);
   }
 
-  Future<String> createMultisigBurnTransaction(
-      {double? amount, required String assetHash}) async {
+  Future<String> createMultisigBurnTransaction({
+    double? amount,
+    required String assetHash,
+  }) async {
     if (amount == null) {
       return await _xelisWallet.createMultisigBurnAllTransaction(
-          assetHash: assetHash);
+        assetHash: assetHash,
+      );
     } else {
       return await _xelisWallet.createMultisigBurnTransaction(
-          floatAmount: amount, assetHash: assetHash);
+        floatAmount: amount,
+        assetHash: assetHash,
+      );
     }
   }
 
@@ -308,10 +374,14 @@ class NativeWalletRepository {
     return _xelisWallet.multisigSign(txHash: txHash);
   }
 
-  Future<TransactionSummary?> setupMultisig(
-      {required List<String> participants, required int threshold}) async {
+  Future<TransactionSummary?> setupMultisig({
+    required List<String> participants,
+    required int threshold,
+  }) async {
     final rawTx = await _xelisWallet.multisigSetup(
-        threshold: threshold, participants: participants);
+      threshold: threshold,
+      participants: participants,
+    );
     final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
     return TransactionSummary.fromJson(jsonTx);
   }
@@ -324,10 +394,12 @@ class NativeWalletRepository {
     return _xelisWallet.initDeleteMultisig();
   }
 
-  Future<TransactionSummary?> finalizeMultisigTransaction(
-      {required List<SignatureMultisig> signatures}) async {
-    final rawTx =
-        await _xelisWallet.finalizeMultisigTransaction(signatures: signatures);
+  Future<TransactionSummary?> finalizeMultisigTransaction({
+    required List<SignatureMultisig> signatures,
+  }) async {
+    final rawTx = await _xelisWallet.finalizeMultisigTransaction(
+      signatures: signatures,
+    );
     final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
     return TransactionSummary.fromJson(jsonTx);
   }

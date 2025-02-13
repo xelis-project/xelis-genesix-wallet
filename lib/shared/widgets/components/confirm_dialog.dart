@@ -9,11 +9,7 @@ class ConfirmDialog extends ConsumerStatefulWidget {
   final String? title;
   final void Function(bool yes) onConfirm;
 
-  const ConfirmDialog({
-    this.title,
-    required this.onConfirm,
-    super.key,
-  });
+  const ConfirmDialog({this.title, required this.onConfirm, super.key});
 
   @override
   ConsumerState<ConfirmDialog> createState() => _ConfirmDialogState();
@@ -31,17 +27,19 @@ class _ConfirmDialogState extends ConsumerState<ConfirmDialog> {
       content: Text(title, style: context.titleMedium),
       actions: [
         TextButton(
-            onPressed: () {
-              context.pop();
-              widget.onConfirm(false);
-            },
-            child: Text(loc.no)),
+          onPressed: () {
+            context.pop();
+            widget.onConfirm(false);
+          },
+          child: Text(loc.no),
+        ),
         TextButton(
-            onPressed: () {
-              context.pop();
-              widget.onConfirm(true);
-            },
-            child: Text(loc.yes))
+          onPressed: () {
+            context.pop();
+            widget.onConfirm(true);
+          },
+          child: Text(loc.yes),
+        ),
       ],
     );
   }

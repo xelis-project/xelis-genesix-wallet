@@ -38,7 +38,9 @@ class OpenWalletRoute extends GoRouteData {
 }
 
 @TypedGoRoute<CreateNewWalletRoute>(
-    name: 'create_new_wallet', path: '/create_new_wallet')
+  name: 'create_new_wallet',
+  path: '/create_new_wallet',
+)
 class CreateNewWalletRoute extends GoRouteData {
   const CreateNewWalletRoute();
 
@@ -55,9 +57,10 @@ class CreateNewWalletRoute extends GoRouteData {
 }
 
 @TypedGoRoute<RecoverWalletFromSeed1Route>(
-    name: 'recover_wallet_from_seed_1',
-    path: '/recover_wallet_from_seed/1',
-    routes: [])
+  name: 'recover_wallet_from_seed_1',
+  path: '/recover_wallet_from_seed/1',
+  routes: [],
+)
 class RecoverWalletFromSeed1Route extends GoRouteData {
   const RecoverWalletFromSeed1Route();
 
@@ -74,7 +77,9 @@ class RecoverWalletFromSeed1Route extends GoRouteData {
 }
 
 @TypedGoRoute<RecoverWalletFromSeed2Route>(
-    name: 'recover_wallet_from_seed_2', path: '/recover_wallet_from_seed/2')
+  name: 'recover_wallet_from_seed_2',
+  path: '/recover_wallet_from_seed/2',
+)
 class RecoverWalletFromSeed2Route extends GoRouteData {
   const RecoverWalletFromSeed2Route();
 
@@ -91,8 +96,9 @@ class RecoverWalletFromSeed2Route extends GoRouteData {
 }
 
 @TypedGoRoute<RecoverWalletFromPrivateKeyRoute>(
-    name: 'recover_wallet_from_private_key',
-    path: '/recover_wallet_from_private_key')
+  name: 'recover_wallet_from_private_key',
+  path: '/recover_wallet_from_private_key',
+)
 class RecoverWalletFromPrivateKeyRoute extends GoRouteData {
   const RecoverWalletFromPrivateKeyRoute();
 
@@ -109,7 +115,9 @@ class RecoverWalletFromPrivateKeyRoute extends GoRouteData {
 }
 
 @TypedGoRoute<ChangePasswordRoute>(
-    name: 'change_password', path: '/change_password')
+  name: 'change_password',
+  path: '/change_password',
+)
 class ChangePasswordRoute extends GoRouteData {
   const ChangePasswordRoute();
 
@@ -142,15 +150,18 @@ class WalletSeedRoute extends GoRouteData {
 }
 
 @TypedGoRoute<WalletSeedDialogRoute>(
-    name: 'wallet_seed_dialog', path: '/wallet_seed_dialog')
+  name: 'wallet_seed_dialog',
+  path: '/wallet_seed_dialog',
+)
 class WalletSeedDialogRoute extends GoRouteData {
   const WalletSeedDialogRoute();
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return DialogPage(
-        barrierDismissible: false,
-        builder: (_) => SeedContentDialog(state.extra as String));
+      barrierDismissible: false,
+      builder: (_) => SeedContentDialog(state.extra as String),
+    );
   }
 }
 
@@ -219,7 +230,9 @@ class BurnRoute extends GoRouteData {
 }
 
 @TypedGoRoute<TransactionEntryRoute>(
-    name: 'transaction_entry', path: '/transaction_entry')
+  name: 'transaction_entry',
+  path: '/transaction_entry',
+)
 class TransactionEntryRoute extends GoRouteData {
   const TransactionEntryRoute();
 
@@ -269,25 +282,27 @@ class MultiSigRoute extends GoRouteData {
 
 // This is the function to animate the transition between pages.
 CustomTransitionPage<T> pageTransition<T>(
-        Widget child,
-        ValueKey<String> pageKey,
-        String? path,
-        Object? arguments,
-        int milliDuration) =>
-    CustomTransitionPage<T>(
-      key: pageKey,
-      name: path,
-      child: child,
-      arguments: arguments,
-      transitionDuration: Duration(milliseconds: milliDuration),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(0.0, 1.0);
-        const end = Offset.zero;
-        final tween = Tween(begin: begin, end: end)
-            .chain(CurveTween(curve: Curves.easeIn));
-        final offsetAnimation = animation.drive(tween);
+  Widget child,
+  ValueKey<String> pageKey,
+  String? path,
+  Object? arguments,
+  int milliDuration,
+) => CustomTransitionPage<T>(
+  key: pageKey,
+  name: path,
+  child: child,
+  arguments: arguments,
+  transitionDuration: Duration(milliseconds: milliDuration),
+  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+    const begin = Offset(0.0, 1.0);
+    const end = Offset.zero;
+    final tween = Tween(
+      begin: begin,
+      end: end,
+    ).chain(CurveTween(curve: Curves.easeIn));
+    final offsetAnimation = animation.drive(tween);
 
-        return SlideTransition(position: offsetAnimation, child: child);
-        //return FadeTransition(opacity: animation, child: child);
-      },
-    );
+    return SlideTransition(position: offsetAnimation, child: child);
+    //return FadeTransition(opacity: animation, child: child);
+  },
+);

@@ -19,8 +19,9 @@ Future<void> startWithBiometricAuth(
   required String reason,
   bool closeCurrentDialog = false,
 }) async {
-  final authenticated =
-      await ref.read(biometricAuthProvider.notifier).authenticate(reason);
+  final authenticated = await ref
+      .read(biometricAuthProvider.notifier)
+      .authenticate(reason);
   if (authenticated) {
     callback(ref);
   } else {
@@ -28,9 +29,7 @@ Future<void> startWithBiometricAuth(
       await showDialog<void>(
         context: ref.context,
         builder: (context) {
-          return PasswordDialog(
-            onValid: () => callback(ref),
-          );
+          return PasswordDialog(onValid: () => callback(ref));
         },
       );
     }
@@ -41,11 +40,7 @@ Future<void> startWithBiometricAuth(
   }
 }
 
-enum BiometricAuthProviderStatus {
-  ready,
-  locked,
-  stopped,
-}
+enum BiometricAuthProviderStatus { ready, locked, stopped }
 
 @riverpod
 class BiometricAuth extends _$BiometricAuth {
@@ -53,8 +48,9 @@ class BiometricAuth extends _$BiometricAuth {
 
   @override
   BiometricAuthProviderStatus build() {
-    final bool biometricAuthUnlock =
-        ref.watch(settingsProvider.select((s) => s.activateBiometricAuth));
+    final bool biometricAuthUnlock = ref.watch(
+      settingsProvider.select((s) => s.activateBiometricAuth),
+    );
 
     ref.keepAlive();
 

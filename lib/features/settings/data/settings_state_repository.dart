@@ -3,7 +3,7 @@ import 'package:genesix/features/settings/domain/settings_state.dart';
 import 'package:genesix/shared/storage/persistent_state.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/shared/storage/shared_preferences/genesix_shared_preferences.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:genesix/src/generated/l10n/app_localizations.dart';
 
 class SettingsStateRepository extends PersistentState<SettingsState> {
   SettingsStateRepository(this.genesixSharedPreferences);
@@ -14,8 +14,9 @@ class SettingsStateRepository extends PersistentState<SettingsState> {
   @override
   SettingsState fromStorage() {
     try {
-      final value = genesixSharedPreferences.get(key: storageKey)
-          as Map<String, dynamic>?;
+      final value =
+          genesixSharedPreferences.get(key: storageKey)
+              as Map<String, dynamic>?;
       if (value == null) {
         var locale = const Locale('en');
 
@@ -44,9 +45,6 @@ class SettingsStateRepository extends PersistentState<SettingsState> {
   @override
   Future<void> localSave(SettingsState state) async {
     final value = state.toJson();
-    await genesixSharedPreferences.save(
-      key: storageKey,
-      value: value,
-    );
+    await genesixSharedPreferences.save(key: storageKey, value: value);
   }
 }

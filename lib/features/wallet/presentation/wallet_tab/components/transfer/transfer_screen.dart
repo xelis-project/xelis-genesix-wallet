@@ -9,7 +9,7 @@ import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/assets_dropdown_menu_item.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/transaction_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/transfer/transfer_review_content.dart';
-import 'package:genesix/rust_bridge/api/utils.dart';
+import 'package:genesix/src/generated/rust_bridge/api/utils.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -29,8 +29,9 @@ class TransferScreen extends ConsumerStatefulWidget {
 }
 
 class _TransferScreenState extends ConsumerState<TransferScreen> {
-  final _transferFormKey =
-      GlobalKey<FormBuilderState>(debugLabel: '_transferFormKey');
+  final _transferFormKey = GlobalKey<FormBuilderState>(
+    debugLabel: '_transferFormKey',
+  );
   late String _selectedAssetBalance;
   late FocusNode _focusNodeAmount;
   late FocusNode _focusNodeAddress;
@@ -42,8 +43,9 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
     super.initState();
     _focusNodeAmount = FocusNode();
     _focusNodeAddress = FocusNode();
-    final Map<String, String> assets =
-        ref.read(walletStateProvider.select((value) => value.assets));
+    final Map<String, String> assets = ref.read(
+      walletStateProvider.select((value) => value.assets),
+    );
     _selectedAssetBalance = assets[assets.entries.first.key]!;
   }
 
@@ -57,20 +59,26 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final Map<String, String> assets =
-        ref.watch(walletStateProvider.select((value) => value.assets));
+    final Map<String, String> assets = ref.watch(
+      walletStateProvider.select((value) => value.assets),
+    );
 
     return CustomScaffold(
       appBar: GenericAppBar(title: loc.transfer),
       body: ListView(
         shrinkWrap: true,
         padding: const EdgeInsets.fromLTRB(
-            Spaces.large, Spaces.none, Spaces.large, Spaces.large),
+          Spaces.large,
+          Spaces.none,
+          Spaces.large,
+          Spaces.large,
+        ),
         children: [
           Text(
             loc.transfer_screen_message,
-            style: context.titleMedium
-                ?.copyWith(color: context.moreColors.mutedColor),
+            style: context.titleMedium?.copyWith(
+              color: context.moreColors.mutedColor,
+            ),
           ),
           const SizedBox(height: Spaces.extraLarge),
           FormBuilder(
@@ -79,45 +87,51 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  loc.amount.capitalize(),
-                  style: context.titleMedium,
-                ),
+                Text(loc.amount.capitalize(), style: context.titleMedium),
                 const SizedBox(height: Spaces.small),
                 FormBuilderTextField(
                   name: 'amount',
                   focusNode: _focusNodeAmount,
-                  style: context.headlineLarge!
-                      .copyWith(fontWeight: FontWeight.bold),
+                  style: context.headlineLarge!.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                   autocorrect: false,
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   decoration: context.textInputDecoration.copyWith(
                     labelText: AppResources.zeroBalance,
-                    labelStyle: context.headlineLarge!
-                        .copyWith(fontWeight: FontWeight.bold),
+                    labelStyle: context.headlineLarge!.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                     suffixIcon: Padding(
                       padding: const EdgeInsets.all(Spaces.small),
                       child: TextButton(
-                        onPressed: () => _transferFormKey
-                            .currentState?.fields['amount']
-                            ?.didChange(_selectedAssetBalance),
+                        onPressed:
+                            () => _transferFormKey
+                                .currentState
+                                ?.fields['amount']
+                                ?.didChange(_selectedAssetBalance),
                         child: Text(loc.max),
                       ),
                     ),
                   ),
                   onChanged: (value) {
                     // workaround to reset the error message when the user modifies the field
-                    final hasError = _transferFormKey
-                        .currentState?.fields['amount']?.hasError;
+                    final hasError =
+                        _transferFormKey
+                            .currentState
+                            ?.fields['amount']
+                            ?.hasError;
                     if (hasError ?? false) {
                       _transferFormKey.currentState?.fields['amount']?.reset();
                     }
                   },
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(
-                        errorText: loc.field_required_error),
+                      errorText: loc.field_required_error,
+                    ),
                     FormBuilderValidators.numeric(
-                        errorText: loc.must_be_numeric_error),
+                      errorText: loc.must_be_numeric_error,
+                    ),
                     (val) {
                       if (val != null) {
                         final amount = double.tryParse(val);
@@ -126,25 +140,26 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                         }
                       }
                       return null;
-                    }
+                    },
                   ]),
                 ),
                 const SizedBox(height: Spaces.large),
-                Text(
-                  loc.asset,
-                  style: context.titleMedium,
-                ),
+                Text(loc.asset, style: context.titleMedium),
                 const SizedBox(height: Spaces.small),
                 GenericFormBuilderDropdown<String>(
                   name: 'assets',
                   initialValue: assets.entries.first.key,
-                  items: assets.entries
-                      .map(
-                          (asset) => AssetsDropdownMenuItem.fromMapEntry(asset))
-                      .toList(),
+                  items:
+                      assets.entries
+                          .map(
+                            (asset) =>
+                                AssetsDropdownMenuItem.fromMapEntry(asset),
+                          )
+                          .toList(),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(
-                        errorText: loc.field_required_error),
+                      errorText: loc.field_required_error,
+                    ),
                   ]),
                   onChanged: (val) {
                     if (val != null) {
@@ -153,18 +168,18 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                       });
                     }
                     // workaround to reset the error message when the user modifies the field
-                    final hasError = _transferFormKey
-                        .currentState?.fields['assets']?.hasError;
+                    final hasError =
+                        _transferFormKey
+                            .currentState
+                            ?.fields['assets']
+                            ?.hasError;
                     if (hasError ?? false) {
                       _transferFormKey.currentState?.fields['assets']?.reset();
                     }
                   },
                 ),
                 const SizedBox(height: Spaces.large),
-                Text(
-                  loc.destination,
-                  style: context.titleMedium,
-                ),
+                Text(loc.destination, style: context.titleMedium),
                 const SizedBox(height: Spaces.small),
                 FormBuilderTextField(
                   name: 'address',
@@ -177,47 +192,49 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                   ),
                   onChanged: (value) {
                     // workaround to reset the error message when the user modifies the field
-                    final hasError = _transferFormKey
-                        .currentState?.fields['address']?.hasError;
+                    final hasError =
+                        _transferFormKey
+                            .currentState
+                            ?.fields['address']
+                            ?.hasError;
                     if (hasError ?? false) {
                       _transferFormKey.currentState?.fields['address']?.reset();
                     }
                   },
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(
-                        errorText: loc.field_required_error),
+                      errorText: loc.field_required_error,
+                    ),
                     (val) {
                       if (val != null &&
                           !isAddressValid(strAddress: val.trim())) {
                         return loc.invalid_address_format_error;
                       }
                       return null;
-                    }
+                    },
                   ]),
                 ),
                 const SizedBox(height: Spaces.extraLarge),
                 Row(
                   children: [
-                    Text(
-                      loc.estimated_fee,
-                      style: context.titleMedium,
-                    ),
+                    Text(loc.estimated_fee, style: context.titleMedium),
                     const SizedBox(width: Spaces.small),
                     Text(
                       '$_estimatedFee ${AppResources.xelisAsset.ticker}',
-                      style: context.titleMedium
-                          ?.copyWith(color: context.moreColors.mutedColor),
+                      style: context.titleMedium?.copyWith(
+                        color: context.moreColors.mutedColor,
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: Spaces.large),
+                Text(loc.boost_fees_title, style: context.titleMedium),
                 Text(
-                  loc.boost_fees_title,
-                  style: context.titleMedium,
+                  loc.boost_fees_message,
+                  style: context.labelMedium?.copyWith(
+                    color: context.moreColors.mutedColor,
+                  ),
                 ),
-                Text(loc.boost_fees_message,
-                    style: context.labelMedium
-                        ?.copyWith(color: context.moreColors.mutedColor)),
                 const SizedBox(height: Spaces.small),
                 FormBuilderSlider(
                   name: 'fee',
@@ -234,10 +251,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                   valueWidget: (value) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: Spaces.small),
-                      child: Text(
-                        'x$value',
-                        style: context.bodyLarge,
-                      ),
+                      child: Text('x$value', style: context.bodyLarge),
                     );
                   },
                 ),
@@ -289,12 +303,17 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
 
       (TransactionSummary?, String?) record;
       if (amount.trim() == _selectedAssetBalance) {
-        record = await ref.read(walletStateProvider.notifier).sendAll(
-            destination: address.trim(),
-            asset: asset,
-            feeMultiplier: feeMultiplier != 1 ? feeMultiplier : null);
+        record = await ref
+            .read(walletStateProvider.notifier)
+            .sendAll(
+              destination: address.trim(),
+              asset: asset,
+              feeMultiplier: feeMultiplier != 1 ? feeMultiplier : null,
+            );
       } else {
-        record = await ref.read(walletStateProvider.notifier).send(
+        record = await ref
+            .read(walletStateProvider.notifier)
+            .send(
               amount: double.parse(amount),
               destination: address.trim(),
               asset: asset,
@@ -304,14 +323,14 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
 
       if (record.$2 != null) {
         // multisig is enabled, hash to sign is returned
-        ref.read(transactionReviewProvider.notifier).setTransactionHashToSign(
-              record.$2!,
-            );
+        ref
+            .read(transactionReviewProvider.notifier)
+            .setTransactionHashToSign(record.$2!);
       } else if (record.$1 != null) {
         // no multisig, transaction summary is returned
-        ref.read(transactionReviewProvider.notifier).setTransferSummary(
-              record.$1!,
-            );
+        ref
+            .read(transactionReviewProvider.notifier)
+            .setTransferSummary(record.$1!);
       } else {
         if (mounted && context.loaderOverlay.visible) {
           context.loaderOverlay.hide();
@@ -360,13 +379,14 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
             feeMultiplier: multiplier,
           )
           .then((value) {
-        setState(() {
-          final estimatedFee = double.parse(value);
-          _isFeeEstimated = estimatedFee > 0;
-          _estimatedFee =
-              estimatedFee.toStringAsFixed(AppResources.xelisDecimals);
-        });
-      });
+            setState(() {
+              final estimatedFee = double.parse(value);
+              _isFeeEstimated = estimatedFee > 0;
+              _estimatedFee = estimatedFee.toStringAsFixed(
+                AppResources.xelisDecimals,
+              );
+            });
+          });
     } else {
       setState(() {
         _isFeeEstimated = false;

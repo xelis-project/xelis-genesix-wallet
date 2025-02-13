@@ -38,8 +38,9 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
   void initState() {
     super.initState();
     _focusNodeAmount = FocusNode();
-    final Map<String, String> assets =
-        ref.read(walletStateProvider.select((value) => value.assets));
+    final Map<String, String> assets = ref.read(
+      walletStateProvider.select((value) => value.assets),
+    );
     _selectedAssetBalance = assets[assets.entries.first.key]!;
   }
 
@@ -52,8 +53,9 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final Map<String, String> assets =
-        ref.watch(walletStateProvider.select((value) => value.assets));
+    final Map<String, String> assets = ref.watch(
+      walletStateProvider.select((value) => value.assets),
+    );
 
     return CustomScaffold(
       appBar: GenericAppBar(title: loc.burn),
@@ -73,28 +75,27 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  loc.amount.capitalize(),
-                  style: context.titleMedium,
-                ),
+                Text(loc.amount.capitalize(), style: context.titleMedium),
                 const SizedBox(height: Spaces.small),
                 FormBuilderTextField(
                   name: 'amount',
                   focusNode: _focusNodeAmount,
-                  style: context.headlineLarge!
-                      .copyWith(fontWeight: FontWeight.bold),
+                  style: context.headlineLarge!.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                   autocorrect: false,
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   decoration: context.textInputDecoration.copyWith(
                     labelText: AppResources.zeroBalance,
-                    labelStyle: context.headlineLarge!
-                        .copyWith(fontWeight: FontWeight.bold),
+                    labelStyle: context.headlineLarge!.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                     suffixIcon: Padding(
                       padding: const EdgeInsets.all(Spaces.small),
                       child: TextButton(
-                        onPressed: () => _burnFormKey
-                            .currentState?.fields['amount']
-                            ?.didChange(_selectedAssetBalance),
+                        onPressed:
+                            () => _burnFormKey.currentState?.fields['amount']
+                                ?.didChange(_selectedAssetBalance),
                         child: Text(loc.max),
                       ),
                     ),
@@ -109,9 +110,11 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
                   },
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(
-                        errorText: loc.field_required_error),
+                      errorText: loc.field_required_error,
+                    ),
                     FormBuilderValidators.numeric(
-                        errorText: loc.must_be_numeric_error),
+                      errorText: loc.must_be_numeric_error,
+                    ),
                     (val) {
                       if (val != null) {
                         final amount = double.tryParse(val);
@@ -120,25 +123,26 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
                         }
                       }
                       return null;
-                    }
+                    },
                   ]),
                 ),
                 const SizedBox(height: Spaces.large),
-                Text(
-                  loc.asset,
-                  style: context.titleMedium,
-                ),
+                Text(loc.asset, style: context.titleMedium),
                 const SizedBox(height: Spaces.small),
                 GenericFormBuilderDropdown<String>(
                   name: 'assets',
                   initialValue: assets.entries.first.key,
-                  items: assets.entries
-                      .map(
-                          (asset) => AssetsDropdownMenuItem.fromMapEntry(asset))
-                      .toList(),
+                  items:
+                      assets.entries
+                          .map(
+                            (asset) =>
+                                AssetsDropdownMenuItem.fromMapEntry(asset),
+                          )
+                          .toList(),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(
-                        errorText: loc.field_required_error),
+                      errorText: loc.field_required_error,
+                    ),
                   ]),
                   onChanged: (val) {
                     if (val != null) {
@@ -197,8 +201,9 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
 
       (TransactionSummary?, String?) record;
       if (amount.trim() == _selectedAssetBalance) {
-        record =
-            await ref.read(walletStateProvider.notifier).burnAll(asset: asset);
+        record = await ref
+            .read(walletStateProvider.notifier)
+            .burnAll(asset: asset);
       } else {
         record = await ref
             .read(walletStateProvider.notifier)
@@ -207,14 +212,12 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
 
       if (record.$2 != null) {
         // multisig is enabled, hash to sign is returned
-        ref.read(transactionReviewProvider.notifier).setTransactionHashToSign(
-              record.$2!,
-            );
+        ref
+            .read(transactionReviewProvider.notifier)
+            .setTransactionHashToSign(record.$2!);
       } else if (record.$1 != null) {
         // no multisig, transaction summary is returned
-        ref.read(transactionReviewProvider.notifier).setBurnSummary(
-              record.$1!,
-            );
+        ref.read(transactionReviewProvider.notifier).setBurnSummary(record.$1!);
       } else {
         if (mounted && context.loaderOverlay.visible) {
           context.loaderOverlay.hide();

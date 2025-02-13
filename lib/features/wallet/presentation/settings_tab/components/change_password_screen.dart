@@ -23,8 +23,9 @@ class ChangePasswordScreen extends ConsumerStatefulWidget {
 }
 
 class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
-  final _changePasswordKey =
-      GlobalKey<FormBuilderState>(debugLabel: '_changePasswordFormKey');
+  final _changePasswordKey = GlobalKey<FormBuilderState>(
+    debugLabel: '_changePasswordFormKey',
+  );
 
   late FocusNode _focusNodeOldPassword;
   late FocusNode _focusNodeNewPassword;
@@ -54,7 +55,11 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
       appBar: GenericAppBar(title: loc.change_password),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(
-            Spaces.large, Spaces.none, Spaces.large, Spaces.large),
+          Spaces.large,
+          Spaces.none,
+          Spaces.large,
+          Spaces.large,
+        ),
         child: FormBuilder(
           key: _changePasswordKey,
           onChanged: () => _changePasswordKey.currentState!.save(),
@@ -73,15 +78,19 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                   ),
                   onChanged: (value) {
                     // workaround to reset the error message when the user modifies the field
-                    final hasError = _changePasswordKey
-                        .currentState?.fields['old_password']?.hasError;
+                    final hasError =
+                        _changePasswordKey
+                            .currentState
+                            ?.fields['old_password']
+                            ?.hasError;
                     if (hasError ?? false) {
                       _changePasswordKey.currentState?.fields['old_password']
                           ?.reset();
                     }
                   },
                   validator: FormBuilderValidators.required(
-                      errorText: loc.field_required_error),
+                    errorText: loc.field_required_error,
+                  ),
                 ),
               ),
               const SizedBox(height: Spaces.medium),
@@ -96,15 +105,19 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                   ),
                   onChanged: (value) {
                     // workaround to reset the error message when the user modifies the field
-                    final hasError = _changePasswordKey
-                        .currentState?.fields['new_password']?.hasError;
+                    final hasError =
+                        _changePasswordKey
+                            .currentState
+                            ?.fields['new_password']
+                            ?.hasError;
                     if (hasError ?? false) {
                       _changePasswordKey.currentState?.fields['new_password']
                           ?.reset();
                     }
                   },
                   validator: FormBuilderValidators.required(
-                      errorText: loc.field_required_error),
+                    errorText: loc.field_required_error,
+                  ),
                 ),
               ),
               const SizedBox(height: Spaces.medium),
@@ -119,16 +132,21 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                   ),
                   onChanged: (value) {
                     // workaround to reset the error message when the user modifies the field
-                    final hasError = _changePasswordKey
-                        .currentState?.fields['confirm_new_password']?.hasError;
+                    final hasError =
+                        _changePasswordKey
+                            .currentState
+                            ?.fields['confirm_new_password']
+                            ?.hasError;
                     if (hasError ?? false) {
                       _changePasswordKey
-                          .currentState?.fields['confirm_new_password']
+                          .currentState
+                          ?.fields['confirm_new_password']
                           ?.reset();
                     }
                   },
                   validator: FormBuilderValidators.required(
-                      errorText: loc.field_required_error),
+                    errorText: loc.field_required_error,
+                  ),
                 ),
               ),
               const SizedBox(height: Spaces.large),
@@ -139,10 +157,11 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                 icon: const Icon(Icons.edit),
                 label: Text(
                   loc.confirm_button,
-                  style: context.titleMedium!
-                      .copyWith(color: context.colors.onPrimary),
+                  style: context.titleMedium!.copyWith(
+                    color: context.colors.onPrimary,
+                  ),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -158,12 +177,14 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
           _changePasswordKey.currentState?.value['old_password'] as String;
       final newPassword =
           _changePasswordKey.currentState?.value['new_password'] as String;
-      final confirmNewPassword = _changePasswordKey
-          .currentState?.value['confirm_new_password'] as String;
+      final confirmNewPassword =
+          _changePasswordKey.currentState?.value['confirm_new_password']
+              as String;
 
       if (oldPassword == newPassword) {
-        _changePasswordKey.currentState?.fields['new_password']
-            ?.invalidate(loc.same_old_new_password_error);
+        _changePasswordKey.currentState?.fields['new_password']?.invalidate(
+          loc.same_old_new_password_error,
+        );
       } else if (newPassword != confirmNewPassword) {
         _changePasswordKey.currentState?.fields['confirm_new_password']
             ?.invalidate(loc.not_match_new_password_error);

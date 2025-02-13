@@ -35,20 +35,22 @@ class _AssetItemWidgetState extends ConsumerState<AssetItemWidget> {
       // TODO: Cache image in memory
       // https://pub.dev/packages/cached_network_image
       logo = FadeInImage(
-          placeholder: MemoryImage(kTransparentImage),
-          image: NetworkImage(url));
-    } else {
-      logo = Image.asset(
-        widget.asset.imagePath!,
-        fit: BoxFit.cover,
+        placeholder: MemoryImage(kTransparentImage),
+        image: NetworkImage(url),
       );
+    } else {
+      logo = Image.asset(widget.asset.imagePath!, fit: BoxFit.cover);
     }
 
     return Card(
       elevation: 1,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
-            Spaces.medium, Spaces.small, Spaces.medium, Spaces.small),
+          Spaces.medium,
+          Spaces.small,
+          Spaces.medium,
+          Spaces.small,
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -64,15 +66,13 @@ class _AssetItemWidgetState extends ConsumerState<AssetItemWidget> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SelectableText(
-                      widget.asset.name,
-                      style: context.bodyLarge,
-                    ),
+                    SelectableText(widget.asset.name, style: context.bodyLarge),
                     const SizedBox(height: Spaces.extraSmall),
                     SelectableText(
                       widget.asset.ticker,
-                      style: context.bodyMedium!
-                          .copyWith(color: context.moreColors.mutedColor),
+                      style: context.bodyMedium!.copyWith(
+                        color: context.moreColors.mutedColor,
+                      ),
                     ),
                   ],
                 ),
@@ -81,15 +81,13 @@ class _AssetItemWidgetState extends ConsumerState<AssetItemWidget> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                SelectableText(
-                  balance,
-                  style: context.bodyLarge,
-                ),
+                SelectableText(balance, style: context.bodyLarge),
                 const SizedBox(height: Spaces.extraSmall),
                 SelectableText(
                   truncateText(widget.asset.hash),
-                  style: context.bodyMedium!
-                      .copyWith(color: context.moreColors.mutedColor),
+                  style: context.bodyMedium!.copyWith(
+                    color: context.moreColors.mutedColor,
+                  ),
                 ),
               ],
             ),

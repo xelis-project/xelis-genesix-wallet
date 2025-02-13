@@ -26,7 +26,8 @@ class TransactionReview extends _$TransactionReview {
     final destination = transfer.destination;
     final formattedAmount = ref
         .read(
-            walletStateProvider.select((value) => value.nativeWalletRepository))
+          walletStateProvider.select((value) => value.nativeWalletRepository),
+        )
         ?.formatCoin(atomicAmount, asset);
 
     state = state.copyWith(
@@ -47,7 +48,8 @@ class TransactionReview extends _$TransactionReview {
     final amount = burn.amount;
     final formattedAmount = ref
         .read(
-            walletStateProvider.select((value) => value.nativeWalletRepository))
+          walletStateProvider.select((value) => value.nativeWalletRepository),
+        )
         ?.formatCoin(amount, asset);
 
     state = state.copyWith(

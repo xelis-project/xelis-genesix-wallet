@@ -1,5 +1,1 @@
-enum CreateWalletType {
-  newWallet,
-  fromPrivateKey,
-  fromSeed,
-}
+enum CreateWalletType { newWallet, fromPrivateKey, fromSeed }

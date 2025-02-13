@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/shared/storage/shared_preferences/genesix_shared_preferences.dart';
+import 'package:genesix/src/generated/rust_bridge/frb_generated.dart';
 import 'package:talker_riverpod_logger/talker_riverpod_logger.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:genesix/features/logger/logger.dart';
@@ -10,7 +11,6 @@ import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/storage/shared_preferences/shared_preferences_provider.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/genesix_app.dart';
-import 'package:genesix/rust_bridge/frb_generated.dart';
 import 'package:localstorage/localstorage.dart';
 // import 'package:jovial_svg/jovial_svg.dart';
 
@@ -71,16 +71,15 @@ Future<void> main() async {
 
   runApp(
     ProviderScope(
-      overrides: [
-        sharedPreferencesProvider.overrideWithValue(prefs),
-      ],
+      overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
       observers: [
         TalkerRiverpodObserver(
-            talker: talker,
-            settings: const TalkerRiverpodLoggerSettings(
-              printProviderDisposed: true,
-              printStateFullData: kDebugMode ? true : false,
-            ))
+          talker: talker,
+          settings: const TalkerRiverpodLoggerSettings(
+            printProviderDisposed: true,
+            printStateFullData: kDebugMode ? true : false,
+          ),
+        ),
       ],
       child: const Genesix(),
     ),

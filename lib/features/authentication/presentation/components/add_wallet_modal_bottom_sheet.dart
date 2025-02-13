@@ -32,11 +32,12 @@ class _AddWalletModalBottomSheetMenuState
       children: <Widget>[
         ListTile(
           title: Center(
-              child: Text(
-            loc.create_new_wallet,
-            style: context.titleLarge,
-            textAlign: TextAlign.center,
-          )),
+            child: Text(
+              loc.create_new_wallet,
+              style: context.titleLarge,
+              textAlign: TextAlign.center,
+            ),
+          ),
           onTap: () {
             context.pop();
             context.push(AppScreen.createNewWallet.toPath);
@@ -44,11 +45,12 @@ class _AddWalletModalBottomSheetMenuState
         ),
         ListTile(
           title: Center(
-              child: Text(
-            loc.recover_from_recovery_phrase,
-            style: context.titleLarge,
-            textAlign: TextAlign.center,
-          )),
+            child: Text(
+              loc.recover_from_recovery_phrase,
+              style: context.titleLarge,
+              textAlign: TextAlign.center,
+            ),
+          ),
           onTap: () {
             context.pop();
             context.push(AppScreen.recoverWalletFromSeed1.toPath);
@@ -56,11 +58,12 @@ class _AddWalletModalBottomSheetMenuState
         ),
         ListTile(
           title: Center(
-              child: Text(
-            loc.recover_from_private_key,
-            style: context.titleLarge,
-            textAlign: TextAlign.center,
-          )),
+            child: Text(
+              loc.recover_from_private_key,
+              style: context.titleLarge,
+              textAlign: TextAlign.center,
+            ),
+          ),
           onTap: () {
             context.pop();
             context.push(AppScreen.recoverWalletFromPrivateKey.toPath);
@@ -69,11 +72,12 @@ class _AddWalletModalBottomSheetMenuState
         if (isDesktopDevice)
           ListTile(
             title: Center(
-                child: Text(
-              loc.import_wallet_folder,
-              style: context.titleLarge,
-              textAlign: TextAlign.center,
-            )),
+              child: Text(
+                loc.import_wallet_folder,
+                style: context.titleLarge,
+                textAlign: TextAlign.center,
+              ),
+            ),
             onTap: () => _importWalletFolder(),
           ),
         Padding(
@@ -82,7 +86,7 @@ class _AddWalletModalBottomSheetMenuState
             onPressed: () => context.pop(),
             icon: const Icon(Icons.close_rounded),
           ),
-        )
+        ),
       ],
     );
   }
@@ -98,8 +102,9 @@ class _AddWalletModalBottomSheetMenuState
         final network = ref.read(settingsProvider).network;
 
         final walletExists =
-            await Directory(p.join(walletsDir, network.name, walletName))
-                .exists();
+            await Directory(
+              p.join(walletsDir, network.name, walletName),
+            ).exists();
         if (walletExists) {
           ref
               .read(snackBarMessengerProvider.notifier)
