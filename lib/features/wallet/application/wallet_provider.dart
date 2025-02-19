@@ -36,7 +36,6 @@ class WalletState extends _$WalletState {
           name: name,
           nativeWalletRepository: nativeWallet,
           address: nativeWallet.address,
-          streamSubscription: nativeWallet.convertRawEvents().listen(_onEvent),
         );
       case SignedOut():
         return const WalletSnapshot();
@@ -50,6 +49,10 @@ class WalletState extends _$WalletState {
       if (await state.nativeWalletRepository!.isOnline) {
         await disconnect();
       }
+
+      StreamSubscription<void> sub =
+      state.nativeWalletRepository!.convertRawEvents().listen(_onEvent);
+      state = state.copyWith(streamSubscription: sub);
 
       final settings = ref.read(settingsProvider);
       final networkNodes = ref.read(networkNodesProvider);
@@ -441,6 +444,7 @@ class WalletState extends _$WalletState {
 
       case NewAsset():
         talker.info(event);
+      // TODO: Handle this case.
 
       case Rescan():
         talker.info(event);
@@ -461,7 +465,7 @@ class WalletState extends _$WalletState {
 
       case HistorySynced():
         talker.info(event);
-      // TODO: Implement historySynced event handling
+      // no need to do anything
     }
   }
 
