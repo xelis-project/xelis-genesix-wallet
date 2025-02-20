@@ -20,9 +20,16 @@ ThemeData lightTheme() {
         return textColor.withValues(alpha: 0.6);
       });
 
+  WidgetStateBorderSide chipBorderStateProperty =
+      WidgetStateBorderSide.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return BorderSide(color: primaryColor, width: 2);
+        }
+        return BorderSide(color: textColor.withValues(alpha: 0.6), width: 2);
+      });
+
   final baseTheme = ThemeData(
     useMaterial3: true,
-    // splashFactory: InkSplash.splashFactory,
     splashFactory: NoSplash.splashFactory,
     hoverColor: Colors.transparent,
     highlightColor: Colors.transparent,
@@ -35,7 +42,7 @@ ThemeData lightTheme() {
       primary: primaryColor.withValues(alpha: 0.8),
       onPrimary: Colors.black87,
       secondary: secondaryColor,
-      onSecondary: Colors.white,
+      onSecondary: Colors.black87,
       error: Colors.red,
       onError: Colors.white,
       surface: backgroundColor,
@@ -332,6 +339,15 @@ ThemeData lightTheme() {
     sliderTheme: SliderThemeData(
       inactiveTrackColor: Colors.white38,
       trackHeight: 2,
+    ),
+
+    chipTheme: ChipThemeData(
+      color: WidgetStatePropertyAll(Colors.transparent),
+      elevation: 0,
+      padding: const EdgeInsets.all(Spaces.small),
+      shape: RoundedRectangleBorder(borderRadius: borderRadius),
+      brightness: Brightness.light,
+      side: chipBorderStateProperty,
     ),
   );
 

@@ -22,116 +22,130 @@ class TransactionEntryWidget extends ConsumerStatefulWidget {
 
 class _TransactionEntryWidgetState
     extends ConsumerState<TransactionEntryWidget> {
-  void _showTransactionEntry(
-      BuildContext context, TransactionEntry transactionEntry) {
-    context.push(
-      AuthAppScreen.transactionEntry.toPath,
-      extra: TransactionEntryScreenExtra(transactionEntry),
-    );
-  }
+  late Icon icon;
 
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
 
-    var displayTopoheight =
-        NumberFormat().format(widget.transactionEntry.topoheight);
-    var displayAmount = '';
+    var topoheight = NumberFormat().format(widget.transactionEntry.topoheight);
+
+    var labelThirdColumn = loc.amount;
+    var contentThirdColumn = '';
 
     final entryType = widget.transactionEntry.txEntryType;
 
     switch (entryType) {
       case CoinbaseEntry():
-        displayAmount = '+${formatXelis(entryType.reward)}';
+        icon = Icon(Icons.square_rounded, size: 18);
+        contentThirdColumn = '+${formatXelis(entryType.reward)}';
       case BurnEntry():
+        icon = Icon(Icons.local_fire_department_rounded, size: 18);
+        final fee = entryType.fee;
         if (entryType.asset == xelisAsset) {
-          displayAmount = '-${formatXelis(entryType.amount)}';
+          contentThirdColumn = '-${formatXelis(entryType.amount + fee)}';
         } else {
           // TODO: check asset decimal
-          displayAmount = entryType.amount.toString();
+          contentThirdColumn = entryType.amount.toString();
         }
       case IncomingEntry():
+        icon = Icon(Icons.arrow_downward, size: 18);
         if (entryType.transfers.length == 1) {
           var transfer = entryType.transfers[0];
           if (transfer.asset == xelisAsset) {
-            displayAmount = '+${formatXelis(transfer.amount)}';
+            contentThirdColumn = '+${formatXelis(transfer.amount)}';
           } else {
             // TODO: check asset decimal
-            displayAmount = '+${transfer.amount.toString()}';
+            contentThirdColumn = '+${transfer.amount.toString()}';
           }
         } else {
-          displayAmount = loc.multi_transfer;
+          contentThirdColumn = loc.multi_transfer;
         }
       case OutgoingEntry():
+        icon = Icon(Icons.arrow_upward, size: 18);
         if (entryType.transfers.length == 1) {
-          var transfer = entryType.transfers[0];
+          final transfer = entryType.transfers[0];
+          final fee = entryType.fee;
           if (transfer.asset == xelisAsset) {
-            displayAmount = '-${formatXelis(transfer.amount)}';
+            contentThirdColumn = '-${formatXelis(transfer.amount + fee)}';
           } else {
             // TODO: check asset decimal
-            displayAmount = '-${transfer.amount.toString()}';
+            contentThirdColumn = '-${transfer.amount.toString()}';
           }
         } else {
-          displayAmount = loc.multi_transfer;
+          contentThirdColumn = loc.multi_transfer;
         }
       case MultisigEntry():
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        icon = Icon(Icons.arrow_upward, size: 18);
+        labelThirdColumn = loc.type;
+        contentThirdColumn =
+            (entryType.participants.isEmpty)
+                ? loc.multisig_deleted
+                : loc.multisig_activated;
       case InvokeContractEntry():
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        icon = Icon(Icons.arrow_upward, size: 18);
+        labelThirdColumn = loc.type;
+        contentThirdColumn = loc.invoked_contract;
       case DeployContractEntry():
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        icon = Icon(Icons.arrow_upward, size: 18);
+        labelThirdColumn = loc.type;
+        contentThirdColumn = loc.deployed_contract;
     }
 
     return Card(
       elevation: 1,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
-            Spaces.medium, Spaces.small, Spaces.medium, Spaces.small),
+          Spaces.medium,
+          Spaces.small,
+          Spaces.medium,
+          Spaces.small,
+        ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            icon,
+            const SizedBox(width: Spaces.medium),
             Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   loc.topoheight,
-                  style: context.labelMedium
-                      ?.copyWith(color: context.moreColors.mutedColor),
+                  style: context.labelMedium?.copyWith(
+                    color: context.moreColors.mutedColor,
+                  ),
                 ),
                 const SizedBox(height: Spaces.extraSmall),
-                SelectableText(
-                  displayTopoheight,
-                  style: context.bodyLarge,
-                ),
+                SelectableText(topoheight, style: context.bodyLarge),
               ],
             ),
+            const Spacer(),
             Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  loc.amount,
-                  style: context.labelMedium
-                      ?.copyWith(color: context.moreColors.mutedColor),
+                  labelThirdColumn,
+                  style: context.labelMedium?.copyWith(
+                    color: context.moreColors.mutedColor,
+                  ),
                 ),
                 const SizedBox(height: Spaces.extraSmall),
-                SelectableText(
-                  displayAmount,
-                  style: context.bodyLarge,
-                ),
+                SelectableText(contentThirdColumn, style: context.bodyLarge),
               ],
             ),
+            const Spacer(),
             IconButton(
-                onPressed: () =>
-                    _showTransactionEntry(context, widget.transactionEntry),
-                icon: const Icon(
-                  Icons.info_outline_rounded,
-                )),
+              onPressed: () => _showTransactionEntry(widget.transactionEntry),
+              icon: const Icon(Icons.info_outline_rounded),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  void _showTransactionEntry(TransactionEntry transactionEntry) {
+    context.push(
+      AuthAppScreen.transactionEntry.toPath,
+      extra: TransactionEntryScreenExtra(transactionEntry),
     );
   }
 }

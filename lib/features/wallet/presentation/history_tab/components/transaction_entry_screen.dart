@@ -41,6 +41,9 @@ class _TransactionEntryScreenState
   sdk.OutgoingEntry? outgoing;
   sdk.BurnEntry? burn;
   sdk.IncomingEntry? incoming;
+  sdk.MultisigEntry? multisig;
+  sdk.InvokeContractEntry? invokeContract;
+  sdk.DeployContractEntry? deployContract;
 
   @override
   Widget build(BuildContext context) {
@@ -86,14 +89,17 @@ class _TransactionEntryScreenState
         outgoing = entryType;
         icon = Icon(Icons.arrow_upward, color: context.colors.primary);
       case sdk.MultisigEntry():
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        entryTypeName = loc.multisig;
+        multisig = entryType;
+        icon = Icon(Icons.arrow_upward, color: context.colors.primary);
       case sdk.InvokeContractEntry():
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        entryTypeName = loc.invoked_contract;
+        invokeContract = entryType;
+        icon = Icon(Icons.arrow_upward, color: context.colors.primary);
       case sdk.DeployContractEntry():
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        entryTypeName = loc.deployed_contract;
+        deployContract = entryType;
+        icon = Icon(Icons.arrow_upward, color: context.colors.primary);
     }
 
     Uri url;
@@ -189,7 +195,6 @@ class _TransactionEntryScreenState
                 ),
                 const SizedBox(height: Spaces.extraSmall),
                 SelectableText(
-                  // hmm coinbase could return other asset than XELIS
                   '+${formatXelis(coinbase!.reward)}',
                   style: context.bodyLarge,
                 ),
@@ -504,6 +509,192 @@ class _TransactionEntryScreenState
                 );
               },
             ),
+          ],
+
+          // MULTISIG
+          if (entryType is sdk.MultisigEntry &&
+              entryType.participants.isNotEmpty) ...[
+            const SizedBox(height: Spaces.medium),
+            Text(
+              loc.fee,
+              style: context.labelLarge?.copyWith(
+                color: context.moreColors.mutedColor,
+              ),
+            ),
+            const SizedBox(height: Spaces.extraSmall),
+            SelectableText(
+              formatXelis(multisig!.fee),
+              style: context.bodyLarge,
+            ),
+            const SizedBox(height: Spaces.medium),
+            Text(
+              loc.threshold,
+              style: context.labelLarge?.copyWith(
+                color: context.moreColors.mutedColor,
+              ),
+            ),
+            const SizedBox(height: Spaces.extraSmall),
+            SelectableText(
+              multisig!.threshold.toString(),
+              style: context.bodyLarge,
+            ),
+            const SizedBox(height: Spaces.medium),
+            Text(
+              loc.participants,
+              style: context.labelLarge?.copyWith(
+                color: context.moreColors.mutedColor,
+              ),
+            ),
+            const SizedBox(height: Spaces.extraSmall),
+            Builder(
+              builder: (BuildContext context) {
+                var participants = multisig!.participants;
+
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: participants.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final participant = participants[index];
+
+                    return Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(Spaces.medium),
+                        child: Row(
+                          children: [
+                            HashiconWidget(
+                              hash: participant,
+                              size: const Size(35, 35),
+                            ),
+                            const SizedBox(width: Spaces.small),
+                            Expanded(
+                              child: SelectableText(
+                                participant,
+                                style: context.bodyMedium,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ] else if (entryType is sdk.MultisigEntry &&
+              entryType.participants.isEmpty) ...[
+            const SizedBox(height: Spaces.medium),
+            Text(
+              loc.fee,
+              style: context.labelLarge?.copyWith(
+                color: context.moreColors.mutedColor,
+              ),
+            ),
+            const SizedBox(height: Spaces.extraSmall),
+            SelectableText(
+              formatXelis(multisig!.fee),
+              style: context.bodyLarge,
+            ),
+            const SizedBox(height: Spaces.medium),
+            Text(
+              loc.status,
+              style: context.labelLarge?.copyWith(
+                color: context.moreColors.mutedColor,
+              ),
+            ),
+            const SizedBox(height: Spaces.extraSmall),
+            SelectableText(loc.multisig_deleted, style: context.bodyLarge),
+          ],
+
+          // INVOKE CONTRACT
+          if (entryType is sdk.InvokeContractEntry) ...[
+            const SizedBox(height: Spaces.medium),
+            Text(
+              loc.fee,
+              style: context.labelLarge?.copyWith(
+                color: context.moreColors.mutedColor,
+              ),
+            ),
+            const SizedBox(height: Spaces.extraSmall),
+            SelectableText(
+              formatXelis(invokeContract!.fee),
+              style: context.bodyLarge,
+            ),
+            const SizedBox(height: Spaces.medium),
+            Text(
+              loc.contract,
+              style: context.labelLarge?.copyWith(
+                color: context.moreColors.mutedColor,
+              ),
+            ),
+            const SizedBox(height: Spaces.extraSmall),
+            SelectableText(invokeContract!.contract, style: context.bodyLarge),
+            const SizedBox(height: Spaces.medium),
+            Text(
+              loc.entry_id,
+              style: context.labelLarge?.copyWith(
+                color: context.moreColors.mutedColor,
+              ),
+            ),
+            const SizedBox(height: Spaces.extraSmall),
+            SelectableText(
+              invokeContract!.chunkId.toString(),
+              style: context.bodyLarge,
+            ),
+            const SizedBox(height: Spaces.medium),
+            Text(
+              loc.deposits,
+              style: context.labelLarge?.copyWith(
+                color: context.moreColors.mutedColor,
+              ),
+            ),
+            const SizedBox(height: Spaces.extraSmall),
+            Builder(
+              builder: (BuildContext context) {
+                var deposits = invokeContract!.deposits;
+
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: deposits.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final deposit = deposits.entries.elementAt(index);
+
+                    return Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(Spaces.medium),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(deposit.key, style: context.bodyMedium),
+                            SelectableText(
+                              formatXelis(deposit.value),
+                              style: context.bodyMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+
+          // DEPLOY CONTRACT
+          if (entryType is sdk.DeployContractEntry) ...[
+            const SizedBox(height: Spaces.medium),
+            Text(
+              loc.fee,
+              style: context.labelLarge?.copyWith(
+                color: context.moreColors.mutedColor,
+              ),
+            ),
+            const SizedBox(height: Spaces.extraSmall),
+            SelectableText(
+              formatXelis(deployContract!.fee),
+              style: context.bodyLarge,
+            ),
+            const SizedBox(height: Spaces.medium),
+            // TODO: Add more details
           ],
         ],
       ),

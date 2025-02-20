@@ -19,9 +19,16 @@ ThemeData xelisTheme() {
         return textColor.withValues(alpha: 0.6);
       });
 
+  WidgetStateBorderSide chipBorderStateProperty =
+      WidgetStateBorderSide.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return BorderSide(color: primaryColor, width: 2);
+        }
+        return BorderSide(color: textColor.withValues(alpha: 0.6), width: 2);
+      });
+
   final baseTheme = ThemeData(
     useMaterial3: true,
-    // splashFactory: InkSparkle.splashFactory,
     splashFactory: NoSplash.splashFactory,
     hoverColor: Colors.transparent,
     highlightColor: Colors.transparent,
@@ -241,7 +248,7 @@ ThemeData xelisTheme() {
       ),
       contentPadding: const EdgeInsets.all(15),
       filled: true,
-      fillColor: Colors.black26,
+      fillColor: Colors.black45,
       iconColor: Colors.white,
       suffixIconColor: Colors.white,
       prefixIconColor: Colors.white,
@@ -278,7 +285,7 @@ ThemeData xelisTheme() {
 
     // DIALOG
     dialogTheme: DialogTheme(
-      backgroundColor: backgroundColor.withValues(alpha: 0.9),
+      backgroundColor: backgroundColor /*.withValues(alpha: 0.9)*/,
       surfaceTintColor: Colors.transparent,
       barrierColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: borderRadius),
@@ -333,6 +340,15 @@ ThemeData xelisTheme() {
     sliderTheme: SliderThemeData(
       inactiveTrackColor: Colors.white38,
       trackHeight: 2,
+    ),
+
+    chipTheme: ChipThemeData(
+      color: WidgetStatePropertyAll(Colors.transparent),
+      elevation: 0,
+      padding: const EdgeInsets.all(Spaces.small),
+      shape: RoundedRectangleBorder(borderRadius: borderRadius),
+      brightness: Brightness.dark,
+      side: chipBorderStateProperty,
     ),
   );
 

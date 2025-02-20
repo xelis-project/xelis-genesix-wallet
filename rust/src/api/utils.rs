@@ -1,15 +1,19 @@
 use anyhow::{Context, Result};
 use flutter_rust_bridge::frb;
 use serde_json::json;
-use xelis_common::crypto::Address;
+use xelis_common::{crypto::Address, network::Network};
 
 use super::dtos::IntegratedAddress;
 
 // Check if the given address is valid
 #[frb(sync)]
-pub fn is_address_valid(str_address: String) -> bool {
+pub fn is_address_valid(str_address: String, network: Network) -> bool {
     match Address::from_string(&str_address) {
-        Ok(_) => true,
+        Ok(address) => match network {
+            Network::Mainnet => address.is_mainnet(),
+            Network::Testnet => !address.is_mainnet(),
+            Network::Dev => !address.is_mainnet(),
+        },
         Err(_) => false,
     }
 }

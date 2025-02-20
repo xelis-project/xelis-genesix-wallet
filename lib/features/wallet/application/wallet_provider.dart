@@ -50,8 +50,9 @@ class WalletState extends _$WalletState {
         await disconnect();
       }
 
-      StreamSubscription<void> sub =
-      state.nativeWalletRepository!.convertRawEvents().listen(_onEvent);
+      StreamSubscription<void> sub = state.nativeWalletRepository!
+          .convertRawEvents()
+          .listen(_onEvent);
       state = state.copyWith(streamSubscription: sub);
 
       final settings = ref.read(settingsProvider);

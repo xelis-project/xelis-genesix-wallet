@@ -29,12 +29,13 @@ use crate::api::table_generation::LogProgressTableGenerationReportFunction;
 use crate::frb_generated::StreamSink;
 
 use super::dtos::{
-    MultisigDartPayload, ParticipantDartPayload, SignatureMultisig, SummaryTransaction, Transfer,
+    HistoryPageFilter, MultisigDartPayload, ParticipantDartPayload, SignatureMultisig,
+    SummaryTransaction, Transfer,
 };
 
 pub struct XelisWallet {
     wallet: Arc<Wallet>,
-    pending_transaction: RwLock<HashMap<Hash, (Transaction, TransactionBuilderState)>>,
+    pending_transactions: RwLock<HashMap<Hash, (Transaction, TransactionBuilderState)>>,
     pending_unsigned: RwLock<
         Option<(
             UnsignedTransaction,
@@ -89,9 +90,10 @@ pub async fn create_xelis_wallet(
     };
 
     let xelis_wallet = Wallet::create(&name, &password, recover, network, precomputed_tables)?;
+
     Ok(XelisWallet {
         wallet: xelis_wallet,
-        pending_transaction: RwLock::new(HashMap::new()),
+        pending_transactions: RwLock::new(HashMap::new()),
         pending_unsigned: RwLock::new(None),
     })
 }
@@ -114,10 +116,12 @@ pub async fn open_xelis_wallet(
         true,
     )
     .await?;
+
     let xelis_wallet = Wallet::open(&name, &password, network, precomputed_tables)?;
+
     Ok(XelisWallet {
         wallet: xelis_wallet,
-        pending_transaction: RwLock::new(HashMap::new()),
+        pending_transactions: RwLock::new(HashMap::new()),
         pending_unsigned: RwLock::new(None),
     })
 }
@@ -256,7 +260,7 @@ impl XelisWallet {
         transfers: Vec<Transfer>,
         fee_multiplier: Option<f64>,
     ) -> Result<String> {
-        self.pending_transaction.write().clear();
+        self.pending_transactions.write().clear();
 
         info!("Building transaction...");
 
@@ -284,7 +288,7 @@ impl XelisWallet {
         info!("Tx Hash: {}", hash);
         let fee = tx.get_fee();
 
-        self.pending_transaction
+        self.pending_transactions
             .write()
             .insert(hash.clone(), (tx.clone(), state));
 
@@ -354,7 +358,7 @@ impl XelisWallet {
         extra_data: Option<String>,
         fee_multiplier: Option<f64>,
     ) -> Result<String> {
-        self.pending_transaction.write().clear();
+        self.pending_transactions.write().clear();
 
         info!("Building transfer all transaction...");
 
@@ -428,7 +432,7 @@ impl XelisWallet {
         info!("Tx Hash: {}", hash);
         let fee = tx.get_fee();
 
-        self.pending_transaction
+        self.pending_transactions
             .write()
             .insert(hash.clone(), (tx.clone(), state));
 
@@ -540,7 +544,7 @@ impl XelisWallet {
         float_amount: f64,
         asset_hash: String,
     ) -> Result<String> {
-        self.pending_transaction.write().clear();
+        self.pending_transactions.write().clear();
 
         info!("Building burn transaction...");
 
@@ -582,7 +586,7 @@ impl XelisWallet {
         info!("Tx Hash: {}", hash);
         let fee = tx.get_fee();
 
-        self.pending_transaction
+        self.pending_transactions
             .write()
             .insert(hash.clone(), (tx.clone(), state));
 
@@ -655,7 +659,7 @@ impl XelisWallet {
 
     // create a burn all transaction for a specific asset
     pub async fn create_burn_all_transaction(&self, asset_hash: String) -> Result<String> {
-        self.pending_transaction.write().clear();
+        self.pending_transactions.write().clear();
 
         info!("Building burn all transaction...");
 
@@ -705,7 +709,7 @@ impl XelisWallet {
         info!("Tx Hash: {}", hash);
         let fee = tx.get_fee();
 
-        self.pending_transaction
+        self.pending_transactions
             .write()
             .insert(hash.clone(), (tx.clone(), state));
 
@@ -788,7 +792,7 @@ impl XelisWallet {
     ) -> Result<(Transaction, TransactionBuilderState)> {
         let hash = Hash::from_hex(&tx_hash)?;
         let res = self
-            .pending_transaction
+            .pending_transactions
             .write()
             .remove(&hash)
             .context("Cannot delete pending transaction");
@@ -812,7 +816,7 @@ impl XelisWallet {
 
                 warn!("Inserting back to pending transactions in case of retry...");
                 let hash: Hash = Hash::from_hex(&tx_hash)?;
-                self.pending_transaction.write().insert(hash, (tx, state));
+                self.pending_transactions.write().insert(hash, (tx, state));
 
                 bail!(e)
             } else {
@@ -830,20 +834,68 @@ impl XelisWallet {
         Ok(())
     }
 
+    // get the number of transactions in the wallet history
+    pub async fn get_history_count(&self) -> Result<usize> {
+        let storage = self.wallet.get_storage().read().await;
+        Ok(storage.get_transactions_count()?)
+    }
+
     // get all the transactions history
-    pub async fn history(&self) -> Result<Vec<String>> {
+    pub async fn history(&self, filter: HistoryPageFilter) -> Result<Vec<String>> {
         let mut txs: Vec<String> = Vec::new();
 
         let storage = self.wallet.get_storage().read().await;
-        let mut transactions = storage.get_transactions()?;
 
-        if transactions.is_empty() {
+        let txs_len = storage.get_transactions_count()?;
+        if txs_len == 0 {
             info!("No transactions available");
             return Ok(txs);
         }
 
-        // desc ordered
-        transactions.sort_by(|a, b| b.get_topoheight().cmp(&a.get_topoheight()));
+        if let Some(limit) = filter.limit {
+            if limit == 0 {
+                bail!("Limit cannot be 0");
+            }
+
+            let mut max_pages = txs_len / limit;
+            if txs_len % limit != 0 {
+                max_pages += 1;
+            }
+
+            if filter.page > max_pages {
+                bail!("Page out of range");
+            }
+        }
+
+        let address = match filter.address {
+            Some(address) => {
+                let address = Address::from_string(&address).context("Invalid address")?;
+                Some(address.get_public_key().to_owned())
+            }
+            None => None,
+        };
+
+        let asset = match filter.asset_hash {
+            Some(asset_hash) => Some(Hash::from_hex(&asset_hash).context("Invalid asset")?),
+            None => None,
+        };
+
+        let transactions = storage.get_filtered_transactions(
+            address.as_ref(),
+            asset.as_ref(),
+            filter.min_topoheight,
+            filter.max_topoheight,
+            filter.accept_incoming,
+            filter.accept_outgoing,
+            filter.accept_coinbase,
+            filter.accept_burn,
+            None,
+            filter.limit,
+            match filter.limit {
+                Some(limit) => Some((filter.page - 1) * limit),
+                None => None,
+            },
+        )?;
 
         for tx in transactions.into_iter() {
             let transaction_entry = tx.serializable(self.wallet.get_network().is_mainnet());
@@ -867,7 +919,7 @@ impl XelisWallet {
                         .expect("Unable to send event data through stream");
                 }
                 Err(e) => {
-                    debug!("Error with events stream: {}", e);
+                    error!("Error with events stream: {}", e);
                     break;
                 }
             }
@@ -1023,7 +1075,7 @@ impl XelisWallet {
                 info!("Tx Hash: {}", hash);
                 let fee = tx.get_fee();
 
-                self.pending_transaction
+                self.pending_transactions
                     .write()
                     .insert(hash.clone(), (tx, state));
 
@@ -1141,7 +1193,7 @@ impl XelisWallet {
 
         state.set_tx_hash_built(tx.hash());
 
-        self.pending_transaction
+        self.pending_transactions
             .write()
             .insert(tx.hash().clone(), (tx.clone(), state));
 

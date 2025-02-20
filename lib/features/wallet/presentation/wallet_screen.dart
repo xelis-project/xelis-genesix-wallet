@@ -3,11 +3,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/history_provider.dart';
+import 'package:genesix/features/wallet/application/history_providers.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/presentation/history_tab/history_tab_widget.dart';
 import 'package:genesix/features/wallet/presentation/node_tab/node_tab_widget.dart';
 import 'package:genesix/features/wallet/presentation/assets_tab/assets_tab_widget.dart';
-import 'package:genesix/features/wallet/presentation/history_tab/history_tab_widget.dart';
 import 'package:genesix/features/wallet/presentation/settings_tab/settings_tab_widget.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/wallet_tab_widget.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
@@ -29,16 +29,18 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final isHandset = context.formFactor == ScreenSize.normal ||
+    final isHandset =
+        context.formFactor == ScreenSize.normal ||
         context.formFactor == ScreenSize.small;
 
-    final tabs = <Widget>[
-      const NodeTab(),
-      const HistoryTab(),
-      const WalletTab(),
-      const AssetsTab(),
-      SettingsTab(),
-    ][_currentPageIndex];
+    final tabs =
+        <Widget>[
+          const NodeTab(),
+          const HistoryTab(),
+          const WalletTab(),
+          const AssetsTab(),
+          SettingsTab(),
+        ][_currentPageIndex];
 
     final List<BottomNavigationBarItem> bottomNavigationBarItems = [
       BottomNavigationBarItem(
@@ -62,6 +64,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
         label: loc.settings_bottom_app_bar,
       ),
     ];
+
     // Export CSV button for HistoryTab
     Widget floatingExportCSVButton = Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -122,8 +125,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           MaterialApp(
             debugShowCheckedModeBanner: false,
             theme: context.theme.copyWith(
-              colorScheme: ColorScheme.fromSwatch()
-                  .copyWith(primary: Colors.transparent),
+              colorScheme: ColorScheme.fromSwatch().copyWith(
+                primary: Colors.transparent,
+              ),
             ),
             home: NavigationRail(
               selectedIndex: _currentPageIndex,
@@ -177,11 +181,18 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
   Future<void> _exportCsv() async {
     final loc = ref.read(appLocalizationsProvider);
 
-    final historyState = await ref.read(historyProvider.future);
-    if (historyState.noTransactionAvailable) {
+    try {
+      final count = await ref.read(historyCountProvider.future);
+      if (count != null && count == 0) {
+        ref
+            .read(snackBarMessengerProvider.notifier)
+            .showError(loc.no_transactions_to_export);
+        return;
+      }
+    } catch (e) {
       ref
           .read(snackBarMessengerProvider.notifier)
-          .showError(loc.no_transactions_to_export);
+          .showError(loc.error_exporting_csv);
       return;
     }
 

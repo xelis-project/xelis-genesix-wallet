@@ -3,6 +3,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
@@ -205,13 +206,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                     FormBuilderValidators.required(
                       errorText: loc.field_required_error,
                     ),
-                    (val) {
-                      if (val != null &&
-                          !isAddressValid(strAddress: val.trim())) {
-                        return loc.invalid_address_format_error;
-                      }
-                      return null;
-                    },
+                    _addressValidator,
                   ]),
                 ),
                 const SizedBox(height: Spaces.extraLarge),
@@ -393,5 +388,14 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
         _estimatedFee = AppResources.zeroBalance;
       });
     }
+  }
+
+  String? _addressValidator(String? value) {
+    final network = ref.read(settingsProvider.select((state) => state.network));
+    if (value != null &&
+        !isAddressValid(strAddress: value.trim(), network: network)) {
+      return ref.read(appLocalizationsProvider).invalid_address_format_error;
+    }
+    return null;
   }
 }

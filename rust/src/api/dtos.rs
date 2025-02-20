@@ -41,3 +41,17 @@ pub struct IntegratedAddress {
     pub address: Address,
     pub data: Option<DataElement>,
 }
+
+#[derive(Clone, Debug)]
+pub struct HistoryPageFilter {
+    pub page: usize,
+    pub limit: Option<usize>,
+    pub asset_hash: Option<String>,
+    pub address: Option<String>,
+    pub min_topoheight: Option<u64>,
+    pub max_topoheight: Option<u64>,
+    pub accept_incoming: bool,
+    pub accept_outgoing: bool,
+    pub accept_coinbase: bool,
+    pub accept_burn: bool,
+}

@@ -5,7 +5,10 @@ import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/logo.dart';
 
 class AssetsDropdownMenuItem {
-  static DropdownMenuItem<String> fromMapEntry(MapEntry<String, String> asset) {
+  static DropdownMenuItem<String> fromMapEntry(
+    MapEntry<String, String> asset, {
+    bool showBalance = true,
+  }) {
     final isXelis = asset.key == AppResources.xelisAsset.hash;
     final xelisPath = AppResources.xelisAsset.imagePath!;
     return DropdownMenuItem<String>(
@@ -22,7 +25,7 @@ class AssetsDropdownMenuItem {
                 ],
               )
               : Text(truncateText(asset.key)),
-          Text(asset.value),
+          if (showBalance) Text(asset.value),
         ],
       ),
     );

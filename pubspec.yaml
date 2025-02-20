@@ -38,8 +38,8 @@ dependencies:
   icons_launcher: ^3.0.0
   url_launcher: ^6.3.1
   localstorage: ^5.0.0
-  talker_flutter: ^4.6.11
-  talker_riverpod_logger: ^4.6.11
+  talker_flutter: ^4.6.12
+  talker_riverpod_logger: ^4.6.12
   group_button: ^5.3.4
   http: ^1.3.0
   transparent_image: ^2.0.1
