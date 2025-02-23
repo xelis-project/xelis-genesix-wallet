@@ -76,6 +76,10 @@ class AppResources {
       name: 'Default Local Node',
       url: 'http://${sdk.localhostAddress}',
     ),
+    const NodeAddress(
+      name: 'Android simulator localhost',
+      url: 'http://10.0.2.2:8080'
+    ),
   ];
 
   static String explorerMainnetUrl = 'https://explorer.xelis.io/';
