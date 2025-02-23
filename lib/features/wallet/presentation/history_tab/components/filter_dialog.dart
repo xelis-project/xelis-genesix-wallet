@@ -78,7 +78,7 @@ class _FilterDialogState extends ConsumerState<FilterDialog> {
           children: [
             Text(loc.category, style: context.titleSmall),
             const SizedBox(height: Spaces.small),
-            FormBuilderFilterChip(
+            FormBuilderFilterChips(
               name: 'category',
               runSpacing: Spaces.small,
               spacing: Spaces.small,
