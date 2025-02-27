@@ -5,12 +5,10 @@ import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/history_providers.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/history_tab/components/filter_dialog.dart';
 import 'package:genesix/features/wallet/presentation/history_tab/components/transaction_entry_widget.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
-import 'package:genesix/src/generated/rust_bridge/api/dtos.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/src/generated/rust_bridge/api/utils.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -24,40 +22,17 @@ class HistoryTab extends ConsumerStatefulWidget {
 }
 
 class _HistoryTabState extends ConsumerState<HistoryTab> {
-  static const _pageSize = 10;
-
-  final PagingController<int, TransactionEntry> _pagingController =
-      PagingController(firstPageKey: 1);
   final GlobalKey<FormBuilderState> _searchFormKey =
       GlobalKey<FormBuilderState>();
   final _searchFocusNode = FocusNode();
 
-  String searchQuery = '';
   bool showSearchBar = false;
 
   @override
-  void initState() {
-    super.initState();
-    _pagingController.addPageRequestListener((pageKey) {
-      _fetchPage(pageKey);
-    });
-    ref.listenManual(walletStateProvider.select((state) => state.assets), (
-      _,
-      _,
-    ) {
-      _pagingController.refresh();
-    });
-  }
-
-  @override
-  void dispose() {
-    _pagingController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    ref.watch(historySearchQueryProvider);
     final loc = ref.watch(appLocalizationsProvider);
+    final pagingState = ref.watch(historyPagingStateProvider);
     final searchBar = Padding(
       padding: const EdgeInsets.only(
         left: Spaces.extraSmall,
@@ -164,10 +139,15 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
               right: Spaces.large,
             ),
             child: RefreshIndicator(
-              onRefresh: () => Future.sync(() => _pagingController.refresh()),
+              onRefresh:
+                  () => Future.sync(
+                    () => ref.invalidate(historyPagingStateProvider),
+                  ),
               child: PagedListView<int, TransactionEntry>(
-                pagingController: _pagingController,
+                state: pagingState,
+                fetchNextPage: _fetchPage,
                 builderDelegate: PagedChildBuilderDelegate<TransactionEntry>(
+                  animateTransitions: true,
                   itemBuilder:
                       (context, item, index) =>
                           TransactionEntryWidget(transactionEntry: item),
@@ -207,37 +187,26 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
     );
   }
 
-  Future<void> _fetchPage(int pageKey) async {
-    talker.info('History - Fetching page: $pageKey');
+  void _fetchPage() async {
+    final state = ref.read(historyPagingStateProvider);
+
+    if (state.isLoading) return;
+    await Future<void>.value();
+    ref.read(historyPagingStateProvider.notifier).loading();
+
     try {
-      final historyFilterState = ref.read(
-        settingsProvider.select((state) => state.historyFilterState),
+      final newKey = (state.keys?.last ?? 0) + 1;
+      talker.info('Fetching page: $newKey');
+      final newItems = await ref.read(
+        historyProvider(newKey).future,
       );
 
-      final filter = HistoryPageFilter(
-        page: BigInt.from(pageKey),
-        acceptIncoming: historyFilterState.showIncoming,
-        acceptOutgoing: historyFilterState.showOutgoing,
-        acceptCoinbase: historyFilterState.showCoinbase,
-        acceptBurn: historyFilterState.showBurn,
-        limit: BigInt.from(_pageSize),
-        assetHash: historyFilterState.asset,
-        address: searchQuery.isNotEmpty ? searchQuery : null,
-      );
-
-      final newItems = await ref.read(historyProvider(filter).future);
-
-      final isLastPage = newItems.length < _pageSize;
-      if (isLastPage) {
-        talker.info('History - Last page');
-        _pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey + 1;
-        _pagingController.appendPage(newItems, nextPageKey);
-      }
+      ref
+          .read(historyPagingStateProvider.notifier)
+          .setNextPage(newKey, newItems);
     } catch (error) {
       talker.error('Error fetching page: $error');
-      _pagingController.error = error;
+      ref.read(historyPagingStateProvider.notifier).error(error);
     }
   }
 
@@ -250,7 +219,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
       },
     ).then((isSaved) {
       if (isSaved != null && isSaved) {
-        _pagingController.refresh();
+        ref.invalidate(historyPagingStateProvider);
       }
     });
   }
@@ -258,12 +227,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
   void _onSearchQueryClear() {
     _searchFormKey.currentState?.fields['searchQuery']?.reset();
     _searchFocusNode.unfocus();
-    if (searchQuery.isNotEmpty) {
-      setState(() {
-        searchQuery = '';
-      });
-      _pagingController.refresh();
-    }
+    ref.read(historySearchQueryProvider.notifier).clear();
     setState(() {
       showSearchBar = false;
     });
@@ -272,10 +236,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
   void _onSearchQueryChanged(String? value) {
     final network = ref.read(settingsProvider.select((state) => state.network));
     if (value != null && isAddressValid(strAddress: value, network: network)) {
-      setState(() {
-        searchQuery = value;
-      });
-      _pagingController.refresh();
+      ref.read(historySearchQueryProvider.notifier).change(value);
     }
   }
 }

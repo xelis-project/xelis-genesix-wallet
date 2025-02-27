@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
+import 'package:genesix/features/wallet/application/history_providers.dart';
 import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
 import 'package:flutter/foundation.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
@@ -346,6 +347,7 @@ class WalletState extends _$WalletState {
 
       case NewTransaction():
         talker.info(event);
+        ref.invalidate(historyPagingStateProvider);
         if (state.topoheight != 0 &&
             event.transactionEntry.topoheight >= state.topoheight) {
           await updateMultisigState();

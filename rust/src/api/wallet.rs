@@ -847,6 +847,7 @@ impl XelisWallet {
         let storage = self.wallet.get_storage().read().await;
 
         let txs_len = storage.get_transactions_count()?;
+        info!("Transactions available: {}", txs_len);
         if txs_len == 0 {
             info!("No transactions available");
             return Ok(txs);
@@ -887,8 +888,15 @@ impl XelisWallet {
             filter.max_topoheight,
             filter.accept_incoming,
             filter.accept_outgoing,
-            filter.accept_coinbase,
-            filter.accept_burn,
+            match address {
+                Some(_) => false,
+                None => filter.accept_coinbase,
+                
+            },
+            match address {
+                Some(_) => false,
+                None => filter.accept_burn,
+            },
             None,
             filter.limit,
             match filter.limit {
