@@ -52,7 +52,9 @@ app.*.map.json
 /android/app/src/main/jniLibs
 
 # Dart generated files (Flutter Rust Bridge, AppLocalizations, Freezed, Riverpod, GoRouter etc..)
-lib/src/generated/**
+lib/src/generated/rust_bridge/**.dart
+lib/src/generated/rust_bridge/api/**
+lib/src/generated/l10n/**
 lib/**/*.g.dart
 lib/**/*.freezed.dart
 
