@@ -6,7 +6,7 @@ import 'package:genesix/shared/resources/app_resources.dart';
 part 'transaction_review_state.freezed.dart';
 
 @freezed
-class TransactionReviewState with _$TransactionReviewState {
+abstract class TransactionReviewState with _$TransactionReviewState {
   const TransactionReviewState._();
 
   const factory TransactionReviewState({

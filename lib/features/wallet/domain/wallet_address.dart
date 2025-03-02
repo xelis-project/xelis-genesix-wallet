@@ -7,7 +7,7 @@ part 'wallet_address.freezed.dart';
 part 'wallet_address.g.dart';
 
 @freezed
-class WalletAddress with _$WalletAddress {
+abstract class WalletAddress with _$WalletAddress {
   const WalletAddress._();
 
   const factory WalletAddress({

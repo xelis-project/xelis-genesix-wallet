@@ -7,7 +7,7 @@ part 'multisig_participant.freezed.dart';
 part 'multisig_participant.g.dart';
 
 @freezed
-class MultisigParticipant with _$MultisigParticipant {
+abstract class MultisigParticipant with _$MultisigParticipant {
   const factory MultisigParticipant({
     @JsonKey(name: 'id') required int id,
     @JsonKey(name: 'address') required String address,

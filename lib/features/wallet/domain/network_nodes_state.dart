@@ -9,7 +9,7 @@ part 'network_nodes_state.freezed.dart';
 part 'network_nodes_state.g.dart';
 
 @Freezed(makeCollectionsUnmodifiable: false)
-class NetworkNodesState with _$NetworkNodesState {
+abstract class NetworkNodesState with _$NetworkNodesState {
   const NetworkNodesState._();
 
   const factory NetworkNodesState({

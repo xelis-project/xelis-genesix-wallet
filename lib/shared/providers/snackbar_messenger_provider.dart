@@ -9,7 +9,7 @@ part 'snackbar_messenger_provider.freezed.dart';
 enum SnackBarType { info, error }
 
 @freezed
-class SnackBarState with _$SnackBarState {
+abstract class SnackBarState with _$SnackBarState {
   const factory SnackBarState({
     required SnackBarType type,
     required String message,

@@ -7,7 +7,7 @@ part 'history_filter_state.freezed.dart';
 part 'history_filter_state.g.dart';
 
 @freezed
-class HistoryFilterState with _$HistoryFilterState {
+abstract class HistoryFilterState with _$HistoryFilterState {
   const factory HistoryFilterState({
     @JsonKey(name: 'hide_extra_data') @Default(false) bool hideExtraData,
     @JsonKey(name: 'hide_zero_transfer') @Default(false) bool hideZeroTransfer,

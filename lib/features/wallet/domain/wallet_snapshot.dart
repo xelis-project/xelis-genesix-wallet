@@ -8,7 +8,7 @@ import 'package:genesix/shared/resources/app_resources.dart';
 part 'wallet_snapshot.freezed.dart';
 
 @freezed
-class WalletSnapshot with _$WalletSnapshot {
+abstract class WalletSnapshot with _$WalletSnapshot {
   const factory WalletSnapshot({
     @Default(false) bool isOnline,
     @Default(0) int topoheight,

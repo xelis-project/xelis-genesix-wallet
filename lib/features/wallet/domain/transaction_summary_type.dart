@@ -8,7 +8,7 @@ part 'transaction_summary_type.freezed.dart';
 part 'transaction_summary_type.g.dart';
 
 @freezed
-class TransactionSummaryType with _$TransactionSummaryType {
+abstract class TransactionSummaryType with _$TransactionSummaryType {
   const factory TransactionSummaryType({
     @JsonKey(name: "transfers") List<TransferOutEntry>? transferOutEntry,
     @JsonKey(name: "burn") BurnPayload? burn,

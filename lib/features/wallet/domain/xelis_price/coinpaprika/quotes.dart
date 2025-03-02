@@ -8,7 +8,7 @@ part 'quotes.freezed.dart';
 part 'quotes.g.dart';
 
 @freezed
-class Quotes with _$Quotes {
+abstract class Quotes with _$Quotes {
   const factory Quotes({@JsonKey(name: 'USD') required USD usd}) = _Quotes;
 
   factory Quotes.fromJson(Map<String, dynamic> json) => _$QuotesFromJson(json);

@@ -11,7 +11,7 @@ part 'transaction_summary.freezed.dart';
 part 'transaction_summary.g.dart';
 
 @freezed
-class TransactionSummary with _$TransactionSummary {
+abstract class TransactionSummary with _$TransactionSummary {
   const TransactionSummary._();
 
   const factory TransactionSummary({

@@ -9,7 +9,7 @@ part 'multisig_state.freezed.dart';
 part 'multisig_state.g.dart';
 
 @freezed
-class MultisigState with _$MultisigState {
+abstract class MultisigState with _$MultisigState {
   const factory MultisigState({
     @JsonKey(name: 'participants')
     @Default({})

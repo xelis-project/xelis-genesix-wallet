@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'asset.freezed.dart';
 
 @freezed
-class Asset with _$Asset {
+abstract class Asset with _$Asset {
   const Asset._();
 
   const factory Asset({

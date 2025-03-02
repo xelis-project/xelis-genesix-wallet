@@ -14,7 +14,7 @@ part 'settings_state.g.dart';
 enum AppTheme { light, dark, xelis }
 
 @freezed
-class SettingsState with _$SettingsState {
+abstract class SettingsState with _$SettingsState {
   const factory SettingsState({
     @JsonKey(name: 'hide_balance') @Default(false) bool hideBalance,
     @JsonKey(name: 'history_filter_state')
