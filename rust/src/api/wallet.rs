@@ -180,10 +180,11 @@ impl XelisWallet {
         self.wallet.is_valid_password(&password).await
     }
 
-    // check if the wallet has a Xelis balance
-    pub async fn has_xelis_balance(&self) -> Result<bool> {
+    // check if the wallet has a balance for an asset
+    pub async fn has_asset_balance(&self, asset: String) -> Result<bool> {
+        let asset_hash = Hash::from_hex(&asset).context("Invalid asset")?;
         let storage = self.wallet.get_storage().read().await;
-        storage.has_balance_for(&XELIS_ASSET).await
+        storage.has_balance_for(&asset_hash).await
     }
 
     // get the wallet Xelis balance
@@ -943,13 +944,13 @@ impl XelisWallet {
             let info = match api.get_info().await {
                 Ok(info) => info,
                 Err(e) => {
-                    return Err(e);
+                    bail!("Error while getting daemon info: {}", e);
                 }
             };
 
             Ok(serde_json::to_string(&info)?)
         } else {
-            Err(anyhow!("network handler not available"))
+            bail!("network handler not available")
         }
     }
 
