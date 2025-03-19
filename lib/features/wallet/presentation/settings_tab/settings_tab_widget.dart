@@ -66,6 +66,21 @@ class SettingsTab extends ConsumerWidget {
           ),
           children: [
             FormBuilderSwitch(
+              name: 'xswd_switch',
+              initialValue: settings.enableXswd,
+              decoration: const InputDecoration(fillColor: Colors.transparent),
+              title: Text('Enable XSWD mode', style: context.bodyLarge),
+              subtitle: Text(
+                'The XSWD protocol provides secure communication with external applications.',
+                style: context.labelMedium?.copyWith(
+                  color: context.moreColors.mutedColor,
+                ),
+              ),
+              onChanged: (value) {
+                ref.read(settingsProvider.notifier).setEnableXswd(value!);
+              },
+            ),
+            FormBuilderSwitch(
               name: 'biometric_auth_switch',
               initialValue: settings.activateBiometricAuth,
               decoration: const InputDecoration(fillColor: Colors.transparent),

@@ -404,6 +404,32 @@ class NativeWalletRepository {
     return TransactionSummary.fromJson(jsonTx);
   }
 
+  Future<void> startXSWD({
+    required Future<void> Function(XswdRequestSummary) cancelRequestCallback,
+    required Future<UserPermissionDecision> Function(XswdRequestSummary)
+    requestApplicationCallback,
+    required Future<UserPermissionDecision> Function(XswdRequestSummary)
+    requestPermissionCallback,
+  }) async {
+    if (await _xelisWallet.isXswdRunning()) {
+      talker.warning('XSWD already running...');
+      return;
+    }
+    _xelisWallet.startXswd(
+      cancelRequestDartCallback: cancelRequestCallback,
+      requestApplicationDartCallback: requestApplicationCallback,
+      requestPermissionDartCallback: requestPermissionCallback,
+    );
+  }
+
+  Future<void> stopXSWD() async {
+    if (!await _xelisWallet.isXswdRunning()) {
+      talker.warning('XSWD already stopped...');
+      return;
+    }
+    _xelisWallet.stopXswd();
+  }
+
   Future<void> exportTransactionsToCsvFile(String path) async {
     await _xelisWallet.exportTransactionsToCsvFile(filePath: path);
   }

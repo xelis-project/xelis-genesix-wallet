@@ -64,6 +64,11 @@ class Settings extends _$Settings {
     setState(state);
   }
 
+  void setEnableXswd(bool enableXswd) {
+    state = state.copyWith(enableXswd: enableXswd);
+    setState(state);
+  }
+
   void setHistoryFilterState(HistoryFilterState historyFilterState) {
     state = state.copyWith(historyFilterState: historyFilterState);
     setState(state);

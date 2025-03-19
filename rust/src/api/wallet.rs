@@ -4,9 +4,9 @@ use std::path::Path;
 use std::sync::Arc;
 
 use anyhow::{anyhow, bail, Context, Result};
-use flutter_rust_bridge::frb;
+use flutter_rust_bridge::{frb, DartFnFuture};
 use indexmap::IndexSet;
-use log::{debug, error, info, warn};
+use log::{error, info, warn};
 use parking_lot::{Mutex, RwLock};
 use serde_json::json;
 use xelis_common::api::{DataElement, DataValue};
@@ -14,6 +14,7 @@ use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
 use xelis_common::crypto::{Address, Hash, Hashable, Signature};
 use xelis_common::network::Network;
 use xelis_common::serializer::Serializer;
+use xelis_common::tokio::spawn_task;
 use xelis_common::transaction::builder::{
     FeeBuilder, MultiSigBuilder, TransactionTypeBuilder, TransferBuilder, UnsignedTransaction,
 };
@@ -30,8 +31,9 @@ use crate::frb_generated::StreamSink;
 
 use super::dtos::{
     HistoryPageFilter, MultisigDartPayload, ParticipantDartPayload, SignatureMultisig,
-    SummaryTransaction, Transfer,
+    SummaryTransaction, Transfer, UserPermissionDecision, XswdRequestSummary,
 };
+use super::xswd::xswd_handler;
 
 pub struct XelisWallet {
     wallet: Arc<Wallet>,
@@ -357,6 +359,7 @@ impl XelisWallet {
         str_address: String,
         asset_hash: Option<String>,
         extra_data: Option<String>,
+        encrypt_extra_data: Option<bool>,
         fee_multiplier: Option<f64>,
     ) -> Result<String> {
         self.pending_transactions.write().clear();
@@ -385,6 +388,10 @@ impl XelisWallet {
             amount,
             asset: asset.clone(),
             extra_data: extra_data.clone(),
+            encrypt_extra_data: match encrypt_extra_data {
+                Some(value) => value,
+                None => false,
+            },
         };
 
         let estimated_fees = self
@@ -410,6 +417,10 @@ impl XelisWallet {
             amount,
             asset: asset.clone(),
             extra_data,
+            encrypt_extra_data: match encrypt_extra_data {
+                Some(value) => value,
+                None => false,
+            },
         };
 
         let transaction_type_builder = TransactionTypeBuilder::Transfers(vec![transfer]);
@@ -450,6 +461,7 @@ impl XelisWallet {
         str_address: String,
         asset_hash: Option<String>,
         extra_data: Option<String>,
+        encrypt_extra_data: Option<bool>,
         fee_multiplier: Option<f64>,
     ) -> Result<String> {
         info!("Building multisig transfer all transaction...");
@@ -483,6 +495,10 @@ impl XelisWallet {
                     amount,
                     asset: asset.clone(),
                     extra_data: extra_data.clone(),
+                    encrypt_extra_data: match encrypt_extra_data {
+                        Some(value) => value,
+                        None => false,
+                    },
                 };
 
                 let estimated_fees = self
@@ -508,6 +524,10 @@ impl XelisWallet {
                     amount,
                     asset: asset.clone(),
                     extra_data,
+                    encrypt_extra_data: match encrypt_extra_data {
+                        Some(value) => value,
+                        None => false,
+                    },
                 };
 
                 let transaction_type_builder = TransactionTypeBuilder::Transfers(vec![transfer]);
@@ -892,7 +912,6 @@ impl XelisWallet {
             match address {
                 Some(_) => false,
                 None => filter.accept_coinbase,
-                
             },
             match address {
                 Some(_) => false,
@@ -1221,6 +1240,48 @@ impl XelisWallet {
         Ok(signature.to_hex())
     }
 
+    pub async fn start_xswd(
+        &self,
+        cancel_request_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>
+            + Send
+            + Sync
+            + 'static,
+        request_application_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        request_permission_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+    ) -> Result<()> {
+        match self.wallet.enable_xswd().await {
+            Ok(receiver) => {
+                spawn_task("xswd_handler", async move {
+                    xswd_handler(
+                        receiver,
+                        cancel_request_dart_callback,
+                        request_application_dart_callback,
+                        request_permission_dart_callback,
+                    )
+                    .await;
+                });
+            }
+            Err(e) => bail!("Error while enabling XSWD Server: {}", e),
+        };
+        Ok(())
+    }
+
+    pub async fn stop_xswd(&self) -> Result<()> {
+        self.wallet.stop_api_server().await?;
+        Ok(())
+    }
+
+    pub async fn is_xswd_running(&self) -> bool {
+        let lock = self.wallet.get_api_server().lock().await;
+        lock.is_some()
+    }
+
     // generate an unsigned transaction
     async fn generate_unsigned_transaction(
         &self,
@@ -1273,6 +1334,10 @@ impl XelisWallet {
                 extra_data: match transfer.extra_data {
                     None => None,
                     Some(value) => Some(DataElement::Value(DataValue::String(value))),
+                },
+                encrypt_extra_data: match transfer.encrypt_extra_data {
+                    Some(value) => value,
+                    None => false,
                 },
             };
 

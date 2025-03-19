@@ -197,9 +197,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
     try {
       final newKey = (state.keys?.last ?? 0) + 1;
       talker.info('Fetching page: $newKey');
-      final newItems = await ref.read(
-        historyProvider(newKey).future,
-      );
+      final newItems = await ref.read(historyProvider(newKey).future);
 
       ref
           .read(historyPagingStateProvider.notifier)

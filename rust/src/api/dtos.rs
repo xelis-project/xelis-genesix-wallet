@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 pub use xelis_common::transaction::builder::TransactionTypeBuilder;
 pub use xelis_common::{api::DataElement, crypto::Address};
 
@@ -15,6 +16,7 @@ pub struct Transfer {
     pub str_address: String,
     pub asset_hash: String,
     pub extra_data: Option<String>,
+    pub encrypt_extra_data: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -54,4 +56,36 @@ pub struct HistoryPageFilter {
     pub accept_outgoing: bool,
     pub accept_coinbase: bool,
     pub accept_burn: bool,
+}
+
+#[derive(Clone, Debug)]
+pub struct XswdRequestSummary {
+    pub event_type: XswdRequestType,
+    pub application_id: String,
+    pub application_name: String,
+    pub description: String,
+    pub url: Option<String>,
+    pub permissions: HashMap<String, PermissionPolicy>,
+}
+
+#[derive(Clone, Debug)]
+pub enum XswdRequestType {
+    Application(bool),
+    Permission(String),
+    CancelRequest,
+}
+
+#[derive(Clone, Debug)]
+pub enum PermissionPolicy {
+    Ask,
+    AlwaysAllow,
+    AlwaysDeny,
+}
+
+#[derive(Clone, Debug)]
+pub enum UserPermissionDecision {
+    Allow,
+    Deny,
+    AlwaysAllow,
+    AlwaysDeny,
 }

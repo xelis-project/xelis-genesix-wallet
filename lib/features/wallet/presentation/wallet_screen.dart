@@ -9,6 +9,7 @@ import 'package:genesix/features/wallet/presentation/history_tab/history_tab_wid
 import 'package:genesix/features/wallet/presentation/node_tab/node_tab_widget.dart';
 import 'package:genesix/features/wallet/presentation/assets_tab/assets_tab_widget.dart';
 import 'package:genesix/features/wallet/presentation/settings_tab/settings_tab_widget.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/xswd_widget.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/wallet_tab_widget.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -175,7 +176,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
       );
     }
 
-    return mainWidget;
+    return XswdWidget(mainWidget);
   }
 
   Future<void> _exportCsv() async {

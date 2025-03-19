@@ -1,31 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/features/wallet/application/xswd_provider.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/xswd_dialog.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 
-class SnackBarWidget extends ConsumerStatefulWidget {
-  const SnackBarWidget({required this.child, super.key});
+class XswdWidget extends ConsumerStatefulWidget {
+  const XswdWidget(this.child, {super.key});
 
   final Widget child;
 
   @override
-  ConsumerState<SnackBarWidget> createState() => _SnackBarWidgetState();
+  ConsumerState createState() => _XswdWidgetState();
 }
 
-class _SnackBarWidgetState extends ConsumerState<SnackBarWidget> {
+class _XswdWidgetState extends ConsumerState<XswdWidget> {
   @override
   Widget build(BuildContext context) {
-    final snackbarState = ref.watch(snackBarMessengerProvider);
-
-    Color color;
-    switch (snackbarState.type) {
-      case SnackBarType.error:
-        color = context.colors.error;
-      case SnackBarType.info:
-        color = context.colors.primary;
-    }
-
+    final xswdState = ref.watch(xswdProvider);
     return Stack(
       children: [
         widget.child,
@@ -35,7 +27,7 @@ class _SnackBarWidgetState extends ConsumerState<SnackBarWidget> {
           switchOutCurve: Curves.easeInExpo,
           transitionBuilder: (child, animation) {
             final offset = Tween<Offset>(
-              begin: const Offset(0, .3),
+              begin: const Offset(0, -1),
               end: const Offset(0, 0),
             );
             return SlideTransition(
@@ -43,10 +35,10 @@ class _SnackBarWidgetState extends ConsumerState<SnackBarWidget> {
               child: child,
             );
           },
-          child: switch (snackbarState.visible) {
+          child: switch (xswdState.snackBarVisible) {
             true => Align(
               key: UniqueKey(),
-              alignment: Alignment.bottomCenter,
+              alignment: Alignment.topCenter,
               child: Padding(
                 padding: const EdgeInsets.all(Spaces.large),
                 child: Container(
@@ -61,17 +53,14 @@ class _SnackBarWidgetState extends ConsumerState<SnackBarWidget> {
                       children: [
                         Expanded(
                           child: Text(
-                            snackbarState.message,
-                            style: context.bodyLarge!.copyWith(color: color),
+                            xswdState.message,
+                            style: context.bodyLarge,
                           ),
                         ),
                         const SizedBox(width: Spaces.medium),
-                        IconButton(
-                          onPressed: () {
-                            ref.read(snackBarMessengerProvider.notifier).hide();
-                          },
-                          color: color,
-                          icon: const Icon(Icons.close_rounded),
+                        TextButton(
+                          onPressed: () => _onOpen(xswdState),
+                          child: Text('Open'),
                         ),
                       ],
                     ),
@@ -83,6 +72,22 @@ class _SnackBarWidgetState extends ConsumerState<SnackBarWidget> {
           },
         ),
       ],
+    );
+  }
+
+  void _onOpen(XswdRequestState xswdState) {
+    xswdState.snackBarTimer?.cancel();
+    ref.read(xswdProvider.notifier).closeSnackBar();
+    _showXswdDialog();
+  }
+
+  void _showXswdDialog() {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return XswdDialog();
+      },
     );
   }
 }

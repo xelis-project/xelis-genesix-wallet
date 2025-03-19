@@ -13,3 +13,4 @@ pub mod dtos;
 pub mod seed_search_engine;
 pub mod utils;
 pub mod wallet;
+pub mod xswd;
