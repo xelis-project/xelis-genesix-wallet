@@ -21,7 +21,9 @@ class XswdDialog extends ConsumerStatefulWidget {
 
 class _XswdDialogState extends ConsumerState<XswdDialog> {
   final _decisionFormKey = GlobalKey<FormBuilderState>();
-  int _secondsLeft = 30;
+  // 30 seconds
+  final int _dialogLifetime = 30000;
+  int _millisecondsLeft = 30000;
   double _progress = 1.0;
   late Timer _timer;
   bool _isPermissionRequest = false;
@@ -30,13 +32,13 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
   void initState() {
     super.initState();
 
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(Duration(milliseconds: 1), (timer) {
       setState(() {
-        _secondsLeft--;
-        _progress = _secondsLeft / 30;
+        _millisecondsLeft--;
+        _progress = _millisecondsLeft / _dialogLifetime;
       });
 
-      if (_secondsLeft <= 0) {
+      if (_millisecondsLeft <= 0) {
         _timer.cancel();
         final decision = ref.read(xswdProvider.select((s) => s.decision));
         if (decision != null) {
@@ -63,7 +65,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
       case null:
         title = 'Unknown Request';
       case XswdRequestType_Application():
-        title = 'Application Request';
+        title = 'Connexion Request';
       case XswdRequestType_Permission():
         title = 'Permission Request';
         _isPermissionRequest = true;

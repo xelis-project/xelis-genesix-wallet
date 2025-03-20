@@ -603,7 +603,7 @@ class WalletState extends _$WalletState {
           },
           requestApplicationCallback: (event) async {
             final message =
-                'XSWD: Application request from ${event.applicationName}';
+                'XSWD: Connexion request from ${event.applicationName}';
             talker.info(message);
             final completer = ref
                 .read(xswdProvider.notifier)
