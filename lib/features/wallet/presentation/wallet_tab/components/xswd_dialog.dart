@@ -65,7 +65,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
       case null:
         title = 'Unknown Request';
       case XswdRequestType_Application():
-        title = 'Connexion Request';
+        title = 'Connection Request';
       case XswdRequestType_Permission():
         title = 'Permission Request';
         _isPermissionRequest = true;

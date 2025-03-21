@@ -417,11 +417,18 @@ class WalletState extends _$WalletState {
                     '${loc.multisig_modified_successfully_event} ${event.transactionEntry.topoheight}',
                   );
             case sdk.InvokeContractEntry():
-              // TODO: Handle this case.
+              ref
+                  .read(snackBarMessengerProvider.notifier)
+                  .showInfo(
+                    'Contract (${truncateText(txType.contract)}) invoked',
+                  );
               throw UnimplementedError();
             case sdk.DeployContractEntry():
-              // TODO: Handle this case.
-              throw UnimplementedError();
+              ref
+                  .read(snackBarMessengerProvider.notifier)
+                  .showInfo(
+                    'Contract deployed at topoheight ${event.transactionEntry.topoheight}',
+                  );
           }
         }
 
@@ -603,7 +610,7 @@ class WalletState extends _$WalletState {
           },
           requestApplicationCallback: (event) async {
             final message =
-                'XSWD: Connexion request from ${event.applicationName}';
+                'XSWD: Connection request from ${event.applicationName}';
             talker.info(message);
             final completer = ref
                 .read(xswdProvider.notifier)
