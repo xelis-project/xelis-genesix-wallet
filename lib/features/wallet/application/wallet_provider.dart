@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:genesix/features/wallet/application/history_providers.dart';
-import 'package:genesix/features/wallet/application/xswd_provider.dart';
+import 'package:genesix/features/wallet/application/xswd_providers.dart';
 import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
 import 'package:flutter/foundation.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
@@ -50,6 +50,15 @@ class WalletState extends _$WalletState {
 
       if (await state.nativeWalletRepository!.isOnline) {
         await disconnect();
+      }
+
+      final enableXswd = ref.watch(
+        settingsProvider.select((s) => s.enableXswd),
+      );
+      if (enableXswd) {
+        startXSWD();
+      } else {
+        stopXSWD();
       }
 
       StreamSubscription<void> sub = state.nativeWalletRepository!
@@ -600,61 +609,77 @@ class WalletState extends _$WalletState {
       try {
         // final loc = ref.read(appLocalizationsProvider);
         await state.nativeWalletRepository!.startXSWD(
-          cancelRequestCallback: (event) async {
+          cancelRequestCallback: (request) async {
             final message =
-                'XSWD: Request cancelled from ${event.applicationName}';
+                'XSWD: Request cancelled from ${request.applicationInfo.name}';
             talker.info(message);
             ref
-                .read(xswdProvider.notifier)
-                .newRequest(xswdEventSummary: event, message: message);
+                .read(xswdRequestProvider.notifier)
+                .newRequest(xswdEventSummary: request, message: message);
           },
-          requestApplicationCallback: (event) async {
+          requestApplicationCallback: (request) async {
             final message =
-                'XSWD: Connection request from ${event.applicationName}';
+                'XSWD: Connection request from ${request.applicationInfo.name}';
             talker.info(message);
             final completer = ref
-                .read(xswdProvider.notifier)
-                .newRequest(xswdEventSummary: event, message: message);
+                .read(xswdRequestProvider.notifier)
+                .newRequest(xswdEventSummary: request, message: message);
 
             final decision = await completer.future;
 
-            if (decision == UserPermissionDecision.allow ||
-                decision == UserPermissionDecision.alwaysAllow) {
+            if (decision == UserPermissionDecision.accept ||
+                decision == UserPermissionDecision.alwaysAccept) {
               ref
                   .read(snackBarMessengerProvider.notifier)
-                  .showInfo('Permission granted for ${event.applicationName}');
-            } else if (decision == UserPermissionDecision.deny ||
-                decision == UserPermissionDecision.alwaysDeny) {
+                  .showInfo(
+                    'Permission granted for ${request.applicationInfo.name}',
+                  );
+            } else if (decision == UserPermissionDecision.reject ||
+                decision == UserPermissionDecision.alwaysReject) {
               ref
                   .read(snackBarMessengerProvider.notifier)
-                  .showInfo('Permission denied for ${event.applicationName}');
+                  .showInfo(
+                    'Permission denied for ${request.applicationInfo.name}',
+                  );
             }
 
             return decision;
           },
-          requestPermissionCallback: (event) async {
+          requestPermissionCallback: (request) async {
             final message =
-                'XSWD: Permission request from ${event.applicationName}';
+                'XSWD: Permission request from ${request.applicationInfo.name}';
             talker.info(message);
             final completer = ref
-                .read(xswdProvider.notifier)
-                .newRequest(xswdEventSummary: event, message: message);
+                .read(xswdRequestProvider.notifier)
+                .newRequest(xswdEventSummary: request, message: message);
 
             final decision = await completer.future;
 
-            if (decision == UserPermissionDecision.allow ||
-                decision == UserPermissionDecision.alwaysAllow) {
+            if (decision == UserPermissionDecision.accept ||
+                decision == UserPermissionDecision.alwaysAccept) {
               ref
                   .read(snackBarMessengerProvider.notifier)
-                  .showInfo('Permission granted for ${event.applicationName}');
-            } else if (decision == UserPermissionDecision.deny ||
-                decision == UserPermissionDecision.alwaysDeny) {
+                  .showInfo(
+                    'Permission granted for ${request.applicationInfo.name}',
+                  );
+            } else if (decision == UserPermissionDecision.reject ||
+                decision == UserPermissionDecision.alwaysReject) {
               ref
                   .read(snackBarMessengerProvider.notifier)
-                  .showInfo('Permission denied for ${event.applicationName}');
+                  .showInfo(
+                    'Permission denied for ${request.applicationInfo.name}',
+                  );
             }
 
             return decision;
+          },
+          appDisconnectCallback: (request) async {
+            final message =
+                'XSWD: ${request.applicationInfo.name} disconnected';
+            talker.info(message);
+            ref
+                .read(xswdRequestProvider.notifier)
+                .newRequest(xswdEventSummary: request, message: message);
           },
         );
       } on AnyhowException catch (e) {
@@ -682,6 +707,50 @@ class WalletState extends _$WalletState {
         ref.read(snackBarMessengerProvider.notifier).showError(xelisMessage);
       } catch (e) {
         talker.error('Cannot stop XSWD: $e');
+        final loc = ref.read(appLocalizationsProvider);
+        // TODO: custom error message
+        ref
+            .read(snackBarMessengerProvider.notifier)
+            .showError('${loc.oups}\n$e');
+      }
+    }
+  }
+
+  Future<void> closeXswdAppConnection(String appID) async {
+    if (state.nativeWalletRepository != null) {
+      try {
+        state.nativeWalletRepository!.removeXswdApp(appID);
+      } on AnyhowException catch (e) {
+        talker.error('Cannot close XSWD app connection: $e');
+        final xelisMessage = (e).message.split("\n")[0];
+        ref.read(snackBarMessengerProvider.notifier).showError(xelisMessage);
+      } catch (e) {
+        talker.error('Cannot close XSWD app connection: $e');
+        final loc = ref.read(appLocalizationsProvider);
+        // TODO: custom error message
+        ref
+            .read(snackBarMessengerProvider.notifier)
+            .showError('${loc.oups}\n$e');
+      }
+    }
+  }
+
+  Future<void> editXswdAppPermission(
+    String appID,
+    Map<String, PermissionPolicy> permissions,
+  ) async {
+    if (state.nativeWalletRepository != null) {
+      try {
+        state.nativeWalletRepository!.modifyXSWDAppPermissions(
+          appID,
+          permissions,
+        );
+      } on AnyhowException catch (e) {
+        talker.error('Cannot edit XSWD app permission: $e');
+        final xelisMessage = (e).message.split("\n")[0];
+        ref.read(snackBarMessengerProvider.notifier).showError(xelisMessage);
+      } catch (e) {
+        talker.error('Cannot edit XSWD app permission: $e');
         final loc = ref.read(appLocalizationsProvider);
         // TODO: custom error message
         ref

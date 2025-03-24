@@ -1,3 +1,4 @@
+use flutter_rust_bridge::frb;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 pub use xelis_common::transaction::builder::TransactionTypeBuilder;
@@ -61,8 +62,42 @@ pub struct HistoryPageFilter {
 #[derive(Clone, Debug)]
 pub struct XswdRequestSummary {
     pub event_type: XswdRequestType,
-    pub application_id: String,
-    pub application_name: String,
+    pub application_info: AppInfo,
+}
+
+impl XswdRequestSummary {
+    pub fn new(event_type: XswdRequestType, application_info: AppInfo) -> Self {
+        Self {
+            event_type,
+            application_info,
+        }
+    }
+
+    #[frb(sync)]
+    pub fn is_cancel_request(&self) -> bool {
+        matches!(self.event_type, XswdRequestType::CancelRequest)
+    }
+
+    #[frb(sync)]
+    pub fn is_application_request(&self) -> bool {
+        matches!(self.event_type, XswdRequestType::Application)
+    }
+
+    #[frb(sync)]
+    pub fn is_permission_request(&self) -> bool {
+        matches!(self.event_type, XswdRequestType::Permission(_))
+    }
+
+    #[frb(sync)]
+    pub fn is_app_disconnect(&self) -> bool {
+        matches!(self.event_type, XswdRequestType::AppDisconnect)
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct AppInfo {
+    pub id: String,
+    pub name: String,
     pub description: String,
     pub url: Option<String>,
     pub permissions: HashMap<String, PermissionPolicy>,
@@ -70,22 +105,23 @@ pub struct XswdRequestSummary {
 
 #[derive(Clone, Debug)]
 pub enum XswdRequestType {
-    Application(bool),
+    Application,
     Permission(String),
     CancelRequest,
+    AppDisconnect,
 }
 
 #[derive(Clone, Debug)]
 pub enum PermissionPolicy {
     Ask,
-    AlwaysAllow,
-    AlwaysDeny,
+    Accept,
+    Reject,
 }
 
 #[derive(Clone, Debug)]
 pub enum UserPermissionDecision {
-    Allow,
-    Deny,
-    AlwaysAllow,
-    AlwaysDeny,
+    Accept,
+    Reject,
+    AlwaysAccept,
+    AlwaysReject,
 }

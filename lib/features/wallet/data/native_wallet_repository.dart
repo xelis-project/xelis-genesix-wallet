@@ -410,6 +410,7 @@ class NativeWalletRepository {
     requestApplicationCallback,
     required Future<UserPermissionDecision> Function(XswdRequestSummary)
     requestPermissionCallback,
+    required Future<void> Function(XswdRequestSummary) appDisconnectCallback,
   }) async {
     if (await _xelisWallet.isXswdRunning()) {
       talker.warning('XSWD already running...');
@@ -419,6 +420,7 @@ class NativeWalletRepository {
       cancelRequestDartCallback: cancelRequestCallback,
       requestApplicationDartCallback: requestApplicationCallback,
       requestPermissionDartCallback: requestPermissionCallback,
+      appDisconnectDartCallback: appDisconnectCallback,
     );
   }
 
@@ -428,6 +430,28 @@ class NativeWalletRepository {
       return;
     }
     _xelisWallet.stopXswd();
+  }
+
+  Future<List<AppInfo>> getXswdState() async {
+    if (!await _xelisWallet.isXswdRunning()) {
+      talker.warning('XSWD is not running...');
+      return [];
+    }
+    return _xelisWallet.getApplicationPermissions();
+  }
+
+  Future<void> removeXswdApp(String appID) async {
+    await _xelisWallet.closeApplicationSession(id: appID);
+  }
+
+  Future<void> modifyXSWDAppPermissions(
+    String appID,
+    Map<String, PermissionPolicy> permissions,
+  ) async {
+    await _xelisWallet.modifyApplicationPermissions(
+      id: appID,
+      permissions: permissions,
+    );
   }
 
   Future<void> exportTransactionsToCsvFile(String path) async {

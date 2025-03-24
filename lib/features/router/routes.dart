@@ -3,9 +3,11 @@ import 'package:flutter/widgets.dart';
 import 'package:genesix/features/authentication/domain/create_wallet_type_enum.dart';
 import 'package:genesix/features/authentication/presentation/components/seed_content_dialog.dart';
 import 'package:genesix/features/authentication/presentation/seed_screen.dart';
+import 'package:genesix/features/wallet/presentation/settings_tab/components/xswd_status_screen.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/burn/burn_screen.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/multisig/multisig_screen.dart';
+import 'package:genesix/features/wallet/presentation/xswd/xswd_widget.dart';
 import 'package:genesix/shared/widgets/components/dialog_page.dart';
 import 'package:genesix/features/logger/presentation/logger_screen.dart';
 import 'package:go_router/go_router.dart';
@@ -280,6 +282,22 @@ class MultiSigRoute extends GoRouteData {
   }
 }
 
+@TypedGoRoute<XswdStateRoute>(name: 'xswd_status', path: '/xswd_status')
+class XswdStateRoute extends GoRouteData {
+  const XswdStateRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      const XswdStatusScreen(),
+      state.pageKey,
+      state.fullPath,
+      state.extra,
+      AppDurations.animFast,
+    );
+  }
+}
+
 // This is the function to animate the transition between pages.
 CustomTransitionPage<T> pageTransition<T>(
   Widget child,
@@ -302,7 +320,7 @@ CustomTransitionPage<T> pageTransition<T>(
     ).chain(CurveTween(curve: Curves.easeIn));
     final offsetAnimation = animation.drive(tween);
 
-    return SlideTransition(position: offsetAnimation, child: child);
-    //return FadeTransition(opacity: animation, child: child);
+    // The XswdWidget must be added to the widget tree here to ensure the correct context is available to display the dialog
+    return SlideTransition(position: offsetAnimation, child: XswdWidget(child));
   },
 );

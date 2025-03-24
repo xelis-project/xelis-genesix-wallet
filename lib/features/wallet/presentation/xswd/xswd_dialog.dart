@@ -1,10 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/xswd_provider.dart';
+import 'package:genesix/features/wallet/application/xswd_providers.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/components/generic_dialog.dart';
@@ -21,12 +22,12 @@ class XswdDialog extends ConsumerStatefulWidget {
 
 class _XswdDialogState extends ConsumerState<XswdDialog> {
   final _decisionFormKey = GlobalKey<FormBuilderState>();
+
   // 30 seconds
   final int _dialogLifetime = 30000;
   int _millisecondsLeft = 30000;
   double _progress = 1.0;
   late Timer _timer;
-  bool _isPermissionRequest = false;
 
   @override
   void initState() {
@@ -40,9 +41,11 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
 
       if (_millisecondsLeft <= 0) {
         _timer.cancel();
-        final decision = ref.read(xswdProvider.select((s) => s.decision));
+        final decision = ref.read(
+          xswdRequestProvider.select((s) => s.decision),
+        );
         if (decision != null) {
-          decision.complete(UserPermissionDecision.deny);
+          decision.complete(UserPermissionDecision.reject);
         }
         context.pop();
       }
@@ -58,7 +61,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final xswdState = ref.watch(xswdProvider);
+    final xswdState = ref.watch(xswdRequestProvider);
 
     String title;
     switch (xswdState.xswdEventSummary?.eventType) {
@@ -68,19 +71,23 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
         title = 'Connection Request';
       case XswdRequestType_Permission():
         title = 'Permission Request';
-        _isPermissionRequest = true;
       case XswdRequestType_CancelRequest():
         title = 'Cancel Request';
+      case XswdRequestType_AppDisconnect():
+        title = 'App Disconnected';
     }
 
+    final isPermissionRequest =
+        xswdState.xswdEventSummary?.isPermissionRequest() ?? false;
+
     final actions = <Widget>[];
-    if (_isPermissionRequest) {
+    if (isPermissionRequest) {
       actions.add(
         TextButton(
           onPressed: () {
             final decision = xswdState.decision;
             if (decision != null) {
-              decision.complete(UserPermissionDecision.deny);
+              decision.complete(UserPermissionDecision.reject);
             }
             context.pop();
           },
@@ -110,7 +117,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
           onPressed: () {
             final decision = xswdState.decision;
             if (decision != null) {
-              decision.complete(UserPermissionDecision.deny);
+              decision.complete(UserPermissionDecision.reject);
             }
             context.pop();
           },
@@ -122,7 +129,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
           onPressed: () {
             final decision = xswdState.decision;
             if (decision != null) {
-              decision.complete(UserPermissionDecision.allow);
+              decision.complete(UserPermissionDecision.accept);
             }
             context.pop();
           },
@@ -172,7 +179,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
             ),
             const SizedBox(height: Spaces.small),
             Text(
-              xswdState.xswdEventSummary?.applicationId ?? '',
+              xswdState.xswdEventSummary?.applicationInfo.id ?? '/',
               style: context.bodyLarge,
             ),
             const SizedBox(height: Spaces.medium),
@@ -184,7 +191,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
             ),
             const SizedBox(height: Spaces.small),
             Text(
-              xswdState.xswdEventSummary?.applicationName ?? '',
+              xswdState.xswdEventSummary?.applicationInfo.name ?? '/',
               style: context.bodyLarge,
             ),
             const SizedBox(height: Spaces.medium),
@@ -196,7 +203,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
             ),
             const SizedBox(height: Spaces.small),
             Text(
-              xswdState.xswdEventSummary?.url ?? '',
+              xswdState.xswdEventSummary?.applicationInfo.url ?? '/',
               style: context.bodyLarge,
             ),
             const SizedBox(height: Spaces.medium),
@@ -208,23 +215,37 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
             ),
             const SizedBox(height: Spaces.small),
             Text(
-              xswdState.xswdEventSummary?.description ?? '',
+              xswdState.xswdEventSummary?.applicationInfo.description ?? '/',
               style: context.bodyLarge,
             ),
-            if (_isPermissionRequest) ...[
+            if (isPermissionRequest) ...[
               const SizedBox(height: Spaces.medium),
               Text(
-                'Content',
+                'Method',
                 style: context.bodyLarge!.copyWith(
                   color: context.moreColors.mutedColor,
                 ),
               ),
               const SizedBox(height: Spaces.small),
               Text(
-                (xswdState.xswdEventSummary?.eventType
-                        as XswdRequestType_Permission)
-                    .field0,
+                xswdState.permissionRpcRequest?.method ?? '/',
                 style: context.bodyLarge,
+              ),
+              const SizedBox(height: Spaces.medium),
+              Text(
+                'Params',
+                style: context.bodyLarge!.copyWith(
+                  color: context.moreColors.mutedColor,
+                ),
+              ),
+              const SizedBox(height: Spaces.small),
+              Builder(
+                builder: (context) {
+                  final prettyParams = JsonEncoder.withIndent(
+                    '  ',
+                  ).convert(xswdState.permissionRpcRequest?.params);
+                  return Text(prettyParams, style: context.bodyLarge);
+                },
               ),
               const SizedBox(height: Spaces.medium),
               FormBuilder(
@@ -233,19 +254,19 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                   name: 'decisions_radio_group',
                   options: [
                     FormBuilderFieldOption<UserPermissionDecision>(
-                      value: UserPermissionDecision.allow,
+                      value: UserPermissionDecision.accept,
                       child: Text('Allow'),
                     ),
                     FormBuilderFieldOption<UserPermissionDecision>(
-                      value: UserPermissionDecision.alwaysAllow,
+                      value: UserPermissionDecision.alwaysAccept,
                       child: Text('Always Allow'),
                     ),
                     FormBuilderFieldOption<UserPermissionDecision>(
-                      value: UserPermissionDecision.deny,
+                      value: UserPermissionDecision.reject,
                       child: Text('Deny'),
                     ),
                     FormBuilderFieldOption<UserPermissionDecision>(
-                      value: UserPermissionDecision.alwaysDeny,
+                      value: UserPermissionDecision.alwaysReject,
                       child: Text('Always Deny'),
                     ),
                   ],

@@ -883,9 +883,9 @@ dependencies = [
 
 [[package]]
 name = "deranged"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c9e6a11ca8224451684bc0d7d5a7adbf8f2fd6887261a1cfc3c0432f9d4068e"
+checksum = "28cfac68e08048ae1883171632c2aef3ebc555621ae56fbccce1cbf22dd7f058"
 dependencies = [
  "powerfmt",
 ]
@@ -1370,14 +1370,15 @@ dependencies = [
 
 [[package]]
 name = "iana-time-zone"
-version = "0.1.61"
+version = "0.1.62"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "235e081f3925a06703c2d0117ea8b91f042756fd6e7a6e5d901e8ca1a996b220"
+checksum = "b2fd658b06e56721792c5df4475705b6cda790e9298d19d2f8af083457bcd127"
 dependencies = [
  "android_system_properties",
  "core-foundation-sys",
  "iana-time-zone-haiku",
  "js-sys",
+ "log",
  "wasm-bindgen",
  "windows-core",
 ]
@@ -1707,9 +1708,9 @@ dependencies = [
 
 [[package]]
 name = "log"
-version = "0.4.26"
+version = "0.4.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30bde2b3dc3671ae49d8e2e9f044c7c005836e7a023ee57cffa25ab82764bb9e"
+checksum = "13dc2df351e3202783a1fe0d44375f7295ffb4049267b0f3018346dc122a1d94"
 
 [[package]]
 name = "log-panics"
@@ -2613,9 +2614,9 @@ dependencies = [
 
 [[package]]
 name = "time"
-version = "0.3.40"
+version = "0.3.41"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9d9c75b47bdff86fa3334a3db91356b8d7d86a9b839dab7d0bdc5c3d3a077618"
+checksum = "8a7619e19bc266e0f9c5e6686659d394bc57973859340060a69221e57dbc0c40"
 dependencies = [
  "deranged",
  "itoa",
@@ -2636,9 +2637,9 @@ checksum = "c9e9a38711f559d9e3ce1cdb06dd7c5b8ea546bc90052da6d06bb76da74bb07c"
 
 [[package]]
 name = "time-macros"
-version = "0.2.21"
+version = "0.2.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "29aa485584182073ed57fd5004aa09c371f021325014694e432313345865fd04"
+checksum = "3526739392ec93fd8b359c8e98514cb3e8e021beb4e5f597b00a0221f8ed8a49"
 dependencies = [
  "num-conv",
  "time-core",
@@ -3316,7 +3317,7 @@ dependencies = [
 [[package]]
 name = "xelis-ast"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#795781ebc0c44883cb089a8492992ff85792eff8"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#b571d1afc63c0e1316e300c20d65b76318743055"
 dependencies = [
  "indexmap",
  "xelis-types",
@@ -3325,7 +3326,7 @@ dependencies = [
 [[package]]
 name = "xelis-builder"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#795781ebc0c44883cb089a8492992ff85792eff8"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#b571d1afc63c0e1316e300c20d65b76318743055"
 dependencies = [
  "anyhow",
  "log",
@@ -3339,7 +3340,7 @@ dependencies = [
 [[package]]
 name = "xelis-bytecode"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#795781ebc0c44883cb089a8492992ff85792eff8"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#b571d1afc63c0e1316e300c20d65b76318743055"
 dependencies = [
  "indexmap",
  "serde",
@@ -3349,7 +3350,7 @@ dependencies = [
 [[package]]
 name = "xelis-environment"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#795781ebc0c44883cb089a8492992ff85792eff8"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#b571d1afc63c0e1316e300c20d65b76318743055"
 dependencies = [
  "anyhow",
  "better_any",
@@ -3375,7 +3376,7 @@ dependencies = [
 [[package]]
 name = "xelis-types"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#795781ebc0c44883cb089a8492992ff85792eff8"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#b571d1afc63c0e1316e300c20d65b76318743055"
 dependencies = [
  "anyhow",
  "indexmap",
@@ -3389,7 +3390,7 @@ dependencies = [
 [[package]]
 name = "xelis-vm"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#795781ebc0c44883cb089a8492992ff85792eff8"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#b571d1afc63c0e1316e300c20d65b76318743055"
 dependencies = [
  "indexmap",
  "log",
@@ -3402,7 +3403,7 @@ dependencies = [
 [[package]]
 name = "xelis_common"
 version = "1.17.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#03bef8e4af9e012aea6f76803d25e36f761efa0d"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#c53759596e79dc0be8c435a64885f21a38593f2c"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -3412,6 +3413,7 @@ dependencies = [
  "better_any",
  "blake3",
  "bulletproofs",
+ "cfg-if",
  "chacha20",
  "chacha20poly1305",
  "curve25519-dalek",
@@ -3448,7 +3450,7 @@ dependencies = [
 [[package]]
 name = "xelis_wallet"
 version = "1.17.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#03bef8e4af9e012aea6f76803d25e36f761efa0d"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#c53759596e79dc0be8c435a64885f21a38593f2c"
 dependencies = [
  "actix",
  "actix-web",
@@ -3502,18 +3504,18 @@ dependencies = [
 
 [[package]]
 name = "zerocopy"
-version = "0.8.23"
+version = "0.8.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd97444d05a4328b90e75e503a34bad781f14e28a823ad3557f0750df1ebcbc6"
+checksum = "2586fea28e186957ef732a5f8b3be2da217d65c5969d4b1e17f973ebbe876879"
 dependencies = [
  "zerocopy-derive",
 ]
 
 [[package]]
 name = "zerocopy-derive"
-version = "0.8.23"
+version = "0.8.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6352c01d0edd5db859a63e2605f4ea3183ddbd15e2c4a9e7d32184df75e4f154"
+checksum = "a996a8f63c5c4448cd959ac1bab0aaa3306ccfd060472f85943ee0750f0169be"
 dependencies = [
  "proc-macro2",
  "quote",

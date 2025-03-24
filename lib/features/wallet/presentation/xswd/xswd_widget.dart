@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:genesix/features/wallet/application/xswd_provider.dart';
-import 'package:genesix/features/wallet/presentation/wallet_tab/components/xswd_dialog.dart';
+import 'package:genesix/features/wallet/application/xswd_providers.dart';
+import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
+import 'package:genesix/features/wallet/presentation/xswd/xswd_dialog.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 
@@ -17,7 +18,10 @@ class XswdWidget extends ConsumerStatefulWidget {
 class _XswdWidgetState extends ConsumerState<XswdWidget> {
   @override
   Widget build(BuildContext context) {
-    final xswdState = ref.watch(xswdProvider);
+    final xswdState = ref.watch(xswdRequestProvider);
+    final isCancelRequestOrAppDisconnect =
+        xswdState.xswdEventSummary?.isCancelRequest() == true ||
+        xswdState.xswdEventSummary?.isAppDisconnect() == true;
     return Stack(
       children: [
         widget.child,
@@ -57,11 +61,13 @@ class _XswdWidgetState extends ConsumerState<XswdWidget> {
                             style: context.bodyLarge,
                           ),
                         ),
-                        const SizedBox(width: Spaces.medium),
-                        TextButton(
-                          onPressed: () => _onOpen(xswdState),
-                          child: Text('Open'),
-                        ),
+                        if (!isCancelRequestOrAppDisconnect) ...[
+                          const SizedBox(width: Spaces.medium),
+                          TextButton(
+                            onPressed: () => _onOpen(xswdState),
+                            child: Text('Open'),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -77,7 +83,7 @@ class _XswdWidgetState extends ConsumerState<XswdWidget> {
 
   void _onOpen(XswdRequestState xswdState) {
     xswdState.snackBarTimer?.cancel();
-    ref.read(xswdProvider.notifier).closeSnackBar();
+    ref.read(xswdRequestProvider.notifier).closeSnackBar();
     _showXswdDialog();
   }
 

@@ -45,6 +45,19 @@ class SettingsTab extends ConsumerWidget {
         ),
         const Divider(),
         ListTile(
+          leading: const Icon(Icons.security_rounded),
+          title: Text('XSWD Status', style: context.titleLarge),
+          subtitle: Text(
+            'The XSWD protocol provides secure communication with external applications.',
+            style: context.labelMedium?.copyWith(
+              color: context.moreColors.mutedColor,
+            ),
+          ),
+          onTap: () => context.push(AuthAppScreen.xswdStatus.toPath),
+          trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+        ),
+        const Divider(),
+        ListTile(
           leading: const Icon(Icons.pattern_rounded),
           title: Text(loc.view_seed, style: context.titleLarge),
           onTap:
@@ -65,21 +78,6 @@ class SettingsTab extends ConsumerWidget {
             style: context.titleLarge,
           ),
           children: [
-            FormBuilderSwitch(
-              name: 'xswd_switch',
-              initialValue: settings.enableXswd,
-              decoration: const InputDecoration(fillColor: Colors.transparent),
-              title: Text('Enable XSWD mode', style: context.bodyLarge),
-              subtitle: Text(
-                'The XSWD protocol provides secure communication with external applications.',
-                style: context.labelMedium?.copyWith(
-                  color: context.moreColors.mutedColor,
-                ),
-              ),
-              onChanged: (value) {
-                ref.read(settingsProvider.notifier).setEnableXswd(value!);
-              },
-            ),
             FormBuilderSwitch(
               name: 'biometric_auth_switch',
               initialValue: settings.activateBiometricAuth,
