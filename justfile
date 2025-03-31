@@ -36,3 +36,6 @@ install_rust_bridge_codegen:
 run_web:
     flutter_rust_bridge_codegen build-web --verbose --cargo-build-args --no-default-features --cargo-build-args --features="network_handler" --release
     flutter run -d chrome --web-header=Cross-Origin-Opener-Policy=same-origin --web-header=Cross-Origin-Embedder-Policy=require-corp
+
+generate_arb:
+    cd lib/l10n && python ./scripts/csv_to_arb.py
