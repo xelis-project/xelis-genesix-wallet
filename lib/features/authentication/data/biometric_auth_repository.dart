@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:genesix/features/logger/logger.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -9,8 +10,14 @@ class BiometricAuthRepository {
   Future<bool> get canCheckBiometrics => auth.canCheckBiometrics;
 
   Future<bool> canAuthenticate() async {
+    final List<BiometricType> availableBiometrics =
+        await auth.getAvailableBiometrics();
+    talker.debug('Local_Auth - availableBiometrics: $availableBiometrics');
     final canCheckBiometrics = await auth.canCheckBiometrics;
-    return canCheckBiometrics || await auth.isDeviceSupported();
+    talker.debug('Local_Auth - canCheckBiometrics: $canCheckBiometrics');
+    final isDeviceSupported = await auth.isDeviceSupported();
+    talker.debug('Local_Auth - isDeviceSupported: $isDeviceSupported');
+    return canCheckBiometrics || isDeviceSupported;
   }
 
   Future<bool> authenticate(String reason) async {
