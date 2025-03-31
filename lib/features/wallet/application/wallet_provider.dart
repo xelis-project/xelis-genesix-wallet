@@ -49,6 +49,9 @@ class WalletState extends _$WalletState {
       final loc = ref.read(appLocalizationsProvider);
 
       if (await state.nativeWalletRepository!.isOnline) {
+        talker.info(
+          'Already connected, stopping connection and reconnecting...',
+        );
         await disconnect();
       }
 
@@ -122,14 +125,13 @@ class WalletState extends _$WalletState {
     await state.streamSubscription?.cancel();
   }
 
-  Future<void> reconnect([NodeAddress? nodeAddress]) async {
+  void reconnect([NodeAddress? nodeAddress]) {
     if (nodeAddress != null) {
       final settings = ref.read(settingsProvider);
       ref
           .read(networkNodesProvider.notifier)
           .setNodeAddress(settings.network, nodeAddress);
     }
-    await disconnect();
     unawaited(connect());
   }
 
@@ -689,7 +691,6 @@ class WalletState extends _$WalletState {
       } catch (e) {
         talker.error('Cannot start XSWD: $e');
         final loc = ref.read(appLocalizationsProvider);
-        // TODO: custom error message
         ref
             .read(snackBarMessengerProvider.notifier)
             .showError('${loc.oups}\n$e');
@@ -708,7 +709,6 @@ class WalletState extends _$WalletState {
       } catch (e) {
         talker.error('Cannot stop XSWD: $e');
         final loc = ref.read(appLocalizationsProvider);
-        // TODO: custom error message
         ref
             .read(snackBarMessengerProvider.notifier)
             .showError('${loc.oups}\n$e');
@@ -716,10 +716,13 @@ class WalletState extends _$WalletState {
     }
   }
 
-  Future<void> closeXswdAppConnection(String appID) async {
+  Future<void> closeXswdAppConnection(AppInfo appInfo) async {
     if (state.nativeWalletRepository != null) {
       try {
-        state.nativeWalletRepository!.removeXswdApp(appID);
+        await state.nativeWalletRepository!.removeXswdApp(appInfo.id);
+        ref
+            .read(snackBarMessengerProvider.notifier)
+            .showInfo('XSWD: ${appInfo.name} disconnected');
       } on AnyhowException catch (e) {
         talker.error('Cannot close XSWD app connection: $e');
         final xelisMessage = (e).message.split("\n")[0];
@@ -727,7 +730,6 @@ class WalletState extends _$WalletState {
       } catch (e) {
         talker.error('Cannot close XSWD app connection: $e');
         final loc = ref.read(appLocalizationsProvider);
-        // TODO: custom error message
         ref
             .read(snackBarMessengerProvider.notifier)
             .showError('${loc.oups}\n$e');
@@ -741,7 +743,7 @@ class WalletState extends _$WalletState {
   ) async {
     if (state.nativeWalletRepository != null) {
       try {
-        state.nativeWalletRepository!.modifyXSWDAppPermissions(
+        await state.nativeWalletRepository!.modifyXSWDAppPermissions(
           appID,
           permissions,
         );
@@ -752,7 +754,6 @@ class WalletState extends _$WalletState {
       } catch (e) {
         talker.error('Cannot edit XSWD app permission: $e');
         final loc = ref.read(appLocalizationsProvider);
-        // TODO: custom error message
         ref
             .read(snackBarMessengerProvider.notifier)
             .showError('${loc.oups}\n$e');

@@ -32,6 +32,11 @@ class _XswdEditPermissionDialogState
   @override
   Widget build(BuildContext context) {
     final loc = ref.read(appLocalizationsProvider);
+    ref.listen(xswdRequestProvider, (previous, next) {
+      if (next.xswdEventSummary?.isAppDisconnect() ?? false) {
+        context.pop();
+      }
+    });
     return GenericDialog(
       scrollable: false,
       title: Row(
@@ -121,7 +126,10 @@ class _XswdEditPermissionDialogState
                               padding: const EdgeInsets.all(Spaces.small),
                               child: Row(
                                 children: [
-                                  Text(entry.key),
+                                  Chip(
+                                    label: Text(entry.key),
+                                    avatar: Icon(Icons.code, size: 16),
+                                  ),
                                   Spacer(),
                                   Expanded(
                                     child: GenericFormBuilderDropdown<
@@ -160,18 +168,15 @@ class _XswdEditPermissionDialogState
           ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            ref
-                .read(walletStateProvider.notifier)
-                .editXswdAppPermission(widget.appInfo.id, _permissions);
-            context.pop();
-            ref.invalidate(xswdApplicationsProvider);
-          },
-          child: Text(loc.save),
-        ),
-      ],
+      actions: [TextButton(onPressed: _onSave, child: Text(loc.save))],
     );
+  }
+
+  void _onSave() {
+    ref
+        .read(walletStateProvider.notifier)
+        .editXswdAppPermission(widget.appInfo.id, _permissions);
+    context.pop();
+    ref.invalidate(xswdRequestProvider);
   }
 }

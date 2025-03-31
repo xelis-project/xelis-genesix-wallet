@@ -9,9 +9,9 @@ import 'package:genesix/features/wallet/application/xswd_providers.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/components/generic_dialog.dart';
+import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown.dart';
 import 'package:genesix/src/generated/rust_bridge/api/dtos.dart';
 import 'package:go_router/go_router.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 
 class XswdDialog extends ConsumerStatefulWidget {
   const XswdDialog({super.key});
@@ -77,6 +77,9 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
         title = 'App Disconnected';
     }
 
+    final isApplicationRequest =
+        xswdState.xswdEventSummary?.isApplicationRequest() ?? false;
+
     final isPermissionRequest =
         xswdState.xswdEventSummary?.isPermissionRequest() ?? false;
 
@@ -87,26 +90,14 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
           onPressed: () {
             final decision = xswdState.decision;
             if (decision != null) {
-              decision.complete(UserPermissionDecision.reject);
-            }
-            context.pop();
-          },
-          child: Text(loc.cancel_button),
-        ),
-      );
-      actions.add(
-        TextButton(
-          onPressed: () {
-            if (_decisionFormKey.currentState!.saveAndValidate()) {
-              final decision = xswdState.decision;
-              if (decision != null) {
+              if (_decisionFormKey.currentState?.saveAndValidate() ?? false) {
                 decision.complete(
-                  _decisionFormKey.currentState!.value['decisions_radio_group']
+                  _decisionFormKey.currentState!.value['decisions_dropdown']
                       as UserPermissionDecision,
                 );
               }
-              context.pop();
             }
+            context.pop();
           },
           child: Text(loc.confirm_button),
         ),
@@ -166,8 +157,8 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
           ),
         ],
       ),
-      content: Padding(
-        padding: const EdgeInsets.all(Spaces.medium),
+      content: Container(
+        constraints: BoxConstraints(maxWidth: 800),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -227,9 +218,54 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                 ),
               ),
               const SizedBox(height: Spaces.small),
+              Builder(
+                builder: (context) {
+                  final name = xswdState.permissionRpcRequest?.method;
+                  if (name != null) {
+                    return Chip(
+                      label: Text(name),
+                      avatar: Icon(Icons.code, size: 16),
+                    );
+                  } else {
+                    return Text('/', style: context.bodyLarge);
+                  }
+                },
+              ),
+              const SizedBox(height: Spaces.medium),
               Text(
-                xswdState.permissionRpcRequest?.method ?? '/',
-                style: context.bodyLarge,
+                'Decision:',
+                style: context.bodyLarge!.copyWith(
+                  color: context.moreColors.mutedColor,
+                ),
+              ),
+              const SizedBox(height: Spaces.small),
+              Container(
+                constraints: BoxConstraints(maxWidth: 200),
+                child: FormBuilder(
+                  key: _decisionFormKey,
+                  child: GenericFormBuilderDropdown<UserPermissionDecision>(
+                    name: 'decisions_dropdown',
+                    initialValue: UserPermissionDecision.reject,
+                    items: [
+                      DropdownMenuItem(
+                        value: UserPermissionDecision.reject,
+                        child: Text('Deny'),
+                      ),
+                      DropdownMenuItem(
+                        value: UserPermissionDecision.alwaysReject,
+                        child: Text('Always Deny'),
+                      ),
+                      DropdownMenuItem(
+                        value: UserPermissionDecision.accept,
+                        child: Text('Allow'),
+                      ),
+                      DropdownMenuItem(
+                        value: UserPermissionDecision.alwaysAccept,
+                        child: Text('Always Allow'),
+                      ),
+                    ],
+                  ),
+                ),
               ),
               const SizedBox(height: Spaces.medium),
               Text(
@@ -247,33 +283,28 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                   return Text(prettyParams, style: context.bodyLarge);
                 },
               ),
+            ],
+            if (isApplicationRequest) ...[
               const SizedBox(height: Spaces.medium),
-              FormBuilder(
-                key: _decisionFormKey,
-                child: FormBuilderRadioGroup<UserPermissionDecision>(
-                  name: 'decisions_radio_group',
-                  options: [
-                    FormBuilderFieldOption<UserPermissionDecision>(
-                      value: UserPermissionDecision.accept,
-                      child: Text('Allow'),
-                    ),
-                    FormBuilderFieldOption<UserPermissionDecision>(
-                      value: UserPermissionDecision.alwaysAccept,
-                      child: Text('Always Allow'),
-                    ),
-                    FormBuilderFieldOption<UserPermissionDecision>(
-                      value: UserPermissionDecision.reject,
-                      child: Text('Deny'),
-                    ),
-                    FormBuilderFieldOption<UserPermissionDecision>(
-                      value: UserPermissionDecision.alwaysReject,
-                      child: Text('Always Deny'),
-                    ),
-                  ],
-                  validator: FormBuilderValidators.required(
-                    errorText: loc.field_required_error,
-                  ),
+              Text(
+                'The application may call the following methods:',
+                style: context.bodyLarge!.copyWith(
+                  color: context.moreColors.mutedColor,
                 ),
+              ),
+              const SizedBox(height: Spaces.small),
+              Wrap(
+                spacing: 8.0,
+                runSpacing: 4.0,
+                children:
+                    xswdState.xswdEventSummary!.applicationInfo.permissions.keys
+                        .map((name) {
+                          return Chip(
+                            label: Text(name),
+                            avatar: Icon(Icons.code, size: 16),
+                          );
+                        })
+                        .toList(),
               ),
             ],
           ],

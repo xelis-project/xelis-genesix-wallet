@@ -108,30 +108,37 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
                   } else {
                     return Column(
                       children:
-                          value.map((app) {
+                          value.map((appInfo) {
                             return Card(
                               child: Padding(
                                 padding: const EdgeInsets.all(Spaces.small),
                                 child: Row(
                                   children: [
                                     Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Text(app.name),
-                                        const SizedBox(height: Spaces.small),
+                                        Text(appInfo.name),
+                                        const SizedBox(
+                                          height: Spaces.extraSmall,
+                                        ),
                                         Text(
-                                          app.url ?? '/',
-                                          style: context.labelMedium,
+                                          appInfo.url ?? '/',
+                                          style: context.labelMedium?.copyWith(
+                                            color:
+                                                context.moreColors.mutedColor,
+                                          ),
                                         ),
                                       ],
                                     ),
                                     const Spacer(),
                                     IconButton(
-                                      onPressed: () => _onEdit(app),
+                                      onPressed: () => _onEdit(appInfo),
                                       icon: Icon(Icons.edit, size: 18),
                                     ),
                                     // const SizedBox(width: Spaces.small),
                                     IconButton(
-                                      onPressed: () => _onClose(app.id),
+                                      onPressed: () => _onClose(appInfo),
                                       icon: Icon(Icons.delete, size: 18),
                                     ),
                                   ],
@@ -142,7 +149,24 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
                     );
                   }
                 }
-                return const Text('No applications found');
+                return Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'No applications found',
+                            style: context.titleSmall?.copyWith(
+                              color: context.moreColors.mutedColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
               },
             ),
           ],
@@ -162,12 +186,11 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
     }
   }
 
-  void _onClose(String appID) {
-    ref.read(walletStateProvider.notifier).closeXswdAppConnection(appID).then((
-      _,
-    ) {
-      ref.invalidate(xswdApplicationsProvider);
-    });
+  Future<void> _onClose(AppInfo appInfo) async {
+    await ref
+        .read(walletStateProvider.notifier)
+        .closeXswdAppConnection(appInfo);
+    ref.invalidate(xswdRequestProvider);
   }
 
   void _onEdit(AppInfo appInfo) {

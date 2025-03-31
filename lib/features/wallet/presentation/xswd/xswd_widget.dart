@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_providers.dart';
 import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_dialog.dart';
@@ -18,10 +19,13 @@ class XswdWidget extends ConsumerStatefulWidget {
 class _XswdWidgetState extends ConsumerState<XswdWidget> {
   @override
   Widget build(BuildContext context) {
+    final loc = ref.read(appLocalizationsProvider);
     final xswdState = ref.watch(xswdRequestProvider);
+
     final isCancelRequestOrAppDisconnect =
         xswdState.xswdEventSummary?.isCancelRequest() == true ||
         xswdState.xswdEventSummary?.isAppDisconnect() == true;
+
     return Stack(
       children: [
         widget.child,
@@ -65,7 +69,7 @@ class _XswdWidgetState extends ConsumerState<XswdWidget> {
                           const SizedBox(width: Spaces.medium),
                           TextButton(
                             onPressed: () => _onOpen(xswdState),
-                            child: Text('Open'),
+                            child: Text(loc.open_button),
                           ),
                         ],
                       ],

@@ -487,9 +487,9 @@ dependencies = [
 
 [[package]]
 name = "blake3"
-version = "1.7.0"
+version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b17679a8d69b6d7fd9cd9801a536cec9fa5e5970b69f9d4747f70b39b031f5e7"
+checksum = "34a796731680be7931955498a16a10b2270c7762963d5d570fdbfe02dcbf314f"
 dependencies = [
  "arrayref",
  "arrayvec",
@@ -577,9 +577,9 @@ dependencies = [
 
 [[package]]
 name = "bytemuck_derive"
-version = "1.9.2"
+version = "1.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2ff22c2722516255d1823ce3cc4bc0b154dbc9364be5c905d6baa6eccbbc8774"
+checksum = "7ecc273b49b3205b83d648f0690daa588925572cc5063745bfe547fe7ec8e1a1"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1370,9 +1370,9 @@ dependencies = [
 
 [[package]]
 name = "iana-time-zone"
-version = "0.1.62"
+version = "0.1.63"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b2fd658b06e56721792c5df4475705b6cda790e9298d19d2f8af083457bcd127"
+checksum = "b0c919e5debc312ad217002b8048a17b7d83f80703865bbfcfebb0458b0b27d8"
 dependencies = [
  "android_system_properties",
  "core-foundation-sys",
@@ -1433,9 +1433,9 @@ dependencies = [
 
 [[package]]
 name = "icu_locid_transform_data"
-version = "1.5.0"
+version = "1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fdc8ff3388f852bede6b579ad4e978ab004f139284d7b28715f773507b946f6e"
+checksum = "7515e6d781098bf9f7205ab3fc7e9709d34554ae0b21ddbcb5febfa4bc7df11d"
 
 [[package]]
 name = "icu_normalizer"
@@ -1457,9 +1457,9 @@ dependencies = [
 
 [[package]]
 name = "icu_normalizer_data"
-version = "1.5.0"
+version = "1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f8cafbf7aa791e9b22bec55a167906f9e1215fd475cd22adfcf660e03e989516"
+checksum = "c5e8338228bdc8ab83303f16b797e177953730f601a96c25d10cb3ab0daa0cb7"
 
 [[package]]
 name = "icu_properties"
@@ -1478,9 +1478,9 @@ dependencies = [
 
 [[package]]
 name = "icu_properties_data"
-version = "1.5.0"
+version = "1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67a8effbc3dd3e4ba1afa8ad918d5684b8868b3b26500753effea8d2eed19569"
+checksum = "85fb8799753b75aee8d2a21d7c14d9f38921b54b3dbda10f5a3c7a7b82dba5e2"
 
 [[package]]
 name = "icu_provider"
@@ -1840,9 +1840,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.21.1"
+version = "1.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d75b0bedcc4fe52caa0e03d9f1151a323e4aa5e2d78ba3580400cd3c9e2bc4bc"
+checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
 
 [[package]]
 name = "opaque-debug"
@@ -2473,9 +2473,9 @@ checksum = "7fcf8323ef1faaee30a44a340193b1ac6814fd9b7b4e88e9d4519a3e4abe1cfd"
 
 [[package]]
 name = "socket2"
-version = "0.5.8"
+version = "0.5.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c970269d99b64e60ec3bd6ad27270092a5394c4e309314b18ae3fe575695fbe8"
+checksum = "4f5fd57c80058a56cf5c777ab8a126398ece8e442983605d280a44ce79d0edef"
 dependencies = [
  "libc",
  "windows-sys 0.52.0",
@@ -3104,11 +3104,37 @@ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 
 [[package]]
 name = "windows-core"
-version = "0.52.0"
+version = "0.61.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33ab640c8d7e35bf8ba19b884ba838ceb4fba93a4e8c65a9059d08afcfc683d9"
+checksum = "4763c1de310c86d75a878046489e2e5ba02c649d185f21c67d4cf8a56d098980"
 dependencies = [
- "windows-targets 0.52.6",
+ "windows-implement",
+ "windows-interface",
+ "windows-link",
+ "windows-result",
+ "windows-strings",
+]
+
+[[package]]
+name = "windows-implement"
+version = "0.60.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a47fddd13af08290e67f4acabf4b459f647552718f683a7b415d290ac744a836"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "windows-interface"
+version = "0.59.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bd9211b69f8dcdfa817bfd14bf1c97c9188afa36f4750130fcdf3f400eca9fa8"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -3116,6 +3142,24 @@ name = "windows-link"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "76840935b766e1b0a05c0066835fb9ec80071d4c09a16f6bd5f7e655e3c14c38"
+
+[[package]]
+name = "windows-result"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c64fd11a4fd95df68efcfee5f44a294fe71b8bc6a91993e2791938abcc712252"
+dependencies = [
+ "windows-link",
+]
+
+[[package]]
+name = "windows-strings"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a2ba9642430ee452d5a7aa78d72907ebe8cfda358e8cb7918a2050581322f97"
+dependencies = [
+ "windows-link",
+]
 
 [[package]]
 name = "windows-sys"
@@ -3317,7 +3361,7 @@ dependencies = [
 [[package]]
 name = "xelis-ast"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#b571d1afc63c0e1316e300c20d65b76318743055"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#480072fadb0ac3eca7e4444ce288d0460061ad71"
 dependencies = [
  "indexmap",
  "xelis-types",
@@ -3326,7 +3370,7 @@ dependencies = [
 [[package]]
 name = "xelis-builder"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#b571d1afc63c0e1316e300c20d65b76318743055"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#480072fadb0ac3eca7e4444ce288d0460061ad71"
 dependencies = [
  "anyhow",
  "log",
@@ -3340,7 +3384,7 @@ dependencies = [
 [[package]]
 name = "xelis-bytecode"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#b571d1afc63c0e1316e300c20d65b76318743055"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#480072fadb0ac3eca7e4444ce288d0460061ad71"
 dependencies = [
  "indexmap",
  "serde",
@@ -3350,7 +3394,7 @@ dependencies = [
 [[package]]
 name = "xelis-environment"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#b571d1afc63c0e1316e300c20d65b76318743055"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#480072fadb0ac3eca7e4444ce288d0460061ad71"
 dependencies = [
  "anyhow",
  "better_any",
@@ -3376,7 +3420,7 @@ dependencies = [
 [[package]]
 name = "xelis-types"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#b571d1afc63c0e1316e300c20d65b76318743055"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#480072fadb0ac3eca7e4444ce288d0460061ad71"
 dependencies = [
  "anyhow",
  "indexmap",
@@ -3390,7 +3434,7 @@ dependencies = [
 [[package]]
 name = "xelis-vm"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#b571d1afc63c0e1316e300c20d65b76318743055"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#480072fadb0ac3eca7e4444ce288d0460061ad71"
 dependencies = [
  "indexmap",
  "log",
@@ -3403,7 +3447,7 @@ dependencies = [
 [[package]]
 name = "xelis_common"
 version = "1.17.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#c53759596e79dc0be8c435a64885f21a38593f2c"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#24125a1886c083b242bf1d2fc5aaa0727962e772"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -3450,7 +3494,7 @@ dependencies = [
 [[package]]
 name = "xelis_wallet"
 version = "1.17.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#c53759596e79dc0be8c435a64885f21a38593f2c"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#24125a1886c083b242bf1d2fc5aaa0727962e772"
 dependencies = [
  "actix",
  "actix-web",
