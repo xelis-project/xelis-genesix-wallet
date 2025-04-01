@@ -93,33 +93,41 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
 
     return GenericDialog(
       scrollable: false,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(
-              left: Spaces.medium,
-              top: Spaces.large,
+      title: SizedBox(
+        width: double.infinity,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: Spaces.medium,
+                  top: Spaces.large,
+                ),
+                child: Text(
+                  loc.authentication.capitalize(),
+                  style: context.headlineSmall,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                  maxLines: 1,
+                ),
+              ),
             ),
-            child: Text(
-              loc.authentication.capitalize(),
-              style: context.titleLarge,
+            Padding(
+              padding: const EdgeInsets.only(
+                right: Spaces.small,
+                top: Spaces.small,
+              ),
+              child: IconButton(
+                onPressed: () {
+                  context.pop();
+                },
+                icon: const Icon(Icons.close_rounded),
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(
-              right: Spaces.small,
-              top: Spaces.small,
-            ),
-            child: IconButton(
-              onPressed: () {
-                context.pop();
-              },
-              icon: const Icon(Icons.close_rounded),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,

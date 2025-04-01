@@ -43,38 +43,46 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
     );
     final transactionReview = ref.watch(transactionReviewProvider);
     return GenericDialog(
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(
-              left: Spaces.medium,
-              top: Spaces.large,
-            ),
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: AppDurations.animFast),
-              child: Text(
-                key: ValueKey(transactionReview.transactionHashToSign),
-                transactionReview.hasSummary ? loc.review : loc.multisig,
-                style: context.headlineSmall,
+      title: SizedBox(
+        width: double.infinity,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: Spaces.medium,
+                  top: Spaces.large,
+                ),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: AppDurations.animFast),
+                  child: Text(
+                    key: ValueKey(transactionReview.transactionHashToSign),
+                    transactionReview.hasSummary ? loc.review : loc.multisig,
+                    style: context.headlineSmall,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: false,
+                    maxLines: 1,
+                  ),
+                ),
               ),
             ),
-          ),
-          if (!transactionReview.isBroadcast)
-            Padding(
-              padding: const EdgeInsets.only(
-                right: Spaces.small,
-                top: Spaces.small,
+            if (!transactionReview.isBroadcast)
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: Spaces.small,
+                  top: Spaces.small,
+                ),
+                child: IconButton(
+                  onPressed: () {
+                    context.pop();
+                  },
+                  icon: const Icon(Icons.close_rounded),
+                ),
               ),
-              child: IconButton(
-                onPressed: () {
-                  context.pop();
-                },
-                icon: const Icon(Icons.close_rounded),
-              ),
-            ),
-        ],
+          ],
+        ),
       ),
       content: Container(
         constraints: BoxConstraints(maxWidth: 600),

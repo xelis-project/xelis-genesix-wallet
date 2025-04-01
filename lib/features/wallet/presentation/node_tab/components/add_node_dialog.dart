@@ -52,30 +52,41 @@ class _AddNodeDialogState extends ConsumerState<AddNodeDialog> {
     var nodes = networkNodes.getNodes(network);
 
     return GenericDialog(
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(
-              left: Spaces.medium,
-              top: Spaces.large,
+      title: SizedBox(
+        width: double.infinity,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: Spaces.medium,
+                  top: Spaces.large,
+                ),
+                child: Text(
+                  loc.add_new_node_title,
+                  style: context.headlineSmall,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                  maxLines: 1,
+                ),
+              ),
             ),
-            child: Text(loc.add_new_node_title, style: context.titleLarge),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(
-              right: Spaces.small,
-              top: Spaces.small,
+            Padding(
+              padding: const EdgeInsets.only(
+                right: Spaces.small,
+                top: Spaces.small,
+              ),
+              child: IconButton(
+                onPressed: () {
+                  context.pop();
+                },
+                icon: const Icon(Icons.close_rounded),
+              ),
             ),
-            child: IconButton(
-              onPressed: () {
-                context.pop();
-              },
-              icon: const Icon(Icons.close_rounded),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
       content: Builder(
         builder: (context) {

@@ -131,32 +131,45 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     }
 
     return GenericDialog(
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(
-              left: Spaces.medium,
-              top: Spaces.large,
+      title: SizedBox(
+        width: double.infinity,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: Spaces.medium,
+                  top: Spaces.large,
+                ),
+                child: Text(
+                  title,
+                  style: context.headlineSmall,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                  maxLines: 1,
+                ),
+              ),
             ),
-            child: Text(title, style: context.headlineSmall),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(
-              right: Spaces.small,
-              top: Spaces.small,
+            Padding(
+              padding: const EdgeInsets.only(
+                right: Spaces.small,
+                top: Spaces.small,
+              ),
+              child: CircularProgressIndicator(
+                value: _progress,
+                strokeWidth: 3,
+                constraints: const BoxConstraints(minWidth: 25, minHeight: 25),
+                backgroundColor: context.colors.surface,
+                year2023: false,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  context.colors.primary,
+                ),
+              ),
             ),
-            child: CircularProgressIndicator(
-              value: _progress,
-              strokeWidth: 3,
-              constraints: const BoxConstraints(minWidth: 25, minHeight: 25),
-              backgroundColor: context.colors.surface,
-              year2023: false,
-              valueColor: AlwaysStoppedAnimation<Color>(context.colors.primary),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
       content: Container(
         constraints: BoxConstraints(maxWidth: 800),

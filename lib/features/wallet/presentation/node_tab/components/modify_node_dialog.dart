@@ -54,30 +54,40 @@ class _ModifyNodeDialogState extends ConsumerState<ModifyNodeDialog> {
     var nodes = networkNodes.getNodes(network);
 
     return GenericDialog(
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(
-              left: Spaces.medium,
-              top: Spaces.large,
+      title: SizedBox(
+        width: double.infinity,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: Spaces.medium,
+                  top: Spaces.large,
+                ),
+                child: Text(
+                  loc.edit_node,
+                  style: context.headlineSmall,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                ),
+              ),
             ),
-            child: Text(loc.edit_node, style: context.titleLarge),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(
-              right: Spaces.small,
-              top: Spaces.small,
+            Padding(
+              padding: const EdgeInsets.only(
+                right: Spaces.small,
+                top: Spaces.small,
+              ),
+              child: IconButton(
+                onPressed: () {
+                  context.pop();
+                },
+                icon: const Icon(Icons.close_rounded),
+              ),
             ),
-            child: IconButton(
-              onPressed: () {
-                context.pop();
-              },
-              icon: const Icon(Icons.close_rounded),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
       content: Builder(
         builder: (context) {

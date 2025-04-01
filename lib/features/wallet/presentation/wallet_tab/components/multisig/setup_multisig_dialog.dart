@@ -56,40 +56,48 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
     bool transactionReadyToBroadcast = _transactionSummary != null;
     return GenericDialog(
       scrollable: false,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(
-              left: Spaces.medium,
-              top: Spaces.large,
-            ),
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: AppDurations.animFast),
-              child: Text(
-                key: ValueKey(_transactionSummary),
-                _transactionSummary != null
-                    ? loc.review
-                    : loc.multisig_setup_title,
-                style: context.headlineSmall,
+      title: SizedBox(
+        width: double.infinity,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: Spaces.medium,
+                  top: Spaces.large,
+                ),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: AppDurations.animFast),
+                  child: Text(
+                    key: ValueKey(_transactionSummary),
+                    _transactionSummary != null
+                        ? loc.review
+                        : loc.multisig_setup_title,
+                    style: context.headlineSmall,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: false,
+                    maxLines: 1,
+                  ),
+                ),
               ),
             ),
-          ),
-          if (!_isBroadcast)
-            Padding(
-              padding: const EdgeInsets.only(
-                right: Spaces.small,
-                top: Spaces.small,
+            if (!_isBroadcast)
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: Spaces.small,
+                  top: Spaces.small,
+                ),
+                child: IconButton(
+                  onPressed: () {
+                    context.pop();
+                  },
+                  icon: const Icon(Icons.close_rounded),
+                ),
               ),
-              child: IconButton(
-                onPressed: () {
-                  context.pop();
-                },
-                icon: const Icon(Icons.close_rounded),
-              ),
-            ),
-        ],
+          ],
+        ),
       ),
       content: Container(
         constraints: BoxConstraints(maxWidth: 600),

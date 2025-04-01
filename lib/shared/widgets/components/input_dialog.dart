@@ -49,30 +49,41 @@ class _InputDialogState extends ConsumerState<InputDialog> {
     final loc = ref.watch(appLocalizationsProvider);
     return GenericDialog(
       scrollable: false,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(
-              left: Spaces.medium,
-              top: Spaces.large,
+      title: SizedBox(
+        width: double.infinity,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: Spaces.medium,
+                  top: Spaces.large,
+                ),
+                child: Text(
+                  widget.title,
+                  style: context.headlineSmall,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                  maxLines: 1,
+                ),
+              ),
             ),
-            child: Text(widget.title, style: context.titleLarge),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(
-              right: Spaces.small,
-              top: Spaces.small,
+            Padding(
+              padding: const EdgeInsets.only(
+                right: Spaces.small,
+                top: Spaces.small,
+              ),
+              child: IconButton(
+                onPressed: () {
+                  context.pop();
+                },
+                icon: const Icon(Icons.close_rounded),
+              ),
             ),
-            child: IconButton(
-              onPressed: () {
-                context.pop();
-              },
-              icon: const Icon(Icons.close_rounded),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
       content: Builder(
         builder: (BuildContext context) {
