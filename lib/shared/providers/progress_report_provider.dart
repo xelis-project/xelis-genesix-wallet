@@ -16,9 +16,6 @@ Stream<Report> progressReportStream(Ref ref) {
 Raw<Stream<Report_TableGeneration>> tableGenerationProgress(Ref ref) async* {
   final report = ref.watch(progressReportStreamProvider);
   switch (report) {
-    // TODO
-    // case AsyncValue(:final error?):
-    //   {}
     case AsyncValue(valueOrNull: final value):
       {
         switch (value) {

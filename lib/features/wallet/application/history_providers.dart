@@ -11,10 +11,7 @@ part 'history_providers.g.dart';
 const pageSize = 10;
 
 @riverpod
-Future<List<TransactionEntry>> history(
-  Ref ref,
-  int page,
-) async {
+Future<List<TransactionEntry>> history(Ref ref, int page) async {
   ref.watch(walletStateProvider.select((value) => value.assets));
   final repository = ref.watch(
     walletStateProvider.select((value) => value.nativeWalletRepository),

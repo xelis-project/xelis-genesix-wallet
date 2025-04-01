@@ -57,6 +57,15 @@ class NodeInfoWidget extends ConsumerWidget {
         }, style: context.titleLarge),
         const SizedBox(height: Spaces.medium),
         Text(
+          'Burned Supply',
+          style: context.labelLarge?.copyWith(color: context.colors.primary),
+        ),
+        SelectableText(switch (info?.burnSupply) {
+          null => '...',
+          String() => info!.burnSupply,
+        }, style: context.titleLarge),
+        const SizedBox(height: Spaces.medium),
+        Text(
           loc.block_reward,
           style: context.labelLarge?.copyWith(color: context.colors.primary),
         ),

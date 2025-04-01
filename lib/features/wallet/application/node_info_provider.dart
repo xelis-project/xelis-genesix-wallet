@@ -20,6 +20,7 @@ Future<DaemonInfoSnapshot?> nodeInfo(Ref ref) async {
       topoHeight: info.topoHeight,
       pruned: info.prunedTopoHeight != null ? true : false,
       circulatingSupply: formatXelis(info.circulatingSupply),
+      burnSupply: formatXelis(info.burnedSupply),
       averageBlockTime: Duration(milliseconds: info.averageBlockTime),
       mempoolSize: info.mempoolSize,
       blockReward: formatXelis(info.blockReward),

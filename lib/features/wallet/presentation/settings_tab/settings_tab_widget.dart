@@ -45,6 +45,19 @@ class SettingsTab extends ConsumerWidget {
         ),
         const Divider(),
         ListTile(
+          leading: const Icon(Icons.security_rounded),
+          title: Text(loc.xswd_status, style: context.titleLarge),
+          subtitle: Text(
+            loc.xswd_setting_label,
+            style: context.labelMedium?.copyWith(
+              color: context.moreColors.mutedColor,
+            ),
+          ),
+          onTap: () => context.push(AuthAppScreen.xswdStatus.toPath),
+          trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+        ),
+        const Divider(),
+        ListTile(
           leading: const Icon(Icons.pattern_rounded),
           title: Text(loc.view_seed, style: context.titleLarge),
           onTap:

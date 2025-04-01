@@ -30,7 +30,7 @@ class BalanceWidget extends ConsumerWidget {
       walletStateProvider.select((state) => state.xelisBalance),
     );
     var displayedBalance =
-        xelisBalance.isNotEmpty ? xelisBalance : AppResources.zeroBalance;
+        '${xelisBalance.isNotEmpty ? xelisBalance : AppResources.zeroBalance} ${AppResources.xelisAsset.ticker}';
 
     XelisTicker? xelisTicker;
     if (settings.showBalanceUSDT && settings.network == Network.mainnet) {
@@ -68,7 +68,7 @@ class BalanceWidget extends ConsumerWidget {
                       fit: BoxFit.fitWidth,
                       child: SelectableText(
                         displayedBalance,
-                        style: context.displayMedium,
+                        style: context.displaySmall,
                       ),
                     ),
                     if (settings.showBalanceUSDT &&
