@@ -46,9 +46,9 @@ class SettingsTab extends ConsumerWidget {
         const Divider(),
         ListTile(
           leading: const Icon(Icons.security_rounded),
-          title: Text('XSWD Status', style: context.titleLarge),
+          title: Text(loc.xswd_status, style: context.titleLarge),
           subtitle: Text(
-            'The XSWD protocol provides secure communication with external applications.',
+            loc.xswd_setting_label,
             style: context.labelMedium?.copyWith(
               color: context.moreColors.mutedColor,
             ),

@@ -5,6 +5,7 @@ import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_providers.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown.dart';
 import 'package:genesix/src/generated/rust_bridge/api/dtos.dart';
@@ -39,30 +40,41 @@ class _XswdEditPermissionDialogState
     });
     return GenericDialog(
       scrollable: false,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(
-              left: Spaces.medium,
-              top: Spaces.large,
+      title: SizedBox(
+        width: double.infinity,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: Spaces.medium,
+                  top: Spaces.large,
+                ),
+                child: Text(
+                  loc.edit_permissions,
+                  style: context.headlineSmall,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                  maxLines: 1,
+                ),
+              ),
             ),
-            child: Text('Edit Permissions', style: context.headlineSmall),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(
-              right: Spaces.small,
-              top: Spaces.small,
+            Padding(
+              padding: const EdgeInsets.only(
+                right: Spaces.small,
+                top: Spaces.small,
+              ),
+              child: IconButton(
+                onPressed: () {
+                  context.pop();
+                },
+                icon: const Icon(Icons.close_rounded),
+              ),
             ),
-            child: IconButton(
-              onPressed: () {
-                context.pop();
-              },
-              icon: const Icon(Icons.close_rounded),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
       content: Container(
         constraints: BoxConstraints(maxWidth: 800, maxHeight: 600),
@@ -71,7 +83,7 @@ class _XswdEditPermissionDialogState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'ID',
+              loc.id.capitalize(),
               style: context.bodyLarge!.copyWith(
                 color: context.moreColors.mutedColor,
               ),
@@ -80,7 +92,7 @@ class _XswdEditPermissionDialogState
             Text(widget.appInfo.id, style: context.bodyLarge),
             const SizedBox(height: Spaces.medium),
             Text(
-              'Name',
+              loc.name.capitalize(),
               style: context.bodyLarge!.copyWith(
                 color: context.moreColors.mutedColor,
               ),
@@ -90,7 +102,7 @@ class _XswdEditPermissionDialogState
             const SizedBox(height: Spaces.medium),
             if (widget.appInfo.url != null) ...[
               Text(
-                'Url',
+                loc.url.capitalize(),
                 style: context.bodyLarge!.copyWith(
                   color: context.moreColors.mutedColor,
                 ),
@@ -100,7 +112,7 @@ class _XswdEditPermissionDialogState
               const SizedBox(height: Spaces.medium),
             ],
             Text(
-              'Description',
+              loc.description.capitalize(),
               style: context.bodyLarge!.copyWith(
                 color: context.moreColors.mutedColor,
               ),
@@ -109,7 +121,7 @@ class _XswdEditPermissionDialogState
             Text(widget.appInfo.description, style: context.bodyLarge),
             const SizedBox(height: Spaces.medium),
             Text(
-              'Permissions:',
+              loc.permissions.capitalize(),
               style: context.bodyLarge!.copyWith(
                 color: context.moreColors.mutedColor,
               ),
@@ -130,7 +142,9 @@ class _XswdEditPermissionDialogState
                                     label: Text(entry.key),
                                     avatar: Icon(Icons.code, size: 16),
                                   ),
-                                  Spacer(),
+                                  context.isHandset
+                                      ? const SizedBox(width: Spaces.medium)
+                                      : Spacer(),
                                   Expanded(
                                     child: GenericFormBuilderDropdown<
                                       PermissionPolicy
@@ -141,15 +155,15 @@ class _XswdEditPermissionDialogState
                                       items: [
                                         DropdownMenuItem(
                                           value: PermissionPolicy.ask,
-                                          child: Text('Ask'),
+                                          child: Text(loc.ask),
                                         ),
                                         DropdownMenuItem(
                                           value: PermissionPolicy.accept,
-                                          child: Text('Allow'),
+                                          child: Text(loc.allow),
                                         ),
                                         DropdownMenuItem(
                                           value: PermissionPolicy.reject,
-                                          child: Text('Deny'),
+                                          child: Text(loc.deny),
                                         ),
                                       ],
                                       onChanged: (value) {

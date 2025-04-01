@@ -8,6 +8,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/wallet/application/xswd_providers.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown.dart';
 import 'package:genesix/src/generated/rust_bridge/api/dtos.dart';
@@ -66,15 +67,15 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     String title;
     switch (xswdState.xswdEventSummary?.eventType) {
       case null:
-        title = 'Unknown Request';
+        title = loc.unknown_request.capitalize();
       case XswdRequestType_Application():
-        title = 'Connection Request';
+        title = loc.connection_request.capitalize();
       case XswdRequestType_Permission():
-        title = 'Permission Request';
+        title = loc.permission_request.capitalize();
       case XswdRequestType_CancelRequest():
-        title = 'Cancel Request';
+        title = loc.cancellation_request.capitalize();
       case XswdRequestType_AppDisconnect():
-        title = 'App Disconnected';
+        title = loc.app_disconnected.capitalize();
     }
 
     final isApplicationRequest =
@@ -112,7 +113,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
             }
             context.pop();
           },
-          child: Text('Deny'),
+          child: Text(loc.deny),
         ),
       );
       actions.add(
@@ -124,7 +125,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
             }
             context.pop();
           },
-          child: Text('Allow'),
+          child: Text(loc.allow),
         ),
       );
     }
@@ -163,7 +164,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'ID',
+              loc.id.capitalize(),
               style: context.bodyLarge!.copyWith(
                 color: context.moreColors.mutedColor,
               ),
@@ -175,7 +176,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
             ),
             const SizedBox(height: Spaces.medium),
             Text(
-              'Name',
+              loc.name.capitalize(),
               style: context.bodyLarge!.copyWith(
                 color: context.moreColors.mutedColor,
               ),
@@ -187,7 +188,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
             ),
             const SizedBox(height: Spaces.medium),
             Text(
-              'Url',
+              loc.url.capitalize(),
               style: context.bodyLarge!.copyWith(
                 color: context.moreColors.mutedColor,
               ),
@@ -199,7 +200,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
             ),
             const SizedBox(height: Spaces.medium),
             Text(
-              'Description',
+              loc.description.capitalize(),
               style: context.bodyLarge!.copyWith(
                 color: context.moreColors.mutedColor,
               ),
@@ -212,7 +213,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
             if (isPermissionRequest) ...[
               const SizedBox(height: Spaces.medium),
               Text(
-                'Method',
+                loc.method.capitalize(),
                 style: context.bodyLarge!.copyWith(
                   color: context.moreColors.mutedColor,
                 ),
@@ -233,7 +234,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
               ),
               const SizedBox(height: Spaces.medium),
               Text(
-                'Decision:',
+                loc.decision.capitalize(),
                 style: context.bodyLarge!.copyWith(
                   color: context.moreColors.mutedColor,
                 ),
@@ -249,19 +250,19 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                     items: [
                       DropdownMenuItem(
                         value: UserPermissionDecision.reject,
-                        child: Text('Deny'),
+                        child: Text(loc.deny),
                       ),
                       DropdownMenuItem(
                         value: UserPermissionDecision.alwaysReject,
-                        child: Text('Always Deny'),
+                        child: Text(loc.always_deny),
                       ),
                       DropdownMenuItem(
                         value: UserPermissionDecision.accept,
-                        child: Text('Allow'),
+                        child: Text(loc.allow),
                       ),
                       DropdownMenuItem(
                         value: UserPermissionDecision.alwaysAccept,
-                        child: Text('Always Allow'),
+                        child: Text(loc.always_allow),
                       ),
                     ],
                   ),
@@ -269,7 +270,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
               ),
               const SizedBox(height: Spaces.medium),
               Text(
-                'Params',
+                loc.parameters.capitalize(),
                 style: context.bodyLarge!.copyWith(
                   color: context.moreColors.mutedColor,
                 ),
@@ -287,7 +288,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
             if (isApplicationRequest) ...[
               const SizedBox(height: Spaces.medium),
               Text(
-                'The application may call the following methods:',
+                loc.future_permissions.capitalize(),
                 style: context.bodyLarge!.copyWith(
                   color: context.moreColors.mutedColor,
                 ),

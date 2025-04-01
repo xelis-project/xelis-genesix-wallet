@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_providers.dart';
@@ -21,6 +22,7 @@ class XswdStatusScreen extends ConsumerStatefulWidget {
 class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
   @override
   Widget build(BuildContext context) {
+    final loc = ref.watch(appLocalizationsProvider);
     final enableXswd = ref.watch(
       settingsProvider.select((settings) => settings.enableXswd),
     );
@@ -28,7 +30,7 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
     final appInfos = ref.watch(xswdApplicationsProvider.future);
 
     return CustomScaffold(
-      appBar: GenericAppBar(title: 'XSWD Status'),
+      appBar: GenericAppBar(title: loc.xswd_status),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(
           Spaces.large,
@@ -40,12 +42,13 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Manage application permissions with XSWD protocol.',
+              loc.xwsd_status_screen_message,
               style: context.titleMedium?.copyWith(
                 color: context.moreColors.mutedColor,
               ),
             ),
             const SizedBox(height: Spaces.large),
+            // Switch to enable/disable XSWD
             Card(
               child: FormBuilderSwitch(
                 name: 'xswd_switch',
@@ -53,14 +56,12 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
                 decoration: const InputDecoration(
                   fillColor: Colors.transparent,
                 ),
-                title: Text('Enable XSWD protocol', style: context.bodyLarge),
+                title: Text(loc.enable_xswd, style: context.bodyLarge),
                 onChanged: _onXswdSwitch,
               ),
             ),
             const SizedBox(height: Spaces.large),
-            Text('Applications:', style: context.titleMedium),
-            const SizedBox(height: Spaces.small),
-            // applications,
+            // List of connected applications
             FutureBuilder(
               future: appInfos,
               builder: (context, snapshot) {
@@ -73,7 +74,7 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Error loading applications',
+                              loc.error_loading_applications,
                               style: context.titleSmall?.copyWith(
                                 color: context.moreColors.mutedColor,
                               ),
@@ -95,7 +96,7 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                'No connected applications',
+                                loc.no_application_connected,
                                 style: context.titleSmall?.copyWith(
                                   color: context.moreColors.mutedColor,
                                 ),
@@ -107,45 +108,45 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
                     );
                   } else {
                     return Column(
-                      children:
-                          value.map((appInfo) {
-                            return Card(
-                              child: Padding(
-                                padding: const EdgeInsets.all(Spaces.small),
-                                child: Row(
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(appInfo.name),
-                                        const SizedBox(
-                                          height: Spaces.extraSmall,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(loc.applications, style: context.titleMedium),
+                        const SizedBox(height: Spaces.small),
+                        ...value.map((appInfo) {
+                          return Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(Spaces.small),
+                              child: Row(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(appInfo.name),
+                                      const SizedBox(height: Spaces.extraSmall),
+                                      Text(
+                                        appInfo.url ?? '/',
+                                        style: context.labelMedium?.copyWith(
+                                          color: context.moreColors.mutedColor,
                                         ),
-                                        Text(
-                                          appInfo.url ?? '/',
-                                          style: context.labelMedium?.copyWith(
-                                            color:
-                                                context.moreColors.mutedColor,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const Spacer(),
-                                    IconButton(
-                                      onPressed: () => _onEdit(appInfo),
-                                      icon: Icon(Icons.edit, size: 18),
-                                    ),
-                                    // const SizedBox(width: Spaces.small),
-                                    IconButton(
-                                      onPressed: () => _onClose(appInfo),
-                                      icon: Icon(Icons.delete, size: 18),
-                                    ),
-                                  ],
-                                ),
+                                      ),
+                                    ],
+                                  ),
+                                  const Spacer(),
+                                  IconButton(
+                                    onPressed: () => _onEdit(appInfo),
+                                    icon: Icon(Icons.edit, size: 18),
+                                  ),
+                                  IconButton(
+                                    onPressed: () => _onClose(appInfo),
+                                    icon: Icon(Icons.delete, size: 18),
+                                  ),
+                                ],
                               ),
-                            );
-                          }).toList(),
+                            ),
+                          );
+                        }),
+                      ],
                     );
                   }
                 }
@@ -157,7 +158,7 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'No applications found',
+                            loc.no_application_found,
                             style: context.titleSmall?.copyWith(
                               color: context.moreColors.mutedColor,
                             ),

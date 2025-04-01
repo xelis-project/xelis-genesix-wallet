@@ -39,3 +39,4 @@ run_web:
 
 generate_arb:
     cd lib/l10n && python ./scripts/csv_to_arb.py
+    flutter pub get
