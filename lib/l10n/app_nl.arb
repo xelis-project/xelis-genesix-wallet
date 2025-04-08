@@ -311,7 +311,7 @@
   "edit_permissions": "Machtigingen bewerken",
   "description": "Beschrijving",
   "permissions": "Machtigingen",
-  "decision": "Beslissing",
+  "action": "Actie",
   "method": "Methode",
   "parameters": "Parameters",
   "future_permissions": "Deze applicatie zal de volgende machtigingen aanvragen:",

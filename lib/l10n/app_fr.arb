@@ -311,7 +311,7 @@
   "edit_permissions": "Modifier les autorisations",
   "description": "Description",
   "permissions": "Autorisations",
-  "decision": "Décision",
+  "action": "Action",
   "method": "Méthode",
   "parameters": "Paramètres",
   "future_permissions": "Cette application demandera les autorisations suivantes :",

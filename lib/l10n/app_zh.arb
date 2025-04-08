@@ -311,7 +311,7 @@
   "edit_permissions": "编辑权限",
   "description": "描述",
   "permissions": "权限",
-  "decision": "决定",
+  "action": "操作",
   "method": "方法",
   "parameters": "参数",
   "future_permissions": "此应用程序将请求以下权限：",

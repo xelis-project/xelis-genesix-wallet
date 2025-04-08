@@ -311,7 +311,7 @@
   "edit_permissions": "Edytuj uprawnienia",
   "description": "Opis",
   "permissions": "Uprawnienia",
-  "decision": "Decyzja",
+  "action": "Akcja",
   "method": "Metoda",
   "parameters": "Parametry",
   "future_permissions": "Ta aplikacja poprosi o następujące uprawnienia:",

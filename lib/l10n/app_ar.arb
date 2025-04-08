@@ -311,7 +311,7 @@
   "edit_permissions": "تعديل الأذونات",
   "description": "الوصف",
   "permissions": "الأذونات",
-  "decision": "قرار",
+  "action": "إجراء",
   "method": "طريقة",
   "parameters": "المعلمات",
   "future_permissions": "سيطلب هذا التطبيق الأذونات التالية:",

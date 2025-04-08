@@ -311,7 +311,7 @@
   "edit_permissions": "Редагувати дозволи",
   "description": "Опис",
   "permissions": "Дозволи",
-  "decision": "Рішення",
+  "action": "Дія",
   "method": "Метод",
   "parameters": "Параметри",
   "future_permissions": "Цей застосунок запитає наступні дозволи:",

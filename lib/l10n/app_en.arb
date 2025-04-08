@@ -311,7 +311,7 @@
   "edit_permissions": "Edit permissions",
   "description": "Description",
   "permissions": "Permissions",
-  "decision": "Decision",
+  "action": "Action",
   "method": "Method",
   "parameters": "Parameters",
   "future_permissions": "This application will request the following permissions:",

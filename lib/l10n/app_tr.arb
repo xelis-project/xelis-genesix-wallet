@@ -311,7 +311,7 @@
   "edit_permissions": "İzinleri düzenle",
   "description": "Açıklama",
   "permissions": "İzinler",
-  "decision": "Karar",
+  "action": "Eylem",
   "method": "Yöntem",
   "parameters": "Parametreler",
   "future_permissions": "Bu uygulama aşağıdaki izinleri isteyecek:",

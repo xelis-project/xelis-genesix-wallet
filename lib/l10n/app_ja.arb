@@ -311,7 +311,7 @@
   "edit_permissions": "権限を編集",
   "description": "説明",
   "permissions": "権限",
-  "decision": "決定",
+  "action": "アクション",
   "method": "方法",
   "parameters": "パラメーター",
   "future_permissions": "このアプリケーションは次の権限を要求します:",

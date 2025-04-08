@@ -255,7 +255,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
               ),
               const SizedBox(height: Spaces.medium),
               Text(
-                loc.decision.capitalize(),
+                loc.action,
                 style: context.bodyLarge!.copyWith(
                   color: context.moreColors.mutedColor,
                 ),

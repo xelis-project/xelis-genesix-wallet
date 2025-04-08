@@ -311,7 +311,7 @@
   "edit_permissions": "Edit Kebenaran",
   "description": "Penerangan",
   "permissions": "Kebenaran",
-  "decision": "Keputusan",
+  "action": "Tindakan",
   "method": "Kaedah",
   "parameters": "Parameter",
   "future_permissions": "Aplikasi ini akan meminta kebenaran berikut:",

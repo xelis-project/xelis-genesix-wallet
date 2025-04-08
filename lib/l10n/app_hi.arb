@@ -311,7 +311,7 @@
   "edit_permissions": "अनुमतियाँ संपादित करें",
   "description": "विवरण",
   "permissions": "अनुमतियाँ",
-  "decision": "निर्णय",
+  "action": "क्रिया",
   "method": "विधि",
   "parameters": "पैरामीटर",
   "future_permissions": "यह एप्लिकेशन निम्नलिखित अनुमतियाँ मांगेगा:",

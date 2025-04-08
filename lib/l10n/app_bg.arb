@@ -311,7 +311,7 @@
   "edit_permissions": "Редактиране на разрешения",
   "description": "Описание",
   "permissions": "Разрешения",
-  "decision": "Решение",
+  "action": "Действие",
   "method": "Метод",
   "parameters": "Параметри",
   "future_permissions": "Това приложение ще поиска следните разрешения:",

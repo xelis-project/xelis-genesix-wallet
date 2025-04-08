@@ -311,7 +311,7 @@
   "edit_permissions": "권한 편집",
   "description": "설명",
   "permissions": "권한",
-  "decision": "결정",
+  "action": "동작",
   "method": "방법",
   "parameters": "매개변수",
   "future_permissions": "이 애플리케이션은 다음 권한을 요청합니다:",
