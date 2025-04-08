@@ -327,5 +327,9 @@
   "connection_request_from": "XSWD: Запит на з’єднання від",
   "request_cancelled_from": "XSWD: Запит скасовано від",
   "contract_deployed_at": "Контракт розгорнуто на topoheight",
-  "contract_invoked": "Контракт викликано:"
+  "contract_invoked": "Контракт викликано:",
+  "max_gas": "макс. газ",
+  "private": "приватний",
+  "invoke_contract": "Викликати контракт",
+  "deploy_contract": "Розгорнути контракт"
 }

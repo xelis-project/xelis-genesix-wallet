@@ -327,5 +327,9 @@
   "connection_request_from": "XSWD: Заявка за връзка от",
   "request_cancelled_from": "XSWD: Заявката е отменена от",
   "contract_deployed_at": "Договорът е внедрен на topoheight",
-  "contract_invoked": "Договорът е извикан:"
+  "contract_invoked": "Договорът е извикан:",
+  "max_gas": "максимален газ",
+  "private": "частен",
+  "invoke_contract": "Извикване на договор",
+  "deploy_contract": "Деплой на договор"
 }

@@ -327,5 +327,9 @@
   "connection_request_from": "XSWD: Permintaan sambungan daripada",
   "request_cancelled_from": "XSWD: Permintaan dibatalkan daripada",
   "contract_deployed_at": "Kontrak digunakan pada topoheight",
-  "contract_invoked": "Kontrak dipanggil:"
+  "contract_invoked": "Kontrak dipanggil:",
+  "max_gas": "gas maksimum",
+  "private": "peribadi",
+  "invoke_contract": "Panggil kontrak",
+  "deploy_contract": "Laksanakan kontrak"
 }

@@ -327,5 +327,9 @@
   "connection_request_from": "XSWD: Solicitação de conexão de",
   "request_cancelled_from": "XSWD: Solicitação cancelada de",
   "contract_deployed_at": "Contrato implantado em topoheight",
-  "contract_invoked": "Contrato invocado:"
+  "contract_invoked": "Contrato invocado:",
+  "max_gas": "gás máximo",
+  "private": "privado",
+  "invoke_contract": "Invocar contrato",
+  "deploy_contract": "Implantar contrato"
 }

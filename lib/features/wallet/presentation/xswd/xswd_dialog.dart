@@ -6,6 +6,11 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_providers.dart';
+import 'package:genesix/features/wallet/domain/permission_rpc_request.dart';
+import 'package:genesix/features/wallet/presentation/xswd/components/burn_builder_widget.dart';
+import 'package:genesix/features/wallet/presentation/xswd/components/invoke_contract_widget.dart';
+import 'package:genesix/features/wallet/presentation/xswd/components/multisig_builder_widget.dart';
+import 'package:genesix/features/wallet/presentation/xswd/components/transfer_builder_widget.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -13,6 +18,9 @@ import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown.dart';
 import 'package:genesix/src/generated/rust_bridge/api/dtos.dart';
 import 'package:go_router/go_router.dart';
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+
+import 'components/deploy_contract_builder_widget.dart';
 
 class XswdDialog extends ConsumerStatefulWidget {
   const XswdDialog({super.key});
@@ -24,9 +32,9 @@ class XswdDialog extends ConsumerStatefulWidget {
 class _XswdDialogState extends ConsumerState<XswdDialog> {
   final _decisionFormKey = GlobalKey<FormBuilderState>();
 
-  // 30 seconds
-  final int _dialogLifetime = 30000;
-  int _millisecondsLeft = 30000;
+  // 60 seconds
+  final int _dialogLifetime = 60000;
+  int _millisecondsLeft = 60000;
   double _progress = 1.0;
   late Timer _timer;
 
@@ -282,21 +290,8 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                 ),
               ),
               const SizedBox(height: Spaces.medium),
-              Text(
-                loc.parameters.capitalize(),
-                style: context.bodyLarge!.copyWith(
-                  color: context.moreColors.mutedColor,
-                ),
-              ),
-              const SizedBox(height: Spaces.small),
-              Builder(
-                builder: (context) {
-                  final prettyParams = JsonEncoder.withIndent(
-                    '  ',
-                  ).convert(xswdState.permissionRpcRequest?.params);
-                  return Text(prettyParams, style: context.bodyLarge);
-                },
-              ),
+              const Divider(),
+              _handlePermissionRpcRequest(xswdState.permissionRpcRequest!),
             ],
             if (isApplicationRequest) ...[
               const SizedBox(height: Spaces.medium),
@@ -308,8 +303,8 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
               ),
               const SizedBox(height: Spaces.small),
               Wrap(
-                spacing: 8.0,
-                runSpacing: 4.0,
+                spacing: Spaces.small,
+                runSpacing: Spaces.extraSmall,
                 children:
                     xswdState.xswdEventSummary!.applicationInfo.permissions.keys
                         .map((name) {
@@ -325,6 +320,30 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
         ),
       ),
       actions: actions,
+    );
+  }
+
+  Widget _handlePermissionRpcRequest(PermissionRpcRequest request) {
+    if (request.method == WalletMethod.buildTransaction.jsonKey) {
+      final params = BuildTransactionParams.fromJson(request.params);
+      final builder = params.transactionTypeBuilder;
+
+      if (builder is TransfersBuilder) {
+        return TransfersBuilderWidget(transfersBuilder: builder);
+      } else if (builder is BurnBuilder) {
+        return BurnBuilderWidget(burnBuilder: builder);
+      } else if (builder is MultisigBuilder) {
+        return MultisigBuilderWidget(multisigBuilder: builder);
+      } else if (builder is InvokeContractBuilder) {
+        return InvokeContractBuilderWidget(invokeContractBuilder: builder);
+      } else if (builder is DeployContractBuilder) {
+        return DeployContractBuilderWidget(deployContractBuilder: builder);
+      }
+    }
+
+    return SelectableText(
+      JsonEncoder.withIndent('  ').convert(request.params),
+      style: context.bodySmall,
     );
   }
 }

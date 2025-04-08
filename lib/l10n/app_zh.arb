@@ -327,5 +327,9 @@
   "connection_request_from": "XSWD：连接请求来自",
   "request_cancelled_from": "XSWD：请求已取消 来自",
   "contract_deployed_at": "合约已在 topoheight 部署",
-  "contract_invoked": "合约已调用："
+  "contract_invoked": "合约已调用：",
+  "max_gas": "最大燃料",
+  "private": "私有",
+  "invoke_contract": "调用合约",
+  "deploy_contract": "部署合约"
 }

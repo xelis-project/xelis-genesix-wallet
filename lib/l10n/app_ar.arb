@@ -327,5 +327,9 @@
   "connection_request_from": "XSWD: طلب اتصال من",
   "request_cancelled_from": "XSWD: تم إلغاء الطلب من",
   "contract_deployed_at": "تم نشر العقد عند topoheight",
-  "contract_invoked": "تم استدعاء العقد:"
+  "contract_invoked": "تم استدعاء العقد:",
+  "max_gas": "الحد الأقصى للغاز",
+  "private": "خاص",
+  "invoke_contract": "استدعاء العقد",
+  "deploy_contract": "نشر العقد"
 }

@@ -15,7 +15,7 @@ import 'package:path/path.dart' as p;
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart' show NumberFormat, toBeginningOfSentenceCase;
 
-String formatCoin(int value, int decimals, String ticker) {
+String formatCoin(int value, int decimals, [String? ticker]) {
   final formatter = NumberFormat.currency(
     locale: 'fr_FR',
     decimalDigits: decimals,

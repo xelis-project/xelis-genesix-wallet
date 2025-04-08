@@ -327,5 +327,9 @@
   "connection_request_from": "XSWD: Verbindingsverzoek van",
   "request_cancelled_from": "XSWD: Verzoek geannuleerd van",
   "contract_deployed_at": "Contract geïmplementeerd op topoheight",
-  "contract_invoked": "Contract aangeroepen:"
+  "contract_invoked": "Contract aangeroepen:",
+  "max_gas": "maximale gas",
+  "private": "privé",
+  "invoke_contract": "Contract aanroepen",
+  "deploy_contract": "Contract implementeren"
 }

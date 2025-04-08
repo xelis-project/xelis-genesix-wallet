@@ -327,5 +327,9 @@
   "connection_request_from": "XSWD: 연결 요청 -",
   "request_cancelled_from": "XSWD: 요청이 취소됨 -",
   "contract_deployed_at": "계약이 topoheight에 배포되었습니다",
-  "contract_invoked": "계약이 호출되었습니다:"
+  "contract_invoked": "계약이 호출되었습니다:",
+  "max_gas": "최대 가스",
+  "private": "비공개",
+  "invoke_contract": "계약 호출",
+  "deploy_contract": "계약 배포"
 }

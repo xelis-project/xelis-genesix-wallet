@@ -327,5 +327,9 @@
   "connection_request_from": "XSWD：接続リクエスト元",
   "request_cancelled_from": "XSWD：リクエストがキャンセルされました 発信元",
   "contract_deployed_at": "トポハイトでコントラクトが展開されました",
-  "contract_invoked": "コントラクトが呼び出されました："
+  "contract_invoked": "コントラクトが呼び出されました：",
+  "max_gas": "最大ガス",
+  "private": "プライベート",
+  "invoke_contract": "コントラクトを呼び出す",
+  "deploy_contract": "コントラクトをデプロイ"
 }

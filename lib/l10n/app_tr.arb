@@ -327,5 +327,9 @@
   "connection_request_from": "XSWD: Bağlantı isteği -",
   "request_cancelled_from": "XSWD: İstek iptal edildi -",
   "contract_deployed_at": "Sözleşme topoheight üzerinde dağıtıldı",
-  "contract_invoked": "Sözleşme çağrıldı:"
+  "contract_invoked": "Sözleşme çağrıldı:",
+  "max_gas": "maksimum gaz",
+  "private": "özel",
+  "invoke_contract": "Sözleşmeyi çağır",
+  "deploy_contract": "Sözleşmeyi dağıt"
 }

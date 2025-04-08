@@ -43,7 +43,7 @@
   "add_new_node_title": "Nouveau Noeud",
   "url": "url",
   "url_already_exists": "Cette url existe déjà.",
-  "name": "nom",
+  "name": "name",
   "name_already_exists": "Ce nom existe déjà.",
   "change_network_error": "Can't set network if the wallet is opened.",
   "cache_directory": "Répertoire de cache",
@@ -327,5 +327,9 @@
   "connection_request_from": "XSWD : Requête de connexion de",
   "request_cancelled_from": "XSWD : Demande annulée de",
   "contract_deployed_at": "Contrat déployé à la hauteur topo",
-  "contract_invoked": "Contrat invoqué :"
+  "contract_invoked": "Contrat invoqué :",
+  "max_gas": "gaz maximal",
+  "private": "privé",
+  "invoke_contract": "Invoquer le contrat",
+  "deploy_contract": "Déployer le contrat"
 }

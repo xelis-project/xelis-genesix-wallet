@@ -327,5 +327,9 @@
   "connection_request_from": "XSWD: कनेक्शन अनुरोध से",
   "request_cancelled_from": "XSWD: अनुरोध रद्द किया गया द्वारा",
   "contract_deployed_at": "अनुबंध को topoheight पर परिनियोजित किया गया",
-  "contract_invoked": "अनुबंध कॉल किया गया:"
+  "contract_invoked": "अनुबंध कॉल किया गया:",
+  "max_gas": "अधिकतम गैस",
+  "private": "निजी",
+  "invoke_contract": "अनुबंध कॉल करें",
+  "deploy_contract": "अनुबंध परिनियोजित करें"
 }

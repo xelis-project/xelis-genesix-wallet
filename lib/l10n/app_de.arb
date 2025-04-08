@@ -327,5 +327,9 @@
   "connection_request_from": "XSWD: Verbindungsanfrage von",
   "request_cancelled_from": "XSWD: Anfrage abgebrochen von",
   "contract_deployed_at": "Vertrag bei Topoheight bereitgestellt",
-  "contract_invoked": "Vertrag aufgerufen:"
+  "contract_invoked": "Vertrag aufgerufen:",
+  "max_gas": "max. Gas",
+  "private": "privat",
+  "invoke_contract": "Vertrag aufrufen",
+  "deploy_contract": "Vertrag bereitstellen"
 }

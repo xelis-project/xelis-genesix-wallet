@@ -327,5 +327,9 @@
   "connection_request_from": "XSWD: Connection request from",
   "request_cancelled_from": "XSWD: Request cancelled from",
   "contract_deployed_at": "Contract deployed at topoheight",
-  "contract_invoked": "Contract invoked:"
+  "contract_invoked": "Contract invoked:",
+  "max_gas": "max gas",
+  "private": "private",
+  "invoke_contract": "Invoke contract",
+  "deploy_contract": "Deploy contract"
 }
