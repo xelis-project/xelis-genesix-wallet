@@ -559,7 +559,8 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
     setState(() {
       if (_searchBarFocusNode.hasFocus) {
         _wordIndex ??= _firstEmptyRecoveryWordIndex;
-      } else {
+      } else if (_searchResults == null) {
+        // if search engine is no more active, we can unselect the next empty word
         _wordIndex = null;
       }
     });
@@ -571,6 +572,7 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
           .firstWhere((element) => element.value.isEmpty)
           .key;
     } on StateError {
+      // No empty word found
       return null;
     }
   }
