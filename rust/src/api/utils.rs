@@ -20,7 +20,7 @@ pub fn is_address_valid(str_address: String, network: Network) -> bool {
 
 // Split integrated address (if any) into address and data
 #[frb(sync)]
-pub fn split_integrated_address_json(integrated_address: String) -> Result<String> {
+pub fn split_integrated_address(integrated_address: String) -> Result<String> {
     let address = Address::from_string(&integrated_address).context("Invalid address")?;
     let (data, address) = address.extract_data();
     Ok(json!(IntegratedAddress { address, data }).to_string())

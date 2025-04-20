@@ -36,7 +36,7 @@ String formatXelis(int value) {
 }
 
 DestinationAddress parseRawAddress({required String rawAddress}) {
-  var rawData = splitIntegratedAddressJson(integratedAddress: rawAddress);
+  var rawData = splitIntegratedAddress(integratedAddress: rawAddress);
   final json = jsonDecode(rawData);
   return DestinationAddress.fromJson(json as Map<String, dynamic>);
 }
