@@ -216,12 +216,18 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
           return;
         }
 
-        ref
-            .read(addressBookProvider().notifier)
-            .upsert(address.trim(), name.trim(), null);
-        ref
-            .read(snackBarMessengerProvider.notifier)
-            .showInfo('$name added to address book', durationInSeconds: 2);
+        try {
+          ref
+              .read(addressBookProvider().notifier)
+              .upsert(address.trim(), name.trim(), null);
+          ref
+              .read(snackBarMessengerProvider.notifier)
+              .showInfo('$name added to address book', durationInSeconds: 2);
+        } catch (e) {
+          ref
+              .read(snackBarMessengerProvider.notifier)
+              .showError('Failed to add contact: $e');
+        }
       }
 
       if (!mounted) return;

@@ -3,8 +3,9 @@ use super::{
     wallet::XelisWallet,
 };
 use anyhow::{bail, Result};
+use regex::RegexBuilder;
 use xelis_common::api::{
-    query::{Query, QueryValue},
+    query::{Query, QueryElement, QueryValue},
     DataElement, DataValue,
 };
 
@@ -38,10 +39,25 @@ impl AddressBook for XelisWallet {
 
     // get contacts by name
     async fn find_contacts_by_name(&self, name: String) -> Result<AddressBookData> {
+        // Create a regex pattern to match contacts starting with the given name
+        // The regex pattern is case-insensitive and matches the name followed by any number of letters, digits, underscores, or hyphens
+        let regex = RegexBuilder::new(&format!(
+            r"(?i)\b{}[\p{{L}}\p{{N}}_\-]*",
+            regex::escape(&name)
+        ))
+        .unicode(true)
+        .case_insensitive(true)
+        .build()
+        .expect("Failed to build regex");
+        let query_name = Query::Element(QueryElement::AtKey {
+            key: DataValue::String("name".to_string()),
+            query: Box::new(Query::Value(QueryValue::Matches(regex))),
+        });
+
         let storage = self.get_wallet().get_storage().read().await;
-        let query_name = Query::Value(QueryValue::StartsWith(DataValue::String(name)));
         let address_book =
             storage.query_db(ADDRESS_BOOK_TREE, None, Some(query_name), None, None)?;
+
         let address_book = AddressBookData::from(address_book.entries)?;
         Ok(address_book)
     }

@@ -163,12 +163,18 @@ class _EditContactDialogState extends ConsumerState<EditContactDialog> {
       _focusNodeName.unfocus();
       final name = _formKey.currentState?.fields['name']?.value as String?;
       if (name != null) {
-        await ref
-            .read(addressBookProvider().notifier)
-            .upsert(widget.address, name.trim(), null);
-        ref
-            .read(snackBarMessengerProvider.notifier)
-            .showInfo('contact updated', durationInSeconds: 2);
+        try {
+          await ref
+              .read(addressBookProvider().notifier)
+              .upsert(widget.address, name.trim(), null);
+          ref
+              .read(snackBarMessengerProvider.notifier)
+              .showInfo('contact updated', durationInSeconds: 2);
+        } catch (e) {
+          ref
+              .read(snackBarMessengerProvider.notifier)
+              .showError('Failed to update contact: $e');
+        }
       }
 
       if (!mounted) return;
