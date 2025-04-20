@@ -19,7 +19,7 @@ class AddressWidget extends ConsumerStatefulWidget {
 class _AddressWidgetState extends ConsumerState<AddressWidget> {
   @override
   Widget build(BuildContext context) {
-    final future = ref.watch(addressBookProvider().future);
+    final future = ref.watch(addressBookProvider.future);
     final loc = ref.watch(appLocalizationsProvider);
 
     return Row(

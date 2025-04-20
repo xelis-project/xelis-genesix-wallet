@@ -3,6 +3,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
+import 'package:genesix/features/wallet/application/search_query_provider.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
@@ -24,14 +25,19 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
   final _formKey = GlobalKey<FormBuilderState>(
     debugLabel: '_selectSearchFormKey',
   );
-  String? _searchText;
+
+  final _searchFocusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final future = ref.watch(
-      addressBookProvider(startWith: _searchText).future,
-    );
+    final future = ref.watch(addressBookProvider.future);
     return GenericDialog(
       scrollable: false,
       title: SizedBox(
@@ -80,25 +86,34 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
         child: Column(
           children: [
             FormBuilder(
+              key: _formKey,
               child: FormBuilderTextField(
                 name: 'search',
+                focusNode: _searchFocusNode,
                 style: context.bodyLarge,
                 autocorrect: false,
                 keyboardType: TextInputType.text,
                 decoration: context.textInputDecoration.copyWith(
                   labelText: 'Type a name to filter contacts',
+                  suffixIcon: IconButton(
+                    hoverColor: Colors.transparent,
+                    onPressed: _onSearchQueryClear,
+                    icon: Icon(
+                      Icons.clear,
+                      size: 18,
+                      color: context.moreColors.mutedColor,
+                    ),
+                  ),
                 ),
                 onChanged: (value) {
                   // workaround to reset the error message when the user modifies the field
                   final hasError =
-                      _formKey.currentState?.fields['address']?.hasError;
+                      _formKey.currentState?.fields['search']?.hasError;
                   if (hasError ?? false) {
-                    _formKey.currentState?.fields['address']?.reset();
+                    _formKey.currentState?.fields['search']?.reset();
                   }
 
-                  setState(() {
-                    _searchText = value;
-                  });
+                  ref.read(searchQueryProvider.notifier).change(value ?? '');
                 },
               ),
             ),
@@ -164,5 +179,11 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
         ),
       ),
     );
+  }
+
+  void _onSearchQueryClear() {
+    _formKey.currentState?.fields['search']?.reset();
+    _searchFocusNode.unfocus();
+    ref.read(searchQueryProvider.notifier).clear();
   }
 }

@@ -5,6 +5,7 @@ import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/history_providers.dart';
+import 'package:genesix/features/wallet/application/search_query_provider.dart';
 import 'package:genesix/features/wallet/presentation/history_tab/components/filter_dialog.dart';
 import 'package:genesix/features/wallet/presentation/history_tab/components/transaction_entry_widget.dart';
 import 'package:genesix/shared/theme/extensions.dart';
@@ -30,7 +31,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(historySearchQueryProvider);
+    ref.watch(searchQueryProvider);
     final loc = ref.watch(appLocalizationsProvider);
     final pagingState = ref.watch(historyPagingStateProvider);
     final searchBar = Padding(
@@ -225,7 +226,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
   void _onSearchQueryClear() {
     _searchFormKey.currentState?.fields['searchQuery']?.reset();
     _searchFocusNode.unfocus();
-    ref.read(historySearchQueryProvider.notifier).clear();
+    ref.read(searchQueryProvider.notifier).clear();
     setState(() {
       showSearchBar = false;
     });
@@ -234,7 +235,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
   void _onSearchQueryChanged(String? value) {
     final network = ref.read(settingsProvider.select((state) => state.network));
     if (value != null && isAddressValid(strAddress: value, network: network)) {
-      ref.read(historySearchQueryProvider.notifier).change(value);
+      ref.read(searchQueryProvider.notifier).change(value);
     }
   }
 }

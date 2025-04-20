@@ -43,9 +43,7 @@ class _EditContactDialogState extends ConsumerState<EditContactDialog> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final future = ref
-        .watch(addressBookProvider().notifier)
-        .get(widget.address);
+    final future = ref.watch(addressBookProvider.notifier).get(widget.address);
 
     return GenericDialog(
       title: SizedBox(
@@ -165,7 +163,7 @@ class _EditContactDialogState extends ConsumerState<EditContactDialog> {
       if (name != null) {
         try {
           await ref
-              .read(addressBookProvider().notifier)
+              .read(addressBookProvider.notifier)
               .upsert(widget.address, name.trim(), null);
           ref
               .read(snackBarMessengerProvider.notifier)

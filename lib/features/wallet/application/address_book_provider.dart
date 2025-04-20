@@ -1,3 +1,4 @@
+import 'package:genesix/features/wallet/application/search_query_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -7,12 +8,13 @@ part 'address_book_provider.g.dart';
 @riverpod
 class AddressBook extends _$AddressBook {
   @override
-  Future<Map<String, ContactDetails>> build({String? startWith}) async {
+  Future<Map<String, ContactDetails>> build() async {
     final nativeWallet = ref.read(walletStateProvider).nativeWalletRepository;
     if (nativeWallet != null) {
       AddressBookData addressBook;
-      if (startWith != null && startWith.isNotEmpty) {
-        addressBook = await nativeWallet.findContactsByName(startWith);
+      final searchText = ref.watch(searchQueryProvider);
+      if (searchText.isNotEmpty) {
+        addressBook = await nativeWallet.findContactsByName(searchText);
       } else {
         addressBook = await nativeWallet.retrieveAllContacts();
       }

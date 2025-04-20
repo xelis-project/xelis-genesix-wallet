@@ -1,8 +1,8 @@
-update: flutter_get install_rust_bridge_codegen rust_update gen_rust_bridge flutter_gen format
+update: flutter_get install_rust_bridge_codegen rust_update gen_rust_bridge gen_flutter format
 
-init: flutter_get install_rust_bridge_codegen gen_rust_bridge flutter_gen
+init: flutter_get install_rust_bridge_codegen gen_rust_bridge gen_flutter
 
-gen: flutter_get gen_rust_bridge flutter_gen
+gen: flutter_get gen_rust_bridge gen_flutter
 
 watch_rust:
     flutter_rust_bridge_codegen generate --watch
@@ -16,7 +16,7 @@ gen_rust_bridge:
 flutter_get:
     flutter pub get
 
-flutter_gen:
+gen_flutter:
     dart run build_runner build -d
 
 format:

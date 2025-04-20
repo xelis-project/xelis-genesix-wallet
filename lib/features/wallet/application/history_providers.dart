@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/wallet/application/search_query_provider.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -19,7 +20,7 @@ Future<List<TransactionEntry>> history(Ref ref, int page) async {
   final historyFilterState = ref.watch(
     settingsProvider.select((state) => state.historyFilterState),
   );
-  final searchQuery = ref.watch(historySearchQueryProvider);
+  final searchQuery = ref.watch(searchQueryProvider);
 
   if (repository != null) {
     final filter = HistoryPageFilter(
@@ -53,7 +54,7 @@ Future<int?> historyCount(Ref ref) async {
 class HistoryPagingState extends _$HistoryPagingState {
   @override
   PagingState<int, TransactionEntry> build() {
-    ref.watch(historySearchQueryProvider);
+    ref.watch(searchQueryProvider);
     return PagingState();
   }
 
@@ -72,23 +73,5 @@ class HistoryPagingState extends _$HistoryPagingState {
 
   void error(Object error) {
     state = state.copyWith(error: error, isLoading: false);
-  }
-}
-
-@riverpod
-class HistorySearchQuery extends _$HistorySearchQuery {
-  @override
-  String build() {
-    return '';
-  }
-
-  void clear() {
-    if (state.isNotEmpty) {
-      state = '';
-    }
-  }
-
-  void change(String value) {
-    state = value;
   }
 }

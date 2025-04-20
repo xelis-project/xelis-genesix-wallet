@@ -201,14 +201,14 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
           _formKey.currentState?.fields['address']?.value as String?;
       if (widget.address != null && name != null) {
         ref
-            .read(addressBookProvider().notifier)
+            .read(addressBookProvider.notifier)
             .upsert(widget.address!, name.trim(), null);
         ref
             .read(snackBarMessengerProvider.notifier)
             .showInfo('$name added to address book', durationInSeconds: 2);
       } else if (address != null && name != null) {
         if (await ref
-            .read(addressBookProvider().notifier)
+            .read(addressBookProvider.notifier)
             .exists(address.trim())) {
           _formKey.currentState?.fields['address']?.invalidate(
             'Contact already exists',
@@ -218,7 +218,7 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
 
         try {
           ref
-              .read(addressBookProvider().notifier)
+              .read(addressBookProvider.notifier)
               .upsert(address.trim(), name.trim(), null);
           ref
               .read(snackBarMessengerProvider.notifier)
