@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
-import 'package:genesix/features/wallet/domain/wallet_address.dart';
+import 'package:genesix/features/wallet/domain/destination_address.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 
 part 'transaction_review_state.freezed.dart';
@@ -18,7 +18,7 @@ abstract class TransactionReviewState with _$TransactionReviewState {
     Future<String>? amount,
     String? fee,
     String? destination,
-    WalletAddress? walletAddress,
+    DestinationAddress? destinationAddress,
     String? finalHash,
   }) = _TransactionReviewState;
 

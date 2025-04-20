@@ -10,7 +10,7 @@ import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
-import 'package:genesix/src/generated/rust_bridge/api/dtos.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 
 class XswdStatusScreen extends ConsumerStatefulWidget {
   const XswdStatusScreen({super.key});

@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
+import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/logo.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 
 class TransferReviewContentWidget extends ConsumerStatefulWidget {
   const TransferReviewContentWidget({super.key});
@@ -114,7 +114,7 @@ class _TransferReviewWidgetState
           const SizedBox(height: Spaces.extraSmall),
           SelectableText(transactionReview.finalHash!),
           const SizedBox(height: Spaces.small),
-          if (transactionReview.walletAddress!.isIntegrated) ...[
+          if (transactionReview.destinationAddress!.isIntegrated) ...[
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -149,19 +149,8 @@ class _TransferReviewWidgetState
             ),
           ),
           const SizedBox(height: Spaces.extraSmall),
-          Row(
-            children: [
-              HashiconWidget(
-                hash: transactionReview.walletAddress!.address,
-                size: const Size(35, 35),
-              ),
-              const SizedBox(width: Spaces.small),
-              Expanded(
-                child: SelectableText(transactionReview.walletAddress!.address),
-              ),
-            ],
-          ),
-          if (transactionReview.walletAddress!.isIntegrated) ...[
+          AddressWidget(transactionReview.destinationAddress!.address),
+          if (transactionReview.destinationAddress!.isIntegrated) ...[
             const SizedBox(height: Spaces.small),
             Text(
               loc.payment_id,
@@ -170,7 +159,9 @@ class _TransferReviewWidgetState
               ),
             ),
             const SizedBox(height: Spaces.extraSmall),
-            SelectableText(transactionReview.walletAddress!.data.toString()),
+            SelectableText(
+              transactionReview.destinationAddress!.data.toString(),
+            ),
           ],
         ],
       ),

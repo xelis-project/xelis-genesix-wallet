@@ -10,7 +10,7 @@ import 'package:genesix/features/wallet/application/multisig_pending_state_provi
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/multisig/multisig_participant.dart';
-import 'package:genesix/src/generated/rust_bridge/api/dtos.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/logo.dart';
-import 'package:genesix/src/generated/rust_bridge/api/network.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
-import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -83,23 +83,23 @@ class _TransactionEntryScreenState
       case sdk.IncomingEntry():
         entryTypeName = loc.incoming;
         incoming = entryType;
-        icon = Icon(Icons.arrow_downward, color: context.colors.primary);
+        icon = Icon(Icons.call_received_rounded, color: context.colors.primary);
       case sdk.OutgoingEntry():
         entryTypeName = loc.outgoing;
         outgoing = entryType;
-        icon = Icon(Icons.arrow_upward, color: context.colors.primary);
+        icon = Icon(Icons.call_made_rounded, color: context.colors.primary);
       case sdk.MultisigEntry():
         entryTypeName = loc.multisig;
         multisig = entryType;
-        icon = Icon(Icons.arrow_upward, color: context.colors.primary);
+        icon = Icon(Icons.call_made_rounded, color: context.colors.primary);
       case sdk.InvokeContractEntry():
         entryTypeName = loc.invoked_contract;
         invokeContract = entryType;
-        icon = Icon(Icons.arrow_upward, color: context.colors.primary);
+        icon = Icon(Icons.call_made_rounded, color: context.colors.primary);
       case sdk.DeployContractEntry():
         entryTypeName = loc.deployed_contract;
         deployContract = entryType;
-        icon = Icon(Icons.arrow_upward, color: context.colors.primary);
+        icon = Icon(Icons.call_made_rounded, color: context.colors.primary);
     }
 
     Uri url;
@@ -281,21 +281,7 @@ class _TransactionEntryScreenState
                             padding: const EdgeInsets.all(Spaces.medium),
                             child: Column(
                               children: [
-                                Row(
-                                  children: [
-                                    HashiconWidget(
-                                      hash: transfer.destination,
-                                      size: const Size(35, 35),
-                                    ),
-                                    const SizedBox(width: Spaces.small),
-                                    Expanded(
-                                      child: SelectableText(
-                                        transfer.destination,
-                                        style: context.bodyMedium,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                AddressWidget(transfer.destination),
                                 const Divider(),
                                 Row(
                                   mainAxisAlignment:
@@ -389,18 +375,7 @@ class _TransactionEntryScreenState
               ),
             ),
             const SizedBox(height: Spaces.extraSmall),
-            Row(
-              children: [
-                HashiconWidget(hash: incoming!.from, size: const Size(35, 35)),
-                const SizedBox(width: Spaces.small),
-                Expanded(
-                  child: SelectableText(
-                    incoming!.from,
-                    style: context.bodyLarge,
-                  ),
-                ),
-              ],
-            ),
+            AddressWidget(incoming!.from),
             const SizedBox(height: Spaces.medium),
             Text(
               loc.transfers,
@@ -559,21 +534,7 @@ class _TransactionEntryScreenState
                     return Card(
                       child: Padding(
                         padding: const EdgeInsets.all(Spaces.medium),
-                        child: Row(
-                          children: [
-                            HashiconWidget(
-                              hash: participant,
-                              size: const Size(35, 35),
-                            ),
-                            const SizedBox(width: Spaces.small),
-                            Expanded(
-                              child: SelectableText(
-                                participant,
-                                style: context.bodyMedium,
-                              ),
-                            ),
-                          ],
-                        ),
+                        child: AddressWidget(participant),
                       ),
                     );
                   },

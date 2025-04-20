@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/transaction_builder_mixin.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -81,13 +82,25 @@ class _TransfersBuilderWidgetState extends ConsumerState<TransfersBuilderWidget>
                 children: [
                   buildLabeledText(context, loc.asset.toLowerCase(), asset),
                   buildLabeledText(context, loc.amount.toLowerCase(), amount),
-                  buildLabeledText(
-                    context,
-                    loc.destination.toLowerCase(),
-                    t.destination,
+                  Text(
+                    '${loc.destination.toLowerCase()}:',
+                    style: context.bodyMedium!.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: context.moreColors.mutedColor,
+                    ),
                   ),
-                  if (t.extraData != null)
-                    buildLabeledText(context, loc.extra_data, extraData),
+                  AddressWidget(t.destination),
+                  if (t.extraData != null) ...[
+                    const SizedBox(height: Spaces.extraSmall),
+                    Text(
+                      loc.extra_data,
+                      style: context.bodyMedium!.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: context.moreColors.mutedColor,
+                      ),
+                    ),
+                    SelectableText(extraData, style: context.bodySmall),
+                  ],
                 ],
               ),
             );

@@ -27,12 +27,15 @@ use xelis_wallet::precomputed_tables;
 pub use xelis_wallet::transaction_builder::TransactionBuilderState;
 use xelis_wallet::wallet::{RecoverOption, Wallet};
 
-use crate::api::table_generation::LogProgressTableGenerationReportFunction;
+use super::models::xswd_dtos::{
+    AppInfo, PermissionPolicy, UserPermissionDecision, XswdRequestSummary,
+};
+use super::table_generation::LogProgressTableGenerationReportFunction;
 use crate::frb_generated::StreamSink;
 
-use super::dtos::{
-    AppInfo, HistoryPageFilter, MultisigDartPayload, ParticipantDartPayload, PermissionPolicy,
-    SignatureMultisig, SummaryTransaction, Transfer, UserPermissionDecision, XswdRequestSummary,
+use super::models::wallet_dtos::{
+    HistoryPageFilter, MultisigDartPayload, ParticipantDartPayload, SignatureMultisig,
+    SummaryTransaction, Transfer,
 };
 use super::xswd::{create_app_info, xswd_handler};
 
@@ -130,6 +133,11 @@ pub async fn open_xelis_wallet(
 }
 
 impl XelisWallet {
+    #[frb(ignore)]
+    pub fn get_wallet(&self) -> &Wallet {
+        &self.wallet // Return a reference to the private field
+    }
+
     // Change the wallet password
     pub async fn change_password(&self, old_password: String, new_password: String) -> Result<()> {
         self.wallet.set_password(&old_password, &new_password).await
@@ -328,7 +336,7 @@ impl XelisWallet {
                     .context("Error while creating transaction type builder")?;
 
                 let (unsigned, state) = self
-                    .generate_unsigned_transaction(
+                    .build_unsigned_transaction(
                         transaction_type_builder.clone(),
                         match fee_multiplier {
                             Some(value) => FeeBuilder::Multiplier(value),
@@ -534,7 +542,7 @@ impl XelisWallet {
                 let transaction_type_builder = TransactionTypeBuilder::Transfers(vec![transfer]);
 
                 let (unsigned, state) = self
-                    .generate_unsigned_transaction(
+                    .build_unsigned_transaction(
                         transaction_type_builder.clone(),
                         match fee_multiplier {
                             Some(value) => FeeBuilder::Multiplier(value),
@@ -656,7 +664,7 @@ impl XelisWallet {
                 let transaction_type_builder = TransactionTypeBuilder::Burn(payload);
 
                 let (unsigned, state) = self
-                    .generate_unsigned_transaction(
+                    .build_unsigned_transaction(
                         transaction_type_builder.clone(),
                         FeeBuilder::default(),
                         multisig.payload.threshold,
@@ -743,6 +751,7 @@ impl XelisWallet {
         .to_string())
     }
 
+    // create a multisig transaction to burn all of an asset
     pub async fn create_multisig_burn_all_transaction(&self, asset_hash: String) -> Result<String> {
         info!("Building burn all transaction...");
 
@@ -784,7 +793,7 @@ impl XelisWallet {
                 let transaction_type_builder = TransactionTypeBuilder::Burn(payload);
 
                 let (unsigned, state) = self
-                    .generate_unsigned_transaction(
+                    .build_unsigned_transaction(
                         transaction_type_builder.clone(),
                         FeeBuilder::default(),
                         multisig.payload.threshold,
@@ -1169,7 +1178,7 @@ impl XelisWallet {
                 let transaction_type_builder = TransactionTypeBuilder::MultiSig(payload);
 
                 let (unsigned, state) = self
-                    .generate_unsigned_transaction(
+                    .build_unsigned_transaction(
                         transaction_type_builder.clone(),
                         FeeBuilder::default(),
                         multisig.payload.threshold,
@@ -1405,8 +1414,8 @@ impl XelisWallet {
         }
     }
 
-    // generate an unsigned transaction
-    async fn generate_unsigned_transaction(
+    // Private method to build an unsigned transaction
+    async fn build_unsigned_transaction(
         &self,
         tx_type: TransactionTypeBuilder,
         fee: FeeBuilder,

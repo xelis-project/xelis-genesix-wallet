@@ -3,7 +3,7 @@ use flutter_rust_bridge::frb;
 use serde_json::json;
 use xelis_common::{crypto::Address, network::Network};
 
-use super::dtos::IntegratedAddress;
+use super::models::wallet_dtos::IntegratedAddress;
 
 // Check if the given address is valid
 #[frb(sync)]

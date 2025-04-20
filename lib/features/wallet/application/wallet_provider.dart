@@ -8,7 +8,8 @@ import 'package:flutter/foundation.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
 import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
-import 'package:genesix/src/generated/rust_bridge/api/dtos.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -383,6 +384,7 @@ class WalletState extends _$WalletState {
                     assetHash == sdk.xelisAsset
                         ? AppResources.xelisAsset.name
                         : truncateText(assetHash);
+                // TODO: display the sender address if it registers in the address book
                 message =
                     '${loc.new_incoming_transaction.capitalize()}.\n${loc.asset}: $asset\n${loc.amount}: +$amount';
               }
@@ -505,10 +507,9 @@ class WalletState extends _$WalletState {
   }) async {
     if (state.nativeWalletRepository != null) {
       try {
-        return state.nativeWalletRepository!.setupMultisig(
-          participants: participants,
-          threshold: threshold,
-        );
+        final transactionSummary = await state.nativeWalletRepository!
+            .setupMultisig(participants: participants, threshold: threshold);
+        return transactionSummary;
       } on AnyhowException catch (e) {
         talker.error('Cannot setup multisig: $e');
         final xelisMessage = (e).message.split("\n")[0];
@@ -534,7 +535,8 @@ class WalletState extends _$WalletState {
   Future<String?> startDeleteMultisig() async {
     if (state.nativeWalletRepository != null) {
       try {
-        return state.nativeWalletRepository!.initDeleteMultisig();
+        final hash = await state.nativeWalletRepository!.initDeleteMultisig();
+        return hash;
       } on AnyhowException catch (e) {
         talker.error('Cannot start delete multisig: $e');
         final xelisMessage = (e).message.split("\n")[0];
@@ -555,9 +557,9 @@ class WalletState extends _$WalletState {
   }) async {
     if (state.nativeWalletRepository != null) {
       try {
-        return state.nativeWalletRepository!.finalizeMultisigTransaction(
-          signatures: signatures,
-        );
+        final transactionSummary = await state.nativeWalletRepository!
+            .finalizeMultisigTransaction(signatures: signatures);
+        return transactionSummary;
       } on AnyhowException catch (e) {
         talker.error('Cannot finalize delete multisig: $e');
         final xelisMessage = (e).message.split("\n")[0];
@@ -586,9 +588,10 @@ class WalletState extends _$WalletState {
   Future<String> signTransactionHash(String transactionHash) async {
     if (state.nativeWalletRepository != null) {
       try {
-        return state.nativeWalletRepository!.signTransactionHash(
+        final hash = await state.nativeWalletRepository!.signTransactionHash(
           transactionHash,
         );
+        return hash;
       } on AnyhowException catch (e) {
         talker.error('Cannot sign transaction: $e');
         final xelisMessage = (e).message.split("\n")[0];

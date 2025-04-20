@@ -8,6 +8,7 @@ enum AuthAppScreen {
   multisig,
   transactionEntry,
   xswdStatus,
+  addressBook,
 }
 
 enum AppScreen {
@@ -62,6 +63,8 @@ extension AuthAppScreenExtension on AuthAppScreen {
         return '/multisig';
       case AuthAppScreen.xswdStatus:
         return '/xswd_status';
+      case AuthAppScreen.addressBook:
+        return '/address_book';
     }
   }
 }

@@ -37,7 +37,7 @@ class TransactionReview extends _$TransactionReview {
       amount: formattedAmount,
       fee: formatXelis(transactionSummary.fee),
       destination: destination,
-      walletAddress: getAddress(rawAddress: destination),
+      destinationAddress: parseRawAddress(rawAddress: destination),
       finalHash: transactionSummary.hash,
     );
   }

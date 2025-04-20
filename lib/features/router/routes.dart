@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:genesix/features/authentication/domain/create_wallet_type_enum.dart';
 import 'package:genesix/features/authentication/presentation/components/seed_content_dialog.dart';
 import 'package:genesix/features/authentication/presentation/seed_screen.dart';
+import 'package:genesix/features/wallet/presentation/address_book/address_book_screen.dart';
 import 'package:genesix/features/wallet/presentation/settings_tab/components/xswd_status_screen.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/burn/burn_screen.dart';
 import 'package:genesix/features/logger/logger.dart';
@@ -290,6 +291,22 @@ class XswdStateRoute extends GoRouteData {
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
       const XswdStatusScreen(),
+      state.pageKey,
+      state.fullPath,
+      state.extra,
+      AppDurations.animFast,
+    );
+  }
+}
+
+@TypedGoRoute<AddressBookRoute>(name: 'address_book', path: '/address_book')
+class AddressBookRoute extends GoRouteData {
+  const AddressBookRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      const AddressBookScreen(),
       state.pageKey,
       state.fullPath,
       state.extra,

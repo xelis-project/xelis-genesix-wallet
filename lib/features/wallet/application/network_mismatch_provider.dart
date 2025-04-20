@@ -3,7 +3,8 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/wallet/application/node_info_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
-import 'package:genesix/src/generated/rust_bridge/api/network.dart' as rust;
+import 'package:genesix/src/generated/rust_bridge/api/models/network.dart'
+    as rust;
 
 part 'network_mismatch_provider.g.dart';
 

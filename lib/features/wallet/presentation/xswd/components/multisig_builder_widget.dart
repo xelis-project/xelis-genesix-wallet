@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/transaction_builder_mixin.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
@@ -64,8 +65,8 @@ class _MultisigBuilderWidgetState extends ConsumerState<MultisigBuilderWidget>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children:
-            participants.map((p) {
-              return SelectableText(p, style: context.bodySmall);
+            participants.map((participant) {
+              return AddressWidget(participant);
             }).toList(),
       ),
     );

@@ -4,7 +4,7 @@ import 'dart:ui';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:genesix/features/wallet/domain/history_filter_state.dart';
-import 'package:genesix/src/generated/rust_bridge/api/network.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:genesix/features/settings/domain/locale_json_converter.dart';
 
 part 'settings_state.freezed.dart';

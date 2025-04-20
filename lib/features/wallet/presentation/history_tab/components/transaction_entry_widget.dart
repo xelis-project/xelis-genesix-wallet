@@ -49,7 +49,7 @@ class _TransactionEntryWidgetState
           contentThirdColumn = entryType.amount.toString();
         }
       case IncomingEntry():
-        icon = Icon(Icons.arrow_downward, size: 18);
+        icon = Icon(Icons.call_received_rounded, size: 18);
         if (entryType.transfers.length == 1) {
           var transfer = entryType.transfers[0];
           if (transfer.asset == xelisAsset) {
@@ -62,7 +62,7 @@ class _TransactionEntryWidgetState
           contentThirdColumn = loc.multi_transfer;
         }
       case OutgoingEntry():
-        icon = Icon(Icons.arrow_upward, size: 18);
+        icon = Icon(Icons.call_made_rounded, size: 18);
         if (entryType.transfers.length == 1) {
           final transfer = entryType.transfers[0];
           final fee = entryType.fee;

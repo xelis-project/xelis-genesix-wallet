@@ -8,7 +8,7 @@ import 'package:genesix/src/generated/l10n/app_localizations.dart';
 class SettingsStateRepository extends PersistentState<SettingsState> {
   SettingsStateRepository(this.genesixSharedPreferences);
 
-  GenesixSharedPreferences genesixSharedPreferences;
+  final GenesixSharedPreferences genesixSharedPreferences;
   static const storageKey = 'settings';
 
   @override

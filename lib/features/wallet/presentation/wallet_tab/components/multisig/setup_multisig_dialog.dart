@@ -9,6 +9,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/wallet/application/multisig_pending_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
+import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
@@ -373,10 +374,8 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                                                           ),
                                                     ),
                                                   ),
-                                                  Text(
+                                                  AddressWidget(
                                                     participant.toString(),
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
                                                   ),
                                                 ],
                                               ),
@@ -506,7 +505,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                 if (value != null &&
                     !ref
                         .read(walletStateProvider.notifier)
-                        .isAddressValidForMultisig(value)) {
+                        .isAddressValidForMultisig(value.trim())) {
                   return loc.multisig_address_validation_error;
                 }
                 return null;

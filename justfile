@@ -1,4 +1,4 @@
-update: flutter_get install_rust_bridge_codegen rust_update gen_rust_bridge flutter_gen lint
+update: flutter_get install_rust_bridge_codegen rust_update gen_rust_bridge flutter_gen format
 
 init: flutter_get install_rust_bridge_codegen gen_rust_bridge flutter_gen
 
@@ -19,7 +19,7 @@ flutter_get:
 flutter_gen:
     dart run build_runner build -d
 
-lint:
+format:
     cd rust && cargo fmt
     dart format .
 

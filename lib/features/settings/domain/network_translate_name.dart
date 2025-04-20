@@ -1,4 +1,4 @@
-import 'package:genesix/src/generated/rust_bridge/api/network.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 
 String translateNetworkName(Network network) {
   switch (network) {

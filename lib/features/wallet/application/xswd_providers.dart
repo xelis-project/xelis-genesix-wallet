@@ -7,7 +7,7 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/permission_rpc_request.dart';
 import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
-import 'package:genesix/src/generated/rust_bridge/api/dtos.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'xswd_providers.g.dart';

@@ -3,8 +3,10 @@ import 'dart:convert';
 
 import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
-import 'package:genesix/src/generated/rust_bridge/api/dtos.dart';
-import 'package:genesix/src/generated/rust_bridge/api/network.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/features/wallet/domain/event.dart';
 import 'package:genesix/features/logger/logger.dart';
@@ -452,6 +454,39 @@ class NativeWalletRepository {
       id: appID,
       permissions: permissions,
     );
+  }
+
+  Future<AddressBookData> retrieveAllContacts() async {
+    return _xelisWallet.retrieveAllContacts();
+  }
+
+  Future<void> upsertContact({
+    required String name,
+    required String address,
+    String? note,
+  }) async {
+    await _xelisWallet.upsertContact(
+      entry: ContactDetails(name: name, address: address, note: note),
+    );
+  }
+
+  Future<void> removeContact(String address) async {
+    await _xelisWallet.removeContact(address: address);
+  }
+
+  Future<bool> isContactPresent(String address) async {
+    final isPresent = await _xelisWallet.isContactPresent(address: address);
+    return isPresent;
+  }
+
+  Future<ContactDetails> getContact(String address) async {
+    final contact = await _xelisWallet.findContactByAddress(address: address);
+    return contact;
+  }
+
+  Future<AddressBookData> findContactsByName(String name) async {
+    final contacts = await _xelisWallet.findContactsByName(name: name);
+    return contacts;
   }
 
   Future<void> exportTransactionsToCsvFile(String path) async {

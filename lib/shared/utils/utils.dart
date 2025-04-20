@@ -5,8 +5,8 @@ import 'dart:io';
 import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:genesix/features/wallet/domain/wallet_address.dart';
-import 'package:genesix/src/generated/rust_bridge/api/network.dart';
+import 'package:genesix/features/wallet/domain/destination_address.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:genesix/src/generated/rust_bridge/api/utils.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:path_provider/path_provider.dart';
@@ -35,10 +35,10 @@ String formatXelis(int value) {
   return formatter.format(xelisValue);
 }
 
-WalletAddress getAddress({required String rawAddress}) {
+DestinationAddress parseRawAddress({required String rawAddress}) {
   var rawData = splitIntegratedAddressJson(integratedAddress: rawAddress);
   final json = jsonDecode(rawData);
-  return WalletAddress.fromJson(json as Map<String, dynamic>);
+  return DestinationAddress.fromJson(json as Map<String, dynamic>);
 }
 
 Future<String> getAppCacheDirPath() async {

@@ -7,6 +7,7 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
+import 'package:genesix/features/wallet/presentation/address_book/select_address_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/assets_dropdown_menu_item.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/transaction_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/transfer/transfer_review_content.dart';
@@ -190,6 +191,11 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                   keyboardType: TextInputType.text,
                   decoration: context.textInputDecoration.copyWith(
                     labelText: loc.receiver_address,
+                    suffixIcon: IconButton(
+                      tooltip: 'Select from address book',
+                      onPressed: _onAddressBookClicked,
+                      icon: Icon(Icons.my_library_books_outlined, size: 18),
+                    ),
                   ),
                   onChanged: (value) {
                     // workaround to reset the error message when the user modifies the field
@@ -397,5 +403,15 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
       return ref.read(appLocalizationsProvider).invalid_address_format_error;
     }
     return null;
+  }
+
+  Future<void> _onAddressBookClicked() async {
+    final address = await showDialog<String>(
+      context: context,
+      builder: (context) => const SelectAddressDialog(),
+    );
+    if (address != null) {
+      _transferFormKey.currentState?.fields['address']?.didChange(address);
+    }
   }
 }

@@ -1,4 +1,4 @@
-use anyhow::Error;
+use anyhow::{Error, Result};
 pub use flutter_rust_bridge::DartFnFuture;
 use log::{error, info};
 pub use xelis_common::tokio::sync::mpsc::UnboundedReceiver;
@@ -7,9 +7,9 @@ pub use xelis_wallet::api::AppState;
 use xelis_wallet::api::{Permission, PermissionResult};
 pub use xelis_wallet::wallet::XSWDEvent;
 
-use crate::api::dtos::{AppInfo, XswdRequestType};
-
-use super::dtos::{PermissionPolicy, UserPermissionDecision, XswdRequestSummary};
+use super::models::xswd_dtos::{
+    AppInfo, PermissionPolicy, UserPermissionDecision, XswdRequestSummary, XswdRequestType,
+};
 
 pub async fn xswd_handler(
     mut receiver: UnboundedReceiver<XSWDEvent>,
@@ -42,7 +42,7 @@ pub async fn xswd_handler(
 
                 let decision = request_application_dart_callback(event_summary).await;
 
-                handle_permission_decision(decision, callback).await;
+                handle_permission_decision(decision, callback);
             }
             XSWDEvent::RequestPermission(state, request, callback) => {
                 let json = serde_json::to_string(&request).expect("Failed to serialize request");
@@ -53,7 +53,7 @@ pub async fn xswd_handler(
 
                 let decision = request_permission_dart_callback(event_summary).await;
 
-                handle_permission_decision(decision, callback).await;
+                handle_permission_decision(decision, callback);
             }
             XSWDEvent::AppDisconnect(app_state) => {
                 let event_summary =
@@ -94,7 +94,7 @@ pub async fn create_app_info(state: &AppState) -> AppInfo {
     }
 }
 
-async fn handle_permission_decision(
+fn handle_permission_decision(
     decision: UserPermissionDecision,
     callback: Sender<Result<PermissionResult, Error>>,
 ) {

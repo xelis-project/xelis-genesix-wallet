@@ -1,4 +1,4 @@
-import 'package:genesix/src/generated/rust_bridge/api/network.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:genesix/features/wallet/data/network_nodes_state_repository.dart';
 import 'package:genesix/features/wallet/domain/network_nodes_state.dart';

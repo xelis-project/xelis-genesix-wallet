@@ -4,6 +4,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/wallet/application/multisig_pending_state_provider.dart';
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/multisig/delete_multisig_review_content.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/multisig/setup_multisig_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/multisig/sign_transaction_dialog.dart';
@@ -153,13 +154,10 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                                                 .elementAt(index)
                                                 .address,
                                         child: GestureDetector(
-                                          child: Text(
-                                            truncateText(
-                                              multisigState.participants
-                                                  .elementAt(index)
-                                                  .address,
-                                              maxLength: 20,
-                                            ),
+                                          child: AddressWidget(
+                                            multisigState.participants
+                                                .elementAt(index)
+                                                .address,
                                           ),
                                           onTap:
                                               () => copyToClipboard(

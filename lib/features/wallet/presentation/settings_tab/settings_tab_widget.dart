@@ -5,7 +5,7 @@ import 'package:genesix/features/authentication/application/biometric_auth_provi
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/presentation/settings_tab/components/burn_warning_dialog.dart';
 import 'package:genesix/features/wallet/presentation/settings_tab/components/delete_wallet_button.dart';
-import 'package:genesix/src/generated/rust_bridge/api/network.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/confirm_dialog.dart';
@@ -54,6 +54,13 @@ class SettingsTab extends ConsumerWidget {
             ),
           ),
           onTap: () => context.push(AuthAppScreen.xswdStatus.toPath),
+          trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+        ),
+        const Divider(),
+        ListTile(
+          leading: const Icon(Icons.my_library_books_outlined),
+          title: Text('Address Book', style: context.titleLarge),
+          onTap: () => context.push(AuthAppScreen.addressBook.toPath),
           trailing: const Icon(Icons.keyboard_arrow_right_rounded),
         ),
         const Divider(),
