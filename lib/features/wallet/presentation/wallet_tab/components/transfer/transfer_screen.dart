@@ -8,7 +8,7 @@ import 'package:genesix/features/wallet/application/transaction_review_provider.
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/features/wallet/presentation/address_book/select_address_dialog.dart';
-import 'package:genesix/features/wallet/presentation/wallet_tab/components/assets_dropdown_menu_item.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/asset_dropdown_menu_item.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/transaction_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/transfer/transfer_review_content.dart';
 import 'package:genesix/src/generated/rust_bridge/api/utils.dart';
@@ -155,7 +155,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                       assets.entries
                           .map(
                             (asset) =>
-                                AssetsDropdownMenuItem.fromMapEntry(asset),
+                                AssetDropdownMenuItem.fromMapEntry(asset),
                           )
                           .toList(),
                   validator: FormBuilderValidators.compose([

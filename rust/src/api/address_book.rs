@@ -49,6 +49,9 @@ impl AddressBook for XelisWallet {
         .case_insensitive(true)
         .build()
         .expect("Failed to build regex");
+    
+        // Create a query to find contacts with names matching the regex pattern
+        // The query uses the `AtKey` element to search for the "name" field in the address book
         let query_name = Query::Element(QueryElement::AtKey {
             key: DataValue::String("name".to_string()),
             query: Box::new(Query::Value(QueryValue::Matches(regex))),

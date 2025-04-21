@@ -8,6 +8,7 @@ class GenericFormBuilderDropdown<T> extends StatelessWidget {
     required this.name,
     this.initialValue,
     required this.items,
+    this.selectedItems,
     this.onChanged,
     this.validator,
     this.dropdownColor,
@@ -16,6 +17,7 @@ class GenericFormBuilderDropdown<T> extends StatelessWidget {
   final String name;
   final T? initialValue;
   final List<DropdownMenuItem<T>> items;
+  final List<Widget>? selectedItems;
   final ValueChanged<T?>? onChanged;
   final FormFieldValidator<T>? validator;
   final Color? dropdownColor;
@@ -31,6 +33,8 @@ class GenericFormBuilderDropdown<T> extends StatelessWidget {
           dropdownColor ?? context.colors.surface.withValues(alpha: 0.9),
       focusColor: Colors.transparent,
       items: items,
+      selectedItemBuilder:
+          (selectedItems != null) ? (context) => selectedItems! : null,
       onChanged: onChanged,
       validator: validator,
     );

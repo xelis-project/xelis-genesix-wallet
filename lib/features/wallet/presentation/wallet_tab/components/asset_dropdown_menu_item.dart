@@ -4,7 +4,7 @@ import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/logo.dart';
 
-class AssetsDropdownMenuItem {
+class AssetDropdownMenuItem {
   static DropdownMenuItem<String> fromMapEntry(
     MapEntry<String, String> asset, {
     bool showBalance = true,

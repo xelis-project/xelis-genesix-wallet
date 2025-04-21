@@ -6,7 +6,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
-import 'package:genesix/features/wallet/presentation/wallet_tab/components/assets_dropdown_menu_item.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/asset_dropdown_menu_item.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/burn/burn_review_content.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/transaction_dialog.dart';
 import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
@@ -136,7 +136,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
                       assets.entries
                           .map(
                             (asset) =>
-                                AssetsDropdownMenuItem.fromMapEntry(asset),
+                                AssetDropdownMenuItem.fromMapEntry(asset),
                           )
                           .toList(),
                   validator: FormBuilderValidators.compose([

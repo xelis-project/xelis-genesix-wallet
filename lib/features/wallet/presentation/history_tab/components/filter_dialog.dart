@@ -3,9 +3,11 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/history_filter_state.dart';
-import 'package:genesix/features/wallet/presentation/wallet_tab/components/assets_dropdown_menu_item.dart';
+import 'package:genesix/features/wallet/presentation/history_tab/components/contact_dropdown_menu_item.dart';
+import 'package:genesix/features/wallet/presentation/wallet_tab/components/asset_dropdown_menu_item.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/components/generic_dialog.dart';
@@ -25,6 +27,7 @@ class _FilterDialogState extends ConsumerState<FilterDialog> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
+    final future = ref.watch(addressBookProvider.future);
     final assets = ref.watch(
       walletStateProvider.select((state) => state.assets),
     );
@@ -34,18 +37,6 @@ class _FilterDialogState extends ConsumerState<FilterDialog> {
     final selectedCategories = _getSelectedCategories(filterState);
     final hideExtraData = filterState.hideExtraData;
     final hideZeroBalance = filterState.hideZeroTransfer;
-
-    List<DropdownMenuItem<String?>> assetItems = [
-      DropdownMenuItem(value: null, child: Text(loc.all)),
-    ];
-    assetItems.addAll(
-      assets.entries
-          .map(
-            (asset) =>
-                AssetsDropdownMenuItem.fromMapEntry(asset, showBalance: false),
-          )
-          .toList(),
-    );
 
     return GenericDialog(
       title: SizedBox(
@@ -112,13 +103,81 @@ class _FilterDialogState extends ConsumerState<FilterDialog> {
               ],
             ),
             const SizedBox(height: Spaces.medium),
-            Text(loc.asset, style: context.titleSmall),
-            const SizedBox(height: Spaces.small),
-            GenericFormBuilderDropdown<String?>(
-              name: 'asset',
-              initialValue: assetItems.first.value,
-              dropdownColor: Colors.black,
-              items: assetItems,
+            FutureBuilder(
+              future: future,
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                  Map<String?, DropdownMenuItem<String?>> contactItems = {
+                    null: DropdownMenuItem(value: null, child: Text(loc.all)),
+                  };
+
+                  List<Widget> selectedContacts = [
+                    Text(
+                      loc.all,
+                      style: context.bodyLarge?.copyWith(
+                        color: context.colors.onSurface,
+                      ),
+                    ),
+                  ];
+
+                  for (final contact in snapshot.data!.entries) {
+                    contactItems[contact.key] =
+                        ContactDropdownMenuItem.fromMapEntry(context, contact);
+                    selectedContacts.add(
+                      Text(
+                        contact.value.name,
+                        style: context.bodyLarge?.copyWith(
+                          color: context.colors.onSurface,
+                        ),
+                      ),
+                    );
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Contact', style: context.titleSmall),
+                      const SizedBox(height: Spaces.small),
+                      GenericFormBuilderDropdown<String?>(
+                        name: 'contact',
+                        initialValue: contactItems[filterState.address]?.value,
+                        dropdownColor: Colors.black,
+                        items: contactItems.values.toList(),
+                        selectedItems: selectedContacts,
+                      ),
+                    ],
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+            Builder(
+              builder: (context) {
+                Map<String?, DropdownMenuItem<String?>> assetItems = {
+                  null: DropdownMenuItem(value: null, child: Text(loc.all)),
+                };
+                assets.forEach((key, value) {
+                  assetItems[key] = AssetDropdownMenuItem.fromMapEntry(
+                    MapEntry(key, value),
+                    showBalance: false,
+                  );
+                });
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: Spaces.medium),
+                    Text(loc.asset, style: context.titleSmall),
+                    const SizedBox(height: Spaces.small),
+                    GenericFormBuilderDropdown<String?>(
+                      name: 'asset',
+                      initialValue: assetItems[filterState.asset]?.value,
+                      dropdownColor: Colors.black,
+                      items: assetItems.values.toList(),
+                    ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: Spaces.medium),
             Text(loc.others, style: context.titleSmall),
@@ -142,19 +201,26 @@ class _FilterDialogState extends ConsumerState<FilterDialog> {
       actions: [
         Padding(
           padding: const EdgeInsets.only(top: Spaces.small),
+          child: OutlinedButton(
+            onPressed: _resetFilters,
+            child: Text('Reset All'),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: Spaces.small),
           child: TextButton(
             onPressed: () {
-              _saveFilter();
+              _saveFilters();
               context.pop(true);
             },
-            child: Text(loc.save),
+            child: Text('Apply'),
           ),
         ),
       ],
     );
   }
 
-  void _saveFilter() {
+  void _saveFilters() {
     if (_formKey.currentState!.saveAndValidate()) {
       final selectedCategories =
           _formKey.currentState!.fields['category']!.value as List<String>;
@@ -164,6 +230,8 @@ class _FilterDialogState extends ConsumerState<FilterDialog> {
           _formKey.currentState!.fields['hide_zero_balance']!.value as bool;
       final selectedAsset =
           _formKey.currentState!.fields['asset']!.value as String?;
+      final selectedContact =
+          _formKey.currentState!.fields['contact']?.value as String?;
 
       final filterState = HistoryFilterState(
         showIncoming: selectedCategories.contains('incoming'),
@@ -173,10 +241,24 @@ class _FilterDialogState extends ConsumerState<FilterDialog> {
         hideExtraData: hideExtraData,
         hideZeroTransfer: hideZeroBalance,
         asset: selectedAsset,
+        address: selectedContact,
       );
 
       ref.read(settingsProvider.notifier).setHistoryFilterState(filterState);
     }
+  }
+
+  void _resetFilters() {
+    _formKey.currentState?.fields['category']?.didChange([
+      'incoming',
+      'outgoing',
+      'burn',
+      'coinbase',
+    ]);
+    _formKey.currentState?.fields['asset']?.didChange(null);
+    _formKey.currentState?.fields['contact']?.didChange(null);
+    _formKey.currentState?.fields['hide_extra_data']?.didChange(false);
+    _formKey.currentState?.fields['hide_zero_balance']?.didChange(false);
   }
 
   List<String> _getSelectedCategories(HistoryFilterState filterState) {
