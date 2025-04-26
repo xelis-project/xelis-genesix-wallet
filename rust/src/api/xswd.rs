@@ -1,15 +1,226 @@
-use anyhow::{Error, Result};
+use std::collections::HashMap;
+
+use anyhow::{bail, Error, Result};
 pub use flutter_rust_bridge::DartFnFuture;
-use log::{error, info};
+use log::{debug, error, info};
+use xelis_common::tokio::spawn_task;
 pub use xelis_common::tokio::sync::mpsc::UnboundedReceiver;
 pub use xelis_common::tokio::sync::oneshot::Sender;
 pub use xelis_wallet::api::AppState;
-use xelis_wallet::api::{Permission, PermissionResult};
+use xelis_wallet::api::{APIServer, Permission, PermissionResult};
 pub use xelis_wallet::wallet::XSWDEvent;
 
-use super::models::xswd_dtos::{
-    AppInfo, PermissionPolicy, UserPermissionDecision, XswdRequestSummary, XswdRequestType,
+use super::{
+    models::xswd_dtos::{
+        AppInfo, PermissionPolicy, UserPermissionDecision, XswdRequestSummary, XswdRequestType,
+    },
+    wallet::XelisWallet,
 };
+
+#[allow(async_fn_in_trait)]
+pub trait XSWD {
+    async fn start_xswd(
+        &self,
+        cancel_request_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>
+            + Send
+            + Sync
+            + 'static,
+        request_application_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        request_permission_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        app_disconnect_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>
+            + Send
+            + Sync
+            + 'static,
+    ) -> Result<()>;
+
+    async fn stop_xswd(&self) -> Result<()>;
+
+    async fn is_xswd_running(&self) -> bool;
+
+    async fn get_application_permissions(&self) -> Result<Vec<AppInfo>>;
+
+    async fn modify_application_permissions(
+        &self,
+        id: &String,
+        permissions: HashMap<String, PermissionPolicy>,
+    ) -> Result<()>;
+
+    async fn close_application_session(&self, id: &String) -> Result<()>;
+}
+
+impl XSWD for XelisWallet {
+    async fn start_xswd(
+        &self,
+        cancel_request_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>
+            + Send
+            + Sync
+            + 'static,
+        request_application_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        request_permission_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        app_disconnect_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>
+            + Send
+            + Sync
+            + 'static,
+    ) -> Result<()> {
+        match self.get_wallet().enable_xswd().await {
+            Ok(receiver) => {
+                spawn_task("xswd_handler", async move {
+                    xswd_handler(
+                        receiver,
+                        cancel_request_dart_callback,
+                        request_application_dart_callback,
+                        request_permission_dart_callback,
+                        app_disconnect_dart_callback,
+                    )
+                    .await;
+                });
+            }
+            Err(e) => bail!("Error while enabling XSWD Server: {}", e),
+        };
+        Ok(())
+    }
+
+    async fn stop_xswd(&self) -> Result<()> {
+        self.get_wallet().stop_api_server().await?;
+        Ok(())
+    }
+
+    async fn is_xswd_running(&self) -> bool {
+        let lock = self.get_wallet().get_api_server().lock().await;
+        lock.is_some()
+    }
+
+    async fn get_application_permissions(&self) -> Result<Vec<AppInfo>> {
+        let lock = self.get_wallet().get_api_server().lock().await;
+        let api_server: &xelis_wallet::api::APIServer<
+            std::sync::Arc<xelis_wallet::wallet::Wallet>,
+        > = lock
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("API Server is not running"))?;
+        match api_server {
+            APIServer::XSWD(xswd) => {
+                let applications = xswd.get_handler().get_applications().read().await;
+                let mut apps = Vec::new();
+                for (_, app) in applications.iter() {
+                    let app_info = create_app_info(app).await;
+                    apps.push(app_info);
+                }
+                Ok(apps)
+            }
+            _ => bail!("API Server is not XSWD"),
+        }
+    }
+
+    async fn modify_application_permissions(
+        &self,
+        id: &String,
+        permissions: HashMap<String, PermissionPolicy>,
+    ) -> Result<()> {
+        let lock = self.get_wallet().get_api_server().lock().await;
+        let api_server = lock
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("API Server is not running"))?;
+
+        match api_server {
+            APIServer::XSWD(xswd) => {
+                let app_exists = {
+                    let applications = xswd.get_handler().get_applications().read().await;
+                    applications.iter().any(|(_, v)| v.get_id() == id)
+                };
+
+                if !app_exists {
+                    bail!("Application not found");
+                }
+
+                let mut applications = xswd.get_handler().get_applications().write().await;
+                let app = applications
+                    .iter_mut()
+                    .find(|(_, v)| v.get_id() == id)
+                    .ok_or_else(|| anyhow::anyhow!("Application not found"))?
+                    .1;
+
+                info!("Modifying permissions for application: {}", app.get_name());
+                debug!("New permissions: {:?}", permissions);
+
+                let mut inner_permissions = app.get_permissions().lock().await;
+                for (key, value) in permissions.iter() {
+                    if let Some(entry) = inner_permissions.get_mut(key) {
+                        match value {
+                            PermissionPolicy::Accept => {
+                                *entry = Permission::Allow;
+                            }
+                            PermissionPolicy::Reject => {
+                                *entry = Permission::Reject;
+                            }
+                            PermissionPolicy::Ask => {
+                                *entry = Permission::Ask;
+                            }
+                        }
+                    } else {
+                        bail!(format!("Permission {} not found", key));
+                    }
+                }
+                Ok(())
+            }
+            _ => bail!("API Server is not XSWD"),
+        }
+    }
+
+    async fn close_application_session(&self, id: &String) -> Result<()> {
+        let lock = self.get_wallet().get_api_server().lock().await;
+        let api_server = lock
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("API Server is not running"))?;
+
+        match api_server {
+            APIServer::XSWD(xswd) => {
+                let app_exists = {
+                    let applications = xswd.get_handler().get_applications().read().await;
+                    applications.iter().any(|(_, v)| v.get_id() == id)
+                };
+
+                if !app_exists {
+                    bail!("Application not found");
+                }
+
+                let removed_session = {
+                    let mut applications = xswd.get_handler().get_applications().write().await;
+                    let mut removed_key = None;
+                    applications.retain(|k, v| {
+                        if v.get_id() == id {
+                            removed_key = Some(k.clone());
+                            false
+                        } else {
+                            true
+                        }
+                    });
+                    removed_key
+                };
+
+                if let Some(session) = removed_session {
+                    session.close(None).await?;
+                } else {
+                    bail!("Failed to close application session");
+                }
+
+                Ok(())
+            }
+            _ => bail!("API Server is not XSWD"),
+        }
+    }
+}
 
 pub async fn xswd_handler(
     mut receiver: UnboundedReceiver<XSWDEvent>,
