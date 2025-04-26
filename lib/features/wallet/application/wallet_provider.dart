@@ -487,7 +487,7 @@ class WalletState extends _$WalletState {
 
       case HistorySynced():
         talker.info(event);
-      // no need to do anything
+      // no need to do anything here
     }
   }
 
