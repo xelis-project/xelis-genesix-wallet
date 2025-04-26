@@ -27,10 +27,9 @@ class _DeleteWalletButtonState extends ConsumerState<DeleteWalletButton> {
         side: BorderSide(color: context.colors.error, width: 1),
       ),
       onPressed:
-          () => startWithBiometricAuth(
+          () => _showConfirmationDialog(
             ref,
-            callback: _deleteWallet,
-            reason: loc.please_authenticate_delete_wallet,
+            title: 'Are you sure you want to delete permanently this wallet?',
           ),
       label: Text(
         loc.delete_wallet,
@@ -42,27 +41,38 @@ class _DeleteWalletButtonState extends ConsumerState<DeleteWalletButton> {
     );
   }
 
-  Future<void> _deleteWallet(WidgetRef ref) async {
-    await showDialog<void>(
+  void _showConfirmationDialog(WidgetRef ref, {required String title}) {
+    final loc = ref.read(appLocalizationsProvider);
+    showDialog<void>(
       context: ref.context,
       builder: (context) {
         return ConfirmDialog(
+          title: title,
           onConfirm: (yes) async {
             if (yes) {
-              final walletSnapshot = ref.read(walletStateProvider);
-              final wallets = ref.read(walletsProvider.notifier);
-              final loc = ref.read(appLocalizationsProvider);
-
-              try {
-                await wallets.deleteWallet(walletSnapshot.name);
-                ref
-                    .read(snackBarMessengerProvider.notifier)
-                    .showInfo(loc.wallet_deleted);
-              } catch (e) {
-                ref
-                    .read(snackBarMessengerProvider.notifier)
-                    .showError(e.toString());
-              }
+              startWithBiometricAuth(
+                ref,
+                callback: (ref) {
+                  final walletSnapshot = ref.read(walletStateProvider);
+                  final wallets = ref.read(walletsProvider.notifier);
+                  wallets
+                      .deleteWallet(walletSnapshot.name)
+                      .then(
+                        (value) {
+                          ref
+                              .read(snackBarMessengerProvider.notifier)
+                              .showInfo(loc.wallet_deleted);
+                        },
+                        onError: (Object e) {
+                          ref
+                              .read(snackBarMessengerProvider.notifier)
+                              .showError(e.toString());
+                        },
+                      );
+                },
+                reason: loc.please_authenticate_delete_wallet,
+                closeCurrentDialog: true,
+              );
             }
           },
         );
