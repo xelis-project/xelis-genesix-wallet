@@ -35,6 +35,7 @@ ThemeData lightTheme() {
     highlightColor: Colors.transparent,
     scaffoldBackgroundColor: Colors.transparent,
     dividerColor: Colors.transparent,
+    focusColor: Colors.transparent,
 
     // COLORS
     colorScheme: ColorScheme(
@@ -348,6 +349,11 @@ ThemeData lightTheme() {
       shape: RoundedRectangleBorder(borderRadius: borderRadius),
       brightness: Brightness.light,
       side: chipBorderStateProperty,
+    ),
+
+    checkboxTheme: CheckboxThemeData(
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
     ),
   );
 

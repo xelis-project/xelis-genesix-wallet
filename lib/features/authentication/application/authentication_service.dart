@@ -126,7 +126,10 @@ class Authentication extends _$Authentication {
 
         ref
             .read(routerProvider)
-            .push(AuthAppScreen.walletSeedDialog.toPath, extra: seed);
+            .push(
+              AuthAppScreen.walletSeedDialog.toPath,
+              extra: seed.split(' '),
+            );
       }
     }
   }

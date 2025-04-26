@@ -169,45 +169,40 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                     children:
                         _seedWords.indexed
                             .map<Widget>(
-                              ((int index, String word) tuple) => Padding(
-                                padding: const EdgeInsets.all(Spaces.none),
-                                child: Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
+                              ((int index, String word) tuple) => Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: Spaces.medium,
+                                    right: Spaces.medium,
                                   ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                      left: Spaces.medium,
-                                      right: Spaces.medium,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: FittedBox(
-                                            fit: BoxFit.scaleDown,
-                                            alignment: Alignment.centerLeft,
-                                            child: Text(
-                                              '${tuple.$1 + 1}',
-                                              style: context.bodyLarge
-                                                  ?.copyWith(
-                                                    color:
-                                                        context.colors.primary,
-                                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            '${tuple.$1 + 1}',
+                                            style: context.bodyLarge?.copyWith(
+                                              color: context.colors.primary,
                                             ),
                                           ),
                                         ),
-                                        Expanded(
-                                          flex: 2,
-                                          child: FittedBox(
-                                            fit: BoxFit.scaleDown,
-                                            child: Text(
-                                              tuple.$2,
-                                              style: context.titleMedium,
-                                            ),
+                                      ),
+                                      Expanded(
+                                        flex: 2,
+                                        child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Text(
+                                            tuple.$2,
+                                            style: context.titleMedium,
                                           ),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),

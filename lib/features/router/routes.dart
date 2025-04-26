@@ -163,7 +163,7 @@ class WalletSeedDialogRoute extends GoRouteData {
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return DialogPage(
       barrierDismissible: false,
-      builder: (_) => SeedContentDialog(state.extra as String),
+      builder: (_) => SeedContentDialog(state.extra as List<String>),
     );
   }
 }

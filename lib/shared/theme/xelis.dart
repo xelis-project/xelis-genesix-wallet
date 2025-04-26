@@ -34,6 +34,7 @@ ThemeData xelisTheme() {
     highlightColor: Colors.transparent,
     scaffoldBackgroundColor: Colors.transparent,
     dividerColor: Colors.transparent,
+    focusColor: Colors.transparent,
 
     // COLORS
     colorScheme: const ColorScheme(
@@ -349,6 +350,11 @@ ThemeData xelisTheme() {
       shape: RoundedRectangleBorder(borderRadius: borderRadius),
       brightness: Brightness.dark,
       side: chipBorderStateProperty,
+    ),
+
+    checkboxTheme: CheckboxThemeData(
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
     ),
   );
 
