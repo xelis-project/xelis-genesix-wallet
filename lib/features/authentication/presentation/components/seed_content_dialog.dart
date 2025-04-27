@@ -46,7 +46,12 @@ class _SeedContentDialogState extends ConsumerState<SeedContentDialog> {
                     ),
                   ),
                   IconButton.outlined(
-                    onPressed: () => _copy(widget.seed.join(" ")),
+                    onPressed:
+                        () => copyToClipboard(
+                          widget.seed.join(" "),
+                          ref,
+                          loc.copied,
+                        ),
                     icon: Icon(Icons.copy, size: 18),
                     tooltip: loc.copy_recovery_phrase,
                   ),
@@ -137,12 +142,5 @@ class _SeedContentDialogState extends ConsumerState<SeedContentDialog> {
         ),
       ],
     );
-  }
-
-  void _copy(String content) {
-    final loc = ref.read(appLocalizationsProvider);
-    Clipboard.setData(ClipboardData(text: content)).then((_) {
-      ref.read(snackBarMessengerProvider.notifier).showInfo(loc.copied);
-    });
   }
 }

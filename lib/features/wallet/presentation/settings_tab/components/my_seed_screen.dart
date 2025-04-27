@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
@@ -7,6 +6,7 @@ import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
 import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown.dart';
@@ -140,7 +140,12 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                     Column(
                       children: [
                         IconButton.filled(
-                          onPressed: () => _copy(_seedWords.join(" ")),
+                          onPressed:
+                              () => copyToClipboard(
+                                _seedWords.join(" "),
+                                ref,
+                                loc.copied,
+                              ),
                           icon: Icon(Icons.copy),
                           tooltip: loc.copy_recovery_phrase,
                         ),
@@ -216,12 +221,5 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
         ),
       ),
     );
-  }
-
-  void _copy(String content) {
-    final loc = ref.read(appLocalizationsProvider);
-    Clipboard.setData(ClipboardData(text: content)).then((_) {
-      ref.read(snackBarMessengerProvider.notifier).showInfo(loc.copied);
-    });
   }
 }

@@ -131,12 +131,17 @@ class _AddressBookScreenState extends ConsumerState<AddressBookScreen> {
                               details.name,
                               style: context.titleLarge,
                             ),
-                            subtitle: Tooltip(
-                              message: address,
-                              child: Text(
-                                truncateText(address, maxLength: 20),
-                                style: context.bodySmall?.copyWith(
-                                  color: context.moreColors.mutedColor,
+                            subtitle: InkWell(
+                              onTap:
+                                  () =>
+                                      copyToClipboard(address, ref, loc.copied),
+                              child: Tooltip(
+                                message: address,
+                                child: Text(
+                                  truncateText(address, maxLength: 20),
+                                  style: context.bodySmall?.copyWith(
+                                    color: context.moreColors.mutedColor,
+                                  ),
                                 ),
                               ),
                             ),
