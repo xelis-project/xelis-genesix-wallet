@@ -19,6 +19,7 @@ import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:genesix/shared/widgets/components/warning_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class SetupMultisigDialog extends ConsumerStatefulWidget {
   const SetupMultisigDialog({super.key});
@@ -287,9 +288,8 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                         ),
                         const SizedBox(height: Spaces.extraSmall),
                         SelectableText(
-                          _transactionSummary!
-                              .transactionSummaryType
-                              .multisig!
+                          (_transactionSummary!.transactionType
+                                  as MultisigBuilder)
                               .threshold
                               .toString(),
                         ),
@@ -304,9 +304,8 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                         Builder(
                           builder: (BuildContext context) {
                             final participants =
-                                _transactionSummary!
-                                    .transactionSummaryType
-                                    .multisig!
+                                (_transactionSummary!.transactionType
+                                        as MultisigBuilder)
                                     .participants;
                             return Column(
                               children:

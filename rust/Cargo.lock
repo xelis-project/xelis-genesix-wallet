@@ -819,7 +819,7 @@ dependencies = [
 [[package]]
 name = "curve25519-dalek"
 version = "4.1.3"
-source = "git+https://github.com/xelis-project/curve25519-dalek?branch=master#8204e5c99659d28f67a0e1c4ee85e004d1f2bd30"
+source = "git+https://github.com/xelis-project/curve25519-dalek?branch=master#cabd974406ee657b31067f54c3f789297a7d6648"
 dependencies = [
  "bytemuck",
  "cfg-if",
@@ -838,7 +838,7 @@ dependencies = [
 [[package]]
 name = "curve25519-dalek-derive"
 version = "0.1.1"
-source = "git+https://github.com/xelis-project/curve25519-dalek?branch=master#8204e5c99659d28f67a0e1c4ee85e004d1f2bd30"
+source = "git+https://github.com/xelis-project/curve25519-dalek?branch=master#cabd974406ee657b31067f54c3f789297a7d6648"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2502,9 +2502,9 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 
 [[package]]
 name = "syn"
-version = "2.0.100"
+version = "2.0.101"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b09a44accad81e1ba1cd74a32461ba89dee89095ba17b32f5d03683b1b1fc2a0"
+checksum = "8ce2b7fc941b3a24138a0a7cf8e858bfc6a992e7978a068a5c760deb0ed43caf"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3056,9 +3056,9 @@ dependencies = [
 
 [[package]]
 name = "webpki-roots"
-version = "0.26.8"
+version = "0.26.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2210b291f7ea53617fbafcc4939f10914214ec15aace5ba62293a668f322c5c9"
+checksum = "29aad86cec885cafd03e8305fd727c418e970a521322c91688414d5b8efba16b"
 dependencies = [
  "rustls-pki-types",
 ]
@@ -3362,7 +3362,7 @@ dependencies = [
 [[package]]
 name = "xelis-ast"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#01c078cbfa3de707becd266fbc4169726bbd4179"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#63abfbec7d99a04b18889a5eb7bd53de5e087195"
 dependencies = [
  "indexmap",
  "xelis-types",
@@ -3371,7 +3371,7 @@ dependencies = [
 [[package]]
 name = "xelis-builder"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#01c078cbfa3de707becd266fbc4169726bbd4179"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#63abfbec7d99a04b18889a5eb7bd53de5e087195"
 dependencies = [
  "anyhow",
  "log",
@@ -3385,7 +3385,7 @@ dependencies = [
 [[package]]
 name = "xelis-bytecode"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#01c078cbfa3de707becd266fbc4169726bbd4179"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#63abfbec7d99a04b18889a5eb7bd53de5e087195"
 dependencies = [
  "indexmap",
  "serde",
@@ -3395,7 +3395,7 @@ dependencies = [
 [[package]]
 name = "xelis-environment"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#01c078cbfa3de707becd266fbc4169726bbd4179"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#63abfbec7d99a04b18889a5eb7bd53de5e087195"
 dependencies = [
  "anyhow",
  "better_any",
@@ -3421,7 +3421,7 @@ dependencies = [
 [[package]]
 name = "xelis-types"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#01c078cbfa3de707becd266fbc4169726bbd4179"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#63abfbec7d99a04b18889a5eb7bd53de5e087195"
 dependencies = [
  "anyhow",
  "indexmap",
@@ -3435,7 +3435,7 @@ dependencies = [
 [[package]]
 name = "xelis-vm"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#01c078cbfa3de707becd266fbc4169726bbd4179"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#63abfbec7d99a04b18889a5eb7bd53de5e087195"
 dependencies = [
  "indexmap",
  "log",
@@ -3448,7 +3448,7 @@ dependencies = [
 [[package]]
 name = "xelis_common"
 version = "1.17.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#b70c3703f9a9b4abda9f88675a27734c8cb780f2"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#5617230a84422e883ae721b467a067b15779847d"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -3495,7 +3495,7 @@ dependencies = [
 [[package]]
 name = "xelis_wallet"
 version = "1.17.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#b70c3703f9a9b4abda9f88675a27734c8cb780f2"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#5617230a84422e883ae721b467a067b15779847d"
 dependencies = [
  "actix",
  "actix-web",

@@ -20,7 +20,6 @@ class SeedContentDialog extends ConsumerStatefulWidget {
 }
 
 class _SeedContentDialogState extends ConsumerState<SeedContentDialog> {
-
   bool _confirmed = false;
 
   @override
