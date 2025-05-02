@@ -10,7 +10,7 @@ import 'package:genesix/features/wallet/application/multisig_pending_state_provi
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
@@ -595,7 +595,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
             _transactionSummary = transactionSummary;
           });
         } else {
-          ref.read(snackBarMessengerProvider.notifier).showError(loc.oups);
+          ref.read(snackBarQueueProvider.notifier).showError(loc.oups);
         }
       }
 
@@ -621,15 +621,15 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
       ref.read(multisigPendingStateProvider.notifier).pendingState();
 
       ref
-          .read(snackBarMessengerProvider.notifier)
+          .read(snackBarQueueProvider.notifier)
           .showInfo(loc.transaction_broadcast_message);
     } on AnyhowException catch (e) {
       talker.error('Cannot broadcast transaction: $e');
       final xelisMessage = (e).message.split("\n")[0];
-      ref.read(snackBarMessengerProvider.notifier).showError(xelisMessage);
+      ref.read(snackBarQueueProvider.notifier).showError(xelisMessage);
     } catch (e) {
       talker.error('Cannot broadcast transaction: $e');
-      ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
+      ref.read(snackBarQueueProvider.notifier).showError(e.toString());
     }
 
     if (ref.context.mounted) {

@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
@@ -204,8 +204,11 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
             .read(addressBookProvider.notifier)
             .upsert(widget.address!, name.trim(), null);
         ref
-            .read(snackBarMessengerProvider.notifier)
-            .showInfo('$name added to address book', durationInSeconds: 2);
+            .read(snackBarQueueProvider.notifier)
+            .showInfo(
+              '$name added to address book',
+              duration: Duration(seconds: 2),
+            );
       } else if (address != null && name != null) {
         if (await ref
             .read(addressBookProvider.notifier)
@@ -221,11 +224,14 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
               .read(addressBookProvider.notifier)
               .upsert(address.trim(), name.trim(), null);
           ref
-              .read(snackBarMessengerProvider.notifier)
-              .showInfo('$name added to address book', durationInSeconds: 2);
+              .read(snackBarQueueProvider.notifier)
+              .showInfo(
+                '$name added to address book',
+                duration: Duration(seconds: 2),
+              );
         } catch (e) {
           ref
-              .read(snackBarMessengerProvider.notifier)
+              .read(snackBarQueueProvider.notifier)
               .showError('Failed to add contact: $e');
         }
       }

@@ -9,7 +9,7 @@ import 'package:genesix/features/wallet/presentation/wallet_tab/components/multi
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/multisig/setup_multisig_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/multisig/sign_transaction_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/transaction_dialog.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -279,7 +279,7 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
         );
       } else {
         final loc = ref.read(appLocalizationsProvider);
-        ref.read(snackBarMessengerProvider.notifier).showError(loc.oups);
+        ref.read(snackBarQueueProvider.notifier).showError(loc.oups);
       }
     }
   }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:go_router/go_router.dart';
@@ -201,10 +201,10 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
           if (mounted) context.pop();
 
           ref
-              .read(snackBarMessengerProvider.notifier)
+              .read(snackBarQueueProvider.notifier)
               .showInfo(loc.password_changed);
         } catch (e) {
-          ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
+          ref.read(snackBarQueueProvider.notifier).showError(e.toString());
         }
 
         if (mounted && context.loaderOverlay.visible) {

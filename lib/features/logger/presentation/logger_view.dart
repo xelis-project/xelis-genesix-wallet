@@ -6,7 +6,7 @@ import 'package:genesix/features/logger/presentation/logger_actions_bottom_sheet
 import 'package:genesix/features/logger/presentation/logger_view_app_bar.dart';
 import 'package:genesix/features/logger/presentation/logger_view_controller.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:group_button/group_button.dart';
 import 'package:talker_flutter/talker_flutter.dart';
@@ -47,7 +47,7 @@ class _LoggerViewState extends ConsumerState<LoggerView> {
       timeFormat: widget.talker.settings.timeFormat,
     );
     Clipboard.setData(ClipboardData(text: text));
-    ref.read(snackBarMessengerProvider.notifier).showInfo(loc.copied);
+    ref.read(snackBarQueueProvider.notifier).showInfo(loc.copied);
   }
 
   void _copyAllLogs(BuildContext context) {
@@ -59,7 +59,7 @@ class _LoggerViewState extends ConsumerState<LoggerView> {
         ),
       ),
     );
-    ref.read(snackBarMessengerProvider.notifier).showInfo(loc.all_logs_copied);
+    ref.read(snackBarQueueProvider.notifier).showInfo(loc.all_logs_copied);
   }
 
   Future<void> _showActionsBottomSheet(BuildContext context) async {

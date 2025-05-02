@@ -6,7 +6,7 @@ import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/data/seed_search_engine_repository.dart';
 import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
@@ -396,7 +396,7 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
     Clipboard.getData('text/plain').then((ClipboardData? data) {
       if (data == null || data.text == null || data.text!.trim().isEmpty) {
         ref
-            .read(snackBarMessengerProvider.notifier)
+            .read(snackBarQueueProvider.notifier)
             .showError(loc.seed_error_clipboard_empty);
         return;
       }
@@ -405,7 +405,7 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
 
       if (words.length > 25) {
         ref
-            .read(snackBarMessengerProvider.notifier)
+            .read(snackBarQueueProvider.notifier)
             .showError(loc.seed_error_too_many_words);
         return;
       }
@@ -455,7 +455,7 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
     final loc = ref.read(appLocalizationsProvider);
     if (_invalidWords != null && _invalidWords!.isNotEmpty) {
       ref
-          .read(snackBarMessengerProvider.notifier)
+          .read(snackBarQueueProvider.notifier)
           .showError(loc.seed_error_invalid_words);
       return;
     }
@@ -466,7 +466,7 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
 
     if (!allFirst24NonEmpty) {
       ref
-          .read(snackBarMessengerProvider.notifier)
+          .read(snackBarQueueProvider.notifier)
           .showError(loc.seed_error_phrase_incomplete);
       return;
     }

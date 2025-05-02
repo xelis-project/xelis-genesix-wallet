@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -107,7 +107,7 @@ class _AddWalletModalBottomSheetMenuState
             ).exists();
         if (walletExists) {
           ref
-              .read(snackBarMessengerProvider.notifier)
+              .read(snackBarQueueProvider.notifier)
               .showError(loc.wallet_already_exists);
         } else {
           if (mounted) {
@@ -117,7 +117,7 @@ class _AddWalletModalBottomSheetMenuState
         }
       } else {
         ref
-            .read(snackBarMessengerProvider.notifier)
+            .read(snackBarQueueProvider.notifier)
             .showError(loc.invalid_wallet_folder);
       }
     }

@@ -6,7 +6,7 @@ import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/application/search_query_provider.dart';
 import 'package:genesix/features/wallet/presentation/address_book/add_contact_dialog.dart';
 import 'package:genesix/features/wallet/presentation/address_book/edit_contact_dialog.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
@@ -202,14 +202,14 @@ class _AddressBookScreenState extends ConsumerState<AddressBookScreen> {
               try {
                 ref.read(addressBookProvider.notifier).remove(address);
                 ref
-                    .read(snackBarMessengerProvider.notifier)
+                    .read(snackBarQueueProvider.notifier)
                     .showInfo(
                       '$name removed from address book',
-                      durationInSeconds: 2,
+                      duration: const Duration(seconds: 2),
                     );
               } catch (e) {
                 ref
-                    .read(snackBarMessengerProvider.notifier)
+                    .read(snackBarQueueProvider.notifier)
                     .showError('Failed to remove contact: $e');
               }
             },

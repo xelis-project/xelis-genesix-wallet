@@ -6,7 +6,7 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/wallet/presentation/settings_tab/components/burn_warning_dialog.dart';
 import 'package:genesix/features/wallet/presentation/settings_tab/components/delete_wallet_button.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/confirm_dialog.dart';
 import 'package:go_router/go_router.dart';
@@ -174,11 +174,11 @@ class SettingsTab extends ConsumerWidget {
 
                 await wallets.renameWallet(walletSnapshot.name, newName);
                 ref
-                    .read(snackBarMessengerProvider.notifier)
+                    .read(snackBarQueueProvider.notifier)
                     .showInfo(loc.wallet_renamed);
               } catch (e) {
                 ref
-                    .read(snackBarMessengerProvider.notifier)
+                    .read(snackBarQueueProvider.notifier)
                     .showError(e.toString());
               }
             }

@@ -9,7 +9,7 @@ import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/asset_dropdown_menu_item.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/burn/burn_review_content.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/transaction_dialog.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
@@ -184,7 +184,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
     if (_selectedAssetBalance == AppResources.zeroBalance) {
       final loc = ref.read(appLocalizationsProvider);
       ref
-          .read(snackBarMessengerProvider.notifier)
+          .read(snackBarQueueProvider.notifier)
           .showError(loc.no_balance_to_burn);
       return;
     }

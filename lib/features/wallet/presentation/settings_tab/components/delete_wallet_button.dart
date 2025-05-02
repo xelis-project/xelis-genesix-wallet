@@ -4,7 +4,7 @@ import 'package:genesix/features/authentication/application/biometric_auth_provi
 import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/components/confirm_dialog.dart';
@@ -60,12 +60,12 @@ class _DeleteWalletButtonState extends ConsumerState<DeleteWalletButton> {
                       .then(
                         (value) {
                           ref
-                              .read(snackBarMessengerProvider.notifier)
+                              .read(snackBarQueueProvider.notifier)
                               .showInfo(loc.wallet_deleted);
                         },
                         onError: (Object e) {
                           ref
-                              .read(snackBarMessengerProvider.notifier)
+                              .read(snackBarQueueProvider.notifier)
                               .showError(e.toString());
                         },
                       );

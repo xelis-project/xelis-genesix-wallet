@@ -4,7 +4,7 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
 import 'package:genesix/features/wallet/presentation/wallet_tab/components/logo.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:go_router/go_router.dart';
@@ -666,7 +666,7 @@ class _TransactionEntryScreenState
     if (!await launchUrl(url)) {
       final loc = ref.read(appLocalizationsProvider);
       ref
-          .read(snackBarMessengerProvider.notifier)
+          .read(snackBarQueueProvider.notifier)
           .showError('${loc.launch_url_error} $url');
     }
   }

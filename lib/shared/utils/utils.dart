@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/wallet/domain/destination_address.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:genesix/src/generated/rust_bridge/api/utils.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:path/path.dart' as p;
@@ -92,8 +92,8 @@ String truncateText(String text, {int maxLength = 8}) {
 void copyToClipboard(String content, WidgetRef ref, String snackbarMessage) {
   Clipboard.setData(ClipboardData(text: content)).then((_) {
     ref
-        .read(snackBarMessengerProvider.notifier)
-        .showInfo(snackbarMessage, durationInSeconds: 1);
+        .read(snackBarQueueProvider.notifier)
+        .showInfo(snackbarMessage, duration: Duration(seconds: 1));
   });
 }
 

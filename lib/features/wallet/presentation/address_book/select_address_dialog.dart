@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/application/search_query_provider.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
@@ -168,7 +168,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
                 } else {
                   if (snapshot.hasError) {
                     ref
-                        .read(snackBarMessengerProvider.notifier)
+                        .read(snackBarQueueProvider.notifier)
                         .showError('Error loading contacts: ${snapshot.error}');
                   }
                   return const SizedBox.shrink();

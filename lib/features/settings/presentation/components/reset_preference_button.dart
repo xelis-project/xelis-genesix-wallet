@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/storage/shared_preferences/shared_preferences_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
@@ -43,10 +43,10 @@ class _ResetPreferenceButtonState extends ConsumerState<ResetPreferenceButton> {
       ref.invalidate(settingsProvider);
 
       ref
-          .read(snackBarMessengerProvider.notifier)
+          .read(snackBarQueueProvider.notifier)
           .showInfo(loc.preferences_reset_snackbar);
     } catch (e) {
-      ref.read(snackBarMessengerProvider.notifier).showError(e.toString());
+      ref.read(snackBarQueueProvider.notifier).showError(e.toString());
     }
   }
 

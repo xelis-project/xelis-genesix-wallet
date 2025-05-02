@@ -5,7 +5,7 @@ import 'package:genesix/features/authentication/data/biometric_auth_repository.d
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_auth/error_codes.dart';
@@ -72,16 +72,16 @@ class BiometricAuth extends _$BiometricAuth {
         if (e.code == lockedOut || e.code == permanentlyLockedOut) {
           state = BiometricAuthProviderStatus.locked;
           ref
-              .read(snackBarMessengerProvider.notifier)
+              .read(snackBarQueueProvider.notifier)
               .showError(loc.biometric_locked_warning);
         } else if (e.message != null && !e.message!.contains('canceled')) {
           ref
-              .read(snackBarMessengerProvider.notifier)
+              .read(snackBarQueueProvider.notifier)
               .showError(loc.biometric_not_available_warning);
         }
       } catch (e) {
         talker.error('BiometricAuthProvider:authenticate', e);
-        ref.read(snackBarMessengerProvider.notifier).showError(loc.oups);
+        ref.read(snackBarQueueProvider.notifier).showError(loc.oups);
       }
     }
     return false;

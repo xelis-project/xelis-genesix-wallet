@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
@@ -166,11 +166,14 @@ class _EditContactDialogState extends ConsumerState<EditContactDialog> {
               .read(addressBookProvider.notifier)
               .upsert(widget.address, name.trim(), null);
           ref
-              .read(snackBarMessengerProvider.notifier)
-              .showInfo('contact updated', durationInSeconds: 2);
+              .read(snackBarQueueProvider.notifier)
+              .showInfo(
+                'contact updated',
+                duration: const Duration(seconds: 2),
+              );
         } catch (e) {
           ref
-              .read(snackBarMessengerProvider.notifier)
+              .read(snackBarQueueProvider.notifier)
               .showError('Failed to update contact: $e');
         }
       }
