@@ -479,6 +479,11 @@ class WalletState extends _$WalletState {
       case HistorySynced():
         talker.info(event);
       // no need to do anything here
+      case SyncError():
+        talker.error(event);
+        ref
+            .read(snackBarQueueProvider.notifier)
+            .showError('Error while syncing: ${event.message}');
     }
   }
 

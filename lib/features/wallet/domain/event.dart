@@ -24,4 +24,6 @@ sealed class Event with _$Event {
   const factory Event.offline() = Offline;
 
   const factory Event.historySynced(int topoheight) = HistorySynced;
+
+  const factory Event.syncError(String message) = SyncError;
 }

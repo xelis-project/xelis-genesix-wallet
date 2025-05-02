@@ -525,10 +525,10 @@ packages:
     dependency: "direct dev"
     description:
       name: go_router_builder
-      sha256: a79845a602f9ce3d837408c408915ea034eb2957fe0b527cfa3fc50e2e9bcb93
+      sha256: "7f6f4bfb97cadc3d25378a0237fe4ddd98b54d6094b5a5c158b775a2cc30843e"
       url: "https://pub.dev"
     source: hosted
-    version: "2.8.2"
+    version: "2.9.0"
   google_fonts:
     dependency: "direct main"
     description:
@@ -685,10 +685,10 @@ packages:
     dependency: transitive
     description:
       name: json_rpc_2
-      sha256: "246b321532f0e8e2ba474b4d757eaa558ae4fdd0688fdbc1e1ca9705f9b8ca0e"
+      sha256: "3c46c2633aec07810c3d6a2eb08d575b5b4072980db08f1344e66aeb53d6e4a7"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.3"
+    version: "4.0.0"
   json_serializable:
     dependency: "direct dev"
     description:
@@ -1241,34 +1241,34 @@ packages:
     dependency: transitive
     description:
       name: talker
-      sha256: cbea2c5a10a3d9225e58b5fef4092d6ec00f1fcda43f92a33dfbab1ea7ffca79
+      sha256: "8784bb7ed8438832dcdc8211bd9b6fed96dcdf215145ff8771d5612667bc158a"
       url: "https://pub.dev"
     source: hosted
-    version: "4.7.2"
+    version: "4.7.5"
   talker_flutter:
     dependency: "direct main"
     description:
       name: talker_flutter
-      sha256: "113b8402fcb546c4c11a099cbcd39bf835df2586573ef6655ce1f94b2f841e40"
+      sha256: "63e2454581ef26969491c59c307b36dc9d1fba936ddcc5df449bbe486b8adda8"
       url: "https://pub.dev"
     source: hosted
-    version: "4.7.2"
+    version: "4.7.5"
   talker_logger:
     dependency: transitive
     description:
       name: talker_logger
-      sha256: "416b4d726358764c68c2de23c11bf9f146f2608ac244ec2ed9da741f89c49a6e"
+      sha256: "4f97def0c14944ea26caba225831dcdf4088017c02961c493c45a057e5e6c382"
       url: "https://pub.dev"
     source: hosted
-    version: "4.7.2"
+    version: "4.7.5"
   talker_riverpod_logger:
     dependency: "direct main"
     description:
       name: talker_riverpod_logger
-      sha256: "956422a31eac206850af81d92e3b95244512da1f7e3b499b40ee875d840f476e"
+      sha256: "291582f81567a5624b2485a66e528aedc4e33ea5f1116b65e1c911184ff80c02"
       url: "https://pub.dev"
     source: hosted
-    version: "4.7.2"
+    version: "4.7.5"
   term_glyph:
     dependency: transitive
     description:
@@ -1481,10 +1481,10 @@ packages:
     dependency: "direct main"
     description:
       name: xelis_dart_sdk
-      sha256: "13a4f3fda476b767663434414188d92908b9f4c02543cfd38348615be7a5581f"
+      sha256: e380b09f7956b3f936d6cc3cb66dfd5332bb56cb38248fddde18a5072e6379d4
       url: "https://pub.dev"
     source: hosted
-    version: "0.24.5"
+    version: "0.25.0"
   xml:
     dependency: transitive
     description:

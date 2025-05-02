@@ -181,6 +181,11 @@ class NativeWalletRepository {
               json['data']['topoheight'] as int,
             );
             yield historySynced;
+          case sdk.WalletEvent.syncError:
+            final syncError = Event.syncError(
+              json['data']['message'] as String,
+            );
+            yield syncError;
         }
       } catch (e) {
         talker.error('Unknown event: ${json['event']}');
