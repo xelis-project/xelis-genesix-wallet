@@ -3,14 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
 import 'package:genesix/features/authentication/presentation/components/add_wallet_modal_bottom_sheet.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
 import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
-import 'package:genesix/features/authentication/presentation/components/table_generation_progress_dialog.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -194,14 +193,6 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
     );
   }
 
-  void _showTableGenerationProgressDialog() {
-    showDialog<void>(
-      barrierDismissible: false,
-      context: context,
-      builder: (_) => const TableGenerationProgressDialog(),
-    );
-  }
-
   Future<void> _showAddWalletModalBottomSheetMenu() async {
     final importedWalletData =
         await showModalBottomSheet<({String path, String walletName})?>(
@@ -231,25 +222,11 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
     String walletName,
     String password,
   ) async {
-    try {
-      if (!await ref
-              .read(authenticationProvider.notifier)
-              .isPrecomputedTablesExists() &&
-          mounted) {
-        _showTableGenerationProgressDialog();
-      } else {
-        context.loaderOverlay.show();
-      }
+    context.loaderOverlay.show();
 
-      await ref
-          .read(authenticationProvider.notifier)
-          .openImportedWallet(path, walletName, password);
-    } catch (e) {
-      if (mounted) {
-        // Dismiss TableGenerationProgressDialog if error occurs
-        context.pop();
-      }
-    }
+    await ref
+        .read(authenticationProvider.notifier)
+        .openImportedWallet(path, walletName, password);
 
     if (mounted && context.loaderOverlay.visible) {
       context.loaderOverlay.hide();
@@ -270,32 +247,15 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
   }
 
   void _openWallet(String name, String password) async {
-    try {
-      if (!await ref
-              .read(authenticationProvider.notifier)
-              .isPrecomputedTablesExists() &&
-          mounted) {
-        _showTableGenerationProgressDialog();
-      } else {
-        context.loaderOverlay.show();
-      }
+    context.loaderOverlay.show();
 
-      await ref
-          .read(authenticationProvider.notifier)
-          .openWallet(name, password);
+    await ref.read(authenticationProvider.notifier).openWallet(name, password);
 
-      // unlock biometric auth if locked
-      if (ref.read(biometricAuthProvider) ==
-          BiometricAuthProviderStatus.locked) {
-        ref
-            .read(biometricAuthProvider.notifier)
-            .updateStatus(BiometricAuthProviderStatus.ready);
-      }
-    } catch (e) {
-      if (mounted) {
-        // Dismiss TableGenerationProgressDialog if error occurs
-        context.pop();
-      }
+    // unlock biometric auth if locked
+    if (ref.read(biometricAuthProvider) == BiometricAuthProviderStatus.locked) {
+      ref
+          .read(biometricAuthProvider.notifier)
+          .updateStatus(BiometricAuthProviderStatus.ready);
     }
 
     if (mounted && context.loaderOverlay.visible) {
@@ -316,7 +276,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
         return true;
       } else {
         ref
-            .read(snackBarMessengerProvider.notifier)
+            .read(snackBarQueueProvider.notifier)
             .showError(loc.password_not_found);
       }
     }

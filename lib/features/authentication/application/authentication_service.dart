@@ -5,9 +5,10 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/storage/secure_storage/secure_storage_repository.dart';
-import 'package:genesix/src/generated/rust_bridge/api/table_generation.dart';
+import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/src/generated/rust_bridge/api/precomputed_tables.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
 import 'package:genesix/features/router/route_utils.dart';
@@ -42,6 +43,8 @@ class Authentication extends _$Authentication {
     final precomputedTablesPath = await _getPrecomputedTablesPath();
     final settings = ref.read(settingsProvider);
     final walletPath = await getWalletPath(settings.network, name);
+    final tableType = await _getTableType();
+    talker.info('Precomputed tables type that will be used: $tableType');
 
     var walletExists = false;
     if (kIsWeb) {
@@ -67,6 +70,7 @@ class Authentication extends _$Authentication {
             settings.network,
             seed: seed,
             precomputeTablesPath: precomputedTablesPath,
+            precomputedTableType: tableType,
           );
         } else if (privateKey != null) {
           walletRepository = await NativeWalletRepository.recoverFromPrivateKey(
@@ -74,6 +78,7 @@ class Authentication extends _$Authentication {
             password,
             settings.network,
             privateKey: privateKey,
+            precomputedTableType: tableType,
           );
         } else {
           walletRepository = await NativeWalletRepository.create(
@@ -81,19 +86,20 @@ class Authentication extends _$Authentication {
             password,
             settings.network,
             precomputeTablesPath: precomputedTablesPath,
+            precomputedTableType: tableType,
           );
         }
       } on AnyhowException catch (e) {
         talker.critical('Creating wallet failed: $e');
         final xelisMessage = (e).message.split("\n")[0];
         ref
-            .read(snackBarMessengerProvider.notifier)
+            .read(snackBarQueueProvider.notifier)
             .showError('${loc.error_when_creating_wallet}:\n$xelisMessage');
         rethrow;
       } catch (e) {
         talker.critical('Creating wallet failed: $e');
         ref
-            .read(snackBarMessengerProvider.notifier)
+            .read(snackBarQueueProvider.notifier)
             .showError(loc.error_when_creating_wallet);
         rethrow;
       }
@@ -131,6 +137,8 @@ class Authentication extends _$Authentication {
               extra: seed.split(' '),
             );
       }
+
+      _updatePrecomputedTables(walletRepository, precomputedTablesPath);
     }
   }
 
@@ -138,6 +146,8 @@ class Authentication extends _$Authentication {
     final loc = ref.read(appLocalizationsProvider);
     final settings = ref.read(settingsProvider);
     final precomputedTablesPath = await _getPrecomputedTablesPath();
+    final tableType = await _getTableType();
+    talker.info('Precomputed tables type that will be used: $tableType');
 
     final walletPath = await getWalletPath(settings.network, name);
 
@@ -157,18 +167,19 @@ class Authentication extends _$Authentication {
           password,
           settings.network,
           precomputeTablesPath: precomputedTablesPath,
+          precomputedTableType: tableType,
         );
       } on AnyhowException catch (e) {
         talker.critical('Opening wallet failed: $e');
         final xelisMessage = (e).message.split("\n")[0];
         ref
-            .read(snackBarMessengerProvider.notifier)
+            .read(snackBarQueueProvider.notifier)
             .showError('${loc.error_when_opening_wallet}:\n$xelisMessage');
         rethrow;
       } catch (e) {
         talker.critical('Opening wallet failed: $e');
         ref
-            .read(snackBarMessengerProvider.notifier)
+            .read(snackBarQueueProvider.notifier)
             .showError(loc.error_when_opening_wallet);
         rethrow;
       }
@@ -190,6 +201,8 @@ class Authentication extends _$Authentication {
       ref.read(routerProvider).go(AuthAppScreen.wallet.toPath);
 
       ref.read(walletStateProvider.notifier).connect();
+
+      _updatePrecomputedTables(walletRepository, precomputedTablesPath);
     } else {
       throw Exception('This wallet does not exist: $name');
     }
@@ -202,8 +215,10 @@ class Authentication extends _$Authentication {
     String password,
   ) async {
     final loc = ref.read(appLocalizationsProvider);
-    final precomputedTablesPath = await _getPrecomputedTablesPath();
     final network = ref.read(settingsProvider).network;
+    final precomputedTablesPath = await _getPrecomputedTablesPath();
+    final tableType = await _getTableType();
+    talker.info('Precomputed tables type that will be used: $tableType');
 
     NativeWalletRepository walletRepository;
     try {
@@ -215,18 +230,19 @@ class Authentication extends _$Authentication {
         password,
         network,
         precomputeTablesPath: precomputedTablesPath,
+        precomputedTableType: tableType,
       );
     } on AnyhowException catch (e) {
       talker.critical('Opening wallet failed: $e');
       final xelisMessage = (e).message.split("\n")[0];
       ref
-          .read(snackBarMessengerProvider.notifier)
+          .read(snackBarQueueProvider.notifier)
           .showError('${loc.error_when_opening_wallet}:\n$xelisMessage');
       rethrow;
     } catch (e) {
       talker.critical('Opening wallet failed: $e');
       ref
-          .read(snackBarMessengerProvider.notifier)
+          .read(snackBarQueueProvider.notifier)
           .showError(loc.error_when_opening_wallet);
       rethrow;
     }
@@ -243,6 +259,8 @@ class Authentication extends _$Authentication {
     ref.read(routerProvider).go(AuthAppScreen.wallet.toPath);
 
     ref.read(walletStateProvider.notifier).connect();
+
+    _updatePrecomputedTables(walletRepository, precomputedTablesPath);
   }
 
   Future<void> logout() async {
@@ -259,6 +277,39 @@ class Authentication extends _$Authentication {
     }
   }
 
+  Future<void> _updatePrecomputedTables(
+    NativeWalletRepository wallet,
+    String path,
+  ) async {
+    // if full size precomputed tables are not available,
+    // we need to generate them and replace the existing ones (default: L1Low)
+    if (!await isPrecomputedTablesExists(_getExpectedTableType())) {
+      ref
+          .read(snackBarQueueProvider.notifier)
+          .showInfo(
+            'Generating the final precomputed tables, this may take a while...',
+            duration: Duration(seconds: 6),
+          );
+      wallet
+          .updatePrecomputedTables(path, _getExpectedTableType())
+          .whenComplete(() async {
+            final tableType = await wallet.getPrecomputedTablesType();
+            ref
+                .read(snackBarQueueProvider.notifier)
+                .showInfo('Precomputed tables updated: ${tableType.name}');
+          });
+    }
+  }
+
+  Future<bool> isPrecomputedTablesExists(
+    PrecomputedTableType precomputedTableType,
+  ) async {
+    return arePrecomputedTablesAvailable(
+      precomputedTablesPath: await _getPrecomputedTablesPath(),
+      precomputedTableType: precomputedTableType,
+    );
+  }
+
   Future<String> _getPrecomputedTablesPath() async {
     if (kIsWeb) {
       return "";
@@ -268,9 +319,20 @@ class Authentication extends _$Authentication {
     }
   }
 
-  Future<bool> isPrecomputedTablesExists() async {
-    return precomputedTablesExist(
-      precomputedTablesPath: await _getPrecomputedTablesPath(),
-    );
+  Future<PrecomputedTableType> _getTableType() async {
+    final expectedTableType = _getExpectedTableType();
+    if (await isPrecomputedTablesExists(expectedTableType)) {
+      return expectedTableType;
+    } else {
+      return PrecomputedTableType.l1Low;
+    }
+  }
+
+  PrecomputedTableType _getExpectedTableType() {
+    if (isDesktopDevice) {
+      return PrecomputedTableType.l1Full;
+    } else {
+      return PrecomputedTableType.l1Medium;
+    }
   }
 }

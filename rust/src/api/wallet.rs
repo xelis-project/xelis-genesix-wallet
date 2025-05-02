@@ -7,7 +7,7 @@ use anyhow::{anyhow, bail, Context, Result};
 use flutter_rust_bridge::frb;
 use indexmap::IndexSet;
 use log::{error, info, warn};
-use parking_lot::{Mutex, RwLock};
+use parking_lot::RwLock;
 use serde_json::json;
 use xelis_common::api::{DataElement, DataValue};
 use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
@@ -20,12 +20,12 @@ use xelis_common::transaction::builder::{
 use xelis_common::transaction::multisig::{MultiSig, SignatureId};
 use xelis_common::transaction::BurnPayload;
 pub use xelis_common::transaction::Transaction;
-use xelis_common::utils::{format_coin, format_xelis};
+use xelis_common::utils::{detect_available_parallelism, format_coin, format_xelis};
 use xelis_wallet::precomputed_tables;
 pub use xelis_wallet::transaction_builder::TransactionBuilderState;
 use xelis_wallet::wallet::{RecoverOption, Wallet};
 
-use super::table_generation::LogProgressTableGenerationReportFunction;
+use super::precomputed_tables::{LogProgressTableGenerationReportFunction, PrecomputedTableType};
 use crate::frb_generated::StreamSink;
 
 use super::models::wallet_dtos::{
@@ -45,9 +45,6 @@ pub struct XelisWallet {
     >,
 }
 
-// Precomputed tables for the wallet
-static CACHED_TABLES: Mutex<Option<precomputed_tables::PrecomputedTablesShared>> = Mutex::new(None);
-
 pub async fn create_xelis_wallet(
     name: String,
     password: String,
@@ -55,31 +52,21 @@ pub async fn create_xelis_wallet(
     seed: Option<String>,
     private_key: Option<String>,
     precomputed_tables_path: Option<String>,
+    precomputed_table_type: PrecomputedTableType,
 ) -> Result<XelisWallet> {
-    let precomputed_tables = {
-        let tables = CACHED_TABLES.lock().clone();
-        match tables {
-            Some(tables) => tables,
-            None => {
-                let precomputed_tables_size = if cfg!(target_arch = "wasm32") {
-                    precomputed_tables::L1_LOW
-                } else {
-                    precomputed_tables::L1_FULL
-                };
-                let tables = precomputed_tables::read_or_generate_precomputed_tables(
-                    precomputed_tables_path.as_deref(),
-                    precomputed_tables_size,
-                    LogProgressTableGenerationReportFunction,
-                    true,
-                )
-                .await?;
-
-                // It is done in two steps to avoid the "Future is not Send" error
-                CACHED_TABLES.lock().replace(tables.clone());
-                tables
-            }
-        }
+    let table_type = match precomputed_table_type {
+        PrecomputedTableType::L1Low => precomputed_tables::L1_LOW,
+        PrecomputedTableType::L1Medium => precomputed_tables::L1_MEDIUM,
+        PrecomputedTableType::L1Full => precomputed_tables::L1_FULL,
     };
+
+    let precomputed_tables = precomputed_tables::read_or_generate_precomputed_tables(
+        precomputed_tables_path.as_deref(),
+        table_type,
+        LogProgressTableGenerationReportFunction,
+        true,
+    )
+    .await?;
 
     let recover: Option<RecoverOption> = if let Some(seed) = seed.as_deref() {
         Some(RecoverOption::Seed(seed))
@@ -89,7 +76,16 @@ pub async fn create_xelis_wallet(
         None
     };
 
-    let xelis_wallet = Wallet::create(&name, &password, recover, network, precomputed_tables)?;
+    let n_threads = detect_available_parallelism();
+    let xelis_wallet = Wallet::create(
+        &name,
+        &password,
+        recover,
+        network,
+        precomputed_tables,
+        n_threads,
+        n_threads,
+    )?;
 
     Ok(XelisWallet {
         wallet: xelis_wallet,
@@ -103,21 +99,31 @@ pub async fn open_xelis_wallet(
     password: String,
     network: Network,
     precomputed_tables_path: Option<String>,
+    precomputed_table_type: PrecomputedTableType,
 ) -> Result<XelisWallet> {
-    let precomputed_tables_size = if cfg!(target_arch = "wasm32") {
-        precomputed_tables::L1_LOW
-    } else {
-        precomputed_tables::L1_FULL
+    let table_type = match precomputed_table_type {
+        PrecomputedTableType::L1Low => precomputed_tables::L1_LOW,
+        PrecomputedTableType::L1Medium => precomputed_tables::L1_MEDIUM,
+        PrecomputedTableType::L1Full => precomputed_tables::L1_FULL,
     };
+
     let precomputed_tables = precomputed_tables::read_or_generate_precomputed_tables(
         precomputed_tables_path.as_deref(),
-        precomputed_tables_size,
+        table_type,
         LogProgressTableGenerationReportFunction,
         true,
     )
     .await?;
 
-    let xelis_wallet = Wallet::open(&name, &password, network, precomputed_tables)?;
+    let n_threads = detect_available_parallelism();
+    let xelis_wallet = Wallet::open(
+        &name,
+        &password,
+        network,
+        precomputed_tables,
+        n_threads,
+        n_threads,
+    )?;
 
     Ok(XelisWallet {
         wallet: xelis_wallet,
@@ -130,6 +136,62 @@ impl XelisWallet {
     #[frb(ignore)]
     pub fn get_wallet(&self) -> &Arc<Wallet> {
         &self.wallet // Return a reference to the private field
+    }
+
+    pub async fn update_precomputed_tables(
+        &self,
+        precomputed_tables_path: Option<String>,
+        precomputed_table_type: PrecomputedTableType,
+    ) -> Result<()> {
+        let table_type = match precomputed_table_type {
+            PrecomputedTableType::L1Low => precomputed_tables::L1_LOW,
+            PrecomputedTableType::L1Medium => precomputed_tables::L1_MEDIUM,
+            PrecomputedTableType::L1Full => precomputed_tables::L1_FULL,
+        };
+
+        let precomputed_tables = precomputed_tables::read_or_generate_precomputed_tables(
+            precomputed_tables_path.as_deref(),
+            table_type,
+            LogProgressTableGenerationReportFunction,
+            true,
+        )
+        .await?;
+
+        let mut existing_tables_lock = self
+            .wallet
+            .get_precomputed_tables()
+            .write()
+            .expect("Failed to lock old precomputed tables");
+
+        let mut new_tables_lock = precomputed_tables
+            .write()
+            .expect("Failed to lock new precomputed tables");
+
+        // Replace the precomputed tables in the wallet
+        std::mem::swap(&mut *existing_tables_lock, &mut *new_tables_lock);
+
+        Ok(())
+    }
+
+    pub async fn get_precomputed_tables_type(&self) -> Result<PrecomputedTableType> {
+        let size = {
+            let tables = self
+                .wallet
+                .get_precomputed_tables()
+                .read()
+                .expect("Failed to read precomputed tables");
+
+            tables.view().get_l1()
+        };
+
+        let table_type = match size {
+            precomputed_tables::L1_LOW => PrecomputedTableType::L1Low,
+            precomputed_tables::L1_MEDIUM => PrecomputedTableType::L1Medium,
+            precomputed_tables::L1_FULL => PrecomputedTableType::L1Full,
+            _ => bail!("Unknown precomputed tables type"),
+        };
+
+        Ok(table_type)
     }
 
     // Change the wallet password

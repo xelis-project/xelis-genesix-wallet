@@ -3,7 +3,6 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/features/authentication/domain/create_wallet_type_enum.dart';
-import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
@@ -11,7 +10,6 @@ import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
 import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
-import 'package:genesix/features/authentication/presentation/components/table_generation_progress_dialog.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -310,14 +308,6 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
     );
   }
 
-  void _showTableGenerationProgressDialog(BuildContext context) {
-    showDialog<void>(
-      barrierDismissible: false,
-      context: context,
-      builder: (_) => const TableGenerationProgressDialog(),
-    );
-  }
-
   void _createWallet() async {
     final loc = ref.read(appLocalizationsProvider);
 
@@ -342,29 +332,11 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
           password == confirmPassword) {
         _unfocusNodes();
 
-        try {
-          if (!await ref
-                  .read(authenticationProvider.notifier)
-                  .isPrecomputedTablesExists() &&
-              mounted) {
-            talker.info(
-              'Creating wallet: show table generation progress dialog',
-            );
-            _showTableGenerationProgressDialog(context);
-          } else {
-            talker.info('Creating wallet: show loader overlay');
-            context.loaderOverlay.show();
-          }
+        context.loaderOverlay.show();
 
-          await ref
-              .read(authenticationProvider.notifier)
-              .createWallet(walletName, password, createSeed, privateKey);
-        } catch (e) {
-          if (mounted) {
-            // Dismiss TableGenerationProgressDialog if error occurs
-            context.pop();
-          }
-        }
+        await ref
+            .read(authenticationProvider.notifier)
+            .createWallet(walletName, password, createSeed, privateKey);
 
         if (mounted && context.loaderOverlay.visible) {
           context.loaderOverlay.hide();

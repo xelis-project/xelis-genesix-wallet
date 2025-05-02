@@ -7,6 +7,7 @@ import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.d
 import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
+import 'package:genesix/src/generated/rust_bridge/api/precomputed_tables.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/features/wallet/domain/event.dart';
 import 'package:genesix/features/logger/logger.dart';
@@ -22,12 +23,14 @@ class NativeWalletRepository {
     String pwd,
     Network network, {
     String? precomputeTablesPath,
+    required PrecomputedTableType precomputedTableType,
   }) async {
     final xelisWallet = await createXelisWallet(
       name: walletPath,
       password: pwd,
       network: network,
       precomputedTablesPath: precomputeTablesPath,
+      precomputedTableType: precomputedTableType,
     );
     talker.info('new XELIS Wallet created: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
@@ -39,6 +42,7 @@ class NativeWalletRepository {
     Network network, {
     required String seed,
     String? precomputeTablesPath,
+    required PrecomputedTableType precomputedTableType,
   }) async {
     final xelisWallet = await createXelisWallet(
       name: walletPath,
@@ -46,6 +50,7 @@ class NativeWalletRepository {
       seed: seed,
       network: network,
       precomputedTablesPath: precomputeTablesPath,
+      precomputedTableType: precomputedTableType,
     );
     talker.info('XELIS Wallet recovered from seed: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
@@ -57,6 +62,7 @@ class NativeWalletRepository {
     Network network, {
     required String privateKey,
     String? precomputeTablesPath,
+    required PrecomputedTableType precomputedTableType,
   }) async {
     final xelisWallet = await createXelisWallet(
       name: walletPath,
@@ -64,6 +70,7 @@ class NativeWalletRepository {
       privateKey: privateKey,
       network: network,
       precomputedTablesPath: precomputeTablesPath,
+      precomputedTableType: precomputedTableType,
     );
     talker.info('XELIS Wallet recovered from private key: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
@@ -74,15 +81,31 @@ class NativeWalletRepository {
     String pwd,
     Network network, {
     String? precomputeTablesPath,
+    required PrecomputedTableType precomputedTableType,
   }) async {
     final xelisWallet = await openXelisWallet(
       name: walletPath,
       password: pwd,
       network: network,
       precomputedTablesPath: precomputeTablesPath,
+      precomputedTableType: precomputedTableType,
     );
     talker.info('XELIS Wallet open: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
+  }
+
+  Future<void> updatePrecomputedTables(
+    String precomputeTablesPath,
+    PrecomputedTableType precomputedTableType,
+  ) async {
+    await _xelisWallet.updatePrecomputedTables(
+      precomputedTablesPath: precomputeTablesPath,
+      precomputedTableType: precomputedTableType,
+    );
+  }
+
+  Future<PrecomputedTableType> getPrecomputedTablesType() async {
+    return _xelisWallet.getPrecomputedTablesType();
   }
 
   Future<void> close() async {
