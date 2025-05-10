@@ -95,13 +95,13 @@ class Authentication extends _$Authentication {
         ref
             .read(snackBarQueueProvider.notifier)
             .showError('${loc.error_when_creating_wallet}:\n$xelisMessage');
-        rethrow;
+        return;
       } catch (e) {
         talker.critical('Creating wallet failed: $e');
         ref
             .read(snackBarQueueProvider.notifier)
             .showError(loc.error_when_creating_wallet);
-        rethrow;
+        return;
       }
 
       ref
@@ -175,13 +175,13 @@ class Authentication extends _$Authentication {
         ref
             .read(snackBarQueueProvider.notifier)
             .showError('${loc.error_when_opening_wallet}:\n$xelisMessage');
-        rethrow;
+        return;
       } catch (e) {
         talker.critical('Opening wallet failed: $e');
         ref
             .read(snackBarQueueProvider.notifier)
             .showError(loc.error_when_opening_wallet);
-        rethrow;
+        return;
       }
 
       // save password in secure storage on all platforms except web
@@ -238,13 +238,13 @@ class Authentication extends _$Authentication {
       ref
           .read(snackBarQueueProvider.notifier)
           .showError('${loc.error_when_opening_wallet}:\n$xelisMessage');
-      rethrow;
+      return;
     } catch (e) {
       talker.critical('Opening wallet failed: $e');
       ref
           .read(snackBarQueueProvider.notifier)
           .showError(loc.error_when_opening_wallet);
-      rethrow;
+      return;
     }
 
     ref
