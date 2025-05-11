@@ -1,30 +1,49 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/features/wallet/domain/destination_address.dart';
-import 'package:genesix/shared/resources/app_resources.dart';
 
 part 'transaction_review_state.freezed.dart';
 
 @freezed
-abstract class TransactionReviewState with _$TransactionReviewState {
-  const TransactionReviewState._();
-
-  const factory TransactionReviewState({
-    @Default(false) bool isBroadcast,
+sealed class TransactionReviewState with _$TransactionReviewState {
+  const factory TransactionReviewState.initial({
+    @Default(false) bool isBroadcasted,
     @Default(false) bool isConfirmed,
-    String? transactionHashToSign,
-    TransactionSummary? summary,
-    String? asset,
-    Future<String>? amount,
-    String? fee,
-    String? destination,
-    DestinationAddress? destinationAddress,
-    String? finalHash,
-  }) = _TransactionReviewState;
+  }) = Initial;
 
-  bool get hasToBeSigned => transactionHashToSign != null;
+  const factory TransactionReviewState.signaturePending({
+    @Default(false) bool isBroadcasted,
+    @Default(false) bool isConfirmed,
+    required String hashToSign,
+  }) = SignaturePending;
 
-  bool get hasSummary => summary != null;
+  const factory TransactionReviewState.singleTransferTransaction({
+    @Default(false) bool isBroadcasted,
+    @Default(false) bool isConfirmed,
+    required String asset,
+    required String name,
+    required String ticker,
+    required String amount,
+    required String fee,
+    required String destination,
+    required DestinationAddress destinationAddress,
+    required String txHash,
+  }) = SingleTransferTransaction;
 
-  bool get isXelisTransfer => asset == AppResources.xelisAsset.hash;
+  const factory TransactionReviewState.burnTransaction({
+    @Default(false) bool isBroadcasted,
+    @Default(false) bool isConfirmed,
+    required String asset,
+    required String name,
+    required String ticker,
+    required String amount,
+    required String fee,
+    required String txHash,
+  }) = BurnTransaction;
+
+  const factory TransactionReviewState.deleteMultisigTransaction({
+    @Default(false) bool isBroadcasted,
+    @Default(false) bool isConfirmed,
+    required String fee,
+    required String txHash,
+  }) = DeleteMultisigTransaction;
 }

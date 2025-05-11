@@ -15,7 +15,7 @@ sealed class Event with _$Event {
   const factory Event.balanceChanged(BalanceChangedEvent balanceChanged) =
       BalanceChanged;
 
-  const factory Event.newAsset(AssetData assetData) = NewAsset;
+  const factory Event.newAsset(RPCAssetData rpcAssetData) = NewAsset;
 
   const factory Event.rescan(int topoheight) = Rescan;
 

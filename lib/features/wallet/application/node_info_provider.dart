@@ -9,9 +9,9 @@ part 'node_info_provider.g.dart';
 @riverpod
 Future<DaemonInfoSnapshot?> nodeInfo(Ref ref) async {
   final walletState = ref.watch(walletStateProvider);
-  final repository = walletState.nativeWalletRepository;
-  if (repository != null) {
-    var info = await repository.getDaemonInfo();
+  final walletRepository = walletState.nativeWalletRepository;
+  if (walletRepository != null) {
+    var info = await walletRepository.getDaemonInfo();
 
     // keep the state of a successful (only) request
     ref.keepAlive();
@@ -19,11 +19,14 @@ Future<DaemonInfoSnapshot?> nodeInfo(Ref ref) async {
     return DaemonInfoSnapshot(
       topoHeight: info.topoHeight,
       pruned: info.prunedTopoHeight != null ? true : false,
-      circulatingSupply: formatXelis(info.circulatingSupply),
-      burnSupply: formatXelis(info.burnedSupply),
+      circulatingSupply: formatXelis(
+        info.circulatingSupply,
+        walletState.network,
+      ),
+      burnSupply: formatXelis(info.burnedSupply, walletState.network),
       averageBlockTime: Duration(milliseconds: info.averageBlockTime),
       mempoolSize: info.mempoolSize,
-      blockReward: formatXelis(info.blockReward),
+      blockReward: formatXelis(info.blockReward, walletState.network),
       version: info.version,
       network: info.network,
     );

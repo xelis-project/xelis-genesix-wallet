@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/transaction_builder_mixin.dart';
-import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -27,6 +27,10 @@ class _TransfersBuilderWidgetState extends ConsumerState<TransfersBuilderWidget>
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
+    final knownAssets = ref.watch(
+      walletStateProvider.select((state) => state.knownAssets),
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -42,7 +46,11 @@ class _TransfersBuilderWidgetState extends ConsumerState<TransfersBuilderWidget>
           ],
         ),
         const SizedBox(height: Spaces.medium),
-        _buildTransfersList(loc, widget.transfersBuilder.transfers),
+        _buildTransfersList(
+          loc,
+          widget.transfersBuilder.transfers,
+          knownAssets,
+        ),
       ],
     );
   }
@@ -50,18 +58,24 @@ class _TransfersBuilderWidgetState extends ConsumerState<TransfersBuilderWidget>
   Widget _buildTransfersList(
     AppLocalizations loc,
     List<TransferBuilder> transfers,
+    Map<String, AssetData> knownAssets,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children:
           transfers.map((t) {
-            final isXelisAsset = t.asset == AppResources.xelisAsset.hash;
-            final asset = isXelisAsset ? AppResources.xelisAsset.name : t.asset;
-
+            String asset;
             String amount;
-            if (isXelisAsset) {
-              amount = formatXelis(t.amount);
+            if (knownAssets.containsKey(t.asset)) {
+              final assetData = knownAssets[t.asset]!;
+              asset = assetData.name;
+              amount = formatCoin(
+                t.amount,
+                assetData.decimals,
+                assetData.ticker,
+              );
             } else {
+              asset = t.asset;
               amount = t.amount.toString();
             }
 

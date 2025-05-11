@@ -1,6 +1,5 @@
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/widgets.dart';
-import 'package:genesix/features/wallet/domain/asset.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
@@ -13,21 +12,11 @@ class AppResources {
 
   static const String zeroBalance = '0.00000000';
 
-  static const Map<String, String> defaultAssets = {
-    sdk.xelisAsset: zeroBalance,
-  };
+  static const String xelisHash = sdk.xelisAsset;
+
+  static const String xelisName = 'XELIS';
 
   static const int xelisDecimals = 8;
-
-  static const Asset xelisAsset = Asset(
-    hash: sdk.xelisAsset,
-    name: 'XELIS',
-    imagePath: greenBackgroundBlackIconPath,
-    // imageURL:
-    //     "https://raw.githubusercontent.com/xelis-project/xelis-assets/master/icons/png/circle/green_background_black_logo.png",
-    decimals: xelisDecimals,
-    ticker: 'XEL',
-  );
 
   static List<NodeAddress> mainnetNodes = [
     // const NodeAddress(

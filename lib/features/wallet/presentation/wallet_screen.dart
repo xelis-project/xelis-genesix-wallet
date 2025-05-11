@@ -5,11 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/history_providers.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
-import 'package:genesix/features/wallet/presentation/history_tab/history_tab_widget.dart';
-import 'package:genesix/features/wallet/presentation/node_tab/node_tab_widget.dart';
-import 'package:genesix/features/wallet/presentation/assets_tab/assets_tab_widget.dart';
-import 'package:genesix/features/wallet/presentation/settings_tab/settings_tab_widget.dart';
-import 'package:genesix/features/wallet/presentation/wallet_tab/wallet_tab_widget.dart';
+import 'package:genesix/features/wallet/presentation/history_navigation_bar/history_navigation_bar.dart';
+import 'package:genesix/features/wallet/presentation/node_navigation_bar/node_navigation_bar.dart';
+import 'package:genesix/features/wallet/presentation/assets_navigation_bar/assets_navigation_bar.dart';
+import 'package:genesix/features/wallet/presentation/settings_navigation_bar/settings_navigation_bar.dart';
+import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/wallet_navigation_bar.dart';
 import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
@@ -35,11 +35,11 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
 
     final tabs =
         <Widget>[
-          const NodeTab(),
-          const HistoryTab(),
-          const WalletTab(),
-          const AssetsTab(),
-          SettingsTab(),
+          const NodeNavigationBar(),
+          const HistoryNavigationBar(),
+          const WalletNavigationBar(),
+          const AssetsNavigationBar(),
+          SettingsNavigationBar(),
         ][_currentPageIndex];
 
     final List<BottomNavigationBarItem> bottomNavigationBarItems = [

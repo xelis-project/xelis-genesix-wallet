@@ -1,3 +1,4 @@
+import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
@@ -12,61 +13,80 @@ class TransactionReview extends _$TransactionReview {
   @override
   TransactionReviewState build() {
     ref.cacheFor(Duration(seconds: 3));
-    return TransactionReviewState();
+    return TransactionReviewState.initial();
   }
 
-  void setTransactionHashToSign(String transactionHashToSign) {
-    state = state.copyWith(transactionHashToSign: transactionHashToSign);
+  void signaturePending(String transactionHashToSign) {
+    state = TransactionReviewState.signaturePending(
+      hashToSign: transactionHashToSign,
+    );
   }
 
-  void setTransferSummary(TransactionSummary transactionSummary) async {
+  void setSingleTransferTransaction(TransactionSummary transactionSummary) {
+    final network = ref.read(
+      walletStateProvider.select((state) => state.network),
+    );
     final transfer = transactionSummary.getSingleTransfer();
-    final atomicAmount = transfer.amount;
     final asset = transfer.asset;
     final destination = transfer.destination;
-    final formattedAmount = ref
-        .read(
-          walletStateProvider.select((value) => value.nativeWalletRepository),
-        )
-        ?.formatCoin(atomicAmount, asset);
+    final knownAssets = ref.read(
+      walletStateProvider.select((state) => state.knownAssets),
+    );
+    final name = knownAssets[asset]?.name ?? '';
+    final ticker = knownAssets[asset]?.ticker ?? '';
+    final decimals = knownAssets[asset]?.decimals ?? 0;
+    final formattedAmount = formatCoin(transfer.amount, decimals, ticker);
 
-    state = state.copyWith(
-      summary: transactionSummary,
+    state = TransactionReviewState.singleTransferTransaction(
       isConfirmed: true,
       asset: asset,
+      name: name,
+      ticker: ticker,
       amount: formattedAmount,
-      fee: formatXelis(transactionSummary.fee),
+      fee: formatXelis(transactionSummary.fee, network),
       destination: destination,
       destinationAddress: parseRawAddress(rawAddress: destination),
-      finalHash: transactionSummary.hash,
+      txHash: transactionSummary.hash,
     );
   }
 
-  void setBurnSummary(TransactionSummary transactionSummary) {
+  Future<void> setBurnTransaction(TransactionSummary transactionSummary) async {
+    final network = ref.read(
+      walletStateProvider.select((state) => state.network),
+    );
     final burn = transactionSummary.getBurn();
     final asset = burn.asset;
-    final amount = burn.amount;
-    final formattedAmount = ref
-        .read(
-          walletStateProvider.select((value) => value.nativeWalletRepository),
-        )
-        ?.formatCoin(amount, asset);
+    final knownAssets = ref.read(
+      walletStateProvider.select((state) => state.knownAssets),
+    );
+    final name = knownAssets[asset]?.name ?? '';
+    final ticker = knownAssets[asset]?.ticker ?? '';
+    final decimals = knownAssets[asset]?.decimals ?? 0;
+    final formattedAmount = formatCoin(burn.amount, decimals, ticker);
 
-    state = state.copyWith(
-      summary: transactionSummary,
+    state = TransactionReviewState.burnTransaction(
       asset: asset,
+      name: name,
+      ticker: ticker,
       amount: formattedAmount,
-      fee: formatXelis(transactionSummary.fee),
-      finalHash: transactionSummary.hash,
+      fee: formatXelis(transactionSummary.fee, network),
+      txHash: transactionSummary.hash,
     );
   }
 
-  void setMultisigSummary(TransactionSummary transactionSummary) {
-    state = state.copyWith(
-      summary: transactionSummary,
+  void setDeleteMultisigTransaction(TransactionSummary transactionSummary) {
+    final walletRepository = ref.read(
+      walletStateProvider.select((state) => state.nativeWalletRepository),
+    );
+    if (walletRepository == null) {
+      talker.warning('WalletRepository is not available');
+      return;
+    }
+
+    state = TransactionReviewState.deleteMultisigTransaction(
       isConfirmed: true,
-      fee: formatXelis(transactionSummary.fee),
-      finalHash: transactionSummary.hash,
+      fee: formatXelis(transactionSummary.fee, walletRepository.network),
+      txHash: transactionSummary.hash,
     );
   }
 
@@ -75,6 +95,6 @@ class TransactionReview extends _$TransactionReview {
   }
 
   void broadcast() {
-    state = state.copyWith(isBroadcast: true);
+    state = state.copyWith(isBroadcasted: true);
   }
 }

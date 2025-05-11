@@ -12,6 +12,7 @@ class GenericFormBuilderDropdown<T> extends StatelessWidget {
     this.onChanged,
     this.validator,
     this.dropdownColor,
+    this.enabled = true,
   });
 
   final String name;
@@ -21,6 +22,7 @@ class GenericFormBuilderDropdown<T> extends StatelessWidget {
   final ValueChanged<T?>? onChanged;
   final FormFieldValidator<T>? validator;
   final Color? dropdownColor;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +39,7 @@ class GenericFormBuilderDropdown<T> extends StatelessWidget {
           (selectedItems != null) ? (context) => selectedItems! : null,
       onChanged: onChanged,
       validator: validator,
+      enabled: enabled,
     );
   }
 }

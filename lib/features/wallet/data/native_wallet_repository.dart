@@ -125,6 +125,8 @@ class NativeWalletRepository {
 
   Future<bool> get isOnline => _xelisWallet.isOnline();
 
+  Network get network => _xelisWallet.getNetwork();
+
   Future<void> setOnline({required String daemonAddress}) async {
     await _xelisWallet.onlineMode(daemonAddress: daemonAddress);
     talker.info('XELIS Wallet connected to: $daemonAddress');
@@ -150,7 +152,7 @@ class NativeWalletRepository {
             yield newTopoheight;
           case sdk.WalletEvent.newAsset:
             final newAsset = Event.newAsset(
-              sdk.AssetData.fromJson(json['data'] as Map<String, dynamic>),
+              sdk.RPCAssetData.fromJson(json['data'] as Map<String, dynamic>),
             );
             yield newAsset;
           case sdk.WalletEvent.newTransaction:
@@ -229,8 +231,26 @@ class NativeWalletRepository {
     return _xelisWallet.hasAssetBalance(asset: assetHash);
   }
 
-  Future<Map<String, String>> getAssetBalances() async {
-    return _xelisWallet.getAssetBalances();
+  Future<Map<String, String>> getTrackedBalances() async {
+    return _xelisWallet.getTrackedBalances();
+  }
+
+  Future<Map<String, sdk.AssetData>> getKnownAssets() async {
+    final rawData = await _xelisWallet.getKnownAssets();
+    return {
+      for (final entry in rawData.entries)
+        entry.key: sdk.AssetData.fromJson(
+          jsonDecode(entry.value) as Map<String, dynamic>,
+        ),
+    };
+  }
+
+  Future<void> trackAsset(String assetHash) async {
+    await _xelisWallet.trackAsset(asset: assetHash);
+  }
+
+  Future<void> untrackAsset(String assetHash) async {
+    await _xelisWallet.untrackAsset(asset: assetHash);
   }
 
   Future<int> getHistoryCount() async {

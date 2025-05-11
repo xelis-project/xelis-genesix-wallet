@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
+import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/application/history_providers.dart';
 import 'package:genesix/features/wallet/application/xswd_providers.dart';
 import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
 import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
 import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
@@ -39,6 +41,7 @@ class WalletState extends _$WalletState {
           name: name,
           nativeWalletRepository: nativeWallet,
           address: nativeWallet.address,
+          network: nativeWallet.network,
         );
       case SignedOut():
         return const WalletSnapshot();
@@ -56,9 +59,7 @@ class WalletState extends _$WalletState {
         await disconnect();
       }
 
-      final enableXswd = ref.watch(
-        settingsProvider.select((s) => s.enableXswd),
-      );
+      final enableXswd = ref.read(settingsProvider.select((s) => s.enableXswd));
       if (enableXswd) {
         startXSWD();
       } else {
@@ -93,17 +94,25 @@ class WalletState extends _$WalletState {
             );
       }
 
-      final multisig = await state.nativeWalletRepository!.getMultisigState();
-      if (multisig != null) state = state.copyWith(multisigState: multisig);
+      try {
+        final multisig = await state.nativeWalletRepository!.getMultisigState();
+        if (multisig != null) state = state.copyWith(multisigState: multisig);
 
-      final xelisBalance =
-          await state.nativeWalletRepository!.getXelisBalance();
-      final assets = await state.nativeWalletRepository!.getAssetBalances();
+        final xelisBalance =
+            await state.nativeWalletRepository!.getXelisBalance();
+        final balances =
+            await state.nativeWalletRepository!.getTrackedBalances();
+        final knownAssets =
+            await state.nativeWalletRepository!.getKnownAssets();
 
-      if (assets.isNotEmpty) {
-        state = state.copyWith(xelisBalance: xelisBalance, assets: assets);
-      } else {
-        state = state.copyWith(xelisBalance: xelisBalance);
+        state = state.copyWith(
+          xelisBalance: xelisBalance,
+          trackedBalances: balances,
+          knownAssets: knownAssets,
+        );
+      } catch (e) {
+        talker.error('Cannot retrieve wallet data: $e');
+        ref.read(snackBarQueueProvider.notifier).showError('${loc.oups}\n$e');
       }
     }
   }
@@ -359,62 +368,72 @@ class WalletState extends _$WalletState {
 
           final txType = event.transactionEntry.txEntryType;
 
+          String message;
           switch (txType) {
             case sdk.IncomingEntry():
-              String message;
               if (txType.isMultiTransfer()) {
                 message =
                     '${loc.new_incoming_transaction.capitalize()}.\n${loc.multiple_transfers_detected.capitalize()}';
               } else {
                 final atomicAmount = txType.transfers.first.amount;
                 final assetHash = txType.transfers.first.asset;
-                final amount = await state.nativeWalletRepository!.formatCoin(
-                  atomicAmount,
-                  assetHash,
-                );
-                final asset =
-                    assetHash == sdk.xelisAsset
-                        ? AppResources.xelisAsset.name
-                        : truncateText(assetHash);
-                // TODO: display the sender address if it registers in the address book
-                message =
-                    '${loc.new_incoming_transaction.capitalize()}.\n${loc.asset}: $asset\n${loc.amount}: +$amount';
-              }
 
+                String asset;
+                String amount;
+                if (state.knownAssets.containsKey(assetHash)) {
+                  asset = state.knownAssets[assetHash]!.name;
+                  amount = formatCoin(
+                    atomicAmount,
+                    state.knownAssets[assetHash]!.decimals,
+                    state.knownAssets[assetHash]!.ticker,
+                  );
+                } else {
+                  asset = truncateText(assetHash);
+                  amount = atomicAmount.toString();
+                }
+
+                final contactDetails = await ref
+                    .read(addressBookProvider.notifier)
+                    .get(txType.from);
+                final from = switch (contactDetails) {
+                  ContactDetails(:final name) => name,
+                  null => truncateText(txType.from),
+                };
+
+                message =
+                    '${loc.new_incoming_transaction.capitalize()}.\n${loc.asset}: $asset\n${loc.amount}: +$amount\n${loc.from}: $from';
+              }
               ref.read(snackBarQueueProvider.notifier).showInfo(message);
 
             case sdk.OutgoingEntry():
-              ref
-                  .read(snackBarQueueProvider.notifier)
-                  .showInfo(
-                    '(#${txType.nonce}) ${loc.outgoing_transaction_confirmed.capitalize()}',
-                  );
+              message =
+                  '(#${txType.nonce}) ${loc.outgoing_transaction_confirmed.capitalize()}';
+              ref.read(snackBarQueueProvider.notifier).showInfo(message);
 
             case sdk.CoinbaseEntry():
-              final amount = await state.nativeWalletRepository!.formatCoin(
-                txType.reward,
-                sdk.xelisAsset,
-              );
-              ref
-                  .read(snackBarQueueProvider.notifier)
-                  .showInfo(
-                    '${loc.new_mining_reward.capitalize()}:\n+$amount ${AppResources.xelisAsset.ticker}',
-                  );
+              final amount = formatXelis(txType.reward, state.network);
+              message = '${loc.new_mining_reward.capitalize()}:\n+$amount';
+              ref.read(snackBarQueueProvider.notifier).showInfo(message);
 
             case sdk.BurnEntry():
-              final amount = await state.nativeWalletRepository!.formatCoin(
-                txType.amount,
-                txType.asset,
-              );
-              final asset =
-                  txType.asset == sdk.xelisAsset
-                      ? AppResources.xelisAsset.name
-                      : truncateText(txType.asset);
-              ref
-                  .read(snackBarQueueProvider.notifier)
-                  .showInfo(
-                    '${loc.burn_transaction_confirmed.capitalize()}\n${loc.asset}: $asset\n${loc.amount}: -$amount',
-                  );
+              String asset;
+              String amount;
+              if (state.knownAssets.containsKey(txType.asset)) {
+                asset = state.knownAssets[txType.asset]!.name;
+                amount = formatCoin(
+                  txType.amount,
+                  state.knownAssets[txType.asset]!.decimals,
+                  state.knownAssets[txType.asset]!.ticker,
+                );
+              } else {
+                asset = truncateText(txType.asset);
+                amount = txType.amount.toString();
+              }
+
+              message =
+                  '${loc.burn_transaction_confirmed.capitalize()}\n${loc.asset}: $asset\n${loc.amount}: -$amount';
+              ref.read(snackBarQueueProvider.notifier).showInfo(message);
+
             case sdk.MultisigEntry():
               ref
                   .read(snackBarQueueProvider.notifier)
@@ -436,28 +455,24 @@ class WalletState extends _$WalletState {
 
       case BalanceChanged():
         talker.info(event);
-        final asset = event.balanceChanged.assetHash;
-        final newBalance = await state.nativeWalletRepository!.formatCoin(
-          event.balanceChanged.balance,
-          asset,
+        final xelisBalance =
+            await state.nativeWalletRepository!.getXelisBalance();
+        final updatedBalances =
+            await state.nativeWalletRepository!.getTrackedBalances();
+        state = state.copyWith(
+          trackedBalances: updatedBalances,
+          xelisBalance: xelisBalance,
         );
-        final updatedAssets = Map<String, String>.from(state.assets);
-        updatedAssets[event.balanceChanged.assetHash] = newBalance;
-
-        if (event.balanceChanged.assetHash == sdk.xelisAsset) {
-          final xelisBalance =
-              await state.nativeWalletRepository!.getXelisBalance();
-          state = state.copyWith(
-            assets: updatedAssets,
-            xelisBalance: xelisBalance,
-          );
-        } else {
-          state = state.copyWith(assets: updatedAssets);
-        }
 
       case NewAsset():
         talker.info(event);
-      // TODO: Handle this case.
+        final assets = await state.nativeWalletRepository!.getKnownAssets();
+        state = state.copyWith(knownAssets: assets);
+        ref
+            .read(snackBarQueueProvider.notifier)
+            .showInfo(
+              'New asset added with name: ${event.rpcAssetData.name} at topoheight: ${event.rpcAssetData.topoheight}',
+            );
 
       case Rescan():
         talker.info(event);
@@ -544,7 +559,7 @@ class WalletState extends _$WalletState {
     return null;
   }
 
-  Future<TransactionSummary?> finalizeDeleteMultisig({
+  Future<TransactionSummary?> finalizeMultisigTransaction({
     required List<SignatureMultisig> signatures,
   }) async {
     if (state.nativeWalletRepository != null) {
@@ -742,6 +757,44 @@ class WalletState extends _$WalletState {
         ref.read(snackBarQueueProvider.notifier).showError(xelisMessage);
       } catch (e) {
         talker.error('Cannot edit XSWD app permission: $e');
+        final loc = ref.read(appLocalizationsProvider);
+        ref.read(snackBarQueueProvider.notifier).showError('${loc.oups}\n$e');
+      }
+    }
+  }
+
+  Future<void> trackAsset(String assetHash) async {
+    if (state.nativeWalletRepository != null) {
+      try {
+        await state.nativeWalletRepository!.trackAsset(assetHash);
+        final updatedBalances =
+            await state.nativeWalletRepository!.getTrackedBalances();
+        state = state.copyWith(trackedBalances: updatedBalances);
+      } on AnyhowException catch (e) {
+        talker.error('Cannot track asset: $e');
+        final xelisMessage = (e).message.split("\n")[0];
+        ref.read(snackBarQueueProvider.notifier).showError(xelisMessage);
+      } catch (e) {
+        talker.error('Cannot track asset: $e');
+        final loc = ref.read(appLocalizationsProvider);
+        ref.read(snackBarQueueProvider.notifier).showError('${loc.oups}\n$e');
+      }
+    }
+  }
+
+  Future<void> untrackAsset(String assetHash) async {
+    if (state.nativeWalletRepository != null) {
+      try {
+        await state.nativeWalletRepository!.untrackAsset(assetHash);
+        final updatedBalances =
+            await state.nativeWalletRepository!.getTrackedBalances();
+        state = state.copyWith(trackedBalances: updatedBalances);
+      } on AnyhowException catch (e) {
+        talker.error('Cannot untrack asset: $e');
+        final xelisMessage = (e).message.split("\n")[0];
+        ref.read(snackBarQueueProvider.notifier).showError(xelisMessage);
+      } catch (e) {
+        talker.error('Cannot untrack asset: $e');
         final loc = ref.read(appLocalizationsProvider);
         ref.read(snackBarQueueProvider.notifier).showError('${loc.oups}\n$e');
       }

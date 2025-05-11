@@ -1,4 +1,4 @@
-// ignore_for_file: invalid_annotation_target
+// ignore_for_file: invalid_annotation_target, unused_import
 
 import 'dart:collection';
 
@@ -53,21 +53,5 @@ abstract class TransactionSummary with _$TransactionSummary {
 
   BurnBuilder getBurn() {
     return (transactionType as BurnBuilder);
-  }
-
-  HashMap<String, int> getAmountsPerAsset() {
-    final amounts = HashMap<String, int>();
-    if (isTransfer) {
-      for (final transferBuilder
-          in (transactionType as TransfersBuilder).transfers) {
-        if (amounts.containsKey(transferBuilder.asset)) {
-          amounts[transferBuilder.asset] =
-              amounts[transferBuilder.asset]! + transferBuilder.amount;
-        } else {
-          amounts[transferBuilder.asset] = transferBuilder.amount;
-        }
-      }
-    }
-    return amounts;
   }
 }

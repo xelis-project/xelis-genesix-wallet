@@ -49,8 +49,7 @@ class _InvokeContractBuilderWidgetState
         InvokeWidget(
           maxGas: widget.invokeContractBuilder.maxGas,
           chunkId: widget.invokeContractBuilder.chunkId,
-          deposits:
-              widget.invokeContractBuilder.deposits as Map<String, dynamic>,
+          deposits: widget.invokeContractBuilder.deposits,
           parameters: widget.invokeContractBuilder.parameters,
         ),
       ],

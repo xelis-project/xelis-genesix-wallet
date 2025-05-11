@@ -12,7 +12,7 @@ const pageSize = 10;
 
 @riverpod
 Future<List<TransactionEntry>> history(Ref ref, int page) async {
-  ref.watch(walletStateProvider.select((value) => value.assets));
+  ref.watch(walletStateProvider.select((value) => value.trackedBalances));
   final repository = ref.watch(
     walletStateProvider.select((value) => value.nativeWalletRepository),
   );

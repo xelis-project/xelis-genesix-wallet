@@ -222,8 +222,8 @@ impl XelisWallet {
 
     // get the wallet network
     #[frb(sync)]
-    pub fn get_network(&self) -> String {
-        self.wallet.get_network().to_string()
+    pub fn get_network(&self) -> Network {
+        self.wallet.get_network().clone()
     }
 
     // close securely the wallet
@@ -264,20 +264,85 @@ impl XelisWallet {
         Ok(format_xelis(balance))
     }
 
-    // get all the assets balances (atomic units) in a HashMap
-    pub async fn get_asset_balances(&self) -> Result<HashMap<String, String>> {
+    // get all the balances of the tracked assets
+    pub async fn get_tracked_balances(&self) -> Result<HashMap<String, String>> {
         let storage = self.wallet.get_storage().read().await;
+        let tracked_assets = storage.get_tracked_assets()?;
+
         let mut balances = HashMap::new();
 
-        for (asset, data) in storage.get_assets_with_data().await? {
-            let balance = storage.get_balance_for(&asset).await?;
-            balances.insert(
-                asset.to_string(),
-                format_coin(balance.amount, data.get_decimals()),
-            );
+        for asset in tracked_assets {
+            match asset {
+                Ok(asset) => {
+                    if storage.has_balance_for(&asset).await.unwrap_or(false) {
+                        info!("Asset {} found in storage", asset);
+                        let balance = storage
+                            .get_plaintext_balance_for(&asset)
+                            .await
+                            .context("Error retrieving balance")?;
+                        let asset_data = storage
+                            .get_asset(&asset)
+                            .await
+                            .context("Error retrieving asset data")?;
+                        balances.insert(
+                            asset.to_hex(),
+                            format_coin(balance, asset_data.get_decimals()),
+                        );
+                    } else {
+                        info!("Asset {} not found in storage", asset);
+                    }
+                }
+                Err(e) => {
+                    error!("Error retrieving asset balance: {}", e);
+                }
+            }
         }
 
         Ok(balances)
+    }
+
+    // get all the assets known by the wallet
+    pub async fn get_known_assets(&self) -> Result<HashMap<String, String>> {
+        let storage = self.wallet.get_storage().read().await;
+        let assets = storage
+            .get_assets_with_data()
+            .await?
+            .filter_map(|result| match result {
+                Ok((hash, asset_data)) => Some((hash.to_hex(), json!(asset_data).to_string())),
+                Err(e) => {
+                    error!("Error retrieving asset data: {}", e);
+                    None
+                }
+            })
+            .collect::<HashMap<String, String>>();
+
+        Ok(assets)
+    }
+
+    // track an asset
+    pub async fn track_asset(&self, asset: String) -> Result<()> {
+        let asset_hash = Hash::from_hex(&asset).context("Invalid asset")?;
+        let mut storage = self.wallet.get_storage().write().await;
+        if storage.is_asset_tracked(&asset_hash)? {
+            bail!("Asset ID is already tracked");
+        } else {
+            storage.track_asset(&asset_hash)?;
+            info!("Asset {} is now tracked", asset);
+        }
+        Ok(())
+    }
+
+    // untrack an asset
+    pub async fn untrack_asset(&self, asset: String) -> Result<()> {
+        let asset_hash = Hash::from_hex(&asset).context("Invalid asset")?;
+        let mut storage = self.wallet.get_storage().write().await;
+        if !storage.is_asset_tracked(&asset_hash)? {
+            bail!("Asset ID is not tracked");
+        } else {
+            storage.untrack_asset(&asset_hash)?;
+            info!("Asset {} is now untracked", asset);
+        }
+        Ok(())
     }
 
     // get the number of decimals of an asset
