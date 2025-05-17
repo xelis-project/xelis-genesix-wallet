@@ -40,7 +40,7 @@ class _AddressBookScreenState extends ConsumerState<AddressBookScreen> {
     final loc = ref.watch(appLocalizationsProvider);
     final future = ref.watch(addressBookProvider.future);
     return CustomScaffold(
-      appBar: GenericAppBar(title: 'Address Book'),
+      appBar: GenericAppBar(title: loc.address_book),
       body: Column(
         children: [
           Padding(
@@ -58,7 +58,7 @@ class _AddressBookScreenState extends ConsumerState<AddressBookScreen> {
                 autocorrect: false,
                 keyboardType: TextInputType.text,
                 decoration: context.textInputDecoration.copyWith(
-                  labelText: 'Type a name to filter contacts',
+                  labelText: loc.filter_contacts_label_text,
                   suffixIcon: IconButton(
                     hoverColor: Colors.transparent,
                     onPressed: _onSearchQueryClear,
@@ -107,7 +107,7 @@ class _AddressBookScreenState extends ConsumerState<AddressBookScreen> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              'No contacts found',
+                              loc.no_contact_found,
                               style: context.textTheme.bodyLarge?.copyWith(
                                 color: context.moreColors.mutedColor,
                               ),
@@ -150,12 +150,12 @@ class _AddressBookScreenState extends ConsumerState<AddressBookScreen> {
                               children: [
                                 IconButton(
                                   icon: const Icon(Icons.edit, size: 18),
-                                  tooltip: 'edit contact',
+                                  tooltip: loc.edit_contact.toLowerCase(),
                                   onPressed: () => _onEditContact(address),
                                 ),
                                 IconButton(
                                   icon: const Icon(Icons.delete, size: 18),
-                                  tooltip: 'remove from address book',
+                                  tooltip: loc.remove_contact_button_tooltip,
                                   onPressed:
                                       () => _onRemoveAddress(
                                         address,
@@ -192,11 +192,12 @@ class _AddressBookScreenState extends ConsumerState<AddressBookScreen> {
   }
 
   void _onRemoveAddress(String address, String name) {
+    final loc = ref.read(appLocalizationsProvider);
     showDialog<void>(
       context: context,
       builder:
           (context) => ConfirmDialog(
-            title: 'Are you sure you want to delete this contact?',
+            title: loc.remove_contact_confirm_message,
             onConfirm: (confirmed) {
               if (!confirmed) return;
               try {
@@ -204,13 +205,13 @@ class _AddressBookScreenState extends ConsumerState<AddressBookScreen> {
                 ref
                     .read(snackBarQueueProvider.notifier)
                     .showInfo(
-                      '$name removed from address book',
+                      '${loc.removed_from_address_book} $name',
                       duration: const Duration(seconds: 2),
                     );
               } catch (e) {
                 ref
                     .read(snackBarQueueProvider.notifier)
-                    .showError('Failed to remove contact: $e');
+                    .showError('${loc.failed_to_remove_contact} $e');
               }
             },
           ),

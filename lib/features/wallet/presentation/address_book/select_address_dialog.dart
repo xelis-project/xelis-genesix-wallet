@@ -53,7 +53,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
                   top: Spaces.large,
                 ),
                 child: Text(
-                  'Address Book',
+                  loc.address_book,
                   style: context.headlineSmall,
                   overflow: TextOverflow.ellipsis,
                   softWrap: false,
@@ -94,7 +94,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
                 autocorrect: false,
                 keyboardType: TextInputType.text,
                 decoration: context.textInputDecoration.copyWith(
-                  labelText: 'Type a name to filter contacts',
+                  labelText: loc.filter_contacts_label_text,
                   suffixIcon: IconButton(
                     hoverColor: Colors.transparent,
                     onPressed: _onSearchQueryClear,
@@ -129,7 +129,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
-                            'No contacts found',
+                            loc.no_contact_found,
                             style: context.textTheme.bodyLarge?.copyWith(
                               color: context.moreColors.mutedColor,
                             ),
@@ -169,7 +169,9 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
                   if (snapshot.hasError) {
                     ref
                         .read(snackBarQueueProvider.notifier)
-                        .showError('Error loading contacts: ${snapshot.error}');
+                        .showError(
+                          '${loc.error_loading_contacts} ${snapshot.error}',
+                        );
                   }
                   return const SizedBox.shrink();
                 }

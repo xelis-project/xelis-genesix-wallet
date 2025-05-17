@@ -65,7 +65,7 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
                   top: Spaces.large,
                 ),
                 child: Text(
-                  'New contact',
+                  loc.new_contact,
                   style: context.headlineSmall,
                   overflow: TextOverflow.ellipsis,
                   softWrap: false,
@@ -169,11 +169,11 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
                       ),
                       FormBuilderValidators.minLength(
                         3,
-                        errorText: 'Name must be at least 3 characters',
+                        errorText: loc.address_book_name_input_min_lenght,
                       ),
                       FormBuilderValidators.maxLength(
                         128,
-                        errorText: 'maximum length is 128 characters',
+                        errorText: loc.address_book_name_input_max_lenght,
                       ),
                     ]),
                   ),
@@ -186,7 +186,7 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
       actions: [
         Padding(
           padding: const EdgeInsets.only(top: Spaces.small),
-          child: TextButton(onPressed: _saveName, child: Text('Add')),
+          child: TextButton(onPressed: _saveName, child: Text(loc.add)),
         ),
       ],
     );
@@ -194,6 +194,7 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
 
   Future<void> _saveName() async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
+      final loc = ref.read(appLocalizationsProvider);
       _focusNodeName.unfocus();
       _focusNodeAddress.unfocus();
       final name = _formKey.currentState?.fields['name']?.value as String?;
@@ -206,7 +207,7 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
         ref
             .read(snackBarQueueProvider.notifier)
             .showInfo(
-              '$name added to address book',
+              '${loc.added_to_address_book} $name',
               duration: Duration(seconds: 2),
             );
       } else if (address != null && name != null) {
@@ -214,7 +215,7 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
             .read(addressBookProvider.notifier)
             .exists(address.trim())) {
           _formKey.currentState?.fields['address']?.invalidate(
-            'Contact already exists',
+            loc.contact_already_exists,
           );
           return;
         }
@@ -226,13 +227,13 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
           ref
               .read(snackBarQueueProvider.notifier)
               .showInfo(
-                '$name added to address book',
+                '${loc.added_to_address_book} $name',
                 duration: Duration(seconds: 2),
               );
         } catch (e) {
           ref
               .read(snackBarQueueProvider.notifier)
-              .showError('Failed to add contact: $e');
+              .showError('${loc.failed_to_add_contact} $e');
         }
       }
 

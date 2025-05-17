@@ -59,7 +59,7 @@ class _EditContactDialogState extends ConsumerState<EditContactDialog> {
                   top: Spaces.large,
                 ),
                 child: Text(
-                  'Edit contact',
+                  loc.edit_contact,
                   style: context.headlineSmall,
                   overflow: TextOverflow.ellipsis,
                   softWrap: false,
@@ -130,11 +130,11 @@ class _EditContactDialogState extends ConsumerState<EditContactDialog> {
                           ),
                           FormBuilderValidators.minLength(
                             3,
-                            errorText: 'Name must be at least 3 characters',
+                            errorText: loc.address_book_name_input_min_lenght,
                           ),
                           FormBuilderValidators.maxLength(
                             128,
-                            errorText: 'maximum length is 128 characters',
+                            errorText: loc.address_book_name_input_max_lenght,
                           ),
                         ]),
                       );
@@ -158,6 +158,7 @@ class _EditContactDialogState extends ConsumerState<EditContactDialog> {
 
   Future<void> _save() async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
+      final loc = ref.read(appLocalizationsProvider);
       _focusNodeName.unfocus();
       final name = _formKey.currentState?.fields['name']?.value as String?;
       if (name != null) {
@@ -168,13 +169,13 @@ class _EditContactDialogState extends ConsumerState<EditContactDialog> {
           ref
               .read(snackBarQueueProvider.notifier)
               .showInfo(
-                'contact updated',
+                loc.contact_updated,
                 duration: const Duration(seconds: 2),
               );
         } catch (e) {
           ref
               .read(snackBarQueueProvider.notifier)
-              .showError('Failed to update contact: $e');
+              .showError('${loc.failed_to_update_contact} $e');
         }
       }
 

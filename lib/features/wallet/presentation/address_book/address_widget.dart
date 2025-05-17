@@ -59,7 +59,7 @@ class _AddressWidgetState extends ConsumerState<AddressWidget> {
                   if (!isRegistered)
                     IconButton(
                       icon: const Icon(Icons.add, size: 18),
-                      tooltip: 'add to address book',
+                      tooltip: loc.added_to_address_book,
                       onPressed: _onAddAddress,
                     ),
                 ],
