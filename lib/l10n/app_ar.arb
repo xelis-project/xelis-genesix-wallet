@@ -331,5 +331,16 @@
   "max_gas": "الحد الأقصى للغاز",
   "private": "خاص",
   "invoke_contract": "استدعاء العقد",
-  "deploy_contract": "نشر العقد"
+  "deploy_contract": "نشر العقد",
+  "track_asset_dialog_message": "تتبع هذا الأصل لمراقبة رصيده وإدارته ضمن محفظتك.",
+  "ticker": "رمز",
+  "decimals": "الكسور العشرية",
+  "max_supply": "الحد الأقصى للعرض",
+  "track": "تتبع",
+  "untrack": "إلغاء التتبع",
+  "track_button_tooltip": "تتبع هذا الأصل",
+  "no_discovered_assets": "لم يتم اكتشاف أي أصول",
+  "no_tracked_balances": "لا توجد أرصدة متعقبة",
+  "tracked_balances": "الأرصدة المتعقبة",
+  "discovered_assets": "الأصول المكتشفة"
 }

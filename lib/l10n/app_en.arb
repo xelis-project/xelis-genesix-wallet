@@ -331,5 +331,16 @@
   "max_gas": "max gas",
   "private": "private",
   "invoke_contract": "Invoke contract",
-  "deploy_contract": "Deploy contract"
+  "deploy_contract": "Deploy contract",
+  "track_asset_dialog_message": "Track this asset to monitor its balance and manage it within your wallet.",
+  "ticker": "Ticker",
+  "decimals": "Decimals",
+  "max_supply": "Max supply",
+  "track": "Track",
+  "untrack": "Untrack",
+  "track_button_tooltip": "Track this asset",
+  "no_discovered_assets": "No discovered assets",
+  "no_tracked_balances": "No tracked balances",
+  "tracked_balances": "Tracked balances",
+  "discovered_assets": "Discovered assets"
 }

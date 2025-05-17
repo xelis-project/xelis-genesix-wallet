@@ -331,5 +331,16 @@
   "max_gas": "maksimum gaz",
   "private": "özel",
   "invoke_contract": "Sözleşmeyi çağır",
-  "deploy_contract": "Sözleşmeyi dağıt"
+  "deploy_contract": "Sözleşmeyi dağıt",
+  "track_asset_dialog_message": "Bu varlığı izleyerek bakiyesini takip edin ve cüzdanınızdan yönetin.",
+  "ticker": "Sembol",
+  "decimals": "Ondalık",
+  "max_supply": "Maksimum arz",
+  "track": "İzle",
+  "untrack": "Takibi bırak",
+  "track_button_tooltip": "Bu varlığı izle",
+  "no_discovered_assets": "Keşfedilen varlık yok",
+  "no_tracked_balances": "Takip edilen bakiye yok",
+  "tracked_balances": "Takip edilen bakiyeler",
+  "discovered_assets": "Keşfedilen varlıklar"
 }

@@ -331,5 +331,16 @@
   "max_gas": "最大燃料",
   "private": "私有",
   "invoke_contract": "调用合约",
-  "deploy_contract": "部署合约"
+  "deploy_contract": "部署合约",
+  "track_asset_dialog_message": "跟踪此资产以监控其余额并在钱包中进行管理",
+  "ticker": "代码",
+  "decimals": "小数位",
+  "max_supply": "最大供应量",
+  "track": "跟踪",
+  "untrack": "取消跟踪",
+  "track_button_tooltip": "跟踪此资产",
+  "no_discovered_assets": "未发现资产",
+  "no_tracked_balances": "无已追踪余额",
+  "tracked_balances": "已追踪余额",
+  "discovered_assets": "已发现资产"
 }

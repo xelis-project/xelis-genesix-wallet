@@ -331,5 +331,16 @@
   "max_gas": "maximale gas",
   "private": "privé",
   "invoke_contract": "Contract aanroepen",
-  "deploy_contract": "Contract implementeren"
+  "deploy_contract": "Contract implementeren",
+  "track_asset_dialog_message": "Volg dit activum om het saldo te controleren en te beheren binnen je wallet.",
+  "ticker": "Ticker",
+  "decimals": "Decimalen",
+  "max_supply": "Maximale voorraad",
+  "track": "Volgen",
+  "untrack": "Niet meer volgen",
+  "track_button_tooltip": "Volg dit activum",
+  "no_discovered_assets": "Geen ontdekte activa",
+  "no_tracked_balances": "Geen gevolgde saldi",
+  "tracked_balances": "Gevolgde saldi",
+  "discovered_assets": "Ontdekte activa"
 }

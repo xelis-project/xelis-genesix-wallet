@@ -331,5 +331,16 @@
   "max_gas": "max. Gas",
   "private": "privat",
   "invoke_contract": "Vertrag aufrufen",
-  "deploy_contract": "Vertrag bereitstellen"
+  "deploy_contract": "Vertrag bereitstellen",
+  "track_asset_dialog_message": "Verfolge diesen Vermögenswert, um seinen Kontostand zu überwachen und ihn in deiner Wallet zu verwalten.",
+  "ticker": "Ticker",
+  "decimals": "Dezimalstellen",
+  "max_supply": "Maximale Versorgung",
+  "track": "Verfolgen",
+  "untrack": "Nicht mehr verfolgen",
+  "track_button_tooltip": "Verfolge diesen Vermögenswert",
+  "no_discovered_assets": "Keine entdeckten Vermögenswerte",
+  "no_tracked_balances": "Keine verfolgten Salden",
+  "tracked_balances": "Verfolgte Salden",
+  "discovered_assets": "Entdeckte Vermögenswerte"
 }

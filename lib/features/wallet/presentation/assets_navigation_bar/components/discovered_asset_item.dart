@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/assets_navigation_bar/components/discovered_asset_details.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -20,6 +21,7 @@ class DiscoveredAssetItem extends ConsumerStatefulWidget {
 class _DiscoveredAssetItemState extends ConsumerState<DiscoveredAssetItem> {
   @override
   Widget build(BuildContext context) {
+    final loc = ref.watch(appLocalizationsProvider);
     final knownAssets = ref.watch(
       walletStateProvider.select((state) => state.knownAssets),
     );
@@ -57,7 +59,7 @@ class _DiscoveredAssetItemState extends ConsumerState<DiscoveredAssetItem> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                SelectableText('Ticker', style: context.bodyLarge),
+                SelectableText(loc.ticker, style: context.bodyLarge),
                 const SizedBox(height: Spaces.extraSmall),
                 SelectableText(
                   truncateText(assetData.ticker),
@@ -73,7 +75,7 @@ class _DiscoveredAssetItemState extends ConsumerState<DiscoveredAssetItem> {
                 IconButton(
                   onPressed: () => _trackAsset(widget.assetHash, assetData),
                   icon: const Icon(Icons.add),
-                  tooltip: 'Track this asset',
+                  tooltip: loc.track_button_tooltip,
                 ),
               ],
             ),

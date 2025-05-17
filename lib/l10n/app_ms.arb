@@ -331,5 +331,16 @@
   "max_gas": "gas maksimum",
   "private": "peribadi",
   "invoke_contract": "Panggil kontrak",
-  "deploy_contract": "Laksanakan kontrak"
+  "deploy_contract": "Laksanakan kontrak",
+  "track_asset_dialog_message": "Jejaki aset ini untuk memantau bakinya dan menguruskannya dalam dompet anda.",
+  "ticker": "Tiker",
+  "decimals": "Perpuluhan",
+  "max_supply": "Bekalan maksimum",
+  "track": "Jejak",
+  "untrack": "Nyahjejak",
+  "track_button_tooltip": "Jejaki aset ini",
+  "no_discovered_assets": "Tiada aset ditemui",
+  "no_tracked_balances": "Tiada baki dijejak",
+  "tracked_balances": "Baki dijejak",
+  "discovered_assets": "Aset yang ditemui"
 }

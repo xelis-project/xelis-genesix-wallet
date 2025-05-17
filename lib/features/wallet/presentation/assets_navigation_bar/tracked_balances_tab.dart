@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/assets_navigation_bar/components/tracked_balance_item.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -10,6 +11,7 @@ class TrackedBalancesTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = ref.watch(appLocalizationsProvider);
     final balances = ref.watch(
       walletStateProvider.select((state) => state.trackedBalances),
     );
@@ -17,7 +19,7 @@ class TrackedBalancesTab extends ConsumerWidget {
     if (balances.isEmpty) {
       return Center(
         child: Text(
-          'No tracked balances',
+          loc.no_tracked_balances,
           style: context.bodyLarge?.copyWith(
             color: context.moreColors.mutedColor,
           ),

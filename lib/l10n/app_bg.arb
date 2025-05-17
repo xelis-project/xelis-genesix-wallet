@@ -331,5 +331,16 @@
   "max_gas": "максимален газ",
   "private": "частен",
   "invoke_contract": "Извикване на договор",
-  "deploy_contract": "Деплой на договор"
+  "deploy_contract": "Деплой на договор",
+  "track_asset_dialog_message": "Проследявайте този актив, за да наблюдавате баланса му и да го управлявате в портфейла си.",
+  "ticker": "Тикер",
+  "decimals": "Десетични знаци",
+  "max_supply": "Максимално предлагане",
+  "track": "Проследи",
+  "untrack": "Спри проследяването",
+  "track_button_tooltip": "Проследи този актив",
+  "no_discovered_assets": "Няма открити активи",
+  "no_tracked_balances": "Няма проследени баланси",
+  "tracked_balances": "Проследени баланси",
+  "discovered_assets": "Открити активи"
 }

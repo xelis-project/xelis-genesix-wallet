@@ -331,5 +331,16 @@
   "max_gas": "maksymalny gaz",
   "private": "prywatny",
   "invoke_contract": "Wywołaj kontrakt",
-  "deploy_contract": "Wdrożenie kontraktu"
+  "deploy_contract": "Wdrożenie kontraktu",
+  "track_asset_dialog_message": "Śledź ten zasób, aby monitorować jego saldo i zarządzać nim w swoim portfelu.",
+  "ticker": "Symbol",
+  "decimals": "Miejsca dziesiętne",
+  "max_supply": "Maksymalna podaż",
+  "track": "Śledź",
+  "untrack": "Przestań śledzić",
+  "track_button_tooltip": "Śledź ten zasób",
+  "no_discovered_assets": "Nie znaleziono zasobów",
+  "no_tracked_balances": "Brak śledzonych sald",
+  "tracked_balances": "Śledzone salda",
+  "discovered_assets": "Odkryte zasoby"
 }

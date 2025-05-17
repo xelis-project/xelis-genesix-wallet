@@ -331,5 +331,16 @@
   "max_gas": "gas máximo",
   "private": "privado",
   "invoke_contract": "Invocar contrato",
-  "deploy_contract": "Implementar contrato"
+  "deploy_contract": "Implementar contrato",
+  "track_asset_dialog_message": "Rastrea este activo para monitorear su saldo y administrarlo dentro de tu billetera.",
+  "ticker": "Ticker",
+  "decimals": "Decimales",
+  "max_supply": "Suministro máximo",
+  "track": "Rastrear",
+  "untrack": "Dejar de rastrear",
+  "track_button_tooltip": "Rastrear este activo",
+  "no_discovered_assets": "No se encontraron activos",
+  "no_tracked_balances": "No hay saldos rastreados",
+  "tracked_balances": "Saldos rastreados",
+  "discovered_assets": "Activos descubiertos"
 }

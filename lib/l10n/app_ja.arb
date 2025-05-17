@@ -331,5 +331,16 @@
   "max_gas": "最大ガス",
   "private": "プライベート",
   "invoke_contract": "コントラクトを呼び出す",
-  "deploy_contract": "コントラクトをデプロイ"
+  "deploy_contract": "コントラクトをデプロイ",
+  "track_asset_dialog_message": "この資産を追跡して残高を監視し、ウォレット内で管理します。",
+  "ticker": "ティッカー",
+  "decimals": "小数",
+  "max_supply": "最大供給量",
+  "track": "トラッキング",
+  "untrack": "トラッキングを解除",
+  "track_button_tooltip": "この資産を追跡",
+  "no_discovered_assets": "発見された資産はありません",
+  "no_tracked_balances": "トラッキングされた残高はありません",
+  "tracked_balances": "トラッキングされた残高",
+  "discovered_assets": "発見された資産"
 }

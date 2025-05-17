@@ -331,5 +331,16 @@
   "max_gas": "макс. газ",
   "private": "приватний",
   "invoke_contract": "Викликати контракт",
-  "deploy_contract": "Розгорнути контракт"
+  "deploy_contract": "Розгорнути контракт",
+  "track_asset_dialog_message": "Відстежуйте цей актив, щоб контролювати його баланс і керувати ним у своєму гаманці.",
+  "ticker": "Тікер",
+  "decimals": "Десяткові знаки",
+  "max_supply": "Максимальна пропозиція",
+  "track": "Відстежити",
+  "untrack": "Припинити відстеження",
+  "track_button_tooltip": "Відстежити цей актив",
+  "no_discovered_assets": "Не виявлено активів",
+  "no_tracked_balances": "Відсутні відстежувані баланси",
+  "tracked_balances": "Відстежувані баланси",
+  "discovered_assets": "Виявлені активи"
 }

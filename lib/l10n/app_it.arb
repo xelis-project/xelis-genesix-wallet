@@ -331,5 +331,16 @@
   "max_gas": "gas massimo",
   "private": "privato",
   "invoke_contract": "Richiamare il contratto",
-  "deploy_contract": "Distribuire il contratto"
+  "deploy_contract": "Distribuire il contratto",
+  "track_asset_dialog_message": "Traccia questa risorsa per monitorarne il saldo e gestirla nel tuo portafoglio.",
+  "ticker": "Ticker",
+  "decimals": "Decimali",
+  "max_supply": "Offerta massima",
+  "track": "Traccia",
+  "untrack": "Interrompi il tracciamento",
+  "track_button_tooltip": "Traccia questo asset",
+  "no_discovered_assets": "Nessuna risorsa scoperta",
+  "no_tracked_balances": "Nessun saldo tracciato",
+  "tracked_balances": "Saldi tracciati",
+  "discovered_assets": "Risorse scoperte"
 }

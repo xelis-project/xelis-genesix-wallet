@@ -60,7 +60,7 @@ class DiscoveredAssetDetails extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Track this asset to monitor its balance and manage it within your wallet.',
+            loc.track_asset_dialog_message,
             style: context.bodyMedium?.copyWith(
               color: context.moreColors.mutedColor,
             ),
@@ -76,7 +76,7 @@ class DiscoveredAssetDetails extends ConsumerWidget {
           SelectableText(assetData.name, style: context.bodyLarge),
           const SizedBox(height: Spaces.medium),
           Text(
-            'Ticker',
+            loc.ticker,
             style: context.bodyLarge?.copyWith(
               color: context.moreColors.mutedColor,
             ),
@@ -103,7 +103,7 @@ class DiscoveredAssetDetails extends ConsumerWidget {
           ),
           const SizedBox(height: Spaces.medium),
           Text(
-            'Decimals',
+            loc.decimals,
             style: context.bodyLarge?.copyWith(
               color: context.moreColors.mutedColor,
             ),
@@ -116,7 +116,7 @@ class DiscoveredAssetDetails extends ConsumerWidget {
           if (assetData.maxSupply != null) ...[
             const SizedBox(height: Spaces.medium),
             Text(
-              'Max Supply',
+              loc.max_supply,
               style: context.bodyLarge?.copyWith(
                 color: context.moreColors.mutedColor,
               ),
@@ -175,7 +175,7 @@ class DiscoveredAssetDetails extends ConsumerWidget {
                       () => ref
                           .read(walletStateProvider.notifier)
                           .trackAsset(assetHash),
-                  child: Text('Track', style: context.bodyMedium),
+                  child: Text(loc.track, style: context.bodyMedium),
                 ),
               ),
             ],

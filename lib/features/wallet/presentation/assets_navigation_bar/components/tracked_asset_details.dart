@@ -105,7 +105,7 @@ class TrackedAssetDetails extends ConsumerWidget {
           ),
           const SizedBox(height: Spaces.medium),
           Text(
-            'Decimals',
+            loc.decimals,
             style: context.bodyLarge?.copyWith(
               color: context.moreColors.mutedColor,
             ),
@@ -115,7 +115,7 @@ class TrackedAssetDetails extends ConsumerWidget {
           if (asset.maxSupply != null) ...[
             const SizedBox(height: Spaces.medium),
             Text(
-              'Max Supply',
+              loc.max_supply,
               style: context.bodyLarge?.copyWith(
                 color: context.moreColors.mutedColor,
               ),
@@ -182,7 +182,7 @@ class TrackedAssetDetails extends ConsumerWidget {
                         () => ref
                             .read(walletStateProvider.notifier)
                             .untrackAsset(hash),
-                    child: Text('Untrack', style: context.bodyMedium),
+                    child: Text(loc.untrack, style: context.bodyMedium),
                   ),
                 ),
               ],

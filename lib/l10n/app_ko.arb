@@ -331,5 +331,16 @@
   "max_gas": "최대 가스",
   "private": "비공개",
   "invoke_contract": "계약 호출",
-  "deploy_contract": "계약 배포"
+  "deploy_contract": "계약 배포",
+  "track_asset_dialog_message": "이 자산을 추적하여 잔액을 모니터링하고 지갑 내에서 관리하세요.",
+  "ticker": "티커",
+  "decimals": "소수점",
+  "max_supply": "최대 공급량",
+  "track": "추적",
+  "untrack": "추적 중지",
+  "track_button_tooltip": "이 자산을 추적",
+  "no_discovered_assets": "발견된 자산 없음",
+  "no_tracked_balances": "추적된 잔액 없음",
+  "tracked_balances": "추적된 잔액",
+  "discovered_assets": "발견된 자산"
 }

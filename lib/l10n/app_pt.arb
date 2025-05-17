@@ -331,5 +331,16 @@
   "max_gas": "gás máximo",
   "private": "privado",
   "invoke_contract": "Invocar contrato",
-  "deploy_contract": "Implantar contrato"
+  "deploy_contract": "Implantar contrato",
+  "track_asset_dialog_message": "Acompanhe este ativo para monitorar seu saldo e gerenciá-lo dentro da sua carteira.",
+  "ticker": "Ticker",
+  "decimals": "Casas decimais",
+  "max_supply": "Oferta máxima",
+  "track": "Acompanhar",
+  "untrack": "Deixar de acompanhar",
+  "track_button_tooltip": "Acompanhar este ativo",
+  "no_discovered_assets": "Nenhum ativo descoberto",
+  "no_tracked_balances": "Nenhum saldo acompanhado",
+  "tracked_balances": "Saldos acompanhados",
+  "discovered_assets": "Ativos descobertos"
 }

@@ -331,5 +331,16 @@
   "max_gas": "अधिकतम गैस",
   "private": "निजी",
   "invoke_contract": "अनुबंध कॉल करें",
-  "deploy_contract": "अनुबंध परिनियोजित करें"
+  "deploy_contract": "अनुबंध परिनियोजित करें",
+  "track_asset_dialog_message": "इस संपत्ति को ट्रैक करें ताकि आप इसकी शेष राशि की निगरानी कर सकें और अपने वॉलेट में इसे प्रबंधित कर सकें।",
+  "ticker": "टिकर",
+  "decimals": "दशमलव",
+  "max_supply": "अधिकतम आपूर्ति",
+  "track": "ट्रैक करें",
+  "untrack": "ट्रैक हटाएं",
+  "track_button_tooltip": "इस संपत्ति को ट्रैक करें",
+  "no_discovered_assets": "कोई संपत्ति नहीं मिली",
+  "no_tracked_balances": "कोई ट्रैक किया गया बैलेंस नहीं",
+  "tracked_balances": "ट्रैक किए गए बैलेंस",
+  "discovered_assets": "खोजी गई संपत्तियाँ"
 }

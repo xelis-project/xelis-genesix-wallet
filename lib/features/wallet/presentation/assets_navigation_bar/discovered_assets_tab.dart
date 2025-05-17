@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/assets_navigation_bar/components/discovered_asset_item.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -10,6 +11,7 @@ class DiscoveredAssetsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = ref.watch(appLocalizationsProvider);
     final knownAssets = ref.watch(
       walletStateProvider.select((state) => state.knownAssets),
     );
@@ -23,7 +25,7 @@ class DiscoveredAssetsTab extends ConsumerWidget {
     if (discoveredAssets.isEmpty) {
       return Center(
         child: Text(
-          'No discovered assets',
+          loc.no_discovered_assets,
           style: context.bodyLarge?.copyWith(
             color: context.moreColors.mutedColor,
           ),
