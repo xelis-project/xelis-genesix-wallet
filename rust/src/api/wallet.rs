@@ -85,7 +85,8 @@ pub async fn create_xelis_wallet(
         precomputed_tables,
         n_threads,
         n_threads,
-    )?;
+    )
+    .await?;
 
     Ok(XelisWallet {
         wallet: xelis_wallet,
@@ -1016,7 +1017,8 @@ impl XelisWallet {
             }
 
             if filter.page > max_pages {
-                bail!("Page out of range");
+                info!("Page out of range");
+                return Ok(txs);
             }
         }
 

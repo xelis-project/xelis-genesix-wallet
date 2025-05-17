@@ -325,10 +325,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: "8986dec4581b4bcd4b6df5d75a2ea0bede3db802f500635d05fa8be298f9467f"
+      sha256: "77f8e81d22d2a07d0dee2c62e1dda71dc1da73bf43bb2d45af09727406167964"
       url: "https://pub.dev"
     source: hosted
-    version: "10.1.2"
+    version: "10.1.9"
   fixnum:
     dependency: transitive
     description:
@@ -400,10 +400,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_rust_bridge
-      sha256: "5a5c7a5deeef2cc2ffe6076a33b0429f4a20ceac22a397297aed2b1eb067e611"
+      sha256: b416ff56002789e636244fb4cc449f587656eff995e5a7169457eb0593fcaddb
       url: "https://pub.dev"
     source: hosted
-    version: "2.9.0"
+    version: "2.10.0"
   flutter_secure_storage:
     dependency: "direct main"
     description:
@@ -1241,34 +1241,34 @@ packages:
     dependency: transitive
     description:
       name: talker
-      sha256: "3d8b17976b9fe89436f23ac2b24642d62e170bc45e81943f2bdc309427ff9d0b"
+      sha256: "41ac575baee91d13ba8901fbecd1409923182563abe6c530590ba131f40893df"
       url: "https://pub.dev"
     source: hosted
-    version: "4.7.6"
+    version: "4.7.7"
   talker_flutter:
     dependency: "direct main"
     description:
       name: talker_flutter
-      sha256: "7bfc1fdee3eb27233e4b753777045f51c64acab56490687b0818e25eff189d13"
+      sha256: "3bcc7ede3da301a9a65f905e6f5f0534b01ac2b3a23e342ee8eecff56c134fa7"
       url: "https://pub.dev"
     source: hosted
-    version: "4.7.6"
+    version: "4.7.7"
   talker_logger:
     dependency: transitive
     description:
       name: talker_logger
-      sha256: a77ce73f79e7cbd01c408683f3377090c0a0f1fa7c9716c06727dcd0713cfa24
+      sha256: "015fee5bca42acf31a466524a8a18197a9f354e0e0c41d7cd9aaca5e24256353"
       url: "https://pub.dev"
     source: hosted
-    version: "4.7.6"
+    version: "4.7.7"
   talker_riverpod_logger:
     dependency: "direct main"
     description:
       name: talker_riverpod_logger
-      sha256: a561368c1932bcb8dd50e9627f9f7a5878b00da5eae597c2a2f069b5f48c6988
+      sha256: df65755d57d5d651be84b477c4925b02c8eef88266cd2f0c1a8c456b1bf1b1ee
       url: "https://pub.dev"
     source: hosted
-    version: "4.7.6"
+    version: "4.7.7"
   term_glyph:
     dependency: transitive
     description:

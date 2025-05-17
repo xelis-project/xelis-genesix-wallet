@@ -161,7 +161,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                       )
                       : Text(
                         loc.no_wallet_available,
-                        style: context.bodyLarge!.copyWith(
+                        style: context.bodyMedium!.copyWith(
                           color: context.moreColors.mutedColor,
                           fontSize: 18,
                         ),
