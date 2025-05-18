@@ -344,6 +344,7 @@
   "tracked_balances": "추적된 잔액",
   "discovered_assets": "발견된 자산",
   "address_book": "주소록",
+  "contact": "연락처",
   "new_contact": "새 연락처",
   "address_book_name_input_min_lenght": "이름은 최소 3자 이상이어야 합니다",
   "address_book_name_input_max_lenght": "최대 길이는 128자입니다",
@@ -361,5 +362,11 @@
   "add_to_address_book_tooltip": "주소록에 추가",
   "contact_updated": "연락처가 업데이트되었습니다",
   "failed_to_update_contact": "연락처 업데이트 실패:",
-  "error_loading_contacts": "연락처를 불러오는 중 오류 발생:"
+  "error_loading_contacts": "연락처를 불러오는 중 오류 발생:",
+  "select_from_address_book": "주소록에서 선택",
+  "reset_all": "모두 재설정",
+  "apply": "적용",
+  "delete_wallet_warning_message": "이 지갑을 영구적으로 삭제하시겠습니까?",
+  "error_while_syncing": "동기화 중 오류 발생:",
+  "new_asset_detected": "새로운 자산이 감지되었습니다:"
 }

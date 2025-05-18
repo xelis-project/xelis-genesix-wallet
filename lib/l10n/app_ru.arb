@@ -344,6 +344,7 @@
   "tracked_balances": "Отслеживаемые балансы",
   "discovered_assets": "Обнаруженные активы",
   "address_book": "Адресная книга",
+  "contact": "Контакт",
   "new_contact": "Новый контакт",
   "address_book_name_input_min_lenght": "Имя должно содержать не менее 3 символов",
   "address_book_name_input_max_lenght": "максимальная длина — 128 символов",
@@ -361,5 +362,11 @@
   "add_to_address_book_tooltip": "добавить в адресную книгу",
   "contact_updated": "контакт обновлён",
   "failed_to_update_contact": "Не удалось обновить контакт:",
-  "error_loading_contacts": "Ошибка загрузки контактов:"
+  "error_loading_contacts": "Ошибка загрузки контактов:",
+  "select_from_address_book": "Выбрать из адресной книги",
+  "reset_all": "Сбросить всё",
+  "apply": "Применить",
+  "delete_wallet_warning_message": "Вы уверены, что хотите навсегда удалить этот кошелёк?",
+  "error_while_syncing": "Ошибка при синхронизации:",
+  "new_asset_detected": "Обнаружен новый актив:"
 }

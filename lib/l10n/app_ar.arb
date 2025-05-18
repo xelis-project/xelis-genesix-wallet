@@ -344,6 +344,7 @@
   "tracked_balances": "الأرصدة المتعقبة",
   "discovered_assets": "الأصول المكتشفة",
   "address_book": "دفتر العناوين",
+  "contact": "جهة اتصال",
   "new_contact": "جهة اتصال جديدة",
   "address_book_name_input_min_lenght": "يجب أن يحتوي الاسم على 3 أحرف على الأقل",
   "address_book_name_input_max_lenght": "الحد الأقصى للطول هو 128 حرفًا",
@@ -361,5 +362,11 @@
   "add_to_address_book_tooltip": "أضف إلى دفتر العناوين",
   "contact_updated": "تم تحديث جهة الاتصال",
   "failed_to_update_contact": "فشل في تحديث جهة الاتصال:",
-  "error_loading_contacts": "حدث خطأ أثناء تحميل جهات الاتصال:"
+  "error_loading_contacts": "حدث خطأ أثناء تحميل جهات الاتصال:",
+  "select_from_address_book": "اختر من دفتر العناوين",
+  "reset_all": "إعادة ضبط الكل",
+  "apply": "تطبيق",
+  "delete_wallet_warning_message": "هل أنت متأكد أنك تريد حذف هذه المحفظة نهائيًا؟",
+  "error_while_syncing": "حدث خطأ أثناء المزامنة:",
+  "new_asset_detected": "تم اكتشاف أصل جديد:"
 }

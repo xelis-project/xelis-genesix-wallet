@@ -344,6 +344,7 @@
   "tracked_balances": "Verfolgte Salden",
   "discovered_assets": "Entdeckte Vermögenswerte",
   "address_book": "Adressbuch",
+  "contact": "Kontakt",
   "new_contact": "Neuer Kontakt",
   "address_book_name_input_min_lenght": "Der Name muss mindestens 3 Zeichen lang sein",
   "address_book_name_input_max_lenght": "maximale Länge ist 128 Zeichen",
@@ -361,5 +362,11 @@
   "add_to_address_book_tooltip": "zum Adressbuch hinzufügen",
   "contact_updated": "Kontakt aktualisiert",
   "failed_to_update_contact": "Aktualisieren des Kontakts fehlgeschlagen:",
-  "error_loading_contacts": "Fehler beim Laden der Kontakte:"
+  "error_loading_contacts": "Fehler beim Laden der Kontakte:",
+  "select_from_address_book": "Aus dem Adressbuch auswählen",
+  "reset_all": "Alles zurücksetzen",
+  "apply": "Anwenden",
+  "delete_wallet_warning_message": "Sind Sie sicher, dass Sie diese Wallet dauerhaft löschen möchten?",
+  "error_while_syncing": "Fehler bei der Synchronisierung:",
+  "new_asset_detected": "Neuer Vermögenswert erkannt:"
 }

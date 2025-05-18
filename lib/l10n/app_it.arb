@@ -344,6 +344,7 @@
   "tracked_balances": "Saldi tracciati",
   "discovered_assets": "Risorse scoperte",
   "address_book": "Rubrica",
+  "contact": "Contatto",
   "new_contact": "Nuovo contatto",
   "address_book_name_input_min_lenght": "Il nome deve contenere almeno 3 caratteri",
   "address_book_name_input_max_lenght": "la lunghezza massima è di 128 caratteri",
@@ -361,5 +362,11 @@
   "add_to_address_book_tooltip": "aggiungi alla rubrica",
   "contact_updated": "contatto aggiornato",
   "failed_to_update_contact": "Impossibile aggiornare il contatto:",
-  "error_loading_contacts": "Errore durante il caricamento dei contatti:"
+  "error_loading_contacts": "Errore durante il caricamento dei contatti:",
+  "select_from_address_book": "Seleziona dalla rubrica",
+  "reset_all": "Reimposta tutto",
+  "apply": "Applica",
+  "delete_wallet_warning_message": "Sei sicuro di voler eliminare definitivamente questo portafoglio?",
+  "error_while_syncing": "Errore durante la sincronizzazione:",
+  "new_asset_detected": "Nuovo asset rilevato:"
 }

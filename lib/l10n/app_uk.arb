@@ -344,6 +344,7 @@
   "tracked_balances": "Відстежувані баланси",
   "discovered_assets": "Виявлені активи",
   "address_book": "Адресна книга",
+  "contact": "Контакт",
   "new_contact": "Новий контакт",
   "address_book_name_input_min_lenght": "Ім’я має містити щонайменше 3 символи",
   "address_book_name_input_max_lenght": "максимальна довжина — 128 символів",
@@ -361,5 +362,11 @@
   "add_to_address_book_tooltip": "додати до адресної книги",
   "contact_updated": "контакт оновлено",
   "failed_to_update_contact": "Не вдалося оновити контакт:",
-  "error_loading_contacts": "Помилка під час завантаження контактів:"
+  "error_loading_contacts": "Помилка під час завантаження контактів:",
+  "select_from_address_book": "Вибрати з адресної книги",
+  "reset_all": "Скинути все",
+  "apply": "Застосувати",
+  "delete_wallet_warning_message": "Ви впевнені, що хочете остаточно видалити цей гаманець?",
+  "error_while_syncing": "Помилка під час синхронізації:",
+  "new_asset_detected": "Виявлено новий актив:"
 }

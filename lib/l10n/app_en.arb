@@ -344,6 +344,7 @@
   "tracked_balances": "Tracked balances",
   "discovered_assets": "Discovered assets",
   "address_book": "Address book",
+  "contact": "Contact",
   "new_contact": "New contact",
   "address_book_name_input_min_lenght": "Name must be at least 3 characters",
   "address_book_name_input_max_lenght": "maximum length is 128 characters",
@@ -361,5 +362,11 @@
   "add_to_address_book_tooltip": "add to address book",
   "contact_updated": "contact updated",
   "failed_to_update_contact": "Failed to update contact:",
-  "error_loading_contacts": "Error loading contacts:"
+  "error_loading_contacts": "Error loading contacts:",
+  "select_from_address_book": "Select from address book",
+  "reset_all": "Reset all",
+  "apply": "Apply",
+  "delete_wallet_warning_message": "Are you sure you want to delete permanently this wallet?",
+  "error_while_syncing": "Error while syncing:",
+  "new_asset_detected": "New asset detected:"
 }

@@ -344,6 +344,7 @@
   "tracked_balances": "Проследени баланси",
   "discovered_assets": "Открити активи",
   "address_book": "Адресна книга",
+  "contact": "Контакт",
   "new_contact": "Нов контакт",
   "address_book_name_input_min_lenght": "Името трябва да е поне 3 знака",
   "address_book_name_input_max_lenght": "максималната дължина е 128 знака",
@@ -361,5 +362,11 @@
   "add_to_address_book_tooltip": "добави в адресната книга",
   "contact_updated": "контактът е актуализиран",
   "failed_to_update_contact": "Неуспешно актуализиране на контакт:",
-  "error_loading_contacts": "Грешка при зареждане на контактите:"
+  "error_loading_contacts": "Грешка при зареждане на контактите:",
+  "select_from_address_book": "Изберете от адресната книга",
+  "reset_all": "Нулирай всички",
+  "apply": "Приложи",
+  "delete_wallet_warning_message": "Сигурни ли сте, че искате да изтриете този портфейл завинаги?",
+  "error_while_syncing": "Грешка при синхронизиране:",
+  "new_asset_detected": "Нов актив открит:"
 }

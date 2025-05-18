@@ -344,6 +344,7 @@
   "tracked_balances": "Saldos acompanhados",
   "discovered_assets": "Ativos descobertos",
   "address_book": "Catálogo de endereços",
+  "contact": "Contato",
   "new_contact": "Novo contato",
   "address_book_name_input_min_lenght": "O nome deve ter pelo menos 3 caracteres",
   "address_book_name_input_max_lenght": "o comprimento máximo é de 128 caracteres",
@@ -361,5 +362,11 @@
   "add_to_address_book_tooltip": "adicionar ao catálogo de endereços",
   "contact_updated": "contato atualizado",
   "failed_to_update_contact": "Falha ao atualizar o contato:",
-  "error_loading_contacts": "Erro ao carregar os contatos:"
+  "error_loading_contacts": "Erro ao carregar os contatos:",
+  "select_from_address_book": "Selecionar do catálogo de endereços",
+  "reset_all": "Redefinir tudo",
+  "apply": "Aplicar",
+  "delete_wallet_warning_message": "Tem certeza de que deseja excluir permanentemente esta carteira?",
+  "error_while_syncing": "Erro ao sincronizar:",
+  "new_asset_detected": "Novo ativo detectado:"
 }

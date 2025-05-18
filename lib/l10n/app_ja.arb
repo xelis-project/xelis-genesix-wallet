@@ -344,6 +344,7 @@
   "tracked_balances": "トラッキングされた残高",
   "discovered_assets": "発見された資産",
   "address_book": "アドレス帳",
+  "contact": "連絡先",
   "new_contact": "新しい連絡先",
   "address_book_name_input_min_lenght": "名前は3文字以上である必要があります",
   "address_book_name_input_max_lenght": "最大長は128文字です",
@@ -361,5 +362,11 @@
   "add_to_address_book_tooltip": "アドレス帳に追加",
   "contact_updated": "連絡先が更新されました",
   "failed_to_update_contact": "連絡先の更新に失敗しました:",
-  "error_loading_contacts": "連絡先の読み込みエラー:"
+  "error_loading_contacts": "連絡先の読み込みエラー:",
+  "select_from_address_book": "アドレス帳から選択",
+  "reset_all": "すべてリセット",
+  "apply": "適用",
+  "delete_wallet_warning_message": "このウォレットを完全に削除してもよろしいですか？",
+  "error_while_syncing": "同期中にエラーが発生しました:",
+  "new_asset_detected": "新しい資産が検出されました:"
 }

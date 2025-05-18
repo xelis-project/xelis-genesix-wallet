@@ -344,6 +344,7 @@
   "tracked_balances": "ट्रैक किए गए बैलेंस",
   "discovered_assets": "खोजी गई संपत्तियाँ",
   "address_book": "पता पुस्तिका",
+  "contact": "संपर्क",
   "new_contact": "नया संपर्क",
   "address_book_name_input_min_lenght": "नाम कम से कम 3 अक्षरों का होना चाहिए",
   "address_book_name_input_max_lenght": "अधिकतम लंबाई 128 अक्षर है",
@@ -361,5 +362,11 @@
   "add_to_address_book_tooltip": "पता पुस्तिका में जोड़ें",
   "contact_updated": "संपर्क अपडेट किया गया",
   "failed_to_update_contact": "संपर्क अपडेट करने में विफल:",
-  "error_loading_contacts": "संपर्क लोड करने में त्रुटि:"
+  "error_loading_contacts": "संपर्क लोड करने में त्रुटि:",
+  "select_from_address_book": "पता पुस्तिका से चुनें",
+  "reset_all": "सभी रीसेट करें",
+  "apply": "लागू करें",
+  "delete_wallet_warning_message": "क्या आप वाकई इस वॉलेट को स्थायी रूप से हटाना चाहते हैं?",
+  "error_while_syncing": "समन्वयन में त्रुटि:",
+  "new_asset_detected": "नई संपत्ति का पता चला:"
 }

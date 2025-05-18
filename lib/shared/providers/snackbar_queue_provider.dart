@@ -58,6 +58,6 @@ class SnackBarQueue extends _$SnackBarQueue {
   }
 
   void showError(String message) {
-    show(SnackBarType.error, message);
+    show(SnackBarType.error, message, duration: const Duration(seconds: 4));
   }
 }

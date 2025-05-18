@@ -29,7 +29,7 @@ class _DeleteWalletButtonState extends ConsumerState<DeleteWalletButton> {
       onPressed:
           () => _showConfirmationDialog(
             ref,
-            title: 'Are you sure you want to delete permanently this wallet?',
+            title: loc.delete_wallet_warning_message,
           ),
       label: Text(
         loc.delete_wallet,

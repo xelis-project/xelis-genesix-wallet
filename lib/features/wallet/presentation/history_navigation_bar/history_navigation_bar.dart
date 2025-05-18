@@ -87,7 +87,9 @@ class _HistoryTabState extends ConsumerState<HistoryNavigationBar> {
                                     snapshot.data! > 0) {
                                   return Text(
                                     loc.try_changing_filter,
-                                    style: context.bodyMedium,
+                                    style: context.bodyMedium?.copyWith(
+                                      color: context.moreColors.mutedColor,
+                                    ),
                                   );
                                 } else {
                                   return const SizedBox.shrink();

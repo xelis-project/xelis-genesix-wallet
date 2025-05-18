@@ -59,7 +59,7 @@ class SettingsNavigationBar extends ConsumerWidget {
         const Divider(),
         ListTile(
           leading: const Icon(Icons.my_library_books_outlined),
-          title: Text('Address Book', style: context.titleLarge),
+          title: Text(loc.address_book, style: context.titleLarge),
           onTap: () => context.push(AuthAppScreen.addressBook.toPath),
           trailing: const Icon(Icons.keyboard_arrow_right_rounded),
         ),

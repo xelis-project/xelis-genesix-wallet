@@ -344,6 +344,7 @@
   "tracked_balances": "Gevolgde saldi",
   "discovered_assets": "Ontdekte activa",
   "address_book": "Adresboek",
+  "contact": "Contact",
   "new_contact": "Nieuw contact",
   "address_book_name_input_min_lenght": "Naam moet minstens 3 tekens bevatten",
   "address_book_name_input_max_lenght": "maximale lengte is 128 tekens",
@@ -361,5 +362,11 @@
   "add_to_address_book_tooltip": "toevoegen aan adresboek",
   "contact_updated": "contact bijgewerkt",
   "failed_to_update_contact": "Bijwerken van contact mislukt:",
-  "error_loading_contacts": "Fout bij het laden van contacten:"
+  "error_loading_contacts": "Fout bij het laden van contacten:",
+  "select_from_address_book": "Selecteer uit adresboek",
+  "reset_all": "Alles resetten",
+  "apply": "Toepassen",
+  "delete_wallet_warning_message": "Weet je zeker dat je deze wallet permanent wilt verwijderen?",
+  "error_while_syncing": "Fout tijdens synchronisatie:",
+  "new_asset_detected": "Nieuw activum gedetecteerd:"
 }

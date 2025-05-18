@@ -206,7 +206,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                   decoration: context.textInputDecoration.copyWith(
                     labelText: loc.receiver_address,
                     suffixIcon: IconButton(
-                      tooltip: 'Select from address book',
+                      tooltip: loc.select_from_address_book,
                       onPressed: _onAddressBookClicked,
                       icon: Icon(Icons.my_library_books_outlined, size: 18),
                     ),

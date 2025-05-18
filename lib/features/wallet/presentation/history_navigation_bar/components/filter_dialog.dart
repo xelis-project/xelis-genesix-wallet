@@ -140,7 +140,7 @@ class _FilterDialogState extends ConsumerState<FilterDialog> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Contact', style: context.titleSmall),
+                      Text(loc.contact, style: context.titleSmall),
                       const SizedBox(height: Spaces.small),
                       GenericFormBuilderDropdown<String?>(
                         name: 'contact',
@@ -208,7 +208,7 @@ class _FilterDialogState extends ConsumerState<FilterDialog> {
           padding: const EdgeInsets.only(top: Spaces.small),
           child: OutlinedButton(
             onPressed: _resetFilters,
-            child: Text('Reset All'),
+            child: Text(loc.reset_all),
           ),
         ),
         Padding(
@@ -218,7 +218,7 @@ class _FilterDialogState extends ConsumerState<FilterDialog> {
               _saveFilters();
               context.pop(true);
             },
-            child: Text('Apply'),
+            child: Text(loc.apply),
           ),
         ),
       ],

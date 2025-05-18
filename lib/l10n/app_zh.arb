@@ -344,6 +344,7 @@
   "tracked_balances": "已追踪余额",
   "discovered_assets": "已发现资产",
   "address_book": "通讯录",
+  "contact": "联系人",
   "new_contact": "新联系人",
   "address_book_name_input_min_lenght": "名称必须至少包含 3 个字符",
   "address_book_name_input_max_lenght": "最大长度为128个字符",
@@ -361,5 +362,11 @@
   "add_to_address_book_tooltip": "添加到通讯录",
   "contact_updated": "联系人已更新",
   "failed_to_update_contact": "更新联系人失败：",
-  "error_loading_contacts": "加载联系人时出错："
+  "error_loading_contacts": "加载联系人时出错：",
+  "select_from_address_book": "从通讯录中选择",
+  "reset_all": "重置全部",
+  "apply": "应用",
+  "delete_wallet_warning_message": "您确定要永久删除此钱包吗？",
+  "error_while_syncing": "同步时出错：",
+  "new_asset_detected": "检测到新资产："
 }

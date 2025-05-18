@@ -344,6 +344,7 @@
   "tracked_balances": "Baki dijejak",
   "discovered_assets": "Aset yang ditemui",
   "address_book": "Buku alamat",
+  "contact": "Kenalan",
   "new_contact": "Kenalan baharu",
   "address_book_name_input_min_lenght": "Nama mesti sekurang-kurangnya 3 aksara",
   "address_book_name_input_max_lenght": "panjang maksimum ialah 128 aksara",
@@ -361,5 +362,11 @@
   "add_to_address_book_tooltip": "tambah ke buku alamat",
   "contact_updated": "kenalan dikemas kini",
   "failed_to_update_contact": "Gagal mengemas kini kenalan:",
-  "error_loading_contacts": "Ralat memuat kenalan:"
+  "error_loading_contacts": "Ralat memuat kenalan:",
+  "select_from_address_book": "Pilih daripada buku alamat",
+  "reset_all": "Tetapkan Semula Semua",
+  "apply": "Terapkan",
+  "delete_wallet_warning_message": "Adakah anda pasti mahu memadamkan dompet ini secara kekal?",
+  "error_while_syncing": "Ralat semasa menyelaraskan:",
+  "new_asset_detected": "Aset baharu dikesan:"
 }

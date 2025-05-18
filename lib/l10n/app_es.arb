@@ -344,6 +344,7 @@
   "tracked_balances": "Saldos rastreados",
   "discovered_assets": "Activos descubiertos",
   "address_book": "Libreta de direcciones",
+  "contact": "Contacto",
   "new_contact": "Nuevo contacto",
   "address_book_name_input_min_lenght": "El nombre debe tener al menos 3 caracteres",
   "address_book_name_input_max_lenght": "la longitud máxima es de 128 caracteres",
@@ -361,5 +362,11 @@
   "add_to_address_book_tooltip": "agregar a la libreta de direcciones",
   "contact_updated": "contacto actualizado",
   "failed_to_update_contact": "No se pudo actualizar el contacto:",
-  "error_loading_contacts": "Error al cargar los contactos:"
+  "error_loading_contacts": "Error al cargar los contactos:",
+  "select_from_address_book": "Seleccionar de la libreta de direcciones",
+  "reset_all": "Restablecer todo",
+  "apply": "Aplicar",
+  "delete_wallet_warning_message": "¿Estás seguro de que deseas eliminar esta billetera de forma permanente?",
+  "error_while_syncing": "Error al sincronizar:",
+  "new_asset_detected": "Nuevo activo detectado:"
 }

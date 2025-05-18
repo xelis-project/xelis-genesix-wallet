@@ -471,7 +471,7 @@ class WalletState extends _$WalletState {
         ref
             .read(snackBarQueueProvider.notifier)
             .showInfo(
-              'New asset added with name: ${event.rpcAssetData.name} at topoheight: ${event.rpcAssetData.topoheight}',
+              '${loc.new_asset_detected} ${event.rpcAssetData.name} - ${event.rpcAssetData.ticker}\n${loc.topoheight}: ${event.rpcAssetData.topoheight}',
             );
 
       case Rescan():
@@ -498,7 +498,7 @@ class WalletState extends _$WalletState {
         talker.error(event);
         ref
             .read(snackBarQueueProvider.notifier)
-            .showError('Error while syncing: ${event.message}');
+            .showError('${loc.error_while_syncing} ${event.message}');
     }
   }
 

@@ -344,6 +344,7 @@
   "tracked_balances": "Śledzone salda",
   "discovered_assets": "Odkryte zasoby",
   "address_book": "Książka adresowa",
+  "contact": "Kontakt",
   "new_contact": "Nowy kontakt",
   "address_book_name_input_min_lenght": "Imię musi mieć co najmniej 3 znaki",
   "address_book_name_input_max_lenght": "maksymalna długość to 128 znaków",
@@ -361,5 +362,11 @@
   "add_to_address_book_tooltip": "dodaj do książki adresowej",
   "contact_updated": "kontakt zaktualizowany",
   "failed_to_update_contact": "Nie udało się zaktualizować kontaktu:",
-  "error_loading_contacts": "Błąd podczas ładowania kontaktów:"
+  "error_loading_contacts": "Błąd podczas ładowania kontaktów:",
+  "select_from_address_book": "Wybierz z książki adresowej",
+  "reset_all": "Zresetuj wszystko",
+  "apply": "Zastosuj",
+  "delete_wallet_warning_message": "Czy na pewno chcesz trwale usunąć ten portfel?",
+  "error_while_syncing": "Błąd podczas synchronizacji:",
+  "new_asset_detected": "Wykryto nowy zasób:"
 }

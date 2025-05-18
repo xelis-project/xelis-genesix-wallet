@@ -344,6 +344,7 @@
   "tracked_balances": "Takip edilen bakiyeler",
   "discovered_assets": "Keşfedilen varlıklar",
   "address_book": "Adres defteri",
+  "contact": "Kişi",
   "new_contact": "Yeni kişi",
   "address_book_name_input_min_lenght": "İsim en az 3 karakter olmalıdır",
   "address_book_name_input_max_lenght": "azami uzunluk 128 karakterdir",
@@ -361,5 +362,11 @@
   "add_to_address_book_tooltip": "adres defterine ekle",
   "contact_updated": "kişi güncellendi",
   "failed_to_update_contact": "Kişi güncellenemedi:",
-  "error_loading_contacts": "Kişiler yüklenirken hata oluştu:"
+  "error_loading_contacts": "Kişiler yüklenirken hata oluştu:",
+  "select_from_address_book": "Adres defterinden seç",
+  "reset_all": "Tümünü sıfırla",
+  "apply": "Uygula",
+  "delete_wallet_warning_message": "Bu cüzdanı kalıcı olarak silmek istediğinizden emin misiniz?",
+  "error_while_syncing": "Eşitleme sırasında hata oluştu:",
+  "new_asset_detected": "Yeni varlık tespit edildi:"
 }
