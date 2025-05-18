@@ -7,7 +7,7 @@ part 'usd.freezed.dart';
 part 'usd.g.dart';
 
 @freezed
-class USD with _$USD {
+abstract class USD with _$USD {
   const factory USD({
     required double price,
     @JsonKey(name: 'volume_24h') required double volume24h,

@@ -1,8 +1,7 @@
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/widgets.dart';
-import 'package:genesix/features/wallet/domain/asset.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 // import 'package:jovial_svg/jovial_svg.dart';
 
@@ -13,21 +12,11 @@ class AppResources {
 
   static const String zeroBalance = '0.00000000';
 
-  static const Map<String, String> defaultAssets = {
-    sdk.xelisAsset: zeroBalance,
-  };
+  static const String xelisHash = sdk.xelisAsset;
+
+  static const String xelisName = 'XELIS';
 
   static const int xelisDecimals = 8;
-
-  static const Asset xelisAsset = Asset(
-    hash: sdk.xelisAsset,
-    name: 'XELIS',
-    imagePath: greenBackgroundBlackIconPath,
-    // imageURL:
-    //     "https://raw.githubusercontent.com/xelis-project/xelis-assets/master/icons/png/circle/green_background_black_logo.png",
-    decimals: xelisDecimals,
-    ticker: 'XEL',
-  );
 
   static List<NodeAddress> mainnetNodes = [
     // const NodeAddress(
@@ -68,13 +57,17 @@ class AppResources {
     const NodeAddress(
       name: 'Official XELIS Testnet',
       url: 'https://${sdk.testnetNodeURL}',
-    )
+    ),
   ];
 
   static List<NodeAddress> devNodes = [
     const NodeAddress(
       name: 'Default Local Node',
       url: 'http://${sdk.localhostAddress}',
+    ),
+    const NodeAddress(
+      name: 'Android simulator localhost',
+      url: 'http://10.0.2.2:8080',
     ),
   ];
 
@@ -122,20 +115,20 @@ class AppResources {
   // static late ScalableImage svgBannerBlack;
   static late Image bgDots;
 
-// static ScalableImageWidget svgBannerGreenWidget = ScalableImageWidget(
-//   si: AppResources.svgBannerGreen,
-//   scale: 0.15,
-// );
-//
-// static ScalableImageWidget svgBannerBlackWidget = ScalableImageWidget(
-//   si: AppResources.svgBannerBlack,
-//   scale: 0.15,
-// );
-//
-// static ScalableImageWidget svgBannerWhiteWidget = ScalableImageWidget(
-//   si: AppResources.svgBannerWhite,
-//   scale: 0.15,
-// );
+  // static ScalableImageWidget svgBannerGreenWidget = ScalableImageWidget(
+  //   si: AppResources.svgBannerGreen,
+  //   scale: 0.15,
+  // );
+  //
+  // static ScalableImageWidget svgBannerBlackWidget = ScalableImageWidget(
+  //   si: AppResources.svgBannerBlack,
+  //   scale: 0.15,
+  // );
+  //
+  // static ScalableImageWidget svgBannerWhiteWidget = ScalableImageWidget(
+  //   si: AppResources.svgBannerWhite,
+  //   scale: 0.15,
+  // );
 
   static List<CountryFlag> countryFlags = List.generate(
     AppLocalizations.supportedLocales.length,

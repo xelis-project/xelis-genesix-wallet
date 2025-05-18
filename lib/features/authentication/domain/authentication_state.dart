@@ -15,7 +15,7 @@ sealed class AuthenticationState with _$AuthenticationState {
   const factory AuthenticationState.signedOut() = SignedOut;
 
   bool get isAuth => switch (this) {
-        SignedIn() => true,
-        SignedOut() => false,
-      };
+    SignedIn() => true,
+    SignedOut() => false,
+  };
 }

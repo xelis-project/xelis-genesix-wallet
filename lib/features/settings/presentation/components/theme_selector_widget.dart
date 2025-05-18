@@ -13,9 +13,7 @@ const List<AppTheme> themes = <AppTheme>[
 ];
 
 class ThemeSelectorWidget extends ConsumerWidget {
-  const ThemeSelectorWidget({
-    super.key,
-  });
+  const ThemeSelectorWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -25,10 +23,7 @@ class ThemeSelectorWidget extends ConsumerWidget {
       tilePadding: EdgeInsets.zero,
       shape: Border.all(color: Colors.transparent, width: 0),
       collapsedShape: Border.all(color: Colors.transparent, width: 0),
-      title: Text(
-        loc.theme,
-        style: context.titleLarge,
-      ),
+      title: Text(loc.theme, style: context.titleLarge),
       subtitle: Text(
         translateThemeName(loc, theme),
         style: context.titleMedium!.copyWith(color: context.colors.primary),

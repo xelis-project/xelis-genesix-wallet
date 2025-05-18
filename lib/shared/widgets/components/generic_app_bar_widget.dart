@@ -4,12 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 
 class GenericAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const GenericAppBar(
-      {super.key,
-      this.title,
-      this.actions,
-      this.implyLeading = false,
-      this.onBack});
+  const GenericAppBar({
+    super.key,
+    this.title,
+    this.actions,
+    this.implyLeading = false,
+    this.onBack,
+  });
 
   final String? title;
   final List<Widget>? actions;
@@ -28,16 +29,18 @@ class GenericAppBar extends StatelessWidget implements PreferredSizeWidget {
             automaticallyImplyLeading: implyLeading,
             centerTitle: true,
             surfaceTintColor: Colors.transparent,
-            title: title != null
-                ? Padding(
-                    padding: const EdgeInsets.only(top: Spaces.medium),
-                    child: Text(
-                      title!,
-                      style: context.headlineSmall!
-                          .copyWith(fontWeight: FontWeight.bold),
-                    ),
-                  )
-                : null,
+            title:
+                title != null
+                    ? Padding(
+                      padding: const EdgeInsets.only(top: Spaces.medium),
+                      child: Text(
+                        title!,
+                        style: context.headlineSmall!.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    )
+                    : null,
             actions: [
               if (actions != null) ...actions!,
               Padding(
@@ -48,7 +51,7 @@ class GenericAppBar extends StatelessWidget implements PreferredSizeWidget {
                     icon: Icon(Icons.close_rounded),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),

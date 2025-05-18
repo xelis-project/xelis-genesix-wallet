@@ -36,6 +36,7 @@ TODO.txt
 .pub-cache/
 .pub/
 /build/
+devtools_options.yaml
 
 # Symbolication related
 app.*.symbols
@@ -44,17 +45,16 @@ app.*.symbols
 app.*.map.json
 
 # Android Studio will place build artifacts here
+/android/app/.cxx
 /android/app/debug
 /android/app/profile
 /android/app/release
 /android/app/src/main/jniLibs
 
-# Flutter Rust Bridge
-lib/rust_bridge/api/**
-lib/rust_bridge/frb_generated.*
-lib/rust_bridge/lib.dart
-
-# Dart generated files (Freezed, Riverpod, GoRouter etc..)
+# Dart generated files (Flutter Rust Bridge, AppLocalizations, Freezed, Riverpod, GoRouter etc..)
+lib/src/generated/rust_bridge/**.dart
+lib/src/generated/rust_bridge/api/**
+lib/src/generated/l10n/**
 lib/**/*.g.dart
 lib/**/*.freezed.dart
 

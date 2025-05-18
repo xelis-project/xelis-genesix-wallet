@@ -6,7 +6,7 @@ import 'package:genesix/features/logger/presentation/logger_actions_bottom_sheet
 import 'package:genesix/features/logger/presentation/logger_view_app_bar.dart';
 import 'package:genesix/features/logger/presentation/logger_view_controller.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:group_button/group_button.dart';
 import 'package:talker_flutter/talker_flutter.dart';
@@ -26,8 +26,10 @@ class _LoggerViewState extends ConsumerState<LoggerView> {
   final _controller = LoggerViewController();
 
   TalkerData _getListItem(List<TalkerData> filteredElements, int i) {
-    final data = filteredElements[
-        _controller.isLogOrderReversed ? filteredElements.length - 1 - i : i];
+    final data =
+        filteredElements[_controller.isLogOrderReversed
+            ? filteredElements.length - 1 - i
+            : i];
     return data;
   }
 
@@ -41,18 +43,23 @@ class _LoggerViewState extends ConsumerState<LoggerView> {
 
   void _copyLoggerDataItemText(TalkerData data) {
     final loc = ref.read(appLocalizationsProvider);
-    final text =
-        data.generateTextMessage(timeFormat: widget.talker.settings.timeFormat);
+    final text = data.generateTextMessage(
+      timeFormat: widget.talker.settings.timeFormat,
+    );
     Clipboard.setData(ClipboardData(text: text));
-    ref.read(snackBarMessengerProvider.notifier).showInfo(loc.copied);
+    ref.read(snackBarQueueProvider.notifier).showInfo(loc.copied);
   }
 
   void _copyAllLogs(BuildContext context) {
     final loc = ref.read(appLocalizationsProvider);
-    Clipboard.setData(ClipboardData(
-        text: widget.talker.history
-            .text(timeFormat: widget.talker.settings.timeFormat)));
-    ref.read(snackBarMessengerProvider.notifier).showInfo(loc.all_logs_copied);
+    Clipboard.setData(
+      ClipboardData(
+        text: widget.talker.history.text(
+          timeFormat: widget.talker.settings.timeFormat,
+        ),
+      ),
+    );
+    ref.read(snackBarQueueProvider.notifier).showInfo(loc.all_logs_copied);
   }
 
   Future<void> _showActionsBottomSheet(BuildContext context) async {
@@ -114,26 +121,25 @@ class _LoggerViewState extends ConsumerState<LoggerView> {
                 physics: const BouncingScrollPhysics(),
                 slivers: [
                   LoggerViewAppBar(
-                      titlesController: _titlesController,
-                      controller: _controller,
-                      titles: titles,
-                      uniqueTitles: uniqueTitles,
-                      onActionsTap: () => _showActionsBottomSheet(context),
-                      onToggleTitle: _onToggleTitle),
+                    titlesController: _titlesController,
+                    controller: _controller,
+                    titles: titles,
+                    uniqueTitles: uniqueTitles,
+                    onActionsTap: () => _showActionsBottomSheet(context),
+                    onToggleTitle: _onToggleTitle,
+                  ),
                   const SliverToBoxAdapter(
-                      child: SizedBox(height: Spaces.small)),
+                    child: SizedBox(height: Spaces.small),
+                  ),
                   SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final data = _getListItem(filteredElements, index);
-                        return TalkerDataCard(
-                          data: data,
-                          onCopyTap: () => _copyLoggerDataItemText(data),
-                          color: data.getColor(widget.theme),
-                        );
-                      },
-                      childCount: filteredElements.length,
-                    ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final data = _getListItem(filteredElements, index);
+                      return TalkerDataCard(
+                        data: data,
+                        onCopyTap: () => _copyLoggerDataItemText(data),
+                        color: data.getColor(widget.theme),
+                      );
+                    }, childCount: filteredElements.length),
                   ),
                 ],
               );

@@ -67,22 +67,22 @@ class CustomScaffold extends StatelessWidget {
           if (context.isWideScreen) Spacer(),
         ],
       ),
-      floatingActionButton: floatingActionButton != null
-          ? Row(
-              children: [
-                if (context.isWideScreen) Spacer(),
-                Expanded(
+      floatingActionButton:
+          floatingActionButton != null
+              ? Row(
+                children: [
+                  if (context.isWideScreen) Spacer(),
+                  Expanded(
                     flex: 2,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        floatingActionButton!,
-                      ],
-                    )),
-                if (context.isWideScreen) Spacer(),
-              ],
-            )
-          : null,
+                      children: [floatingActionButton!],
+                    ),
+                  ),
+                  if (context.isWideScreen) Spacer(),
+                ],
+              )
+              : null,
       floatingActionButtonLocation: floatingActionButtonLocation,
       floatingActionButtonAnimator: floatingActionButtonAnimator,
       persistentFooterButtons: persistentFooterButtons,
@@ -91,15 +91,16 @@ class CustomScaffold extends StatelessWidget {
       onDrawerChanged: onDrawerChanged,
       endDrawer: endDrawer,
       onEndDrawerChanged: onEndDrawerChanged,
-      bottomNavigationBar: bottomNavigationBar != null
-          ? Row(
-              children: [
-                if (context.isWideScreen) Spacer(),
-                Expanded(flex: 2, child: bottomNavigationBar!),
-                if (context.isWideScreen) Spacer(),
-              ],
-            )
-          : null,
+      bottomNavigationBar:
+          bottomNavigationBar != null
+              ? Row(
+                children: [
+                  if (context.isWideScreen) Spacer(),
+                  Expanded(flex: 2, child: bottomNavigationBar!),
+                  if (context.isWideScreen) Spacer(),
+                ],
+              )
+              : null,
       bottomSheet: bottomSheet,
       backgroundColor: backgroundColor,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,

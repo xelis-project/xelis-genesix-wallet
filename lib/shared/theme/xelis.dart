@@ -13,20 +13,28 @@ ThemeData xelisTheme() {
 
   WidgetStateProperty<Color> switchStateProperty =
       WidgetStateProperty.resolveWith((states) {
-    if (states.contains(WidgetState.selected)) {
-      return primaryColor;
-    }
-    return textColor.withValues(alpha: 0.6);
-  });
+        if (states.contains(WidgetState.selected)) {
+          return primaryColor;
+        }
+        return textColor.withValues(alpha: 0.6);
+      });
+
+  WidgetStateBorderSide chipBorderStateProperty =
+      WidgetStateBorderSide.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return BorderSide(color: primaryColor, width: 2);
+        }
+        return BorderSide(color: textColor.withValues(alpha: 0.6), width: 2);
+      });
 
   final baseTheme = ThemeData(
     useMaterial3: true,
-    // splashFactory: InkSparkle.splashFactory,
     splashFactory: NoSplash.splashFactory,
     hoverColor: Colors.transparent,
     highlightColor: Colors.transparent,
     scaffoldBackgroundColor: Colors.transparent,
     dividerColor: Colors.transparent,
+    focusColor: Colors.transparent,
 
     // COLORS
     colorScheme: const ColorScheme(
@@ -49,7 +57,7 @@ ThemeData xelisTheme() {
         bgRadialColor3: const Color.fromARGB(153, 0, 170, 150),
         bgRadialEndColor: const Color.fromARGB(255, 0, 0, 0),
         mutedColor: textColor.withValues(alpha: 0.6),
-      )
+      ),
     ],
 
     // APP BAR
@@ -58,35 +66,80 @@ ThemeData xelisTheme() {
     // TEXT
     textTheme: TextTheme(
       bodyLarge: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       bodyMedium: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       bodySmall: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       displayLarge: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       displayMedium: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       displaySmall: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       titleLarge: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       titleMedium: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       titleSmall: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       labelLarge: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       labelMedium: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       labelSmall: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       headlineLarge: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       headlineMedium: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       headlineSmall: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
     ),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: textColor,
@@ -108,12 +161,14 @@ ThemeData xelisTheme() {
         backgroundColor: Colors.black12,
         //foregroundColor: primaryColor,
         side: const BorderSide(
-            color: Color.fromARGB(255, 122, 250, 211), width: 2),
-        padding: const EdgeInsets.symmetric(
-            vertical: Spaces.medium, horizontal: Spaces.medium),
-        shape: RoundedRectangleBorder(
-          borderRadius: borderRadius,
+          color: Color.fromARGB(255, 122, 250, 211),
+          width: 2,
         ),
+        padding: const EdgeInsets.symmetric(
+          vertical: Spaces.medium,
+          horizontal: Spaces.medium,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: borderRadius),
       ),
     ),
     filledButtonTheme: FilledButtonThemeData(
@@ -121,10 +176,10 @@ ThemeData xelisTheme() {
         //backgroundColor: primaryColor,
         //foregroundColor: Colors.black,
         padding: const EdgeInsets.symmetric(
-            vertical: Spaces.medium, horizontal: Spaces.medium),
-        shape: RoundedRectangleBorder(
-          borderRadius: borderRadius,
+          vertical: Spaces.medium,
+          horizontal: Spaces.medium,
         ),
+        shape: RoundedRectangleBorder(borderRadius: borderRadius),
         textStyle: GoogleFonts.jura(fontWeight: FontWeight.bold),
       ),
     ),
@@ -132,22 +187,21 @@ ThemeData xelisTheme() {
       style: TextButton.styleFrom(
         backgroundColor: primaryColor,
         foregroundColor: Colors.black87,
-        iconColor: Colors.black87,
         disabledBackgroundColor: Colors.black87,
+        iconColor: Colors.black87,
+        disabledIconColor: Colors.white24,
         padding: const EdgeInsets.symmetric(
-            vertical: Spaces.medium, horizontal: Spaces.medium),
-        shape: RoundedRectangleBorder(
-          borderRadius: borderRadius,
+          vertical: Spaces.medium,
+          horizontal: Spaces.medium,
         ),
+        shape: RoundedRectangleBorder(borderRadius: borderRadius),
         textStyle: GoogleFonts.jura(fontWeight: FontWeight.bold),
       ),
     ),
 
     // NAVIGATION BAR
     navigationBarTheme: NavigationBarThemeData(
-      indicatorShape: CircleBorder(
-        side: BorderSide.none,
-      ),
+      indicatorShape: CircleBorder(side: BorderSide.none),
       surfaceTintColor: Colors.transparent,
       backgroundColor: Colors.black26,
       indicatorColor: Colors.white,
@@ -161,8 +215,10 @@ ThemeData xelisTheme() {
       selectedItemColor: Colors.white,
       type: BottomNavigationBarType.fixed,
       unselectedItemColor: Colors.white54,
-      selectedLabelStyle:
-          GoogleFonts.jura(fontSize: 12, fontWeight: FontWeight.w600),
+      selectedLabelStyle: GoogleFonts.jura(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+      ),
       selectedIconTheme: IconThemeData(size: 36),
     ),
     navigationRailTheme: NavigationRailThemeData(
@@ -170,9 +226,15 @@ ThemeData xelisTheme() {
       indicatorColor: Colors.transparent,
       //useIndicator: false,
       selectedLabelTextStyle: GoogleFonts.jura(
-          color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+        color: Colors.white,
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+      ),
       unselectedLabelTextStyle: GoogleFonts.jura(
-          color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w600),
+        color: Colors.white54,
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+      ),
       selectedIconTheme: const IconThemeData(size: 36, color: Colors.white),
       unselectedIconTheme: const IconThemeData(size: 30, color: Colors.white54),
     ),
@@ -187,7 +249,7 @@ ThemeData xelisTheme() {
       ),
       contentPadding: const EdgeInsets.all(15),
       filled: true,
-      fillColor: Colors.black26,
+      fillColor: Colors.black45,
       iconColor: Colors.white,
       suffixIconColor: Colors.white,
       prefixIconColor: Colors.white,
@@ -219,19 +281,15 @@ ThemeData xelisTheme() {
     snackBarTheme: SnackBarThemeData(
       backgroundColor: backgroundColor,
       actionTextColor: Colors.amber,
-      shape: RoundedRectangleBorder(
-        borderRadius: borderRadius,
-      ),
+      shape: RoundedRectangleBorder(borderRadius: borderRadius),
     ),
 
     // DIALOG
     dialogTheme: DialogTheme(
-      backgroundColor: backgroundColor.withValues(alpha: 0.9),
+      backgroundColor: backgroundColor /*.withValues(alpha: 0.9)*/,
       surfaceTintColor: Colors.transparent,
       barrierColor: Colors.transparent,
-      shape: RoundedRectangleBorder(
-        borderRadius: borderRadius,
-      ),
+      shape: RoundedRectangleBorder(borderRadius: borderRadius),
       actionsPadding: const EdgeInsets.all(Spaces.medium),
     ),
 
@@ -283,6 +341,20 @@ ThemeData xelisTheme() {
     sliderTheme: SliderThemeData(
       inactiveTrackColor: Colors.white38,
       trackHeight: 2,
+    ),
+
+    chipTheme: ChipThemeData(
+      color: WidgetStatePropertyAll(Colors.transparent),
+      elevation: 0,
+      padding: const EdgeInsets.all(Spaces.small),
+      shape: RoundedRectangleBorder(borderRadius: borderRadius),
+      brightness: Brightness.dark,
+      side: chipBorderStateProperty,
+    ),
+
+    checkboxTheme: CheckboxThemeData(
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
     ),
   );
 

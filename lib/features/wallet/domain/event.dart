@@ -15,7 +15,7 @@ sealed class Event with _$Event {
   const factory Event.balanceChanged(BalanceChangedEvent balanceChanged) =
       BalanceChanged;
 
-  const factory Event.newAsset(AssetData assetData) = NewAsset;
+  const factory Event.newAsset(RPCAssetData rpcAssetData) = NewAsset;
 
   const factory Event.rescan(int topoheight) = Rescan;
 
@@ -24,4 +24,6 @@ sealed class Event with _$Event {
   const factory Event.offline() = Offline;
 
   const factory Event.historySynced(int topoheight) = HistorySynced;
+
+  const factory Event.syncError(String message) = SyncError;
 }

@@ -6,8 +6,11 @@ class HorizontalContainer extends StatelessWidget {
   final String title;
   final String value;
 
-  const HorizontalContainer(
-      {super.key, required this.title, required this.value});
+  const HorizontalContainer({
+    super.key,
+    required this.title,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +20,10 @@ class HorizontalContainer extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(title, style: context.titleLarge),
-          SelectableText(value,
-              style: context.bodyLarge!.copyWith(color: context.colors.primary))
+          SelectableText(
+            value,
+            style: context.bodyLarge!.copyWith(color: context.colors.primary),
+          ),
         ],
       ),
     );
@@ -29,8 +34,11 @@ class VerticalContainer extends StatelessWidget {
   final String title;
   final String value;
 
-  const VerticalContainer(
-      {super.key, required this.title, required this.value});
+  const VerticalContainer({
+    super.key,
+    required this.title,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +49,10 @@ class VerticalContainer extends StatelessWidget {
         children: [
           Text(title, style: context.titleLarge),
           const SizedBox(height: Spaces.small),
-          SelectableText(value,
-              style: context.bodyLarge!.copyWith(color: context.colors.primary))
+          SelectableText(
+            value,
+            style: context.bodyLarge!.copyWith(color: context.colors.primary),
+          ),
         ],
       ),
     );

@@ -7,7 +7,7 @@ part 'node_address.freezed.dart';
 part 'node_address.g.dart';
 
 @freezed
-class NodeAddress with _$NodeAddress {
+abstract class NodeAddress with _$NodeAddress {
   const factory NodeAddress({
     @JsonKey(name: 'name') required String name,
     @JsonKey(name: 'url') required String url,

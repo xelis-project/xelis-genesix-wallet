@@ -3,35 +3,54 @@ export 'unsupported.dart' if (dart.library.html) 'web.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'package:genesix/features/wallet/domain/address.dart';
-import 'package:genesix/rust_bridge/api/network.dart';
-import 'package:genesix/rust_bridge/api/utils.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/wallet/domain/destination_address.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
+import 'package:genesix/src/generated/rust_bridge/api/utils.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart' show NumberFormat, toBeginningOfSentenceCase;
+import 'package:genesix/src/generated/rust_bridge/api/models/network.dart'
+    as rust;
 
 String formatCoin(int value, int decimals, String ticker) {
   final formatter = NumberFormat.currency(
-      locale: 'fr_FR', decimalDigits: decimals, symbol: ticker);
+    locale: 'fr_FR',
+    decimalDigits: decimals,
+    symbol: ticker,
+  );
   final xelisValue = value / pow(10, decimals);
   return formatter.format(xelisValue);
 }
 
-String formatXelis(int value) {
+String formatXelis(int value, rust.Network network) {
   final formatter = NumberFormat.currency(
-      locale: 'fr_FR',
-      decimalDigits: AppResources.xelisDecimals,
-      symbol: AppResources.xelisAsset.ticker);
+    locale: 'fr_FR',
+    decimalDigits: AppResources.xelisDecimals,
+    symbol: getXelisTicker(network),
+  );
   final xelisValue = value / pow(10, AppResources.xelisDecimals);
   return formatter.format(xelisValue);
 }
 
-Address getAddress({required String rawAddress}) {
-  var rawData = splitIntegratedAddressJson(integratedAddress: rawAddress);
+String getXelisTicker(rust.Network network) {
+  switch (network) {
+    case rust.Network.mainnet:
+      return 'XEL';
+    case rust.Network.testnet:
+    case rust.Network.dev:
+      return 'XET';
+  }
+}
+
+DestinationAddress parseRawAddress({required String rawAddress}) {
+  var rawData = splitIntegratedAddress(integratedAddress: rawAddress);
   final json = jsonDecode(rawData);
-  return Address.fromJson(json as Map<String, dynamic>);
+  return DestinationAddress.fromJson(json as Map<String, dynamic>);
 }
 
 Future<String> getAppCacheDirPath() async {
@@ -80,6 +99,14 @@ String truncateText(String text, {int maxLength = 8}) {
   if (text.isEmpty) return "";
   if (text.length <= maxLength) return text;
   return "...${text.substring(text.length - maxLength)}";
+}
+
+void copyToClipboard(String content, WidgetRef ref, String snackbarMessage) {
+  Clipboard.setData(ClipboardData(text: content)).then((_) {
+    ref
+        .read(snackBarQueueProvider.notifier)
+        .showInfo(snackbarMessage, duration: Duration(seconds: 1));
+  });
 }
 
 extension StringExtension on String {

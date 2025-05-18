@@ -26,8 +26,9 @@ class InputDialog extends ConsumerStatefulWidget {
 }
 
 class _InputDialogState extends ConsumerState<InputDialog> {
-  final _inputFormKey =
-      GlobalKey<FormBuilderState>(debugLabel: '_inputFormKey');
+  final _inputFormKey = GlobalKey<FormBuilderState>(
+    debugLabel: '_inputFormKey',
+  );
 
   late FocusNode _focusNodeInput;
 
@@ -48,29 +49,41 @@ class _InputDialogState extends ConsumerState<InputDialog> {
     final loc = ref.watch(appLocalizationsProvider);
     return GenericDialog(
       scrollable: false,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding:
-                const EdgeInsets.only(left: Spaces.medium, top: Spaces.large),
-            child: Text(
-              widget.title,
-              style: context.titleLarge,
+      title: SizedBox(
+        width: double.infinity,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: Spaces.medium,
+                  top: Spaces.large,
+                ),
+                child: Text(
+                  widget.title,
+                  style: context.headlineSmall,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                  maxLines: 1,
+                ),
+              ),
             ),
-          ),
-          Padding(
-            padding:
-                const EdgeInsets.only(right: Spaces.small, top: Spaces.small),
-            child: IconButton(
-              onPressed: () {
-                context.pop();
-              },
-              icon: const Icon(Icons.close_rounded),
+            Padding(
+              padding: const EdgeInsets.only(
+                right: Spaces.small,
+                top: Spaces.small,
+              ),
+              child: IconButton(
+                onPressed: () {
+                  context.pop();
+                },
+                icon: const Icon(Icons.close_rounded),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       content: Builder(
         builder: (BuildContext context) {
@@ -100,7 +113,9 @@ class _InputDialogState extends ConsumerState<InputDialog> {
                   widget.onEnter!(value!);
                 }
               },
-              validator: FormBuilderValidators.required(),
+              validator: FormBuilderValidators.required(
+                errorText: loc.field_required_error,
+              ),
             ),
           );
         },
@@ -111,14 +126,13 @@ class _InputDialogState extends ConsumerState<InputDialog> {
             if (_inputFormKey.currentState?.saveAndValidate() ?? false) {
               if (widget.onEnter != null) {
                 _focusNodeInput.unfocus();
-                widget.onEnter!(_inputFormKey
-                    .currentState!.fields['input']!.value as String);
+                widget.onEnter!(
+                  _inputFormKey.currentState!.fields['input']!.value as String,
+                );
               }
             }
           },
-          label: Text(
-            loc.confirm_button,
-          ),
+          label: Text(loc.confirm_button),
           // icon: Icon(
           //   Icons.check,
           //   size: 18,

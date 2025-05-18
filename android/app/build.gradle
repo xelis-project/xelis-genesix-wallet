@@ -28,12 +28,12 @@ android {
     ndkVersion "27.0.12077973"
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = JavaVersion.VERSION_17
     }
 
     sourceSets {
@@ -45,7 +45,6 @@ android {
         applicationId "io.xelis.app.genesix"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-//        minSdkVersion 24
         minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
@@ -58,6 +57,12 @@ android {
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
         }
+    }
+
+    // Required by flutter_secure_storage
+    dependencies {
+        implementation 'com.google.errorprone:error_prone_annotations:2.36.0'
+        implementation 'com.github.spotbugs:spotbugs-annotations:4.8.6'
     }
 }
 
