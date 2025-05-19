@@ -89,7 +89,7 @@ class _XswdEditPermissionDialogState
               ),
             ),
             const SizedBox(height: Spaces.small),
-            Text(widget.appInfo.id, style: context.bodyLarge),
+            SelectableText(widget.appInfo.id, style: context.bodyLarge),
             const SizedBox(height: Spaces.medium),
             Text(
               loc.name.capitalize(),
@@ -98,7 +98,7 @@ class _XswdEditPermissionDialogState
               ),
             ),
             const SizedBox(height: Spaces.small),
-            Text(widget.appInfo.name, style: context.bodyLarge),
+            SelectableText(widget.appInfo.name, style: context.bodyLarge),
             const SizedBox(height: Spaces.medium),
             if (widget.appInfo.url != null) ...[
               Text(
@@ -108,7 +108,7 @@ class _XswdEditPermissionDialogState
                 ),
               ),
               const SizedBox(height: Spaces.small),
-              Text(widget.appInfo.url!, style: context.bodyLarge),
+              SelectableText(widget.appInfo.url!, style: context.bodyLarge),
               const SizedBox(height: Spaces.medium),
             ],
             Text(
@@ -118,7 +118,7 @@ class _XswdEditPermissionDialogState
               ),
             ),
             const SizedBox(height: Spaces.small),
-            Text(widget.appInfo.description, style: context.bodyLarge),
+            SelectableText(widget.appInfo.description, style: context.bodyLarge),
             const SizedBox(height: Spaces.medium),
             Text(
               loc.permissions.capitalize(),
