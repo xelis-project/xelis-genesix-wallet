@@ -100,6 +100,9 @@ class MultisigEntryContent extends ConsumerWidget {
       ];
     }
 
-    return Column(children: content);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: content,
+    );
   }
 }

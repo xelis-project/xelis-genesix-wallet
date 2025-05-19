@@ -34,6 +34,7 @@ class IncomingEntryContent extends ConsumerWidget {
     );
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           loc.from,
@@ -96,14 +97,14 @@ class IncomingEntryContent extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Padding(
                               padding: const EdgeInsets.only(
                                 bottom: Spaces.extraSmall,
                               ),
                               child: Text(
-                                loc.asset,
+                                loc.asset.toLowerCase(),
                                 style: context.labelMedium?.copyWith(
                                   color: context.moreColors.mutedColor,
                                 ),
@@ -121,7 +122,7 @@ class IncomingEntryContent extends ConsumerWidget {
                           ],
                         ),
                         Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Padding(
                               padding: const EdgeInsets.only(

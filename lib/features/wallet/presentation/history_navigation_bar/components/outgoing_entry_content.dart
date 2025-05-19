@@ -37,6 +37,7 @@ class OutgoingEntryContent extends ConsumerWidget {
     );
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           loc.fee,
@@ -104,10 +105,10 @@ class OutgoingEntryContent extends ConsumerWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Text(
-                                      loc.asset,
+                                      loc.asset.toLowerCase(),
                                       style: context.labelLarge?.copyWith(
                                         color: context.moreColors.mutedColor,
                                       ),
@@ -125,7 +126,7 @@ class OutgoingEntryContent extends ConsumerWidget {
                                 ),
                                 const SizedBox(width: Spaces.medium),
                                 Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Text(
                                       loc.amount,

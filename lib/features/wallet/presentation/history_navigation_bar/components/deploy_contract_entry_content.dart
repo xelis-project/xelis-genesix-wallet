@@ -20,6 +20,7 @@ class DeployContractEntryContent extends ConsumerWidget {
     );
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           loc.fee,

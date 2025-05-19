@@ -41,32 +41,32 @@ class _DiscoveredAssetItemState extends ConsumerState<DiscoveredAssetItem> {
             Row(
               children: [
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SelectableText(assetData.name, style: context.bodyLarge),
-                    const SizedBox(height: Spaces.extraSmall),
-                    SelectableText(
-                      assetData.ticker,
+                    Text(
+                      loc.name,
                       style: context.bodyMedium!.copyWith(
                         color: context.moreColors.mutedColor,
                       ),
                     ),
+                    const SizedBox(height: Spaces.extraSmall),
+                    SelectableText(assetData.name, style: context.bodyLarge),
                   ],
                 ),
               ],
             ),
             Spacer(),
             Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SelectableText(loc.ticker, style: context.bodyLarge),
-                const SizedBox(height: Spaces.extraSmall),
-                SelectableText(
-                  truncateText(assetData.ticker),
+                Text(
+                  loc.ticker.toLowerCase(),
                   style: context.bodyMedium!.copyWith(
                     color: context.moreColors.mutedColor,
                   ),
                 ),
+                const SizedBox(height: Spaces.extraSmall),
+                SelectableText(assetData.ticker, style: context.bodyLarge),
               ],
             ),
             const SizedBox(width: Spaces.small),

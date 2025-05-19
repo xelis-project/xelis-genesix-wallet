@@ -62,7 +62,8 @@ class WalletState extends _$WalletState {
       if (!kIsWeb) {
         // Web does not support XSWD protocol
         final enableXswd = ref.read(
-            settingsProvider.select((s) => s.enableXswd));
+          settingsProvider.select((s) => s.enableXswd),
+        );
         if (enableXswd) {
           startXSWD();
         } else {

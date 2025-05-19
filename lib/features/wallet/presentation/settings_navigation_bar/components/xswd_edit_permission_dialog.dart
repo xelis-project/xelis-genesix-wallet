@@ -118,7 +118,10 @@ class _XswdEditPermissionDialogState
               ),
             ),
             const SizedBox(height: Spaces.small),
-            SelectableText(widget.appInfo.description, style: context.bodyLarge),
+            SelectableText(
+              widget.appInfo.description,
+              style: context.bodyLarge,
+            ),
             const SizedBox(height: Spaces.medium),
             Text(
               loc.permissions.capitalize(),

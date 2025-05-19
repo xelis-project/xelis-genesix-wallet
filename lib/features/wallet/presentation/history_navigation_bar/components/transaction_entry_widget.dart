@@ -107,18 +107,18 @@ class _TransactionEntryWidgetState
         }
       case MultisigEntry():
         icon = Icon(Icons.arrow_upward, size: 18);
-        labelThirdColumn = loc.type;
+        labelThirdColumn = loc.type.toLowerCase();
         contentThirdColumn =
             (entryType.participants.isEmpty)
                 ? loc.multisig_deleted
                 : loc.multisig_activated;
       case InvokeContractEntry():
         icon = Icon(Icons.arrow_upward, size: 18);
-        labelThirdColumn = loc.type;
+        labelThirdColumn = loc.type.toLowerCase();
         contentThirdColumn = loc.invoked_contract;
       case DeployContractEntry():
         icon = Icon(Icons.arrow_upward, size: 18);
-        labelThirdColumn = loc.type;
+        labelThirdColumn = loc.type.toLowerCase();
         contentThirdColumn = loc.deployed_contract;
     }
 
@@ -139,7 +139,7 @@ class _TransactionEntryWidgetState
             Column(
               children: [
                 Text(
-                  loc.topoheight,
+                  loc.topoheight.toLowerCase(),
                   style: context.labelMedium?.copyWith(
                     color: context.moreColors.mutedColor,
                   ),
