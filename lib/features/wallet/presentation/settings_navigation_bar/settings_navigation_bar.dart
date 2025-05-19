@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,19 +44,22 @@ class SettingsNavigationBar extends ConsumerWidget {
           onTap: () => context.push(AppScreen.settings.toPath),
           trailing: const Icon(Icons.keyboard_arrow_right_rounded),
         ),
-        const Divider(),
-        ListTile(
-          leading: const Icon(Icons.security_rounded),
-          title: Text(loc.xswd_status, style: context.titleLarge),
-          subtitle: Text(
-            loc.xswd_setting_label,
-            style: context.labelMedium?.copyWith(
-              color: context.moreColors.mutedColor,
+        if (!kIsWeb) ...[
+          // We don't want to show the XSWD status because XSWD protocol is not supported on web
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.security_rounded),
+            title: Text(loc.xswd_status, style: context.titleLarge),
+            subtitle: Text(
+              loc.xswd_setting_label,
+              style: context.labelMedium?.copyWith(
+                color: context.moreColors.mutedColor,
+              ),
             ),
+            onTap: () => context.push(AuthAppScreen.xswdStatus.toPath),
+            trailing: const Icon(Icons.keyboard_arrow_right_rounded),
           ),
-          onTap: () => context.push(AuthAppScreen.xswdStatus.toPath),
-          trailing: const Icon(Icons.keyboard_arrow_right_rounded),
-        ),
+        ],
         const Divider(),
         ListTile(
           leading: const Icon(Icons.my_library_books_outlined),

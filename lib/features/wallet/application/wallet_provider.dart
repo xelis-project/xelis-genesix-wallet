@@ -59,11 +59,15 @@ class WalletState extends _$WalletState {
         await disconnect();
       }
 
-      final enableXswd = ref.read(settingsProvider.select((s) => s.enableXswd));
-      if (enableXswd) {
-        startXSWD();
-      } else {
-        stopXSWD();
+      if (!kIsWeb) {
+        // Web does not support XSWD protocol
+        final enableXswd = ref.read(
+            settingsProvider.select((s) => s.enableXswd));
+        if (enableXswd) {
+          startXSWD();
+        } else {
+          stopXSWD();
+        }
       }
 
       StreamSubscription<void> sub = state.nativeWalletRepository!
