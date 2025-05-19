@@ -84,10 +84,9 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
                       ],
                     ),
                   );
-                }
-                if (snapshot.hasData) {
+                } else if (snapshot.hasData) {
                   final value = snapshot.data as List<AppInfo>;
-                  if (value.isEmpty) {
+                  if (value.isEmpty && enableXswd) {
                     return Expanded(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -106,7 +105,7 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
                         ],
                       ),
                     );
-                  } else {
+                  } else if (enableXswd) {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -148,26 +147,29 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
                         }),
                       ],
                     );
+                  } else {
+                    return SizedBox.shrink();
                   }
-                }
-                return Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            loc.no_application_found,
-                            style: context.titleSmall?.copyWith(
-                              color: context.moreColors.mutedColor,
+                } else {
+                  return Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              loc.no_application_found,
+                              style: context.titleSmall?.copyWith(
+                                color: context.moreColors.mutedColor,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                }
               },
             ),
           ],
