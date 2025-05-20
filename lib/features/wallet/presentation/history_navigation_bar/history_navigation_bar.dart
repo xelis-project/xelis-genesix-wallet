@@ -116,13 +116,13 @@ class _HistoryTabState extends ConsumerState<HistoryNavigationBar> {
     ref.read(historyPagingStateProvider.notifier).loading();
 
     try {
-      final newKey = (state.keys?.last ?? 0) + 1;
-      talker.info('Fetching page: $newKey');
-      final newItems = await ref.read(historyProvider(newKey).future);
+      final newPage = (state.keys?.last ?? 0) + 1;
+      talker.info('Fetching page: $newPage');
+      final newItems = await ref.read(historyProvider(newPage).future);
 
       ref
           .read(historyPagingStateProvider.notifier)
-          .setNextPage(newKey, newItems);
+          .setNextPage(newPage, newItems);
     } catch (error) {
       talker.error('Error fetching page: $error');
       ref.read(historyPagingStateProvider.notifier).error(error);
