@@ -145,7 +145,7 @@ ThemeData lightTheme() {
     ),
 
     // CARD
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: Colors.white12,
       shape: RoundedRectangleBorder(
         borderRadius: borderRadius,
@@ -284,7 +284,7 @@ ThemeData lightTheme() {
     ),
 
     // DIALOG
-    dialogTheme: DialogTheme(
+    dialogTheme: DialogThemeData(
       backgroundColor: backgroundColor.withValues(alpha: 0.9),
       surfaceTintColor: Colors.transparent,
       barrierColor: Colors.transparent,
@@ -300,7 +300,7 @@ ThemeData lightTheme() {
     ),
 
     // TAB BAR
-    tabBarTheme: const TabBarTheme(
+    tabBarTheme: const TabBarThemeData(
       dividerColor: Colors.black38,
       overlayColor: WidgetStatePropertyAll(Colors.transparent),
     ),

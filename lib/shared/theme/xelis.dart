@@ -147,7 +147,7 @@ ThemeData xelisTheme() {
     ),
 
     // CARD
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: Colors.black12,
       shape: RoundedRectangleBorder(
         borderRadius: borderRadius,
@@ -285,7 +285,7 @@ ThemeData xelisTheme() {
     ),
 
     // DIALOG
-    dialogTheme: DialogTheme(
+    dialogTheme: DialogThemeData(
       backgroundColor: backgroundColor /*.withValues(alpha: 0.9)*/,
       surfaceTintColor: Colors.transparent,
       barrierColor: Colors.transparent,
@@ -301,7 +301,7 @@ ThemeData xelisTheme() {
     ),
 
     // TAB BAR
-    tabBarTheme: const TabBarTheme(
+    tabBarTheme: const TabBarThemeData(
       dividerColor: Colors.white30,
       overlayColor: WidgetStatePropertyAll(Colors.transparent),
     ),
