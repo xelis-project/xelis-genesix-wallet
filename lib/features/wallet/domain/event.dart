@@ -26,4 +26,8 @@ sealed class Event with _$Event {
   const factory Event.historySynced(int topoheight) = HistorySynced;
 
   const factory Event.syncError(String message) = SyncError;
+
+  const factory Event.trackAsset(String asset) = TrackAsset;
+
+  const factory Event.untrackAsset(String asset) = UntrackAsset;
 }

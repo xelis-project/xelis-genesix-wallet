@@ -128,8 +128,8 @@ class TrackedAssetDetails extends ConsumerWidget {
           ],
           if (asset.owner != null) ...[
             const SizedBox(height: Spaces.medium),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   loc.contract,
@@ -178,10 +178,10 @@ class TrackedAssetDetails extends ConsumerWidget {
                       padding: const EdgeInsets.all(Spaces.medium),
                       side: BorderSide(color: context.colors.error, width: 2),
                     ),
-                    onPressed:
-                        () => ref
-                            .read(walletStateProvider.notifier)
-                            .untrackAsset(hash),
+                    onPressed: () {
+                      ref.read(walletStateProvider.notifier).untrackAsset(hash);
+                      context.pop();
+                    },
                     child: Text(loc.untrack, style: context.bodyMedium),
                   ),
                 ),

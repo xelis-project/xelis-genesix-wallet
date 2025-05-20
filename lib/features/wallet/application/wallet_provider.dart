@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
@@ -42,9 +43,14 @@ class WalletState extends _$WalletState {
           nativeWalletRepository: nativeWallet,
           address: nativeWallet.address,
           network: nativeWallet.network,
+          trackedBalances: LinkedHashMap.from({}),
+          knownAssets: LinkedHashMap.from({}),
         );
       case SignedOut():
-        return const WalletSnapshot();
+        return WalletSnapshot(
+          trackedBalances: LinkedHashMap.from({}),
+          knownAssets: LinkedHashMap.from({}),
+        );
     }
   }
 
@@ -112,8 +118,8 @@ class WalletState extends _$WalletState {
 
         state = state.copyWith(
           xelisBalance: xelisBalance,
-          trackedBalances: balances,
-          knownAssets: knownAssets,
+          trackedBalances: sortMapByKey(balances),
+          knownAssets: sortMapByKey(knownAssets),
         );
       } catch (e) {
         talker.error('Cannot retrieve wallet data: $e');
@@ -465,14 +471,14 @@ class WalletState extends _$WalletState {
         final updatedBalances =
             await state.nativeWalletRepository!.getTrackedBalances();
         state = state.copyWith(
-          trackedBalances: updatedBalances,
+          trackedBalances: sortMapByKey(updatedBalances),
           xelisBalance: xelisBalance,
         );
 
       case NewAsset():
         talker.info(event);
         final assets = await state.nativeWalletRepository!.getKnownAssets();
-        state = state.copyWith(knownAssets: assets);
+        state = state.copyWith(knownAssets: sortMapByKey(assets));
         ref
             .read(snackBarQueueProvider.notifier)
             .showInfo(
@@ -504,6 +510,32 @@ class WalletState extends _$WalletState {
         ref
             .read(snackBarQueueProvider.notifier)
             .showError('${loc.error_while_syncing} ${event.message}');
+
+      case TrackAsset():
+        talker.info(event);
+        final updatedBalances =
+            await state.nativeWalletRepository!.getTrackedBalances();
+        final assets = await state.nativeWalletRepository!.getKnownAssets();
+        state = state.copyWith(
+          trackedBalances: sortMapByKey(updatedBalances),
+          knownAssets: sortMapByKey(assets),
+        );
+        ref
+            .read(snackBarQueueProvider.notifier)
+            .showInfo(loc.asset_successfully_tracked);
+
+      case UntrackAsset():
+        talker.info(event);
+        final updatedBalances =
+            await state.nativeWalletRepository!.getTrackedBalances();
+        final assets = await state.nativeWalletRepository!.getKnownAssets();
+        state = state.copyWith(
+          trackedBalances: sortMapByKey(updatedBalances),
+          knownAssets: sortMapByKey(assets),
+        );
+        ref
+            .read(snackBarQueueProvider.notifier)
+            .showInfo(loc.asset_successfully_untracked);
     }
   }
 
@@ -772,9 +804,6 @@ class WalletState extends _$WalletState {
     if (state.nativeWalletRepository != null) {
       try {
         await state.nativeWalletRepository!.trackAsset(assetHash);
-        final updatedBalances =
-            await state.nativeWalletRepository!.getTrackedBalances();
-        state = state.copyWith(trackedBalances: updatedBalances);
       } on AnyhowException catch (e) {
         talker.error('Cannot track asset: $e');
         final xelisMessage = (e).message.split("\n")[0];
@@ -791,9 +820,6 @@ class WalletState extends _$WalletState {
     if (state.nativeWalletRepository != null) {
       try {
         await state.nativeWalletRepository!.untrackAsset(assetHash);
-        final updatedBalances =
-            await state.nativeWalletRepository!.getTrackedBalances();
-        state = state.copyWith(trackedBalances: updatedBalances);
       } on AnyhowException catch (e) {
         talker.error('Cannot untrack asset: $e');
         final xelisMessage = (e).message.split("\n")[0];

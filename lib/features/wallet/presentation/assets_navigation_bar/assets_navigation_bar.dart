@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/presentation/assets_navigation_bar/tracked_balances_tab.dart';
+import 'package:genesix/features/wallet/presentation/assets_navigation_bar/tracked_assets_tab.dart';
 
-import 'discovered_assets_tab.dart';
+import 'untracked_assets_tab.dart';
 
 class AssetsNavigationBar extends ConsumerWidget {
   const AssetsNavigationBar({super.key});
@@ -16,15 +16,10 @@ class AssetsNavigationBar extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          TabBar(
-            tabs: [
-              Tab(text: loc.tracked_balances),
-              Tab(text: loc.discovered_assets),
-            ],
-          ),
+          TabBar(tabs: [Tab(text: loc.tracked), Tab(text: loc.untracked)]),
           Expanded(
             child: TabBarView(
-              children: [TrackedBalancesTab(), DiscoveredAssetsTab()],
+              children: [TrackedBalancesTab(), UntrackedAssetsTab()],
             ),
           ),
         ],

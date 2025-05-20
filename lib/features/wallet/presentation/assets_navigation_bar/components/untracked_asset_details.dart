@@ -9,8 +9,8 @@ import 'package:go_router/go_router.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 
-class DiscoveredAssetDetails extends ConsumerWidget {
-  const DiscoveredAssetDetails(this.assetHash, this.assetData, {super.key});
+class UntrackedAssetDetails extends ConsumerWidget {
+  const UntrackedAssetDetails(this.assetHash, this.assetData, {super.key});
 
   final String assetHash;
   final AssetData assetData;
@@ -65,7 +65,8 @@ class DiscoveredAssetDetails extends ConsumerWidget {
               color: context.moreColors.mutedColor,
             ),
           ),
-          const SizedBox(height: Spaces.medium),
+          const SizedBox(height: Spaces.small),
+          Divider(),
           Text(
             loc.name.capitalize(),
             style: context.bodyLarge?.copyWith(
@@ -133,8 +134,8 @@ class DiscoveredAssetDetails extends ConsumerWidget {
           ],
           if (assetData.owner != null) ...[
             const SizedBox(height: Spaces.medium),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   loc.contract,
@@ -171,10 +172,12 @@ class DiscoveredAssetDetails extends ConsumerWidget {
                     padding: const EdgeInsets.all(Spaces.medium),
                     side: BorderSide(color: context.colors.error, width: 2),
                   ),
-                  onPressed:
-                      () => ref
-                          .read(walletStateProvider.notifier)
-                          .trackAsset(assetHash),
+                  onPressed: () {
+                    ref
+                        .read(walletStateProvider.notifier)
+                        .trackAsset(assetHash);
+                    context.pop();
+                  },
                   child: Text(loc.track, style: context.bodyMedium),
                 ),
               ),

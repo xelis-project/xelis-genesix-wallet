@@ -8,16 +8,16 @@ import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 
-class TrackedBalanceItem extends ConsumerStatefulWidget {
-  const TrackedBalanceItem({required this.assetHash, super.key});
+class TrackedAssetItem extends ConsumerStatefulWidget {
+  const TrackedAssetItem({required this.assetHash, super.key});
 
   final String assetHash;
 
   @override
-  ConsumerState<TrackedBalanceItem> createState() => _AssetItemWidgetState();
+  ConsumerState<TrackedAssetItem> createState() => _AssetItemWidgetState();
 }
 
-class _AssetItemWidgetState extends ConsumerState<TrackedBalanceItem> {
+class _AssetItemWidgetState extends ConsumerState<TrackedAssetItem> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);

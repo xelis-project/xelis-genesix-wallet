@@ -321,29 +321,25 @@ impl XelisWallet {
     }
 
     // track an asset
-    pub async fn track_asset(&self, asset: String) -> Result<()> {
+    pub async fn track_asset(&self, asset: String) -> Result<bool> {
         let asset_hash = Hash::from_hex(&asset).context("Invalid asset")?;
-        let mut storage = self.wallet.get_storage().write().await;
-        if storage.is_asset_tracked(&asset_hash)? {
-            bail!("Asset ID is already tracked");
-        } else {
-            storage.track_asset(&asset_hash)?;
-            info!("Asset {} is now tracked", asset);
-        }
-        Ok(())
+        let result = self
+            .wallet
+            .track_asset(asset_hash)
+            .await
+            .expect("Error tracking asset");
+        Ok(result)
     }
 
     // untrack an asset
-    pub async fn untrack_asset(&self, asset: String) -> Result<()> {
+    pub async fn untrack_asset(&self, asset: String) -> Result<bool> {
         let asset_hash = Hash::from_hex(&asset).context("Invalid asset")?;
-        let mut storage = self.wallet.get_storage().write().await;
-        if !storage.is_asset_tracked(&asset_hash)? {
-            bail!("Asset ID is not tracked");
-        } else {
-            storage.untrack_asset(&asset_hash)?;
-            info!("Asset {} is now untracked", asset);
-        }
-        Ok(())
+        let result = self
+            .wallet
+            .untrack_asset(asset_hash)
+            .await
+            .expect("Error tracking asset");
+        Ok(result)
     }
 
     // get the number of decimals of an asset
@@ -1058,7 +1054,7 @@ impl XelisWallet {
             },
         )?;
 
-        for tx in transactions.into_iter() {
+        for tx in transactions {
             let transaction_entry = tx.serializable(self.wallet.get_network().is_mainnet());
             let json_tx = serde_json::to_string(&transaction_entry)?;
             txs.push(json_tx);

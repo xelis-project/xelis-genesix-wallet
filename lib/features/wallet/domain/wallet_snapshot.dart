@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
@@ -11,12 +12,12 @@ part 'wallet_snapshot.freezed.dart';
 
 @freezed
 abstract class WalletSnapshot with _$WalletSnapshot {
-  const factory WalletSnapshot({
+  factory WalletSnapshot({
     @Default(false) bool isOnline,
     @Default(0) int topoheight,
     @Default('') String xelisBalance,
-    @Default({}) Map<String, String> trackedBalances,
-    @Default({}) Map<String, sdk.AssetData> knownAssets,
+    required LinkedHashMap<String, String> trackedBalances,
+    required LinkedHashMap<String, sdk.AssetData> knownAssets,
     @Default('') String address,
     @Default('') String name,
     @Default(MultisigState()) MultisigState multisigState,

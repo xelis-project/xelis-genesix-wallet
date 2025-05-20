@@ -188,6 +188,16 @@ class NativeWalletRepository {
               json['data']['message'] as String,
             );
             yield syncError;
+          case sdk.WalletEvent.trackAsset:
+            final trackAsset = Event.trackAsset(
+              json['data']['asset'] as String,
+            );
+            yield trackAsset;
+          case sdk.WalletEvent.untrackAsset:
+            final untrackAsset = Event.untrackAsset(
+              json['data']['asset'] as String,
+            );
+            yield untrackAsset;
         }
       } catch (e) {
         talker.error('Unknown event: ${json['event']}');
@@ -245,12 +255,14 @@ class NativeWalletRepository {
     };
   }
 
-  Future<void> trackAsset(String assetHash) async {
-    await _xelisWallet.trackAsset(asset: assetHash);
+  Future<bool> trackAsset(String assetHash) async {
+    final result = await _xelisWallet.trackAsset(asset: assetHash);
+    return result;
   }
 
-  Future<void> untrackAsset(String assetHash) async {
-    await _xelisWallet.untrackAsset(asset: assetHash);
+  Future<bool> untrackAsset(String assetHash) async {
+    final result = await _xelisWallet.untrackAsset(asset: assetHash);
+    return result;
   }
 
   Future<int> getHistoryCount() async {

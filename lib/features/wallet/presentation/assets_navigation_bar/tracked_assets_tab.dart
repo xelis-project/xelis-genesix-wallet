@@ -1,31 +1,25 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
-import 'package:genesix/features/wallet/presentation/assets_navigation_bar/components/discovered_asset_item.dart';
+import 'package:genesix/features/wallet/presentation/assets_navigation_bar/components/tracked_asset_item.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 
-class DiscoveredAssetsTab extends ConsumerWidget {
-  const DiscoveredAssetsTab({super.key});
+class TrackedBalancesTab extends ConsumerWidget {
+  const TrackedBalancesTab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
-    final knownAssets = ref.watch(
-      walletStateProvider.select((state) => state.knownAssets),
-    );
     final balances = ref.watch(
       walletStateProvider.select((state) => state.trackedBalances),
     );
 
-    final discoveredAssets =
-        knownAssets.keys.where((hash) => !balances.containsKey(hash)).toList();
-
-    if (discoveredAssets.isEmpty) {
+    if (balances.isEmpty) {
       return Center(
         child: Text(
-          loc.no_discovered_assets,
+          loc.no_tracked_assets,
           style: context.bodyLarge?.copyWith(
             color: context.moreColors.mutedColor,
           ),
@@ -34,11 +28,11 @@ class DiscoveredAssetsTab extends ConsumerWidget {
     } else {
       return ListView.builder(
         shrinkWrap: true,
-        itemCount: discoveredAssets.length,
+        itemCount: balances.length,
         padding: const EdgeInsets.all(Spaces.large),
         itemBuilder: (BuildContext context, int index) {
-          final hash = discoveredAssets[index];
-          return DiscoveredAssetItem(hash);
+          final hash = balances.keys.toList()[index];
+          return TrackedAssetItem(assetHash: hash);
         },
       );
     }

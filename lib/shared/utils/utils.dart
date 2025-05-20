@@ -1,5 +1,6 @@
 export 'unsupported.dart' if (dart.library.html) 'web.dart';
 
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -107,6 +108,12 @@ void copyToClipboard(String content, WidgetRef ref, String snackbarMessage) {
         .read(snackBarQueueProvider.notifier)
         .showInfo(snackbarMessage, duration: Duration(seconds: 1));
   });
+}
+
+LinkedHashMap<K, V> sortMapByKey<K extends Comparable<K>, V>(Map<K, V> map) {
+  return LinkedHashMap.fromEntries(
+    map.entries.toList()..sort((a, b) => a.key.compareTo(b.key)),
+  );
 }
 
 extension StringExtension on String {

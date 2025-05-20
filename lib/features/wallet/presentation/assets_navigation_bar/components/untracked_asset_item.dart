@@ -2,23 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
-import 'package:genesix/features/wallet/presentation/assets_navigation_bar/components/discovered_asset_details.dart';
+import 'package:genesix/features/wallet/presentation/assets_navigation_bar/components/untracked_asset_details.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
-import 'package:genesix/shared/utils/utils.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
-class DiscoveredAssetItem extends ConsumerStatefulWidget {
-  const DiscoveredAssetItem(this.assetHash, {super.key});
+class UntrackedAssetItem extends ConsumerStatefulWidget {
+  const UntrackedAssetItem(this.assetHash, {super.key});
 
   final String assetHash;
 
   @override
-  ConsumerState<DiscoveredAssetItem> createState() =>
+  ConsumerState<UntrackedAssetItem> createState() =>
       _DiscoveredAssetItemState();
 }
 
-class _DiscoveredAssetItemState extends ConsumerState<DiscoveredAssetItem> {
+class _DiscoveredAssetItemState extends ConsumerState<UntrackedAssetItem> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
@@ -88,7 +87,7 @@ class _DiscoveredAssetItemState extends ConsumerState<DiscoveredAssetItem> {
   void _trackAsset(String hash, AssetData asset) {
     showDialog<void>(
       context: context,
-      builder: (context) => DiscoveredAssetDetails(hash, asset),
+      builder: (context) => UntrackedAssetDetails(hash, asset),
     );
   }
 }
