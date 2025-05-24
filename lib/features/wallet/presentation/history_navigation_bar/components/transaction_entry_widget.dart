@@ -49,35 +49,36 @@ class _TransactionEntryWidgetState
       case BurnEntry():
         icon = Icon(Icons.local_fire_department_rounded, size: 18);
         final fee = entryType.fee;
+        contentThirdColumn = '-';
         if (entryType.asset == xelisAsset) {
-          contentThirdColumn =
-              '-${formatXelis(entryType.amount + fee, network)}';
+          contentThirdColumn += formatXelis(entryType.amount + fee, network);
         } else {
           if (knownAssets.containsKey(entryType.asset)) {
-            contentThirdColumn = formatCoin(
+            contentThirdColumn += formatCoin(
               entryType.amount,
               knownAssets[entryType.asset]!.decimals,
               knownAssets[entryType.asset]!.ticker,
             );
           } else {
-            contentThirdColumn = entryType.amount.toString();
+            contentThirdColumn += entryType.amount.toString();
           }
         }
       case IncomingEntry():
         icon = Icon(Icons.call_received_rounded, size: 18);
         if (entryType.transfers.length == 1) {
+          contentThirdColumn = '+';
           final transfer = entryType.transfers[0];
           if (transfer.asset == xelisAsset) {
-            contentThirdColumn = '+${formatXelis(transfer.amount, network)}';
+            contentThirdColumn += formatXelis(transfer.amount, network);
           } else {
             if (knownAssets.containsKey(transfer.asset)) {
-              contentThirdColumn = formatCoin(
+              contentThirdColumn += formatCoin(
                 transfer.amount,
                 knownAssets[transfer.asset]!.decimals,
                 knownAssets[transfer.asset]!.ticker,
               );
             } else {
-              contentThirdColumn = '+${transfer.amount.toString()}';
+              contentThirdColumn += transfer.amount.toString();
             }
           }
         } else {
@@ -88,18 +89,18 @@ class _TransactionEntryWidgetState
         if (entryType.transfers.length == 1) {
           final transfer = entryType.transfers[0];
           final fee = entryType.fee;
+          contentThirdColumn = '-';
           if (transfer.asset == xelisAsset) {
-            contentThirdColumn =
-                '-${formatXelis(transfer.amount + fee, network)}';
+            contentThirdColumn += formatXelis(transfer.amount + fee, network);
           } else {
             if (knownAssets.containsKey(transfer.asset)) {
-              contentThirdColumn = formatCoin(
+              contentThirdColumn += formatCoin(
                 transfer.amount,
                 knownAssets[transfer.asset]!.decimals,
                 knownAssets[transfer.asset]!.ticker,
               );
             } else {
-              contentThirdColumn = '-${transfer.amount.toString()}';
+              contentThirdColumn += transfer.amount.toString();
             }
           }
         } else {
@@ -108,10 +109,9 @@ class _TransactionEntryWidgetState
       case MultisigEntry():
         icon = Icon(Icons.call_made_rounded, size: 18);
         labelThirdColumn = loc.type.toLowerCase();
-        contentThirdColumn =
-            (entryType.participants.isEmpty)
-                ? loc.multisig_deleted
-                : loc.multisig_activated;
+        contentThirdColumn = (entryType.participants.isEmpty)
+            ? loc.multisig_deleted
+            : loc.multisig_activated;
       case InvokeContractEntry():
         icon = Icon(Icons.call_made_rounded, size: 18);
         labelThirdColumn = loc.type.toLowerCase();
