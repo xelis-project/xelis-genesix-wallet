@@ -67,87 +67,82 @@ class InvokeContractEntryContent extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: Spaces.extraSmall),
-        Builder(
-          builder: (BuildContext context) {
-            final deposits = invokeContractEntry.deposits;
+        ListView.builder(
+          shrinkWrap: true,
+          itemCount: invokeContractEntry.deposits.length,
+          itemBuilder: (BuildContext context, int index) {
+            final deposit = invokeContractEntry.deposits.entries.elementAt(
+              index,
+            );
+            final isXelis = deposit.key == xelisAsset;
+            final xelisImagePath = AppResources.greenBackgroundBlackIconPath;
 
-            return ListView.builder(
-              shrinkWrap: true,
-              itemCount: deposits.length,
-              itemBuilder: (BuildContext context, int index) {
-                final deposit = deposits.entries.elementAt(index);
-                final isXelis = deposit.key == xelisAsset;
-                final xelisImagePath =
-                    AppResources.greenBackgroundBlackIconPath;
+            String asset;
+            String amount;
+            if (knownAssets.containsKey(deposit.key)) {
+              final assetData = knownAssets[deposit.key]!;
+              asset = assetData.name;
+              amount = formatCoin(
+                deposit.value,
+                assetData.decimals,
+                assetData.ticker,
+              );
+            } else {
+              asset = truncateText(deposit.key, maxLength: 20);
+              amount = deposit.value.toString();
+            }
 
-                String asset;
-                String amount;
-                if (knownAssets.containsKey(deposit.key)) {
-                  final assetData = knownAssets[deposit.key]!;
-                  asset = assetData.name;
-                  amount = formatCoin(
-                    deposit.value,
-                    assetData.decimals,
-                    assetData.ticker,
-                  );
-                } else {
-                  asset = truncateText(deposit.key, maxLength: 20);
-                  amount = deposit.value.toString();
-                }
-
-                return Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(Spaces.medium),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            return Card(
+              child: Padding(
+                padding: const EdgeInsets.all(Spaces.medium),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                bottom: Spaces.extraSmall,
-                              ),
-                              child: Text(
-                                loc.asset.toLowerCase(),
-                                style: context.labelMedium?.copyWith(
-                                  color: context.moreColors.mutedColor,
-                                ),
-                              ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            bottom: Spaces.extraSmall,
+                          ),
+                          child: Text(
+                            loc.asset.toLowerCase(),
+                            style: context.labelMedium?.copyWith(
+                              color: context.moreColors.mutedColor,
                             ),
-                            isXelis
-                                ? Row(
-                                  children: [
-                                    Logo(imagePath: xelisImagePath),
-                                    const SizedBox(width: Spaces.small),
-                                    Text(AppResources.xelisName),
-                                  ],
-                                )
-                                : SelectableText(asset),
-                          ],
+                          ),
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                bottom: Spaces.extraSmall,
-                              ),
-                              child: Text(
-                                loc.amount,
-                                style: context.labelMedium?.copyWith(
-                                  color: context.moreColors.mutedColor,
-                                ),
-                              ),
-                            ),
-                            SelectableText(amount),
-                          ],
-                        ),
+                        isXelis
+                            ? Row(
+                              children: [
+                                Logo(imagePath: xelisImagePath),
+                                const SizedBox(width: Spaces.small),
+                                Text(AppResources.xelisName),
+                              ],
+                            )
+                            : SelectableText(asset),
                       ],
                     ),
-                  ),
-                );
-              },
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            bottom: Spaces.extraSmall,
+                          ),
+                          child: Text(
+                            loc.amount,
+                            style: context.labelMedium?.copyWith(
+                              color: context.moreColors.mutedColor,
+                            ),
+                          ),
+                        ),
+                        SelectableText(amount),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             );
           },
         ),
