@@ -105,12 +105,12 @@ class DeployContractEntryContent extends ConsumerWidget {
                           ),
                           isXelis
                               ? Row(
-                                children: [
-                                  Logo(imagePath: xelisImagePath),
-                                  const SizedBox(width: Spaces.small),
-                                  Text(AppResources.xelisName),
-                                ],
-                              )
+                                  children: [
+                                    Logo(imagePath: xelisImagePath),
+                                    const SizedBox(width: Spaces.small),
+                                    Text(AppResources.xelisName),
+                                  ],
+                                )
                               : SelectableText(asset),
                         ],
                       ),

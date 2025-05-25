@@ -9,6 +9,9 @@ class HashiconWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(painter: HashiconPainter(hash: hash), size: size);
+    return CustomPaint(
+      painter: HashiconPainter(hash: hash),
+      size: size,
+    );
   }
 }

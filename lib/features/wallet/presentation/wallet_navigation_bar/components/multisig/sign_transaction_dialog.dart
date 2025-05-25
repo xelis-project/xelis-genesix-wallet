@@ -157,12 +157,11 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
                               ),
                             ),
                             IconButton(
-                              onPressed:
-                                  () => copyToClipboard(
-                                    snapshot.requireData,
-                                    ref,
-                                    loc.copied,
-                                  ),
+                              onPressed: () => copyToClipboard(
+                                snapshot.requireData,
+                                ref,
+                                loc.copied,
+                              ),
                               icon: const Icon(Icons.copy_rounded, size: 18),
                               tooltip: loc.copy_signature,
                             ),

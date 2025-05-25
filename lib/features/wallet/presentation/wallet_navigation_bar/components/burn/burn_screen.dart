@@ -100,9 +100,10 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
                     suffixIcon: Padding(
                       padding: const EdgeInsets.all(Spaces.small),
                       child: TextButton(
-                        onPressed:
-                            () => _burnFormKey.currentState?.fields['amount']
-                                ?.didChange(_selectedAssetBalance),
+                        onPressed: () => _burnFormKey
+                            .currentState
+                            ?.fields['amount']
+                            ?.didChange(_selectedAssetBalance),
                         child: Text(loc.max),
                       ),
                     ),
@@ -139,17 +140,17 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
                 GenericFormBuilderDropdown<String>(
                   name: 'assets',
                   enabled: balances.isNotEmpty,
-                  initialValue:
-                      balances.isNotEmpty ? balances.entries.first.key : null,
-                  items:
-                      balances.entries
-                          .map(
-                            (balance) => AssetDropdownMenuItem.fromMapEntry(
-                              balance,
-                              assets[balance.key]!,
-                            ),
-                          )
-                          .toList(),
+                  initialValue: balances.isNotEmpty
+                      ? balances.entries.first.key
+                      : null,
+                  items: balances.entries
+                      .map(
+                        (balance) => AssetDropdownMenuItem.fromMapEntry(
+                          balance,
+                          assets[balance.key]!,
+                        ),
+                      )
+                      .toList(),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(
                       errorText: loc.field_required_error,

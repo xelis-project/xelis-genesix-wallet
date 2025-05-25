@@ -117,22 +117,20 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                     suffixIcon: Padding(
                       padding: const EdgeInsets.all(Spaces.small),
                       child: TextButton(
-                        onPressed:
-                            () => _transferFormKey
-                                .currentState
-                                ?.fields['amount']
-                                ?.didChange(_selectedAssetBalance),
+                        onPressed: () => _transferFormKey
+                            .currentState
+                            ?.fields['amount']
+                            ?.didChange(_selectedAssetBalance),
                         child: Text(loc.max),
                       ),
                     ),
                   ),
                   onChanged: (value) {
                     // workaround to reset the error message when the user modifies the field
-                    final hasError =
-                        _transferFormKey
-                            .currentState
-                            ?.fields['amount']
-                            ?.hasError;
+                    final hasError = _transferFormKey
+                        .currentState
+                        ?.fields['amount']
+                        ?.hasError;
                     if (hasError ?? false) {
                       _transferFormKey.currentState?.fields['amount']?.reset();
                     }
@@ -161,17 +159,17 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                 GenericFormBuilderDropdown<String>(
                   name: 'assets',
                   enabled: balances.isNotEmpty,
-                  initialValue:
-                      balances.isNotEmpty ? balances.entries.first.key : null,
-                  items:
-                      balances.entries
-                          .map(
-                            (balance) => AssetDropdownMenuItem.fromMapEntry(
-                              balance,
-                              assets[balance.key]!,
-                            ),
-                          )
-                          .toList(),
+                  initialValue: balances.isNotEmpty
+                      ? balances.entries.first.key
+                      : null,
+                  items: balances.entries
+                      .map(
+                        (balance) => AssetDropdownMenuItem.fromMapEntry(
+                          balance,
+                          assets[balance.key]!,
+                        ),
+                      )
+                      .toList(),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(
                       errorText: loc.field_required_error,
@@ -184,11 +182,10 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                       });
                     }
                     // workaround to reset the error message when the user modifies the field
-                    final hasError =
-                        _transferFormKey
-                            .currentState
-                            ?.fields['assets']
-                            ?.hasError;
+                    final hasError = _transferFormKey
+                        .currentState
+                        ?.fields['assets']
+                        ?.hasError;
                     if (hasError ?? false) {
                       _transferFormKey.currentState?.fields['assets']?.reset();
                     }
@@ -213,11 +210,10 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                   ),
                   onChanged: (value) {
                     // workaround to reset the error message when the user modifies the field
-                    final hasError =
-                        _transferFormKey
-                            .currentState
-                            ?.fields['address']
-                            ?.hasError;
+                    final hasError = _transferFormKey
+                        .currentState
+                        ?.fields['address']
+                        ?.hasError;
                     if (hasError ?? false) {
                       _transferFormKey.currentState?.fields['address']?.reset();
                     }

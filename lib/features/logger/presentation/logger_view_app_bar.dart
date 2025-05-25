@@ -113,39 +113,35 @@ class LoggerViewAppBar extends ConsumerWidget {
                                 color: context.colors.onSurface,
                               ),
                               borderRadius: BorderRadius.circular(10),
-                              color:
-                                  selected
-                                      ? context.colors.primaryContainer
-                                      : context.colors.surfaceContainer,
+                              color: selected
+                                  ? context.colors.primaryContainer
+                                  : context.colors.surfaceContainer,
                             ),
                             child: Row(
                               children: [
                                 Text(
                                   '$count',
-                                  style:
-                                      selected
-                                          ? context.bodySmall?.copyWith(
-                                            color: context.colors.onPrimary,
-                                          )
-                                          : context.bodySmall,
+                                  style: selected
+                                      ? context.bodySmall?.copyWith(
+                                          color: context.colors.onPrimary,
+                                        )
+                                      : context.bodySmall,
                                 ),
                                 const SizedBox(width: Spaces.extraSmall),
                                 Text(
                                   '$value',
-                                  style:
-                                      selected
-                                          ? context.bodySmall?.copyWith(
-                                            color: context.colors.onPrimary,
-                                          )
-                                          : context.bodySmall,
+                                  style: selected
+                                      ? context.bodySmall?.copyWith(
+                                          color: context.colors.onPrimary,
+                                        )
+                                      : context.bodySmall,
                                 ),
                               ],
                             ),
                           );
                         },
-                        onSelected:
-                            (_, i, selected) =>
-                                _onToggle(uniqueTitles[i], selected),
+                        onSelected: (_, i, selected) =>
+                            _onToggle(uniqueTitles[i], selected),
                         buttons: uniqueTitles,
                       ),
                     ],

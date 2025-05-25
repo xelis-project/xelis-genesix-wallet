@@ -62,63 +62,58 @@ class _TransfersBuilderWidgetState extends ConsumerState<TransfersBuilderWidget>
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children:
-          transfers.map((t) {
-            String asset;
-            String amount;
-            if (knownAssets.containsKey(t.asset)) {
-              final assetData = knownAssets[t.asset]!;
-              asset = assetData.name;
-              amount = formatCoin(
-                t.amount,
-                assetData.decimals,
-                assetData.ticker,
-              );
-            } else {
-              asset = t.asset;
-              amount = t.amount.toString();
-            }
+      children: transfers.map((t) {
+        String asset;
+        String amount;
+        if (knownAssets.containsKey(t.asset)) {
+          final assetData = knownAssets[t.asset]!;
+          asset = assetData.name;
+          amount = formatCoin(t.amount, assetData.decimals, assetData.ticker);
+        } else {
+          asset = t.asset;
+          amount = t.amount.toString();
+        }
 
-            final extraData = const JsonEncoder.withIndent(
-              '  ',
-            ).convert(t.extraData);
+        final extraData = const JsonEncoder.withIndent(
+          '  ',
+        ).convert(t.extraData);
 
-            return Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(Spaces.small),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(Spaces.small),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(Spaces.small),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(Spaces.small),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildLabeledText(context, loc.asset.toLowerCase(), asset),
+              buildLabeledText(context, loc.amount.toLowerCase(), amount),
+              Text(
+                '${loc.destination.toLowerCase()}:',
+                style: context.bodyMedium!.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: context.moreColors.mutedColor,
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildLabeledText(context, loc.asset.toLowerCase(), asset),
-                  buildLabeledText(context, loc.amount.toLowerCase(), amount),
-                  Text(
-                    '${loc.destination.toLowerCase()}:',
-                    style: context.bodyMedium!.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: context.moreColors.mutedColor,
-                    ),
+              AddressWidget(t.destination),
+              if (t.extraData != null) ...[
+                const SizedBox(height: Spaces.extraSmall),
+                Text(
+                  loc.extra_data,
+                  style: context.bodyMedium!.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: context.moreColors.mutedColor,
                   ),
-                  AddressWidget(t.destination),
-                  if (t.extraData != null) ...[
-                    const SizedBox(height: Spaces.extraSmall),
-                    Text(
-                      loc.extra_data,
-                      style: context.bodyMedium!.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: context.moreColors.mutedColor,
-                      ),
-                    ),
-                    SelectableText(extraData, style: context.bodySmall),
-                  ],
-                ],
-              ),
-            );
-          }).toList(),
+                ),
+                SelectableText(extraData, style: context.bodySmall),
+              ],
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 }

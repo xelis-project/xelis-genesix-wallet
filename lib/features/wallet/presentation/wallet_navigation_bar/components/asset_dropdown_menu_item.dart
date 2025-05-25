@@ -24,12 +24,12 @@ class AssetDropdownMenuItem {
         children: [
           isXelisAsset
               ? Row(
-                children: [
-                  Logo(imagePath: xelisImagePath),
-                  const SizedBox(width: Spaces.small),
-                  Text(assetName),
-                ],
-              )
+                  children: [
+                    Logo(imagePath: xelisImagePath),
+                    const SizedBox(width: Spaces.small),
+                    Text(assetName),
+                  ],
+                )
               : Text(truncateText(assetName)),
           if (showBalance) Text('${balanceEntry.value} $assetTicker'),
         ],

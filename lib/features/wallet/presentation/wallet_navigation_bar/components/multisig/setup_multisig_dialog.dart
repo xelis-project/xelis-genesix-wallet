@@ -123,211 +123,237 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
               ],
               !transactionReadyToBroadcast
                   ? FormBuilder(
-                    key: _multisigFormKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          loc.threshold,
-                          style: context.labelLarge?.copyWith(
-                            color: context.moreColors.mutedColor,
-                          ),
-                        ),
-                        const SizedBox(height: Spaces.extraSmall),
-                        FormBuilderTextField(
-                          name: 'threshold',
-                          style: context.bodyMedium,
-                          autocorrect: false,
-                          keyboardType: TextInputType.number,
-                          decoration: context.textInputDecoration.copyWith(
-                            labelText: loc.threshold_formfield_label_text,
-                            labelStyle: context.labelMedium!.copyWith(
+                      key: _multisigFormKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            loc.threshold,
+                            style: context.labelLarge?.copyWith(
                               color: context.moreColors.mutedColor,
                             ),
                           ),
-                          onChanged: (value) {
-                            // workaround to reset the error message when the user modifies the field
-                            final hasError =
-                                _multisigFormKey
-                                    .currentState
-                                    ?.fields['threshold']
-                                    ?.hasError;
-                            if (hasError ?? false) {
-                              _multisigFormKey.currentState?.fields['threshold']
-                                  ?.reset();
-                            }
-                          },
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(
-                              errorText: loc.field_required_error,
-                            ),
-                            FormBuilderValidators.numeric(
-                              errorText: loc.must_be_numeric_error,
-                            ),
-                            FormBuilderValidators.min(1),
-                            FormBuilderValidators.max(255),
-                            (value) {
-                              final threshold = int.tryParse(value ?? '');
-                              if (threshold != null &&
-                                  threshold > _participantFormFields.length) {
-                                return loc.threshold_formfield_error;
-                              }
-                              return null;
-                            },
-                          ]),
-                        ),
-                        const SizedBox(height: Spaces.large),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              loc.participants,
-                              style: context.labelLarge?.copyWith(
+                          const SizedBox(height: Spaces.extraSmall),
+                          FormBuilderTextField(
+                            name: 'threshold',
+                            style: context.bodyMedium,
+                            autocorrect: false,
+                            keyboardType: TextInputType.number,
+                            decoration: context.textInputDecoration.copyWith(
+                              labelText: loc.threshold_formfield_label_text,
+                              labelStyle: context.labelMedium!.copyWith(
                                 color: context.moreColors.mutedColor,
                               ),
                             ),
-                            Row(
-                              children: [
-                                IconButton(
-                                  onPressed: _addParticipant,
-                                  icon: Icon(Icons.add, size: 18),
+                            onChanged: (value) {
+                              // workaround to reset the error message when the user modifies the field
+                              final hasError = _multisigFormKey
+                                  .currentState
+                                  ?.fields['threshold']
+                                  ?.hasError;
+                              if (hasError ?? false) {
+                                _multisigFormKey
+                                    .currentState
+                                    ?.fields['threshold']
+                                    ?.reset();
+                              }
+                            },
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required(
+                                errorText: loc.field_required_error,
+                              ),
+                              FormBuilderValidators.numeric(
+                                errorText: loc.must_be_numeric_error,
+                              ),
+                              FormBuilderValidators.min(1),
+                              FormBuilderValidators.max(255),
+                              (value) {
+                                final threshold = int.tryParse(value ?? '');
+                                if (threshold != null &&
+                                    threshold > _participantFormFields.length) {
+                                  return loc.threshold_formfield_error;
+                                }
+                                return null;
+                              },
+                            ]),
+                          ),
+                          const SizedBox(height: Spaces.large),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                loc.participants,
+                                style: context.labelLarge?.copyWith(
+                                  color: context.moreColors.mutedColor,
                                 ),
-                                IconButton(
-                                  onPressed: _removeParticipant,
-                                  icon: Icon(Icons.remove, size: 18),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        const Divider(),
-                        SizedBox(
-                          height: 300,
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            controller: _participantsScrollController,
-                            itemCount: _participantFormFields.length,
-                            itemBuilder: (context, index) {
-                              return Card(
-                                child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    Spaces.medium,
-                                    Spaces.medium,
-                                    Spaces.medium,
-                                    Spaces.medium,
+                              ),
+                              Row(
+                                children: [
+                                  IconButton(
+                                    onPressed: _addParticipant,
+                                    icon: Icon(Icons.add, size: 18),
                                   ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              bottom: Spaces.extraSmall,
+                                  IconButton(
+                                    onPressed: _removeParticipant,
+                                    icon: Icon(Icons.remove, size: 18),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const Divider(),
+                          SizedBox(
+                            height: 300,
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              controller: _participantsScrollController,
+                              itemCount: _participantFormFields.length,
+                              itemBuilder: (context, index) {
+                                return Card(
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      Spaces.medium,
+                                      Spaces.medium,
+                                      Spaces.medium,
+                                      Spaces.medium,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                bottom: Spaces.extraSmall,
+                                              ),
+                                              child: Text(
+                                                loc.id,
+                                                style: context.labelLarge
+                                                    ?.copyWith(
+                                                      color: context
+                                                          .moreColors
+                                                          .mutedColor,
+                                                    ),
+                                              ),
                                             ),
-                                            child: Text(
-                                              loc.id,
-                                              style: context.labelLarge
-                                                  ?.copyWith(
-                                                    color:
-                                                        context
+                                            Text(
+                                              index.toString(),
+                                              style: context.bodyLarge,
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(width: Spaces.large),
+                                        Expanded(
+                                          child: _participantFormFields[index],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            loc.hash,
+                            style: context.bodyLarge!.copyWith(
+                              color: context.moreColors.mutedColor,
+                            ),
+                          ),
+                          const SizedBox(height: Spaces.extraSmall),
+                          SelectableText(_transactionSummary!.hash),
+                          const SizedBox(height: Spaces.small),
+                          Text(
+                            loc.fee,
+                            style: context.bodyLarge!.copyWith(
+                              color: context.moreColors.mutedColor,
+                            ),
+                          ),
+                          const SizedBox(height: Spaces.extraSmall),
+                          SelectableText(
+                            formatXelis(_transactionSummary!.fee, network),
+                          ),
+                          const SizedBox(height: Spaces.small),
+                          Text(
+                            loc.threshold,
+                            style: context.bodyLarge!.copyWith(
+                              color: context.moreColors.mutedColor,
+                            ),
+                          ),
+                          const SizedBox(height: Spaces.extraSmall),
+                          SelectableText(
+                            (_transactionSummary!.transactionType
+                                    as sdk.MultisigBuilder)
+                                .threshold
+                                .toString(),
+                          ),
+                          const SizedBox(height: Spaces.small),
+                          Text(
+                            loc.participants,
+                            style: context.bodyLarge!.copyWith(
+                              color: context.moreColors.mutedColor,
+                            ),
+                          ),
+                          const SizedBox(height: Spaces.extraSmall),
+                          Builder(
+                            builder: (BuildContext context) {
+                              final participants =
+                                  (_transactionSummary!.transactionType
+                                          as sdk.MultisigBuilder)
+                                      .participants;
+                              return Column(
+                                children: participants.map((participant) {
+                                  return Card(
+                                    child: Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                        Spaces.medium,
+                                        Spaces.small,
+                                        Spaces.medium,
+                                        Spaces.small,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Column(
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  bottom: Spaces.extraSmall,
+                                                ),
+                                                child: Text(
+                                                  loc.id,
+                                                  style: context.labelMedium
+                                                      ?.copyWith(
+                                                        color: context
                                                             .moreColors
                                                             .mutedColor,
-                                                  ),
-                                            ),
+                                                      ),
+                                                ),
+                                              ),
+                                              Text(
+                                                participants
+                                                    .indexOf(participant)
+                                                    .toString(),
+                                              ),
+                                            ],
                                           ),
-                                          Text(
-                                            index.toString(),
-                                            style: context.bodyLarge,
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(width: Spaces.large),
-                                      Expanded(
-                                        child: _participantFormFields[index],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                  : Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          loc.hash,
-                          style: context.bodyLarge!.copyWith(
-                            color: context.moreColors.mutedColor,
-                          ),
-                        ),
-                        const SizedBox(height: Spaces.extraSmall),
-                        SelectableText(_transactionSummary!.hash),
-                        const SizedBox(height: Spaces.small),
-                        Text(
-                          loc.fee,
-                          style: context.bodyLarge!.copyWith(
-                            color: context.moreColors.mutedColor,
-                          ),
-                        ),
-                        const SizedBox(height: Spaces.extraSmall),
-                        SelectableText(
-                          formatXelis(_transactionSummary!.fee, network),
-                        ),
-                        const SizedBox(height: Spaces.small),
-                        Text(
-                          loc.threshold,
-                          style: context.bodyLarge!.copyWith(
-                            color: context.moreColors.mutedColor,
-                          ),
-                        ),
-                        const SizedBox(height: Spaces.extraSmall),
-                        SelectableText(
-                          (_transactionSummary!.transactionType
-                                  as sdk.MultisigBuilder)
-                              .threshold
-                              .toString(),
-                        ),
-                        const SizedBox(height: Spaces.small),
-                        Text(
-                          loc.participants,
-                          style: context.bodyLarge!.copyWith(
-                            color: context.moreColors.mutedColor,
-                          ),
-                        ),
-                        const SizedBox(height: Spaces.extraSmall),
-                        Builder(
-                          builder: (BuildContext context) {
-                            final participants =
-                                (_transactionSummary!.transactionType
-                                        as sdk.MultisigBuilder)
-                                    .participants;
-                            return Column(
-                              children:
-                                  participants.map((participant) {
-                                    return Card(
-                                      child: Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                          Spaces.medium,
-                                          Spaces.small,
-                                          Spaces.medium,
-                                          Spaces.small,
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Column(
+                                          const SizedBox(width: Spaces.medium),
+                                          Flexible(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 Padding(
                                                   padding:
@@ -336,71 +362,37 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                                                             Spaces.extraSmall,
                                                       ),
                                                   child: Text(
-                                                    loc.id,
+                                                    loc.address,
                                                     style: context.labelMedium
                                                         ?.copyWith(
-                                                          color:
-                                                              context
-                                                                  .moreColors
-                                                                  .mutedColor,
+                                                          color: context
+                                                              .moreColors
+                                                              .mutedColor,
                                                         ),
                                                   ),
                                                 ),
-                                                Text(
-                                                  participants
-                                                      .indexOf(participant)
-                                                      .toString(),
+                                                AddressWidget(
+                                                  participant.toString(),
                                                 ),
                                               ],
                                             ),
-                                            const SizedBox(
-                                              width: Spaces.medium,
-                                            ),
-                                            Flexible(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                          bottom:
-                                                              Spaces.extraSmall,
-                                                        ),
-                                                    child: Text(
-                                                      loc.address,
-                                                      style: context.labelMedium
-                                                          ?.copyWith(
-                                                            color:
-                                                                context
-                                                                    .moreColors
-                                                                    .mutedColor,
-                                                          ),
-                                                    ),
-                                                  ),
-                                                  AddressWidget(
-                                                    participant.toString(),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
-                                    );
-                                  }).toList(),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: Spaces.large),
-                        AnimatedSwitcher(
-                          duration: const Duration(
-                            milliseconds: AppDurations.animFast,
+                                    ),
+                                  );
+                                }).toList(),
+                              );
+                            },
                           ),
-                          child:
-                              _isBroadcast
-                                  ? SizedBox.shrink()
-                                  : FormBuilderCheckbox(
+                          const SizedBox(height: Spaces.large),
+                          AnimatedSwitcher(
+                            duration: const Duration(
+                              milliseconds: AppDurations.animFast,
+                            ),
+                            child: _isBroadcast
+                                ? SizedBox.shrink()
+                                : FormBuilderCheckbox(
                                     name: 'confirm',
                                     decoration: InputDecoration(
                                       contentPadding: const EdgeInsets.only(
@@ -422,10 +414,10 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                                       });
                                     },
                                   ),
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
             ],
           ),
         ),
@@ -433,29 +425,28 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
       actions: [
         _transactionSummary != null
             ? _isBroadcast
-                ? TextButton(
-                  onPressed: () {
-                    context.pop();
-                  },
-                  child: Text(loc.ok_button),
-                )
-                : TextButton.icon(
-                  onPressed:
-                      _isConfirmed
+                  ? TextButton(
+                      onPressed: () {
+                        context.pop();
+                      },
+                      child: Text(loc.ok_button),
+                    )
+                  : TextButton.icon(
+                      onPressed: _isConfirmed
                           ? () => startWithBiometricAuth(
-                            ref,
-                            callback: _broadcastTransfer,
-                            reason: loc.please_authenticate_tx,
-                          )
+                              ref,
+                              callback: _broadcastTransfer,
+                              reason: loc.please_authenticate_tx,
+                            )
                           : null,
-                  icon: const Icon(Icons.send, size: 18),
-                  label: Text(loc.broadcast),
-                )
+                      icon: const Icon(Icons.send, size: 18),
+                      label: Text(loc.broadcast),
+                    )
             : TextButton.icon(
-              onPressed: _confirmMultisigSetup,
-              label: Text(loc.next),
-              icon: Icon(Icons.arrow_forward_rounded, size: 18),
-            ),
+                onPressed: _confirmMultisigSetup,
+                label: Text(loc.next),
+                icon: Icon(Icons.arrow_forward_rounded, size: 18),
+              ),
       ],
     );
   }
@@ -475,12 +466,10 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
             decoration: context.textInputDecoration.copyWith(
               suffixIcon: IconButton(
                 hoverColor: Colors.transparent,
-                onPressed:
-                    () =>
-                        _multisigFormKey
-                            .currentState
-                            ?.fields[participantFieldId]
-                            ?.reset(),
+                onPressed: () => _multisigFormKey
+                    .currentState
+                    ?.fields[participantFieldId]
+                    ?.reset(),
                 icon: Icon(
                   Icons.clear,
                   size: 18,
@@ -490,11 +479,10 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
             ),
             onChanged: (value) {
               // workaround to reset the error message when the user modifies the field
-              final hasError =
-                  _multisigFormKey
-                      .currentState
-                      ?.fields[participantFieldId]
-                      ?.hasError;
+              final hasError = _multisigFormKey
+                  .currentState
+                  ?.fields[participantFieldId]
+                  ?.hasError;
               if (hasError ?? false) {
                 _multisigFormKey.currentState?.fields[participantFieldId]
                     ?.reset();
@@ -517,21 +505,23 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
               // check if the address is already a participant
               (value) {
                 if (value != null) {
-                  final List<String>? participants =
-                      _multisigFormKey.currentState?.fields.keys
-                          .where(
-                            (element) =>
-                                element.startsWith('participant_') &&
-                                element != participantFieldId,
-                          )
-                          .map(
-                            (e) =>
-                                _multisigFormKey.currentState?.fields[e]?.value
-                                    as String?,
-                          )
-                          .where((element) => element != null)
-                          .cast<String>()
-                          .toList();
+                  final List<String>? participants = _multisigFormKey
+                      .currentState
+                      ?.fields
+                      .keys
+                      .where(
+                        (element) =>
+                            element.startsWith('participant_') &&
+                            element != participantFieldId,
+                      )
+                      .map(
+                        (e) =>
+                            _multisigFormKey.currentState?.fields[e]?.value
+                                as String?,
+                      )
+                      .where((element) => element != null)
+                      .cast<String>()
+                      .toList();
                   if (participants?.contains(value) ?? false) {
                     return loc.multisig_participant_duplicated;
                   }

@@ -109,12 +109,12 @@ class WalletState extends _$WalletState {
         final multisig = await state.nativeWalletRepository!.getMultisigState();
         if (multisig != null) state = state.copyWith(multisigState: multisig);
 
-        final xelisBalance =
-            await state.nativeWalletRepository!.getXelisBalance();
-        final balances =
-            await state.nativeWalletRepository!.getTrackedBalances();
-        final knownAssets =
-            await state.nativeWalletRepository!.getKnownAssets();
+        final xelisBalance = await state.nativeWalletRepository!
+            .getXelisBalance();
+        final balances = await state.nativeWalletRepository!
+            .getTrackedBalances();
+        final knownAssets = await state.nativeWalletRepository!
+            .getKnownAssets();
 
         state = state.copyWith(
           xelisBalance: xelisBalance,
@@ -466,10 +466,10 @@ class WalletState extends _$WalletState {
 
       case BalanceChanged():
         talker.info(event);
-        final xelisBalance =
-            await state.nativeWalletRepository!.getXelisBalance();
-        final updatedBalances =
-            await state.nativeWalletRepository!.getTrackedBalances();
+        final xelisBalance = await state.nativeWalletRepository!
+            .getXelisBalance();
+        final updatedBalances = await state.nativeWalletRepository!
+            .getTrackedBalances();
         state = state.copyWith(
           trackedBalances: sortMapByKey(updatedBalances),
           xelisBalance: xelisBalance,
@@ -513,8 +513,8 @@ class WalletState extends _$WalletState {
 
       case TrackAsset():
         talker.info(event);
-        final updatedBalances =
-            await state.nativeWalletRepository!.getTrackedBalances();
+        final updatedBalances = await state.nativeWalletRepository!
+            .getTrackedBalances();
         final assets = await state.nativeWalletRepository!.getKnownAssets();
         state = state.copyWith(
           trackedBalances: sortMapByKey(updatedBalances),
@@ -526,8 +526,8 @@ class WalletState extends _$WalletState {
 
       case UntrackAsset():
         talker.info(event);
-        final updatedBalances =
-            await state.nativeWalletRepository!.getTrackedBalances();
+        final updatedBalances = await state.nativeWalletRepository!
+            .getTrackedBalances();
         final assets = await state.nativeWalletRepository!.getKnownAssets();
         state = state.copyWith(
           trackedBalances: sortMapByKey(updatedBalances),

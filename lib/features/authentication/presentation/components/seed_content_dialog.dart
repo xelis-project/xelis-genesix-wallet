@@ -44,12 +44,8 @@ class _SeedContentDialogState extends ConsumerState<SeedContentDialog> {
                     ),
                   ),
                   IconButton.outlined(
-                    onPressed:
-                        () => copyToClipboard(
-                          widget.seed.join(" "),
-                          ref,
-                          loc.copied,
-                        ),
+                    onPressed: () =>
+                        copyToClipboard(widget.seed.join(" "), ref, loc.copied),
                     icon: Icon(Icons.copy, size: 18),
                     tooltip: loc.copy_recovery_phrase,
                   ),
@@ -65,48 +61,47 @@ class _SeedContentDialogState extends ConsumerState<SeedContentDialog> {
                 mainAxisSpacing: Spaces.none,
                 crossAxisSpacing: Spaces.small,
                 shrinkWrap: true,
-                children:
-                    widget.seed.indexed
-                        .map<Widget>(
-                          ((int index, String word) tuple) => Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                left: Spaces.medium,
-                                right: Spaces.medium,
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        '${tuple.$1 + 1}',
-                                        style: context.bodyLarge?.copyWith(
-                                          color: context.colors.primary,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Text(
-                                        tuple.$2,
-                                        style: context.titleMedium,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                children: widget.seed.indexed
+                    .map<Widget>(
+                      ((int index, String word) tuple) => Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            left: Spaces.medium,
+                            right: Spaces.medium,
                           ),
-                        )
-                        .toList(),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    '${tuple.$1 + 1}',
+                                    style: context.bodyLarge?.copyWith(
+                                      color: context.colors.primary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    tuple.$2,
+                                    style: context.titleMedium,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
               ),
             ),
             const SizedBox(height: Spaces.large),
@@ -130,12 +125,11 @@ class _SeedContentDialogState extends ConsumerState<SeedContentDialog> {
       ),
       actions: [
         TextButton(
-          onPressed:
-              _confirmed
-                  ? () {
-                    Navigator.pop(context);
-                  }
-                  : null,
+          onPressed: _confirmed
+              ? () {
+                  Navigator.pop(context);
+                }
+              : null,
           child: Text(loc.continue_button),
         ),
       ],

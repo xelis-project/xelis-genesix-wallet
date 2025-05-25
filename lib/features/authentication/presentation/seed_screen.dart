@@ -63,97 +63,79 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
           child: child,
         );
       },
-      child:
-          _searchResults == null
-              ? SizedBox.shrink(key: ValueKey(1))
-              : SizedBox(
-                key: ValueKey(2),
-                height: 100,
-                child: ShaderMask(
-                  shaderCallback: (Rect bounds) {
-                    return LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black,
-                        Colors.black.withValues(alpha: 0.1),
-                        Colors.transparent,
-                        Colors.transparent,
-                        Colors.black.withValues(alpha: 0.5),
-                        Colors.black,
-                      ],
-                      stops: [0.0, 0.01, 0.1, 0.7, 0.95, 1.0],
-                    ).createShader(bounds);
-                  },
-                  blendMode: BlendMode.dstOut,
-                  child:
-                      _searchResults!.isEmpty
-                          ? Center(
-                            child: Text(
-                              loc.seed_error_searchbar_no_word_found,
-                              style: context.bodyLarge,
-                            ),
-                          )
-                          : Focus(
-                            onFocusChange: _onSearchResultsChanged,
-                            onKeyEvent: _onArrowKeysPressed,
-                            child: ListView(
-                              children: [
-                                Wrap(
-                                  children:
-                                      _searchResults!
-                                          .map(
-                                            (String word) => FittedBox(
-                                              child: GestureDetector(
-                                                onTap:
-                                                    () =>
-                                                        _addWordToRecoveryPhrase(
-                                                          word,
-                                                        ),
-                                                child: Container(
-                                                  margin: const EdgeInsets.all(
-                                                    4,
-                                                  ),
-                                                  padding: const EdgeInsets.all(
-                                                    8,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color:
-                                                        context.colors.surface,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          8,
-                                                        ),
-                                                    border: Border.all(
-                                                      color:
-                                                          _selectedItem?.$1 ==
-                                                                  word
-                                                              ? context
-                                                                  .colors
-                                                                  .primary
-                                                              : context
-                                                                  .colors
-                                                                  .surface,
-                                                      width: 2,
-                                                    ),
-                                                  ),
-                                                  child: Center(
-                                                    child: Text(
-                                                      word,
-                                                      style: context.bodySmall,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
+      child: _searchResults == null
+          ? SizedBox.shrink(key: ValueKey(1))
+          : SizedBox(
+              key: ValueKey(2),
+              height: 100,
+              child: ShaderMask(
+                shaderCallback: (Rect bounds) {
+                  return LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black,
+                      Colors.black.withValues(alpha: 0.1),
+                      Colors.transparent,
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.5),
+                      Colors.black,
+                    ],
+                    stops: [0.0, 0.01, 0.1, 0.7, 0.95, 1.0],
+                  ).createShader(bounds);
+                },
+                blendMode: BlendMode.dstOut,
+                child: _searchResults!.isEmpty
+                    ? Center(
+                        child: Text(
+                          loc.seed_error_searchbar_no_word_found,
+                          style: context.bodyLarge,
+                        ),
+                      )
+                    : Focus(
+                        onFocusChange: _onSearchResultsChanged,
+                        onKeyEvent: _onArrowKeysPressed,
+                        child: ListView(
+                          children: [
+                            Wrap(
+                              children: _searchResults!
+                                  .map(
+                                    (String word) => FittedBox(
+                                      child: GestureDetector(
+                                        onTap: () =>
+                                            _addWordToRecoveryPhrase(word),
+                                        child: Container(
+                                          margin: const EdgeInsets.all(4),
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: context.colors.surface,
+                                            borderRadius: BorderRadius.circular(
+                                              8,
                                             ),
-                                          )
-                                          .toList(),
-                                ),
-                              ],
+                                            border: Border.all(
+                                              color: _selectedItem?.$1 == word
+                                                  ? context.colors.primary
+                                                  : context.colors.surface,
+                                              width: 2,
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              word,
+                                              style: context.bodySmall,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
                             ),
-                          ),
-                ),
+                          ],
+                        ),
+                      ),
               ),
+            ),
     );
 
     return CustomScaffold(
@@ -180,16 +162,15 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
                         name: 'language',
                         initialValue: _mnemonicLanguage,
                         onChanged: _onLanguageChanged,
-                        items:
-                            MnemonicLanguage.values
-                                .map(
-                                  (MnemonicLanguage language) =>
-                                      DropdownMenuItem<MnemonicLanguage>(
-                                        value: language,
-                                        child: Text(language.displayName),
-                                      ),
-                                )
-                                .toList(),
+                        items: MnemonicLanguage.values
+                            .map(
+                              (MnemonicLanguage language) =>
+                                  DropdownMenuItem<MnemonicLanguage>(
+                                    value: language,
+                                    child: Text(language.displayName),
+                                  ),
+                            )
+                            .toList(),
                       ),
                     ],
                   ),
@@ -267,79 +248,74 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
             Focus(
               onKeyEvent: _onTabPressed,
               child: GridView.count(
-                crossAxisCount:
-                    context.isHandset
-                        ? 2
-                        : context.isWideScreen
-                        ? 5
-                        : 3,
+                crossAxisCount: context.isHandset
+                    ? 2
+                    : context.isWideScreen
+                    ? 5
+                    : 3,
                 childAspectRatio: 5,
                 mainAxisSpacing: Spaces.none,
                 crossAxisSpacing: Spaces.small,
                 shrinkWrap: true,
-                children:
-                    _recoveryPhraseMap.entries
-                        .map<Widget>(
-                          (word) => Padding(
-                            padding: const EdgeInsets.all(Spaces.none),
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  if (_selectedItem != null) {
-                                    _selectedItem = null;
-                                  }
-                                  if (_wordIndex == word.key) {
-                                    _wordIndex = null;
-                                  } else {
-                                    _wordIndex = word.key;
-                                  }
-                                });
-                              },
-                              child: Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  side: BorderSide(
-                                    color:
-                                        _wordIndex == word.key
-                                            ? context.colors.primary
-                                            : _invalidWords?.contains(
-                                                  word.value,
-                                                ) ??
-                                                false
-                                            ? context.colors.error
-                                            : context.moreColors.mutedColor,
-                                    width: 2,
+                children: _recoveryPhraseMap.entries
+                    .map<Widget>(
+                      (word) => Padding(
+                        padding: const EdgeInsets.all(Spaces.none),
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              if (_selectedItem != null) {
+                                _selectedItem = null;
+                              }
+                              if (_wordIndex == word.key) {
+                                _wordIndex = null;
+                              } else {
+                                _wordIndex = word.key;
+                              }
+                            });
+                          },
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              side: BorderSide(
+                                color: _wordIndex == word.key
+                                    ? context.colors.primary
+                                    : _invalidWords?.contains(word.value) ??
+                                          false
+                                    ? context.colors.error
+                                    : context.moreColors.mutedColor,
+                                width: 2,
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                left: Spaces.medium,
+                                right: Spaces.medium,
+                              ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    '${word.key}',
+                                    style: context.bodyLarge?.copyWith(
+                                      color: context.colors.primary,
+                                    ),
                                   ),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: Spaces.medium,
-                                    right: Spaces.medium,
+                                  const SizedBox(width: Spaces.small),
+                                  Expanded(
+                                    child: Text(
+                                      word.value,
+                                      style: context.titleMedium,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        '${word.key}',
-                                        style: context.bodyLarge?.copyWith(
-                                          color: context.colors.primary,
-                                        ),
-                                      ),
-                                      const SizedBox(width: Spaces.small),
-                                      Expanded(
-                                        child: Text(
-                                          word.value,
-                                          style: context.titleMedium,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                ],
                               ),
                             ),
                           ),
-                        )
-                        .toList(),
+                        ),
+                      ),
+                    )
+                    .toList(),
               ),
             ),
           ],
@@ -473,10 +449,9 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
 
     context.push(
       AppScreen.recoverWalletFromSeed2.toPath,
-      extra:
-          _recoveryPhraseMap.values
-              .where((element) => element.isNotEmpty)
-              .toList(),
+      extra: _recoveryPhraseMap.values
+          .where((element) => element.isNotEmpty)
+          .toList(),
     );
   }
 

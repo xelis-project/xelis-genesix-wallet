@@ -43,15 +43,12 @@ class WarningWidget extends ConsumerWidget {
             const SizedBox(height: Spaces.small),
             RichText(
               text: TextSpan(
-                children:
-                    _messages
-                        .map(
-                          (message) => TextSpan(
-                            text: message,
-                            style: context.bodyMedium,
-                          ),
-                        )
-                        .toList(),
+                children: _messages
+                    .map(
+                      (message) =>
+                          TextSpan(text: message, style: context.bodyMedium),
+                    )
+                    .toList(),
               ),
             ),
           ],

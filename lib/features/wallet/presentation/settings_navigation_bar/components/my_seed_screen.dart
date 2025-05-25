@@ -35,9 +35,8 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
               _seedWords = words;
             });
           },
-          onError:
-              (_, __) =>
-                  ref.read(snackBarQueueProvider.notifier).showError(loc.oups),
+          onError: (_, __) =>
+              ref.read(snackBarQueueProvider.notifier).showError(loc.oups),
         );
   }
 
@@ -106,15 +105,14 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                       child: GenericFormBuilderDropdown(
                         name: 'languages_dropdown',
                         initialValue: MnemonicLanguage.english,
-                        items:
-                            MnemonicLanguage.values
-                                .map(
-                                  (e) => DropdownMenuItem(
-                                    value: e,
-                                    child: Text(e.displayName),
-                                  ),
-                                )
-                                .toList(),
+                        items: MnemonicLanguage.values
+                            .map(
+                              (e) => DropdownMenuItem(
+                                value: e,
+                                child: Text(e.displayName),
+                              ),
+                            )
+                            .toList(),
                         onChanged: (MnemonicLanguage? value) {
                           ref
                               .read(walletStateProvider.notifier)
@@ -125,10 +123,9 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                                     _seedWords = value;
                                   });
                                 },
-                                onError:
-                                    (_, __) => ref
-                                        .read(snackBarQueueProvider.notifier)
-                                        .showError(loc.oups),
+                                onError: (_, __) => ref
+                                    .read(snackBarQueueProvider.notifier)
+                                    .showError(loc.oups),
                               );
                         },
                       ),
@@ -137,12 +134,11 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                     Column(
                       children: [
                         IconButton.filled(
-                          onPressed:
-                              () => copyToClipboard(
-                                _seedWords.join(" "),
-                                ref,
-                                loc.copied,
-                              ),
+                          onPressed: () => copyToClipboard(
+                            _seedWords.join(" "),
+                            ref,
+                            loc.copied,
+                          ),
                           icon: Icon(Icons.copy),
                           tooltip: loc.copy_recovery_phrase,
                         ),
@@ -168,48 +164,47 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                     mainAxisSpacing: Spaces.none,
                     crossAxisSpacing: Spaces.small,
                     shrinkWrap: true,
-                    children:
-                        _seedWords.indexed
-                            .map<Widget>(
-                              ((int index, String word) tuple) => Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: Spaces.medium,
-                                    right: Spaces.medium,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: FittedBox(
-                                          fit: BoxFit.scaleDown,
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(
-                                            '${tuple.$1 + 1}',
-                                            style: context.bodyLarge?.copyWith(
-                                              color: context.colors.primary,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 2,
-                                        child: FittedBox(
-                                          fit: BoxFit.scaleDown,
-                                          child: Text(
-                                            tuple.$2,
-                                            style: context.titleMedium,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                    children: _seedWords.indexed
+                        .map<Widget>(
+                          ((int index, String word) tuple) => Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                left: Spaces.medium,
+                                right: Spaces.medium,
                               ),
-                            )
-                            .toList(),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        '${tuple.$1 + 1}',
+                                        style: context.bodyLarge?.copyWith(
+                                          color: context.colors.primary,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 2,
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        tuple.$2,
+                                        style: context.titleMedium,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
                   ),
                 ),
               ],

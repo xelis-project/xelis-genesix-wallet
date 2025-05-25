@@ -78,11 +78,10 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                   ),
                   onChanged: (value) {
                     // workaround to reset the error message when the user modifies the field
-                    final hasError =
-                        _changePasswordKey
-                            .currentState
-                            ?.fields['old_password']
-                            ?.hasError;
+                    final hasError = _changePasswordKey
+                        .currentState
+                        ?.fields['old_password']
+                        ?.hasError;
                     if (hasError ?? false) {
                       _changePasswordKey.currentState?.fields['old_password']
                           ?.reset();
@@ -105,11 +104,10 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                   ),
                   onChanged: (value) {
                     // workaround to reset the error message when the user modifies the field
-                    final hasError =
-                        _changePasswordKey
-                            .currentState
-                            ?.fields['new_password']
-                            ?.hasError;
+                    final hasError = _changePasswordKey
+                        .currentState
+                        ?.fields['new_password']
+                        ?.hasError;
                     if (hasError ?? false) {
                       _changePasswordKey.currentState?.fields['new_password']
                           ?.reset();
@@ -132,11 +130,10 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                   ),
                   onChanged: (value) {
                     // workaround to reset the error message when the user modifies the field
-                    final hasError =
-                        _changePasswordKey
-                            .currentState
-                            ?.fields['confirm_new_password']
-                            ?.hasError;
+                    final hasError = _changePasswordKey
+                        .currentState
+                        ?.fields['confirm_new_password']
+                        ?.hasError;
                     if (hasError ?? false) {
                       _changePasswordKey
                           .currentState

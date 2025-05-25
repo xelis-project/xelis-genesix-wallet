@@ -102,175 +102,169 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
       ),
       content: Container(
         constraints: BoxConstraints(maxWidth: 600),
-        child:
-            signaturePending
-                ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: signaturePending
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        loc.transaction_hash_to_sign,
+                        style: context.titleMedium?.copyWith(
+                          color: context.moreColors.mutedColor,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => copyToClipboard(
+                          (transactionReview).hashToSign,
+                          ref,
+                          loc.copied,
+                        ),
+                        icon: const Icon(Icons.copy_rounded, size: 18),
+                        tooltip: loc.copy_hash_transaction,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: Spaces.small),
+                  SelectableText(transactionReview.hashToSign),
+                  const SizedBox(height: Spaces.small),
+                  Divider(),
+                  const SizedBox(height: Spaces.small),
+                  Text(
+                    loc.multisig_barrier_message,
+                    style: context.labelMedium?.copyWith(
+                      color: context.moreColors.mutedColor,
+                    ),
+                  ),
+                  const SizedBox(height: Spaces.large),
+                  FormBuilder(
+                    key: _signaturesFormKey,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          loc.transaction_hash_to_sign,
-                          style: context.titleMedium?.copyWith(
-                            color: context.moreColors.mutedColor,
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Text(
+                                loc.participant_id,
+                                style: context.labelMedium?.copyWith(
+                                  color: context.moreColors.mutedColor,
+                                ),
+                              ),
+                              const SizedBox(height: Spaces.small),
+                              ...List.generate(multisigState.threshold, (
+                                index,
+                              ) {
+                                return GenericFormBuilderDropdown(
+                                  name: 'id_$index',
+                                  items: multisigState.participants
+                                      .map(
+                                        (participant) => DropdownMenuItem(
+                                          value: participant,
+                                          child: Text(
+                                            participant.id.toString(),
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                                  validator:
+                                      FormBuilderValidators.required<
+                                        MultisigParticipant
+                                      >(errorText: loc.field_required_error),
+                                  onChanged: (value) {
+                                    // workaround to reset the error message when the user modifies the field
+                                    final hasError = _signaturesFormKey
+                                        .currentState
+                                        ?.fields['id_$index']
+                                        ?.hasError;
+                                    if (hasError ?? false) {
+                                      _signaturesFormKey
+                                          .currentState
+                                          ?.fields['id_$index']
+                                          ?.reset();
+                                    }
+                                  },
+                                );
+                              }),
+                            ],
                           ),
                         ),
-                        IconButton(
-                          onPressed:
-                              () => copyToClipboard(
-                                (transactionReview).hashToSign,
-                                ref,
-                                loc.copied,
+                        const SizedBox(width: Spaces.medium),
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            children: [
+                              Text(
+                                loc.signature,
+                                style: context.labelMedium?.copyWith(
+                                  color: context.moreColors.mutedColor,
+                                ),
                               ),
-                          icon: const Icon(Icons.copy_rounded, size: 18),
-                          tooltip: loc.copy_hash_transaction,
+                              const SizedBox(height: Spaces.small),
+                              ...List.generate(multisigState.threshold, (
+                                index,
+                              ) {
+                                return FormBuilderTextField(
+                                  name: 'signature_$index',
+                                  autocorrect: false,
+                                  keyboardType: TextInputType.text,
+                                  decoration: context.textInputDecoration,
+                                  validator: FormBuilderValidators.required(
+                                    errorText: loc.field_required_error,
+                                  ),
+                                  onChanged: (value) {
+                                    // workaround to reset the error message when the user modifies the field
+                                    final hasError = _signaturesFormKey
+                                        .currentState
+                                        ?.fields['signature_$index']
+                                        ?.hasError;
+                                    if (hasError ?? false) {
+                                      _signaturesFormKey
+                                          .currentState
+                                          ?.fields['signature_$index']
+                                          ?.reset();
+                                    }
+                                  },
+                                );
+                              }),
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: Spaces.small),
-                    SelectableText(transactionReview.hashToSign),
-                    const SizedBox(height: Spaces.small),
-                    Divider(),
-                    const SizedBox(height: Spaces.small),
-                    Text(
-                      loc.multisig_barrier_message,
-                      style: context.labelMedium?.copyWith(
-                        color: context.moreColors.mutedColor,
-                      ),
-                    ),
-                    const SizedBox(height: Spaces.large),
-                    FormBuilder(
-                      key: _signaturesFormKey,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              children: [
-                                Text(
-                                  loc.participant_id,
-                                  style: context.labelMedium?.copyWith(
-                                    color: context.moreColors.mutedColor,
-                                  ),
-                                ),
-                                const SizedBox(height: Spaces.small),
-                                ...List.generate(multisigState.threshold, (
-                                  index,
-                                ) {
-                                  return GenericFormBuilderDropdown(
-                                    name: 'id_$index',
-                                    items:
-                                        multisigState.participants
-                                            .map(
-                                              (participant) => DropdownMenuItem(
-                                                value: participant,
-                                                child: Text(
-                                                  participant.id.toString(),
-                                                ),
-                                              ),
-                                            )
-                                            .toList(),
-                                    validator: FormBuilderValidators.required<
-                                      MultisigParticipant
-                                    >(errorText: loc.field_required_error),
-                                    onChanged: (value) {
-                                      // workaround to reset the error message when the user modifies the field
-                                      final hasError =
-                                          _signaturesFormKey
-                                              .currentState
-                                              ?.fields['id_$index']
-                                              ?.hasError;
-                                      if (hasError ?? false) {
-                                        _signaturesFormKey
-                                            .currentState
-                                            ?.fields['id_$index']
-                                            ?.reset();
-                                      }
-                                    },
-                                  );
-                                }),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: Spaces.medium),
-                          Expanded(
-                            flex: 2,
-                            child: Column(
-                              children: [
-                                Text(
-                                  loc.signature,
-                                  style: context.labelMedium?.copyWith(
-                                    color: context.moreColors.mutedColor,
-                                  ),
-                                ),
-                                const SizedBox(height: Spaces.small),
-                                ...List.generate(multisigState.threshold, (
-                                  index,
-                                ) {
-                                  return FormBuilderTextField(
-                                    name: 'signature_$index',
-                                    autocorrect: false,
-                                    keyboardType: TextInputType.text,
-                                    decoration: context.textInputDecoration,
-                                    validator: FormBuilderValidators.required(
-                                      errorText: loc.field_required_error,
-                                    ),
-                                    onChanged: (value) {
-                                      // workaround to reset the error message when the user modifies the field
-                                      final hasError =
-                                          _signaturesFormKey
-                                              .currentState
-                                              ?.fields['signature_$index']
-                                              ?.hasError;
-                                      if (hasError ?? false) {
-                                        _signaturesFormKey
-                                            .currentState
-                                            ?.fields['signature_$index']
-                                            ?.reset();
-                                      }
-                                    },
-                                  );
-                                }),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                )
-                : reviewContent,
+                  ),
+                ],
+              )
+            : reviewContent,
       ),
       actions: [
         AnimatedSwitcher(
           duration: const Duration(milliseconds: AppDurations.animFast),
-          child:
-              signaturePending
-                  ? TextButton.icon(
-                    onPressed: _processSignatures,
-                    label: Text(loc.next),
-                    icon: Icon(Icons.arrow_forward_rounded, size: 18),
-                  )
-                  : transactionReview.isBroadcasted
-                  ? TextButton(
-                    onPressed: () {
-                      context.pop();
-                    },
-                    child: Text(loc.ok_button),
-                  )
-                  : TextButton.icon(
-                    onPressed:
-                        transactionReview.isConfirmed
-                            ? () => startWithBiometricAuth(
-                              ref,
-                              callback: _broadcastTransfer,
-                              reason: loc.please_authenticate_tx,
-                            )
-                            : null,
-                    icon: const Icon(Icons.send, size: 18),
-                    label: Text(loc.broadcast),
-                  ),
+          child: signaturePending
+              ? TextButton.icon(
+                  onPressed: _processSignatures,
+                  label: Text(loc.next),
+                  icon: Icon(Icons.arrow_forward_rounded, size: 18),
+                )
+              : transactionReview.isBroadcasted
+              ? TextButton(
+                  onPressed: () {
+                    context.pop();
+                  },
+                  child: Text(loc.ok_button),
+                )
+              : TextButton.icon(
+                  onPressed: transactionReview.isConfirmed
+                      ? () => startWithBiometricAuth(
+                          ref,
+                          callback: _broadcastTransfer,
+                          reason: loc.please_authenticate_tx,
+                        )
+                      : null,
+                  icon: const Icon(Icons.send, size: 18),
+                  label: Text(loc.broadcast),
+                ),
         ),
       ],
     );

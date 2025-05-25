@@ -42,8 +42,11 @@ class MoreColors extends ThemeExtension<MoreColors> {
       bgRadialColor1: Color.lerp(bgRadialColor1, other.bgRadialColor1, t)!,
       bgRadialColor2: Color.lerp(bgRadialColor2, other.bgRadialColor2, t)!,
       bgRadialColor3: Color.lerp(bgRadialColor3, other.bgRadialColor3, t)!,
-      bgRadialEndColor:
-          Color.lerp(bgRadialEndColor, other.bgRadialEndColor, t)!,
+      bgRadialEndColor: Color.lerp(
+        bgRadialEndColor,
+        other.bgRadialEndColor,
+        t,
+      )!,
       mutedColor: Color.lerp(mutedColor, other.mutedColor, t)!,
     );
   }

@@ -71,14 +71,12 @@ class SettingsNavigationBar extends ConsumerWidget {
         ListTile(
           leading: const Icon(Icons.pattern_rounded),
           title: Text(loc.view_seed, style: context.titleLarge),
-          onTap:
-              () => startWithBiometricAuth(
-                ref,
-                callback:
-                    (ref) =>
-                        ref.context.push(AuthAppScreen.walletSeedScreen.toPath),
-                reason: loc.please_authenticate_view_seed,
-              ),
+          onTap: () => startWithBiometricAuth(
+            ref,
+            callback: (ref) =>
+                ref.context.push(AuthAppScreen.walletSeedScreen.toPath),
+            reason: loc.please_authenticate_view_seed,
+          ),
           trailing: const Icon(Icons.keyboard_arrow_right_rounded),
         ),
         const Divider(),
@@ -94,14 +92,13 @@ class SettingsNavigationBar extends ConsumerWidget {
               initialValue: settings.activateBiometricAuth,
               decoration: const InputDecoration(fillColor: Colors.transparent),
               title: Text(loc.enable_biometric_auth, style: context.bodyLarge),
-              onChanged:
-                  isBiometricAuthLocked
-                      ? null
-                      : (value) {
-                        ref
-                            .read(settingsProvider.notifier)
-                            .setActivateBiometricAuth(value!);
-                      },
+              onChanged: isBiometricAuthLocked
+                  ? null
+                  : (value) {
+                      ref
+                          .read(settingsProvider.notifier)
+                          .setActivateBiometricAuth(value!);
+                    },
             ),
             if (settings.network == Network.mainnet)
               FormBuilderSwitch(

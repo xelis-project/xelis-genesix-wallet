@@ -94,11 +94,10 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
               ),
               onChanged: (value) {
                 // workaround to reset the error message when the user modifies the field
-                final hasError =
-                    _createFormKey
-                        .currentState
-                        ?.fields['private_key']
-                        ?.hasError;
+                final hasError = _createFormKey
+                    .currentState
+                    ?.fields['private_key']
+                    ?.hasError;
                 if (hasError ?? false) {
                   _createFormKey.currentState?.fields['private_key']?.reset();
                 }
@@ -157,16 +156,15 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
     final isFromSeed = widget.type == CreateWalletType.fromSeed;
 
     return CustomScaffold(
-      appBar:
-          isFromSeed
-              ? GenericAppBar(
-                title: title,
-                implyLeading: true,
-                onBack: () {
-                  context.go(AppScreen.openWallet.toPath);
-                },
-              )
-              : GenericAppBar(title: title),
+      appBar: isFromSeed
+          ? GenericAppBar(
+              title: title,
+              implyLeading: true,
+              onBack: () {
+                context.go(AppScreen.openWallet.toPath);
+              },
+            )
+          : GenericAppBar(title: title),
       body: FormBuilder(
         key: _createFormKey,
         onChanged: () => _createFormKey.currentState!.save(),
@@ -202,11 +200,10 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
               ),
               onChanged: (value) {
                 // workaround to reset the error message when the user modifies the field
-                final hasError =
-                    _createFormKey
-                        .currentState
-                        ?.fields['wallet_name']
-                        ?.hasError;
+                final hasError = _createFormKey
+                    .currentState
+                    ?.fields['wallet_name']
+                    ?.hasError;
                 if (hasError ?? false) {
                   _createFormKey.currentState?.fields['wallet_name']?.reset();
                 }
@@ -265,11 +262,10 @@ class _CreateWalletWidgetState extends ConsumerState<CreateWalletScreen> {
                 ),
                 onChanged: (value) {
                   // workaround to reset the error message when the user modifies the field
-                  final hasError =
-                      _createFormKey
-                          .currentState
-                          ?.fields['confirm_password']
-                          ?.hasError;
+                  final hasError = _createFormKey
+                      .currentState
+                      ?.fields['confirm_password']
+                      ?.hasError;
                   if (hasError ?? false) {
                     _createFormKey.currentState?.fields['confirm_password']
                         ?.reset();

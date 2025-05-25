@@ -101,10 +101,9 @@ class _AddWalletModalBottomSheetMenuState
         final walletsDir = await getAppWalletsDirPath();
         final network = ref.read(settingsProvider).network;
 
-        final walletExists =
-            await Directory(
-              p.join(walletsDir, network.name, walletName),
-            ).exists();
+        final walletExists = await Directory(
+          p.join(walletsDir, network.name, walletName),
+        ).exists();
         if (walletExists) {
           ref
               .read(snackBarQueueProvider.notifier)

@@ -305,15 +305,18 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
               Wrap(
                 spacing: Spaces.small,
                 runSpacing: Spaces.extraSmall,
-                children:
-                    xswdState.xswdEventSummary!.applicationInfo.permissions.keys
-                        .map((name) {
-                          return Chip(
-                            label: Text(name),
-                            avatar: Icon(Icons.code, size: 16),
-                          );
-                        })
-                        .toList(),
+                children: xswdState
+                    .xswdEventSummary!
+                    .applicationInfo
+                    .permissions
+                    .keys
+                    .map((name) {
+                      return Chip(
+                        label: Text(name),
+                        avatar: Icon(Icons.code, size: 16),
+                      );
+                    })
+                    .toList(),
               ),
             ],
           ],

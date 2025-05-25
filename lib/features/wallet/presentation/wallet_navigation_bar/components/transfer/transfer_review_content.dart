@@ -43,15 +43,18 @@ class TransferReviewContentWidget extends ConsumerWidget {
                       const SizedBox(height: Spaces.small),
                       isXelisTransfer
                           ? Row(
-                            children: [
-                              Logo(
-                                imagePath:
-                                    AppResources.greenBackgroundBlackIconPath,
-                              ),
-                              const SizedBox(width: Spaces.extraSmall),
-                              Text(transaction.name, style: context.bodyLarge),
-                            ],
-                          )
+                              children: [
+                                Logo(
+                                  imagePath:
+                                      AppResources.greenBackgroundBlackIconPath,
+                                ),
+                                const SizedBox(width: Spaces.extraSmall),
+                                Text(
+                                  transaction.name,
+                                  style: context.bodyLarge,
+                                ),
+                              ],
+                            )
                           : Text(truncateText(transaction.name)),
                     ],
                   ),

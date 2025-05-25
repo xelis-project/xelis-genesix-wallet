@@ -112,8 +112,9 @@ class _LoggerViewState extends ConsumerState<LoggerView> {
           return TalkerBuilder(
             talker: widget.talker,
             builder: (context, data) {
-              final filteredElements =
-                  data.where((e) => _controller.filter.filter(e)).toList();
+              final filteredElements = data
+                  .where((e) => _controller.filter.filter(e))
+                  .toList();
               final titles = data.map((e) => e.title).toList();
               final uniqueTitles = titles.toSet().toList();
 

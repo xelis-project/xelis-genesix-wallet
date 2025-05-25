@@ -16,7 +16,12 @@ class AssetsNavigationBar extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          TabBar(tabs: [Tab(text: loc.tracked), Tab(text: loc.untracked)]),
+          TabBar(
+            tabs: [
+              Tab(text: loc.tracked),
+              Tab(text: loc.untracked),
+            ],
+          ),
           Expanded(
             child: TabBarView(
               children: [TrackedBalancesTab(), UntrackedAssetsTab()],

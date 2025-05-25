@@ -29,18 +29,17 @@ class GenericAppBar extends StatelessWidget implements PreferredSizeWidget {
             automaticallyImplyLeading: implyLeading,
             centerTitle: true,
             surfaceTintColor: Colors.transparent,
-            title:
-                title != null
-                    ? Padding(
-                      padding: const EdgeInsets.only(top: Spaces.medium),
-                      child: Text(
-                        title!,
-                        style: context.headlineSmall!.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+            title: title != null
+                ? Padding(
+                    padding: const EdgeInsets.only(top: Spaces.medium),
+                    child: Text(
+                      title!,
+                      style: context.headlineSmall!.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
-                    )
-                    : null,
+                    ),
+                  )
+                : null,
             actions: [
               if (actions != null) ...actions!,
               Padding(

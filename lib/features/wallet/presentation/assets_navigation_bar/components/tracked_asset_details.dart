@@ -78,12 +78,12 @@ class TrackedAssetDetails extends ConsumerWidget {
           const SizedBox(height: Spaces.extraSmall),
           isXelisAsset
               ? Row(
-                children: [
-                  Logo(imagePath: xelisImagePath),
-                  const SizedBox(width: Spaces.small),
-                  Text(AppResources.xelisName),
-                ],
-              )
+                  children: [
+                    Logo(imagePath: xelisImagePath),
+                    const SizedBox(width: Spaces.small),
+                    Text(AppResources.xelisName),
+                  ],
+                )
               : SelectableText(asset.name, style: context.bodyLarge),
           const SizedBox(height: Spaces.medium),
           Text(

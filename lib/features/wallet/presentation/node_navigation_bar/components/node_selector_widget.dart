@@ -67,12 +67,11 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
         ),
         child: ExpansionTile(
           leading: Tooltip(
-            message:
-                isOnline
-                    ? loc.connected
-                    : mismatch
-                    ? loc.network_mismatch
-                    : loc.disconnected,
+            message: isOnline
+                ? loc.connected
+                : mismatch
+                ? loc.network_mismatch
+                : loc.disconnected,
             child: Icon(
               isOnline
                   ? Icons.sensors
@@ -116,22 +115,23 @@ class NodeSelectorWidgetState extends ConsumerState<NodeSelectorWidget> {
                     onChanged: _onNodeAddressSelected,
                   ),
                   trailing: MenuAnchor(
-                    builder: (
-                      BuildContext context,
-                      MenuController controller,
-                      Widget? child,
-                    ) {
-                      return IconButton(
-                        onPressed: () {
-                          if (controller.isOpen) {
-                            controller.close();
-                          } else {
-                            controller.open();
-                          }
+                    builder:
+                        (
+                          BuildContext context,
+                          MenuController controller,
+                          Widget? child,
+                        ) {
+                          return IconButton(
+                            onPressed: () {
+                              if (controller.isOpen) {
+                                controller.close();
+                              } else {
+                                controller.open();
+                              }
+                            },
+                            icon: const Icon(Icons.more_vert),
+                          );
                         },
-                        icon: const Icon(Icons.more_vert),
-                      );
-                    },
                     menuChildren: [
                       MenuItemButton(
                         child: Text(loc.modify, style: context.bodyMedium),

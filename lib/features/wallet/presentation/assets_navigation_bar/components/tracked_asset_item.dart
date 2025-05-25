@@ -107,12 +107,11 @@ class _AssetItemWidgetState extends ConsumerState<TrackedAssetItem> {
   void _showDetails(sdk.AssetData asset, String balance) {
     showDialog<void>(
       context: context,
-      builder:
-          (context) => TrackedAssetDetails(
-            hash: widget.assetHash,
-            asset: asset,
-            balance: balance,
-          ),
+      builder: (context) => TrackedAssetDetails(
+        hash: widget.assetHash,
+        asset: asset,
+        balance: balance,
+      ),
     );
   }
 }

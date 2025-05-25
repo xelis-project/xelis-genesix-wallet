@@ -85,69 +85,68 @@ class _InvokeState extends ConsumerState<InvokeWidget>
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children:
-          deposits.entries.map((entry) {
-            String asset;
-            String amount;
-            if (knownAssets.containsKey(entry.key)) {
-              final assetData = knownAssets[entry.key]!;
-              asset = assetData.name;
-              amount = formatCoin(
-                entry.value.amount,
-                assetData.decimals,
-                assetData.ticker,
-              );
-            } else {
-              asset = entry.key;
-              amount = entry.value.amount.toString();
-            }
+      children: deposits.entries.map((entry) {
+        String asset;
+        String amount;
+        if (knownAssets.containsKey(entry.key)) {
+          final assetData = knownAssets[entry.key]!;
+          asset = assetData.name;
+          amount = formatCoin(
+            entry.value.amount,
+            assetData.decimals,
+            assetData.ticker,
+          );
+        } else {
+          asset = entry.key;
+          amount = entry.value.amount.toString();
+        }
 
-            if (entry.value.private) {
-              amount += ' (${loc.private})';
-            }
+        if (entry.value.private) {
+          amount += ' (${loc.private})';
+        }
 
-            return Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(Spaces.small),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(Spaces.small),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(Spaces.small),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(Spaces.small),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        '${loc.asset.toLowerCase()}:',
-                        style: context.bodySmall!.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: context.moreColors.mutedColor,
-                        ),
-                      ),
-                      const SizedBox(width: Spaces.extraSmall),
-                      Text(asset, style: context.bodySmall),
-                    ],
+                  Text(
+                    '${loc.asset.toLowerCase()}:',
+                    style: context.bodySmall!.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: context.moreColors.mutedColor,
+                    ),
                   ),
-                  const SizedBox(height: Spaces.extraSmall),
-                  Row(
-                    children: [
-                      Text(
-                        '${loc.amount.toLowerCase()}:',
-                        style: context.bodySmall!.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: context.moreColors.mutedColor,
-                        ),
-                      ),
-                      const SizedBox(width: Spaces.extraSmall),
-                      Text(amount, style: context.bodySmall),
-                    ],
-                  ),
+                  const SizedBox(width: Spaces.extraSmall),
+                  Text(asset, style: context.bodySmall),
                 ],
               ),
-            );
-          }).toList(),
+              const SizedBox(height: Spaces.extraSmall),
+              Row(
+                children: [
+                  Text(
+                    '${loc.amount.toLowerCase()}:',
+                    style: context.bodySmall!.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: context.moreColors.mutedColor,
+                    ),
+                  ),
+                  const SizedBox(width: Spaces.extraSmall),
+                  Text(amount, style: context.bodySmall),
+                ],
+              ),
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -162,11 +161,10 @@ class _InvokeState extends ConsumerState<InvokeWidget>
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children:
-            data.map((e) {
-              final encoded = const JsonEncoder.withIndent('  ').convert(e);
-              return SelectableText(encoded, style: context.bodySmall);
-            }).toList(),
+        children: data.map((e) {
+          final encoded = const JsonEncoder.withIndent('  ').convert(e);
+          return SelectableText(encoded, style: context.bodySmall);
+        }).toList(),
       ),
     );
   }

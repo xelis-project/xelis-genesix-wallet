@@ -133,23 +133,23 @@ class _XswdEditPermissionDialogState
             Expanded(
               child: ListView(
                 shrinkWrap: true,
-                children:
-                    _permissions.entries
-                        .map(
-                          (entry) => Card(
-                            child: Padding(
-                              padding: const EdgeInsets.all(Spaces.small),
-                              child: Row(
-                                children: [
-                                  Chip(
-                                    label: Text(entry.key),
-                                    avatar: Icon(Icons.code, size: 16),
-                                  ),
-                                  context.isHandset
-                                      ? const SizedBox(width: Spaces.medium)
-                                      : Spacer(),
-                                  Expanded(
-                                    child: GenericFormBuilderDropdown<
+                children: _permissions.entries
+                    .map(
+                      (entry) => Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(Spaces.small),
+                          child: Row(
+                            children: [
+                              Chip(
+                                label: Text(entry.key),
+                                avatar: Icon(Icons.code, size: 16),
+                              ),
+                              context.isHandset
+                                  ? const SizedBox(width: Spaces.medium)
+                                  : Spacer(),
+                              Expanded(
+                                child:
+                                    GenericFormBuilderDropdown<
                                       PermissionPolicy
                                     >(
                                       initialValue: entry.value,
@@ -173,13 +173,13 @@ class _XswdEditPermissionDialogState
                                         _permissions[entry.key] = value!;
                                       },
                                     ),
-                                  ),
-                                ],
                               ),
-                            ),
+                            ],
                           ),
-                        )
-                        .toList(),
+                        ),
+                      ),
+                    )
+                    .toList(),
               ),
             ),
           ],

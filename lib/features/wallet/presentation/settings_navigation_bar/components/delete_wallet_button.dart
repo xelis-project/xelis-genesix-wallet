@@ -26,11 +26,10 @@ class _DeleteWalletButtonState extends ConsumerState<DeleteWalletButton> {
         padding: const EdgeInsets.all(Spaces.medium + 4),
         side: BorderSide(color: context.colors.error, width: 1),
       ),
-      onPressed:
-          () => _showConfirmationDialog(
-            ref,
-            title: loc.delete_wallet_warning_message,
-          ),
+      onPressed: () => _showConfirmationDialog(
+        ref,
+        title: loc.delete_wallet_warning_message,
+      ),
       label: Text(
         loc.delete_wallet,
         style: context.titleMedium!.copyWith(

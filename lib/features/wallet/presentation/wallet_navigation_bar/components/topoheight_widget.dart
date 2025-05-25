@@ -56,25 +56,21 @@ class TopoHeightWidget extends ConsumerWidget {
                 children: [
                   ValueListenableBuilder(
                     valueListenable: isRescanningNotifier,
-                    builder: (
-                      BuildContext context,
-                      bool isRescanning,
-                      Widget? _,
-                    ) {
-                      return IconButton.outlined(
-                        onPressed:
-                            isRescanning
+                    builder:
+                        (BuildContext context, bool isRescanning, Widget? _) {
+                          return IconButton.outlined(
+                            onPressed: isRescanning
                                 ? null
                                 : () async {
-                                  isRescanningNotifier.value = true;
-                                  await ref
-                                      .read(walletStateProvider.notifier)
-                                      .rescan();
-                                  isRescanningNotifier.value = false;
-                                },
-                        icon: const Icon(Icons.sync_rounded),
-                      );
-                    },
+                                    isRescanningNotifier.value = true;
+                                    await ref
+                                        .read(walletStateProvider.notifier)
+                                        .rescan();
+                                    isRescanningNotifier.value = false;
+                                  },
+                            icon: const Icon(Icons.sync_rounded),
+                          );
+                        },
                   ),
                   const SizedBox(height: Spaces.extraSmall),
                   FittedBox(

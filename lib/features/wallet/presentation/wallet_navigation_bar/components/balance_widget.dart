@@ -90,16 +90,15 @@ class BalanceWidget extends ConsumerWidget {
               ),
               const SizedBox(width: Spaces.large),
               IconButton.filled(
-                icon:
-                    settings.hideBalance
-                        ? const Icon(Icons.visibility_rounded)
-                        : const Icon(Icons.visibility_off_rounded),
-                tooltip:
-                    settings.hideBalance ? loc.show_balance : loc.hide_balance,
-                onPressed:
-                    () => ref
-                        .read(settingsProvider.notifier)
-                        .setHideBalance(!settings.hideBalance),
+                icon: settings.hideBalance
+                    ? const Icon(Icons.visibility_rounded)
+                    : const Icon(Icons.visibility_off_rounded),
+                tooltip: settings.hideBalance
+                    ? loc.show_balance
+                    : loc.hide_balance,
+                onPressed: () => ref
+                    .read(settingsProvider.notifier)
+                    .setHideBalance(!settings.hideBalance),
               ),
             ],
           ),
@@ -110,8 +109,8 @@ class BalanceWidget extends ConsumerWidget {
               Column(
                 children: [
                   IconButton.filled(
-                    onPressed:
-                        () => context.push(AuthAppScreen.transfer.toPath),
+                    onPressed: () =>
+                        context.push(AuthAppScreen.transfer.toPath),
                     icon: const Icon(Icons.call_made_rounded),
                   ),
                   const SizedBox(height: Spaces.extraSmall),
@@ -121,24 +120,21 @@ class BalanceWidget extends ConsumerWidget {
               Column(
                 children: [
                   IconButton.filled(
-                    onPressed:
-                        settings.unlockBurn
-                            ? () => context.push(AuthAppScreen.burn.toPath)
-                            : null,
+                    onPressed: settings.unlockBurn
+                        ? () => context.push(AuthAppScreen.burn.toPath)
+                        : null,
                     icon: const Icon(Icons.local_fire_department_rounded),
-                    tooltip:
-                        settings.unlockBurn
-                            ? null
-                            : loc.unlock_in_settings.capitalize(),
+                    tooltip: settings.unlockBurn
+                        ? null
+                        : loc.unlock_in_settings.capitalize(),
                   ),
                   const SizedBox(height: Spaces.extraSmall),
                   Text(
                     loc.burn,
                     style: context.labelLarge?.copyWith(
-                      color:
-                          settings.unlockBurn
-                              ? context.colors.onSurface
-                              : context.moreColors.mutedColor,
+                      color: settings.unlockBurn
+                          ? context.colors.onSurface
+                          : context.moreColors.mutedColor,
                     ),
                   ),
                 ],
@@ -156,8 +152,8 @@ class BalanceWidget extends ConsumerWidget {
               Column(
                 children: [
                   IconButton.filled(
-                    onPressed:
-                        () => context.push(AuthAppScreen.multisig.toPath),
+                    onPressed: () =>
+                        context.push(AuthAppScreen.multisig.toPath),
                     icon: const Icon(Icons.sign_language),
                   ),
                   const SizedBox(height: Spaces.extraSmall),

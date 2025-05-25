@@ -33,27 +33,25 @@ class _AddressWidgetState extends ConsumerState<AddressWidget> {
               final isRegistered =
                   snapshot.data?.containsKey(widget.address) ?? false;
 
-              final value =
-                  isRegistered
-                      ? snapshot.data![widget.address]!.name
-                      : widget.address;
+              final value = isRegistered
+                  ? snapshot.data![widget.address]!.name
+                  : widget.address;
 
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Flexible(
-                    child:
-                        isRegistered
-                            ? Tooltip(
-                              message: widget.address,
-                              textStyle: context.bodySmall,
-                              child: SelectableText(
-                                value,
-                                style: context.bodyMedium,
-                              ),
-                            )
-                            : SelectableText(value, style: context.bodySmall),
+                    child: isRegistered
+                        ? Tooltip(
+                            message: widget.address,
+                            textStyle: context.bodySmall,
+                            child: SelectableText(
+                              value,
+                              style: context.bodyMedium,
+                            ),
+                          )
+                        : SelectableText(value, style: context.bodySmall),
                   ),
                   const SizedBox(width: Spaces.small),
                   if (!isRegistered)

@@ -19,8 +19,9 @@ class UntrackedAssetsTab extends ConsumerWidget {
       walletStateProvider.select((state) => state.trackedBalances),
     );
 
-    final untrackedAssets =
-        knownAssets.keys.where((hash) => !balances.containsKey(hash)).toList();
+    final untrackedAssets = knownAssets.keys
+        .where((hash) => !balances.containsKey(hash))
+        .toList();
 
     if (untrackedAssets.isEmpty) {
       return Center(

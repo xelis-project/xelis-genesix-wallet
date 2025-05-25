@@ -45,15 +45,15 @@ class BurnReviewContent extends ConsumerWidget {
                       const SizedBox(height: Spaces.small),
                       isXelisBurn
                           ? Row(
-                            children: [
-                              Logo(
-                                imagePath:
-                                    AppResources.greenBackgroundBlackIconPath,
-                              ),
-                              const SizedBox(width: Spaces.small),
-                              Text(AppResources.xelisName),
-                            ],
-                          )
+                              children: [
+                                Logo(
+                                  imagePath:
+                                      AppResources.greenBackgroundBlackIconPath,
+                                ),
+                                const SizedBox(width: Spaces.small),
+                                Text(AppResources.xelisName),
+                              ],
+                            )
                           : Text(truncateText(transaction.asset)),
                     ],
                   ),
@@ -101,31 +101,28 @@ class BurnReviewContent extends ConsumerWidget {
           const SizedBox(height: Spaces.large),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: AppDurations.animFast),
-            child:
-                transaction.isBroadcasted
-                    ? SizedBox.shrink()
-                    : FormBuilderCheckbox(
-                      name: 'confirm',
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.only(
-                          top: Spaces.small,
-                        ),
-                        isDense: true,
-                        fillColor: Colors.transparent,
-                      ),
-                      title: Text(
-                        loc.burn_confirmation,
-                        style: context.bodyMedium,
-                      ),
-                      validator: FormBuilderValidators.required(
-                        errorText: loc.field_required_error,
-                      ),
-                      onChanged: (value) {
-                        ref
-                            .read(transactionReviewProvider.notifier)
-                            .setConfirmation(value as bool);
-                      },
+            child: transaction.isBroadcasted
+                ? SizedBox.shrink()
+                : FormBuilderCheckbox(
+                    name: 'confirm',
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.only(top: Spaces.small),
+                      isDense: true,
+                      fillColor: Colors.transparent,
                     ),
+                    title: Text(
+                      loc.burn_confirmation,
+                      style: context.bodyMedium,
+                    ),
+                    validator: FormBuilderValidators.required(
+                      errorText: loc.field_required_error,
+                    ),
+                    onChanged: (value) {
+                      ref
+                          .read(transactionReviewProvider.notifier)
+                          .setConfirmation(value as bool);
+                    },
+                  ),
           ),
         ],
       ),

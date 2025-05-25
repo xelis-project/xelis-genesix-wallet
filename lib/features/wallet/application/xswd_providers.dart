@@ -30,9 +30,9 @@ class XswdRequest extends _$XswdRequest {
       Duration(
         seconds:
             xswdEventSummary.isCancelRequest() ||
-                    xswdEventSummary.isAppDisconnect()
-                ? 5
-                : snackBarDuration,
+                xswdEventSummary.isAppDisconnect()
+            ? 5
+            : snackBarDuration,
       ),
       () {
         decisionCompleter.complete(UserPermissionDecision.reject);

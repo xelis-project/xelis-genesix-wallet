@@ -56,49 +56,44 @@ class _HistoryTabState extends ConsumerState<HistoryNavigationBar> {
               right: Spaces.large,
             ),
             child: RefreshIndicator(
-              onRefresh:
-                  () => Future.sync(
-                    () => ref.invalidate(historyPagingStateProvider),
-                  ),
+              onRefresh: () =>
+                  Future.sync(() => ref.invalidate(historyPagingStateProvider)),
               child: PagedListView<int, TransactionEntry>(
                 state: pagingState,
                 fetchNextPage: _fetchPage,
                 builderDelegate: PagedChildBuilderDelegate<TransactionEntry>(
                   animateTransitions: true,
-                  itemBuilder:
-                      (context, item, index) =>
-                          TransactionEntryWidget(transactionEntry: item),
-                  noItemsFoundIndicatorBuilder:
-                      (context) => Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              loc.no_transactions_found,
-                              style: context.bodyLarge?.copyWith(
-                                color: context.moreColors.mutedColor,
-                              ),
-                            ),
-                            const SizedBox(height: Spaces.medium),
-                            FutureBuilder(
-                              future: ref.read(historyCountProvider.future),
-                              builder: (context, snapshot) {
-                                if (snapshot.data != null &&
-                                    snapshot.data! > 0) {
-                                  return Text(
-                                    loc.try_changing_filter,
-                                    style: context.bodyMedium?.copyWith(
-                                      color: context.moreColors.mutedColor,
-                                    ),
-                                  );
-                                } else {
-                                  return const SizedBox.shrink();
-                                }
-                              },
-                            ),
-                          ],
+                  itemBuilder: (context, item, index) =>
+                      TransactionEntryWidget(transactionEntry: item),
+                  noItemsFoundIndicatorBuilder: (context) => Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          loc.no_transactions_found,
+                          style: context.bodyLarge?.copyWith(
+                            color: context.moreColors.mutedColor,
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: Spaces.medium),
+                        FutureBuilder(
+                          future: ref.read(historyCountProvider.future),
+                          builder: (context, snapshot) {
+                            if (snapshot.data != null && snapshot.data! > 0) {
+                              return Text(
+                                loc.try_changing_filter,
+                                style: context.bodyMedium?.copyWith(
+                                  color: context.moreColors.mutedColor,
+                                ),
+                              );
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),

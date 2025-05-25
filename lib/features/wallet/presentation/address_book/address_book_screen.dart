@@ -132,9 +132,8 @@ class _AddressBookScreenState extends ConsumerState<AddressBookScreen> {
                               style: context.titleLarge,
                             ),
                             subtitle: InkWell(
-                              onTap:
-                                  () =>
-                                      copyToClipboard(address, ref, loc.copied),
+                              onTap: () =>
+                                  copyToClipboard(address, ref, loc.copied),
                               child: Tooltip(
                                 message: address,
                                 child: Text(
@@ -156,11 +155,8 @@ class _AddressBookScreenState extends ConsumerState<AddressBookScreen> {
                                 IconButton(
                                   icon: const Icon(Icons.delete, size: 18),
                                   tooltip: loc.remove_contact_button_tooltip,
-                                  onPressed:
-                                      () => _onRemoveAddress(
-                                        address,
-                                        details.name,
-                                      ),
+                                  onPressed: () =>
+                                      _onRemoveAddress(address, details.name),
                                 ),
                               ],
                             ),
@@ -195,26 +191,25 @@ class _AddressBookScreenState extends ConsumerState<AddressBookScreen> {
     final loc = ref.read(appLocalizationsProvider);
     showDialog<void>(
       context: context,
-      builder:
-          (context) => ConfirmDialog(
-            title: loc.remove_contact_confirm_message,
-            onConfirm: (confirmed) {
-              if (!confirmed) return;
-              try {
-                ref.read(addressBookProvider.notifier).remove(address);
-                ref
-                    .read(snackBarQueueProvider.notifier)
-                    .showInfo(
-                      '${loc.removed_from_address_book} $name',
-                      duration: const Duration(seconds: 2),
-                    );
-              } catch (e) {
-                ref
-                    .read(snackBarQueueProvider.notifier)
-                    .showError('${loc.failed_to_remove_contact} $e');
-              }
-            },
-          ),
+      builder: (context) => ConfirmDialog(
+        title: loc.remove_contact_confirm_message,
+        onConfirm: (confirmed) {
+          if (!confirmed) return;
+          try {
+            ref.read(addressBookProvider.notifier).remove(address);
+            ref
+                .read(snackBarQueueProvider.notifier)
+                .showInfo(
+                  '${loc.removed_from_address_book} $name',
+                  duration: const Duration(seconds: 2),
+                );
+          } catch (e) {
+            ref
+                .read(snackBarQueueProvider.notifier)
+                .showError('${loc.failed_to_remove_contact} $e');
+          }
+        },
+      ),
     );
   }
 

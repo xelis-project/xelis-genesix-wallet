@@ -33,14 +33,13 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
         context.formFactor == ScreenSize.normal ||
         context.formFactor == ScreenSize.small;
 
-    final tabs =
-        <Widget>[
-          const NodeNavigationBar(),
-          const HistoryNavigationBar(),
-          const WalletNavigationBar(),
-          const AssetsNavigationBar(),
-          SettingsNavigationBar(),
-        ][_currentPageIndex];
+    final tabs = <Widget>[
+      const NodeNavigationBar(),
+      const HistoryNavigationBar(),
+      const WalletNavigationBar(),
+      const AssetsNavigationBar(),
+      SettingsNavigationBar(),
+    ][_currentPageIndex];
 
     final List<BottomNavigationBarItem> bottomNavigationBarItems = [
       BottomNavigationBarItem(
@@ -93,8 +92,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           items: bottomNavigationBarItems,
         ),
         // if HistoryTab, show export button
-        floatingActionButton:
-            _currentPageIndex == 1 ? floatingExportCSVButton : null,
+        floatingActionButton: _currentPageIndex == 1
+            ? floatingExportCSVButton
+            : null,
       );
     } else if (context.isWideScreen) {
       mainWidget = CustomScaffold(
@@ -116,8 +116,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           ),
         ),
         // if HistoryTab, show export button
-        floatingActionButton:
-            _currentPageIndex == 1 ? floatingExportCSVButton : null,
+        floatingActionButton: _currentPageIndex == 1
+            ? floatingExportCSVButton
+            : null,
       );
     } else {
       mainWidget = Row(
@@ -167,8 +168,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
               backgroundColor: Colors.transparent,
               body: tabs,
               // if HistoryTab, show export button
-              floatingActionButton:
-                  _currentPageIndex == 1 ? floatingExportCSVButton : null,
+              floatingActionButton: _currentPageIndex == 1
+                  ? floatingExportCSVButton
+                  : null,
             ),
           ),
         ],
@@ -198,8 +200,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
 
     if (kIsWeb) {
       try {
-        final content =
-            await ref.read(walletStateProvider.notifier).exportCsvForWeb();
+        final content = await ref
+            .read(walletStateProvider.notifier)
+            .exportCsvForWeb();
         if (content != null) {
           saveTextFile(content, 'genesix_transactions.csv');
           ref

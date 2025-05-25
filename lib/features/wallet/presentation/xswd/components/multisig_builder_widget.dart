@@ -64,10 +64,9 @@ class _MultisigBuilderWidgetState extends ConsumerState<MultisigBuilderWidget>
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children:
-            participants.map((participant) {
-              return AddressWidget(participant);
-            }).toList(),
+        children: participants.map((participant) {
+          return AddressWidget(participant);
+        }).toList(),
       ),
     );
   }
