@@ -194,7 +194,6 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
         await showModalBottomSheet<({String path, String walletName})?>(
           context: context,
           isScrollControlled: true,
-          // useSafeArea: true, TODO: test for iOS
           builder: (context) {
             return const AddWalletModalBottomSheetMenu();
           },

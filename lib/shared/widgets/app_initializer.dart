@@ -19,6 +19,7 @@ class AppInitializer extends StatelessWidget {
           child: Material(
             child: Background(
               child: SafeArea(
+                bottom: false,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [

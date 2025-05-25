@@ -80,7 +80,6 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
 
     if (isHandset) {
       mainWidget = CustomScaffold(
-        backgroundColor: Colors.transparent,
         body: tabs,
         bottomNavigationBar: BottomNavigationBar(
           onTap: (int index) {
@@ -98,7 +97,6 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
       );
     } else if (context.isWideScreen) {
       mainWidget = CustomScaffold(
-        backgroundColor: Colors.transparent,
         body: tabs,
         bottomNavigationBar: ClipRRect(
           borderRadius: BorderRadius.only(
@@ -165,7 +163,6 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           ),
           Expanded(
             child: CustomScaffold(
-              backgroundColor: Colors.transparent,
               body: tabs,
               // if HistoryTab, show export button
               floatingActionButton: _currentPageIndex == 1
