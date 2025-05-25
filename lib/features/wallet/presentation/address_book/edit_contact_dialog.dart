@@ -124,6 +124,7 @@ class _EditContactDialogState extends ConsumerState<EditContactDialog> {
                             _formKey.currentState?.fields['name']?.reset();
                           }
                         },
+                        onSubmitted: (_) => _save(),
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(
                             errorText: loc.field_required_error,

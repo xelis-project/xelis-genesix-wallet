@@ -163,6 +163,7 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
                         _formKey.currentState?.fields['name']?.reset();
                       }
                     },
+                    onSubmitted: (_) => _save(),
                     validator: FormBuilderValidators.compose([
                       FormBuilderValidators.required(
                         errorText: loc.field_required_error,
@@ -186,13 +187,13 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
       actions: [
         Padding(
           padding: const EdgeInsets.only(top: Spaces.small),
-          child: TextButton(onPressed: _saveName, child: Text(loc.add)),
+          child: TextButton(onPressed: _save, child: Text(loc.add)),
         ),
       ],
     );
   }
 
-  Future<void> _saveName() async {
+  Future<void> _save() async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       final loc = ref.read(appLocalizationsProvider);
       _focusNodeName.unfocus();

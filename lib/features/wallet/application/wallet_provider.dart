@@ -834,7 +834,6 @@ class WalletState extends _$WalletState {
 }
 
 // utility extension for TransactionEntryType
-// TODO move to xelis_dart_sdk
 extension TransactionUtils on sdk.TransactionEntryType {
   bool isMultiTransfer() {
     if (this is sdk.IncomingEntry) {
