@@ -35,7 +35,7 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
               _seedWords = words;
             });
           },
-          onError: (_, __) =>
+          onError: (_, _) =>
               ref.read(snackBarQueueProvider.notifier).showError(loc.oups),
         );
   }
@@ -123,7 +123,7 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                                     _seedWords = value;
                                   });
                                 },
-                                onError: (_, __) => ref
+                                onError: (_, _) => ref
                                     .read(snackBarQueueProvider.notifier)
                                     .showError(loc.oups),
                               );
