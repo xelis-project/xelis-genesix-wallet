@@ -57,7 +57,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       appBar: GenericAppBar(title: loc.app_settings),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
-            Spaces.large, Spaces.none, Spaces.large, Spaces.large),
+          Spaces.large,
+          Spaces.none,
+          Spaces.large,
+          Spaces.large,
+        ),
         children: [
           const NetworkSelectorWidget(),
           const Divider(),

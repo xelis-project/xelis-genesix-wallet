@@ -8,8 +8,10 @@ import 'package:http/http.dart' as http;
 
 part 'xelis_price_provider.g.dart';
 
-final Uri coinPaprikaEndpoint =
-    Uri.https('api.coinpaprika.com', '/v1/tickers/xel-xelis');
+final Uri coinPaprikaEndpoint = Uri.https(
+  'api.coinpaprika.com',
+  '/v1/tickers/xel-xelis',
+);
 
 @riverpod
 Future<XelisTicker> xelisPrice(Ref ref) async {

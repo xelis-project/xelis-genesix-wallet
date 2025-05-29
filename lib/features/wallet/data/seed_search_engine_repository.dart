@@ -1,5 +1,5 @@
 import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
-import 'package:genesix/rust_bridge/api/seed_search_engine.dart';
+import 'package:genesix/src/generated/rust_bridge/api/seed_search_engine.dart';
 
 class SeedSearchEngineRepository {
   SeedSearchEngineRepository._internal(this._searchEngine);
@@ -10,10 +10,13 @@ class SeedSearchEngineRepository {
       <MnemonicLanguage, SeedSearchEngineRepository>{};
 
   factory SeedSearchEngineRepository(MnemonicLanguage language) {
-    SearchEngine searchEngine =
-        SearchEngine.init(languageIndex: BigInt.from(language.rustIndex));
+    SearchEngine searchEngine = SearchEngine.init(
+      languageIndex: BigInt.from(language.rustIndex),
+    );
     return _cache.putIfAbsent(
-        language, () => SeedSearchEngineRepository._internal(searchEngine));
+      language,
+      () => SeedSearchEngineRepository._internal(searchEngine),
+    );
   }
 
   factory SeedSearchEngineRepository.initEnglish() {

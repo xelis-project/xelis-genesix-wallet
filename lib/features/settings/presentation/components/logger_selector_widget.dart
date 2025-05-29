@@ -16,30 +16,18 @@ class LoggerSelectorWidget extends ConsumerWidget {
       tilePadding: EdgeInsets.zero,
       shape: Border.all(color: Colors.transparent, width: 0),
       collapsedShape: Border.all(color: Colors.transparent, width: 0),
-      title: Text(
-        loc.advanced_parameters,
-        style: context.titleLarge,
-      ),
+      title: Text(loc.advanced_parameters, style: context.titleLarge),
       children: [
         Padding(
           padding: const EdgeInsets.all(Spaces.medium),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                loc.debug_logger,
-                style: context.bodyLarge,
-              ),
+              Text(loc.debug_logger, style: context.bodyLarge),
               OutlinedButton.icon(
                 onPressed: () => context.push(AppScreen.logger.toPath),
-                label: Text(
-                  loc.open_button,
-                  style: context.labelLarge,
-                ),
-                icon: Icon(
-                  Icons.open_in_new,
-                  color: context.colors.primary,
-                ),
+                label: Text(loc.open_button, style: context.labelLarge),
+                icon: Icon(Icons.open_in_new, color: context.colors.primary),
               ),
             ],
           ),

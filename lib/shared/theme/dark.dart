@@ -14,20 +14,28 @@ ThemeData darkTheme() {
 
   WidgetStateProperty<Color> switchStateProperty =
       WidgetStateProperty.resolveWith((states) {
-    if (states.contains(WidgetState.selected)) {
-      return primaryColor;
-    }
-    return textColor.withValues(alpha: 0.6);
-  });
+        if (states.contains(WidgetState.selected)) {
+          return primaryColor;
+        }
+        return textColor.withValues(alpha: 0.6);
+      });
+
+  WidgetStateBorderSide chipBorderStateProperty =
+      WidgetStateBorderSide.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return BorderSide(color: primaryColor, width: 2);
+        }
+        return BorderSide(color: textColor.withValues(alpha: 0.6), width: 2);
+      });
 
   final baseTheme = ThemeData(
     useMaterial3: true,
-    // splashFactory: InkSparkle.splashFactory,
     splashFactory: NoSplash.splashFactory,
     hoverColor: Colors.transparent,
     highlightColor: Colors.transparent,
     scaffoldBackgroundColor: Colors.transparent,
     dividerColor: Colors.transparent,
+    focusColor: Colors.transparent,
 
     // COLORS
     colorScheme: const ColorScheme(
@@ -50,41 +58,86 @@ ThemeData darkTheme() {
         bgRadialColor3: const Color.fromARGB(153, 25, 25, 25),
         bgRadialEndColor: const Color.fromARGB(0, 0, 0, 0),
         mutedColor: textColor.withValues(alpha: 0.6),
-      )
+      ),
     ],
 
     // TEXT
     textTheme: TextTheme(
       bodyLarge: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       bodyMedium: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       bodySmall: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       displayLarge: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       displayMedium: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       displaySmall: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       titleLarge: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       titleMedium: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       titleSmall: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       labelLarge: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       labelMedium: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       labelSmall: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       headlineLarge: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       headlineMedium: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
       headlineSmall: TextStyle(
-          color: textColor, height: lineHeight, fontWeight: FontWeight.w600),
+        color: textColor,
+        height: lineHeight,
+        fontWeight: FontWeight.w600,
+      ),
     ),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: textColor,
@@ -92,7 +145,7 @@ ThemeData darkTheme() {
     ),
 
     // CARD
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: Colors.black12,
       shape: RoundedRectangleBorder(
         borderRadius: borderRadius,
@@ -106,35 +159,38 @@ ThemeData darkTheme() {
         backgroundColor: Colors.black12,
         //foregroundColor: primaryColor,
         side: const BorderSide(
-            color: Color.fromARGB(255, 122, 250, 211), width: 2),
-        padding: const EdgeInsets.symmetric(
-            vertical: Spaces.medium, horizontal: Spaces.medium),
-        shape: RoundedRectangleBorder(
-          borderRadius: borderRadius,
+          color: Color.fromARGB(255, 122, 250, 211),
+          width: 2,
         ),
+        padding: const EdgeInsets.symmetric(
+          vertical: Spaces.medium,
+          horizontal: Spaces.medium,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: borderRadius),
       ),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         padding: const EdgeInsets.symmetric(
-            vertical: Spaces.medium, horizontal: Spaces.medium),
-        shape: RoundedRectangleBorder(
-          borderRadius: borderRadius,
+          vertical: Spaces.medium,
+          horizontal: Spaces.medium,
         ),
+        shape: RoundedRectangleBorder(borderRadius: borderRadius),
         textStyle: GoogleFonts.jura(fontWeight: FontWeight.bold),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         backgroundColor: primaryColor,
-        disabledBackgroundColor: Colors.black87,
         foregroundColor: Colors.black87,
+        disabledBackgroundColor: Colors.black87,
         iconColor: Colors.black87,
+        disabledIconColor: Colors.white24,
         padding: const EdgeInsets.symmetric(
-            vertical: Spaces.medium, horizontal: Spaces.medium),
-        shape: RoundedRectangleBorder(
-          borderRadius: borderRadius,
+          vertical: Spaces.medium,
+          horizontal: Spaces.medium,
         ),
+        shape: RoundedRectangleBorder(borderRadius: borderRadius),
         textStyle: GoogleFonts.jura(fontWeight: FontWeight.bold),
       ),
     ),
@@ -144,9 +200,7 @@ ThemeData darkTheme() {
 
     // NAVIGATION BAR
     navigationBarTheme: NavigationBarThemeData(
-      indicatorShape: CircleBorder(
-        side: BorderSide.none,
-      ),
+      indicatorShape: CircleBorder(side: BorderSide.none),
       surfaceTintColor: Colors.transparent,
       backgroundColor: Colors.black26,
       indicatorColor: Colors.white,
@@ -160,8 +214,10 @@ ThemeData darkTheme() {
       selectedItemColor: Colors.white,
       type: BottomNavigationBarType.fixed,
       unselectedItemColor: Colors.white54,
-      selectedLabelStyle:
-          GoogleFonts.jura(fontSize: 12, fontWeight: FontWeight.w600),
+      selectedLabelStyle: GoogleFonts.jura(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+      ),
       selectedIconTheme: IconThemeData(size: 36),
     ),
     navigationRailTheme: NavigationRailThemeData(
@@ -169,9 +225,15 @@ ThemeData darkTheme() {
       indicatorColor: Colors.transparent,
       //useIndicator: false,
       selectedLabelTextStyle: GoogleFonts.jura(
-          color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+        color: Colors.white,
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+      ),
       unselectedLabelTextStyle: GoogleFonts.jura(
-          color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w600),
+        color: Colors.white54,
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+      ),
       selectedIconTheme: IconThemeData(size: 36, color: Colors.white),
       unselectedIconTheme: IconThemeData(size: 30, color: Colors.white54),
     ),
@@ -186,7 +248,7 @@ ThemeData darkTheme() {
       ),
       contentPadding: const EdgeInsets.all(15),
       filled: true,
-      fillColor: Colors.black26,
+      fillColor: Colors.black45,
       iconColor: Colors.white,
       suffixIconColor: Colors.white,
       prefixIconColor: Colors.white,
@@ -218,19 +280,15 @@ ThemeData darkTheme() {
     snackBarTheme: SnackBarThemeData(
       backgroundColor: backgroundColor,
       actionTextColor: Colors.amber,
-      shape: RoundedRectangleBorder(
-        borderRadius: borderRadius,
-      ),
+      shape: RoundedRectangleBorder(borderRadius: borderRadius),
     ),
 
     // DIALOG
-    dialogTheme: DialogTheme(
-      backgroundColor: backgroundColor.withValues(alpha: 0.9),
+    dialogTheme: DialogThemeData(
+      backgroundColor: backgroundColor /*.withValues(alpha: 0.6)*/,
       surfaceTintColor: Colors.transparent,
       barrierColor: Colors.transparent,
-      shape: RoundedRectangleBorder(
-        borderRadius: borderRadius,
-      ),
+      shape: RoundedRectangleBorder(borderRadius: borderRadius),
       actionsPadding: const EdgeInsets.all(Spaces.medium),
     ),
 
@@ -242,7 +300,7 @@ ThemeData darkTheme() {
     ),
 
     // TAB BAR
-    tabBarTheme: const TabBarTheme(
+    tabBarTheme: const TabBarThemeData(
       dividerColor: Colors.white30,
       overlayColor: WidgetStatePropertyAll(Colors.transparent),
     ),
@@ -283,6 +341,20 @@ ThemeData darkTheme() {
     sliderTheme: SliderThemeData(
       inactiveTrackColor: Colors.white38,
       trackHeight: 2,
+    ),
+
+    chipTheme: ChipThemeData(
+      color: WidgetStatePropertyAll(Colors.transparent),
+      elevation: 0,
+      padding: const EdgeInsets.all(Spaces.small),
+      shape: RoundedRectangleBorder(borderRadius: borderRadius),
+      brightness: Brightness.dark,
+      side: chipBorderStateProperty,
+    ),
+
+    checkboxTheme: CheckboxThemeData(
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
     ),
   );
 

@@ -8,7 +8,7 @@ part 'xelis_ticker.freezed.dart';
 part 'xelis_ticker.g.dart';
 
 @freezed
-class XelisTicker with _$XelisTicker {
+abstract class XelisTicker with _$XelisTicker {
   const XelisTicker._();
 
   const factory XelisTicker({

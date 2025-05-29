@@ -31,8 +31,9 @@ class LoggerViewController extends ChangeNotifier {
   }
 
   void removeFilterType(Type type) {
-    _filter =
-        _filter.copyWith(types: _filter.types.where((t) => t != type).toList());
+    _filter = _filter.copyWith(
+      types: _filter.types.where((t) => t != type).toList(),
+    );
     notifyListeners();
   }
 
@@ -43,7 +44,8 @@ class LoggerViewController extends ChangeNotifier {
 
   void removeFilterTitle(String title) {
     _filter = _filter.copyWith(
-        titles: _filter.titles.where((t) => t != title).toList());
+      titles: _filter.titles.where((t) => t != title).toList(),
+    );
     notifyListeners();
   }
 

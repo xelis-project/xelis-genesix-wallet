@@ -6,12 +6,13 @@ import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/data/seed_search_engine_repository.dart';
 import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/input_decoration.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
+import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown.dart';
 import 'package:go_router/go_router.dart';
 
 class SeedScreen extends ConsumerStatefulWidget {
@@ -22,13 +23,16 @@ class SeedScreen extends ConsumerStatefulWidget {
 }
 
 class _SeedScreenState extends ConsumerState<SeedScreen> {
-  final _searchBarFormKey =
-      GlobalKey<FormBuilderState>(debugLabel: '_searchBarFormKey');
+  final _searchBarFormKey = GlobalKey<FormBuilderState>(
+    debugLabel: '_searchBarFormKey',
+  );
   (String word, int index)? _selectedItem;
   int? _wordIndex;
   MnemonicLanguage _mnemonicLanguage = MnemonicLanguage.english;
   List<String>? _searchResults;
-  final List<String> _recoveryPhrase = List.filled(25, '');
+  final Map<int, String> _recoveryPhraseMap = {
+    for (var item in List.generate(25, (index) => index + 1)) item: '',
+  };
   List<String>? _invalidWords;
   late FocusNode _searchBarFocusNode;
 
@@ -36,6 +40,7 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
   void initState() {
     super.initState();
     _searchBarFocusNode = FocusNode();
+    _searchBarFocusNode.addListener(_onSearchBarFocus);
   }
 
   @override
@@ -83,9 +88,10 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
                 child: _searchResults!.isEmpty
                     ? Center(
                         child: Text(
-                        loc.seed_error_searchbar_no_word_found,
-                        style: context.bodyLarge,
-                      ))
+                          loc.seed_error_searchbar_no_word_found,
+                          style: context.bodyLarge,
+                        ),
+                      )
                     : Focus(
                         onFocusChange: _onSearchResultsChanged,
                         onKeyEvent: _onArrowKeysPressed,
@@ -103,8 +109,9 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
                                           padding: const EdgeInsets.all(8),
                                           decoration: BoxDecoration(
                                             color: context.colors.surface,
-                                            borderRadius:
-                                                BorderRadius.circular(8),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                             border: Border.all(
                                               color: _selectedItem?.$1 == word
                                                   ? context.colors.primary
@@ -146,25 +153,23 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
                     children: [
                       Text(
                         loc.seed_language_selector_title,
-                        style: context.titleSmall
-                            ?.copyWith(color: context.moreColors.mutedColor),
+                        style: context.titleSmall?.copyWith(
+                          color: context.moreColors.mutedColor,
+                        ),
                       ),
                       const SizedBox(height: Spaces.extraSmall),
-                      FormBuilderDropdown(
+                      GenericFormBuilderDropdown(
                         name: 'language',
                         initialValue: _mnemonicLanguage,
-                        enableFeedback: true,
-                        dropdownColor:
-                            context.colors.surface.withValues(alpha: 0.9),
-                        focusColor:
-                            context.colors.surface.withValues(alpha: 0.9),
                         onChanged: _onLanguageChanged,
                         items: MnemonicLanguage.values
-                            .map((MnemonicLanguage language) =>
-                                DropdownMenuItem<MnemonicLanguage>(
-                                  value: language,
-                                  child: Text(language.displayName),
-                                ))
+                            .map(
+                              (MnemonicLanguage language) =>
+                                  DropdownMenuItem<MnemonicLanguage>(
+                                    value: language,
+                                    child: Text(language.displayName),
+                                  ),
+                            )
                             .toList(),
                       ),
                     ],
@@ -181,8 +186,9 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
                     const SizedBox(height: Spaces.extraSmall),
                     Text(
                       loc.paste_all_button,
-                      style: context.labelLarge
-                          ?.copyWith(color: context.moreColors.mutedColor),
+                      style: context.labelLarge?.copyWith(
+                        color: context.moreColors.mutedColor,
+                      ),
                     ),
                   ],
                 ),
@@ -212,17 +218,13 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  loc.your_recovery_phrase,
-                  style: context
-                      .titleMedium /*
-                      ?.copyWith(color: context.moreColors.mutedColor)*/
-                  ,
-                ),
+                Text(loc.your_recovery_phrase, style: context.titleMedium),
                 if (_invalidWords?.isNotEmpty == true)
                   Padding(
                     padding: const EdgeInsets.only(
-                        right: Spaces.small, left: Spaces.small),
+                      right: Spaces.small,
+                      left: Spaces.small,
+                    ),
                     child: FittedBox(
                       child: Tooltip(
                         message: loc.seed_error_invalid_words_detected,
@@ -239,10 +241,7 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
                     backgroundColor: Colors.transparent,
                   ),
                   onPressed: _clearRecoveryPhrase,
-                  child: Text(
-                    loc.clear_all_button,
-                    style: context.labelLarge,
-                  ),
+                  child: Text(loc.clear_all_button, style: context.labelLarge),
                 ),
               ],
             ),
@@ -252,16 +251,15 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
                 crossAxisCount: context.isHandset
                     ? 2
                     : context.isWideScreen
-                        ? 5
-                        : 3,
-                // semanticChildCount: _currentRecoveryPhrase.length,
+                    ? 5
+                    : 3,
                 childAspectRatio: 5,
                 mainAxisSpacing: Spaces.none,
                 crossAxisSpacing: Spaces.small,
                 shrinkWrap: true,
-                children: _recoveryPhrase.indexed
+                children: _recoveryPhraseMap.entries
                     .map<Widget>(
-                      ((int index, String word) tuple) => Padding(
+                      (word) => Padding(
                         padding: const EdgeInsets.all(Spaces.none),
                         child: GestureDetector(
                           onTap: () {
@@ -269,10 +267,10 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
                               if (_selectedItem != null) {
                                 _selectedItem = null;
                               }
-                              if (_wordIndex == tuple.$1) {
+                              if (_wordIndex == word.key) {
                                 _wordIndex = null;
                               } else {
-                                _wordIndex = tuple.$1;
+                                _wordIndex = word.key;
                               }
                             });
                           },
@@ -280,29 +278,36 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                               side: BorderSide(
-                                color: _wordIndex == tuple.$1
+                                color: _wordIndex == word.key
                                     ? context.colors.primary
-                                    : _invalidWords?.contains(tuple.$2) ?? false
-                                        ? context.colors.error
-                                        : context.moreColors.mutedColor,
+                                    : _invalidWords?.contains(word.value) ??
+                                          false
+                                    ? context.colors.error
+                                    : context.moreColors.mutedColor,
                                 width: 2,
                               ),
                             ),
                             child: Padding(
                               padding: const EdgeInsets.only(
-                                  left: Spaces.medium, right: Spaces.medium),
+                                left: Spaces.medium,
+                                right: Spaces.medium,
+                              ),
                               child: Row(
                                 children: [
                                   Text(
-                                    '${tuple.$1 + 1}',
+                                    '${word.key}',
                                     style: context.bodyLarge?.copyWith(
-                                        color: context.colors.primary),
+                                      color: context.colors.primary,
+                                    ),
                                   ),
                                   const SizedBox(width: Spaces.small),
-                                  Text(
-                                    tuple.$2,
-                                    style: context.titleMedium,
-                                  )
+                                  Expanded(
+                                    child: Text(
+                                      word.value,
+                                      style: context.titleMedium,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -320,9 +325,7 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
         height: 40,
         child: FloatingActionButton.extended(
           onPressed: _continue,
-          label: Text(
-            loc.continue_button,
-          ),
+          label: Text(loc.continue_button),
           icon: Icon(Icons.arrow_forward_rounded),
         ),
       ),
@@ -337,16 +340,17 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
         _selectedItem = null;
         return;
       }
+
       // Remove the invalid word from the list of invalid words
-      if (_invalidWords?.contains(_recoveryPhrase[_wordIndex!]) ?? false) {
-        _invalidWords!.remove(_recoveryPhrase[_wordIndex!]);
+      if (_invalidWords?.contains(_recoveryPhraseMap[_wordIndex!]) ?? false) {
+        _invalidWords!.remove(_recoveryPhraseMap[_wordIndex!]);
       }
 
       // Add the selected word from the search results to the recovery phrase
-      _recoveryPhrase[_wordIndex!] = _selectedItem!.$1;
+      _recoveryPhraseMap[_wordIndex!] = _selectedItem!.$1;
 
       // Select the next empty word in the recovery phrase
-      if (_wordIndex! < _recoveryPhrase.length - 1) {
+      if (_wordIndex! < _recoveryPhraseMap.length) {
         _wordIndex = _wordIndex! + 1;
       } else {
         _wordIndex = null;
@@ -368,67 +372,87 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
     Clipboard.getData('text/plain').then((ClipboardData? data) {
       if (data == null || data.text == null || data.text!.trim().isEmpty) {
         ref
-            .read(snackBarMessengerProvider.notifier)
+            .read(snackBarQueueProvider.notifier)
             .showError(loc.seed_error_clipboard_empty);
         return;
       }
 
-      final List<String> words =
-          data.text!.trim().split(' ').map((word) => word.trim()).toList();
+      final List<String> words = data.text!.trim().split(RegExp(r'\s+'));
 
       if (words.length > 25) {
         ref
-            .read(snackBarMessengerProvider.notifier)
+            .read(snackBarQueueProvider.notifier)
             .showError(loc.seed_error_too_many_words);
         return;
       }
 
       setState(() {
         _clearRecoveryPhrase();
-        _recoveryPhrase.setAll(0, words);
+
+        // Update the recovery phrase with the pasted words
+        _recoveryPhraseMap.updateAll(
+          (key, value) => key <= words.length ? words[key - 1] : value,
+        );
+
+        // Check if the seed is valid
         final SeedSearchEngineRepository searchEngineRepository =
             SeedSearchEngineRepository(_mnemonicLanguage);
-        _invalidWords = searchEngineRepository.checkSeed(_recoveryPhrase);
+        _invalidWords = searchEngineRepository.checkSeed(
+          _recoveryPhraseMap.values
+              .where((element) => element.isNotEmpty)
+              .toList(),
+        );
       });
     });
   }
 
   void _clearRecoveryPhrase() {
     setState(() {
-      _recoveryPhrase.fillRange(0, _recoveryPhrase.length, '');
+      _recoveryPhraseMap.updateAll((key, value) => '');
       _invalidWords = null;
       _selectedItem = null;
       _wordIndex = null;
     });
+    _searchBarFocusNode.unfocus();
   }
 
   void _onLanguageChanged(MnemonicLanguage? value) {
-    setState(() {
-      _mnemonicLanguage = value ?? MnemonicLanguage.english;
-      _searchResults = null;
-      _searchBarFormKey.currentState?.reset();
-      _clearRecoveryPhrase();
-    });
+    if (value != null && value != _mnemonicLanguage) {
+      setState(() {
+        _mnemonicLanguage = value;
+        _searchResults = null;
+        _searchBarFormKey.currentState?.reset();
+        _clearRecoveryPhrase();
+      });
+    }
   }
 
   void _continue() {
     final loc = ref.read(appLocalizationsProvider);
     if (_invalidWords != null && _invalidWords!.isNotEmpty) {
       ref
-          .read(snackBarMessengerProvider.notifier)
+          .read(snackBarQueueProvider.notifier)
           .showError(loc.seed_error_invalid_words);
       return;
     }
-    if (_recoveryPhrase.any((word) => word.isEmpty) ||
-        _recoveryPhrase.length < 24) {
+
+    bool allFirst24NonEmpty = _recoveryPhraseMap.entries
+        .take(24)
+        .every((entry) => entry.value.isNotEmpty);
+
+    if (!allFirst24NonEmpty) {
       ref
-          .read(snackBarMessengerProvider.notifier)
+          .read(snackBarQueueProvider.notifier)
           .showError(loc.seed_error_phrase_incomplete);
       return;
     }
 
-    context.push(AppScreen.recoverWalletFromSeed2.toPath,
-        extra: _recoveryPhrase);
+    context.push(
+      AppScreen.recoverWalletFromSeed2.toPath,
+      extra: _recoveryPhraseMap.values
+          .where((element) => element.isNotEmpty)
+          .toList(),
+    );
   }
 
   void _onSearchBarChanged(String? value) {
@@ -483,7 +507,7 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
         _searchResults!.isNotEmpty) {
       setState(() {
         _selectedItem = (_searchResults!.first, 0);
-        _wordIndex = _recoveryPhrase.indexOf('');
+        _wordIndex = _firstEmptyRecoveryWordIndex;
       });
     }
   }
@@ -493,8 +517,8 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
       if (event.logicalKey == LogicalKeyboardKey.tab) {
         setState(() {
           if (_wordIndex == null) {
-            _wordIndex = 0;
-          } else if (_wordIndex! < _recoveryPhrase.length - 1) {
+            _wordIndex = 1;
+          } else if (_wordIndex! < _recoveryPhraseMap.length) {
             _wordIndex = _wordIndex! + 1;
           } else {
             _wordIndex = null;
@@ -504,5 +528,27 @@ class _SeedScreenState extends ConsumerState<SeedScreen> {
       }
     }
     return KeyEventResult.ignored;
+  }
+
+  void _onSearchBarFocus() {
+    setState(() {
+      if (_searchBarFocusNode.hasFocus) {
+        _wordIndex ??= _firstEmptyRecoveryWordIndex;
+      } else if (_searchResults == null) {
+        // if search engine is no more active, we can unselect the next empty word
+        _wordIndex = null;
+      }
+    });
+  }
+
+  int? get _firstEmptyRecoveryWordIndex {
+    try {
+      return _recoveryPhraseMap.entries
+          .firstWhere((element) => element.value.isEmpty)
+          .key;
+    } on StateError {
+      // No empty word found
+      return null;
+    }
   }
 }

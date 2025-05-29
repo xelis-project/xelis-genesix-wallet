@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
+import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
 import 'package:genesix/features/authentication/presentation/components/add_wallet_modal_bottom_sheet.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
 import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
-import 'package:genesix/features/authentication/presentation/components/table_generation_progress_dialog.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -23,100 +25,6 @@ class OpenWalletScreen extends ConsumerStatefulWidget {
 }
 
 class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
-  void _showTableGenerationProgressDialog() {
-    showDialog<void>(
-      barrierDismissible: false,
-      context: context,
-      builder: (_) => const TableGenerationProgressDialog(),
-    );
-  }
-
-  Future<void> _showAddWalletModalBottomSheetMenu() async {
-    final importedWalletData =
-        await showModalBottomSheet<({String path, String walletName})?>(
-            context: context,
-            isScrollControlled: true,
-            // useSafeArea: true, TODO: test for iOS
-            builder: (context) {
-              return const AddWalletModalBottomSheetMenu();
-            });
-
-    // only used for desktop wallet import
-    if (importedWalletData != null) {
-      final password = await _getPassword();
-      if (password != null) {
-        _openImportedWallet(
-            importedWalletData.path, importedWalletData.walletName, password);
-      }
-    }
-  }
-
-  Future<void> _openImportedWallet(
-      String path, String walletName, String password) async {
-    try {
-      if (!await ref
-              .read(authenticationProvider.notifier)
-              .isPrecomputedTablesExists() &&
-          mounted) {
-        _showTableGenerationProgressDialog();
-      } else {
-        context.loaderOverlay.show();
-      }
-
-      await ref
-          .read(authenticationProvider.notifier)
-          .openImportedWallet(path, walletName, password);
-    } catch (e) {
-      if (mounted) {
-        // Dismiss TableGenerationProgressDialog if error occurs
-        context.pop();
-      }
-    }
-
-    if (mounted && context.loaderOverlay.visible) {
-      context.loaderOverlay.hide();
-    }
-  }
-
-  Future<String?> _getPassword() async {
-    return showDialog<String>(
-      context: context,
-      builder: (context) {
-        return PasswordDialog(
-          onEnter: (password) {
-            context.pop(password);
-          },
-        );
-      },
-    );
-  }
-
-  void _openWallet(String name, String password) async {
-    try {
-      if (!await ref
-              .read(authenticationProvider.notifier)
-              .isPrecomputedTablesExists() &&
-          mounted) {
-        _showTableGenerationProgressDialog();
-      } else {
-        context.loaderOverlay.show();
-      }
-
-      await ref
-          .read(authenticationProvider.notifier)
-          .openWallet(name, password);
-    } catch (e) {
-      if (mounted) {
-        // Dismiss TableGenerationProgressDialog if error occurs
-        context.pop();
-      }
-    }
-
-    if (mounted && context.loaderOverlay.visible) {
-      context.loaderOverlay.hide();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
@@ -131,10 +39,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  loc.your_wallets,
-                  style: context.headlineMedium,
-                ),
+                Text(loc.your_wallets, style: context.headlineMedium),
                 IconButton(
                   onPressed: () {
                     context.push(AppScreen.settings.toPath);
@@ -145,7 +50,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                     size: 30,
                   ),
                   tooltip: loc.settings,
-                )
+                ),
               ],
             ),
             const SizedBox(height: Spaces.small),
@@ -160,11 +65,13 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                       child: ReorderableListView(
                         proxyDecorator: (child, index, animation) {
                           return Material(
-                            color:
-                                context.colors.surface.withValues(alpha: 0.5),
+                            color: context.colors.surface.withValues(
+                              alpha: 0.5,
+                            ),
                             shape: const RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10),
+                              ),
                             ),
                             child: child,
                           );
@@ -176,16 +83,20 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                               key: Key(name),
                               child: InkWell(
                                 onTap: () async {
-                                  showDialog<void>(
-                                    context: context,
-                                    builder: (context) {
-                                      return PasswordDialog(
-                                        onEnter: (password) {
-                                          _openWallet(name, password);
+                                  if (!await _openWalletWithBiometrics(name)) {
+                                    if (context.mounted) {
+                                      showDialog<void>(
+                                        context: context,
+                                        builder: (context) {
+                                          return PasswordDialog(
+                                            onEnter: (password) {
+                                              _openWallet(name, password);
+                                            },
+                                          );
                                         },
                                       );
-                                    },
-                                  );
+                                    }
+                                  }
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.all(Spaces.small),
@@ -216,8 +127,10 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                                               truncateText(wallets[name]!),
                                               style: context.labelLarge!
                                                   .copyWith(
-                                                      color: context.moreColors
-                                                          .mutedColor),
+                                                    color: context
+                                                        .moreColors
+                                                        .mutedColor,
+                                                  ),
                                             ),
                                           ],
                                         ),
@@ -240,10 +153,11 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                           final w = ref.read(walletsProvider.notifier);
                           w.orderWallet(name, newIndex);
                         },
-                      ))
+                      ),
+                    )
                   : Text(
                       loc.no_wallet_available,
-                      style: context.bodyLarge!.copyWith(
+                      style: context.bodyMedium!.copyWith(
                         color: context.moreColors.mutedColor,
                         fontSize: 18,
                       ),
@@ -261,14 +175,106 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
                   ),
                 ),
                 const SizedBox(width: Spaces.small),
-                Text(loc.add_a_wallet,
-                    style: context.bodyLarge!
-                        .copyWith(color: context.moreColors.mutedColor)),
+                Text(
+                  loc.add_a_wallet,
+                  style: context.bodyLarge!.copyWith(
+                    color: context.moreColors.mutedColor,
+                  ),
+                ),
               ],
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _showAddWalletModalBottomSheetMenu() async {
+    final importedWalletData =
+        await showModalBottomSheet<({String path, String walletName})?>(
+          context: context,
+          isScrollControlled: true,
+          builder: (context) {
+            return const AddWalletModalBottomSheetMenu();
+          },
+        );
+
+    // only used for desktop wallet import
+    if (importedWalletData != null) {
+      final password = await _getPassword();
+      if (password != null) {
+        _openImportedWallet(
+          importedWalletData.path,
+          importedWalletData.walletName,
+          password,
+        );
+      }
+    }
+  }
+
+  Future<void> _openImportedWallet(
+    String path,
+    String walletName,
+    String password,
+  ) async {
+    context.loaderOverlay.show();
+
+    await ref
+        .read(authenticationProvider.notifier)
+        .openImportedWallet(path, walletName, password);
+
+    if (mounted && context.loaderOverlay.visible) {
+      context.loaderOverlay.hide();
+    }
+  }
+
+  Future<String?> _getPassword() async {
+    return showDialog<String>(
+      context: context,
+      builder: (context) {
+        return PasswordDialog(
+          onEnter: (password) {
+            context.pop(password);
+          },
+        );
+      },
+    );
+  }
+
+  void _openWallet(String name, String password) async {
+    context.loaderOverlay.show();
+
+    await ref.read(authenticationProvider.notifier).openWallet(name, password);
+
+    // unlock biometric auth if locked
+    if (ref.read(biometricAuthProvider) == BiometricAuthProviderStatus.locked) {
+      ref
+          .read(biometricAuthProvider.notifier)
+          .updateStatus(BiometricAuthProviderStatus.ready);
+    }
+
+    if (mounted && context.loaderOverlay.visible) {
+      context.loaderOverlay.hide();
+    }
+  }
+
+  Future<bool> _openWalletWithBiometrics(String name) async {
+    final loc = ref.read(appLocalizationsProvider);
+    final secureStorage = ref.read(secureStorageProvider);
+    final authenticated = await ref
+        .read(biometricAuthProvider.notifier)
+        .authenticate(loc.please_authenticate_open_wallet);
+    if (authenticated) {
+      final password = await secureStorage.read(key: name);
+      if (password != null) {
+        _openWallet(name, password);
+        return true;
+      } else {
+        ref
+            .read(snackBarQueueProvider.notifier)
+            .showError(loc.password_not_found);
+      }
+    }
+    return false;
   }
 }

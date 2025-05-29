@@ -3,14 +3,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/history_provider.dart';
+import 'package:genesix/features/wallet/application/history_providers.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
-import 'package:genesix/features/wallet/presentation/node_tab/node_tab_widget.dart';
-import 'package:genesix/features/wallet/presentation/assets_tab/assets_tab_widget.dart';
-import 'package:genesix/features/wallet/presentation/history_tab/history_tab_widget.dart';
-import 'package:genesix/features/wallet/presentation/settings_tab/settings_tab_widget.dart';
-import 'package:genesix/features/wallet/presentation/wallet_tab/wallet_tab_widget.dart';
-import 'package:genesix/shared/providers/snackbar_messenger_provider.dart';
+import 'package:genesix/features/wallet/presentation/history_navigation_bar/history_navigation_bar.dart';
+import 'package:genesix/features/wallet/presentation/node_navigation_bar/node_navigation_bar.dart';
+import 'package:genesix/features/wallet/presentation/assets_navigation_bar/assets_navigation_bar.dart';
+import 'package:genesix/features/wallet/presentation/settings_navigation_bar/settings_navigation_bar.dart';
+import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/wallet_navigation_bar.dart';
+import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -29,15 +29,16 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final isHandset = context.formFactor == ScreenSize.normal ||
+    final isHandset =
+        context.formFactor == ScreenSize.normal ||
         context.formFactor == ScreenSize.small;
 
     final tabs = <Widget>[
-      const NodeTab(),
-      const HistoryTab(),
-      const WalletTab(),
-      const AssetsTab(),
-      SettingsTab(),
+      const NodeNavigationBar(),
+      const HistoryNavigationBar(),
+      const WalletNavigationBar(),
+      const AssetsNavigationBar(),
+      SettingsNavigationBar(),
     ][_currentPageIndex];
 
     final List<BottomNavigationBarItem> bottomNavigationBarItems = [
@@ -62,6 +63,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
         label: loc.settings_bottom_app_bar,
       ),
     ];
+
     // Export CSV button for HistoryTab
     Widget floatingExportCSVButton = Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -78,7 +80,6 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
 
     if (isHandset) {
       mainWidget = CustomScaffold(
-        backgroundColor: Colors.transparent,
         body: tabs,
         bottomNavigationBar: BottomNavigationBar(
           onTap: (int index) {
@@ -90,12 +91,12 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           items: bottomNavigationBarItems,
         ),
         // if HistoryTab, show export button
-        floatingActionButton:
-            _currentPageIndex == 1 ? floatingExportCSVButton : null,
+        floatingActionButton: _currentPageIndex == 1
+            ? floatingExportCSVButton
+            : null,
       );
     } else if (context.isWideScreen) {
       mainWidget = CustomScaffold(
-        backgroundColor: Colors.transparent,
         body: tabs,
         bottomNavigationBar: ClipRRect(
           borderRadius: BorderRadius.only(
@@ -113,8 +114,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           ),
         ),
         // if HistoryTab, show export button
-        floatingActionButton:
-            _currentPageIndex == 1 ? floatingExportCSVButton : null,
+        floatingActionButton: _currentPageIndex == 1
+            ? floatingExportCSVButton
+            : null,
       );
     } else {
       mainWidget = Row(
@@ -122,8 +124,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           MaterialApp(
             debugShowCheckedModeBanner: false,
             theme: context.theme.copyWith(
-              colorScheme: ColorScheme.fromSwatch()
-                  .copyWith(primary: Colors.transparent),
+              colorScheme: ColorScheme.fromSwatch().copyWith(
+                primary: Colors.transparent,
+              ),
             ),
             home: NavigationRail(
               selectedIndex: _currentPageIndex,
@@ -160,11 +163,11 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           ),
           Expanded(
             child: CustomScaffold(
-              backgroundColor: Colors.transparent,
               body: tabs,
               // if HistoryTab, show export button
-              floatingActionButton:
-                  _currentPageIndex == 1 ? floatingExportCSVButton : null,
+              floatingActionButton: _currentPageIndex == 1
+                  ? floatingExportCSVButton
+                  : null,
             ),
           ),
         ],
@@ -177,29 +180,37 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
   Future<void> _exportCsv() async {
     final loc = ref.read(appLocalizationsProvider);
 
-    final historyState = await ref.read(historyProvider.future);
-    if (historyState.noTransactionAvailable) {
+    try {
+      final count = await ref.read(historyCountProvider.future);
+      if (count != null && count == 0) {
+        ref
+            .read(snackBarQueueProvider.notifier)
+            .showError(loc.no_transactions_to_export);
+        return;
+      }
+    } catch (e) {
       ref
-          .read(snackBarMessengerProvider.notifier)
-          .showError(loc.no_transactions_to_export);
+          .read(snackBarQueueProvider.notifier)
+          .showError(loc.error_exporting_csv);
       return;
     }
 
     if (kIsWeb) {
       try {
-        final content =
-            await ref.read(walletStateProvider.notifier).exportCsvForWeb();
+        final content = await ref
+            .read(walletStateProvider.notifier)
+            .exportCsvForWeb();
         if (content != null) {
           saveTextFile(content, 'genesix_transactions.csv');
           ref
-              .read(snackBarMessengerProvider.notifier)
+              .read(snackBarQueueProvider.notifier)
               .showInfo(loc.csv_exported_successfully);
         } else {
           throw Exception();
         }
       } catch (e) {
         ref
-            .read(snackBarMessengerProvider.notifier)
+            .read(snackBarQueueProvider.notifier)
             .showError(loc.error_exporting_csv);
       }
     } else {
@@ -208,16 +219,16 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
         try {
           await ref.read(walletStateProvider.notifier).exportCsv(path);
           ref
-              .read(snackBarMessengerProvider.notifier)
+              .read(snackBarQueueProvider.notifier)
               .showInfo(loc.csv_exported_successfully);
         } catch (e) {
           if (e.toString().contains(loc.no_transactions_to_export)) {
             ref
-                .read(snackBarMessengerProvider.notifier)
+                .read(snackBarQueueProvider.notifier)
                 .showError(loc.no_transactions_to_export);
           } else {
             ref
-                .read(snackBarMessengerProvider.notifier)
+                .read(snackBarQueueProvider.notifier)
                 .showError(loc.error_exporting_csv);
           }
         }

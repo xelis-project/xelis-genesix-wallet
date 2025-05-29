@@ -17,7 +17,8 @@ class LoggerActionsBottomSheet extends ConsumerWidget {
       bottom: false,
       child: Container(
         margin: EdgeInsets.only(
-          top: context.mediaQueryData.padding.top +
+          top:
+              context.mediaQueryData.padding.top +
               context.mediaQueryData.viewInsets.top +
               50,
         ),
@@ -34,15 +35,13 @@ class LoggerActionsBottomSheet extends ConsumerWidget {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(
-                      horizontal: Spaces.medium, vertical: Spaces.small)
-                  .copyWith(bottom: 16),
+                horizontal: Spaces.medium,
+                vertical: Spaces.small,
+              ).copyWith(bottom: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    loc.actions,
-                    style: context.headlineMedium,
-                  ),
+                  Text(loc.actions, style: context.headlineMedium),
                   InkWell(
                     onTap: () => context.pop(),
                     child: const Icon(Icons.close_rounded),
@@ -65,11 +64,11 @@ class LoggerActionsBottomSheet extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ...actions.asMap().entries.map(
-                        (e) => _ActionTile(
-                          action: e.value,
-                          showDivider: e.key != actions.length - 1,
-                        ),
-                      ),
+                    (e) => _ActionTile(
+                      action: e.value,
+                      showDivider: e.key != actions.length - 1,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -81,10 +80,7 @@ class LoggerActionsBottomSheet extends ConsumerWidget {
 }
 
 class _ActionTile extends StatelessWidget {
-  const _ActionTile({
-    required this.action,
-    this.showDivider = true,
-  });
+  const _ActionTile({required this.action, this.showDivider = true});
 
   final LoggerActionItem action;
 
@@ -97,13 +93,8 @@ class _ActionTile extends StatelessWidget {
       children: [
         ListTile(
           onTap: () => _onTap(context),
-          title: Text(
-            action.title,
-            style: context.titleLarge,
-          ),
-          leading: Icon(
-            action.icon,
-          ),
+          title: Text(action.title, style: context.titleLarge),
+          leading: Icon(action.icon),
         ),
         if (showDivider)
           Divider(

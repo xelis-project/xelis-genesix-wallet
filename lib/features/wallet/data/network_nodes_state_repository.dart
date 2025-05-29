@@ -39,9 +39,6 @@ class NetworkNodesStateRepository extends PersistentState<NetworkNodesState> {
   @override
   Future<void> localSave(NetworkNodesState state) async {
     final value = state.toJson();
-    await genesixSharedPreferences.save(
-      key: storageKey,
-      value: value,
-    );
+    await genesixSharedPreferences.save(key: storageKey, value: value);
   }
 }

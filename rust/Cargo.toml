@@ -7,8 +7,9 @@ edition = "2021"
 crate-type = ["lib", "cdylib", "staticlib"]
 
 [dependencies]
-flutter_rust_bridge = { version = "=2.7.0", features = ["log"] }
+flutter_rust_bridge = { version = "=2.10.0", features = ["log"] }
 anyhow = "1"
+indexmap = { version = "2.0.0", features = ["serde"] }
 log = "0.4"
 parking_lot = "0.12.1"
 simplelog = "0.12.1"
@@ -18,6 +19,7 @@ xelis_wallet = { git = "https://github.com/xelis-project/xelis-blockchain", bran
 xelis_common = { git = "https://github.com/xelis-project/xelis-blockchain", branch = "dev", package = "xelis_common" }
 serde = { version = "1.0.197", features = ["derive"] }
 trie-rs = "0.4.2"
+regex = "1.11.1"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wasm-bindgen = "0.2.92"
@@ -25,3 +27,6 @@ wasm-bindgen = "0.2.92"
 [features]
 default = ["xelis_wallet/api_server"]
 network_handler = ["xelis_wallet/network_handler"]
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }

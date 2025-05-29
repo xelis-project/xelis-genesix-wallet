@@ -12,10 +12,12 @@ class GenesixSharedPreferences {
 
   static Future<SharedPreferencesWithCache> setUp() async {
     return SharedPreferencesWithCache.create(
-      cacheOptions: const SharedPreferencesWithCacheOptions(allowList: {
-        SettingsStateRepository.storageKey,
-        NetworkNodesStateRepository.storageKey
-      }),
+      cacheOptions: const SharedPreferencesWithCacheOptions(
+        allowList: {
+          SettingsStateRepository.storageKey,
+          NetworkNodesStateRepository.storageKey,
+        },
+      ),
     );
   }
 

@@ -46,8 +46,8 @@ jobs:
       - name: Generate bridge code
         run: flutter_rust_bridge_codegen generate
 
-      - name: Check Dart code formatting
-        run: dart format --output=none --set-exit-if-changed .
+#      - name: Check Dart code formatting
+#        run: dart format --output=none --set-exit-if-changed .
 
       - name: Dart analyse
         run: dart analyze

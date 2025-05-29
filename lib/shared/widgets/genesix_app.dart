@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/logger/logger.dart';
-import 'package:genesix/shared/widgets/components/background_widget.dart';
+import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
 import 'package:genesix/features/router/router.dart';
@@ -12,10 +12,7 @@ import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/dark.dart';
 import 'package:genesix/shared/theme/light.dart';
 import 'package:genesix/shared/theme/xelis.dart';
-import 'package:genesix/shared/widgets/app_providers_initializer.dart';
-import 'package:genesix/shared/widgets/components/global_bottom_loader_widget.dart';
-import 'package:genesix/shared/widgets/components/network_bar_widget.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:genesix/shared/widgets/app_initializer.dart';
 
 class Genesix extends ConsumerStatefulWidget {
   const Genesix({super.key});
@@ -66,23 +63,7 @@ class _GenesixState extends ConsumerState<Genesix> with WindowListener {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       builder: (context, child) {
-        return AppProvidersInitializer(
-          child: GlobalBottomLoader(
-            child: Material(
-              child: Background(
-                child: SafeArea(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const NetworkTopWidget(),
-                      Flexible(child: child!),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
+        return AppInitializer(child: child!);
       },
     );
   }

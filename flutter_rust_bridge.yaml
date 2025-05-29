@@ -1,2 +1,3 @@
 rust_input: rust/src/api/**/*.rs
-dart_output: lib/rust_bridge
+dart_output: lib/src/generated/rust_bridge
+stop_on_error: true

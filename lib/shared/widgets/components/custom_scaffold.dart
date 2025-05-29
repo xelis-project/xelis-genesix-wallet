@@ -72,13 +72,12 @@ class CustomScaffold extends StatelessWidget {
               children: [
                 if (context.isWideScreen) Spacer(),
                 Expanded(
-                    flex: 2,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        floatingActionButton!,
-                      ],
-                    )),
+                  flex: 2,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [floatingActionButton!],
+                  ),
+                ),
                 if (context.isWideScreen) Spacer(),
               ],
             )

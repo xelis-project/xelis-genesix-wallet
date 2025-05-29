@@ -11,6 +11,8 @@ extension TypographyUtils on BuildContext {
 
   ColorScheme get colors => theme.colorScheme;
 
+  ScrollBehavior get scrollBehavior => ScrollConfiguration.of(this);
+
   MoreColors get moreColors {
     return Theme.of(this).extension<MoreColors>()!;
   }
