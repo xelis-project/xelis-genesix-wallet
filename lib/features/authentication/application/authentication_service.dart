@@ -247,6 +247,11 @@ class Authentication extends _$Authentication {
       return;
     }
 
+    // save password in secure storage on all platforms except web
+    if (!kIsWeb && !await _secureStorage.containsKey(key: walletName)) {
+      await _secureStorage.write(key: walletName, value: password);
+    }
+
     ref
         .read(walletsProvider.notifier)
         .setWalletAddress(walletName, walletRepository.address);
