@@ -92,86 +92,80 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                       ),
                     ),
                     const Divider(),
-                    ListView.builder(
-                      itemBuilder: (context, index) {
-                        return Card(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(
-                              Spaces.medium,
-                              Spaces.small,
-                              Spaces.medium,
-                              Spaces.small,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                        bottom: Spaces.extraSmall,
-                                      ),
-                                      child: Text(
+                    Expanded(
+                      child: ListView.builder(
+                        itemBuilder: (context, index) {
+                          return Card(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                Spaces.medium,
+                                Spaces.small,
+                                Spaces.medium,
+                                Spaces.small,
+                              ),
+                              child: Table(
+                                columnWidths: {
+                                  0: FixedColumnWidth(Spaces.extraLarge),
+                                  1: FlexColumnWidth(),
+                                },
+                                defaultVerticalAlignment:
+                                    TableCellVerticalAlignment.middle,
+                                children: [
+                                  TableRow(
+                                    children: [
+                                      Text(
                                         loc.id,
                                         style: context.labelMedium?.copyWith(
                                           color: context.moreColors.mutedColor,
                                         ),
                                       ),
-                                    ),
-                                    Text(
-                                      multisigState.participants
-                                          .elementAt(index)
-                                          .id
-                                          .toString(),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                        bottom: Spaces.extraSmall,
-                                      ),
-                                      child: Text(
+                                      Text(
                                         loc.address,
                                         style: context.labelMedium?.copyWith(
                                           color: context.moreColors.mutedColor,
                                         ),
                                       ),
-                                    ),
-                                    Tooltip(
-                                      message: multisigState.participants
-                                          .elementAt(index)
-                                          .address,
-                                      child: GestureDetector(
-                                        child: AddressWidget(
-                                          multisigState.participants
-                                              .elementAt(index)
-                                              .address,
-                                        ),
-                                        onTap: () => copyToClipboard(
-                                          multisigState.participants
-                                              .elementAt(index)
-                                              .address,
-                                          ref,
-                                          loc.copied,
+                                    ],
+                                  ),
+                                  TableRow(
+                                    children: [
+                                      Text(
+                                        multisigState.participants
+                                            .elementAt(index)
+                                            .id
+                                            .toString(),
+                                      ),
+                                      Tooltip(
+                                        message: multisigState.participants
+                                            .elementAt(index)
+                                            .address,
+                                        child: GestureDetector(
+                                          child: AddressWidget(
+                                            multisigState.participants
+                                                .elementAt(index)
+                                                .address,
+                                          ),
+                                          onTap: () => copyToClipboard(
+                                            multisigState.participants
+                                                .elementAt(index)
+                                                .address,
+                                            ref,
+                                            loc.copied,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                      itemCount: multisigState.participants.length,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
+                          );
+                        },
+                        itemCount: multisigState.participants.length,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                      ),
                     ),
-                    Spacer(),
                     Center(
                       child: OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
