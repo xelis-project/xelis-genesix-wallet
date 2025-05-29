@@ -476,6 +476,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                   color: context.moreColors.mutedColor,
                 ),
               ),
+              labelText: loc.wallet_address_capitalize.toLowerCase(),
             ),
             onChanged: (value) {
               // workaround to reset the error message when the user modifies the field
