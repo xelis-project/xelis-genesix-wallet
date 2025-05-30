@@ -273,29 +273,23 @@ impl XelisWallet {
         let mut balances = HashMap::new();
 
         for asset in tracked_assets {
-            match asset {
-                Ok(asset) => {
-                    if storage.has_balance_for(&asset).await.unwrap_or(false) {
-                        info!("Asset {} found in storage", asset);
-                        let balance = storage
-                            .get_plaintext_balance_for(&asset)
-                            .await
-                            .context("Error retrieving balance")?;
-                        let asset_data = storage
-                            .get_asset(&asset)
-                            .await
-                            .context("Error retrieving asset data")?;
-                        balances.insert(
-                            asset.to_hex(),
-                            format_coin(balance, asset_data.get_decimals()),
-                        );
-                    } else {
-                        info!("Asset {} not found in storage", asset);
-                    }
-                }
-                Err(e) => {
-                    error!("Error retrieving asset balance: {}", e);
-                }
+            let asset = asset?;
+            if storage.has_balance_for(&asset).await.unwrap_or(false) {
+                info!("Asset {} is tracked and has a balance", asset);
+                let balance = storage
+                    .get_plaintext_balance_for(&asset)
+                    .await
+                    .context("Error retrieving balance")?;
+                let asset_data = storage
+                    .get_asset(&asset)
+                    .await
+                    .context("Error retrieving asset data")?;
+                balances.insert(
+                    asset.to_hex(),
+                    format_coin(balance, asset_data.get_decimals()),
+                );
+            } else {
+                warn!("Asset {} is tracked but not found in storage", asset);
             }
         }
 
