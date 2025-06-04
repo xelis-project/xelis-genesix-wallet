@@ -6,7 +6,7 @@ part 'daemon_info_snapshot.freezed.dart';
 @freezed
 abstract class DaemonInfoSnapshot with _$DaemonInfoSnapshot {
   const factory DaemonInfoSnapshot({
-    @Default(0) int topoHeight,
+    @Default('') String topoHeight,
     @Default(false) bool pruned,
     @Default('') String circulatingSupply,
     @Default('') String burnSupply,

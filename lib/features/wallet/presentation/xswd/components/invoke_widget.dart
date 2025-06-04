@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/transaction_builder_mixin.dart';
+import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -88,7 +89,10 @@ class _InvokeState extends ConsumerState<InvokeWidget>
       children: deposits.entries.map((entry) {
         String asset;
         String amount;
-        if (knownAssets.containsKey(entry.key)) {
+        if (entry.key == sdk.xelisAsset) {
+          asset = AppResources.xelisName;
+          amount = formatXelis(entry.value.amount, network);
+        } else if (knownAssets.containsKey(entry.key)) {
           final assetData = knownAssets[entry.key]!;
           asset = assetData.name;
           amount = formatCoin(
@@ -126,7 +130,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
                     ),
                   ),
                   const SizedBox(width: Spaces.extraSmall),
-                  Text(asset, style: context.bodySmall),
+                  Expanded(child: Text(asset, style: context.bodySmall)),
                 ],
               ),
               const SizedBox(height: Spaces.extraSmall),

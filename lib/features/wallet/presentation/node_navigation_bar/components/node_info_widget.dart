@@ -34,7 +34,7 @@ class NodeInfoWidget extends ConsumerWidget {
         ),
         SelectableText(switch (info?.topoHeight) {
           null => '...',
-          int() => info!.topoHeight.toString(),
+          String() => info!.topoHeight,
         }, style: context.titleLarge),
         const SizedBox(height: Spaces.medium),
         Text(
