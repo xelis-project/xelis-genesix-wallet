@@ -132,36 +132,45 @@ class _TransactionEntryWidgetState
           Spaces.small,
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            icon,
-            const SizedBox(width: Spaces.medium),
-            Column(
+            Row(
               children: [
-                Text(
-                  loc.topoheight.toLowerCase(),
-                  style: context.labelMedium?.copyWith(
-                    color: context.moreColors.mutedColor,
-                  ),
+                icon,
+                const SizedBox(width: Spaces.small),
+                Column(
+                  children: [
+                    Text(
+                      loc.topoheight.toLowerCase(),
+                      style: context.labelMedium?.copyWith(
+                        color: context.moreColors.mutedColor,
+                      ),
+                    ),
+                    const SizedBox(height: Spaces.extraSmall),
+                    SelectableText(topoheight, style: context.bodyLarge),
+                  ],
                 ),
-                const SizedBox(height: Spaces.extraSmall),
-                SelectableText(topoheight, style: context.bodyLarge),
               ],
             ),
-            const Spacer(),
-            Column(
-              children: [
-                Text(
-                  labelThirdColumn,
-                  style: context.labelMedium?.copyWith(
-                    color: context.moreColors.mutedColor,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    labelThirdColumn,
+                    style: context.labelMedium?.copyWith(
+                      color: context.moreColors.mutedColor,
+                    ),
                   ),
-                ),
-                const SizedBox(height: Spaces.extraSmall),
-                SelectableText(contentThirdColumn, style: context.bodyLarge),
-              ],
+                  const SizedBox(height: Spaces.extraSmall),
+                  SelectableText(
+                    contentThirdColumn,
+                    style: context.bodyLarge,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
-            const Spacer(),
             IconButton(
               onPressed: () => _showTransactionEntry(widget.transactionEntry),
               icon: const Icon(Icons.info_outline_rounded),

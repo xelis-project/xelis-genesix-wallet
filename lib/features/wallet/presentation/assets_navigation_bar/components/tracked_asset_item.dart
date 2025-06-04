@@ -55,7 +55,7 @@ class _AssetItemWidgetState extends ConsumerState<TrackedAssetItem> {
                       // fit: BoxFit.cover,
                     ),
                   ),
-                  const SizedBox(width: Spaces.medium),
+                  const SizedBox(width: Spaces.small),
                 ],
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -72,24 +72,25 @@ class _AssetItemWidgetState extends ConsumerState<TrackedAssetItem> {
                 ),
               ],
             ),
-            Spacer(),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  loc.balance,
-                  style: context.labelMedium?.copyWith(
-                    color: context.moreColors.mutedColor,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    loc.balance,
+                    style: context.labelMedium?.copyWith(
+                      color: context.moreColors.mutedColor,
+                    ),
                   ),
-                ),
-                const SizedBox(height: Spaces.extraSmall),
-                SelectableText(
-                  '$balance ${asset.ticker}',
-                  style: context.bodyLarge,
-                ),
-              ],
+                  const SizedBox(height: Spaces.extraSmall),
+                  SelectableText(
+                    '$balance ${asset.ticker}',
+                    style: context.bodyLarge,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(width: Spaces.small),
             Column(
               children: [
                 IconButton(
