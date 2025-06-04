@@ -19,7 +19,7 @@ import 'package:genesix/src/generated/rust_bridge/api/models/network.dart'
     as rust;
 
 String formatCoin(int value, int decimals, String ticker) {
-  final pattern = '#,##0.${'#' * AppResources.xelisDecimals}';
+  final pattern = '#,##0.${'#' * decimals}';
   final formatter = NumberFormat(pattern);
   final xelisValue = formatter.format(value / pow(10, decimals));
   return '$xelisValue $ticker';
