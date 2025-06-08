@@ -4,6 +4,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/shared/storage/shared_preferences/genesix_shared_preferences.dart';
 import 'package:genesix/src/generated/rust_bridge/frb_generated.dart';
+import 'package:intl/intl.dart';
 import 'package:talker_riverpod_logger/talker_riverpod_logger.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:genesix/features/logger/logger.dart';
@@ -63,6 +64,9 @@ Future<void> main() async {
 
   AppResources.bgDots = Image.asset(AppResources.bgDotsPath);
   //----------------------------------------------------------------------------
+
+  final locale = WidgetsBinding.instance.platformDispatcher.locale;
+  Intl.defaultLocale = locale.toLanguageTag();
 
   final prefs = await GenesixSharedPreferences.setUp();
 

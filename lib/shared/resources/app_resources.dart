@@ -19,10 +19,6 @@ class AppResources {
   static const int xelisDecimals = 8;
 
   static List<NodeAddress> mainnetNodes = [
-    // const NodeAddress(
-    //   name: 'Official Seed Node #1',
-    //   url: 'https://${sdk.mainnetNodeURL}',
-    // ),
     const NodeAddress(
       name: 'Seed Node US #1',
       url: 'https://us-node.xelis.io/',
