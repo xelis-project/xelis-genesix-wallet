@@ -10,6 +10,7 @@ import 'package:genesix/features/wallet/domain/network_nodes_state.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/connection_indicator.dart';
+import 'package:genesix/shared/widgets/components/network_mismatch_widget.dart';
 import 'package:intl/intl.dart';
 
 class ConnectionStatusCard extends ConsumerWidget {
@@ -24,7 +25,6 @@ class ConnectionStatusCard extends ConsumerWidget {
     final networkNodes = ref.watch(networkNodesProvider);
     NodeAddress nodeAddress = networkNodes.addressFor(network);
 
-    // TODO handle mismatch properly
     bool mismatch = ref.watch(networkMismatchProvider);
 
     final topoheight = ref.watch(
@@ -37,7 +37,7 @@ class ConnectionStatusCard extends ConsumerWidget {
 
     return FCard(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           FItem(
             title: Text(nodeAddress.name),
@@ -51,49 +51,52 @@ class ConnectionStatusCard extends ConsumerWidget {
                 )
                 .call,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    loc.topoheight,
-                    style: context.theme.typography.sm.copyWith(
-                      color: context.theme.colors.mutedForeground,
+          mismatch
+              ? NetworkMismatchWidget()
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          loc.topoheight,
+                          style: context.theme.typography.sm.copyWith(
+                            color: context.theme.colors.mutedForeground,
+                          ),
+                        ),
+                        Text(
+                          displayedTopoheight,
+                          style: context.theme.typography.lg.copyWith(
+                            color: context.theme.colors.primary,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  Text(
-                    displayedTopoheight,
-                    style: context.theme.typography.lg.copyWith(
-                      color: context.theme.colors.primary,
-                    ),
-                  ),
-                ],
-              ),
-              ValueListenableBuilder(
-                valueListenable: isRescanningNotifier,
-                builder: (BuildContext context, bool isRescanning, Widget? _) {
-                  return FButton(
-                    style: FButtonStyle.outline(),
-                    onPress: isRescanning
-                        ? null
-                        : () async {
-                            isRescanningNotifier.value = true;
-                            await ref
-                                .read(walletStateProvider.notifier)
-                                .rescan();
-                            isRescanningNotifier.value = false;
+                    ValueListenableBuilder(
+                      valueListenable: isRescanningNotifier,
+                      builder:
+                          (BuildContext context, bool isRescanning, Widget? _) {
+                            return FButton(
+                              style: FButtonStyle.outline(),
+                              onPress: isRescanning
+                                  ? null
+                                  : () async {
+                                      isRescanningNotifier.value = true;
+                                      await ref
+                                          .read(walletStateProvider.notifier)
+                                          .rescan();
+                                      isRescanningNotifier.value = false;
+                                    },
+                              prefix: Icon(FIcons.rotateCcw),
+                              child: Text(loc.rescan),
+                            );
                           },
-                    prefix: Icon(FIcons.rotateCcw),
-                    child: Text(loc.rescan),
-                  );
-                },
-              ),
-            ],
-          ),
+                    ),
+                  ],
+                ),
         ],
       ),
     );

@@ -25,7 +25,6 @@ class LastNewsCard extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: Spaces.small),
-          // Placeholder for transaction list
           Text(
             'No news available at the moment.',
             style: context.theme.typography.sm.copyWith(

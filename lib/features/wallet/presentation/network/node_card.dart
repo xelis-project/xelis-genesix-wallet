@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
-import 'package:genesix/features/wallet/application/network_mismatch_provider.dart';
 import 'package:genesix/features/wallet/application/network_nodes_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/daemon_info_snapshot.dart';
@@ -36,9 +35,6 @@ class _NodeCardState extends ConsumerState<NodeCard> {
       settingsProvider.select((state) => state.network),
     );
 
-    // TODO handle mismatch properly
-    bool mismatch = ref.watch(networkMismatchProvider);
-
     List<NodeAddress> nodes = networkNodes.nodesFor(network);
     NodeAddress nodeAddress = networkNodes.addressFor(network);
 
@@ -70,7 +66,7 @@ class _NodeCardState extends ConsumerState<NodeCard> {
             FSelectMenuTile.builder(
               key: ValueKey(nodeAddress),
               title: Text('Node'),
-              subtitle: Text(network.name),
+              subtitle: Text(widget.info?.network?.name ?? 'Unknown'),
               count: nodes.length,
               initialValue: nodeAddress,
               detailsBuilder: (_, values, _) => Text(values.first.name),
