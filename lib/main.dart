@@ -1,9 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/shared/storage/shared_preferences/genesix_shared_preferences.dart';
+import 'package:genesix/src/generated/rust_bridge/api/api.dart';
 import 'package:genesix/src/generated/rust_bridge/frb_generated.dart';
+import 'package:intl/intl.dart';
+import 'package:jovial_svg/jovial_svg.dart';
 import 'package:talker_riverpod_logger/talker_riverpod_logger.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:genesix/features/logger/logger.dart';
@@ -12,7 +16,6 @@ import 'package:genesix/shared/storage/shared_preferences/shared_preferences_pro
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/genesix_app.dart';
 import 'package:localstorage/localstorage.dart';
-// import 'package:jovial_svg/jovial_svg.dart';
 
 Future<void> main() async {
   talker.info('Starting Genesix...');
@@ -21,6 +24,8 @@ Future<void> main() async {
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   talker.info('initializing Rust lib ...');
   await RustLib.init();
+  // need to call this before any tls calls
+  await initializeCryptoProvider();
   await initRustLogging();
 
   if (kIsWeb) {
@@ -34,9 +39,8 @@ Future<void> main() async {
 
     WindowOptions windowOptions = const WindowOptions(
       title: AppResources.xelisWalletName,
-      size: Size(500, 700),
+      size: Size(1024, 728),
       minimumSize: Size(400, 600),
-      //maximumSize: Size(1000, 1200),
       center: true,
       backgroundColor: Colors.transparent,
       skipTaskbar: false,
@@ -51,18 +55,20 @@ Future<void> main() async {
 
   talker.info('loading assets ...');
   //-------------------------- PRELOAD ASSETS ----------------------------------
-  // AppResources.svgBannerGreen = await ScalableImage.fromSvgAsset(
-  //     rootBundle, AppResources.svgBannerGreenPath,
-  //     compact: true);
-  // AppResources.svgBannerBlack = await ScalableImage.fromSvgAsset(
-  //     rootBundle, AppResources.svgBannerBlackPath,
-  //     compact: true);
-  // AppResources.svgBannerWhite = await ScalableImage.fromSvgAsset(
-  //     rootBundle, AppResources.svgBannerWhitePath,
-  //     compact: true);
-
-  AppResources.bgDots = Image.asset(AppResources.bgDotsPath);
+  AppResources.svgGenesixWalletOneLineWhite = await ScalableImage.fromSvgAsset(
+    rootBundle,
+    AppResources.genesixWalletOneLineWhitePath,
+    // compact: true,
+  );
+  AppResources.svgGenesixWalletOneLineBlack = await ScalableImage.fromSvgAsset(
+    rootBundle,
+    AppResources.genesixWalletOneLineBlackPath,
+    // compact: true,
+  );
   //----------------------------------------------------------------------------
+
+  final locale = WidgetsBinding.instance.platformDispatcher.locale;
+  Intl.defaultLocale = locale.toLanguageTag();
 
   final prefs = await GenesixSharedPreferences.setUp();
 

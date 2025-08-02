@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
-import 'package:genesix/features/wallet/presentation/address_book/add_contact_dialog.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 
 class AddressWidget extends ConsumerStatefulWidget {
@@ -43,22 +42,18 @@ class _AddressWidgetState extends ConsumerState<AddressWidget> {
                 children: [
                   Flexible(
                     child: isRegistered
-                        ? Tooltip(
-                            message: widget.address,
-                            textStyle: context.bodySmall,
-                            child: SelectableText(
-                              value,
-                              style: context.bodyMedium,
-                            ),
+                        ? FTooltip(
+                            tipBuilder: (context, controller) =>
+                                Text(widget.address),
+                            child: SelectableText(value),
                           )
-                        : SelectableText(value, style: context.bodySmall),
+                        : SelectableText(value),
                   ),
                   const SizedBox(width: Spaces.small),
                   if (!isRegistered)
-                    IconButton(
-                      icon: const Icon(Icons.add, size: 18),
-                      tooltip: loc.add_to_address_book_tooltip,
-                      onPressed: _onAddAddress,
+                    FButton.icon(
+                      onPress: _onAddAddress,
+                      child: const Icon(FIcons.plus, size: 18),
                     ),
                 ],
               );
@@ -70,9 +65,10 @@ class _AddressWidgetState extends ConsumerState<AddressWidget> {
   }
 
   void _onAddAddress() {
-    showDialog<void>(
-      context: context,
-      builder: (context) => AddContactDialog(address: widget.address),
-    );
+    // TODO: Implement the logic to add the address to the address book.
+    // showFDialog<void>(
+    //   context: context,
+    //   builder: (context) => AddContactDialog(address: widget.address),
+    // );
   }
 }

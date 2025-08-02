@@ -4,7 +4,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/logo.dart';
+import 'package:genesix/shared/widgets/components/logo.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';

@@ -18,13 +18,20 @@ Future<DaemonInfoSnapshot?> nodeInfo(Ref ref) async {
     ref.keepAlive();
 
     return DaemonInfoSnapshot(
+      height: NumberFormat().format(info.height),
       topoHeight: NumberFormat().format(info.topoHeight),
       pruned: info.prunedTopoHeight != null ? true : false,
       circulatingSupply: formatXelis(
         info.circulatingSupply,
         walletState.network,
       ),
+      maximumSupply: formatXelis(info.maximumSupply, walletState.network),
+      emittedSupply: formatXelis(info.emittedSupply, walletState.network),
       burnSupply: formatXelis(info.burnedSupply, walletState.network),
+      hashRate: formatHashRate(
+        difficulty: info.difficulty,
+        blockTimeTarget: info.blockTimeTarget,
+      ),
       averageBlockTime: Duration(milliseconds: info.averageBlockTime),
       mempoolSize: info.mempoolSize,
       blockReward: formatXelis(info.blockReward, walletState.network),

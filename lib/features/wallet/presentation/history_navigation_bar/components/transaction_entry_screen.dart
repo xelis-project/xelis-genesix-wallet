@@ -9,7 +9,7 @@ import 'package:genesix/features/wallet/presentation/history_navigation_bar/comp
 import 'package:genesix/features/wallet/presentation/history_navigation_bar/components/multisig_entry_content.dart';
 import 'package:genesix/features/wallet/presentation/history_navigation_bar/components/outgoing_entry_content.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
-import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:go_router/go_router.dart';
@@ -106,7 +106,7 @@ class _TransactionEntryScreenState
 
     Uri url;
     switch (network) {
-      case Network.mainnet || Network.dev:
+      case Network.mainnet || Network.devnet || Network.stagenet:
         url = Uri.parse(
           '${AppResources.explorerMainnetUrl}$hashPath${transactionEntry.hash}',
         );
@@ -193,8 +193,8 @@ class _TransactionEntryScreenState
     if (!await launchUrl(url)) {
       final loc = ref.read(appLocalizationsProvider);
       ref
-          .read(snackBarQueueProvider.notifier)
-          .showError('${loc.launch_url_error} $url');
+          .read(toastProvider.notifier)
+          .showError(description: '${loc.launch_url_error} $url');
     }
   }
 }

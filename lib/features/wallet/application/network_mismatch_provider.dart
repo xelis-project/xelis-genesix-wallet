@@ -28,9 +28,14 @@ bool networkMismatch(Ref ref) {
         mismatch = true;
       }
     case sdk.Network.dev:
-      if (walletNetwork != rust.Network.dev) {
+      if (walletNetwork != rust.Network.devnet) {
         mismatch = true;
       }
+    // TODO: Uncomment when stagenet is supported in the SDK
+    // case sdk.Network.stagenet:
+    //   if (walletNetwork != rust.Network.stagenet) {
+    //     mismatch = true;
+    //   }
     case null:
       mismatch = false;
   }

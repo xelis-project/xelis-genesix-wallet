@@ -1,17 +1,18 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:forui/forui.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/shared/widgets/components/generic_dialog.dart';
+import 'package:go_router/go_router.dart';
 
 class SeedContentDialog extends ConsumerStatefulWidget {
-  const SeedContentDialog(this.seed, {super.key});
+  const SeedContentDialog(this.style, this.animation, this.seed, {super.key});
 
-  final List<String> seed;
+  final String seed;
+  final FDialogStyle style;
+  final Animation<double> animation;
 
   @override
   ConsumerState<SeedContentDialog> createState() => _SeedContentDialogState();
@@ -23,111 +24,74 @@ class _SeedContentDialogState extends ConsumerState<SeedContentDialog> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    return GenericDialog(
-      scrollable: false,
-      content: SizedBox(
-        width: 800,
-        height: 600,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Flexible(
-                    child: Text(
-                      '${loc.recovery_phrase.toLowerCase().capitalize()}:',
-                      style: context.titleLarge,
+
+    final words = widget.seed.split(' ');
+
+    return FDialog(
+      style: widget.style.call,
+      animation: widget.animation,
+      title: Row(
+        children: [
+          Expanded(child: Text('My ${loc.recovery_phrase}')),
+          FTooltip(
+            tipBuilder: (context, controller) => Text(loc.copy_recovery_phrase),
+            child: FButton.icon(
+              onPress: () => copyToClipboard(widget.seed, ref, loc.copied),
+              child: Icon(FIcons.copy),
+            ),
+          ),
+        ],
+      ),
+      direction: Axis.horizontal,
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: Spaces.medium),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: context.mediaHeight * 0.4),
+            child: SingleChildScrollView(
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: List.generate(
+                  words.length,
+                  (i) => FBadge(
+                    style: FBadgeStyle.secondary(),
+                    child: Row(
+                      children: [
+                        Text(
+                          '${i + 1}.',
+                          style: context.theme.typography.sm.copyWith(
+                            color: context.colors.primary,
+                          ),
+                        ),
+                        const SizedBox(width: Spaces.small),
+                        Text(words[i]),
+                      ],
                     ),
                   ),
-                  IconButton.outlined(
-                    onPressed: () =>
-                        copyToClipboard(widget.seed.join(" "), ref, loc.copied),
-                    icon: Icon(Icons.copy, size: 18),
-                    tooltip: loc.copy_recovery_phrase,
-                  ),
-                ],
+                ),
               ),
             ),
-            const SizedBox(height: Spaces.small),
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: context.isHandset ? 2 : 3,
-                semanticChildCount: widget.seed.length,
-                childAspectRatio: 5,
-                mainAxisSpacing: Spaces.none,
-                crossAxisSpacing: Spaces.small,
-                shrinkWrap: true,
-                children: widget.seed.indexed
-                    .map<Widget>(
-                      ((int index, String word) tuple) => Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                            left: Spaces.medium,
-                            right: Spaces.medium,
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    '${tuple.$1 + 1}',
-                                    style: context.bodyLarge?.copyWith(
-                                      color: context.colors.primary,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 2,
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    tuple.$2,
-                                    style: context.titleMedium,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                    .toList(),
+          ),
+          const SizedBox(height: Spaces.large),
+          Flexible(
+            child: FCheckbox(
+              label: const Text('Recovery Phrase Acknowledgement'),
+              description: const Text(
+                'You understand that if you lose or share your recovery phrase, all funds in this wallet may be lost permanently.',
               ),
+              value: _confirmed,
+              onChange: (value) => setState(() => _confirmed = value),
             ),
-            const SizedBox(height: Spaces.large),
-            FormBuilderCheckbox(
-              name: 'confirm',
-              title: Text(
-                'I confirm that I have written down my recovery phrase and understand the risks of sharing it.',
-                style: context.bodyMedium,
-              ),
-              validator: FormBuilderValidators.required(
-                errorText: loc.field_required_error,
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _confirmed = value ?? false;
-                });
-              },
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
       actions: [
-        TextButton(
-          onPressed: _confirmed
+        FButton(
+          onPress: _confirmed
               ? () {
-                  Navigator.pop(context);
+                  context.pop();
                 }
               : null,
           child: Text(loc.continue_button),

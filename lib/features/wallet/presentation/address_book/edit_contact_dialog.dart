@@ -4,10 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
-import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
-import 'package:genesix/shared/theme/input_decoration.dart';
+import 'package:genesix/shared/theme/input_decoration_old.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:go_router/go_router.dart';
@@ -168,15 +168,12 @@ class _EditContactDialogState extends ConsumerState<EditContactDialog> {
               .read(addressBookProvider.notifier)
               .upsert(widget.address, name.trim(), null);
           ref
-              .read(snackBarQueueProvider.notifier)
-              .showInfo(
-                loc.contact_updated,
-                duration: const Duration(seconds: 2),
-              );
+              .read(toastProvider.notifier)
+              .showEvent(description: loc.contact_updated);
         } catch (e) {
           ref
-              .read(snackBarQueueProvider.notifier)
-              .showError('${loc.failed_to_update_contact} $e');
+              .read(toastProvider.notifier)
+              .showError(description: '${loc.failed_to_update_contact} $e');
         }
       }
 

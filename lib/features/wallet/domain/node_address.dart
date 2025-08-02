@@ -9,8 +9,8 @@ part 'node_address.g.dart';
 @freezed
 abstract class NodeAddress with _$NodeAddress {
   const factory NodeAddress({
-    @JsonKey(name: 'name') required String name,
-    @JsonKey(name: 'url') required String url,
+    @JsonKey(name: 'name') @Default('') String name,
+    @JsonKey(name: 'url') @Default('') String url,
   }) = _NodeAddress;
 
   factory NodeAddress.fromJson(Map<String, dynamic> json) =>

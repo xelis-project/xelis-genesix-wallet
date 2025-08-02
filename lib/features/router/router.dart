@@ -33,7 +33,6 @@ GoRouter router(Ref ref) {
           }
         }
       }
-
       return null;
     },
     debugLogDiagnostics: true,

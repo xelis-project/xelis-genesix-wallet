@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
-import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -36,7 +36,7 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
             });
           },
           onError: (_, _) =>
-              ref.read(snackBarQueueProvider.notifier).showError(loc.oups),
+              ref.read(toastProvider.notifier).showError(description: loc.oups),
         );
   }
 
@@ -124,8 +124,8 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                                   });
                                 },
                                 onError: (_, _) => ref
-                                    .read(snackBarQueueProvider.notifier)
-                                    .showError(loc.oups),
+                                    .read(toastProvider.notifier)
+                                    .showError(description: loc.oups),
                               );
                         },
                       ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/logo.dart';
+import 'package:genesix/shared/widgets/components/logo.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';

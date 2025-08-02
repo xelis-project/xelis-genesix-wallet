@@ -4,10 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
-import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
-import 'package:genesix/shared/theme/input_decoration.dart';
+import 'package:genesix/shared/theme/input_decoration_old.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
@@ -206,11 +206,8 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
             .read(addressBookProvider.notifier)
             .upsert(widget.address!, name.trim(), null);
         ref
-            .read(snackBarQueueProvider.notifier)
-            .showInfo(
-              '${loc.added_to_address_book} $name',
-              duration: Duration(seconds: 2),
-            );
+            .read(toastProvider.notifier)
+            .showInformation(title: '${loc.added_to_address_book} $name');
       } else if (address != null && name != null) {
         if (await ref
             .read(addressBookProvider.notifier)
@@ -226,15 +223,15 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
               .read(addressBookProvider.notifier)
               .upsert(address.trim(), name.trim(), null);
           ref
-              .read(snackBarQueueProvider.notifier)
-              .showInfo(
-                '${loc.added_to_address_book} $name',
-                duration: Duration(seconds: 2),
-              );
+              .read(toastProvider.notifier)
+              .showEvent(description: '${loc.added_to_address_book} $name');
         } catch (e) {
           ref
-              .read(snackBarQueueProvider.notifier)
-              .showError('${loc.failed_to_add_contact} $e');
+              .read(toastProvider.notifier)
+              .showError(
+                title: loc.failed_to_add_contact,
+                description: e.toString(),
+              );
         }
       }
 

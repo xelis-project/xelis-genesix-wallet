@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:forui/forui.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 
 class GlobalBottomLoader extends StatelessWidget {
@@ -9,21 +10,16 @@ class GlobalBottomLoader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlobalLoaderOverlay(
-      overlayColor: Colors.black45,
+      overlayColor: context.theme.colors.barrier,
       overlayWidgetBuilder: (_) {
         return const Align(
           alignment: Alignment.bottomCenter,
           child: Padding(
             padding: EdgeInsets.fromLTRB(0, 0, 0, 50),
             child: SizedBox(
-              width: 40,
-              height: 40,
-              child: CircularProgressIndicator(
-                backgroundColor: Colors.transparent,
-                color: Colors.white,
-                strokeCap: StrokeCap.round,
-                strokeWidth: 6,
-              ),
+              width: 50,
+              height: 50,
+              child: FProgress.circularIcon(),
             ),
           ),
         );

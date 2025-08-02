@@ -1,15 +1,24 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:genesix/shared/widgets/components/generic_dialog.dart';
+import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/shared/theme/extensions.dart';
 
 class ConfirmDialog extends ConsumerStatefulWidget {
   final String? title;
+  final String? description;
   final void Function(bool yes) onConfirm;
+  final FDialogStyle style;
+  final Animation<double> animation;
 
-  const ConfirmDialog({this.title, required this.onConfirm, super.key});
+  const ConfirmDialog({
+    required this.style,
+    required this.animation,
+    required this.onConfirm,
+    this.title,
+    this.description,
+    super.key,
+  });
 
   @override
   ConsumerState<ConfirmDialog> createState() => _ConfirmDialogState();
@@ -22,23 +31,25 @@ class _ConfirmDialogState extends ConsumerState<ConfirmDialog> {
 
     var title = widget.title ?? loc.are_you_sure;
 
-    return GenericDialog(
-      scrollable: false,
-      content: Text(title, style: context.titleMedium),
+    return FDialog(
+      direction: Axis.horizontal,
+      title: Text(title),
+      body: widget.description != null ? Text(widget.description!) : null,
       actions: [
-        TextButton(
-          onPressed: () {
+        FButton(
+          style: FButtonStyle.outline(),
+          onPress: () {
             context.pop();
             widget.onConfirm(false);
           },
-          child: Text(loc.no),
+          child: Text(loc.cancel_button),
         ),
-        TextButton(
-          onPressed: () {
+        FButton(
+          onPress: () {
             context.pop();
             widget.onConfirm(true);
           },
-          child: Text(loc.yes),
+          child: Text(loc.confirm_button),
         ),
       ],
     );

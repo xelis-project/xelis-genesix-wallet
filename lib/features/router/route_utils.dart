@@ -1,8 +1,10 @@
 enum AuthAppScreen {
-  wallet,
-  changePassword,
-  walletSeedScreen,
-  walletSeedDialog,
+  home,
+  settings,
+  network,
+  history,
+  assets,
+  recoveryPhrase,
   transfer,
   burn,
   multisig,
@@ -11,48 +13,42 @@ enum AuthAppScreen {
   addressBook,
 }
 
-enum AppScreen {
-  openWallet,
-  createNewWallet,
-  recoverWalletFromSeed1,
-  recoverWalletFromSeed2,
-  recoverWalletFromPrivateKey,
-  settings,
-  logger,
-}
+enum AppScreen { openWallet, createWallet, importWallet, lightSettings }
 
 extension AppScreenExtension on AppScreen {
   String get toPath {
     switch (this) {
-      case AppScreen.createNewWallet:
-        return '/create_new_wallet';
-      case AppScreen.recoverWalletFromSeed1:
-        return '/recover_wallet_from_seed/1';
-      case AppScreen.recoverWalletFromSeed2:
-        return '/recover_wallet_from_seed/2';
-      case AppScreen.recoverWalletFromPrivateKey:
-        return '/recover_wallet_from_private_key';
       case AppScreen.openWallet:
-        return '/open_wallet';
-      case AppScreen.settings:
-        return '/settings';
-      case AppScreen.logger:
-        return '/logger';
+        return '/';
+      case AppScreen.createWallet:
+        return '/create_wallet';
+      case AppScreen.importWallet:
+        return '/import_wallet';
+      case AppScreen.lightSettings:
+        return '/light_settings';
     }
+  }
+
+  static AppScreen fromPath(String path) {
+    return AppScreen.values.firstWhere((screen) => screen.toPath == path);
   }
 }
 
 extension AuthAppScreenExtension on AuthAppScreen {
   String get toPath {
     switch (this) {
-      case AuthAppScreen.wallet:
-        return '/wallet';
-      case AuthAppScreen.changePassword:
-        return '/change_password';
-      case AuthAppScreen.walletSeedScreen:
-        return '/wallet_seed';
-      case AuthAppScreen.walletSeedDialog:
-        return '/wallet_seed_dialog';
+      case AuthAppScreen.home:
+        return '/home';
+      case AuthAppScreen.settings:
+        return '/settings';
+      case AuthAppScreen.network:
+        return '/network';
+      case AuthAppScreen.history:
+        return '/history';
+      case AuthAppScreen.assets:
+        return '/assets';
+      case AuthAppScreen.recoveryPhrase:
+        return '/recovery_phrase';
       case AuthAppScreen.transfer:
         return '/transfer';
       case AuthAppScreen.burn:
@@ -66,5 +62,9 @@ extension AuthAppScreenExtension on AuthAppScreen {
       case AuthAppScreen.addressBook:
         return '/address_book';
     }
+  }
+
+  static AuthAppScreen fromPath(String path) {
+    return AuthAppScreen.values.firstWhere((screen) => screen.toPath == path);
   }
 }

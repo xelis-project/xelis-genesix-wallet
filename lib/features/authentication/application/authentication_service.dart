@@ -5,9 +5,10 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
-import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/storage/secure_storage/secure_storage_repository.dart';
 import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:genesix/src/generated/rust_bridge/api/precomputed_tables.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
@@ -35,10 +36,10 @@ class Authentication extends _$Authentication {
 
   Future<void> createWallet(
     String name,
-    String password, [
+    String password, {
     String? seed,
     String? privateKey,
-  ]) async {
+  }) async {
     final loc = ref.read(appLocalizationsProvider);
     final precomputedTablesPath = await _getPrecomputedTablesPath();
     final settings = ref.read(settingsProvider);
@@ -93,14 +94,20 @@ class Authentication extends _$Authentication {
         talker.critical('Creating wallet failed: $e');
         final xelisMessage = (e).message.split("\n")[0];
         ref
-            .read(snackBarQueueProvider.notifier)
-            .showError('${loc.error_when_creating_wallet}:\n$xelisMessage');
+            .read(toastProvider.notifier)
+            .showError(
+              title: loc.error_when_creating_wallet,
+              description: xelisMessage,
+            );
         return;
       } catch (e) {
         talker.critical('Creating wallet failed: $e');
         ref
-            .read(snackBarQueueProvider.notifier)
-            .showError(loc.error_when_creating_wallet);
+            .read(toastProvider.notifier)
+            .showError(
+              title: loc.error_when_creating_wallet,
+              description: e.toString(),
+            );
         return;
       }
 
@@ -118,24 +125,31 @@ class Authentication extends _$Authentication {
         nativeWallet: walletRepository,
       );
 
-      ref.read(routerProvider).go(AuthAppScreen.wallet.toPath);
+      switch (settings.network) {
+        case Network.mainnet:
+          ref.read(settingsProvider.notifier).setLastMainnetWalletUsed(name);
+        case Network.testnet:
+          ref.read(settingsProvider.notifier).setLastTestnetWalletUsed(name);
+        case Network.devnet:
+          ref.read(settingsProvider.notifier).setLastDevnetWalletUsed(name);
+        case Network.stagenet:
+          ref.read(settingsProvider.notifier).setLastStagenetWalletUsed(name);
+      }
+
+      if (seed == null) {
+        final seed = await walletRepository.getSeed();
+        ref.read(routerProvider).go(AuthAppScreen.home.toPath, extra: seed);
+      } else {
+        // if seed is provided, we don't need to show it
+        // just navigate to the wallet screen
+        ref.read(routerProvider).go(AuthAppScreen.home.toPath);
+      }
 
       try {
         ref.read(walletStateProvider.notifier).connect();
       } finally {
         // continue... it's ok if we can't connect
         // the connect() func displays an error message
-      }
-
-      if (seed == null) {
-        final seed = await walletRepository.getSeed();
-
-        ref
-            .read(routerProvider)
-            .push(
-              AuthAppScreen.walletSeedDialog.toPath,
-              extra: seed.split(' '),
-            );
       }
 
       _updatePrecomputedTables(walletRepository, precomputedTablesPath);
@@ -173,14 +187,20 @@ class Authentication extends _$Authentication {
         talker.critical('Opening wallet failed: $e');
         final xelisMessage = (e).message.split("\n")[0];
         ref
-            .read(snackBarQueueProvider.notifier)
-            .showError('${loc.error_when_opening_wallet}:\n$xelisMessage');
+            .read(toastProvider.notifier)
+            .showError(
+              title: loc.error_when_opening_wallet,
+              description: xelisMessage,
+            );
         return;
       } catch (e) {
         talker.critical('Opening wallet failed: $e');
         ref
-            .read(snackBarQueueProvider.notifier)
-            .showError(loc.error_when_opening_wallet);
+            .read(toastProvider.notifier)
+            .showError(
+              title: loc.error_when_opening_wallet,
+              description: e.toString(),
+            );
         return;
       }
 
@@ -198,7 +218,20 @@ class Authentication extends _$Authentication {
         nativeWallet: walletRepository,
       );
 
-      ref.read(routerProvider).go(AuthAppScreen.wallet.toPath);
+      switch (settings.network) {
+        case Network.mainnet:
+          ref.read(settingsProvider.notifier).setLastMainnetWalletUsed(name);
+        case Network.testnet:
+          ref.read(settingsProvider.notifier).setLastTestnetWalletUsed(name);
+        case Network.devnet:
+          ref.read(settingsProvider.notifier).setLastDevnetWalletUsed(name);
+        case Network.stagenet:
+          ref.read(settingsProvider.notifier).setLastStagenetWalletUsed(name);
+      }
+
+      // final seed = await walletRepository.getSeed();
+      // ref.read(routerProvider).go(AuthAppScreen.wallet.toPath, extra: seed);
+      ref.read(routerProvider).go(AuthAppScreen.home.toPath);
 
       ref.read(walletStateProvider.notifier).connect();
 
@@ -236,14 +269,20 @@ class Authentication extends _$Authentication {
       talker.critical('Opening wallet failed: $e');
       final xelisMessage = (e).message.split("\n")[0];
       ref
-          .read(snackBarQueueProvider.notifier)
-          .showError('${loc.error_when_opening_wallet}:\n$xelisMessage');
+          .read(toastProvider.notifier)
+          .showError(
+            title: loc.error_when_opening_wallet,
+            description: xelisMessage,
+          );
       return;
     } catch (e) {
       talker.critical('Opening wallet failed: $e');
       ref
-          .read(snackBarQueueProvider.notifier)
-          .showError(loc.error_when_opening_wallet);
+          .read(toastProvider.notifier)
+          .showError(
+            title: loc.error_when_opening_wallet,
+            description: e.toString(),
+          );
       return;
     }
 
@@ -261,7 +300,25 @@ class Authentication extends _$Authentication {
       nativeWallet: walletRepository,
     );
 
-    ref.read(routerProvider).go(AuthAppScreen.wallet.toPath);
+    switch (network) {
+      case Network.mainnet:
+        ref
+            .read(settingsProvider.notifier)
+            .setLastMainnetWalletUsed(walletName);
+      case Network.testnet:
+        ref
+            .read(settingsProvider.notifier)
+            .setLastTestnetWalletUsed(walletName);
+      case Network.devnet:
+        ref.read(settingsProvider.notifier).setLastDevnetWalletUsed(walletName);
+      case Network.stagenet:
+        ref
+            .read(settingsProvider.notifier)
+            .setLastStagenetWalletUsed(walletName);
+    }
+
+    final seed = await walletRepository.getSeed();
+    ref.read(routerProvider).go(AuthAppScreen.home.toPath, extra: seed);
 
     ref.read(walletStateProvider.notifier).connect();
 
@@ -290,18 +347,20 @@ class Authentication extends _$Authentication {
     // we need to generate them and replace the existing ones (default: L1Low)
     if (!await isPrecomputedTablesExists(_getExpectedTableType())) {
       ref
-          .read(snackBarQueueProvider.notifier)
-          .showInfo(
-            'Generating the final precomputed tables, this may take a while...',
-            duration: Duration(seconds: 6),
+          .read(toastProvider.notifier)
+          .showInformation(
+            title:
+                'Generating the final precomputed tables, this may take a while...',
           );
       wallet
           .updatePrecomputedTables(path, _getExpectedTableType())
           .whenComplete(() async {
             final tableType = await wallet.getPrecomputedTablesType();
             ref
-                .read(snackBarQueueProvider.notifier)
-                .showInfo('Precomputed tables updated: ${tableType.name}');
+                .read(toastProvider.notifier)
+                .showInformation(
+                  title: 'Precomputed tables updated: ${tableType.name}',
+                );
           });
     }
   }

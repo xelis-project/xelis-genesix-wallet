@@ -10,10 +10,10 @@ import 'package:genesix/features/wallet/application/multisig_pending_state_provi
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
-import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
-import 'package:genesix/shared/theme/input_decoration.dart';
+import 'package:genesix/shared/theme/input_decoration_old.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:genesix/shared/widgets/components/warning_widget.dart';
@@ -591,7 +591,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
             _transactionSummary = transactionSummary;
           });
         } else {
-          ref.read(snackBarQueueProvider.notifier).showError(loc.oups);
+          ref.read(toastProvider.notifier).showError(description: loc.oups);
         }
       }
 
@@ -617,15 +617,15 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
       ref.read(multisigPendingStateProvider.notifier).pendingState();
 
       ref
-          .read(snackBarQueueProvider.notifier)
-          .showInfo(loc.transaction_broadcast_message);
+          .read(toastProvider.notifier)
+          .showEvent(description: loc.transaction_broadcast_message);
     } on AnyhowException catch (e) {
       talker.error('Cannot broadcast transaction: $e');
       final xelisMessage = (e).message.split("\n")[0];
-      ref.read(snackBarQueueProvider.notifier).showError(xelisMessage);
+      ref.read(toastProvider.notifier).showError(description: xelisMessage);
     } catch (e) {
       talker.error('Cannot broadcast transaction: $e');
-      ref.read(snackBarQueueProvider.notifier).showError(e.toString());
+      ref.read(toastProvider.notifier).showError(description: e.toString());
     }
 
     if (ref.context.mounted) {

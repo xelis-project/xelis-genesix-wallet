@@ -2,16 +2,18 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:genesix/shared/theme/more_colors.dart';
+import 'package:forui/forui.dart';
+import 'package:genesix/shared/theme/more_colors_old.dart';
+import 'package:go_router/go_router.dart';
 
 extension TypographyUtils on BuildContext {
-  ThemeData get theme => Theme.of(this);
+  TextTheme get textTheme => theme.toApproximateMaterialTheme().textTheme;
 
-  TextTheme get textTheme => theme.textTheme;
-
-  ColorScheme get colors => theme.colorScheme;
+  ColorScheme get colors => theme.toApproximateMaterialTheme().colorScheme;
 
   ScrollBehavior get scrollBehavior => ScrollConfiguration.of(this);
+
+  GoRouterState get goRouterState => GoRouterState.of(this);
 
   MoreColors get moreColors {
     return Theme.of(this).extension<MoreColors>()!;
@@ -84,4 +86,29 @@ extension FormFactorUtils on BuildContext {
 
   bool get isHandset =>
       formFactor == ScreenSize.small || formFactor == ScreenSize.normal;
+
+  double get getFSheetRatio {
+    final breakpoints = theme.breakpoints;
+    final width = mediaWidth;
+
+    if (width < breakpoints.sm) {
+      // mobile
+      return 0.55;
+    } else if (width < breakpoints.md) {
+      // small tablet
+      return 0.50;
+    } else if (width < breakpoints.lg) {
+      // tablet/large phone landscape
+      return 0.45;
+    } else if (width < breakpoints.xl) {
+      // laptop/desktop
+      return 0.40;
+    } else if (width < breakpoints.xl2) {
+      // very large screen
+      return 0.36;
+    } else {
+      // ultra wide
+      return 0.33;
+    }
+  }
 }

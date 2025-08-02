@@ -40,7 +40,7 @@ class Settings extends _$Settings {
   }
 
   void setTheme(AppTheme theme) {
-    state = state.copyWith(theme: theme);
+    state = state.copyWith(appTheme: theme);
     _setState(state);
   }
 
@@ -71,6 +71,30 @@ class Settings extends _$Settings {
 
   void setHistoryFilterState(HistoryFilterState historyFilterState) {
     state = state.copyWith(historyFilterState: historyFilterState);
+    _setState(state);
+  }
+
+  void setLastMainnetWalletUsed(String name) {
+    final lastUsedWallets = state.lastWalletsUsed.copyWith(mainnet: name);
+    state = state.copyWith(lastWalletsUsed: lastUsedWallets);
+    _setState(state);
+  }
+
+  void setLastTestnetWalletUsed(String name) {
+    final lastUsedWallets = state.lastWalletsUsed.copyWith(testnet: name);
+    state = state.copyWith(lastWalletsUsed: lastUsedWallets);
+    _setState(state);
+  }
+
+  void setLastStagenetWalletUsed(String name) {
+    final lastUsedWallets = state.lastWalletsUsed.copyWith(stagenet: name);
+    state = state.copyWith(lastWalletsUsed: lastUsedWallets);
+    _setState(state);
+  }
+
+  void setLastDevnetWalletUsed(String name) {
+    final lastUsedWallets = state.lastWalletsUsed.copyWith(devnet: name);
+    state = state.copyWith(lastWalletsUsed: lastUsedWallets);
     _setState(state);
   }
 }

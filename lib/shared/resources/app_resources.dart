@@ -1,9 +1,8 @@
 import 'package:country_flags/country_flags.dart';
-import 'package:flutter/widgets.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
+import 'package:jovial_svg/jovial_svg.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
-// import 'package:jovial_svg/jovial_svg.dart';
 
 class AppResources {
   static const String xelisWalletName = 'Genesix';
@@ -19,37 +18,33 @@ class AppResources {
   static const int xelisDecimals = 8;
 
   static List<NodeAddress> mainnetNodes = [
-    // const NodeAddress(
-    //   name: 'Official Seed Node #1',
-    //   url: 'https://${sdk.mainnetNodeURL}',
-    // ),
     const NodeAddress(
       name: 'Seed Node US #1',
-      url: 'https://us-node.xelis.io/',
+      url: 'https://us-network.xelis.io/',
     ),
     const NodeAddress(
       name: 'Seed Node France #1',
-      url: 'https://fr-node.xelis.io/',
+      url: 'https://fr-network.xelis.io/',
     ),
     const NodeAddress(
       name: 'Seed Node Germany #1',
-      url: 'https://de-node.xelis.io/',
+      url: 'https://de-network.xelis.io/',
     ),
     const NodeAddress(
       name: 'Seed Node Poland #1',
-      url: 'https://pl-node.xelis.io/',
+      url: 'https://pl-network.xelis.io/',
     ),
     const NodeAddress(
       name: 'Seed Node Singapore #1',
-      url: 'https://sg-node.xelis.io/',
+      url: 'https://sg-network.xelis.io/',
     ),
     const NodeAddress(
       name: 'Seed Node United Kingdom #1',
-      url: 'https://uk-node.xelis.io/',
+      url: 'https://uk-network.xelis.io/',
     ),
     const NodeAddress(
       name: 'Seed Node Canada #1',
-      url: 'https://ca-node.xelis.io/',
+      url: 'https://ca-network.xelis.io/',
     ),
   ];
 
@@ -60,7 +55,7 @@ class AppResources {
     ),
   ];
 
-  static List<NodeAddress> devNodes = [
+  static List<NodeAddress> devnetNodes = [
     const NodeAddress(
       name: 'Default Local Node',
       url: 'http://${sdk.localhostAddress}',
@@ -71,64 +66,25 @@ class AppResources {
     ),
   ];
 
+  static List<NodeAddress> stagenetNodes = [
+    const NodeAddress(
+      name: 'Default Local Node',
+      url: 'http://${sdk.localhostAddress}',
+    ),
+  ];
+
   static String explorerMainnetUrl = 'https://explorer.xelis.io/';
   static String explorerTestnetUrl = 'https://testnet-explorer.xelis.io/';
 
-  /*static String svgIconGreenTarget =
-      'https://raw.githubusercontent.com/xelis-project/xelis-assets/master/icons/svg/transparent/green.svg';
-  static String svgIconBlackTarget =
-      'https://raw.githubusercontent.com/xelis-project/xelis-assets/master/icons/svg/transparent/black.svg';
-  static String svgIconWhiteTarget =
-      'https://raw.githubusercontent.com/xelis-project/xelis-assets/master/icons/svg/transparent/white.svg';
+  static late ScalableImage svgGenesixWalletOneLineWhite;
+  static late ScalableImage svgGenesixWalletOneLineBlack;
 
-  static late ScalableImage svgIconGreen;
-  static late ScalableImage svgIconWhite;
-  static late ScalableImage svgIconBlack;
-
-  static ScalableImageWidget svgIconGreenWidget = ScalableImageWidget(
-    si: AppResources.svgIconGreen,
-    scale: 0.06,
-  );
-
-  static ScalableImageWidget svgIconBlackWidget = ScalableImageWidget(
-    si: AppResources.svgIconBlack,
-    scale: 0.06,
-  );
-
-  static ScalableImageWidget svgIconWhiteWidget = ScalableImageWidget(
-    si: AppResources.svgIconWhite,
-    scale: 0.06,
-  );*/
-
-  // static String svgBannerGreenPath =
-  //     'assets/banners/svg/transparent_background_green_logo.svg';
-  // static String svgBannerBlackPath =
-  //     'assets/banners/svg/transparent_background_black_logo.svg';
-  // static String svgBannerWhitePath =
-  //     'assets/banners/svg/transparent_background_white_logo.svg';
   static const String greenBackgroundBlackIconPath =
       'assets/icons/png/circle/green_background_black_logo.png';
-  static const String bgDotsPath = 'assets/bg_dots.png';
-
-  // static late ScalableImage svgBannerGreen;
-  // static late ScalableImage svgBannerWhite;
-  // static late ScalableImage svgBannerBlack;
-  static late Image bgDots;
-
-  // static ScalableImageWidget svgBannerGreenWidget = ScalableImageWidget(
-  //   si: AppResources.svgBannerGreen,
-  //   scale: 0.15,
-  // );
-  //
-  // static ScalableImageWidget svgBannerBlackWidget = ScalableImageWidget(
-  //   si: AppResources.svgBannerBlack,
-  //   scale: 0.15,
-  // );
-  //
-  // static ScalableImageWidget svgBannerWhiteWidget = ScalableImageWidget(
-  //   si: AppResources.svgBannerWhite,
-  //   scale: 0.15,
-  // );
+  static const String genesixWalletOneLineWhitePath =
+      'assets/genesix/svg/genesix-wallet-one-line_white.svg';
+  static const String genesixWalletOneLineBlackPath =
+      'assets/genesix/svg/genesix-wallet-one-line_black.svg';
 
   static List<CountryFlag> countryFlags = List.generate(
     AppLocalizations.supportedLocales.length,

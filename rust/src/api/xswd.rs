@@ -75,7 +75,7 @@ impl XSWD for XelisWallet {
             + 'static,
     ) -> Result<()> {
         match self.get_wallet().enable_xswd().await {
-            Ok(receiver) => {
+            Ok(Some(receiver)) => {
                 spawn_task("xswd_handler", async move {
                     xswd_handler(
                         receiver,
@@ -87,6 +87,7 @@ impl XSWD for XelisWallet {
                     .await;
                 });
             }
+            Ok(None) => bail!("Failed to enable XSWD Server: receiver is None"),
             Err(e) => bail!("Error while enabling XSWD Server: {}", e),
         };
         Ok(())
@@ -297,7 +298,7 @@ pub async fn create_app_info(state: &AppState) -> AppInfo {
         .collect();
 
     AppInfo {
-        id: state.get_id().clone(),
+        id: state.get_id().to_string(),
         name: state.get_name().clone(),
         description: state.get_description().clone(),
         url: state.get_url().clone(),

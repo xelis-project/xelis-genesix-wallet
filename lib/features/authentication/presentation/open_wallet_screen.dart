@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:forui/forui.dart';
 import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
-import 'package:genesix/features/authentication/presentation/components/add_wallet_modal_bottom_sheet.dart';
-import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
-import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/settings/domain/network_translate_name.dart';
+import 'package:genesix/features/settings/domain/settings_state.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
+import 'package:genesix/shared/resources/app_resources.dart';
+import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jovial_svg/jovial_svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
 import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
 
@@ -24,221 +29,216 @@ class OpenWalletScreen extends ConsumerStatefulWidget {
   ConsumerState<OpenWalletScreen> createState() => _OpenWalletWidgetState();
 }
 
-class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
+class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
+    with TickerProviderStateMixin {
+  final _formKey = GlobalKey<FormState>();
+  late final FSelectController<String> _selectController =
+      FSelectController<String>(vsync: this);
+
+  @override
+  void dispose() {
+    _selectController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final wallets = ref.watch(walletsProvider);
+    final network = ref.watch(
+      settingsProvider.select((state) => state.network),
+    );
+    final wallets = ref.watch(walletsProvider.future);
+    final appTheme = ref.watch(
+      settingsProvider.select((state) => state.appTheme),
+    );
 
-    return CustomScaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(Spaces.large),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(loc.your_wallets, style: context.headlineMedium),
-                IconButton(
-                  onPressed: () {
-                    context.push(AppScreen.settings.toPath);
-                  },
-                  icon: Icon(
-                    Icons.settings,
-                    color: context.moreColors.mutedColor,
-                    size: 30,
-                  ),
-                  tooltip: loc.settings,
-                ),
-              ],
+    final isDarkMode = appTheme == AppTheme.dark || appTheme == AppTheme.xelis;
+
+    return FScaffold(
+      header: FHeader.nested(
+        suffixes: [
+          Padding(
+            padding: const EdgeInsets.all(Spaces.small),
+            child: FHeaderAction(
+              icon: Icon(FIcons.settings),
+              onPress: () => context.push(AppScreen.lightSettings.toPath),
             ),
-            const SizedBox(height: Spaces.small),
-            Expanded(
-              child: wallets.isNotEmpty
-                  ? Container(
-                      padding: const EdgeInsets.all(Spaces.small),
-                      decoration: BoxDecoration(
-                        color: context.colors.surface.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: ReorderableListView(
-                        proxyDecorator: (child, index, animation) {
-                          return Material(
-                            color: context.colors.surface.withValues(
-                              alpha: 0.5,
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Spacer(flex: 2),
+          Hero(
+            tag: 'genesix-logo',
+            child: ScalableImageWidget(
+              si: isDarkMode
+                  ? AppResources.svgGenesixWalletOneLineWhite
+                  : AppResources.svgGenesixWalletOneLineBlack,
+            ),
+          ),
+          Spacer(),
+          Container(
+            width: context.mediaWidth * 0.9,
+            constraints: BoxConstraints(maxWidth: context.theme.breakpoints.sm),
+            child: FCard(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        FSelectMenuTile(
+                          title: Text('Network'),
+                          initialValue: network,
+                          detailsBuilder: (_, values, _) =>
+                              Text(translateNetworkName(values.first)),
+                          menu: [
+                            FSelectTile(
+                              title: Text('Mainnet'),
+                              value: Network.mainnet,
                             ),
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10),
-                              ),
+                            FSelectTile(
+                              title: Text('Testnet'),
+                              value: Network.testnet,
                             ),
-                            child: child,
-                          );
-                        },
-                        children: <Widget>[
-                          for (final name in wallets.keys)
-                            Material(
-                              color: Colors.transparent,
-                              key: Key(name),
-                              child: InkWell(
-                                onTap: () async {
-                                  if (!await _openWalletWithBiometrics(name)) {
-                                    if (context.mounted) {
-                                      showDialog<void>(
-                                        context: context,
-                                        builder: (context) {
-                                          return PasswordDialog(
-                                            onEnter: (password) {
-                                              _openWallet(name, password);
-                                            },
-                                          );
-                                        },
-                                      );
-                                    }
-                                  }
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(Spaces.small),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      wallets[name]!.isNotEmpty
-                                          ? HashiconWidget(
-                                              hash: wallets[name]!,
-                                              size: const Size(50, 50),
-                                            )
-                                          : const SizedBox(
-                                              width: 50,
-                                              height: 50,
+                            FSelectTile(
+                              title: Text('Stagenet'),
+                              value: Network.stagenet,
+                            ),
+                            FSelectTile(
+                              title: Text('Devnet'),
+                              value: Network.devnet,
+                            ),
+                          ],
+                          onSelect: (value) {
+                            ref
+                                .read(settingsProvider.notifier)
+                                .setNetwork(value.$1);
+                            setState(() {
+                              _selectController.value = null;
+                            });
+                          },
+                        ),
+                        FutureBuilder(
+                          future: wallets,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData &&
+                                snapshot.data!.wallets.isNotEmpty) {
+                              final initialWallet = switch (network) {
+                                Network.mainnet =>
+                                  snapshot.data!.lastWalletsUsed.mainnet,
+                                Network.testnet =>
+                                  snapshot.data!.lastWalletsUsed.testnet,
+                                Network.devnet =>
+                                  snapshot.data!.lastWalletsUsed.devnet,
+                                Network.stagenet =>
+                                  snapshot.data!.lastWalletsUsed.stagenet,
+                              };
+
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                _selectController.value = initialWallet;
+                              });
+
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const SizedBox(height: Spaces.medium),
+                                  FSelect(
+                                    controller: _selectController,
+                                    hint: 'Select a wallet',
+                                    contentScrollHandles: true,
+                                    // autovalidateMode: AutovalidateMode.disabled,
+                                    format: (s) => s,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please select a wallet';
+                                      }
+                                      return null;
+                                    },
+                                    children: snapshot.data!.wallets.entries.map(
+                                      (entry) {
+                                        return FSelectItem.from(
+                                          value: entry.key,
+                                          prefix: FAvatar.raw(
+                                            // style: (style) => style.copyWith(
+                                            //   backgroundColor: context
+                                            //       .theme
+                                            //       .colors
+                                            //       .background,
+                                            // ),
+                                            child: HashiconWidget(
+                                              hash: entry.value,
+                                              size: const Size(25, 25),
                                             ),
-                                      const SizedBox(width: Spaces.small),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              name,
-                                              style: context.headlineSmall,
-                                            ),
-                                            Text(
-                                              truncateText(wallets[name]!),
-                                              style: context.labelLarge!
-                                                  .copyWith(
-                                                    color: context
-                                                        .moreColors
-                                                        .mutedColor,
-                                                  ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(width: 30),
-                                    ],
+                                          ),
+                                          title: Text(entry.key),
+                                          subtitle: Text(
+                                            truncateText(entry.value),
+                                          ),
+                                        );
+                                      },
+                                    ).toList(),
                                   ),
-                                ),
-                              ),
-                            ),
-                        ],
-                        onReorder: (int oldIndex, int newIndex) {
-                          // https://api.flutter.dev/flutter/widgets/ReorderCallback.html
-                          if (oldIndex < newIndex) {
-                            // removing the item at oldIndex will shorten the list by 1.
-                            newIndex -= 1;
-                          }
-
-                          var name = wallets.keys.elementAt(oldIndex);
-                          final w = ref.read(walletsProvider.notifier);
-                          w.orderWallet(name, newIndex);
-                        },
-                      ),
-                    )
-                  : Text(
-                      loc.no_wallet_available,
-                      style: context.bodyMedium!.copyWith(
-                        color: context.moreColors.mutedColor,
-                        fontSize: 18,
-                      ),
+                                  const SizedBox(height: Spaces.large),
+                                  FButton(
+                                    onPress: () =>
+                                        _handleOpenWalletButtonPressed(context),
+                                    child: const Text('Open Wallet'),
+                                  ),
+                                ],
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                      ],
                     ),
-            ),
-            const SizedBox(height: Spaces.large),
-            Row(
-              children: [
-                IconButton.filled(
-                  onPressed: () => _showAddWalletModalBottomSheetMenu(),
-                  icon: Icon(
-                    Icons.add_rounded,
-                    size: 30,
-                    color: context.colors.onPrimary,
                   ),
-                ),
-                const SizedBox(width: Spaces.small),
-                Text(
-                  loc.add_a_wallet,
-                  style: context.bodyLarge!.copyWith(
-                    color: context.moreColors.mutedColor,
+                  FDivider(),
+                  FButton(
+                    onPress: () {
+                      context.push(AppScreen.createWallet.toPath);
+                    },
+                    child: const Text('Create Wallet'),
                   ),
-                ),
-              ],
+                  const SizedBox(height: Spaces.medium),
+                  FButton(
+                    onPress: () {
+                      context.push(AppScreen.importWallet.toPath);
+                    },
+                    child: const Text('Import Wallet'),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          ),
+          Spacer(flex: 2),
+        ],
       ),
     );
   }
 
-  Future<void> _showAddWalletModalBottomSheetMenu() async {
-    final importedWalletData =
-        await showModalBottomSheet<({String path, String walletName})?>(
-          context: context,
-          isScrollControlled: true,
-          builder: (context) {
-            return const AddWalletModalBottomSheetMenu();
-          },
-        );
-
-    // only used for desktop wallet import
-    if (importedWalletData != null) {
-      final password = await _getPassword();
-      if (password != null) {
-        _openImportedWallet(
-          importedWalletData.path,
-          importedWalletData.walletName,
-          password,
-        );
+  Future<void> _handleOpenWalletButtonPressed(BuildContext context) async {
+    if (_formKey.currentState?.validate() ?? false) {
+      if (!await _openWalletWithBiometrics(_selectController.value!)) {
+        if (context.mounted) {
+          showFDialog<void>(
+            context: context,
+            builder: (context, style, animation) {
+              return PasswordDialog(
+                style,
+                animation,
+                onEnter: (password) {
+                  _openWallet(_selectController.value!, password);
+                },
+              );
+            },
+          );
+        }
       }
     }
-  }
-
-  Future<void> _openImportedWallet(
-    String path,
-    String walletName,
-    String password,
-  ) async {
-    context.loaderOverlay.show();
-
-    await ref
-        .read(authenticationProvider.notifier)
-        .openImportedWallet(path, walletName, password);
-
-    if (mounted && context.loaderOverlay.visible) {
-      context.loaderOverlay.hide();
-    }
-  }
-
-  Future<String?> _getPassword() async {
-    return showDialog<String>(
-      context: context,
-      builder: (context) {
-        return PasswordDialog(
-          onEnter: (password) {
-            context.pop(password);
-          },
-        );
-      },
-    );
   }
 
   void _openWallet(String name, String password) async {
@@ -271,8 +271,8 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen> {
         return true;
       } else {
         ref
-            .read(snackBarQueueProvider.notifier)
-            .showError(loc.password_not_found);
+            .read(toastProvider.notifier)
+            .showError(description: loc.password_not_found);
       }
     }
     return false;

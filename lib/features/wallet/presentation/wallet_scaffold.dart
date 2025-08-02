@@ -1,0 +1,77 @@
+import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:forui/forui.dart';
+import 'package:genesix/features/wallet/presentation/side_bar/side_bar.dart';
+import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/widgets/components/body_layout_builder.dart';
+import 'package:go_router/go_router.dart';
+
+class WalletScaffold extends ConsumerStatefulWidget {
+  const WalletScaffold(
+    this.child,
+    this.title,
+    this.headerSuffixes, {
+    super.key,
+  });
+
+  final Widget child;
+  final String? title;
+  final List<Widget>? headerSuffixes;
+
+  @override
+  ConsumerState createState() => _WalletScaffoldState();
+}
+
+class _WalletScaffoldState extends ConsumerState<WalletScaffold> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (context.mounted && context.canPop()) {
+        context.pop();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final breakpoints = context.theme.breakpoints;
+    final isMobile = context.mediaWidth < breakpoints.sm;
+    final needTitle = widget.title != null && widget.title!.isNotEmpty;
+
+    return FScaffold(
+      header: FHeader.nested(
+        // titleAlignment: Alignment.centerLeft,
+        titleAlignment: Alignment.center,
+        title: needTitle
+            ? Padding(
+                padding: const EdgeInsets.symmetric(vertical: Spaces.small),
+                child: Text(widget.title!),
+              )
+            : SizedBox.shrink(),
+        prefixes: isMobile
+            ? [
+                Padding(
+                  padding: const EdgeInsets.all(Spaces.small),
+                  child: FHeaderAction(
+                    icon: const Icon(FIcons.menu),
+                    onPress: () => showFSheet<void>(
+                      context: context,
+                      side: FLayout.ltr,
+                      builder: (context) => SideBar(),
+                    ),
+                  ),
+                ),
+              ]
+            : [],
+        suffixes: widget.headerSuffixes ?? [],
+      ),
+      sidebar: !isMobile ? SideBar() : null,
+      child: ScrollConfiguration(
+        behavior: const ScrollBehavior().copyWith(scrollbars: false),
+        child: BodyLayoutBuilder(child: widget.child),
+      ),
+    );
+  }
+}

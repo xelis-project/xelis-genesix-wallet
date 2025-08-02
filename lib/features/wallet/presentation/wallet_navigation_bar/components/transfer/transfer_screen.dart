@@ -11,11 +11,11 @@ import 'package:genesix/features/wallet/presentation/address_book/select_address
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/asset_dropdown_menu_item.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_dialog.dart';
 import 'package:genesix/src/generated/rust_bridge/api/utils.dart';
-import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
-import 'package:genesix/shared/theme/input_decoration.dart';
+import 'package:genesix/shared/theme/input_decoration_old.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
@@ -293,8 +293,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
     if (_selectedAssetBalance == AppResources.zeroBalance) {
       final loc = ref.read(appLocalizationsProvider);
       ref
-          .read(snackBarQueueProvider.notifier)
-          .showError(loc.no_balance_to_transfer);
+          .read(toastProvider.notifier)
+          .showError(description: loc.no_balance_to_transfer);
       return;
     }
 

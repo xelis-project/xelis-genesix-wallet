@@ -20,8 +20,10 @@ class NetworkNodesStateRepository extends PersistentState<NetworkNodesState> {
           mainnetNodes: AppResources.mainnetNodes,
           testnetAddress: AppResources.testnetNodes.first,
           testnetNodes: AppResources.testnetNodes,
-          devAddress: AppResources.devNodes.first,
-          devNodes: AppResources.devNodes,
+          devnetAddress: AppResources.devnetNodes.first,
+          devnetNodes: AppResources.devnetNodes,
+          stagenetAddress: AppResources.stagenetNodes.first,
+          stagenetNodes: AppResources.stagenetNodes,
         );
       }
       return NetworkNodesState.fromJson(value as Map<String, dynamic>);
