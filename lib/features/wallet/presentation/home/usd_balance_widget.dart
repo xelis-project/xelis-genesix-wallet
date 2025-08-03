@@ -8,7 +8,7 @@ import 'package:genesix/features/wallet/presentation/home/xelis_price_sparkline.
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/more_colors.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:skeletonizer/skeletonizer.dart';
+import 'package:genesix/shared/widgets/components/custom_skeletonizer.dart';
 
 class UsdBalanceWidget extends ConsumerStatefulWidget {
   const UsdBalanceWidget(this.xelisBalance, {super.key});
@@ -97,7 +97,7 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
               const SizedBox(width: Spaces.medium),
               if (priceHistory24h.isNotEmpty && !hideBalance)
                 Padding(
-                  padding: const EdgeInsets.only(top: 4.0),
+                  padding: const EdgeInsets.only(top: Spaces.extraSmall),
                   child: XelisPriceSparkline(
                     pricePoints: asyncSnapshot.data?.pricePoints ?? [],
                     sparklineColor: sparklineColor,
@@ -106,12 +106,14 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
             ],
           );
         }
-        return Skeletonizer(
+        return CustomSkeletonizer(
           child: Row(
             children: [
               Text('Dummy USDT Balance'),
               const SizedBox(width: Spaces.medium),
               Text('Dummy Change'),
+              const SizedBox(width: Spaces.medium),
+              SizedBox(width: 100, height: 24),
             ],
           ),
         );
