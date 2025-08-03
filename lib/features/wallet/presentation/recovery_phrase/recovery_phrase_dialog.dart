@@ -7,18 +7,24 @@ import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:go_router/go_router.dart';
 
-class SeedContentDialog extends ConsumerStatefulWidget {
-  const SeedContentDialog(this.style, this.animation, this.seed, {super.key});
+class RecoveryPhraseDialog extends ConsumerStatefulWidget {
+  const RecoveryPhraseDialog(
+    this.style,
+    this.animation,
+    this.seed, {
+    super.key,
+  });
 
   final String seed;
   final FDialogStyle style;
   final Animation<double> animation;
 
   @override
-  ConsumerState<SeedContentDialog> createState() => _SeedContentDialogState();
+  ConsumerState<RecoveryPhraseDialog> createState() =>
+      _RecoveryPhraseDialogState();
 }
 
-class _SeedContentDialogState extends ConsumerState<SeedContentDialog> {
+class _RecoveryPhraseDialogState extends ConsumerState<RecoveryPhraseDialog> {
   bool _confirmed = false;
 
   @override
@@ -62,7 +68,7 @@ class _SeedContentDialogState extends ConsumerState<SeedContentDialog> {
                         Text(
                           '${i + 1}.',
                           style: context.theme.typography.sm.copyWith(
-                            color: context.colors.primary,
+                            color: context.theme.colors.primary,
                           ),
                         ),
                         const SizedBox(width: Spaces.small),

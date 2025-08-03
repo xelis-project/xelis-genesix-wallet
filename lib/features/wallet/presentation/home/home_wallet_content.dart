@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
-import 'package:genesix/features/authentication/presentation/components/seed_content_dialog.dart';
+import 'package:genesix/features/wallet/presentation/recovery_phrase/recovery_phrase_dialog.dart';
 import 'package:genesix/features/wallet/presentation/home/balance_card.dart';
 import 'package:genesix/features/wallet/presentation/home/connection_status_card.dart';
 import 'package:genesix/features/wallet/presentation/home/last_news_card.dart';
@@ -35,7 +35,7 @@ class _HomeWalletContentState extends ConsumerState<HomeWalletContent> {
           context: context,
           barrierDismissible: false,
           builder: (context, style, animation) {
-            return SeedContentDialog(style, animation, seed);
+            return RecoveryPhraseDialog(style, animation, seed);
           },
         );
       });

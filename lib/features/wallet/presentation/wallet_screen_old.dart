@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
-import 'package:genesix/features/authentication/presentation/components/seed_content_dialog.dart';
+import 'package:genesix/features/wallet/presentation/recovery_phrase/recovery_phrase_dialog.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/history_providers.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
@@ -44,7 +44,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           context: context,
           barrierDismissible: false,
           builder: (context, style, animation) {
-            return SeedContentDialog(style, animation, seed);
+            return RecoveryPhraseDialog(style, animation, seed);
           },
         );
       });

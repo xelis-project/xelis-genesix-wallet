@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
+import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
@@ -9,6 +10,7 @@ import 'package:genesix/features/settings/domain/settings_state.dart';
 import 'package:genesix/features/wallet/presentation/side_bar/side_bar_footer.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jovial_svg/jovial_svg.dart';
@@ -157,7 +159,18 @@ class _SideBarState extends ConsumerState<SideBar> {
               label: Text(loc.recovery_phrase),
               onPress: () {
                 _closeSideBar();
-                context.go(AuthAppScreen.recoveryPhrase.toPath);
+
+                if (context.goRouterState.fullPath ==
+                    AuthAppScreen.recoveryPhrase.toPath) {
+                  return;
+                }
+
+                startWithBiometricAuth(
+                  ref,
+                  callback: (ref) =>
+                      context.go(AuthAppScreen.recoveryPhrase.toPath),
+                  reason: 'Please authenticate to view your recovery phrase',
+                );
               },
             ),
             FSidebarItem(
