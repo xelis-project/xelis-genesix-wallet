@@ -2,13 +2,22 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/wallet/presentation/address_book/add_contact_sheet.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/extensions.dart';
 
-class AddContactHeaderAction extends ConsumerWidget {
+class AddContactHeaderAction extends ConsumerStatefulWidget {
   const AddContactHeaderAction({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AddContactHeaderAction> createState() =>
+      _AddContactHeaderActionState();
+}
+
+class _AddContactHeaderActionState
+    extends ConsumerState<AddContactHeaderAction> {
+  @override
+  Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     return Padding(
       padding: const EdgeInsets.all(Spaces.small),
@@ -16,12 +25,19 @@ class AddContactHeaderAction extends ConsumerWidget {
         tipBuilder: (context, controller) => Text('Add Contact'),
         child: FHeaderAction(
           icon: Icon(FIcons.plus),
-          onPress: () {
-            // TODO: Implement add contact functionality
-            print('add contact');
-          },
+          onPress: _showAddContactSheet,
         ),
       ),
+    );
+  }
+
+  void _showAddContactSheet() {
+    showFSheet<void>(
+      context: context,
+      side: FLayout.btt,
+      useRootNavigator: true,
+      mainAxisMaxRatio: context.getFSheetRatio,
+      builder: (context) => AddContactSheet(),
     );
   }
 }

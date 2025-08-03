@@ -7,7 +7,7 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
-import 'package:genesix/features/wallet/presentation/address_book/select_address_dialog.dart';
+import 'package:genesix/features/wallet/presentation/address_book/select_address_dialog_old.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/asset_dropdown_menu_item.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_dialog.dart';
 import 'package:genesix/src/generated/rust_bridge/api/utils.dart';
