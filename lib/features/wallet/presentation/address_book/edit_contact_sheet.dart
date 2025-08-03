@@ -56,12 +56,8 @@ class _EditContactSheetState extends ConsumerState<EditContactSheet> {
             FTextFormField(
               controller: _addressController,
               label: Text('Address'),
-              // hint: 'xel:0x1234567890abcdef1234567890abcdef12345678',
               enabled: false,
-              // keyboardType: TextInputType.text,
               maxLines: 1,
-              // autocorrect: false,
-              // validator: _addressValidator,
             ),
             const SizedBox(height: Spaces.large),
             FButton(
