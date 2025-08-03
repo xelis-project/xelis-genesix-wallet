@@ -55,9 +55,9 @@ extension DisplayUtils on BuildContext {
 
   Size get mediaSize => MediaQuery.sizeOf(this);
 
-  double get mediaWidth => MediaQuery.of(this).size.width;
+  double get mediaWidth => mediaSize.width;
 
-  double get mediaHeight => MediaQuery.of(this).size.height;
+  double get mediaHeight => mediaSize.height;
 
   bool get isDarkMode {
     final brightness = mediaQueryData.platformBrightness;

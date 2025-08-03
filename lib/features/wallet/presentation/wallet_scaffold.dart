@@ -68,10 +68,7 @@ class _WalletScaffoldState extends ConsumerState<WalletScaffold> {
         suffixes: widget.headerSuffixes ?? [],
       ),
       sidebar: !isMobile ? SideBar() : null,
-      child: ScrollConfiguration(
-        behavior: const ScrollBehavior().copyWith(scrollbars: false),
-        child: BodyLayoutBuilder(child: widget.child),
-      ),
+      child: BodyLayoutBuilder(child: widget.child),
     );
   }
 }
