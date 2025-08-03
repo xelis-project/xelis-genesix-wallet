@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
@@ -64,27 +65,34 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
                 ),
               ),
               const SizedBox(width: Spaces.medium),
-              Row(
-                children: [
-                  if (!hideBalance) ...[
-                    Icon(
-                      isPositiveChange ? FIcons.chevronUp : FIcons.chevronDown,
-                      color: isPositiveChange
-                          ? context.theme.colors.upColor
-                          : context.theme.colors.downColor,
-                      size: 16,
+              FTooltip(
+                tipBuilder: (context, controller) {
+                  return Text('Percentage change in 24 hours');
+                },
+                child: Row(
+                  children: [
+                    if (!hideBalance) ...[
+                      Icon(
+                        isPositiveChange
+                            ? FIcons.chevronUp
+                            : FIcons.chevronDown,
+                        color: isPositiveChange
+                            ? context.theme.colors.upColor
+                            : context.theme.colors.downColor,
+                        size: 16,
+                      ),
+                    ],
+                    Text(
+                      displayedPercentChange24h,
+                      style: context.theme.typography.sm.copyWith(
+                        color: isPositiveChange
+                            ? context.theme.colors.upColor
+                            : context.theme.colors.downColor,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
-                  Text(
-                    displayedPercentChange24h,
-                    style: context.theme.typography.sm.copyWith(
-                      color: isPositiveChange
-                          ? context.theme.colors.upColor
-                          : context.theme.colors.downColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
+                ),
               ),
               const SizedBox(width: Spaces.medium),
               if (priceHistory24h.isNotEmpty && !hideBalance)
