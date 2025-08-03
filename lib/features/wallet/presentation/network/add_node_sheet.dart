@@ -38,9 +38,11 @@ class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
               label: Text('Node Name'),
               hint: 'My Node',
               keyboardType: TextInputType.text,
+              maxLines: 1,
+              autocorrect: false,
               validator: (value) {
                 if (value == null || value.isEmpty || value.trim().isEmpty) {
-                  return 'Please enter a wallet name';
+                  return loc.field_required_error;
                 }
                 return null;
               },
@@ -51,9 +53,11 @@ class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
               label: Text('URL'),
               hint: 'https://example.com',
               keyboardType: TextInputType.text,
+              maxLines: 1,
+              autocorrect: false,
               validator: (value) {
                 if (value == null || value.isEmpty || value.trim().isEmpty) {
-                  return 'Please enter a URL';
+                  return loc.field_required_error;
                 }
                 if (!Uri.tryParse(value)!.hasScheme) {
                   return 'Please enter a valid URL';

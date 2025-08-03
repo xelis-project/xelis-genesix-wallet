@@ -48,8 +48,8 @@ class _RecoveryPhraseTabState extends ConsumerState<RecoveryPhraseTab> {
               controller: _recoveryPhraseController,
               label: const Text('Recovery Phrase'),
               validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your recovery phrase';
+                if (value == null || value.isEmpty || value.trim().isEmpty) {
+                  return loc.field_required_error;
                 }
                 final words = value.trim().split(RegExp(r'\s+'));
                 if (words.length < 24 || words.length > 25) {
@@ -66,8 +66,8 @@ class _RecoveryPhraseTabState extends ConsumerState<RecoveryPhraseTab> {
               label: Text('Name'),
               keyboardType: TextInputType.text,
               validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a wallet name';
+                if (value == null || value.isEmpty || value.trim().isEmpty) {
+                  return loc.field_required_error;
                 }
                 return null;
               },
@@ -79,8 +79,8 @@ class _RecoveryPhraseTabState extends ConsumerState<RecoveryPhraseTab> {
               obscureText: true,
               keyboardType: TextInputType.visiblePassword,
               validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a password';
+                if (value == null || value.isEmpty || value.trim().isEmpty) {
+                  return loc.field_required_error;
                 }
                 return null;
               },
@@ -92,11 +92,11 @@ class _RecoveryPhraseTabState extends ConsumerState<RecoveryPhraseTab> {
               obscureText: true,
               keyboardType: TextInputType.visiblePassword,
               validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please confirm your password';
+                if (value == null || value.isEmpty || value.trim().isEmpty) {
+                  return loc.field_required_error;
                 }
-                if (value != _passwordController.text) {
-                  return 'Passwords do not match';
+                if (value.trim() != _passwordController.text.trim()) {
+                  return loc.password_not_match;
                 }
                 return null;
               },
@@ -117,8 +117,8 @@ class _RecoveryPhraseTabState extends ConsumerState<RecoveryPhraseTab> {
           .read(authenticationProvider.notifier)
           .createWallet(
             _nameController.text.trim(),
-            _passwordController.text,
-            seed: _recoveryPhraseController.text,
+            _passwordController.text.trim(),
+            seed: _recoveryPhraseController.text.trim(),
           );
 
       if (mounted && context.loaderOverlay.visible) {

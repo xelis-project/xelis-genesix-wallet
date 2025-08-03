@@ -64,11 +64,10 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
                       label: Text('Name'),
                       keyboardType: TextInputType.text,
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a wallet name';
-                        }
-                        if (value.trim().isEmpty) {
-                          return 'Wallet name cannot be empty';
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.trim().isEmpty) {
+                          return loc.field_required_error;
                         }
                         return null;
                       },
@@ -80,11 +79,10 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
                       obscureText: true,
                       keyboardType: TextInputType.visiblePassword,
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a password';
-                        }
-                        if (value.trim().isEmpty) {
-                          return 'Password cannot be empty';
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.trim().isEmpty) {
+                          return loc.field_required_error;
                         }
                         return null;
                       },
@@ -96,14 +94,13 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
                       obscureText: true,
                       keyboardType: TextInputType.visiblePassword,
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please confirm your password';
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.trim().isEmpty) {
+                          return loc.field_required_error;
                         }
-                        if (value.trim().isEmpty) {
-                          return 'Password cannot be empty';
-                        }
-                        if (value != _passwordController.text) {
-                          return 'Passwords do not match';
+                        if (value.trim() != _passwordController.text.trim()) {
+                          return loc.password_not_match;
                         }
                         return null;
                       },
@@ -129,7 +126,10 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
 
       await ref
           .read(authenticationProvider.notifier)
-          .createWallet(_nameController.text, _passwordController.text);
+          .createWallet(
+            _nameController.text.trim(),
+            _passwordController.text.trim(),
+          );
 
       if (mounted && context.loaderOverlay.visible) {
         context.loaderOverlay.hide();

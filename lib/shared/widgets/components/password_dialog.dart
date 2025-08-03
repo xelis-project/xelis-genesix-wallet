@@ -114,9 +114,8 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
               label: Text(loc.password.capitalize()),
               keyboardType: TextInputType.visiblePassword,
               validator: (value) {
-                if (value == null || value.isEmpty) {
-                  // TODO: Localize this message
-                  return 'Please enter a password';
+                if (value == null || value.isEmpty || value.trim().isEmpty) {
+                  return loc.field_required_error;
                 }
                 return null;
               },

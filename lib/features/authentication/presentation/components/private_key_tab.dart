@@ -49,8 +49,8 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
               label: const Text('Private Key'),
               keyboardType: TextInputType.text,
               validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your private key';
+                if (value == null || value.isEmpty || value.trim().isEmpty) {
+                  return loc.field_required_error;
                 }
                 // Validate the private key format (64 hexadecimal characters)
                 final regex = RegExp(r'^[0-9a-fA-F]{64}$');
@@ -68,8 +68,8 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
               label: Text('Name'),
               keyboardType: TextInputType.text,
               validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a wallet name';
+                if (value == null || value.isEmpty || value.trim().isEmpty) {
+                  return loc.field_required_error;
                 }
                 return null;
               },
@@ -81,8 +81,8 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
               obscureText: true,
               keyboardType: TextInputType.visiblePassword,
               validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a password';
+                if (value == null || value.isEmpty || value.trim().isEmpty) {
+                  return loc.field_required_error;
                 }
                 return null;
               },
@@ -94,11 +94,11 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
               obscureText: true,
               keyboardType: TextInputType.visiblePassword,
               validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please confirm your password';
+                if (value == null || value.isEmpty || value.trim().isEmpty) {
+                  return loc.field_required_error;
                 }
-                if (value != _passwordController.text) {
-                  return 'Passwords do not match';
+                if (value.trim() != _passwordController.text.trim()) {
+                  return loc.password_not_match;
                 }
                 return null;
               },
@@ -119,8 +119,8 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
           .read(authenticationProvider.notifier)
           .createWallet(
             _nameController.text.trim(),
-            _passwordController.text,
-            privateKey: _privateKeyController.text,
+            _passwordController.text.trim(),
+            privateKey: _privateKeyController.text.trim(),
           );
 
       if (mounted && context.loaderOverlay.visible) {

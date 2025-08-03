@@ -105,11 +105,10 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
                             )
                             .call,
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a wallet name';
-                          }
-                          if (value.trim().isEmpty) {
-                            return 'Wallet name cannot be empty';
+                          if (value == null ||
+                              value.isEmpty ||
+                              value.trim().isEmpty) {
+                            return loc.field_required_error;
                           }
                           if (value.trim() != walletName &&
                               asyncSnapshot.data!.wallets.containsKey(
