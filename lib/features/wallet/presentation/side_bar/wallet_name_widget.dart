@@ -57,85 +57,72 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
     );
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      spacing: Spaces.medium,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: Spaces.small,
-          children: [
-            FAvatar.raw(
-              style: (style) => style.copyWith(
-                backgroundColor: context.theme.colors.background,
-              ),
-              child: HashiconWidget(
-                hash: walletAddress,
-                size: const Size(35, 35),
-              ),
-            ),
-            FutureBuilder(
-              future: wallets,
-              builder: (context, asyncSnapshot) {
-                if (asyncSnapshot.hasData && asyncSnapshot.data != null) {
-                  // Check if the wallet name is already set in the controller
-                  if (_nameController.text != walletName) {
-                    _nameController.text = walletName;
-                  }
-
-                  return SizedBox(
-                    width: 200, // Adjust width as needed
-                    child: Form(
-                      key: _formKey,
-                      child: FTextFormField(
-                        controller: _nameController,
-                        focusNode: _focusNode,
-                        enabled: editing,
-                        autocorrect: false,
-                        keyboardType: TextInputType.text,
-                        maxLines: 1,
-                        style: context.theme.textFieldStyle
-                            .copyWith(
-                              contentTextStyle: FWidgetStateMap({
-                                WidgetState.disabled: context
-                                    .theme
-                                    .typography
-                                    .lg
-                                    .copyWith(
-                                      color: context
-                                          .theme
-                                          .colors
-                                          .primaryForeground,
-                                    ),
-                                WidgetState.any: context.theme.typography.lg
-                                    .copyWith(
-                                      color: context.theme.colors.primary,
-                                    ),
-                              }),
-                            )
-                            .call,
-                        validator: (value) {
-                          if (value == null ||
-                              value.isEmpty ||
-                              value.trim().isEmpty) {
-                            return loc.field_required_error;
-                          }
-                          if (value.trim() != walletName &&
-                              asyncSnapshot.data!.wallets.containsKey(
-                                value.trim(),
-                              )) {
-                            return 'Wallet name already exists';
-                          }
-                          return null;
-                        },
-                        onSubmit: (value) => _onSave(value.trim()),
-                      ),
-                    ),
-                  );
+        FAvatar.raw(
+          style: (style) =>
+              style.copyWith(backgroundColor: context.theme.colors.background),
+          child: HashiconWidget(hash: walletAddress, size: const Size(35, 35)),
+        ),
+        Expanded(
+          child: FutureBuilder(
+            future: wallets,
+            builder: (context, asyncSnapshot) {
+              if (asyncSnapshot.hasData && asyncSnapshot.data != null) {
+                // Check if the wallet name is already set in the controller
+                if (_nameController.text != walletName) {
+                  _nameController.text = walletName;
                 }
-                // TODO: replace by shimmer
-                return SizedBox.shrink();
-              },
-            ),
-          ],
+
+                return SizedBox(
+                  width: 200, // Adjust width as needed
+                  child: Form(
+                    key: _formKey,
+                    child: FTextFormField(
+                      controller: _nameController,
+                      focusNode: _focusNode,
+                      enabled: editing,
+                      autocorrect: false,
+                      keyboardType: TextInputType.text,
+                      maxLines: 1,
+                      style: context.theme.textFieldStyle
+                          .copyWith(
+                            contentTextStyle: FWidgetStateMap({
+                              WidgetState.disabled: context.theme.typography.lg
+                                  .copyWith(
+                                    color:
+                                        context.theme.colors.primaryForeground,
+                                  ),
+                              WidgetState.any: context.theme.typography.lg
+                                  .copyWith(
+                                    color: context.theme.colors.primary,
+                                  ),
+                            }),
+                          )
+                          .call,
+                      validator: (value) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.trim().isEmpty) {
+                          return loc.field_required_error;
+                        }
+                        if (value.trim() != walletName &&
+                            asyncSnapshot.data!.wallets.containsKey(
+                              value.trim(),
+                            )) {
+                          return 'Wallet name already exists';
+                        }
+                        return null;
+                      },
+                      onSubmit: (value) => _onSave(value.trim()),
+                    ),
+                  ),
+                );
+              }
+              // TODO: replace by shimmer
+              return SizedBox.shrink();
+            },
+          ),
         ),
         AnimatedSwitcher(
           key: ValueKey(editing),
