@@ -53,6 +53,9 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
                           _searchController.text.isNotEmpty
                               ? loc.no_contact_found
                               : 'Your address book is empty, add a contact!',
+                          style: context.theme.typography.base.copyWith(
+                            color: context.theme.colors.mutedForeground,
+                          ),
                         ),
                       ],
                     ),
