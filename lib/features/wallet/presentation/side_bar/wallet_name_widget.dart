@@ -8,6 +8,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 
 class WalletNameWidget extends ConsumerStatefulWidget {
@@ -28,6 +29,13 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
     super.initState();
     _nameController = TextEditingController();
     _focusNode = FocusNode();
+    _focusNode.addListener(() {
+      if (!_focusNode.hasFocus) {
+        setState(() {
+          editing = false;
+        });
+      }
+    });
   }
 
   @override
