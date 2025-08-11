@@ -32,14 +32,14 @@ dependencies:
   window_manager: ^0.5.1
   country_flags: ^3.3.0
   package_info_plus: ^8.3.0
-  file_picker: ^10.2.1
+  file_picker: ^10.2.4
   icons_launcher: ^3.0.1
   url_launcher: ^6.3.2
   localstorage: ^6.0.0
   talker_flutter: ^4.9.3
   talker_riverpod_logger: ^4.9.3
   group_button: ^5.3.4
-  http: ^1.4.0
+  http: ^1.5.0
   google_fonts: ^6.3.0
   io: ^1.0.5
   flutter_secure_storage: ^9.2.4
@@ -73,7 +73,7 @@ dev_dependencies:
   json_serializable: ^6.9.5
   riverpod_generator: ^2.6.5
   riverpod_lint: ^2.6.5
-  msix: ^3.16.10
+  msix: ^3.16.12
   #  flutter_test:
   #    sdk: flutter
   #  integration_test:

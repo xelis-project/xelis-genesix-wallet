@@ -333,10 +333,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: "13ba4e627ef24503a465d1d61b32596ce10eb6b8903678d362a528f9939b4aa8"
+      sha256: "970d33d79e1da667b6da222575fd7f2e30e323ca76251504477e6d51405b2d9a"
       url: "https://pub.dev"
     source: hosted
-    version: "10.2.1"
+    version: "10.2.4"
   fixnum:
     dependency: transitive
     description:
@@ -589,10 +589,10 @@ packages:
     dependency: transitive
     description:
       name: hashlib
-      sha256: a7b34c92005e9ccf462b71bcab40b5d5cff53669c7e87e6c7277f18bb075bf05
+      sha256: d240f2a7ce92946b4e7c0c77ace81ed119f828beca7b3363b1607fbb7f3a9395
       url: "https://pub.dev"
     source: hosted
-    version: "1.21.3"
+    version: "1.22.0"
   hashlib_codecs:
     dependency: transitive
     description:
@@ -621,10 +621,10 @@ packages:
     dependency: "direct main"
     description:
       name: http
-      sha256: "2c11f3f94c687ee9bad77c171151672986360b2b001d109814ee7140b2cf261b"
+      sha256: bb2ce4590bc2667c96f318d68cac1b5a7987ec819351d32b1c987239a815e007
       url: "https://pub.dev"
     source: hosted
-    version: "1.4.0"
+    version: "1.5.0"
   http_multi_server:
     dependency: transitive
     description:
@@ -845,10 +845,10 @@ packages:
     dependency: "direct dev"
     description:
       name: msix
-      sha256: bbb9b3ff4a9f8e7e7507b2a22dc0517fd1fe3db44e72de7ab052cb6b362406ee
+      sha256: f88033fcb9e0dd8de5b18897cbebbd28ea30596810f4a7c86b12b0c03ace87e5
       url: "https://pub.dev"
     source: hosted
-    version: "3.16.10"
+    version: "3.16.12"
   nitrogen_types:
     dependency: transitive
     description:
