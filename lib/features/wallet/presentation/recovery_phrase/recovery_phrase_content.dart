@@ -97,10 +97,18 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
                     ),
                   ),
                   Spacer(),
-                  FButton.icon(
-                    onPress: () =>
-                        copyToClipboard(_seedWords.join(" "), ref, loc.copied),
-                    child: const Icon(FIcons.copy, size: 24),
+                  FTooltip(
+                    tipBuilder: (context, controller) {
+                      return Text(loc.copy_recovery_phrase);
+                    },
+                    child: FButton.icon(
+                      onPress: () => copyToClipboard(
+                        _seedWords.join(" "),
+                        ref,
+                        loc.copied,
+                      ),
+                      child: const Icon(FIcons.copy, size: 24),
+                    ),
                   ),
                 ],
               ),
