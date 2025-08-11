@@ -71,11 +71,16 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
                   ],
                 );
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Text(
-                  'No transactions yet.',
-                  style: context.theme.typography.sm.copyWith(
-                    color: context.theme.colors.mutedForeground,
-                  ),
+                return Column(
+                  children: [
+                    const SizedBox(height: Spaces.small),
+                    Text(
+                      'No transactions yet.',
+                      style: context.theme.typography.sm.copyWith(
+                        color: context.theme.colors.mutedForeground,
+                      ),
+                    ),
+                  ],
                 );
               }
 

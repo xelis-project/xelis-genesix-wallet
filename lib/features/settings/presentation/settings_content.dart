@@ -121,8 +121,7 @@ class _SettingsContentState extends ConsumerState<SettingsContent> {
                   ),
                   FTile(
                     prefix: Icon(FIcons.cable),
-                    // title: Text(loc.xswd_status),
-                    title: Text('XSWD'),
+                    title: Text(loc.xswd_status),
                     subtitle: Text(loc.xswd_setting_label),
                     suffix: FSwitch(
                       value: ref.watch(
