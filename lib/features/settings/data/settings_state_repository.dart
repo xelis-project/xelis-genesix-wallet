@@ -13,13 +13,12 @@ class SettingsStateRepository extends PersistentState<SettingsState> {
 
   @override
   SettingsState fromStorage() {
+    var locale = const Locale('en');
     try {
       final value =
           genesixSharedPreferences.get(key: storageKey)
               as Map<String, dynamic>?;
       if (value == null) {
-        var locale = const Locale('en');
-
         // check user system language and apply if available
         final languageCode =
             WidgetsBinding.instance.platformDispatcher.locale.languageCode;
@@ -33,7 +32,7 @@ class SettingsStateRepository extends PersistentState<SettingsState> {
       return SettingsState.fromJson(value);
     } catch (e) {
       talker.critical('SettingsStateRepository: $e');
-      rethrow;
+      return SettingsState(locale: locale);
     }
   }
 
