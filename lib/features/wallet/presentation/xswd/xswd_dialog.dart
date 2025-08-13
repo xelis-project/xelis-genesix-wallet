@@ -14,8 +14,8 @@ import 'package:genesix/features/wallet/presentation/xswd/components/transfer_bu
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/shared/widgets/components/generic_dialog.dart';
-import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown.dart';
+import 'package:genesix/shared/widgets/components/generic_dialog_old.dart';
+import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown_old.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 import 'package:go_router/go_router.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';

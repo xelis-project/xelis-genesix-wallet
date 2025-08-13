@@ -9,6 +9,7 @@ import 'package:genesix/features/settings/presentation/settings_content.dart';
 import 'package:genesix/features/wallet/presentation/address_book/add_contact_header_action.dart';
 import 'package:genesix/features/wallet/presentation/address_book/address_book_content.dart';
 import 'package:genesix/features/wallet/presentation/assets/assets_content.dart';
+import 'package:genesix/features/wallet/presentation/history/filters_button.dart';
 import 'package:genesix/features/wallet/presentation/history/history_content.dart';
 import 'package:genesix/features/wallet/presentation/home/home_wallet_content.dart';
 import 'package:genesix/features/wallet/presentation/network/network_content.dart';
@@ -117,6 +118,7 @@ class WalletShellRoute extends ShellRouteData {
     final suffixes = switch (authPathScreen) {
       AuthAppScreen.settings => [const ThemeModeSwitcher()],
       AuthAppScreen.addressBook => [const AddContactHeaderAction()],
+      AuthAppScreen.history => [const FiltersButton()],
       _ => null,
     };
 

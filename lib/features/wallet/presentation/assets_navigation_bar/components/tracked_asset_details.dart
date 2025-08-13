@@ -7,7 +7,7 @@ import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/shared/widgets/components/generic_dialog.dart';
+import 'package:genesix/shared/widgets/components/generic_dialog_old.dart';
 import 'package:go_router/go_router.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 

@@ -142,9 +142,9 @@ class _TransactionEntryWidgetState
                   children: [
                     Text(
                       loc.topoheight.toLowerCase(),
-                      style: context.labelMedium?.copyWith(
-                        color: context.moreColors.mutedColor,
-                      ),
+                      // style: context.labelMedium?.copyWith(
+                      //   color: context.moreColors.mutedColor,
+                      // ),
                     ),
                     const SizedBox(height: Spaces.extraSmall),
                     SelectableText(topoheight, style: context.bodyLarge),
@@ -158,14 +158,14 @@ class _TransactionEntryWidgetState
                 children: [
                   Text(
                     labelThirdColumn,
-                    style: context.labelMedium?.copyWith(
-                      color: context.moreColors.mutedColor,
-                    ),
+                    // style: context.labelMedium?.copyWith(
+                    //   color: context.moreColors.mutedColor,
+                    // ),
                   ),
                   const SizedBox(height: Spaces.extraSmall),
                   SelectableText(
                     contentThirdColumn,
-                    style: context.bodyLarge,
+                    // style: context.bodyLarge,
                     textAlign: TextAlign.center,
                   ),
                 ],

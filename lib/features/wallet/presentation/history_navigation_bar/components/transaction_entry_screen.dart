@@ -19,7 +19,7 @@ import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
+import 'package:genesix/shared/widgets/components/generic_app_bar_widget_old.dart';
 
 class TransactionEntryScreenExtra {
   final sdk.TransactionEntry transactionEntry;

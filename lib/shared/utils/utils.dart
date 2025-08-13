@@ -245,3 +245,16 @@ String timeAgo(DateTime dateTime, {DateTime? now}) {
     return DateFormat('MM/dd/yyyy').format(dateTime);
   }
 }
+
+String formatDateNicely(DateTime date, Locale locale) {
+  final now = DateTime.now();
+  final isSameYear = date.year == now.year;
+
+  // Format without year if it's the same year, otherwise include the year
+  final formatter = DateFormat(
+    isSameYear ? 'EEEE d MMMM' : 'EEEE d MMMM y',
+    locale.languageCode,
+  );
+
+  return formatter.format(date);
+}

@@ -7,7 +7,7 @@ import 'package:genesix/features/wallet/presentation/recovery_phrase/recovery_ph
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/history_providers.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
-import 'package:genesix/features/wallet/presentation/history_navigation_bar/history_navigation_bar.dart';
+import 'package:genesix/features/wallet/presentation/history_navigation_bar/history_navigation_bar_old.dart';
 import 'package:genesix/features/wallet/presentation/assets_navigation_bar/assets_navigation_bar.dart';
 import 'package:genesix/features/wallet/presentation/settings_navigation_bar/settings_navigation_bar_old.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/wallet_navigation_bar_old.dart';

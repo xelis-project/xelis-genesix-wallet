@@ -6,7 +6,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/input_decoration_old.dart';
-import 'package:genesix/shared/widgets/components/generic_dialog.dart';
+import 'package:genesix/shared/widgets/components/generic_dialog_old.dart';
 import 'package:go_router/go_router.dart';
 
 class InputDialog extends ConsumerStatefulWidget {

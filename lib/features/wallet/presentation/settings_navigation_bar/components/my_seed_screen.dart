@@ -8,8 +8,8 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
-import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
-import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown.dart';
+import 'package:genesix/shared/widgets/components/generic_app_bar_widget_old.dart';
+import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown_old.dart';
 
 class MySeedScreen extends ConsumerStatefulWidget {
   const MySeedScreen({super.key});

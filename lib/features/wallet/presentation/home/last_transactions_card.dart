@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
@@ -7,13 +5,10 @@ import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/last_transactions_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/presentation/transaction_view_utils.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/src/generated/l10n/app_localizations.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/network.dart'
-    as rust;
 import 'package:go_router/go_router.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class LastTransactionsCard extends ConsumerStatefulWidget {
   const LastTransactionsCard({super.key});
@@ -88,10 +83,9 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
 
               return FItemGroup.builder(
                 count: txs.length,
-                // divider: FItemDivider.indented,
                 itemBuilder: (context, index) {
                   final tx = txs[index];
-                  final info = _parseTxInfo(
+                  final info = parseTxInfo(
                     loc,
                     network,
                     tx.txEntryType,
@@ -142,117 +136,4 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
       ),
     );
   }
-
-  _TransactionDisplayInfo _parseTxInfo(
-    AppLocalizations loc,
-    rust.Network network,
-    TransactionEntryType type,
-    LinkedHashMap<String, AssetData> knownAssets,
-  ) {
-    switch (type) {
-      case CoinbaseEntry():
-        return _TransactionDisplayInfo(
-          icon: FIcons.star,
-          color: Colors.amber,
-          label: loc.coinbase,
-          details: formatXelis(type.reward, network),
-        );
-      case BurnEntry():
-        final asset = knownAssets[type.asset];
-        return _TransactionDisplayInfo(
-          icon: FIcons.flame,
-          color: Colors.orange,
-          label: loc.burn,
-          details: asset != null
-              ? formatCoin(type.amount, asset.decimals, asset.ticker)
-              : 'Unknown Asset',
-        );
-      case IncomingEntry():
-        String detailsMessage;
-        if (type.transfers.length > 1) {
-          detailsMessage = 'Multiple transfers received';
-        } else if (type.transfers.isEmpty) {
-          detailsMessage = 'No transfers found';
-        } else {
-          final transfer = type.transfers.first;
-          final asset = knownAssets[transfer.asset];
-          if (asset != null) {
-            detailsMessage = formatCoin(
-              transfer.amount,
-              asset.decimals,
-              asset.ticker,
-            );
-          } else {
-            detailsMessage = 'Unknown Asset';
-          }
-        }
-        return _TransactionDisplayInfo(
-          icon: FIcons.arrowDownLeft,
-          color: Colors.greenAccent.shade400,
-          label: 'Received',
-          details: detailsMessage,
-        );
-      case OutgoingEntry():
-        String detailsMessage;
-        if (type.transfers.length > 1) {
-          detailsMessage = 'Multiple transfers sent';
-        } else if (type.transfers.isEmpty) {
-          detailsMessage = 'No transfers found';
-        } else {
-          final transfer = type.transfers.first;
-          final asset = knownAssets[transfer.asset];
-          if (asset != null) {
-            detailsMessage = formatCoin(
-              transfer.amount,
-              asset.decimals,
-              asset.ticker,
-            );
-          } else {
-            detailsMessage = 'Unknown Asset';
-          }
-        }
-
-        return _TransactionDisplayInfo(
-          icon: FIcons.arrowUpRight,
-          color: Colors.redAccent.shade200,
-          label: 'Sent',
-          details: detailsMessage,
-        );
-      case MultisigEntry():
-        return _TransactionDisplayInfo(
-          icon: FIcons.users,
-          color: Colors.blueAccent.shade200,
-          label: loc.multisig,
-          details: type.participants.isEmpty ? 'Disabled' : 'Enabled',
-        );
-      case InvokeContractEntry():
-        return _TransactionDisplayInfo(
-          icon: FIcons.squareCode,
-          color: Colors.deepPurple,
-          label: 'Contract Invocation',
-          details: truncateText(type.contract, maxLength: 16),
-        );
-      case DeployContractEntry():
-        return _TransactionDisplayInfo(
-          icon: FIcons.scrollText,
-          color: Colors.teal,
-          label: 'Contract Deployment',
-          details: null,
-        );
-    }
-  }
-}
-
-class _TransactionDisplayInfo {
-  final IconData icon;
-  final Color color;
-  final String label;
-  final String? details;
-
-  _TransactionDisplayInfo({
-    required this.icon,
-    required this.color,
-    required this.label,
-    this.details,
-  });
 }

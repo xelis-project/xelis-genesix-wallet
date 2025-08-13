@@ -6,12 +6,12 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/history_filter_state.dart';
-import 'package:genesix/features/wallet/presentation/history_navigation_bar/components/contact_dropdown_menu_item.dart';
+import 'package:genesix/features/wallet/presentation/history_navigation_bar/components/contact_dropdown_menu_item_old.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/asset_dropdown_menu_item.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
-import 'package:genesix/shared/widgets/components/generic_dialog.dart';
-import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown.dart';
+import 'package:genesix/shared/widgets/components/generic_dialog_old.dart';
+import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown_old.dart';
 import 'package:go_router/go_router.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 

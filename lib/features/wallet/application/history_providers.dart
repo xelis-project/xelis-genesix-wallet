@@ -8,7 +8,9 @@ import 'package:genesix/features/wallet/application/wallet_provider.dart';
 
 part 'history_providers.g.dart';
 
-const pageSize = 10;
+const pageSize = 30;
+
+enum TransactionCategory { incoming, outgoing, coinbase, burn }
 
 @riverpod
 Future<List<TransactionEntry>> history(Ref ref, int page) async {
@@ -51,7 +53,7 @@ Future<int?> historyCount(Ref ref) async {
 @riverpod
 class HistoryPagingState extends _$HistoryPagingState {
   @override
-  PagingState<int, TransactionEntry> build() {
+  PagingState<int, MapEntry<DateTime, List<TransactionEntry>>> build() {
     return PagingState();
   }
 
@@ -59,7 +61,10 @@ class HistoryPagingState extends _$HistoryPagingState {
     state = state.copyWith(isLoading: true, error: null);
   }
 
-  void setNextPage(int newKey, List<TransactionEntry> newItems) {
+  void setNextPage(
+    int newKey,
+    List<MapEntry<DateTime, List<TransactionEntry>>> newItems,
+  ) {
     state = state.copyWith(
       pages: [...?state.pages, newItems],
       keys: [...?state.keys, newKey],

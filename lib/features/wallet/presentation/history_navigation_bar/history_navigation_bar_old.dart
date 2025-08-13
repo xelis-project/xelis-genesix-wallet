@@ -4,7 +4,7 @@ import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/history_providers.dart';
 import 'package:genesix/features/wallet/application/search_query_provider.dart';
-import 'package:genesix/features/wallet/presentation/history_navigation_bar/components/filter_dialog.dart';
+import 'package:genesix/features/wallet/presentation/history_navigation_bar/components/filter_dialog_old.dart';
 import 'package:genesix/features/wallet/presentation/history_navigation_bar/components/transaction_entry_widget.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -58,44 +58,53 @@ class _HistoryTabState extends ConsumerState<HistoryNavigationBar> {
             child: RefreshIndicator(
               onRefresh: () =>
                   Future.sync(() => ref.invalidate(historyPagingStateProvider)),
-              child: PagedListView<int, TransactionEntry>(
-                state: pagingState,
-                fetchNextPage: _fetchPage,
-                builderDelegate: PagedChildBuilderDelegate<TransactionEntry>(
-                  animateTransitions: true,
-                  itemBuilder: (context, item, index) =>
-                      TransactionEntryWidget(transactionEntry: item),
-                  noItemsFoundIndicatorBuilder: (context) => Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          loc.no_transactions_found,
-                          style: context.bodyLarge?.copyWith(
-                            color: context.moreColors.mutedColor,
+              child:
+                  PagedListView<
+                    int,
+                    MapEntry<DateTime, List<TransactionEntry>>
+                  >(
+                    state: pagingState,
+                    fetchNextPage: _fetchPage,
+                    builderDelegate:
+                        PagedChildBuilderDelegate<
+                          MapEntry<DateTime, List<TransactionEntry>>
+                        >(
+                          animateTransitions: true,
+                          itemBuilder: (context, item, index) =>
+                              // TransactionEntryWidget(transactionEntry: item),
+                              SizedBox.shrink(),
+                          noItemsFoundIndicatorBuilder: (context) => Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  loc.no_transactions_found,
+                                  style: context.bodyLarge?.copyWith(
+                                    color: context.moreColors.mutedColor,
+                                  ),
+                                ),
+                                const SizedBox(height: Spaces.medium),
+                                FutureBuilder(
+                                  future: ref.read(historyCountProvider.future),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.data != null &&
+                                        snapshot.data! > 0) {
+                                      return Text(
+                                        loc.try_changing_filter,
+                                        style: context.bodyMedium?.copyWith(
+                                          color: context.moreColors.mutedColor,
+                                        ),
+                                      );
+                                    } else {
+                                      return const SizedBox.shrink();
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        const SizedBox(height: Spaces.medium),
-                        FutureBuilder(
-                          future: ref.read(historyCountProvider.future),
-                          builder: (context, snapshot) {
-                            if (snapshot.data != null && snapshot.data! > 0) {
-                              return Text(
-                                loc.try_changing_filter,
-                                style: context.bodyMedium?.copyWith(
-                                  color: context.moreColors.mutedColor,
-                                ),
-                              );
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          },
-                        ),
-                      ],
-                    ),
                   ),
-                ),
-              ),
             ),
           ),
         ),
@@ -115,9 +124,9 @@ class _HistoryTabState extends ConsumerState<HistoryNavigationBar> {
       talker.info('Fetching page: $newPage');
       final newItems = await ref.read(historyProvider(newPage).future);
 
-      ref
-          .read(historyPagingStateProvider.notifier)
-          .setNextPage(newPage, newItems);
+      // ref
+      //     .read(historyPagingStateProvider.notifier)
+      //     .setNextPage(newPage, newItems);
     } catch (error) {
       talker.error('Error fetching page: $error');
       ref.read(historyPagingStateProvider.notifier).error(error);

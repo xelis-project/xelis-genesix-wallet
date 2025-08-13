@@ -18,8 +18,8 @@ import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/input_decoration_old.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
-import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
-import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown.dart';
+import 'package:genesix/shared/widgets/components/generic_app_bar_widget_old.dart';
+import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown_old.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 

@@ -9,7 +9,7 @@ import 'package:genesix/features/wallet/presentation/settings_navigation_bar/com
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
-import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
+import 'package:genesix/shared/widgets/components/generic_app_bar_widget_old.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 
 class XswdStatusScreen extends ConsumerStatefulWidget {

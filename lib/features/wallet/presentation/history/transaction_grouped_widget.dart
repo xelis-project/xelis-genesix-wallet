@@ -1,0 +1,92 @@
+import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:forui/forui.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/presentation/transaction_view_utils.dart';
+import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/utils/utils.dart';
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+
+class TransactionGroupedWidget extends ConsumerStatefulWidget {
+  const TransactionGroupedWidget(this.transactionGroup, {super.key});
+
+  final MapEntry<DateTime, List<TransactionEntry>> transactionGroup;
+
+  @override
+  ConsumerState createState() => _TransactionGroupedWidgetState();
+}
+
+class _TransactionGroupedWidgetState
+    extends ConsumerState<TransactionGroupedWidget> {
+  @override
+  Widget build(BuildContext context) {
+    final loc = ref.watch(appLocalizationsProvider);
+    final locale = ref.watch(settingsProvider.select((state) => state.locale));
+    final network = ref.watch(
+      walletStateProvider.select((state) => state.network),
+    );
+    final knownAssets = ref.watch(
+      walletStateProvider.select((value) => value.knownAssets),
+    );
+
+    final transactions = widget.transactionGroup.value;
+
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(child: FDivider()),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Spaces.medium),
+              child: Text(
+                formatDateNicely(widget.transactionGroup.key, locale),
+              ),
+            ),
+            Expanded(child: FDivider()),
+          ],
+        ),
+        FItemGroup.builder(
+          count: transactions.length,
+          itemBuilder: (BuildContext context, int index) {
+            final tx = transactions[index];
+            final info = parseTxInfo(loc, network, tx.txEntryType, knownAssets);
+
+            return FItem(
+              prefix: Icon(info.icon, color: info.color, size: 18),
+              title: Text(
+                info.label,
+                style: context.theme.typography.sm.copyWith(
+                  color: context.theme.colors.primaryForeground,
+                ),
+              ),
+              subtitle: info.subtitle != null
+                  ? Text(
+                      info.subtitle!,
+                      style: context.theme.typography.xs.copyWith(
+                        color: context.theme.colors.mutedForeground,
+                      ),
+                    )
+                  : null,
+              details: info.details != null
+                  ? Text(
+                      info.details!,
+                      style: context.theme.typography.xs.copyWith(
+                        color: context.theme.colors.mutedForeground,
+                      ),
+                    )
+                  : null,
+              suffix: Icon(FIcons.chevronRight),
+              onPress: () {
+                // TODO: Handle transaction tap
+                // This could navigate to a transaction details page
+                print('Tapped on transaction: ${tx.hash}');
+              },
+            );
+          },
+        ),
+      ],
+    );
+  }
+}

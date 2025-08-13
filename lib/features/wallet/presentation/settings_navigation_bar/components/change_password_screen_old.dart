@@ -11,8 +11,8 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
-import 'package:genesix/shared/widgets/components/password_textfield_widget.dart';
+import 'package:genesix/shared/widgets/components/generic_app_bar_widget_old.dart';
+import 'package:genesix/shared/widgets/components/password_textfield_widget_old.dart';
 
 class ChangePasswordScreen extends ConsumerStatefulWidget {
   const ChangePasswordScreen({super.key});
