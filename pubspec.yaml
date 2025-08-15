@@ -5,7 +5,7 @@ publish_to: 'none'
 version: 0.1.0
 
 environment:
-  sdk: ^3.8.0
+  sdk: ^3.9.0
 
 dependencies:
   path: any
@@ -18,7 +18,7 @@ dependencies:
   flutter_riverpod: ^2.6.1
   form_builder_validators: ^11.2.0
   freezed_annotation: ^3.1.0
-  go_router: ^16.0.0
+  go_router: ^16.1.0
   intl: any
   json_annotation: ^4.9.0
   logging: ^1.3.0
