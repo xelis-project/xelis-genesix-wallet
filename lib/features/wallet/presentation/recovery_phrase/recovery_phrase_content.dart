@@ -94,6 +94,22 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
                         title: Text(MnemonicLanguage.values[index].displayName),
                         value: MnemonicLanguage.values[index],
                       ),
+                      onChange: (values) {
+                        final language = values.first;
+                        ref
+                            .read(walletStateProvider.notifier)
+                            .getSeed(language)
+                            .then(
+                              (words) {
+                                setState(() {
+                                  _seedWords = words;
+                                });
+                              },
+                              onError: (_, _) => ref
+                                  .read(toastProvider.notifier)
+                                  .showError(description: loc.oups),
+                            );
+                      },
                     ),
                   ),
                   Spacer(),
