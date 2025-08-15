@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
+import 'package:genesix/features/wallet/presentation/address_book/add_contact_sheet.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 
 class AddressWidget extends ConsumerStatefulWidget {
@@ -23,7 +25,7 @@ class _AddressWidgetState extends ConsumerState<AddressWidget> {
 
     return Row(
       children: [
-        HashiconWidget(hash: widget.address, size: const Size(35, 35)),
+        HashiconWidget(hash: widget.address, size: const Size(25, 25)),
         const SizedBox(width: Spaces.small),
         Expanded(
           child: FutureBuilder(
@@ -65,10 +67,12 @@ class _AddressWidgetState extends ConsumerState<AddressWidget> {
   }
 
   void _onAddAddress() {
-    // TODO: Implement the logic to add the address to the address book.
-    // showFDialog<void>(
-    //   context: context,
-    //   builder: (context) => AddContactDialog(address: widget.address),
-    // );
+    showFSheet<void>(
+      context: context,
+      side: FLayout.btt,
+      useRootNavigator: true,
+      mainAxisMaxRatio: context.getFSheetRatio,
+      builder: (context) => AddContactSheet(address: widget.address),
+    );
   }
 }
