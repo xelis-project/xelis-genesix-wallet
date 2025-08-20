@@ -449,13 +449,19 @@ class WalletState extends _$WalletState {
                   amount = atomicAmount.toString();
                 }
 
-                final contactDetails = await ref
+                var from = truncateText(txType.from);
+                final contactExists = await ref
                     .read(addressBookProvider.notifier)
-                    .get(txType.from);
-                final from = switch (contactDetails) {
-                  ContactDetails(:final name) => name,
-                  null => truncateText(txType.from),
-                };
+                    .exists(txType.from);
+                if (contactExists) {
+                  final contactDetails = await ref
+                      .read(addressBookProvider.notifier)
+                      .get(txType.from);
+                  if (contactDetails != null &&
+                      contactDetails.name.isNotEmpty) {
+                    from = contactDetails.name;
+                  }
+                }
 
                 message =
                     '${loc.asset}: $asset\n${loc.amount}: +$amount\n${loc.from}: $from';

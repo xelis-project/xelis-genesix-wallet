@@ -126,17 +126,17 @@ impl AddressBook for XelisWallet {
         let storage = self.get_wallet().get_storage().read().await;
 
         let entry = if addr.is_mainnet() {
-            storage.get_custom_data(ADDRESS_BOOK_TREE_MAINNET, &DataValue::String(address))?
-        } else {
-            storage.get_custom_data(ADDRESS_BOOK_TREE_TESTNET_DEV, &DataValue::String(address))?
-        };
+                    storage.get_custom_data(ADDRESS_BOOK_TREE_MAINNET, &DataValue::String(address.clone()))?
+                } else {
+                    storage.get_custom_data(ADDRESS_BOOK_TREE_TESTNET_DEV, &DataValue::String(address.clone()))?
+                };
 
         match entry {
             DataElement::Fields(content) => {
                 let entry = ContactDetails::from(content)?;
                 Ok(entry)
             }
-            _ => bail!("Address book entry not found"),
+            _ => bail!("Data for address {} is not a valid contact entry", address),
         }
     }
 
