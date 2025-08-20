@@ -1,10 +1,11 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:go_router/go_router.dart';
 
 class RecoveryPhraseDialog extends ConsumerStatefulWidget {
@@ -25,6 +26,7 @@ class RecoveryPhraseDialog extends ConsumerStatefulWidget {
 }
 
 class _RecoveryPhraseDialogState extends ConsumerState<RecoveryPhraseDialog> {
+  final _controller = ScrollController();
   bool _confirmed = false;
 
   @override
@@ -55,25 +57,29 @@ class _RecoveryPhraseDialogState extends ConsumerState<RecoveryPhraseDialog> {
           const SizedBox(height: Spaces.medium),
           ConstrainedBox(
             constraints: BoxConstraints(maxHeight: context.mediaHeight * 0.4),
-            child: SingleChildScrollView(
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: List.generate(
-                  words.length,
-                  (i) => FBadge(
-                    style: FBadgeStyle.secondary(),
-                    child: Row(
-                      children: [
-                        Text(
-                          '${i + 1}.',
-                          style: context.theme.typography.sm.copyWith(
-                            color: context.theme.colors.primary,
+            child: FadedScroll(
+              controller: _controller,
+              child: SingleChildScrollView(
+                controller: _controller,
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: List.generate(
+                    words.length,
+                    (i) => FBadge(
+                      style: FBadgeStyle.secondary(),
+                      child: Row(
+                        children: [
+                          Text(
+                            '${i + 1}.',
+                            style: context.theme.typography.sm.copyWith(
+                              color: context.theme.colors.primary,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: Spaces.small),
-                        Text(words[i]),
-                      ],
+                          const SizedBox(width: Spaces.small),
+                          Text(words[i]),
+                        ],
+                      ),
                     ),
                   ),
                 ),

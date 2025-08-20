@@ -1,11 +1,14 @@
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 
 class SheetContent extends StatelessWidget {
-  const SheetContent({super.key, required this.child});
+  SheetContent({super.key, required this.child});
 
   final Widget child;
+
+  final _controller = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +27,13 @@ class SheetContent extends StatelessWidget {
         child: Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: context.theme.breakpoints.sm),
-            child: SingleChildScrollView(child: child),
+            child: FadedScroll(
+              controller: _controller,
+              child: SingleChildScrollView(
+                controller: _controller,
+                child: child,
+              ),
+            ),
           ),
         ),
       ),

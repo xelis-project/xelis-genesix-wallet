@@ -10,7 +10,8 @@ import 'package:genesix/features/wallet/application/search_query_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/history_filter_state.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
+import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
 import 'package:go_router/go_router.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
@@ -35,6 +36,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
   late final _contactController = FSelectController<ContactDetails>(
     vsync: this,
   );
+  final _scrollController = ScrollController();
   late bool _hideExtraData;
   late bool _hideZeroBalance;
 
@@ -88,133 +90,139 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
       title: Text(loc.filters),
       body: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: context.mediaHeight * 0.6),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              spacing: Spaces.large,
-              children: [
-                // Categories selection
-                FSelectTileGroup(
-                  selectController: _categoriesController,
-                  label: Text(loc.category),
-                  validator: (values) => values?.isEmpty ?? true
-                      ? 'Please select at least one category.'
-                      : null,
-                  children: [
-                    FSelectTile(
-                      title: Text(loc.incoming),
-                      value: TransactionCategory.incoming,
-                      subtitle: Text('Transactions where you received assets.'),
-                    ),
-                    FSelectTile(
-                      title: Text(loc.outgoing),
-                      value: TransactionCategory.outgoing,
-                      subtitle: Text('Transactions initiated by you.'),
-                    ),
-                    FSelectTile(
-                      title: Text(loc.coinbase),
-                      value: TransactionCategory.coinbase,
-                      subtitle: Text(
-                        'Transactions where you received rewards.',
-                      ),
-                    ),
-                    FSelectTile(
-                      title: Text(loc.burn),
-                      value: TransactionCategory.burn,
-                      subtitle: Text('Transactions where you burned assets.'),
-                    ),
-                  ],
-                ),
-                // Asset selection
-                FSelect<MapEntry<String, AssetData>>.search(
-                  label: Text(loc.asset),
-                  hint: 'Select a asset',
-                  controller: _assetController,
-                  format: (assetEntry) => assetEntry.value.name,
-                  clearable: true,
-                  filter: (query) => query.isEmpty
-                      ? trackedAssets
-                      : trackedAssets
-                            .where(
-                              (assetEntry) => assetEntry.value.name
-                                  .toLowerCase()
-                                  .contains(query.toLowerCase()),
-                            )
-                            .toList(),
-                  contentBuilder: (context, data) {
-                    return data.values
-                        .map(
-                          (assetEntry) =>
-                              FSelectItem<MapEntry<String, AssetData>>(
-                                assetEntry.value.name,
-                                assetEntry,
-                              ),
-                        )
-                        .toList();
-                  },
-                ),
-                // Contact selection
-                FSelect<ContactDetails>.search(
-                  label: Text(loc.contact),
-                  hint: 'Select a contact',
-                  controller: _contactController,
-                  format: (contact) => contact.name,
-                  clearable: true,
-                  filter: (query) async {
-                    if (query.isNotEmpty) {
-                      ref.read(searchQueryProvider.notifier).change(query);
-                    }
-                    final addressBook = await ref.read(
-                      addressBookProvider.future,
-                    );
-                    return addressBook.values;
-                  },
-                  contentBuilder: (context, data) {
-                    return data.values
-                        .map(
-                          (contact) => FSelectItem<ContactDetails>(
-                            contact.name,
-                            contact,
-                          ),
-                        )
-                        .toList();
-                  },
-                ),
-                // Other options
-                FCard(
-                  child: Column(
-                    spacing: Spaces.medium,
+        child: FadedScroll(
+          controller: _scrollController,
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                spacing: Spaces.large,
+                children: [
+                  // Categories selection
+                  FSelectTileGroup(
+                    selectController: _categoriesController,
+                    label: Text(loc.category),
+                    validator: (values) => values?.isEmpty ?? true
+                        ? 'Please select at least one category.'
+                        : null,
                     children: [
-                      FSwitch(
-                        label: Text(loc.hide_extra_data),
-                        description: Text(
-                          'Hide extra data in transaction details.',
+                      FSelectTile(
+                        title: Text(loc.incoming),
+                        value: TransactionCategory.incoming,
+                        subtitle: Text(
+                          'Transactions where you received assets.',
                         ),
-                        value: _hideExtraData,
-                        onChange: (value) {
-                          setState(() {
-                            _hideExtraData = value;
-                          });
-                        },
                       ),
-                      FSwitch(
-                        label: Text(loc.hide_zero_transfers),
-                        description: Text(
-                          'Hide transactions with zero balance transfers.',
+                      FSelectTile(
+                        title: Text(loc.outgoing),
+                        value: TransactionCategory.outgoing,
+                        subtitle: Text('Transactions initiated by you.'),
+                      ),
+                      FSelectTile(
+                        title: Text(loc.coinbase),
+                        value: TransactionCategory.coinbase,
+                        subtitle: Text(
+                          'Transactions where you received rewards.',
                         ),
-                        value: _hideZeroBalance,
-                        onChange: (value) {
-                          setState(() {
-                            _hideZeroBalance = value;
-                          });
-                        },
+                      ),
+                      FSelectTile(
+                        title: Text(loc.burn),
+                        value: TransactionCategory.burn,
+                        subtitle: Text('Transactions where you burned assets.'),
                       ),
                     ],
                   ),
-                ),
-              ],
+                  // Asset selection
+                  FSelect<MapEntry<String, AssetData>>.searchBuilder(
+                    label: Text(loc.asset),
+                    hint: 'Select a asset',
+                    controller: _assetController,
+                    format: (assetEntry) => assetEntry.value.name,
+                    clearable: true,
+                    filter: (query) => query.isEmpty
+                        ? trackedAssets
+                        : trackedAssets
+                              .where(
+                                (assetEntry) => assetEntry.value.name
+                                    .toLowerCase()
+                                    .contains(query.toLowerCase()),
+                              )
+                              .toList(),
+                    contentBuilder: (context, style, data) {
+                      return data
+                          .map(
+                            (assetEntry) =>
+                                FSelectItem<MapEntry<String, AssetData>>(
+                                  title: Text(assetEntry.value.name),
+                                  value: assetEntry,
+                                ),
+                          )
+                          .toList();
+                    },
+                  ),
+                  // Contact selection
+                  FSelect<ContactDetails>.searchBuilder(
+                    label: Text(loc.contact),
+                    hint: 'Select a contact',
+                    controller: _contactController,
+                    format: (contact) => contact.name,
+                    clearable: true,
+                    filter: (query) async {
+                      if (query.isNotEmpty) {
+                        ref.read(searchQueryProvider.notifier).change(query);
+                      }
+                      final addressBook = await ref.read(
+                        addressBookProvider.future,
+                      );
+                      return addressBook.values;
+                    },
+                    contentBuilder: (context, style, data) {
+                      return data
+                          .map(
+                            (contact) => FSelectItem<ContactDetails>(
+                              title: Text(contact.name),
+                              value: contact,
+                            ),
+                          )
+                          .toList();
+                    },
+                  ),
+                  // Other options
+                  FCard(
+                    child: Column(
+                      spacing: Spaces.medium,
+                      children: [
+                        FSwitch(
+                          label: Text(loc.hide_extra_data),
+                          description: Text(
+                            'Hide extra data in transaction details.',
+                          ),
+                          value: _hideExtraData,
+                          onChange: (value) {
+                            setState(() {
+                              _hideExtraData = value;
+                            });
+                          },
+                        ),
+                        FSwitch(
+                          label: Text(loc.hide_zero_transfers),
+                          description: Text(
+                            'Hide transactions with zero balance transfers.',
+                          ),
+                          value: _hideZeroBalance,
+                          onChange: (value) {
+                            setState(() {
+                              _hideZeroBalance = value;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

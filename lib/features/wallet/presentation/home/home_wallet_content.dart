@@ -7,7 +7,8 @@ import 'package:genesix/features/wallet/presentation/home/connection_status_card
 import 'package:genesix/features/wallet/presentation/home/last_news_card.dart';
 import 'package:genesix/features/wallet/presentation/home/last_transactions_card.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
+import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 
 class HomeWalletContent extends ConsumerStatefulWidget {
   const HomeWalletContent({super.key});
@@ -18,6 +19,7 @@ class HomeWalletContent extends ConsumerStatefulWidget {
 
 class _HomeWalletContentState extends ConsumerState<HomeWalletContent> {
   bool _dialogShown = false;
+  final _controller = ScrollController();
 
   @override
   void didChangeDependencies() {
@@ -44,17 +46,25 @@ class _HomeWalletContentState extends ConsumerState<HomeWalletContent> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: Spaces.small),
-        child: Column(
-          spacing: Spaces.medium,
-          children: [
-            ConnectionStatusCard(),
-            BalanceCard(),
-            LastTransactionsCard(),
-            LastNewsCard(),
-          ],
+    return FadedScroll(
+      controller: _controller,
+      fadeFraction: 0.08,
+      child: SingleChildScrollView(
+        controller: _controller,
+        child: Padding(
+          padding: const EdgeInsets.only(
+            top: Spaces.small,
+            bottom: Spaces.medium,
+          ),
+          child: Column(
+            spacing: Spaces.medium,
+            children: [
+              ConnectionStatusCard(),
+              BalanceCard(),
+              LastTransactionsCard(),
+              LastNewsCard(),
+            ],
+          ),
         ),
       ),
     );

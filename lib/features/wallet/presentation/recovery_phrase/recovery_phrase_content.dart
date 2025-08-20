@@ -7,6 +7,7 @@ import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 
 class RecoveryPhraseContent extends ConsumerStatefulWidget {
   const RecoveryPhraseContent({super.key});
@@ -16,6 +17,7 @@ class RecoveryPhraseContent extends ConsumerStatefulWidget {
 }
 
 class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
+  final _controller = ScrollController();
   List<String> _seedWords = [];
 
   @override
@@ -132,25 +134,29 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(Spaces.small),
-                  child: SingleChildScrollView(
-                    child: Wrap(
-                      spacing: Spaces.medium,
-                      runSpacing: Spaces.medium,
-                      children: List.generate(
-                        _seedWords.length,
-                        (i) => FBadge(
-                          style: FBadgeStyle.secondary(),
-                          child: Row(
-                            children: [
-                              Text(
-                                '${i + 1}.',
-                                style: context.theme.typography.sm.copyWith(
-                                  color: context.theme.colors.primary,
+                  child: FadedScroll(
+                    controller: _controller,
+                    child: SingleChildScrollView(
+                      controller: _controller,
+                      child: Wrap(
+                        spacing: Spaces.medium,
+                        runSpacing: Spaces.medium,
+                        children: List.generate(
+                          _seedWords.length,
+                          (i) => FBadge(
+                            style: FBadgeStyle.secondary(),
+                            child: Row(
+                              children: [
+                                Text(
+                                  '${i + 1}.',
+                                  style: context.theme.typography.sm.copyWith(
+                                    color: context.theme.colors.primary,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: Spaces.small),
-                              Text(_seedWords[i]),
-                            ],
+                                const SizedBox(width: Spaces.small),
+                                Text(_seedWords[i]),
+                              ],
+                            ),
                           ),
                         ),
                       ),
