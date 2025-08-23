@@ -97,9 +97,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
                     prefix: Icon(info.icon, color: info.color),
                     title: Text(
                       info.label,
-                      style: context.theme.typography.sm.copyWith(
-                        color: context.theme.colors.primaryForeground,
-                      ),
+                      style: context.theme.typography.sm,
                     ),
                     subtitle: info.details != null
                         ? Text(
