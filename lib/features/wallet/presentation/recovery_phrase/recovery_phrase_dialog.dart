@@ -30,6 +30,12 @@ class _RecoveryPhraseDialogState extends ConsumerState<RecoveryPhraseDialog> {
   bool _confirmed = false;
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
 

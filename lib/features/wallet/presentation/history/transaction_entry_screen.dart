@@ -41,6 +41,12 @@ class _TransactionEntryScreenState
   late Widget transactionTypeContent;
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final locale = ref.watch(settingsProvider.select((state) => state.locale));

@@ -68,6 +68,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
     _categoriesController.dispose();
     _assetController.dispose();
     _contactController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 

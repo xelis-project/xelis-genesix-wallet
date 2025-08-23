@@ -40,6 +40,12 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     return Padding(

@@ -23,6 +23,12 @@ class _HistoryContentState extends ConsumerState<HistoryContent> {
   final _controller = ScrollController();
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final pagingState = ref.watch(historyPagingStateProvider);
