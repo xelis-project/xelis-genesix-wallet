@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
@@ -76,7 +77,8 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                         color: context.theme.colors.foreground,
                       ),
                     ),
-                    if (settings.showBalanceUSDT && isMainnet)
+                    if ((settings.showBalanceUSDT && isMainnet) ||
+                        (settings.showBalanceUSDT && kDebugMode))
                       // Show USD balance only on mainnet
                       UsdBalanceWidget(
                         double.tryParse(walletState.xelisBalance) ?? 0.0,
