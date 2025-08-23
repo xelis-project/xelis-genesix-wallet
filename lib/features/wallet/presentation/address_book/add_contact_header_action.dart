@@ -4,7 +4,7 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/presentation/address_book/add_contact_sheet.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 
 class AddContactHeaderAction extends ConsumerStatefulWidget {
   const AddContactHeaderAction({super.key});

@@ -6,7 +6,7 @@ import 'package:genesix/features/wallet/presentation/address_book/address_widget
 import 'package:genesix/shared/widgets/components/logo.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 
 class TransferReviewContentWidget extends ConsumerWidget {

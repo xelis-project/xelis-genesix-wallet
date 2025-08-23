@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/logger/logger.dart';
+import 'package:genesix/features/router/extra_codec.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:genesix/features/router/routes.dart';
@@ -37,6 +38,7 @@ GoRouter router(Ref ref) {
     },
     debugLogDiagnostics: true,
     routes: $appRoutes,
+    extraCodec: ExtraCodec(),
   );
 
   ref.onDispose(router.dispose);

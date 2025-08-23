@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/wallet/presentation/side_bar/side_bar.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/widgets/components/body_layout_builder.dart';
 import 'package:go_router/go_router.dart';
 
@@ -42,8 +42,6 @@ class _WalletScaffoldState extends ConsumerState<WalletScaffold> {
 
     return FScaffold(
       header: FHeader.nested(
-        // titleAlignment: Alignment.centerLeft,
-        titleAlignment: Alignment.center,
         title: needTitle
             ? Padding(
                 padding: const EdgeInsets.symmetric(vertical: Spaces.small),

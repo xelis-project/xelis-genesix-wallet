@@ -10,7 +10,7 @@ import 'package:genesix/features/settings/domain/settings_state.dart';
 import 'package:genesix/features/wallet/presentation/side_bar/side_bar_footer.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jovial_svg/jovial_svg.dart';

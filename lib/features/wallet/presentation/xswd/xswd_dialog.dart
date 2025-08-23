@@ -12,7 +12,7 @@ import 'package:genesix/features/wallet/presentation/xswd/components/invoke_cont
 import 'package:genesix/features/wallet/presentation/xswd/components/multisig_builder_widget.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/transfer_builder_widget.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/generic_dialog_old.dart';
 import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown_old.dart';

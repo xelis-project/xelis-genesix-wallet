@@ -21,6 +21,16 @@ import 'package:intl/intl.dart'
     show NumberFormat, toBeginningOfSentenceCase, DateFormat, Intl;
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart'
     as rust;
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
+
+bool get isMobileDevice => !kIsWeb && (Platform.isIOS || Platform.isAndroid);
+
+bool get isDesktopDevice =>
+    !kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux);
+
+bool isXelis(String assetHash) {
+  return assetHash == sdk.xelisAsset;
+}
 
 // Usage: formatUsd(1234.5) -> $1,234.50
 String formatUsd(num value, {bool withSymbol = true}) {
@@ -112,9 +122,9 @@ String truncateText(String text, {int maxLength = 8}) {
   return "...${text.substring(text.length - maxLength)}";
 }
 
-void copyToClipboard(String content, WidgetRef ref, String snackbarMessage) {
+void copyToClipboard(String content, WidgetRef ref, String toastMessage) {
   Clipboard.setData(ClipboardData(text: content)).then((_) {
-    ref.read(toastProvider.notifier).showInformation(title: snackbarMessage);
+    ref.read(toastProvider.notifier).showInformation(title: toastMessage);
   });
 }
 
@@ -216,6 +226,7 @@ String formatHashRate({
   return '${formatDifficulty(value)}H/s';
 }
 
+// TODO: Localize this function
 String timeAgo(DateTime dateTime, {DateTime? now}) {
   final current = now ?? DateTime.now();
   final diff = current.difference(dateTime);
@@ -257,4 +268,42 @@ String formatDateNicely(DateTime date, Locale locale) {
   );
 
   return formatter.format(date);
+}
+
+String formatPrettyTimestamp(
+  DateTime date,
+  Locale locale, {
+  bool includeSeconds = true,
+}) {
+  final tag = locale.toLanguageTag();
+
+  final dateFormatter = DateFormat.yMMMMEEEEd(tag);
+
+  final datePart = dateFormatter.format(date);
+
+  final timeFormatter = includeSeconds
+      ? DateFormat.jms(tag)
+      : DateFormat.jm(tag);
+  final timePart = timeFormatter.format(date);
+
+  return '$datePart $timePart';
+}
+
+(String, String) getFormattedAssetNameAndAmount(
+  Map<String, sdk.AssetData> knownAssets,
+  String assetHash,
+  int rawAmount,
+) {
+  final assetData = knownAssets[assetHash];
+  if (assetData != null) {
+    final formattedAmount = formatCoin(
+      rawAmount,
+      assetData.decimals,
+      assetData.ticker,
+    );
+    return (assetData.name, formattedAmount);
+  } else {
+    // Fallback to default formatting if asset is not known
+    return (truncateText(assetHash, maxLength: 20), rawAmount.toString());
+  }
 }

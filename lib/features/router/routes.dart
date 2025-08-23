@@ -11,6 +11,7 @@ import 'package:genesix/features/wallet/presentation/address_book/address_book_c
 import 'package:genesix/features/wallet/presentation/assets/assets_content.dart';
 import 'package:genesix/features/wallet/presentation/history/filters_button.dart';
 import 'package:genesix/features/wallet/presentation/history/history_content.dart';
+import 'package:genesix/features/wallet/presentation/history/transaction_entry_screen.dart';
 import 'package:genesix/features/wallet/presentation/home/home_wallet_content.dart';
 import 'package:genesix/features/wallet/presentation/network/network_content.dart';
 import 'package:genesix/features/wallet/presentation/recovery_phrase/recovery_phrase_content.dart';
@@ -23,7 +24,6 @@ import 'package:genesix/features/wallet/presentation/wallet_scaffold.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/authentication/presentation/open_wallet_screen.dart';
 import 'package:genesix/features/settings/presentation/light_settings_screen.dart';
-import 'package:genesix/features/wallet/presentation/history_navigation_bar/components/transaction_entry_screen.dart';
 import 'package:genesix/shared/theme/constants.dart';
 
 part 'routes.g.dart';
@@ -72,7 +72,7 @@ class ImportWalletRoute extends GoRouteData with _$ImportWalletRoute {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
-      const ImportWalletScreen(),
+      ImportWalletScreen(),
       state.pageKey,
       state.fullPath,
       state.extra,
@@ -233,7 +233,7 @@ class TransactionEntryRoute extends GoRouteData with _$TransactionEntryRoute {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
-      TransactionEntryScreen(routerState: state),
+      TransactionEntryScreen(),
       state.pageKey,
       state.fullPath,
       state.extra,
@@ -295,28 +295,6 @@ CustomTransitionPage<T> pageTransition<T>(
       // The XswdWidget must be added to the widget tree here to ensure the correct context is available to display the dialog
       // TODO rework this to avoid adding the XswdWidget here
       child: XswdWidget(child),
-    );
-  },
-);
-
-// TODO: Remove this function if not needed.
-CustomTransitionPage<T> scaffoldContentTransition<T>(
-  Widget child,
-  ValueKey<String> pageKey,
-  // String? path,
-  // Object? arguments,
-  int milliDuration,
-) => CustomTransitionPage<T>(
-  child: child,
-  key: pageKey,
-  // name: path,
-  // child: child,
-  // arguments: arguments,
-  transitionDuration: Duration(milliseconds: milliDuration),
-  transitionsBuilder: (context, animation, secondaryAnimation, child) {
-    return FadeTransition(
-      opacity: CurveTween(curve: Curves.easeInOutCirc).animate(animation),
-      child: child,
     );
   },
 );

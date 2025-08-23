@@ -8,7 +8,7 @@ import 'package:genesix/features/settings/domain/network_translate_name.dart';
 import 'package:genesix/features/settings/domain/settings_state.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:go_router/go_router.dart';
@@ -145,41 +145,35 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   const SizedBox(height: Spaces.medium),
-                                  FSelect(
+                                  FSelect<String>.rich(
                                     controller: _selectController,
                                     hint: 'Select a wallet',
                                     contentScrollHandles: true,
                                     // autovalidateMode: AutovalidateMode.disabled,
                                     format: (s) => s,
                                     validator: (value) {
-                                      if (value == null || value.isEmpty) {
+                                      if (value == null) {
                                         return 'Please select a wallet';
                                       }
                                       return null;
                                     },
-                                    children: snapshot.data!.wallets.entries.map(
-                                      (entry) {
-                                        return FSelectItem.from(
-                                          value: entry.key,
-                                          prefix: FAvatar.raw(
-                                            // style: (style) => style.copyWith(
-                                            //   backgroundColor: context
-                                            //       .theme
-                                            //       .colors
-                                            //       .background,
-                                            // ),
-                                            child: HashiconWidget(
-                                              hash: entry.value,
-                                              size: const Size(25, 25),
+                                    children: snapshot.data!.wallets.entries
+                                        .map((entry) {
+                                          return FSelectItem(
+                                            value: entry.key,
+                                            prefix: FAvatar.raw(
+                                              child: HashiconWidget(
+                                                hash: entry.value,
+                                                size: const Size(25, 25),
+                                              ),
                                             ),
-                                          ),
-                                          title: Text(entry.key),
-                                          subtitle: Text(
-                                            truncateText(entry.value),
-                                          ),
-                                        );
-                                      },
-                                    ).toList(),
+                                            title: Text(entry.key),
+                                            subtitle: Text(
+                                              truncateText(entry.value),
+                                            ),
+                                          );
+                                        })
+                                        .toList(),
                                   ),
                                   const SizedBox(height: Spaces.large),
                                   FButton(

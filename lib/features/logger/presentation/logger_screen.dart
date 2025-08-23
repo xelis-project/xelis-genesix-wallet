@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:genesix/features/logger/presentation/logger_view.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 

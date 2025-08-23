@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/shared/storage/shared_preferences/genesix_shared_preferences.dart';
+import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/src/generated/rust_bridge/api/api.dart';
 import 'package:genesix/src/generated/rust_bridge/frb_generated.dart';
 import 'package:intl/intl.dart';
@@ -13,7 +14,6 @@ import 'package:window_manager/window_manager.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/storage/shared_preferences/shared_preferences_provider.dart';
-import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/widgets/genesix_app.dart';
 import 'package:localstorage/localstorage.dart';
 

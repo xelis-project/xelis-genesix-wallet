@@ -4,7 +4,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/assets_navigation_bar/components/tracked_asset_details.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 

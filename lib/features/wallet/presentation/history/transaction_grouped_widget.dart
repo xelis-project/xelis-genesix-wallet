@@ -1,12 +1,14 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
-import 'package:genesix/features/wallet/presentation/transaction_view_utils.dart';
+import 'package:genesix/features/wallet/presentation/components/transaction_view_utils.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:go_router/go_router.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class TransactionGroupedWidget extends ConsumerStatefulWidget {
@@ -78,15 +80,18 @@ class _TransactionGroupedWidgetState
                     )
                   : null,
               suffix: Icon(FIcons.chevronRight),
-              onPress: () {
-                // TODO: Handle transaction tap
-                // This could navigate to a transaction details page
-                print('Tapped on transaction: ${tx.hash}');
-              },
+              onPress: () => _showTransactionEntry(tx),
             );
           },
         ),
       ],
+    );
+  }
+
+  void _showTransactionEntry(TransactionEntry transactionEntry) {
+    context.push(
+      AuthAppScreen.transactionEntry.toPath,
+      extra: transactionEntry,
     );
   }
 }

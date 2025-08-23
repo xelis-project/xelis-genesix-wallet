@@ -10,7 +10,7 @@ import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/compo
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_dialog.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget_old.dart';

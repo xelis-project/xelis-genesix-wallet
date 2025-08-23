@@ -8,7 +8,7 @@ import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
 import 'package:genesix/shared/widgets/components/logo.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 
 class BurnReviewContent extends ConsumerWidget {

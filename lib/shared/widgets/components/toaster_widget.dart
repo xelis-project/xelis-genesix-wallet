@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 
 class ToasterWidget extends ConsumerStatefulWidget {
   const ToasterWidget({required this.child, super.key});
@@ -62,7 +62,7 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
                 ),
               ),
               description: Text(next.description!),
-              suffixBuilder: (context, entry, _) => IntrinsicHeight(
+              suffixBuilder: (context, entry) => IntrinsicHeight(
                 child: FButton(
                   style: context.theme.buttonStyles.primary
                       .copyWith(
@@ -97,10 +97,10 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
             });
             showFToast(
               context: _toastContext,
-              alignment: FToastAlignment.topRight,
+              alignment: FToastAlignment.bottomRight,
               title: Text(next.title),
               description: Text(next.description!),
-              suffixBuilder: (context, entry, _) => IntrinsicHeight(
+              suffixBuilder: (context, entry) => IntrinsicHeight(
                 child: FButton(
                   style: context.theme.buttonStyles.primary
                       .copyWith(

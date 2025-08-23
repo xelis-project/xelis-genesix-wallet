@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/labeled_value.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class CoinbaseEntryContent extends ConsumerWidget {
@@ -19,21 +20,14 @@ class CoinbaseEntryContent extends ConsumerWidget {
       walletStateProvider.select((state) => state.network),
     );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
+    return FCard.raw(
+      child: Padding(
+        padding: const EdgeInsets.all(Spaces.medium),
+        child: LabeledValue.text(
           loc.amount,
-          style: context.labelLarge?.copyWith(
-            color: context.moreColors.mutedColor,
-          ),
-        ),
-        const SizedBox(height: Spaces.extraSmall),
-        SelectableText(
           '+${formatXelis(coinbaseEntry.reward, network)}',
-          style: context.bodyLarge,
         ),
-      ],
+      ),
     );
   }
 }

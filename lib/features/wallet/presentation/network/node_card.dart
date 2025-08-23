@@ -11,7 +11,7 @@ import 'package:genesix/features/wallet/domain/node_address.dart';
 import 'package:genesix/features/wallet/presentation/network/add_node_sheet.dart';
 import 'package:genesix/features/wallet/presentation/network/edit_node_sheet.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/widgets/components/connection_indicator.dart';
 
 class NodeCard extends ConsumerStatefulWidget {

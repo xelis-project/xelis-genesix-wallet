@@ -63,6 +63,7 @@ Map<DateTime, List<TransactionEntry>> groupTransactionsByDateSorted2Levels(
   return out;
 }
 
+// TODO: Localize this function
 TransactionDisplayInfo parseTxInfo(
   AppLocalizations loc,
   rust.Network network,

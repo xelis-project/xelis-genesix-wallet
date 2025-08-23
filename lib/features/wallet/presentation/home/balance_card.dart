@@ -8,6 +8,7 @@ import 'package:genesix/features/wallet/presentation/home/usd_balance_widget.dar
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 
 class BalanceCard extends ConsumerStatefulWidget {
   const BalanceCard({super.key});
@@ -31,6 +32,8 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
     if (settings.hideBalance) {
       displayedBalance = hidden;
     }
+
+    final isMainnet = settings.network == Network.mainnet;
 
     return FCard.raw(
       child: Padding(
@@ -73,7 +76,8 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                         color: context.theme.colors.foreground,
                       ),
                     ),
-                    if (settings.showBalanceUSDT)
+                    if (settings.showBalanceUSDT && isMainnet)
+                      // Show USD balance only on mainnet
                       UsdBalanceWidget(
                         double.tryParse(walletState.xelisBalance) ?? 0.0,
                       ),

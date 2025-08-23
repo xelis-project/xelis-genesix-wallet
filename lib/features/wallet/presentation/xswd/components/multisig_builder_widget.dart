@@ -4,7 +4,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/transaction_builder_mixin.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class MultisigBuilderWidget extends ConsumerStatefulWidget {

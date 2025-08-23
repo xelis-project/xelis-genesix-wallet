@@ -7,7 +7,6 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/storage/secure_storage/secure_storage_repository.dart';
-import 'package:genesix/shared/theme/extensions.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:genesix/src/generated/rust_bridge/api/precomputed_tables.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

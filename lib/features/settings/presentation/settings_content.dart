@@ -7,6 +7,7 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/settings/presentation/components/reset_preference_button.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import 'components/language_selector_dialog.dart';
@@ -19,6 +20,7 @@ class SettingsContent extends ConsumerStatefulWidget {
 }
 
 class _SettingsContentState extends ConsumerState<SettingsContent> {
+  final _controller = ScrollController();
   String _walletsPath = '';
   String _cachePath = '';
   String _version = '';
@@ -53,120 +55,125 @@ class _SettingsContentState extends ConsumerState<SettingsContent> {
 
     final authState = ref.watch(authenticationProvider);
 
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: Spaces.small),
-        child: Column(
-          spacing: Spaces.medium,
-          children: [
-            FTileGroup(
-              label: Text('General'),
-              children: [
-                FTile(
-                  prefix: Icon(FIcons.languages),
-                  title: Text(loc.language),
-                  subtitle: Text(translateLocaleName(locale)),
-                  suffix: Icon(FIcons.chevronRight),
-                  onPress: () {
-                    showFDialog<void>(
-                      context: context,
-                      builder: (context, style, animation) {
-                        return LanguageSelectorDialog(style, animation);
-                      },
-                    );
-                  },
-                ),
-                if (authState.isAuth)
-                  FTile(
-                    prefix: Icon(FIcons.fingerprint),
-                    title: Text('Biometric Authentication'),
-                    subtitle: Text(
-                      'enable or disable biometric authentication',
-                    ),
-                    suffix: FSwitch(
-                      value: ref.watch(
-                        settingsProvider.select(
-                          (state) => state.activateBiometricAuth,
-                        ),
-                      ),
-                      onChange: (value) {
-                        ref
-                            .read(settingsProvider.notifier)
-                            .setActivateBiometricAuth(value);
-                      },
-                    ),
-                  ),
-              ],
-            ),
-            if (authState.isAuth)
+    return FadedScroll(
+      controller: _controller,
+      fadeFraction: 0.08,
+      child: SingleChildScrollView(
+        controller: _controller,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: Spaces.small),
+          child: Column(
+            spacing: Spaces.medium,
+            children: [
               FTileGroup(
-                label: Text('Wallet'),
+                label: Text('General'),
                 children: [
                   FTile(
-                    prefix: Icon(FIcons.dollarSign),
-                    title: Text('Conversion Rate'),
-                    subtitle: Text('show or hide conversion rate in USDT'),
-                    suffix: FSwitch(
-                      value: ref.watch(
-                        settingsProvider.select(
-                          (state) => state.showBalanceUSDT,
+                    prefix: Icon(FIcons.languages),
+                    title: Text(loc.language),
+                    subtitle: Text(translateLocaleName(locale)),
+                    suffix: Icon(FIcons.chevronRight),
+                    onPress: () {
+                      showFDialog<void>(
+                        context: context,
+                        builder: (context, style, animation) {
+                          return LanguageSelectorDialog(style, animation);
+                        },
+                      );
+                    },
+                  ),
+                  if (authState.isAuth)
+                    FTile(
+                      prefix: Icon(FIcons.fingerprint),
+                      title: Text('Biometric Authentication'),
+                      subtitle: Text(
+                        'enable or disable biometric authentication',
+                      ),
+                      suffix: FSwitch(
+                        value: ref.watch(
+                          settingsProvider.select(
+                            (state) => state.activateBiometricAuth,
+                          ),
                         ),
+                        onChange: (value) {
+                          ref
+                              .read(settingsProvider.notifier)
+                              .setActivateBiometricAuth(value);
+                        },
                       ),
-                      onChange: (value) {
-                        ref
-                            .read(settingsProvider.notifier)
-                            .setShowBalanceUSDT(value);
-                      },
                     ),
+                ],
+              ),
+              if (authState.isAuth)
+                FTileGroup(
+                  label: Text('Wallet'),
+                  children: [
+                    FTile(
+                      prefix: Icon(FIcons.dollarSign),
+                      title: Text('Conversion Rate'),
+                      subtitle: Text('show or hide conversion rate in USDT'),
+                      suffix: FSwitch(
+                        value: ref.watch(
+                          settingsProvider.select(
+                            (state) => state.showBalanceUSDT,
+                          ),
+                        ),
+                        onChange: (value) {
+                          ref
+                              .read(settingsProvider.notifier)
+                              .setShowBalanceUSDT(value);
+                        },
+                      ),
+                    ),
+                    FTile(
+                      prefix: Icon(FIcons.cable),
+                      title: Text(loc.xswd_status),
+                      subtitle: Text(loc.xswd_setting_label),
+                      suffix: FSwitch(
+                        value: ref.watch(
+                          settingsProvider.select((state) => state.enableXswd),
+                        ),
+                        onChange: (value) {
+                          ref
+                              .read(settingsProvider.notifier)
+                              .setEnableXswd(value);
+                        },
+                      ),
+                    ),
+                    FTile(
+                      prefix: Icon(FIcons.flame),
+                      title: Text(loc.burn),
+                      subtitle: Text('enable or disable burn transfer'),
+                      suffix: FSwitch(
+                        value: ref.watch(
+                          settingsProvider.select((state) => state.unlockBurn),
+                        ),
+                        onChange: (value) {
+                          ref
+                              .read(settingsProvider.notifier)
+                              .setUnlockBurn(value);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              FTileGroup(
+                label: Text(loc.information.capitalize()),
+                children: [
+                  FTile(title: Text(loc.version), details: Text('v$_version')),
+                  FTile(
+                    title: Text(loc.wallets_directory.capitalizeAll()),
+                    subtitle: SelectableText(_walletsPath),
                   ),
                   FTile(
-                    prefix: Icon(FIcons.cable),
-                    title: Text(loc.xswd_status),
-                    subtitle: Text(loc.xswd_setting_label),
-                    suffix: FSwitch(
-                      value: ref.watch(
-                        settingsProvider.select((state) => state.enableXswd),
-                      ),
-                      onChange: (value) {
-                        ref
-                            .read(settingsProvider.notifier)
-                            .setEnableXswd(value);
-                      },
-                    ),
-                  ),
-                  FTile(
-                    prefix: Icon(FIcons.flame),
-                    title: Text(loc.burn),
-                    subtitle: Text('enable or disable burn transfer'),
-                    suffix: FSwitch(
-                      value: ref.watch(
-                        settingsProvider.select((state) => state.unlockBurn),
-                      ),
-                      onChange: (value) {
-                        ref
-                            .read(settingsProvider.notifier)
-                            .setUnlockBurn(value);
-                      },
-                    ),
+                    title: Text(loc.cache_directory.capitalizeAll()),
+                    subtitle: SelectableText(_cachePath),
                   ),
                 ],
               ),
-            FTileGroup(
-              label: Text(loc.information.capitalize()),
-              children: [
-                FTile(title: Text(loc.version), details: Text('v$_version')),
-                FTile(
-                  title: Text(loc.wallets_directory.capitalizeAll()),
-                  subtitle: SelectableText(_walletsPath),
-                ),
-                FTile(
-                  title: Text(loc.cache_directory.capitalizeAll()),
-                  subtitle: SelectableText(_cachePath),
-                ),
-              ],
-            ),
-            ResetPreferenceButton(),
-          ],
+              ResetPreferenceButton(),
+            ],
+          ),
         ),
       ),
     );

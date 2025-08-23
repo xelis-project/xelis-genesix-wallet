@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:go_router/go_router.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 
 class GenericAppBar extends StatelessWidget implements PreferredSizeWidget {
   const GenericAppBar({

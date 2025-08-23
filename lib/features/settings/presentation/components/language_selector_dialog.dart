@@ -25,7 +25,7 @@ class LanguageSelectorDialog extends ConsumerWidget {
       direction: Axis.horizontal,
       body: Padding(
         padding: const EdgeInsets.all(Spaces.small),
-        child: FSelect<Locale>(
+        child: FSelect<Locale>.rich(
           label: Text(loc.language),
           // TODO
           description: Text('Select your preferred language'),
@@ -35,7 +35,7 @@ class LanguageSelectorDialog extends ConsumerWidget {
             AppResources.countryFlags.length,
             (index) {
               final locale = AppLocalizations.supportedLocales[index];
-              return FSelectItem.from(
+              return FSelectItem(
                 title: Text(translateLocaleName(locale)),
                 prefix: AppResources.countryFlags[index],
                 value: AppLocalizations.supportedLocales[index],

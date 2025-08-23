@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/shared/theme/more_colors_old.dart';
@@ -65,11 +62,6 @@ extension DisplayUtils on BuildContext {
   }
 }
 
-bool get isMobileDevice => !kIsWeb && (Platform.isIOS || Platform.isAndroid);
-
-bool get isDesktopDevice =>
-    !kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux);
-
 enum ScreenSize { small, normal, large, extraLarge, extraExtraLarge }
 
 extension FormFactorUtils on BuildContext {
@@ -82,10 +74,8 @@ extension FormFactorUtils on BuildContext {
     return ScreenSize.small;
   }
 
-  bool get isWideScreen => formFactor == ScreenSize.extraExtraLarge;
-
-  bool get isHandset =>
-      formFactor == ScreenSize.small || formFactor == ScreenSize.normal;
+  bool get isWideScreen => mediaWidth >= theme.breakpoints.sm;
+  bool get isHandset => !isWideScreen;
 
   double get getFSheetRatio {
     final breakpoints = theme.breakpoints;

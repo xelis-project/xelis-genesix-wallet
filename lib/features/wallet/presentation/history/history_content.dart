@@ -5,7 +5,7 @@ import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/history_providers.dart';
 import 'package:genesix/features/wallet/presentation/history/transaction_grouped_widget.dart';
-import 'package:genesix/features/wallet/presentation/transaction_view_utils.dart';
+import 'package:genesix/features/wallet/presentation/components/transaction_view_utils.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/custom_skeletonizer.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
@@ -35,7 +35,9 @@ class _HistoryContentState extends ConsumerState<HistoryContent> {
         state: pagingState,
         fetchNextPage: _fetchPage,
         builderDelegate:
-            PagedChildBuilderDelegate<MapEntry<DateTime, List<TransactionEntry>>>(
+            PagedChildBuilderDelegate<
+              MapEntry<DateTime, List<TransactionEntry>>
+            >(
               animateTransitions: true,
               itemBuilder: (context, item, index) =>
                   TransactionGroupedWidget(item),
