@@ -8,13 +8,19 @@ import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/components/transaction_view_utils.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
 import 'package:go_router/go_router.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class TransactionGroupedWidget extends ConsumerStatefulWidget {
-  const TransactionGroupedWidget(this.transactionGroup, {super.key});
+  const TransactionGroupedWidget(
+    this.transactionGroup,
+    this.addressBook, {
+    super.key,
+  });
 
   final MapEntry<DateTime, List<TransactionEntry>> transactionGroup;
+  final Map<String, ContactDetails> addressBook;
 
   @override
   ConsumerState createState() => _TransactionGroupedWidgetState();
@@ -53,7 +59,13 @@ class _TransactionGroupedWidgetState
           count: transactions.length,
           itemBuilder: (BuildContext context, int index) {
             final tx = transactions[index];
-            final info = parseTxInfo(loc, network, tx.txEntryType, knownAssets);
+            final info = parseTxInfo(
+              loc,
+              network,
+              tx.txEntryType,
+              knownAssets,
+              widget.addressBook,
+            );
 
             return FItem(
               prefix: Icon(info.icon, color: info.color, size: 18),

@@ -91,14 +91,12 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
                     network,
                     tx.txEntryType,
                     knownAssets,
+                    const {}, // No address book in this context
                   );
 
                   return FItem(
                     prefix: Icon(info.icon, color: info.color),
-                    title: Text(
-                      info.label,
-                      style: context.theme.typography.sm,
-                    ),
+                    title: Text(info.label, style: context.theme.typography.sm),
                     subtitle: info.details != null
                         ? Text(
                             info.details!,

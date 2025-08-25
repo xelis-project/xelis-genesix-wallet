@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:forui/assets.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart'
     as rust;
@@ -69,6 +70,7 @@ TransactionDisplayInfo parseTxInfo(
   rust.Network network,
   TransactionEntryType type,
   LinkedHashMap<String, AssetData> knownAssets,
+  Map<String, ContactDetails> addressBook,
 ) {
   switch (type) {
     case CoinbaseEntry():
@@ -100,7 +102,7 @@ TransactionDisplayInfo parseTxInfo(
         final transfer = type.transfers.first;
         final asset = knownAssets[transfer.asset];
         if (asset != null) {
-          subtitle = 'from ${truncateText(type.from, maxLength: 16)}';
+          subtitle = 'from ${getAddressLabel(type.from, addressBook)}';
           detailsMessage =
               '+${formatCoin(transfer.amount, asset.decimals, asset.ticker)}';
         } else {
@@ -125,7 +127,7 @@ TransactionDisplayInfo parseTxInfo(
         final transfer = type.transfers.first;
         final asset = knownAssets[transfer.asset];
         if (asset != null) {
-          subtitle = 'to ${truncateText(transfer.destination, maxLength: 16)}';
+          subtitle = 'to ${getAddressLabel(transfer.destination, addressBook)}';
           detailsMessage =
               '-${formatCoin(transfer.amount, asset.decimals, asset.ticker)}';
         } else {
@@ -160,6 +162,18 @@ TransactionDisplayInfo parseTxInfo(
         color: Colors.teal,
         label: 'Contract Deployment',
       );
+  }
+}
+
+String getAddressLabel(
+  String address,
+  Map<String, ContactDetails> addressBook,
+) {
+  final contact = addressBook[address];
+  if (contact != null && contact.name.isNotEmpty) {
+    return contact.name;
+  } else {
+    return truncateText(address, maxLength: 16);
   }
 }
 
