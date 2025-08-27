@@ -10,6 +10,7 @@ class CustomSkeletonizer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Skeletonizer(
+      ignoreContainers: true,
       effect: ShimmerEffect(
         baseColor: context.theme.colors.muted,
         highlightColor: context.theme.colors.mutedForeground,
