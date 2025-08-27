@@ -27,97 +27,102 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
     final hideBalance = ref.watch(
       settingsProvider.select((state) => state.hideBalance),
     );
-    final xelisCoingeckoResponse = ref.watch(xelisPriceProvider.future);
+    final xelisCoingeckoResponse = ref.watch(xelisPriceProvider).valueOrNull;
 
-    return FutureBuilder(
-      future: xelisCoingeckoResponse,
-      builder: (context, asyncSnapshot) {
-        if (asyncSnapshot.hasData) {
-          final xelisPrice = asyncSnapshot.data?.price.usd ?? 0.0;
-          final usdtBalance = xelisPrice * widget.xelisBalance;
-          var displayedUSDBalance = formatUsd(usdtBalance);
+    if (hideBalance) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        spacing: Spaces.medium,
+        children: [
+          Text(
+            hidden,
+            style: context.theme.typography.sm.copyWith(
+              color: context.theme.colors.mutedForeground,
+            ),
+          ),
+          Text(
+            hidden,
+            style: context.theme.typography.sm.copyWith(
+              color: context.theme.colors.mutedForeground,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      );
+    }
 
-          final percentChange24h =
-              asyncSnapshot.data?.price.usd24hChange ?? 0.0;
-          final isPositiveChange = percentChange24h >= 0;
-          var displayedPercentChange24h =
-              '${percentChange24h.abs().toStringAsFixed(2)}%';
+    if (xelisCoingeckoResponse != null) {
+      final response = xelisCoingeckoResponse;
+      final xelisPrice = response.price.usd;
+      final usdtBalance = xelisPrice * widget.xelisBalance;
+      var displayedUSDBalance = formatUsd(usdtBalance);
 
-          if (hideBalance) {
-            displayedUSDBalance = hidden;
-            displayedPercentChange24h = hidden;
-          }
+      final percentChange24h = response.price.usd24hChange;
+      final isPositiveChange = percentChange24h >= 0;
+      var displayedPercentChange24h =
+          '${percentChange24h.abs().toStringAsFixed(2)}%';
 
-          final priceHistory24h =
-              asyncSnapshot.data?.pricePoints.map((e) => e.price).toList() ??
-              [];
-          final sparklineColor = isPositiveChange
-              ? context.theme.colors.upColor
-              : context.theme.colors.downColor;
+      final priceHistory24h = response.pricePoints.map((e) => e.price).toList();
+      final sparklineColor = isPositiveChange
+          ? context.theme.colors.upColor
+          : context.theme.colors.downColor;
 
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                displayedUSDBalance,
-                style: context.theme.typography.sm.copyWith(
-                  color: context.theme.colors.mutedForeground,
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        spacing: Spaces.medium,
+        children: [
+          Text(
+            displayedUSDBalance,
+            style: context.theme.typography.sm.copyWith(
+              color: context.theme.colors.mutedForeground,
+            ),
+          ),
+          FTooltip(
+            tipBuilder: (context, controller) {
+              return Text('Percentage change in 24 hours');
+            },
+            child: Row(
+              children: [
+                Icon(
+                  isPositiveChange ? FIcons.chevronUp : FIcons.chevronDown,
+                  color: isPositiveChange
+                      ? context.theme.colors.upColor
+                      : context.theme.colors.downColor,
+                  size: 16,
                 ),
-              ),
-              const SizedBox(width: Spaces.medium),
-              FTooltip(
-                tipBuilder: (context, controller) {
-                  return Text('Percentage change in 24 hours');
-                },
-                child: Row(
-                  children: [
-                    if (!hideBalance) ...[
-                      Icon(
-                        isPositiveChange
-                            ? FIcons.chevronUp
-                            : FIcons.chevronDown,
-                        color: isPositiveChange
-                            ? context.theme.colors.upColor
-                            : context.theme.colors.downColor,
-                        size: 16,
-                      ),
-                    ],
-                    Text(
-                      displayedPercentChange24h,
-                      style: context.theme.typography.sm.copyWith(
-                        color: isPositiveChange
-                            ? context.theme.colors.upColor
-                            : context.theme.colors.downColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: Spaces.medium),
-              if (priceHistory24h.isNotEmpty && !hideBalance)
-                Padding(
-                  padding: const EdgeInsets.only(top: Spaces.extraSmall),
-                  child: XelisPriceSparkline(
-                    pricePoints: asyncSnapshot.data?.pricePoints ?? [],
-                    sparklineColor: sparklineColor,
+                Text(
+                  displayedPercentChange24h,
+                  style: context.theme.typography.sm.copyWith(
+                    color: isPositiveChange
+                        ? context.theme.colors.upColor
+                        : context.theme.colors.downColor,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-            ],
-          );
-        }
-        return CustomSkeletonizer(
-          child: Row(
-            children: [
-              Text('Dummy USDT Balance'),
-              const SizedBox(width: Spaces.medium),
-              Text('Dummy Change'),
-              const SizedBox(width: Spaces.medium),
-              SizedBox(width: 100, height: 24),
-            ],
+              ],
+            ),
           ),
-        );
-      },
-    );
+          if (priceHistory24h.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: Spaces.extraSmall),
+              child: XelisPriceSparkline(
+                pricePoints: response.pricePoints,
+                sparklineColor: sparklineColor,
+              ),
+            ),
+        ],
+      );
+    } else {
+      return CustomSkeletonizer(
+        child: Row(
+          children: [
+            Text('Dummy USDT Balance'),
+            SizedBox(width: Spaces.medium),
+            Text('Dummy Change'),
+            SizedBox(width: 100, height: 24),
+          ],
+        ),
+      );
+    }
   }
 }
