@@ -66,83 +66,84 @@ class _ConnectionIndicatorState extends ConsumerState<ConnectionIndicator>
         : context.theme.colors.error;
     final text = isOnline ? loc.connected : loc.disconnected;
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      spacing: Spaces.small,
-      children: [
-        AnimatedBuilder(
-          animation: _pulse,
-          builder: (context, child) {
-            return Stack(
-              alignment: Alignment.center,
-              children: [
-                // Pulsing aura
-                Opacity(
-                  opacity: 0.5,
-                  child: Transform.scale(
-                    scale: isOnline ? _pulse.value : 1.0,
-                    child: Container(
-                      width: 18,
-                      height: 18,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: color.withValues(alpha: 0.4),
+    return Padding(
+      padding: const EdgeInsets.all(Spaces.small),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: Spaces.small,
+        children: [
+          AnimatedBuilder(
+            animation: _pulse,
+            builder: (context, child) {
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Pulsing aura
+                  Opacity(
+                    opacity: 0.5,
+                    child: Transform.scale(
+                      scale: isOnline ? _pulse.value : 1.0,
+                      child: Container(
+                        width: 18,
+                        height: 18,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: color.withValues(alpha: 0.4),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                // Point central
-                AnimatedContainer(
-                  duration: const Duration(
-                    milliseconds: AppDurations.animNormal,
+                  // Point central
+                  AnimatedContainer(
+                    duration: const Duration(
+                      milliseconds: AppDurations.animNormal,
+                    ),
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                    ),
                   ),
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-
-        SizedBox(
-          width: 120,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: AppDurations.animNormal),
-            transitionBuilder: (child, animation) {
-              // Slide from the bottom to the top if we connect
-              // and from the top to the bottom if we disconnect
-              final isNextConnected =
-                  (child.key as ValueKey).value == loc.connected;
-              final offsetBegin = isNextConnected
-                  ? const Offset(0, 1)
-                  : const Offset(0, -1);
-              final offsetEnd = Offset.zero;
-              return SlideTransition(
-                position: Tween<Offset>(
-                  begin: offsetBegin,
-                  end: offsetEnd,
-                ).animate(animation),
-                child: FadeTransition(opacity: animation, child: child),
+                ],
               );
             },
-            child: Align(
-              key: ValueKey<String>(text),
-              alignment: Alignment.centerLeft,
-              child: Text(
-                text,
-                style: context.theme.typography.sm.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.w600,
+          ),
+          Flexible(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: AppDurations.animNormal),
+              transitionBuilder: (child, animation) {
+                // Slide from the bottom to the top if we connect
+                // and from the top to the bottom if we disconnect
+                final isNextConnected =
+                    (child.key as ValueKey).value == loc.connected;
+                final offsetBegin = isNextConnected
+                    ? const Offset(0, 1)
+                    : const Offset(0, -1);
+                final offsetEnd = Offset.zero;
+                return SlideTransition(
+                  position: Tween<Offset>(
+                    begin: offsetBegin,
+                    end: offsetEnd,
+                  ).animate(animation),
+                  child: FadeTransition(opacity: animation, child: child),
+                );
+              },
+              child: Align(
+                key: ValueKey<String>(text),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  text,
+                  style: context.theme.typography.sm.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

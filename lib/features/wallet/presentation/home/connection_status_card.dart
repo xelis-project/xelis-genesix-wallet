@@ -39,10 +39,24 @@ class ConnectionStatusCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          FItem(
-            title: Text(nodeAddress.name),
-            subtitle: Text(nodeAddress.url),
-            details: ConnectionIndicator(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: Spaces.extraSmall,
+                children: [
+                  Text(nodeAddress.name, style: context.theme.typography.sm),
+                  Text(
+                    nodeAddress.url,
+                    style: context.theme.typography.xs.copyWith(
+                      color: context.theme.colors.mutedForeground,
+                    ),
+                  ),
+                ],
+              ),
+              ConnectionIndicator(),
+            ],
           ),
           FDivider(
             style: context.theme.dividerStyles.horizontalStyle
@@ -55,11 +69,10 @@ class ConnectionStatusCard extends ConsumerWidget {
               ? NetworkMismatchWidget()
               : Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           loc.topoheight,
