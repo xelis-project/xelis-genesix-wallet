@@ -71,9 +71,7 @@ class _TransactionGroupedWidgetState
               prefix: Icon(info.icon, color: info.color, size: 18),
               title: Text(
                 info.label,
-                style: context.theme.typography.sm.copyWith(
-                  color: context.theme.colors.primaryForeground,
-                ),
+                style: context.theme.typography.sm,
               ),
               subtitle: info.subtitle != null
                   ? Text(
