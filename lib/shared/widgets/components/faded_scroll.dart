@@ -52,13 +52,14 @@ class FadedScroll extends StatefulWidget {
   State<FadedScroll> createState() => _FadedScrollState();
 }
 
-class _FadedScrollState extends State<FadedScroll> {
+class _FadedScrollState extends State<FadedScroll> with WidgetsBindingObserver {
   bool _showStart = false;
   bool _showEnd = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     widget.controller.addListener(_onTick);
     // Ensure correct initial state after first layout.
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateFromPosition());
@@ -84,7 +85,15 @@ class _FadedScrollState extends State<FadedScroll> {
   @override
   void dispose() {
     widget.controller.removeListener(_onTick);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  // Called when window metrics change (desktop resize, rotation, etc.).
+  @override
+  void didChangeMetrics() {
+    // Re-evaluate after layout settles.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateFromPosition());
   }
 
   void _onTick() => _updateFromPosition();
