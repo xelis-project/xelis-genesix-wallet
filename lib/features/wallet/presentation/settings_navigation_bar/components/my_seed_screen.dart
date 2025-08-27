@@ -158,7 +158,7 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                 const SizedBox(height: Spaces.small),
                 Flexible(
                   child: GridView.count(
-                    crossAxisCount: context.isHandset ? 2 : 3,
+                    crossAxisCount: context.isMobile ? 2 : 3,
                     semanticChildCount: _seedWords.length,
                     childAspectRatio: 5,
                     mainAxisSpacing: Spaces.none,

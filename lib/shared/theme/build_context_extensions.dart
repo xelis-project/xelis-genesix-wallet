@@ -75,7 +75,7 @@ extension FormFactorUtils on BuildContext {
   }
 
   bool get isWideScreen => mediaWidth >= theme.breakpoints.sm;
-  bool get isHandset => !isWideScreen;
+  bool get isMobile => !isWideScreen;
 
   double get getFSheetRatio {
     final breakpoints = theme.breakpoints;

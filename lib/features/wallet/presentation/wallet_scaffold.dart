@@ -36,8 +36,6 @@ class _WalletScaffoldState extends ConsumerState<WalletScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final breakpoints = context.theme.breakpoints;
-    final isMobile = context.mediaWidth < breakpoints.sm;
     final needTitle = widget.title != null && widget.title!.isNotEmpty;
 
     return FScaffold(
@@ -48,7 +46,7 @@ class _WalletScaffoldState extends ConsumerState<WalletScaffold> {
                 child: Text(widget.title!),
               )
             : SizedBox.shrink(),
-        prefixes: isMobile
+        prefixes: context.isMobile
             ? [
                 Padding(
                   padding: const EdgeInsets.all(Spaces.small),
@@ -65,7 +63,7 @@ class _WalletScaffoldState extends ConsumerState<WalletScaffold> {
             : [],
         suffixes: widget.headerSuffixes ?? [],
       ),
-      sidebar: !isMobile ? SideBar() : null,
+      sidebar: !context.isMobile ? SideBar() : null,
       child: BodyLayoutBuilder(child: widget.child),
     );
   }

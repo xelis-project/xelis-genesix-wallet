@@ -144,7 +144,7 @@ class _XswdEditPermissionDialogState
                                 label: Text(entry.key),
                                 avatar: Icon(Icons.code, size: 16),
                               ),
-                              context.isHandset
+                              context.isMobile
                                   ? const SizedBox(width: Spaces.medium)
                                   : Spacer(),
                               Expanded(
