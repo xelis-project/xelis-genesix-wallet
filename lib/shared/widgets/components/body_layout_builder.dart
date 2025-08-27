@@ -12,6 +12,7 @@ class BodyLayoutBuilder extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final double width = constraints.maxWidth;
+        final double height = constraints.maxHeight;
 
         double contentWidth;
         if (width < context.theme.breakpoints.sm) {
@@ -36,7 +37,10 @@ class BodyLayoutBuilder extends StatelessWidget {
 
         return Center(
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: contentWidth),
+            constraints: BoxConstraints(
+              maxWidth: contentWidth,
+              maxHeight: height,
+            ),
             child: child,
           ),
         );

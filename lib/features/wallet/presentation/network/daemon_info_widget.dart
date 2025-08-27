@@ -168,8 +168,7 @@ class _DaemonInfoWidgetState extends ConsumerState<DaemonInfoWidget> {
             textAlign: TextAlign.center,
           ),
           Text(
-            '${widget.info?.averageBlockTime.inSeconds.toString() ??
-                '...'} ${loc.seconds}',
+            '${widget.info?.averageBlockTime.inSeconds.toString() ?? '...'} ${loc.seconds}',
             style: context.theme.typography.base,
             textAlign: TextAlign.center,
           ),

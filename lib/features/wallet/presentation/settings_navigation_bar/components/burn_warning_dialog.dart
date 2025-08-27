@@ -7,7 +7,7 @@ import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/widgets/components/generic_dialog_old.dart';
-import 'package:genesix/shared/widgets/components/warning_widget.dart';
+import 'package:genesix/shared/widgets/components/warning_widget_old.dart';
 import 'package:go_router/go_router.dart';
 
 class BurnWarningDialog extends ConsumerWidget {

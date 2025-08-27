@@ -19,6 +19,7 @@ class AssetNameWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return isXelis
         ? Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Logo(imagePath: xelisImagePath),
               const SizedBox(width: Spaces.small),
