@@ -23,6 +23,8 @@ class SideBar extends ConsumerStatefulWidget {
 }
 
 class _SideBarState extends ConsumerState<SideBar> {
+  late String _selectedItem;
+
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
@@ -37,6 +39,8 @@ class _SideBarState extends ConsumerState<SideBar> {
     );
 
     final isDarkMode = appTheme == AppTheme.dark || appTheme == AppTheme.xelis;
+
+    _selectedItem = context.goRouterState.fullPath ?? AuthAppScreen.home.toPath;
 
     return FSidebar(
       header: Padding(
@@ -67,11 +71,15 @@ class _SideBarState extends ConsumerState<SideBar> {
           label: const Text('Overview'),
           children: [
             FSidebarItem(
+              selected: _selectedItem == AuthAppScreen.home.toPath,
               icon: const Icon(FIcons.house),
               label: const Text('Home'),
               onPress: () {
                 _closeSideBar();
                 context.go(AuthAppScreen.home.toPath);
+                setState(() {
+                  _selectedItem = AuthAppScreen.home.toPath;
+                });
               },
             ),
             FSidebarItem(
@@ -80,73 +88,104 @@ class _SideBarState extends ConsumerState<SideBar> {
               initiallyExpanded: false,
               children: [
                 FSidebarItem(
+                  selected: _selectedItem == 'Sign Transaction',
                   label: Text('Sign Transaction'),
                   onPress: () {
                     _closeSideBar();
-                    // TODO: Implement sign transaction management
-                    print('sign pressed');
+                    context.go(AuthAppScreen.signTransaction.toPath);
+                    setState(() {
+                      _selectedItem = 'Sign Transaction';
+                    });
                   },
                 ),
                 FSidebarItem(
+                  selected: _selectedItem == 'Multisig',
                   label: Text('Multisig Management'),
                   onPress: () {
                     _closeSideBar();
                     // TODO: Implement multisig management
                     print('Multisig pressed');
+                    setState(() {
+                      _selectedItem = 'Multisig';
+                    });
                   },
                 ),
                 FSidebarItem(
+                  selected: _selectedItem == 'XSWD Protocol',
                   label: const Text('XSWD Protocol'),
                   onPress: xswdEnabled
                       ? () {
                           _closeSideBar();
                           // TODO: Implement XSWD protocol management
                           print('XSWD pressed');
+                          setState(() {
+                            _selectedItem = 'XSWD Protocol';
+                          });
                         }
                       : null,
                 ),
                 FSidebarItem(
+                  selected: _selectedItem == 'Burn Transfer',
                   label: Text('Burn Transfer'),
                   onPress: burnTransferEnabled
                       ? () {
                           _closeSideBar();
                           // TODO: Implement burn transfer management
                           print('Burn pressed');
+                          setState(() {
+                            _selectedItem = 'Burn Transfer';
+                          });
                         }
                       : null,
                 ),
               ],
             ),
             FSidebarItem(
+              selected: _selectedItem == AuthAppScreen.network.toPath,
               label: Text(loc.network),
               icon: const Icon(FIcons.waypoints),
               onPress: () {
                 _closeSideBar();
                 context.go(AuthAppScreen.network.toPath);
+                setState(() {
+                  _selectedItem = AuthAppScreen.network.toPath;
+                });
               },
             ),
             FSidebarItem(
+              selected: _selectedItem == AuthAppScreen.addressBook.toPath,
               label: Text(loc.address_book.capitalizeAll()),
               icon: const Icon(FIcons.bookUser),
               onPress: () {
                 _closeSideBar();
                 context.go(AuthAppScreen.addressBook.toPath);
+                setState(() {
+                  _selectedItem = AuthAppScreen.addressBook.toPath;
+                });
               },
             ),
             FSidebarItem(
+              selected: _selectedItem == AuthAppScreen.history.toPath,
               label: Text(loc.history),
               icon: const Icon(FIcons.history),
               onPress: () {
                 _closeSideBar();
                 context.go(AuthAppScreen.history.toPath);
+                setState(() {
+                  _selectedItem = AuthAppScreen.history.toPath;
+                });
               },
             ),
             FSidebarItem(
+              selected: _selectedItem == AuthAppScreen.assets.toPath,
               label: Text('Assets'),
               icon: const Icon(FIcons.landmark),
               onPress: () {
                 _closeSideBar();
                 context.go(AuthAppScreen.assets.toPath);
+                setState(() {
+                  _selectedItem = AuthAppScreen.assets.toPath;
+                });
               },
             ),
           ],
@@ -155,6 +194,7 @@ class _SideBarState extends ConsumerState<SideBar> {
           label: const Text('Account'),
           children: [
             FSidebarItem(
+              selected: _selectedItem == AuthAppScreen.recoveryPhrase.toPath,
               icon: const Icon(FIcons.key),
               label: Text(loc.recovery_phrase),
               onPress: () {
@@ -167,18 +207,26 @@ class _SideBarState extends ConsumerState<SideBar> {
 
                 startWithBiometricAuth(
                   ref,
-                  callback: (ref) =>
-                      context.go(AuthAppScreen.recoveryPhrase.toPath),
+                  callback: (ref) {
+                    context.go(AuthAppScreen.recoveryPhrase.toPath);
+                    setState(() {
+                      _selectedItem = AuthAppScreen.recoveryPhrase.toPath;
+                    });
+                  },
                   reason: 'Please authenticate to view your recovery phrase',
                 );
               },
             ),
             FSidebarItem(
+              selected: _selectedItem == AuthAppScreen.settings.toPath,
               icon: const Icon(FIcons.settings),
               label: Text(loc.settings),
               onPress: () {
                 _closeSideBar();
                 context.go(AuthAppScreen.settings.toPath);
+                setState(() {
+                  _selectedItem = AuthAppScreen.settings.toPath;
+                });
               },
             ),
             FSidebarItem(
