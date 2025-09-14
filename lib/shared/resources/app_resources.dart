@@ -89,64 +89,32 @@ class AppResources {
   static List<CountryFlag> countryFlags = List.generate(
     AppLocalizations.supportedLocales.length,
     (int index) {
+      final flagTheme = const ImageTheme(
+        height: 24,
+        width: 30,
+        shape: RoundedRectangle(8),
+      );
       String languageCode =
           AppLocalizations.supportedLocales[index].languageCode;
       switch (languageCode) {
         case 'zh':
-          return CountryFlag.fromCountryCode(
-            'CN',
-            height: 24,
-            width: 30,
-            shape: const RoundedRectangle(8),
-          );
+          return CountryFlag.fromCountryCode('CN', theme: flagTheme);
         case 'ru' || 'pt' || 'nl' || 'pl':
-          return CountryFlag.fromCountryCode(
-            languageCode,
-            height: 24,
-            width: 30,
-            shape: const RoundedRectangle(8),
-          );
+          return CountryFlag.fromCountryCode(languageCode, theme: flagTheme);
         case 'ko':
-          return CountryFlag.fromCountryCode(
-            'KR',
-            height: 24,
-            width: 30,
-            shape: const RoundedRectangle(8),
-          );
+          return CountryFlag.fromCountryCode('KR', theme: flagTheme);
         case 'ms':
-          return CountryFlag.fromCountryCode(
-            'MY',
-            height: 24,
-            width: 30,
-            shape: const RoundedRectangle(8),
-          );
+          return CountryFlag.fromCountryCode('MY', theme: flagTheme);
         case 'uk':
-          return CountryFlag.fromCountryCode(
-            'UA',
-            height: 24,
-            width: 30,
-            shape: const RoundedRectangle(8),
-          );
+          return CountryFlag.fromCountryCode('UA', theme: flagTheme);
         case 'ja':
-          return CountryFlag.fromCountryCode(
-            'JP',
-            height: 24,
-            width: 30,
-            shape: const RoundedRectangle(8),
-          );
+          return CountryFlag.fromCountryCode('JP', theme: flagTheme);
         case 'ar':
-          return CountryFlag.fromCountryCode(
-            'SA',
-            height: 24,
-            width: 30,
-            shape: const RoundedRectangle(8),
-          );
+          return CountryFlag.fromCountryCode('SA', theme: flagTheme);
         default:
           return CountryFlag.fromLanguageCode(
             AppLocalizations.supportedLocales[index].languageCode,
-            height: 24,
-            width: 30,
-            shape: const RoundedRectangle(8),
+            theme: flagTheme,
           );
       }
     },

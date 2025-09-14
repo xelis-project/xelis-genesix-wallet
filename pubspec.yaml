@@ -18,7 +18,7 @@ dependencies:
   flutter_riverpod: ^2.6.1
   form_builder_validators: ^11.2.0
   freezed_annotation: ^3.1.0
-  go_router: ^16.2.0
+  go_router: ^16.2.1
   intl: any
   json_annotation: ^4.9.0
   logging: ^1.3.0
@@ -30,9 +30,9 @@ dependencies:
   pretty_qr_code: ^3.5.0
   flutter_native_splash: ^2.4.6
   window_manager: ^0.5.1
-  country_flags: ^3.3.0
+  country_flags: ^4.0.0
   package_info_plus: ^8.3.1
-  file_picker: ^10.3.2
+  file_picker: ^10.3.3
   icons_launcher: ^3.0.2
   url_launcher: ^6.3.2
   localstorage: ^6.0.0
@@ -49,7 +49,7 @@ dependencies:
   forui: ^0.15.1
   animations: ^2.0.11
   jovial_svg: ^1.1.27
-  fl_chart: ^1.0.0
+  fl_chart: ^1.1.0
   skeletonizer: ^2.1.0+1
   #  flutter_hooks: ^0.20.5
   #  hooks_riverpod: ^2.4.10
