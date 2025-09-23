@@ -69,6 +69,6 @@ class _GenesixState extends ConsumerState<Genesix> with WindowListener {
   @override
   Future<void> onWindowClose() async {
     await ref.read(authenticationProvider.notifier).logout();
-    talker.disable();
+    await disposeRustLogging();
   }
 }

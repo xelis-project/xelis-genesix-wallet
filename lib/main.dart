@@ -9,7 +9,6 @@ import 'package:genesix/src/generated/rust_bridge/api/api.dart';
 import 'package:genesix/src/generated/rust_bridge/frb_generated.dart';
 import 'package:intl/intl.dart';
 import 'package:jovial_svg/jovial_svg.dart';
-import 'package:talker_riverpod_logger/talker_riverpod_logger.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
@@ -78,15 +77,7 @@ Future<void> main() async {
   runApp(
     ProviderScope(
       overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
-      observers: [
-        TalkerRiverpodObserver(
-          talker: talker,
-          settings: const TalkerRiverpodLoggerSettings(
-            printProviderDisposed: true,
-            printStateFullData: kDebugMode ? true : false,
-          ),
-        ),
-      ],
+      observers: riverpodObserversMinimal(),
       child: const Genesix(),
     ),
   );
