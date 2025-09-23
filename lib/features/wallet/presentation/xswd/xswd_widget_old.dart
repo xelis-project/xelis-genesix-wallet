@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_providers.dart';
 import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
-import 'package:genesix/features/wallet/presentation/xswd/xswd_dialog.dart';
+import 'package:genesix/features/wallet/presentation/xswd/xswd_dialog_old.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 

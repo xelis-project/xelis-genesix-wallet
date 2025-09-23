@@ -36,7 +36,8 @@ class _WalletScaffoldState extends ConsumerState<WalletScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final needTitle = widget.title != null && widget.title!.isNotEmpty && context.isMobile;
+    final needTitle =
+        widget.title != null && widget.title!.isNotEmpty && context.isMobile;
 
     return FScaffold(
       header: FHeader.nested(

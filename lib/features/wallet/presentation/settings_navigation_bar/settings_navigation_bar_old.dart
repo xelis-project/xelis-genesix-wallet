@@ -56,7 +56,7 @@ class SettingsNavigationBar extends ConsumerWidget {
                 color: context.moreColors.mutedColor,
               ),
             ),
-            onTap: () => context.push(AuthAppScreen.xswdStatus.toPath),
+            onTap: () => context.push(AuthAppScreen.xswd.toPath),
             trailing: const Icon(Icons.keyboard_arrow_right_rounded),
           ),
         ],
