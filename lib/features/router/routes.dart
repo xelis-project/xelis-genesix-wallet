@@ -13,13 +13,14 @@ import 'package:genesix/features/wallet/presentation/history/filters_button.dart
 import 'package:genesix/features/wallet/presentation/history/history_content.dart';
 import 'package:genesix/features/wallet/presentation/history/transaction_entry_screen.dart';
 import 'package:genesix/features/wallet/presentation/home/home_wallet_content.dart';
+import 'package:genesix/features/wallet/presentation/multisig/multisig_content.dart';
 import 'package:genesix/features/wallet/presentation/network/network_content.dart';
 import 'package:genesix/features/wallet/presentation/recovery_phrase/recovery_phrase_content.dart';
-import 'package:genesix/features/wallet/presentation/settings_navigation_bar/components/xswd_status_screen.dart';
+import 'package:genesix/features/wallet/presentation/sign_transaction/sign_transaction_content.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/burn/burn_screen.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/multisig/multisig_screen.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transfer/transfer_screen.dart';
-import 'package:genesix/features/wallet/presentation/xswd/xswd_widget.dart';
+import 'package:genesix/features/wallet/presentation/xswd/xswd_content.dart';
+import 'package:genesix/features/wallet/presentation/xswd/xswd_widget_old.dart';
 import 'package:genesix/features/wallet/presentation/wallet_scaffold.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/authentication/presentation/open_wallet_screen.dart';
@@ -105,6 +106,9 @@ class LightSettingsRoute extends GoRouteData with _$LightSettingsRoute {
     TypedGoRoute<HistoryRoute>(path: '/history'),
     TypedGoRoute<AssetsRoute>(path: '/assets'),
     TypedGoRoute<RecoveryPhraseRoute>(path: '/recovery_phrase'),
+    TypedGoRoute<SignTransactionRoute>(path: '/sign_transaction'),
+    TypedGoRoute<MultisigRoute>(path: '/multisig'),
+    TypedGoRoute<XSWDRoute>(path: '/xswd'),
   ],
 )
 class WalletShellRoute extends ShellRouteData {
@@ -129,6 +133,8 @@ class WalletShellRoute extends ShellRouteData {
       AuthAppScreen.history => 'History',
       AuthAppScreen.assets => 'Assets',
       AuthAppScreen.recoveryPhrase => 'Recovery Phrase',
+      AuthAppScreen.signTransaction => 'Sign Transaction',
+      AuthAppScreen.multisig => 'Multisig Management',
       _ => null,
     };
 
@@ -191,6 +197,27 @@ class RecoveryPhraseRoute extends GoRouteData with _$RecoveryPhraseRoute {
   }
 }
 
+class SignTransactionRoute extends GoRouteData with _$SignTransactionRoute {
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return NoTransitionPage(child: SignTransactionContent());
+  }
+}
+
+class MultisigRoute extends GoRouteData with _$MultisigRoute {
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return NoTransitionPage(child: MultisigContent());
+  }
+}
+
+class XSWDRoute extends GoRouteData with _$XSWDRoute {
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return NoTransitionPage(child: XSWDContent());
+  }
+}
+
 @TypedGoRoute<TransferRoute>(name: 'transfer', path: '/transfer')
 class TransferRoute extends GoRouteData with _$TransferRoute {
   const TransferRoute();
@@ -234,38 +261,6 @@ class TransactionEntryRoute extends GoRouteData with _$TransactionEntryRoute {
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
       TransactionEntryScreen(),
-      state.pageKey,
-      state.fullPath,
-      state.extra,
-      AppDurations.animNormal,
-    );
-  }
-}
-
-@TypedGoRoute<MultiSigRoute>(name: 'multisig', path: '/multisig')
-class MultiSigRoute extends GoRouteData with _$MultiSigRoute {
-  const MultiSigRoute();
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return pageTransition(
-      const MultisigScreen(),
-      state.pageKey,
-      state.fullPath,
-      state.extra,
-      AppDurations.animNormal,
-    );
-  }
-}
-
-@TypedGoRoute<XswdStateRoute>(name: 'xswd_status', path: '/xswd_status')
-class XswdStateRoute extends GoRouteData with _$XswdStateRoute {
-  const XswdStateRoute();
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return pageTransition(
-      const XswdStatusScreen(),
       state.pageKey,
       state.fullPath,
       state.extra,

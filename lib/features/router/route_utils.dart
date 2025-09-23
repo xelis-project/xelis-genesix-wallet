@@ -9,8 +9,9 @@ enum AuthAppScreen {
   burn,
   multisig,
   transactionEntry,
-  xswdStatus,
+  xswd,
   addressBook,
+  signTransaction,
 }
 
 enum AppScreen { openWallet, createWallet, importWallet, lightSettings }
@@ -57,10 +58,12 @@ extension AuthAppScreenExtension on AuthAppScreen {
         return '/transaction_entry';
       case AuthAppScreen.multisig:
         return '/multisig';
-      case AuthAppScreen.xswdStatus:
-        return '/xswd_status';
+      case AuthAppScreen.xswd:
+        return '/xswd';
       case AuthAppScreen.addressBook:
         return '/address_book';
+      case AuthAppScreen.signTransaction:
+        return '/sign_transaction';
     }
   }
 

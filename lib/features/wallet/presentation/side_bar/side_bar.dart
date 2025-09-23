@@ -88,38 +88,37 @@ class _SideBarState extends ConsumerState<SideBar> {
               initiallyExpanded: false,
               children: [
                 FSidebarItem(
-                  selected: _selectedItem == 'Sign Transaction',
+                  selected:
+                      _selectedItem == AuthAppScreen.signTransaction.toPath,
                   label: Text('Sign Transaction'),
                   onPress: () {
                     _closeSideBar();
                     context.go(AuthAppScreen.signTransaction.toPath);
                     setState(() {
-                      _selectedItem = 'Sign Transaction';
+                      _selectedItem = AuthAppScreen.signTransaction.toPath;
                     });
                   },
                 ),
                 FSidebarItem(
-                  selected: _selectedItem == 'Multisig',
+                  selected: _selectedItem == AuthAppScreen.multisig.toPath,
                   label: Text('Multisig Management'),
                   onPress: () {
                     _closeSideBar();
-                    // TODO: Implement multisig management
-                    print('Multisig pressed');
+                    context.go(AuthAppScreen.multisig.toPath);
                     setState(() {
-                      _selectedItem = 'Multisig';
+                      _selectedItem = AuthAppScreen.multisig.toPath;
                     });
                   },
                 ),
                 FSidebarItem(
-                  selected: _selectedItem == 'XSWD Protocol',
+                  selected: _selectedItem == AuthAppScreen.xswd.toPath,
                   label: const Text('XSWD Protocol'),
                   onPress: xswdEnabled
                       ? () {
                           _closeSideBar();
-                          // TODO: Implement XSWD protocol management
-                          print('XSWD pressed');
+                          context.go(AuthAppScreen.xswd.toPath);
                           setState(() {
-                            _selectedItem = 'XSWD Protocol';
+                            _selectedItem = AuthAppScreen.xswd.toPath;
                           });
                         }
                       : null,
