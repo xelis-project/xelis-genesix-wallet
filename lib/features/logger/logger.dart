@@ -43,20 +43,3 @@ Future<void> initRustLogging() async {
     }
   });
 }
-
-// Extension to get the color of the log message
-extension TalkerDataRust on TalkerData {
-  Color getColor(TalkerScreenTheme theme) {
-    final level = logLevel;
-    final key = this.key;
-
-    Color? color;
-    if (key == null && level != null) {
-      color = theme.logColors[TalkerLogType.fromLogLevel(level).name];
-    } else if (key != null) {
-      color = theme.logColors[TalkerLogType.fromKey(key)?.name];
-    }
-
-    return color ?? Colors.grey;
-  }
-}
