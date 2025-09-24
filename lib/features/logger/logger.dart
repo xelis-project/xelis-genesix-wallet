@@ -26,7 +26,7 @@ const Set<String> _releaseExcludedProviders = {
   // excluded for privacy reasons
   'walletStateProvider',
   'historyProvider',
-  'lastTransactionsProvider'
+  'lastTransactionsProvider',
 };
 
 // Build Riverpod logger settings based on build mode

@@ -319,7 +319,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
             .sendAll(
               destination: address.trim(),
               asset: asset,
-              feeMultiplier: feeMultiplier != 1 ? feeMultiplier : null,
+              // feeMultiplier: feeMultiplier != 1 ? feeMultiplier : null,
             );
       } else {
         record = await ref
@@ -328,7 +328,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
               amount: double.parse(amount),
               destination: address.trim(),
               asset: asset,
-              feeMultiplier: feeMultiplier != 1 ? feeMultiplier : null,
+              // feeMultiplier: feeMultiplier != 1 ? feeMultiplier : null,
             );
       }
 
@@ -387,7 +387,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
             amount: double.parse(amount),
             destination: address.trim(),
             asset: asset,
-            feeMultiplier: multiplier,
+            // feeMultiplier: multiplier,
           )
           .then((value) {
             setState(() {

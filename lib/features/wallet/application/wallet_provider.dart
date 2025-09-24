@@ -184,7 +184,6 @@ class WalletState extends _$WalletState {
     required double amount,
     required String destination,
     required String asset,
-    double? feeMultiplier,
   }) async {
     if (state.nativeWalletRepository != null) {
       try {
@@ -194,7 +193,6 @@ class WalletState extends _$WalletState {
                 amount: amount,
                 address: destination,
                 assetHash: asset,
-                feeMultiplier: feeMultiplier,
               );
           return (null, transactionHash);
         } else {
@@ -203,7 +201,6 @@ class WalletState extends _$WalletState {
                 amount: amount,
                 address: destination,
                 assetHash: asset,
-                feeMultiplier: feeMultiplier,
               );
           return (transactionSummary, null);
         }
@@ -232,7 +229,6 @@ class WalletState extends _$WalletState {
   Future<(TransactionSummary?, String?)> sendAll({
     required String destination,
     required String asset,
-    double? feeMultiplier,
   }) async {
     if (state.nativeWalletRepository != null) {
       try {
@@ -241,7 +237,6 @@ class WalletState extends _$WalletState {
               .createMultisigTransferTransaction(
                 address: destination,
                 assetHash: asset,
-                feeMultiplier: feeMultiplier,
               );
           return (null, transactionHash);
         } else {
@@ -249,7 +244,6 @@ class WalletState extends _$WalletState {
               .createTransferTransaction(
                 address: destination,
                 assetHash: asset,
-                feeMultiplier: feeMultiplier,
               );
           return (transactionSummary, null);
         }
@@ -364,7 +358,6 @@ class WalletState extends _$WalletState {
     required double amount,
     required String destination,
     required String asset,
-    double? feeMultiplier,
   }) async {
     if (state.nativeWalletRepository != null) {
       return state.nativeWalletRepository!.estimateFees([
@@ -373,7 +366,7 @@ class WalletState extends _$WalletState {
           strAddress: destination,
           assetHash: asset,
         ),
-      ], feeMultiplier);
+      ]);
     }
     return AppResources.zeroBalance;
   }

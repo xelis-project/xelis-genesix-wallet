@@ -295,21 +295,14 @@ class NativeWalletRepository {
     return _xelisWallet.rescan(topoheight: BigInt.from(topoheight));
   }
 
-  Future<String> estimateFees(
-    List<Transfer> transfers,
-    double? feeMultiplier,
-  ) async {
-    return _xelisWallet.estimateFees(
-      transfers: transfers,
-      feeMultiplier: feeMultiplier,
-    );
+  Future<String> estimateFees(List<Transfer> transfers) async {
+    return _xelisWallet.estimateFees(transfers: transfers);
   }
 
   Future<TransactionSummary> createTransferTransaction({
     double? amount,
     required String address,
     required String assetHash,
-    double? feeMultiplier,
   }) async {
     String rawTx;
     if (amount != null) {
@@ -321,13 +314,11 @@ class NativeWalletRepository {
             assetHash: assetHash,
           ),
         ],
-        feeMultiplier: feeMultiplier,
       );
     } else {
       rawTx = await _xelisWallet.createTransferAllTransaction(
         strAddress: address,
         assetHash: assetHash,
-        feeMultiplier: feeMultiplier,
       );
     }
     final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
@@ -338,7 +329,6 @@ class NativeWalletRepository {
     double? amount,
     required String address,
     required String assetHash,
-    double? feeMultiplier,
   }) async {
     if (amount != null) {
       return _xelisWallet.createMultisigTransfersTransaction(
@@ -349,13 +339,11 @@ class NativeWalletRepository {
             assetHash: assetHash,
           ),
         ],
-        feeMultiplier: feeMultiplier,
       );
     } else {
       return _xelisWallet.createMultisigTransferAllTransaction(
         strAddress: address,
         assetHash: assetHash,
-        feeMultiplier: feeMultiplier,
       );
     }
   }
