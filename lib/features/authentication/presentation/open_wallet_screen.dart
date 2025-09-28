@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
@@ -215,60 +216,71 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
   }
 
   Future<void> _handleOpenWalletButtonPressed(BuildContext context) async {
-    if (_formKey.currentState?.validate() ?? false) {
-      if (!await _openWalletWithBiometrics(_selectController.value!)) {
-        if (context.mounted) {
-          showFDialog<void>(
-            context: context,
-            builder: (context, style, animation) {
-              return PasswordDialog(
-                style,
-                animation,
-                onEnter: (password) {
-                  _openWallet(_selectController.value!, password);
-                },
-              );
-            },
-          );
-        }
-      }
-    }
-  }
+    if (!(_formKey.currentState?.validate() ?? false)) return;
 
-  void _openWallet(String name, String password) async {
-    context.loaderOverlay.show();
+    final walletName = _selectController.value;
+    if (walletName == null) return;
 
-    await ref.read(authenticationProvider.notifier).openWallet(name, password);
+    // Try biometrics
+    final opened = await _openWalletWithBiometrics(walletName);
+    if (opened || !context.mounted) return;
 
-    // unlock biometric auth if locked
-    if (ref.read(biometricAuthProvider) == BiometricAuthProviderStatus.locked) {
-      ref
-          .read(biometricAuthProvider.notifier)
-          .updateStatus(BiometricAuthProviderStatus.ready);
-    }
-
-    if (mounted && context.loaderOverlay.visible) {
-      context.loaderOverlay.hide();
-    }
+    // Fallback to password dialog
+    showFDialog<void>(
+      context: context,
+      builder: (dialogContext, style, animation) {
+        return PasswordDialog(
+          style,
+          animation,
+          onEnter: (password) => _openWallet(walletName, password),
+        );
+      },
+    );
   }
 
   Future<bool> _openWalletWithBiometrics(String name) async {
+    if (kIsWeb) return false;
+
     final loc = ref.read(appLocalizationsProvider);
+    final biometrics = ref.read(biometricAuthProvider.notifier);
+
+    final authenticated = await biometrics.authenticate(
+      loc.please_authenticate_open_wallet,
+    );
+    if (!authenticated) return false;
+
     final secureStorage = ref.read(secureStorageProvider);
-    final authenticated = await ref
-        .read(biometricAuthProvider.notifier)
-        .authenticate(loc.please_authenticate_open_wallet);
-    if (authenticated) {
-      final password = await secureStorage.read(key: name);
-      if (password != null) {
-        _openWallet(name, password);
-        return true;
-      } else {
+    final password = await secureStorage.read(key: name);
+    if (password == null) {
+      ref
+          .read(toastProvider.notifier)
+          .showError(description: loc.password_not_found);
+      return false;
+    }
+
+    await _openWallet(name, password);
+    return true;
+  }
+
+  Future<void> _openWallet(String name, String password) async {
+    context.loaderOverlay.show();
+    try {
+      await ref
+          .read(authenticationProvider.notifier)
+          .openWallet(name, password);
+
+      // unlock biometric auth if locked
+      if (!kIsWeb &&
+          ref.read(biometricAuthProvider) ==
+              BiometricAuthProviderStatus.locked) {
         ref
-            .read(toastProvider.notifier)
-            .showError(description: loc.password_not_found);
+            .read(biometricAuthProvider.notifier)
+            .updateStatus(BiometricAuthProviderStatus.ready);
+      }
+    } finally {
+      if (mounted && context.loaderOverlay.visible) {
+        context.loaderOverlay.hide();
       }
     }
-    return false;
   }
 }

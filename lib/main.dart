@@ -23,13 +23,15 @@ Future<void> main() async {
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   talker.info('initializing Rust lib ...');
   await RustLib.init();
-  // need to call this before any tls calls
-  await initializeCryptoProvider();
   await initRustLogging();
 
   if (kIsWeb) {
     talker.info('initializing local storage ...');
     await initLocalStorage();
+  } else {
+    // need to call this before any tls calls
+    talker.info('initializing crypto provider ...');
+    await initializeCryptoProvider();
   }
 
   if (isDesktopDevice) {

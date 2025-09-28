@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
@@ -19,9 +20,12 @@ Future<void> startWithBiometricAuth(
   required String reason,
   bool closeCurrentDialog = false,
 }) async {
-  final authenticated = await ref
-      .read(biometricAuthProvider.notifier)
-      .authenticate(reason);
+  var authenticated = false;
+  if (!kIsWeb) {
+    authenticated = await ref
+        .read(biometricAuthProvider.notifier)
+        .authenticate(reason);
+  }
   if (authenticated) {
     callback(ref);
   } else {

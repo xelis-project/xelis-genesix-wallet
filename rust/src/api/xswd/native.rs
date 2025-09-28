@@ -10,7 +10,7 @@ pub use xelis_wallet::api::AppState;
 use xelis_wallet::api::{APIServer, Permission, PermissionResult};
 pub use xelis_wallet::wallet::XSWDEvent;
 
-use super::{
+use crate::api::{
     models::xswd_dtos::{
         AppInfo, PermissionPolicy, UserPermissionDecision, XswdRequestSummary, XswdRequestType,
     },

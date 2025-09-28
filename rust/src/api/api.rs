@@ -7,6 +7,7 @@ pub fn initialize_crypto_provider() -> anyhow::Result<()> {
     // Initialize the crypto provider for rustls.
     // This is necessary for tls connections
     // and should be called before any tls connections are made.
+    #[cfg(not(target_arch = "wasm32"))]
     rustls::crypto::ring::default_provider()
         .install_default()
         .expect("Failed to install ring as the default crypto provider");
