@@ -139,7 +139,7 @@ class WalletShellRoute extends ShellRouteData {
     };
 
     return pageTransition(
-      WalletScaffold(navigator, title, suffixes),
+      WalletScaffold(state, navigator, title, suffixes),
       state.pageKey,
       state.fullPath,
       state.extra,

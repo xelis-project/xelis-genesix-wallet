@@ -16,7 +16,9 @@ import 'package:go_router/go_router.dart';
 import 'package:jovial_svg/jovial_svg.dart';
 
 class SideBar extends ConsumerStatefulWidget {
-  const SideBar({super.key});
+  const SideBar(this.goRouterState, {super.key});
+
+  final GoRouterState goRouterState;
 
   @override
   ConsumerState createState() => _SideBarState();
@@ -40,7 +42,7 @@ class _SideBarState extends ConsumerState<SideBar> {
 
     final isDarkMode = appTheme == AppTheme.dark || appTheme == AppTheme.xelis;
 
-    _selectedItem = context.goRouterState.fullPath ?? AuthAppScreen.home.toPath;
+    _selectedItem = widget.goRouterState.fullPath ?? AuthAppScreen.home.toPath;
 
     return FSidebar(
       header: Padding(

@@ -9,12 +9,14 @@ import 'package:go_router/go_router.dart';
 
 class WalletScaffold extends ConsumerStatefulWidget {
   const WalletScaffold(
+    this.goRouterState,
     this.child,
     this.title,
     this.headerSuffixes, {
     super.key,
   });
 
+  final GoRouterState goRouterState;
   final Widget child;
   final String? title;
   final List<Widget>? headerSuffixes;
@@ -56,7 +58,7 @@ class _WalletScaffoldState extends ConsumerState<WalletScaffold> {
                     onPress: () => showFSheet<void>(
                       context: context,
                       side: FLayout.ltr,
-                      builder: (context) => SideBar(),
+                      builder: (context) => SideBar(widget.goRouterState),
                     ),
                   ),
                 ),
@@ -64,7 +66,7 @@ class _WalletScaffoldState extends ConsumerState<WalletScaffold> {
             : [],
         suffixes: widget.headerSuffixes ?? [],
       ),
-      sidebar: !context.isMobile ? SideBar() : null,
+      sidebar: !context.isMobile ? SideBar(widget.goRouterState) : null,
       child: BodyLayoutBuilder(child: widget.child),
     );
   }
