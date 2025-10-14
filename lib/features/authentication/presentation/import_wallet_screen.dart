@@ -62,8 +62,8 @@ class ImportWalletScreen extends ConsumerWidget {
                         ),
                         if (isDesktopDevice)
                           FTabEntry(
-                            label: const Text(
-                              'Restore Folder',
+                            label: Text(
+                              loc.restore_folder,
                               textAlign: TextAlign.center,
                             ),
                             child: RestoreFolderTab(),

@@ -50,10 +50,8 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
             width: context.mediaWidth * 0.9,
             constraints: BoxConstraints(maxWidth: context.theme.breakpoints.sm),
             child: FCard(
-              title: const Text('Create New Wallet'),
-              subtitle: const Text(
-                'Please enter a name and password for your new wallet.',
-              ),
+              title: Text(loc.create_new_wallet),
+              subtitle: Text(loc.create_new_wallet_subtitle),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -62,7 +60,7 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
                     const SizedBox(height: Spaces.medium),
                     FTextFormField(
                       controller: _nameController,
-                      label: Text('Name'),
+                      label: Text(loc.wallet_name),
                       keyboardType: TextInputType.text,
                       validator: (value) {
                         if (value == null ||
@@ -91,7 +89,7 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
                     const SizedBox(height: Spaces.medium),
                     FTextFormField(
                       controller: _confirmPasswordController,
-                      label: Text('Confirm Password'),
+                      label: Text(loc.confirm_your_password),
                       obscureText: true,
                       keyboardType: TextInputType.visiblePassword,
                       validator: (value) {

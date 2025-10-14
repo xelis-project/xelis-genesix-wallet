@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:genesix/features/authentication/domain/wallets_state.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:path/path.dart' as p;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -111,17 +112,18 @@ class Wallets extends _$Wallets {
     final walletsPath = await _getWalletDirPath();
     final walletPath = p.join(walletsPath, name);
     final newWalletPath = p.join(walletsPath, newName);
+    final loc = ref.read(appLocalizationsProvider);
 
     if (kIsWeb) {
       final newPath = localStorage.getItem(newWalletPath);
       if (newPath != null) {
-        throw 'A wallet with this name already exists.';
+        throw loc.wallet_name_already_exists;
       }
     } else {
       final newDir = Directory(newWalletPath);
       final exists = await newDir.exists();
       if (exists) {
-        throw 'A wallet with this name already exists.';
+        throw loc.wallet_name_already_exists;
       }
     }
 

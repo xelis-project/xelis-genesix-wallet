@@ -37,9 +37,7 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
     final loc = ref.watch(appLocalizationsProvider);
 
     return FCard(
-      subtitle: const Text(
-        'To import your wallet, please enter your private key. It should be a 64-character hexadecimal string.',
-      ),
+      subtitle: Text(loc.recover_from_private_key),
       child: Form(
         key: _formKey,
         child: Column(
@@ -49,7 +47,7 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
             const SizedBox(height: Spaces.large),
             FTextFormField.multiline(
               controller: _privateKeyController,
-              label: const Text('Private Key'),
+              label: Text(loc.private_key),
               keyboardType: TextInputType.text,
               validator: (value) {
                 if (value == null || value.isEmpty || value.trim().isEmpty) {
@@ -58,7 +56,7 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
                 // Validate the private key format (64 hexadecimal characters)
                 final regex = RegExp(r'^[0-9a-fA-F]{64}$');
                 if (!regex.hasMatch(value)) {
-                  return 'Private key must be a 64-character hexadecimal string';
+                  return loc.private_key_error_hexadecimal;
                 }
                 return null;
               },
@@ -68,7 +66,7 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
             const SizedBox(height: Spaces.medium),
             FTextFormField(
               controller: _nameController,
-              label: Text('Name'),
+              label: Text(loc.wallet_name),
               keyboardType: TextInputType.text,
               validator: (value) {
                 if (value == null || value.isEmpty || value.trim().isEmpty) {
