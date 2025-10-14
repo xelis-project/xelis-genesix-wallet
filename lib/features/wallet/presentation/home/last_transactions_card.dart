@@ -40,7 +40,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
         content = Padding(
           padding: const EdgeInsets.only(top: Spaces.small),
           child: Text(
-            'No transactions yet.',
+            loc.no_recent_transactions,
             style: context.theme.typography.sm.copyWith(
               color: context.theme.colors.mutedForeground,
             ),
@@ -62,14 +62,15 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
             return FItem(
               prefix: Icon(info.icon, color: info.color),
               title: Text(info.label, style: context.theme.typography.sm),
-              subtitle: info.details != null
-                  ? Text(
-                      info.details!,
-                      style: context.theme.typography.xs.copyWith(
-                        color: context.theme.colors.mutedForeground,
-                      ),
-                    )
-                  : null,
+              subtitle:
+                  info.details != null
+                      ? Text(
+                        info.details!,
+                        style: context.theme.typography.xs.copyWith(
+                          color: context.theme.colors.mutedForeground,
+                        ),
+                      )
+                      : null,
               details: Text(
                 timeAgo(tx.timestamp!),
                 style: context.theme.typography.xs.copyWith(
@@ -135,7 +136,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
             children: [
               Expanded(
                 child: Text(
-                  'Last Transactions',
+                  loc.last_transactions,
                   style: context.theme.typography.xl.copyWith(
                     color: context.theme.colors.primary,
                   ),
@@ -150,7 +151,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
               style: FButtonStyle.ghost(),
               onPress: () => context.go(AuthAppScreen.history.toPath),
               suffix: Icon(FIcons.arrowRight),
-              child: Text('See All'),
+              child: Text(loc.view_all),
             ),
           ],
         ],

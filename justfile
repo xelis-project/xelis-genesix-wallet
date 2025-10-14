@@ -36,6 +36,7 @@ install_rust_bridge_codegen:
 gen_arb:
     cd lib/l10n && python ./scripts/csv_to_arb.py
     flutter pub get
+    cd ../..
 
 ### Web build and run commands ###
 

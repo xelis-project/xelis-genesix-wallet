@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 
 class LastNewsCard extends ConsumerWidget {
@@ -8,6 +9,7 @@ class LastNewsCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = ref.watch(appLocalizationsProvider);
     return FCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -16,7 +18,7 @@ class LastNewsCard extends ConsumerWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Last News',
+                  loc.last_news,
                   style: context.theme.typography.xl.copyWith(
                     color: context.theme.colors.primary,
                   ),
@@ -26,7 +28,7 @@ class LastNewsCard extends ConsumerWidget {
           ),
           const SizedBox(height: Spaces.small),
           Text(
-            'No news available at the moment.',
+            loc.no_recent_news,
             style: context.theme.typography.sm.copyWith(
               color: context.theme.colors.mutedForeground,
             ),

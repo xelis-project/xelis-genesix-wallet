@@ -65,16 +65,17 @@ class _NodeCardState extends ConsumerState<NodeCard> {
             ),
             FSelectMenuTile.builder(
               key: ValueKey(nodeAddress),
-              title: Text('Node'),
-              subtitle: Text(widget.info?.network?.name ?? 'Unknown'),
+              title: Text(loc.node),
+              subtitle: Text(widget.info?.network?.name ?? loc.unknown_network),
               count: nodes.length,
               initialValue: nodeAddress,
               detailsBuilder: (_, values, _) => Text(values.first.name),
-              menuBuilder: (context, index) => FSelectTile(
-                title: Text(nodes[index].name),
-                subtitle: Text(nodes[index].url),
-                value: nodes[index],
-              ),
+              menuBuilder:
+                  (context, index) => FSelectTile(
+                    title: Text(nodes[index].name),
+                    subtitle: Text(nodes[index].url),
+                    value: nodes[index],
+                  ),
               onSelect: (selection) {
                 ref
                     .read(networkNodesProvider.notifier)
@@ -90,29 +91,29 @@ class _NodeCardState extends ConsumerState<NodeCard> {
                   spacing: Spaces.small,
                   children: [
                     FTooltip(
-                      tipBuilder: (context, controller) => Text('Add new node'),
+                      tipBuilder: (context, controller) => Text(loc.add_node),
                       child: FButton.icon(
                         onPress: () => showAddNodeSheet(context),
                         child: Icon(FIcons.plus),
                       ),
                     ),
                     FTooltip(
-                      tipBuilder: (context, controller) =>
-                          Text('Edit current node'),
+                      tipBuilder: (context, controller) => Text(loc.edit_node),
                       child: FButton.icon(
                         onPress: () => showEditNodeSheet(context, nodeAddress),
                         child: Icon(FIcons.pencil),
                       ),
                     ),
                     FTooltip(
-                      tipBuilder: (context, controller) =>
-                          Text('Connect to current node'),
+                      tipBuilder:
+                          (context, controller) => Text(loc.connect_node),
                       child: FButton.icon(
-                        onPress: !isOnline
-                            ? () => ref
-                                  .read(walletStateProvider.notifier)
-                                  .reconnect(nodeAddress)
-                            : null,
+                        onPress:
+                            !isOnline
+                                ? () => ref
+                                    .read(walletStateProvider.notifier)
+                                    .reconnect(nodeAddress)
+                                : null,
                         child: Icon(FIcons.play),
                       ),
                     ),

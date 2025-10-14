@@ -53,16 +53,18 @@ class _SideBarState extends ConsumerState<SideBar> {
               tag: 'genesix-logo',
               child: ScalableImageWidget(
                 scale: 0.8,
-                si: isDarkMode
-                    ? AppResources.svgGenesixWalletOneLineWhite
-                    : AppResources.svgGenesixWalletOneLineBlack,
+                si:
+                    isDarkMode
+                        ? AppResources.svgGenesixWalletOneLineWhite
+                        : AppResources.svgGenesixWalletOneLineBlack,
               ),
             ),
             const SizedBox(height: Spaces.medium),
             FDivider(
-              style: context.theme.dividerStyles.horizontalStyle
-                  .copyWith(padding: EdgeInsets.zero)
-                  .call,
+              style:
+                  context.theme.dividerStyles.horizontalStyle
+                      .copyWith(padding: EdgeInsets.zero)
+                      .call,
             ),
           ],
         ),
@@ -70,12 +72,12 @@ class _SideBarState extends ConsumerState<SideBar> {
       footer: SideBarFooter(),
       children: [
         FSidebarGroup(
-          label: const Text('Overview'),
+          label: Text(loc.overview),
           children: [
             FSidebarItem(
               selected: _selectedItem == AuthAppScreen.home.toPath,
               icon: const Icon(FIcons.house),
-              label: const Text('Home'),
+              label: Text(loc.home),
               onPress: () {
                 _closeSideBar();
                 context.go(AuthAppScreen.home.toPath);
@@ -86,13 +88,13 @@ class _SideBarState extends ConsumerState<SideBar> {
             ),
             FSidebarItem(
               icon: const Icon(FIcons.wallet),
-              label: const Text('Wallet'),
+              label: Text(loc.wallet),
               initiallyExpanded: false,
               children: [
                 FSidebarItem(
                   selected:
                       _selectedItem == AuthAppScreen.signTransaction.toPath,
-                  label: Text('Sign Transaction'),
+                  label: Text(loc.sign_transaction),
                   onPress: () {
                     _closeSideBar();
                     context.go(AuthAppScreen.signTransaction.toPath);
@@ -103,7 +105,7 @@ class _SideBarState extends ConsumerState<SideBar> {
                 ),
                 FSidebarItem(
                   selected: _selectedItem == AuthAppScreen.multisig.toPath,
-                  label: Text('Multisig Management'),
+                  label: Text(loc.multisig),
                   onPress: () {
                     _closeSideBar();
                     context.go(AuthAppScreen.multisig.toPath);
@@ -114,30 +116,32 @@ class _SideBarState extends ConsumerState<SideBar> {
                 ),
                 FSidebarItem(
                   selected: _selectedItem == AuthAppScreen.xswd.toPath,
-                  label: const Text('XSWD Protocol'),
-                  onPress: xswdEnabled
-                      ? () {
-                          _closeSideBar();
-                          context.go(AuthAppScreen.xswd.toPath);
-                          setState(() {
-                            _selectedItem = AuthAppScreen.xswd.toPath;
-                          });
-                        }
-                      : null,
+                  label: Text(loc.xswd),
+                  onPress:
+                      xswdEnabled
+                          ? () {
+                            _closeSideBar();
+                            context.go(AuthAppScreen.xswd.toPath);
+                            setState(() {
+                              _selectedItem = AuthAppScreen.xswd.toPath;
+                            });
+                          }
+                          : null,
                 ),
                 FSidebarItem(
                   selected: _selectedItem == 'Burn Transfer',
-                  label: Text('Burn Transfer'),
-                  onPress: burnTransferEnabled
-                      ? () {
-                          _closeSideBar();
-                          // TODO: Implement burn transfer management
-                          print('Burn pressed');
-                          setState(() {
-                            _selectedItem = 'Burn Transfer';
-                          });
-                        }
-                      : null,
+                  label: Text(loc.burn_transfer),
+                  onPress:
+                      burnTransferEnabled
+                          ? () {
+                            _closeSideBar();
+                            // TODO: Implement burn transfer management
+                            print('Burn pressed');
+                            setState(() {
+                              _selectedItem = 'Burn Transfer';
+                            });
+                          }
+                          : null,
                 ),
               ],
             ),
@@ -179,7 +183,7 @@ class _SideBarState extends ConsumerState<SideBar> {
             ),
             FSidebarItem(
               selected: _selectedItem == AuthAppScreen.assets.toPath,
-              label: Text('Assets'),
+              label: Text(loc.assets),
               icon: const Icon(FIcons.landmark),
               onPress: () {
                 _closeSideBar();
@@ -192,7 +196,7 @@ class _SideBarState extends ConsumerState<SideBar> {
           ],
         ),
         FSidebarGroup(
-          label: const Text('Account'),
+          label: Text(loc.account),
           children: [
             FSidebarItem(
               selected: _selectedItem == AuthAppScreen.recoveryPhrase.toPath,
@@ -214,7 +218,7 @@ class _SideBarState extends ConsumerState<SideBar> {
                       _selectedItem = AuthAppScreen.recoveryPhrase.toPath;
                     });
                   },
-                  reason: 'Please authenticate to view your recovery phrase',
+                  reason: loc.please_authenticate_view_seed,
                 );
               },
             ),

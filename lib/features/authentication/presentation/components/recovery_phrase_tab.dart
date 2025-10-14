@@ -37,9 +37,7 @@ class _RecoveryPhraseTabState extends ConsumerState<RecoveryPhraseTab> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     return FCard(
-      subtitle: const Text(
-        'To import your wallet, please enter your recovery phrase. It should contain 24 or 25 words.',
-      ),
+      subtitle: Text(loc.recover_from_recovery_phrase),
       child: Form(
         key: _formKey,
         child: Column(
@@ -49,14 +47,14 @@ class _RecoveryPhraseTabState extends ConsumerState<RecoveryPhraseTab> {
             const SizedBox(height: Spaces.large),
             FTextFormField.multiline(
               controller: _recoveryPhraseController,
-              label: const Text('Recovery Phrase'),
+              label: Text(loc.recovery_phrase),
               validator: (value) {
                 if (value == null || value.isEmpty || value.trim().isEmpty) {
                   return loc.field_required_error;
                 }
                 final words = value.trim().split(RegExp(r'\s+'));
                 if (words.length < 24 || words.length > 25) {
-                  return 'Recovery phrase must contain 24 or 25 words';
+                  return loc.recovery_phrase_word_count_error;
                 }
                 return null;
               },
@@ -66,7 +64,7 @@ class _RecoveryPhraseTabState extends ConsumerState<RecoveryPhraseTab> {
             const SizedBox(height: Spaces.medium),
             FTextFormField(
               controller: _nameController,
-              label: Text('Name'),
+              label: Text(loc.wallet_name),
               keyboardType: TextInputType.text,
               validator: (value) {
                 if (value == null || value.isEmpty || value.trim().isEmpty) {
