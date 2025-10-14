@@ -43,8 +43,8 @@ class _AddContactSheetState extends ConsumerState<AddContactSheet> {
           children: [
             FTextFormField(
               controller: _nameController,
-              label: Text('Contact Name'),
-              hint: 'John Doe',
+              label: Text(loc.contact_name),
+              hint: loc.contact_name_hint,
               keyboardType: TextInputType.text,
               maxLines: 1,
               autocorrect: false,
@@ -58,7 +58,7 @@ class _AddContactSheetState extends ConsumerState<AddContactSheet> {
             const SizedBox(height: Spaces.medium),
             FTextFormField(
               controller: _addressController,
-              label: Text('Address'),
+              label: Text(loc.address),
               hint: 'xel:0x1234567890abcdef1234567890abcdef12345678',
               enabled: widget.address == null,
               keyboardType: TextInputType.text,
@@ -68,7 +68,7 @@ class _AddContactSheetState extends ConsumerState<AddContactSheet> {
             ),
             const SizedBox(height: Spaces.large),
             FButton(
-              child: Text('Add Contact'),
+              child: Text(loc.add_contact),
               onPress: () {
                 if (_formKey.currentState?.validate() ?? false) {
                   final name = _nameController.text.trim();

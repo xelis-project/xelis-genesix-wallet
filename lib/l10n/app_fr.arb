@@ -1,4 +1,10 @@
 {
+  "transfer_to_contact": "Transfer to {name}",
+  "contact_delete_confirm": "You are about to remove {name} from your address book",
+  "address_book_empty": "Your address book is empty, add a contact!",
+  "contact_name_hint": "Jean Dupont",
+  "contact_name": "Contact Name",
+  "add_contact": "Add Contact",
   "switch_theme_mode": "Switch to {mode} mode",
   "select_language_config": "Select your preferred language",
   "restore_wallet_from_folder": "To restore your wallet, please select the folder where your wallet files are stored.",

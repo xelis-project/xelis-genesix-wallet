@@ -54,42 +54,42 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
                   _SearchBar(
                     localizations: loc,
                     controller: _searchController,
-                    onChanged: value.isNotEmpty
-                        ? (value) => ref
-                              .read(searchQueryProvider.notifier)
-                              .change(value)
-                        : null,
+                    onChanged:
+                        value.isNotEmpty
+                            ? (value) => ref
+                                .read(searchQueryProvider.notifier)
+                                .change(value)
+                            : null,
                   ),
                   value.isEmpty
-                      ? _CenteredInfo(
-                          message: 'Your address book is empty, add a contact!',
-                        )
+                      ? _CenteredInfo(message: loc.address_book_empty)
                       : FItemGroup.builder(
-                          count: value.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            final contact = value.values.elementAt(index);
-                            return FItem(
-                              prefix: HashiconWidget(
-                                hash: contact.address,
-                                size: const Size(35, 35),
-                              ),
-                              title: Text(contact.name),
-                              subtitle: Text(
-                                truncateText(contact.address, maxLength: 20),
-                              ),
-                              suffix: _ContactActions(
-                                localizations: loc,
-                                name: contact.name,
-                                onSend: () {
-                                  // TODO: Implement transfer action
-                                },
-                                onEdit: () => _onEdit(contact),
-                                onDelete: () =>
-                                    _onDelete(contact.address, contact.name),
-                              ),
-                            );
-                          },
-                        ),
+                        count: value.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          final contact = value.values.elementAt(index);
+                          return FItem(
+                            prefix: HashiconWidget(
+                              hash: contact.address,
+                              size: const Size(35, 35),
+                            ),
+                            title: Text(contact.name),
+                            subtitle: Text(
+                              truncateText(contact.address, maxLength: 20),
+                            ),
+                            suffix: _ContactActions(
+                              localizations: loc,
+                              name: contact.name,
+                              onSend: () {
+                                // TODO: Implement transfer action
+                              },
+                              onEdit: () => _onEdit(contact),
+                              onDelete:
+                                  () =>
+                                      _onDelete(contact.address, contact.name),
+                            ),
+                          );
+                        },
+                      ),
                 ],
               );
             },
@@ -132,7 +132,7 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
       context: context,
       builder: (context, style, animation) {
         return ConfirmDialog(
-          description: 'You are about to remove $name from your address book.',
+          description: loc.contact_delete_confirm(name),
           style: style,
           animation: animation,
           onConfirm: (bool yes) {
@@ -172,7 +172,7 @@ class _SearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FTextField(
-      hint: 'search contact...',
+      hint: localizations.search,
       controller: controller,
       keyboardType: TextInputType.text,
       maxLines: 1,
@@ -230,7 +230,7 @@ class _ContactActions extends StatelessWidget {
       spacing: Spaces.small,
       children: [
         FTooltip(
-          tipBuilder: (_, _) => Text('Transfer to $name'),
+          tipBuilder: (_, _) => Text(localizations.transfer_to_contact(name)),
           child: FButton.icon(
             onPress: onSend,
             child: Icon(
@@ -248,8 +248,8 @@ class _ContactActions extends StatelessWidget {
           ),
         ),
         FTooltip(
-          tipBuilder: (_, _) =>
-              Text(localizations.remove_contact_button_tooltip),
+          tipBuilder:
+              (_, _) => Text(localizations.remove_contact_button_tooltip),
           child: FButton.icon(
             onPress: onDelete,
             child: Icon(

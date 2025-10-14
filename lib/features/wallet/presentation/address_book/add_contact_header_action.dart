@@ -22,7 +22,7 @@ class _AddContactHeaderActionState
     return Padding(
       padding: const EdgeInsets.all(Spaces.small),
       child: FTooltip(
-        tipBuilder: (context, controller) => Text('Add Contact'),
+        tipBuilder: (context, controller) => Text(loc.add_contact),
         child: FHeaderAction(
           icon: Icon(FIcons.plus),
           onPress: _showAddContactSheet,
