@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 
@@ -21,6 +22,7 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
   // TODO check possible description content overflow
 
   void _setupToastListener() {
+    var loc = ref.watch(appLocalizationsProvider);
     ref.listen<ToastContent?>(toastProvider, (prev, next) {
       if (next != null) {
         switch (next.type) {
@@ -62,33 +64,41 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
                 ),
               ),
               description: Text(next.description!),
-              suffixBuilder: (context, entry) => IntrinsicHeight(
-                child: FButton(
-                  style: context.theme.buttonStyles.primary
-                      .copyWith(
-                        contentStyle: context
-                            .theme
-                            .buttonStyles
-                            .primary
-                            .contentStyle
-                            .copyWith(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 7.5,
-                              ),
-                              textStyle: FWidgetStateMap.all(
-                                context.theme.typography.xs.copyWith(
-                                  color: context.theme.colors.primaryForeground,
-                                ),
-                              ),
-                            )
-                            .call,
-                      )
-                      .call,
-                  onPress: entry.dismiss,
-                  child: const Text('Undo'),
-                ),
-              ),
+              suffixBuilder:
+                  (context, entry) => IntrinsicHeight(
+                    child: FButton(
+                      style:
+                          context.theme.buttonStyles.primary
+                              .copyWith(
+                                contentStyle:
+                                    context
+                                        .theme
+                                        .buttonStyles
+                                        .primary
+                                        .contentStyle
+                                        .copyWith(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 7.5,
+                                          ),
+                                          textStyle: FWidgetStateMap.all(
+                                            context.theme.typography.xs
+                                                .copyWith(
+                                                  color:
+                                                      context
+                                                          .theme
+                                                          .colors
+                                                          .primaryForeground,
+                                                ),
+                                          ),
+                                        )
+                                        .call,
+                              )
+                              .call,
+                      onPress: entry.dismiss,
+                      child: Text(loc.ok_button),
+                    ),
+                  ),
             );
             break;
           case ToastType.event:
@@ -100,33 +110,41 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
               alignment: FToastAlignment.bottomRight,
               title: Text(next.title),
               description: Text(next.description!),
-              suffixBuilder: (context, entry) => IntrinsicHeight(
-                child: FButton(
-                  style: context.theme.buttonStyles.primary
-                      .copyWith(
-                        contentStyle: context
-                            .theme
-                            .buttonStyles
-                            .primary
-                            .contentStyle
-                            .copyWith(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 7.5,
-                              ),
-                              textStyle: FWidgetStateMap.all(
-                                context.theme.typography.xs.copyWith(
-                                  color: context.theme.colors.primaryForeground,
-                                ),
-                              ),
-                            )
-                            .call,
-                      )
-                      .call,
-                  onPress: entry.dismiss,
-                  child: const Text('Undo'),
-                ),
-              ),
+              suffixBuilder:
+                  (context, entry) => IntrinsicHeight(
+                    child: FButton(
+                      style:
+                          context.theme.buttonStyles.primary
+                              .copyWith(
+                                contentStyle:
+                                    context
+                                        .theme
+                                        .buttonStyles
+                                        .primary
+                                        .contentStyle
+                                        .copyWith(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 7.5,
+                                          ),
+                                          textStyle: FWidgetStateMap.all(
+                                            context.theme.typography.xs
+                                                .copyWith(
+                                                  color:
+                                                      context
+                                                          .theme
+                                                          .colors
+                                                          .primaryForeground,
+                                                ),
+                                          ),
+                                        )
+                                        .call,
+                              )
+                              .call,
+                      onPress: entry.dismiss,
+                      child: Text(loc.ok_button),
+                    ),
+                  ),
             );
             break;
         }
