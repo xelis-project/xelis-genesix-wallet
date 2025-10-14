@@ -27,8 +27,7 @@ class LanguageSelectorDialog extends ConsumerWidget {
         padding: const EdgeInsets.all(Spaces.small),
         child: FSelect<Locale>.rich(
           label: Text(loc.language),
-          // TODO
-          description: Text('Select your preferred language'),
+          description: Text(loc.select_language_config),
           initialValue: locale,
           format: (l) => translateLocaleName(l),
           children: List<FSelectItemMixin>.generate(

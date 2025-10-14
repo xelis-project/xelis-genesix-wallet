@@ -1,4 +1,6 @@
 {
+  "switch_theme_mode": "Switch to {mode} mode",
+  "select_language_config": "Select your preferred language",
   "restore_wallet_from_folder": "To restore your wallet, please select the folder where your wallet files are stored.",
   "select_wallet_folder_restore": "Select a folder to restore your wallet",
   "devnet": "devnet",
