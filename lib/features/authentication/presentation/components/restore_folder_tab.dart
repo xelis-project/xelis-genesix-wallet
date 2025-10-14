@@ -33,9 +33,7 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
         _selectedWalletFolder != null && _selectedWalletFolder!.path.isNotEmpty;
 
     return FCard(
-      subtitle: const Text(
-        'To restore your wallet, please select the folder where your wallet files are stored.',
-      ),
+      subtitle: Text(loc.restore_wallet_from_folder),
       child: Column(
         children: [
           const SizedBox(height: Spaces.medium),
@@ -49,7 +47,7 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
           const SizedBox(height: Spaces.medium),
           FTooltip(
             tipBuilder: (context, controller) =>
-                const Text('Select a folder to restore your wallet'),
+                Text(loc.select_wallet_folder_restore),
             childAnchor: Alignment.bottomCenter,
             child: MouseRegion(
               cursor: SystemMouseCursors.click,

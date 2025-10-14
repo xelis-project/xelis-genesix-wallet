@@ -79,8 +79,10 @@ class _NodeCardState extends ConsumerState<NodeCard> {
               onSelect: (selection) {
                 ref
                     .read(networkNodesProvider.notifier)
-                    .setNodeAddress(network, selection.$1);
-                ref.read(walletStateProvider.notifier).reconnect(selection.$1);
+                    .setNodeAddress(network, selection.$1 as NodeAddress);
+                ref
+                    .read(walletStateProvider.notifier)
+                    .reconnect(selection.$1 as NodeAddress);
               },
             ),
             Row(

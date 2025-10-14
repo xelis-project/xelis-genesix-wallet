@@ -55,7 +55,13 @@ class Authentication extends _$Authentication {
     }
 
     if (walletExists) {
-      throw Exception('This wallet already exists: $name');
+      ref
+          .read(toastProvider.notifier)
+          .showError(
+            title: loc.error_when_creating_wallet,
+            description: loc.wallet_name_already_exists,
+          );
+      return;
     } else {
       NativeWalletRepository walletRepository;
 

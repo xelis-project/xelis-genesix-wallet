@@ -123,13 +123,13 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
                                   const SizedBox(height: Spaces.medium),
                                   FSelect<String>.rich(
                                     controller: _selectController,
-                                    hint: 'Select a wallet',
+                                    hint: loc.select_wallet,
                                     contentScrollHandles: true,
                                     // autovalidateMode: AutovalidateMode.disabled,
                                     format: (s) => s,
                                     validator: (value) {
                                       if (value == null) {
-                                        return 'Please select a wallet';
+                                        return loc.please_select_wallet;
                                       }
                                       return null;
                                     },
@@ -155,7 +155,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
                                   FButton(
                                     onPress: () =>
                                         _handleOpenWalletButtonPressed(context),
-                                    child: const Text('Open Wallet'),
+                                    child: Text(loc.open_wallet),
                                   ),
                                 ],
                               );
@@ -171,14 +171,14 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
                     onPress: () {
                       context.push(AppScreen.createWallet.toPath);
                     },
-                    child: const Text('Create Wallet'),
+                    child: Text(loc.create_wallet),
                   ),
                   const SizedBox(height: Spaces.medium),
                   FButton(
                     onPress: () {
                       context.push(AppScreen.importWallet.toPath);
                     },
-                    child: const Text('Import Wallet'),
+                    child: Text(loc.import_wallet),
                   ),
                 ],
               ),

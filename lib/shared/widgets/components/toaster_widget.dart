@@ -22,7 +22,7 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
   // TODO check possible description content overflow
 
   void _setupToastListener() {
-    var loc = ref.watch(appLocalizationsProvider);
+    final loc = ref.watch(appLocalizationsProvider);
     ref.listen<ToastContent?>(toastProvider, (prev, next) {
       if (next != null) {
         switch (next.type) {
