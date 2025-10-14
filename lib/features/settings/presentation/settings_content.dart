@@ -72,7 +72,7 @@ class _SettingsContentState extends ConsumerState<SettingsContent> {
             spacing: Spaces.medium,
             children: [
               FTileGroup(
-                label: Text('General'),
+                label: Text(loc.general),
                 children: [
                   FTile(
                     prefix: Icon(FIcons.languages),
@@ -91,10 +91,8 @@ class _SettingsContentState extends ConsumerState<SettingsContent> {
                   if (authState.isAuth)
                     FTile(
                       prefix: Icon(FIcons.fingerprint),
-                      title: Text('Biometric Authentication'),
-                      subtitle: Text(
-                        'enable or disable biometric authentication',
-                      ),
+                      title: Text(loc.biometric_auth),
+                      subtitle: Text(loc.enable_biometric_auth),
                       suffix: FSwitch(
                         value: ref.watch(
                           settingsProvider.select(
@@ -112,12 +110,12 @@ class _SettingsContentState extends ConsumerState<SettingsContent> {
               ),
               if (authState.isAuth)
                 FTileGroup(
-                  label: Text('Wallet'),
+                  label: Text(loc.wallet),
                   children: [
                     FTile(
                       prefix: Icon(FIcons.dollarSign),
-                      title: Text('Conversion Rate'),
-                      subtitle: Text('show or hide conversion rate in USDT'),
+                      title: Text(loc.conversion_rate),
+                      subtitle: Text(loc.show_or_hide_conversion_rate),
                       suffix: FSwitch(
                         value: ref.watch(
                           settingsProvider.select(
@@ -149,7 +147,7 @@ class _SettingsContentState extends ConsumerState<SettingsContent> {
                     FTile(
                       prefix: Icon(FIcons.flame),
                       title: Text(loc.burn),
-                      subtitle: Text('enable or disable burn transfer'),
+                      subtitle: Text(loc.unlock_burn_transfer),
                       suffix: FSwitch(
                         value: ref.watch(
                           settingsProvider.select((state) => state.unlockBurn),
