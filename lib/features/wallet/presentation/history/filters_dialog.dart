@@ -106,39 +106,35 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                     selectController: _categoriesController,
                     label: Text(loc.category),
                     validator: (values) => values?.isEmpty ?? true
-                        ? 'Please select at least one category.'
+                        ? loc.category_select_error
                         : null,
                     children: [
                       FSelectTile(
                         title: Text(loc.incoming),
                         value: TransactionCategory.incoming,
-                        subtitle: Text(
-                          'Transactions where you received assets.',
-                        ),
+                        subtitle: Text(loc.category_incoming_subtitle),
                       ),
                       FSelectTile(
                         title: Text(loc.outgoing),
                         value: TransactionCategory.outgoing,
-                        subtitle: Text('Transactions initiated by you.'),
+                        subtitle: Text(loc.category_outgoing_subtitle),
                       ),
                       FSelectTile(
                         title: Text(loc.coinbase),
                         value: TransactionCategory.coinbase,
-                        subtitle: Text(
-                          'Transactions where you received rewards.',
-                        ),
+                        subtitle: Text(loc.category_coinbase_subtitle),
                       ),
                       FSelectTile(
                         title: Text(loc.burn),
                         value: TransactionCategory.burn,
-                        subtitle: Text('Transactions where you burned assets.'),
+                        subtitle: Text(loc.category_burn_subtitle),
                       ),
                     ],
                   ),
                   // Asset selection
                   FSelect<MapEntry<String, AssetData>>.searchBuilder(
                     label: Text(loc.asset),
-                    hint: 'Select a asset',
+                    hint: loc.select_asset,
                     controller: _assetController,
                     format: (assetEntry) => assetEntry.value.name,
                     clearable: true,
@@ -166,7 +162,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                   // Contact selection
                   FSelect<ContactDetails>.searchBuilder(
                     label: Text(loc.contact),
-                    hint: 'Select a contact',
+                    hint: loc.select_contract,
                     controller: _contactController,
                     format: (contact) => contact.name,
                     clearable: true,
@@ -197,9 +193,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                       children: [
                         FSwitch(
                           label: Text(loc.hide_extra_data),
-                          description: Text(
-                            'Hide extra data in transaction details.',
-                          ),
+                          description: Text(loc.hide_extra_data_description),
                           value: _hideExtraData,
                           onChange: (value) {
                             setState(() {
@@ -209,9 +203,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                         ),
                         FSwitch(
                           label: Text(loc.hide_zero_transfers),
-                          description: Text(
-                            'Hide transactions with zero balance transfers.',
-                          ),
+                          description: Text(loc.hide_transactions_zero_value),
                           value: _hideZeroBalance,
                           onChange: (value) {
                             setState(() {

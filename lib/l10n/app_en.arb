@@ -1,4 +1,13 @@
 {
+  "hide_transactions_zero_value": "Hide transactions with zero balance transfers.",
+  "hide_extra_data_description": "Hide extra data in transaction details.",
+  "select_contract": "Select a contract",
+  "select_asset": "Select a asset",
+  "category_burn_subtitle": "Transactions where you burned assets.",
+  "category_coinbase_subtitle": "Transactions where you received rewards.",
+  "category_outgoing_subtitle": "Transactions initiated by you.",
+  "category_incoming_subtitle": "Transactions where you received assets.",
+  "category_select_error": "Please select at least one category.",
   "datetime_format": "MM/dd/yyyy",
   "time_ago_days": "{days} days ago",
   "time_ago_day": "1 day ago",
