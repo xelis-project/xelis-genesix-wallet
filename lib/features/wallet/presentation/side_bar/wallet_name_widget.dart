@@ -90,7 +90,7 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
                               WidgetState.disabled: context.theme.typography.lg
                                   .copyWith(
                                     color:
-                                        context.theme.colors.primaryForeground,
+                                        context.theme.colors.foreground,
                                   ),
                               WidgetState.any: context.theme.typography.lg
                                   .copyWith(

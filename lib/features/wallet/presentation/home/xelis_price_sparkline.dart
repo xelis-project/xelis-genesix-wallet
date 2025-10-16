@@ -56,7 +56,7 @@ class XelisPriceSparkline extends StatelessWidget {
                   return LineTooltipItem(
                     formatUsd(spot.y),
                     TextStyle(
-                      color: context.theme.colors.primaryForeground,
+                      color: context.theme.colors.foreground,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                     ),
