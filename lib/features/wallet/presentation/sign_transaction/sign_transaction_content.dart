@@ -43,8 +43,8 @@ class _SignTransactionContentState
               autovalidateMode: _submitted
                   ? AutovalidateMode.always
                   : AutovalidateMode.disabled,
-              label: Text('Transaction ID'),
-              hint: 'Enter the transaction hash to sign',
+              label: Text(loc.transaction_id),
+              hint: loc.enter_transaction_hash_to_sign,
               keyboardType: TextInputType.text,
               clearable: (v) => v.text.isNotEmpty,
               validator: (value) {
@@ -76,20 +76,20 @@ class _SignTransactionContentState
                         } else if (snapshot.hasError) {
                           return Padding(
                             padding: const EdgeInsets.all(Spaces.medium),
-                            child: Text('Error: ${snapshot.error}'),
+                            child: Text('${loc.error}: ${snapshot.error}'),
                           );
                         } else if (snapshot.hasData) {
                           return Padding(
                             padding: const EdgeInsets.all(Spaces.medium),
                             child: SelectableText(
-                              'Signature: ${snapshot.data}',
+                              '${loc.signature}: ${snapshot.data}',
                             ),
                           );
                         } else {
                           return Padding(
                             padding: const EdgeInsets.all(Spaces.medium),
                             child: Text(
-                              'No signature generated yet.',
+                              loc.no_signature_generated_yet,
                               style: context.theme.typography.base.copyWith(
                                 color: context.theme.colors.mutedForeground,
                               ),
@@ -102,7 +102,10 @@ class _SignTransactionContentState
                 ),
               ),
             ),
-            FButton(onPress: _signTransaction, child: Text('Sign Transaction')),
+            FButton(
+              onPress: _signTransaction,
+              child: Text(loc.sign_transaction),
+            ),
           ],
         ),
       ),

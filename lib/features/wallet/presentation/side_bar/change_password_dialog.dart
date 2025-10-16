@@ -50,26 +50,26 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FTextFormField(
-              label: Text('Current Password'),
+              label: Text(loc.current_password),
               controller: _currentPasswordController,
               autovalidateMode: AutovalidateMode.onUnfocus,
               obscureText: true,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'cannot be empty';
+                  return loc.cannot_be_empty;
                 }
                 return null;
               },
             ),
             const SizedBox(height: Spaces.medium),
             FTextFormField(
-              label: Text('New Password'),
+              label: Text(loc.new_password),
               controller: _newPasswordController,
               autovalidateMode: AutovalidateMode.onUnfocus,
               obscureText: true,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'cannot be empty';
+                  return loc.cannot_be_empty;
                 }
                 if (value.trim() == _currentPasswordController.text) {
                   return loc.same_old_new_password_error;
@@ -79,13 +79,13 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
             ),
             const SizedBox(height: Spaces.medium),
             FTextFormField(
-              label: Text('Confirm New Password'),
+              label: Text(loc.confirm_new_password),
               controller: _confirmNewPasswordController,
               autovalidateMode: AutovalidateMode.onUnfocus,
               obscureText: true,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'cannot be empty';
+                  return loc.cannot_be_empty;
                 }
                 if (value.trim() != _newPasswordController.text) {
                   return loc.not_match_new_password_error;

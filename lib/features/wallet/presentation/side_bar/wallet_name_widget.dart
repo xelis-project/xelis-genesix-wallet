@@ -137,7 +137,8 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
                   ),
                 )
               : FTooltip(
-                  tipBuilder: (context, controller) => Text('Edit wallet name'),
+                  tipBuilder: (context, controller) =>
+                      Text(loc.edit_wallet_name),
                   child: FButton.icon(
                     onPress: _onEdit,
                     child: const Icon(FIcons.pencil),

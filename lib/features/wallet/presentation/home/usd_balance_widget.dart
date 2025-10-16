@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/xelis_price_provider.dart';
 import 'package:genesix/features/wallet/presentation/home/xelis_price_sparkline.dart';
@@ -67,6 +68,8 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
           ? context.theme.colors.upColor
           : context.theme.colors.downColor;
 
+      final loc = ref.watch(appLocalizationsProvider);
+
       return Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         spacing: Spaces.medium,
@@ -79,7 +82,7 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
           ),
           FTooltip(
             tipBuilder: (context, controller) {
-              return Text('Percentage change in 24 hours');
+              return Text(loc.percentage_change_24h);
             },
             child: Row(
               children: [

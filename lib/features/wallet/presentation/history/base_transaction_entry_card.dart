@@ -72,7 +72,7 @@ class _BaseTransactionEntryCardState
                 ),
                 FTooltip(
                   tipBuilder: (context, controller) {
-                    return Text('Open in Explorer');
+                    return Text(loc.open_explorer);
                   },
                   child: FButton.icon(
                     onPress: () => _launchUrl(widget.url),

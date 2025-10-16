@@ -14,7 +14,7 @@ class CloseHeaderAction extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.all(Spaces.small),
       child: FTooltip(
-        tipBuilder: (context, controller) => Text('Close'),
+        tipBuilder: (context, controller) => Text(loc.close),
         child: FHeaderAction(icon: Icon(FIcons.x), onPress: context.pop),
       ),
     );
