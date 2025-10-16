@@ -298,11 +298,13 @@ class _WideTable extends ConsumerWidget {
 }
 
 void _openExtraSheet(BuildContext context, ExtraData extra) {
+  final loc = AppLocalizations.of(context);
   showFSheet<void>(
     context: context,
     side: FLayout.btt,
     useRootNavigator: true,
     mainAxisMaxRatio: context.getFSheetRatio,
-    builder: (context) => ExtraDataSheet(parsed: ParsedExtraData.parse(extra)),
+    builder: (context) =>
+        ExtraDataSheet(parsed: ParsedExtraData.parse(loc, extra)),
   );
 }

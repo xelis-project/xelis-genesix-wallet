@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class ParsedExtraData {
@@ -26,10 +27,10 @@ class ParsedExtraData {
   String get fmtSize => _formatBytes(bytesLength);
 
   /// Simple parser : Map/List → JSON, String → JSON|text, Bytes → UTF8|hexa preview.
-  static ParsedExtraData parse(ExtraData x) {
+  static ParsedExtraData parse(AppLocalizations loc, ExtraData x) {
     final data = x.data;
 
-    String label = 'Unknown';
+    String label = loc.unknown;
     String pretty = '';
     String copy = '';
     String ext = '.txt';
@@ -52,7 +53,7 @@ class ParsedExtraData {
       } else {
         pretty = data;
         copy = data;
-        label = 'Text';
+        label = loc.text;
         ext = '.txt';
         size = utf8.encode(data).length;
       }
@@ -66,7 +67,7 @@ class ParsedExtraData {
       } else {
         pretty = _hexPreview(data, maxBytes: 512);
         copy = _hexFull(data);
-        label = 'Bytes';
+        label = loc.bytes;
         ext = '.bin';
       }
       size = data.length;

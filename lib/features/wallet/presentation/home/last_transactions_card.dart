@@ -62,17 +62,16 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
             return FItem(
               prefix: Icon(info.icon, color: info.color),
               title: Text(info.label, style: context.theme.typography.sm),
-              subtitle:
-                  info.details != null
-                      ? Text(
-                        info.details!,
-                        style: context.theme.typography.xs.copyWith(
-                          color: context.theme.colors.mutedForeground,
-                        ),
-                      )
-                      : null,
+              subtitle: info.details != null
+                  ? Text(
+                      info.details!,
+                      style: context.theme.typography.xs.copyWith(
+                        color: context.theme.colors.mutedForeground,
+                      ),
+                    )
+                  : null,
               details: Text(
-                timeAgo(tx.timestamp!),
+                timeAgo(loc, tx.timestamp!),
                 style: context.theme.typography.xs.copyWith(
                   color: context.theme.colors.mutedForeground,
                 ),

@@ -227,33 +227,33 @@ String formatHashRate({
 }
 
 // TODO: Localize this function
-String timeAgo(DateTime dateTime, {DateTime? now}) {
+String timeAgo(AppLocalizations loc, DateTime dateTime, {DateTime? now}) {
   final current = now ?? DateTime.now();
   final diff = current.difference(dateTime);
 
   if (diff.inSeconds < 60) {
-    return "just now";
+    return loc.time_ago_now;
   } else if (diff.inMinutes < 60) {
     return Intl.plural(
       diff.inMinutes,
-      one: "1 minute ago",
-      other: "${diff.inMinutes} minutes ago",
+      one: loc.time_ago_minute,
+      other: loc.time_ago_minutes(diff.inMinutes),
     );
   } else if (diff.inHours < 24) {
     return Intl.plural(
       diff.inHours,
-      one: "1 hour ago",
-      other: "${diff.inHours} hours ago",
+      one: loc.time_ago_hour,
+      other: loc.time_ago_hours(diff.inHours),
     );
   } else if (diff.inDays < 30) {
     return Intl.plural(
       diff.inDays,
-      one: "1 day ago",
-      other: "${diff.inDays} days ago",
+      one: loc.time_ago_day,
+      other: loc.time_ago_days(diff.inDays),
     );
   } else {
     // For more than 30 days, show the short date format (MM/dd/yyyy)
-    return DateFormat('MM/dd/yyyy').format(dateTime);
+    return DateFormat(loc.datetime_format).format(dateTime);
   }
 }
 

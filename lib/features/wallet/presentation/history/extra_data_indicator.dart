@@ -25,13 +25,12 @@ class ExtraDataIndicator extends StatelessWidget {
     }
 
     final loc = AppLocalizations.of(context);
-    final parsed = ParsedExtraData.parse(extra!);
+    final parsed = ParsedExtraData.parse(loc, extra!);
     final color = flagColor(parsed.flag);
     final tooltip =
         '${parsed.flag.name.capitalize()} • ${parsed.label} • ${parsed.fmtSize}';
 
     return FTooltip(
-      // TODO: localize
       tipBuilder: (_, _) => Text(
         '${loc.view_extra_data}\n($tooltip)',
         textAlign: TextAlign.center,
