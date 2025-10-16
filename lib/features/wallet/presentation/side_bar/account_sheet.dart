@@ -92,9 +92,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
         return ConfirmDialog(
           style: style,
           animation: animation,
-          // TODO: localization
-          description:
-              'You are about to delete your wallet from the app. This action is irreversible and will remove all associated data. Please ensure you have backed up your recover phrase before proceeding.',
+          description: loc.delete_wallet_confirmation,
           onConfirm: (yes) async {
             if (yes) {
               startWithBiometricAuth(

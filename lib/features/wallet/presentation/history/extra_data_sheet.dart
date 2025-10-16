@@ -79,11 +79,8 @@ class _ExtraDataSheetState extends ConsumerState<ExtraDataSheet> {
                 ),
               ),
             ),
-            if (widget.parsed.flag == Flag.failed) ...[
-              Text(
-                "Note: this extra data is marked as 'failed' (likely decode error).", // TODO localize
-              ),
-            ],
+            if (widget.parsed.flag == Flag.failed)
+              Text(loc.extra_data_decode_failed),
           ],
         ),
       ),

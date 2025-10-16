@@ -70,19 +70,16 @@ class _NodeCardState extends ConsumerState<NodeCard> {
               count: nodes.length,
               initialValue: nodeAddress,
               detailsBuilder: (_, values, _) => Text(values.first.name),
-              menuBuilder:
-                  (context, index) => FSelectTile(
-                    title: Text(nodes[index].name),
-                    subtitle: Text(nodes[index].url),
-                    value: nodes[index],
-                  ),
+              menuBuilder: (context, index) => FSelectTile(
+                title: Text(nodes[index].name),
+                subtitle: Text(nodes[index].url),
+                value: nodes[index],
+              ),
               onSelect: (selection) {
                 ref
                     .read(networkNodesProvider.notifier)
-                    .setNodeAddress(network, selection.$1 as NodeAddress);
-                ref
-                    .read(walletStateProvider.notifier)
-                    .reconnect(selection.$1 as NodeAddress);
+                    .setNodeAddress(network, selection.$1);
+                ref.read(walletStateProvider.notifier).reconnect(selection.$1);
               },
             ),
             Row(
@@ -107,15 +104,14 @@ class _NodeCardState extends ConsumerState<NodeCard> {
                       ),
                     ),
                     FTooltip(
-                      tipBuilder:
-                          (context, controller) => Text(loc.connect_node),
+                      tipBuilder: (context, controller) =>
+                          Text(loc.connect_node),
                       child: FButton.icon(
-                        onPress:
-                            !isOnline
-                                ? () => ref
-                                    .read(walletStateProvider.notifier)
-                                    .reconnect(nodeAddress)
-                                : null,
+                        onPress: !isOnline
+                            ? () => ref
+                                  .read(walletStateProvider.notifier)
+                                  .reconnect(nodeAddress)
+                            : null,
                         child: Icon(FIcons.play),
                       ),
                     ),

@@ -7,11 +7,8 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/wallet/presentation/settings_navigation_bar/components/burn_warning_dialog.dart';
 import 'package:genesix/features/wallet/presentation/settings_navigation_bar/components/delete_wallet_button_old.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
-import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/shared/widgets/components/confirm_dialog.dart';
 import 'package:go_router/go_router.dart';
-import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';

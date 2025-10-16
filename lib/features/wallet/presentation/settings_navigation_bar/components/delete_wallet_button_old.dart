@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
-import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
-import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
-import 'package:genesix/shared/widgets/components/confirm_dialog.dart';
 
 class DeleteWalletButton extends ConsumerStatefulWidget {
   const DeleteWalletButton({super.key});

@@ -46,7 +46,7 @@ class _RecoveryPhraseDialogState extends ConsumerState<RecoveryPhraseDialog> {
       animation: widget.animation,
       title: Row(
         children: [
-          Expanded(child: Text('My ${loc.recovery_phrase}')), // TODO localize
+          Expanded(child: Text(loc.my_recovery_phrase)),
           FTooltip(
             tipBuilder: (context, controller) => Text(loc.copy_recovery_phrase),
             child: FButton.icon(
@@ -95,10 +95,9 @@ class _RecoveryPhraseDialogState extends ConsumerState<RecoveryPhraseDialog> {
           const SizedBox(height: Spaces.large),
           Flexible(
             child: FCheckbox(
-              // TODO localize
-              label: const Text('Recovery Phrase Acknowledgement'),
-              description: const Text(
-                'You understand that if you lose or share your recovery phrase, all funds in this wallet may be lost permanently.',
+              label: Text(loc.recovery_phrase_acknowledgement),
+              description: Text(
+                loc.recovery_phrase_acknowledgement_description,
               ),
               value: _confirmed,
               onChange: (value) => setState(() => _confirmed = value),

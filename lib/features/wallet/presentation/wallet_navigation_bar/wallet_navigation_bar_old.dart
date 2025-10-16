@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/balance_widget_old.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/topoheight_widget_old.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/wallet_address_widget_old.dart';
 import 'package:genesix/shared/theme/constants.dart';

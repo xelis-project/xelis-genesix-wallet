@@ -3,6 +3,7 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/wallet/domain/parsed_extra_data.dart';
 import 'package:genesix/features/wallet/presentation/components/colored_badge.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class ExtraDataIndicator extends StatelessWidget {
@@ -23,6 +24,7 @@ class ExtraDataIndicator extends StatelessWidget {
       return Text('-', style: context.theme.typography.base);
     }
 
+    final loc = AppLocalizations.of(context);
     final parsed = ParsedExtraData.parse(extra!);
     final color = flagColor(parsed.flag);
     final tooltip =
@@ -30,8 +32,10 @@ class ExtraDataIndicator extends StatelessWidget {
 
     return FTooltip(
       // TODO: localize
-      tipBuilder: (_, _) =>
-          Text('View extra data\n($tooltip)', textAlign: TextAlign.center),
+      tipBuilder: (_, _) => Text(
+        '${loc.view_extra_data}\n($tooltip)',
+        textAlign: TextAlign.center,
+      ),
       child: Stack(
         clipBehavior: Clip.none,
         children: [

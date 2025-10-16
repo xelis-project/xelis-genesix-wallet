@@ -35,9 +35,8 @@ class Toast extends _$Toast {
   }
 
   void showEvent({String? title, required String description}) {
-    // TODO
     final loc = ref.read(appLocalizationsProvider);
-    final eventDescription = title ?? 'Event';
+    final eventDescription = title ?? loc.event;
     show(ToastType.event, eventDescription, description);
   }
 

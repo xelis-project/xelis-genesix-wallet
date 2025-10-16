@@ -89,6 +89,8 @@ class _NarrowList extends ConsumerWidget {
       ),
     );
 
+    final loc = AppLocalizations.of(context);
+
     return FItemGroup.builder(
       count: rows.length,
       divider: FItemDivider.indented,
@@ -138,7 +140,7 @@ class _NarrowList extends ConsumerWidget {
                   hideExtraData
                       ? FBadge(
                           style: FBadgeStyle.secondary(),
-                          child: Text('hidden'), // TODO localize
+                          child: Text(loc.hidden),
                         )
                       : ExtraDataIndicator(
                           extra: row.extra,
@@ -174,6 +176,8 @@ class _WideTable extends ConsumerWidget {
         (value) => value.historyFilterState.hideExtraData,
       ),
     );
+
+    final loc = AppLocalizations.of(context);
 
     return FadedScroll(
       axis: Axis.horizontal,
@@ -227,7 +231,7 @@ class _WideTable extends ConsumerWidget {
                         child: hideExtraData
                             ? FBadge(
                                 style: FBadgeStyle.secondary(),
-                                child: Text('hidden'), // TODO localize
+                                child: Text(loc.hidden),
                               )
                             : ExtraDataIndicator(
                                 extra: row.extra,
@@ -262,7 +266,7 @@ class _WideTable extends ConsumerWidget {
                         child: hideExtraData
                             ? FBadge(
                                 style: FBadgeStyle.secondary(),
-                                child: Text('hidden'), // TODO localize
+                                child: Text(loc.hidden),
                               )
                             : ExtraDataIndicator(
                                 extra: row.extra,

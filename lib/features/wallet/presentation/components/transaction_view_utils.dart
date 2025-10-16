@@ -56,7 +56,7 @@ Map<DateTime, List<TransactionEntry>> groupTransactionsByDateSorted2Levels(
   // Sort the dates in descending order
   final sortedKeys = grouped.keys.toList()..sort((a, b) => b.compareTo(a));
 
-  final out = LinkedHashMap<DateTime, List<TransactionEntry>>();
+  final out = <DateTime, List<TransactionEntry>>{};
   for (final k in sortedKeys) {
     out[k] = grouped[k]!;
   }
@@ -64,7 +64,6 @@ Map<DateTime, List<TransactionEntry>> groupTransactionsByDateSorted2Levels(
   return out;
 }
 
-// TODO: Localize this function
 TransactionDisplayInfo parseTxInfo(
   AppLocalizations loc,
   rust.Network network,
@@ -89,30 +88,30 @@ TransactionDisplayInfo parseTxInfo(
         subtitle: truncateText(type.asset, maxLength: 16),
         details: asset != null
             ? '-${formatCoin(type.amount, asset.decimals, asset.ticker)}'
-            : 'Unknown Asset',
+            : loc.unknown_asset,
       );
     case IncomingEntry():
       String? subtitle;
       String? detailsMessage;
       if (type.transfers.length > 1) {
-        detailsMessage = 'Multiple transfers received';
+        detailsMessage = loc.multiple_transfers_received;
       } else if (type.transfers.isEmpty) {
-        detailsMessage = 'No transfers found';
+        detailsMessage = loc.no_transfers_found;
       } else {
         final transfer = type.transfers.first;
         final asset = knownAssets[transfer.asset];
+        subtitle = loc.transfer_from(getAddressLabel(type.from, addressBook));
         if (asset != null) {
-          subtitle = 'from ${getAddressLabel(type.from, addressBook)}';
           detailsMessage =
               '+${formatCoin(transfer.amount, asset.decimals, asset.ticker)}';
         } else {
-          subtitle = 'Unknown Asset';
+          detailsMessage = loc.unknown_asset;
         }
       }
       return TransactionDisplayInfo(
         icon: FIcons.arrowDownLeft,
         color: Colors.greenAccent.shade400,
-        label: 'Received',
+        label: loc.transfer_received,
         subtitle: subtitle,
         details: detailsMessage,
       );
@@ -120,25 +119,27 @@ TransactionDisplayInfo parseTxInfo(
       String? subtitle;
       String? detailsMessage;
       if (type.transfers.length > 1) {
-        subtitle = 'Multiple transfers sent';
+        subtitle = loc.multiple_transfers_sent;
       } else if (type.transfers.isEmpty) {
-        subtitle = 'No transfers found';
+        subtitle = loc.no_transfers_found;
       } else {
         final transfer = type.transfers.first;
         final asset = knownAssets[transfer.asset];
+        subtitle = loc.transfer_to(
+          getAddressLabel(transfer.destination, addressBook),
+        );
         if (asset != null) {
-          subtitle = 'to ${getAddressLabel(transfer.destination, addressBook)}';
           detailsMessage =
               '-${formatCoin(transfer.amount, asset.decimals, asset.ticker)}';
         } else {
-          subtitle = 'Unknown Asset';
+          detailsMessage = loc.unknown_asset;
         }
       }
 
       return TransactionDisplayInfo(
         icon: FIcons.arrowUpRight,
         color: Colors.redAccent.shade200,
-        label: 'Sent',
+        label: loc.transfer_sent,
         subtitle: subtitle,
         details: detailsMessage,
       );
@@ -147,20 +148,20 @@ TransactionDisplayInfo parseTxInfo(
         icon: FIcons.users,
         color: Colors.blueAccent.shade200,
         label: loc.multisig,
-        subtitle: type.participants.isEmpty ? 'Disabled' : 'Enabled',
+        subtitle: type.participants.isEmpty ? loc.disabled : loc.enabled,
       );
     case InvokeContractEntry():
       return TransactionDisplayInfo(
         icon: FIcons.squareCode,
         color: Colors.deepPurple,
-        label: 'Contract Invocation',
+        label: loc.tx_contract_invocation,
         subtitle: truncateText(type.contract, maxLength: 16),
       );
     case DeployContractEntry():
       return TransactionDisplayInfo(
         icon: FIcons.scrollText,
         color: Colors.teal,
-        label: 'Contract Deployment',
+        label: loc.tx_contract_deployment,
       );
   }
 }
