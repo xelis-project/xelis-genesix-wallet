@@ -44,7 +44,7 @@ class _EditNodeSheetState extends ConsumerState<EditNodeSheet> {
           children: [
             FTextFormField(
               controller: _nameController,
-              label: Text('Node Name'),
+              label: Text(loc.node_name),
               keyboardType: TextInputType.text,
               maxLines: 1,
               autocorrect: false,
@@ -58,7 +58,7 @@ class _EditNodeSheetState extends ConsumerState<EditNodeSheet> {
             const SizedBox(height: Spaces.medium),
             FTextFormField(
               controller: _urlController,
-              label: Text('URL'),
+              label: Text(loc.node_url),
               keyboardType: TextInputType.text,
               maxLines: 1,
               autocorrect: false,
@@ -67,14 +67,14 @@ class _EditNodeSheetState extends ConsumerState<EditNodeSheet> {
                   return loc.field_required_error;
                 }
                 if (!Uri.tryParse(value)!.hasScheme) {
-                  return 'Please enter a valid URL';
+                  return loc.node_url_error;
                 }
                 return null;
               },
             ),
             const SizedBox(height: Spaces.large),
             FButton(
-              child: Text('Save Node'),
+              child: Text(loc.save_node),
               onPress: () {
                 if (_formKey.currentState?.validate() ?? false) {
                   _edit(
@@ -90,7 +90,7 @@ class _EditNodeSheetState extends ConsumerState<EditNodeSheet> {
             const SizedBox(height: Spaces.medium),
             FButton(
               style: FButtonStyle.destructive(),
-              child: Text('Delete Node'),
+              child: Text(loc.delete_node),
               onPress: () {
                 _delete(
                   NodeAddress(

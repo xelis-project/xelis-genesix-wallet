@@ -35,8 +35,8 @@ class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
           children: [
             FTextFormField(
               controller: _nameController,
-              label: Text('Node Name'),
-              hint: 'My Node',
+              label: Text(loc.node_name),
+              hint: loc.node_name_hint,
               keyboardType: TextInputType.text,
               maxLines: 1,
               autocorrect: false,
@@ -50,8 +50,8 @@ class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
             const SizedBox(height: Spaces.medium),
             FTextFormField(
               controller: _urlController,
-              label: Text('URL'),
-              hint: 'https://example.com',
+              label: Text(loc.node_url),
+              hint: loc.node_url_hint,
               keyboardType: TextInputType.text,
               maxLines: 1,
               autocorrect: false,
@@ -60,14 +60,14 @@ class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
                   return loc.field_required_error;
                 }
                 if (!Uri.tryParse(value)!.hasScheme) {
-                  return 'Please enter a valid URL';
+                  return loc.node_url_error;
                 }
                 return null;
               },
             ),
             const SizedBox(height: Spaces.large),
             FButton(
-              child: Text('Add Node'),
+              child: Text(loc.add_node),
               onPress: () {
                 if (_formKey.currentState?.validate() ?? false) {
                   _add(
