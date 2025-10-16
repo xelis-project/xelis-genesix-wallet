@@ -40,7 +40,6 @@ gen_arb:
 
 ### Web build and run commands ###
 
-RUSTFLAGS_WASM := '--cfg getrandom_backend="wasm_js" -C target-feature=+atomics,+bulk-memory,+mutable-globals'
 CRATE_DIR      := 'rust'
 OUT_DIR        := '../web/pkg'
 WASM_NAME      := 'rust_lib'
@@ -50,7 +49,7 @@ WASM_TARGET    := 'no-modules'
 
 run_web:
     # Generating WebAssembly with wasm-pack
-    RUSTFLAGS='{{RUSTFLAGS_WASM}}' \
+    RUSTUP_TOOLCHAIN="nightly" \
     wasm-pack build \
         -t {{WASM_TARGET}} \
         -d "{{OUT_DIR}}" \
