@@ -14,6 +14,7 @@ import 'package:genesix/features/wallet/presentation/history/history_content.dar
 import 'package:genesix/features/wallet/presentation/history/transaction_entry_screen.dart';
 import 'package:genesix/features/wallet/presentation/home/home_wallet_content.dart';
 import 'package:genesix/features/wallet/presentation/multisig/multisig_content.dart';
+import 'package:genesix/features/wallet/presentation/multisig/setup_multisig.dart';
 import 'package:genesix/features/wallet/presentation/network/network_content.dart';
 import 'package:genesix/features/wallet/presentation/recovery_phrase/recovery_phrase_content.dart';
 import 'package:genesix/features/wallet/presentation/sign_transaction/sign_transaction_content.dart';
@@ -261,6 +262,25 @@ class TransactionEntryRoute extends GoRouteData with _$TransactionEntryRoute {
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
       TransactionEntryScreen(),
+      state.pageKey,
+      state.fullPath,
+      state.extra,
+      AppDurations.animNormal,
+    );
+  }
+}
+
+@TypedGoRoute<SetupMultisigRoute>(
+  name: 'setup_multisig',
+  path: '/setup_multisig',
+)
+class SetupMultisigRoute extends GoRouteData with _$SetupMultisigRoute {
+  const SetupMultisigRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      SetupMultisig(),
       state.pageKey,
       state.fullPath,
       state.extra,

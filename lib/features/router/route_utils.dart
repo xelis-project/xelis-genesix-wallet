@@ -8,6 +8,7 @@ enum AuthAppScreen {
   transfer,
   burn,
   multisig,
+  setupMultisig,
   transactionEntry,
   xswd,
   addressBook,
@@ -64,6 +65,8 @@ extension AuthAppScreenExtension on AuthAppScreen {
         return '/address_book';
       case AuthAppScreen.signTransaction:
         return '/sign_transaction';
+      case AuthAppScreen.setupMultisig:
+        return '/setup_multisig';
     }
   }
 

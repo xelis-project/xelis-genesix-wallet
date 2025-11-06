@@ -6,6 +6,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:genesix/features/authentication/presentation/components/network_select_menu_tile.dart';
 
 class PrivateKeyTab extends ConsumerStatefulWidget {
   const PrivateKeyTab({super.key});
@@ -44,6 +45,8 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
         child: Column(
           children: [
             const SizedBox(height: Spaces.medium),
+            const NetworkSelectMenuTile(),
+            const SizedBox(height: Spaces.large),
             FTextFormField.multiline(
               controller: _privateKeyController,
               label: const Text('Private Key'),

@@ -9,7 +9,6 @@ import 'package:genesix/features/wallet/application/history_providers.dart';
 import 'package:genesix/features/wallet/presentation/history/transaction_grouped_widget.dart';
 import 'package:genesix/features/wallet/presentation/components/transaction_view_utils.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/widgets/components/custom_skeletonizer.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
@@ -82,22 +81,6 @@ class _HistoryContentState extends ConsumerState<HistoryContent> {
                       ],
                     ),
                   ),
-                  // firstPageProgressIndicatorBuilder: (context) =>
-                  //     SingleChildScrollView(
-                  //       child: CustomSkeletonizer(
-                  //         child: Column(
-                  //           children: List.generate(
-                  //             30,
-                  //             (index) => FItem(
-                  //               title: Text('Dummy label'),
-                  //               subtitle: Text('Dummy subtitle'),
-                  //               details: Text('Dummy details'),
-                  //               prefix: const Icon(FIcons.history),
-                  //             ),
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ),
                 ),
           ),
         );
@@ -111,72 +94,8 @@ class _HistoryContentState extends ConsumerState<HistoryContent> {
           ),
         );
       default:
-        // TODO skeleton loader ?
         return Center(child: FProgress.circularIcon());
     }
-
-    // return FadedScroll(
-    //   controller: _controller,
-    //   fadeFraction: 0.08,
-    //   child: PagedListView<int, MapEntry<DateTime, List<TransactionEntry>>>(
-    //     scrollController: _controller,
-    //     state: pagingState,
-    //     fetchNextPage: _fetchPage,
-    //     builderDelegate:
-    //         PagedChildBuilderDelegate<
-    //           MapEntry<DateTime, List<TransactionEntry>>
-    //         >(
-    //           animateTransitions: true,
-    //           itemBuilder: (context, item, index) =>
-    //               TransactionGroupedWidget(item),
-    //           noItemsFoundIndicatorBuilder: (context) => Center(
-    //             child: Column(
-    //               mainAxisAlignment: MainAxisAlignment.center,
-    //               children: [
-    //                 Text(
-    //                   loc.no_transactions_found,
-    //                   style: context.theme.typography.base.copyWith(
-    //                     color: context.theme.colors.mutedForeground,
-    //                   ),
-    //                 ),
-    //                 const SizedBox(height: Spaces.medium),
-    //                 FutureBuilder(
-    //                   future: ref.read(historyCountProvider.future),
-    //                   builder: (context, snapshot) {
-    //                     if (snapshot.data != null && snapshot.data! > 0) {
-    //                       return Text(
-    //                         loc.try_changing_filter,
-    //                         style: context.theme.typography.base.copyWith(
-    //                           color: context.theme.colors.mutedForeground,
-    //                         ),
-    //                       );
-    //                     } else {
-    //                       return const SizedBox.shrink();
-    //                     }
-    //                   },
-    //                 ),
-    //               ],
-    //             ),
-    //           ),
-    //           // firstPageProgressIndicatorBuilder: (context) =>
-    //           //     SingleChildScrollView(
-    //           //       child: CustomSkeletonizer(
-    //           //         child: Column(
-    //           //           children: List.generate(
-    //           //             30,
-    //           //             (index) => FItem(
-    //           //               title: Text('Dummy label'),
-    //           //               subtitle: Text('Dummy subtitle'),
-    //           //               details: Text('Dummy details'),
-    //           //               prefix: const Icon(FIcons.history),
-    //           //             ),
-    //           //           ),
-    //           //         ),
-    //           //       ),
-    //           //     ),
-    //         ),
-    //   ),
-    // );
   }
 
   void _fetchPage() async {

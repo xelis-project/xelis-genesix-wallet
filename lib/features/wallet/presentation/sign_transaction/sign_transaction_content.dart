@@ -14,7 +14,6 @@ class SignTransactionContent extends ConsumerStatefulWidget {
 
 class _SignTransactionContentState
     extends ConsumerState<SignTransactionContent> {
-  final _scrollController = ScrollController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _transactionController = TextEditingController();
 
@@ -23,7 +22,6 @@ class _SignTransactionContentState
 
   @override
   void dispose() {
-    _scrollController.dispose();
     _transactionController.dispose();
     super.dispose();
   }
@@ -90,7 +88,12 @@ class _SignTransactionContentState
                         } else {
                           return Padding(
                             padding: const EdgeInsets.all(Spaces.medium),
-                            child: Text('No signature generated yet.'),
+                            child: Text(
+                              'No signature generated yet.',
+                              style: context.theme.typography.base.copyWith(
+                                color: context.theme.colors.mutedForeground,
+                              ),
+                            ),
                           );
                         }
                       },

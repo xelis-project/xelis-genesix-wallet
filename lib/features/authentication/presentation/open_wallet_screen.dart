@@ -5,7 +5,6 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
-import 'package:genesix/features/settings/domain/network_translate_name.dart';
 import 'package:genesix/features/settings/domain/settings_state.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
@@ -22,6 +21,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
+import 'package:genesix/features/authentication/presentation/components/network_select_menu_tile.dart';
 
 class OpenWalletScreen extends ConsumerStatefulWidget {
   const OpenWalletScreen({super.key});
@@ -90,33 +90,8 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
                     key: _formKey,
                     child: Column(
                       children: [
-                        FSelectMenuTile(
-                          title: Text('Network'),
-                          initialValue: network,
-                          detailsBuilder: (_, values, _) =>
-                              Text(translateNetworkName(values.first)),
-                          menu: [
-                            FSelectTile(
-                              title: Text('Mainnet'),
-                              value: Network.mainnet,
-                            ),
-                            FSelectTile(
-                              title: Text('Testnet'),
-                              value: Network.testnet,
-                            ),
-                            FSelectTile(
-                              title: Text('Stagenet'),
-                              value: Network.stagenet,
-                            ),
-                            FSelectTile(
-                              title: Text('Devnet'),
-                              value: Network.devnet,
-                            ),
-                          ],
-                          onSelect: (value) {
-                            ref
-                                .read(settingsProvider.notifier)
-                                .setNetwork(value.$1);
+                        NetworkSelectMenuTile(
+                          onSelected: (_) {
                             setState(() {
                               _selectController.value = null;
                             });

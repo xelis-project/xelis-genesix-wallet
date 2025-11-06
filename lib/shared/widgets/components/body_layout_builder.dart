@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
-import 'package:genesix/shared/theme/constants.dart';
 
 class BodyLayoutBuilder extends StatelessWidget {
   const BodyLayoutBuilder({super.key, required this.child});

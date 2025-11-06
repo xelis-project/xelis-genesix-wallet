@@ -7,15 +7,14 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
-import 'package:genesix/features/settings/domain/network_translate_name.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:path/path.dart' as p;
+import 'package:genesix/features/authentication/presentation/components/network_select_menu_tile.dart';
 
 class RestoreFolderTab extends ConsumerStatefulWidget {
   const RestoreFolderTab({super.key});
@@ -30,10 +29,6 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final network = ref.watch(
-      settingsProvider.select((state) => state.network),
-    );
-
     bool showOpenButton =
         _selectedWalletFolder != null && _selectedWalletFolder!.path.isNotEmpty;
 
@@ -44,19 +39,8 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
       child: Column(
         children: [
           const SizedBox(height: Spaces.medium),
-          FSelectMenuTile(
-            title: Text('Network'),
-            initialValue: network,
-            detailsBuilder: (_, values, _) =>
-                Text(translateNetworkName(values.first)),
-            menu: [
-              FSelectTile(title: Text('Mainnet'), value: Network.mainnet),
-              FSelectTile(title: Text('Testnet'), value: Network.testnet),
-              FSelectTile(title: Text('Stagenet'), value: Network.stagenet),
-              FSelectTile(title: Text('Devnet'), value: Network.devnet),
-            ],
-            onSelect: (value) {
-              ref.read(settingsProvider.notifier).setNetwork(value.$1);
+          NetworkSelectMenuTile(
+            onSelected: (_) {
               setState(() {
                 _selectedWalletFolder = null;
               });
