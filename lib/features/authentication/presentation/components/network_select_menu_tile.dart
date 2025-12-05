@@ -22,7 +22,7 @@ class NetworkSelectMenuTile extends ConsumerWidget {
       title: Text(loc.network),
       initialValue: network,
       detailsBuilder: (_, values, _) =>
-          Text(translateNetworkName(values.first)),
+          Text(translateNetworkName(loc, values.first)),
       menu: [
         FSelectTile(title: Text(loc.mainnet), value: Network.mainnet),
         FSelectTile(title: Text(loc.testnet), value: Network.testnet),
