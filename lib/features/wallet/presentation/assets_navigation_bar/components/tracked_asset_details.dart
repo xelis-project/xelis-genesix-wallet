@@ -112,7 +112,7 @@ class TrackedAssetDetails extends ConsumerWidget {
           ),
           const SizedBox(height: Spaces.extraSmall),
           SelectableText(asset.decimals.toString(), style: context.bodyLarge),
-          if (asset.maxSupply != null) ...[
+          if (asset.maxSupply.getMax() != null) ...[
             const SizedBox(height: Spaces.medium),
             Text(
               loc.max_supply,
@@ -122,39 +122,41 @@ class TrackedAssetDetails extends ConsumerWidget {
             ),
             const SizedBox(height: Spaces.extraSmall),
             SelectableText(
-              formatCoin(asset.maxSupply!, asset.decimals, asset.ticker),
+              formatCoin(
+                asset.maxSupply.getMax()!,
+                asset.decimals,
+                asset.ticker,
+              ),
               style: context.bodyLarge,
             ),
           ],
-          if (asset.owner != null && asset.owner!.originContract != null) ...[
+          if (!asset.owner.isNone) ...[
             const SizedBox(height: Spaces.medium),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  asset.owner!.isOwner
-                      ? "Contract Creator"
-                      : "Contract Manager",
+                  "Contract Creator",
                   style: context.bodyLarge?.copyWith(
                     color: context.moreColors.mutedColor,
                   ),
                 ),
                 const SizedBox(height: Spaces.extraSmall),
                 SelectableText(
-                  asset.owner!.originContract!,
+                  asset.owner.originContract!,
                   style: context.bodyLarge,
                 ),
-                if (asset.owner!.id != null) ...[
+                if (asset.owner.id != null) ...[
                   const SizedBox(height: Spaces.medium),
                   Text(
-                    asset.owner!.isOwner ? "Asset ID" : "Asset original ID",
+                    "Internal Asset ID",
                     style: context.bodyLarge?.copyWith(
                       color: context.moreColors.mutedColor,
                     ),
                   ),
                   const SizedBox(height: Spaces.extraSmall),
                   SelectableText(
-                    asset.owner!.id!.toString(),
+                    asset.owner.id!.toString(),
                     style: context.bodyLarge,
                   ),
                 ],

@@ -114,7 +114,7 @@ class UntrackedAssetDetails extends ConsumerWidget {
             assetData.decimals.toString(),
             style: context.bodyLarge,
           ),
-          if (assetData.maxSupply != null) ...[
+          if (assetData.maxSupply.getMax() != null) ...[
             const SizedBox(height: Spaces.medium),
             Text(
               loc.max_supply,
@@ -125,61 +125,58 @@ class UntrackedAssetDetails extends ConsumerWidget {
             const SizedBox(height: Spaces.extraSmall),
             SelectableText(
               formatCoin(
-                assetData.maxSupply!,
+                assetData.maxSupply.getMax()!,
                 assetData.decimals,
                 assetData.ticker,
               ),
               style: context.bodyLarge,
             ),
           ],
-          if (assetData.owner != null && assetData.owner!.originContract != null) ...[
+          if (!assetData.owner.isNone) ...[
             const SizedBox(height: Spaces.medium),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  assetData.owner!.isOwner ? loc.origin : loc.contract,
+                  "Contract Creator",
                   style: context.bodyLarge?.copyWith(
                     color: context.moreColors.mutedColor,
                   ),
                 ),
                 const SizedBox(height: Spaces.extraSmall),
                 SelectableText(
-                  assetData.owner!.originContract!,
+                  assetData.owner.originContract!,
                   style: context.bodyLarge,
                 ),
-                if (assetData.owner!.id != null) ...[
+                if (assetData.owner.id != null) ...[
                   const SizedBox(height: Spaces.medium),
                   Text(
-                    assetData.owner!.isOwner ? loc.origin_id : loc.id,
+                    "Internal Asset ID",
                     style: context.bodyLarge?.copyWith(
                       color: context.moreColors.mutedColor,
                     ),
                   ),
                   const SizedBox(height: Spaces.extraSmall),
                   SelectableText(
-                    assetData.owner!.id!.toString(),
+                    assetData.owner.id!.toString(),
                     style: context.bodyLarge,
                   ),
                 ],
-                if (assetData.owner!.isOwner) ...[
-                  const SizedBox(height: Spaces.medium),
-                  Text(
-                    loc.owner,
-                    style: context.bodyLarge?.copyWith(
-                      color: context.moreColors.mutedColor,
-                    ),
+                const SizedBox(height: Spaces.medium),
+                Text(
+                  "Asset Owner",
+                  style: context.bodyLarge?.copyWith(
+                    color: context.moreColors.mutedColor,
                   ),
-                  const SizedBox(height: Spaces.extraSmall),
-                  assetData.owner!.when(
-                    none: () => const SizedBox.shrink(),
-                    creator: (_, __) => const SizedBox.shrink(),
-                    owner: (_, __, ownerHash) => SelectableText(
-                      ownerHash,
-                      style: context.bodyLarge,
-                    ),
-                  ),
-                ],
+                ),
+                const SizedBox(height: Spaces.extraSmall),
+                assetData.owner.when(
+                  none: () => const SizedBox.shrink(),
+                  creator: (contractHash, _) =>
+                      SelectableText(contractHash, style: context.bodyLarge),
+                  owner: (_, __, ownerHash) =>
+                      SelectableText(ownerHash, style: context.bodyLarge),
+                ),
               ],
             ),
           ],
