@@ -27,8 +27,12 @@ bool networkMismatch(Ref ref) {
       if (walletNetwork != rust.Network.testnet) {
         mismatch = true;
       }
-    case sdk.Network.dev:
-      if (walletNetwork != rust.Network.dev) {
+    case sdk.Network.devnet:
+      if (walletNetwork != rust.Network.devnet) {
+        mismatch = true;
+      }
+    case sdk.Network.stagenet:
+      if (walletNetwork != rust.Network.stagenet) {
         mismatch = true;
       }
     case null:

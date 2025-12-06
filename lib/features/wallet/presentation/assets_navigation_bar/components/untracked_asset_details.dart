@@ -132,34 +132,54 @@ class UntrackedAssetDetails extends ConsumerWidget {
               style: context.bodyLarge,
             ),
           ],
-          if (assetData.owner != null) ...[
+          if (assetData.owner != null && assetData.owner!.originContract != null) ...[
             const SizedBox(height: Spaces.medium),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  loc.contract,
-                  style: context.bodyLarge?.copyWith(
-                    color: context.moreColors.mutedColor,
-                  ),
-                ),
-                const SizedBox(width: Spaces.extraSmall),
-                SelectableText(
-                  assetData.owner!.contract,
-                  style: context.bodyLarge,
-                ),
-                const SizedBox(height: Spaces.medium),
-                Text(
-                  loc.id,
+                  assetData.owner!.isOwner ? loc.origin : loc.contract,
                   style: context.bodyLarge?.copyWith(
                     color: context.moreColors.mutedColor,
                   ),
                 ),
                 const SizedBox(height: Spaces.extraSmall),
                 SelectableText(
-                  assetData.owner!.id.toString(),
+                  assetData.owner!.originContract!,
                   style: context.bodyLarge,
                 ),
+                if (assetData.owner!.id != null) ...[
+                  const SizedBox(height: Spaces.medium),
+                  Text(
+                    assetData.owner!.isOwner ? loc.origin_id : loc.id,
+                    style: context.bodyLarge?.copyWith(
+                      color: context.moreColors.mutedColor,
+                    ),
+                  ),
+                  const SizedBox(height: Spaces.extraSmall),
+                  SelectableText(
+                    assetData.owner!.id!.toString(),
+                    style: context.bodyLarge,
+                  ),
+                ],
+                if (assetData.owner!.isOwner) ...[
+                  const SizedBox(height: Spaces.medium),
+                  Text(
+                    loc.owner,
+                    style: context.bodyLarge?.copyWith(
+                      color: context.moreColors.mutedColor,
+                    ),
+                  ),
+                  const SizedBox(height: Spaces.extraSmall),
+                  assetData.owner!.when(
+                    none: () => const SizedBox.shrink(),
+                    creator: (_, __) => const SizedBox.shrink(),
+                    owner: (_, __, ownerHash) => SelectableText(
+                      ownerHash,
+                      style: context.bodyLarge,
+                    ),
+                  ),
+                ],
               ],
             ),
           ],

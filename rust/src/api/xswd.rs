@@ -76,16 +76,20 @@ impl XSWD for XelisWallet {
     ) -> Result<()> {
         match self.get_wallet().enable_xswd().await {
             Ok(receiver) => {
-                spawn_task("xswd_handler", async move {
-                    xswd_handler(
-                        receiver,
-                        cancel_request_dart_callback,
-                        request_application_dart_callback,
-                        request_permission_dart_callback,
-                        app_disconnect_dart_callback,
-                    )
-                    .await;
-                });
+                if let Some(receiver) = receiver {
+                    spawn_task("xswd_handler", async move {
+                        xswd_handler(
+                            receiver,
+                            cancel_request_dart_callback,
+                            request_application_dart_callback,
+                            request_permission_dart_callback,
+                            app_disconnect_dart_callback,
+                        )
+                        .await;
+                    });
+                } else {
+                    debug!("XSWD Server was already running");
+                }
             }
             Err(e) => bail!("Error while enabling XSWD Server: {}", e),
         };
@@ -246,6 +250,12 @@ pub async fn xswd_handler(
                 if callback.send(Ok(())).is_err() {
                     error!("Error while sending cancel response to XSWD");
                 }
+            },
+            XSWDEvent::PrefetchPermissions(_, _, callback) => {
+                // TODO: implement prefetch permissions handling
+                if callback.send(Ok(Default::default())).is_err() {
+                    error!("Error while sending prefetch permissions response to XSWD");
+                }
             }
             XSWDEvent::RequestApplication(state, callback) => {
                 let event_summary =
@@ -297,7 +307,7 @@ pub async fn create_app_info(state: &AppState) -> AppInfo {
         .collect();
 
     AppInfo {
-        id: state.get_id().clone(),
+        id: state.get_id().to_owned(),
         name: state.get_name().clone(),
         description: state.get_description().clone(),
         url: state.get_url().clone(),
@@ -327,5 +337,6 @@ fn xswd_event_name(event: &XSWDEvent) -> &'static str {
         XSWDEvent::RequestApplication(_, _) => "RequestApplication",
         XSWDEvent::RequestPermission(_, _, _) => "RequestPermission",
         XSWDEvent::AppDisconnect(_) => "AppDisconnect",
+        XSWDEvent::PrefetchPermissions(_, _, _) => "PrefetchPermissions",
     }
 }

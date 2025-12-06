@@ -11,7 +11,8 @@ import 'package:genesix/shared/theme/extensions.dart';
 const List<Network> networks = <Network>[
   Network.mainnet,
   Network.testnet,
-  Network.dev,
+  Network.devnet,
+  Network.stagenet,
 ];
 
 class NetworkSelectorWidget extends ConsumerWidget {

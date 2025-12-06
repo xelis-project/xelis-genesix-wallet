@@ -26,7 +26,7 @@ dependencies:
   path_provider: ^2.1.5
   riverpod_annotation: ^2.6.1
   shared_preferences: ^2.5.3
-  xelis_dart_sdk: ^0.28.0
+  xelis_dart_sdk: ^0.30.0
   loader_overlay: ^5.0.0
   pretty_qr_code: ^3.4.0
   flutter_native_splash: ^2.4.6
@@ -55,7 +55,7 @@ dependencies:
   #  flutter_animate: ^4.5.0
   #  workmanager: ^0.5.2
 
-  flutter_rust_bridge: 2.10.0
+  flutter_rust_bridge: 2.11.1
   rust_builder:
     path: rust_builder
   flutter_hashicon:

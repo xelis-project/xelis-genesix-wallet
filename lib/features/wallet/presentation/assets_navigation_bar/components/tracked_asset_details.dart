@@ -126,31 +126,54 @@ class TrackedAssetDetails extends ConsumerWidget {
               style: context.bodyLarge,
             ),
           ],
-          if (asset.owner != null) ...[
+          if (asset.owner != null && asset.owner!.originContract != null) ...[
             const SizedBox(height: Spaces.medium),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  loc.contract,
-                  style: context.bodyLarge?.copyWith(
-                    color: context.moreColors.mutedColor,
-                  ),
-                ),
-                const SizedBox(width: Spaces.extraSmall),
-                SelectableText(asset.owner!.contract, style: context.bodyLarge),
-                const SizedBox(height: Spaces.medium),
-                Text(
-                  loc.id,
+                  asset.owner!.isOwner ? loc.origin : loc.contract,
                   style: context.bodyLarge?.copyWith(
                     color: context.moreColors.mutedColor,
                   ),
                 ),
                 const SizedBox(height: Spaces.extraSmall),
                 SelectableText(
-                  asset.owner!.id.toString(),
+                  asset.owner!.originContract!,
                   style: context.bodyLarge,
                 ),
+                if (asset.owner!.id != null) ...[
+                  const SizedBox(height: Spaces.medium),
+                  Text(
+                    asset.owner!.isOwner ? loc.origin_id : loc.id,
+                    style: context.bodyLarge?.copyWith(
+                      color: context.moreColors.mutedColor,
+                    ),
+                  ),
+                  const SizedBox(height: Spaces.extraSmall),
+                  SelectableText(
+                    asset.owner!.id!.toString(),
+                    style: context.bodyLarge,
+                  ),
+                ],
+                if (asset.owner!.isOwner) ...[
+                  const SizedBox(height: Spaces.medium),
+                  Text(
+                    loc.owner,
+                    style: context.bodyLarge?.copyWith(
+                      color: context.moreColors.mutedColor,
+                    ),
+                  ),
+                  const SizedBox(height: Spaces.extraSmall),
+                  asset.owner!.when(
+                    none: () => const SizedBox.shrink(),
+                    creator: (_, __) => const SizedBox.shrink(),
+                    owner: (_, __, ownerHash) => SelectableText(
+                      ownerHash,
+                      style: context.bodyLarge,
+                    ),
+                  ),
+                ],
               ],
             ),
           ],

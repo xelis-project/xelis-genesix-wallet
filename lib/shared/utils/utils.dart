@@ -38,8 +38,7 @@ String getXelisTicker(rust.Network network) {
   switch (network) {
     case rust.Network.mainnet:
       return 'XEL';
-    case rust.Network.testnet:
-    case rust.Network.dev:
+    default:
       return 'XET';
   }
 }

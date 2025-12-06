@@ -30,7 +30,8 @@ class NetworkNodes extends _$NetworkNodes {
         state = state.copyWith(mainnetNodes: nodes);
       case Network.testnet:
         state = state.copyWith(testnetNodes: nodes);
-      case Network.dev:
+      case Network.stagenet:
+      case Network.devnet:
         state = state.copyWith(devNodes: nodes);
     }
 
@@ -48,7 +49,8 @@ class NetworkNodes extends _$NetworkNodes {
         state = state.copyWith(mainnetAddress: address);
       case Network.testnet:
         state = state.copyWith(testnetAddress: address);
-      case Network.dev:
+      case Network.stagenet:
+      case Network.devnet:
         state = state.copyWith(devAddress: address);
     }
 
