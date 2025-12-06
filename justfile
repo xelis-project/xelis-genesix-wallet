@@ -1,4 +1,4 @@
-### set shell:= ["cmd.exe", "/c"] Uncomment on Windows
+set shell:= ["cmd.exe", "/c"] ### Uncomment on Windows ###
 
 update: flutter_get install_rust_bridge_codegen rust_update gen_rust_bridge gen_flutter format
 
