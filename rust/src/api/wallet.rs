@@ -279,7 +279,7 @@ impl XelisWallet {
 
         for asset in tracked_assets {
             let asset = asset?;
-            if storage.has_balance_for(&asset).await.unwrap_or(false) {
+            if storage.has_balance_for(&asset).await? {
                 info!("Asset {} is tracked and has a balance", asset);
                 let balance = storage
                     .get_plaintext_balance_for(&asset)
@@ -294,7 +294,11 @@ impl XelisWallet {
                     format_coin(balance, asset_data.get_decimals()),
                 );
             } else {
-                warn!("Asset {} is tracked but not found in storage", asset);
+                warn!("Asset {} is tracked but not found in storage, default to 0", asset);
+                balances.insert(
+                    asset.to_hex(),
+                    "0".to_owned(),
+                );
             }
         }
 
@@ -307,14 +311,11 @@ impl XelisWallet {
         let assets = storage
             .get_assets_with_data()
             .await?
-            .filter_map(|result| match result {
-                Ok((hash, asset_data)) => Some((hash.to_hex(), json!(asset_data).to_string())),
-                Err(e) => {
-                    error!("Error retrieving asset data: {}", e);
-                    None
-                }
+            .map(|result| {
+                let (hash, data) = result?;
+                Ok((hash.to_hex(), json!(data).to_string()))
             })
-            .collect::<HashMap<String, String>>();
+            .collect::<Result<HashMap<String, String>>>()?;
 
         Ok(assets)
     }

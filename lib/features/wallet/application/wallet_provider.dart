@@ -109,10 +109,14 @@ class WalletState extends _$WalletState {
         final multisig = await state.nativeWalletRepository!.getMultisigState();
         if (multisig != null) state = state.copyWith(multisigState: multisig);
 
+        talker.info('Retrieving wallet data...');
         final xelisBalance = await state.nativeWalletRepository!
             .getXelisBalance();
+
+        talker.info('Retrieving tracked balances...');
         final balances = await state.nativeWalletRepository!
             .getTrackedBalances();
+        talker.info('Retrieving known assets...');
         final knownAssets = await state.nativeWalletRepository!
             .getKnownAssets();
 

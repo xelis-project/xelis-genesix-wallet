@@ -132,7 +132,9 @@ class TrackedAssetDetails extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  asset.owner!.isOwner ? loc.origin : loc.contract,
+                  asset.owner!.isOwner
+                      ? "Contract Creator"
+                      : "Contract Manager",
                   style: context.bodyLarge?.copyWith(
                     color: context.moreColors.mutedColor,
                   ),
@@ -145,7 +147,7 @@ class TrackedAssetDetails extends ConsumerWidget {
                 if (asset.owner!.id != null) ...[
                   const SizedBox(height: Spaces.medium),
                   Text(
-                    asset.owner!.isOwner ? loc.origin_id : loc.id,
+                    asset.owner!.isOwner ? "Asset ID" : "Asset original ID",
                     style: context.bodyLarge?.copyWith(
                       color: context.moreColors.mutedColor,
                     ),
@@ -154,24 +156,6 @@ class TrackedAssetDetails extends ConsumerWidget {
                   SelectableText(
                     asset.owner!.id!.toString(),
                     style: context.bodyLarge,
-                  ),
-                ],
-                if (asset.owner!.isOwner) ...[
-                  const SizedBox(height: Spaces.medium),
-                  Text(
-                    loc.owner,
-                    style: context.bodyLarge?.copyWith(
-                      color: context.moreColors.mutedColor,
-                    ),
-                  ),
-                  const SizedBox(height: Spaces.extraSmall),
-                  asset.owner!.when(
-                    none: () => const SizedBox.shrink(),
-                    creator: (_, __) => const SizedBox.shrink(),
-                    owner: (_, __, ownerHash) => SelectableText(
-                      ownerHash,
-                      style: context.bodyLarge,
-                    ),
                   ),
                 ],
               ],
