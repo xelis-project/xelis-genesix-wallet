@@ -20,31 +20,31 @@ class AppResources {
   static List<NodeAddress> mainnetNodes = [
     const NodeAddress(
       name: 'Seed Node US #1',
-      url: 'https://us-network.xelis.io/',
+      url: 'https://us-node.xelis.io/',
     ),
     const NodeAddress(
       name: 'Seed Node France #1',
-      url: 'https://fr-network.xelis.io/',
+      url: 'https://fr-node.xelis.io/',
     ),
     const NodeAddress(
       name: 'Seed Node Germany #1',
-      url: 'https://de-network.xelis.io/',
+      url: 'https://de-node.xelis.io/',
     ),
     const NodeAddress(
       name: 'Seed Node Poland #1',
-      url: 'https://pl-network.xelis.io/',
+      url: 'https://pl-node.xelis.io/',
     ),
     const NodeAddress(
       name: 'Seed Node Singapore #1',
-      url: 'https://sg-network.xelis.io/',
+      url: 'https://sg-node.xelis.io/',
     ),
     const NodeAddress(
       name: 'Seed Node United Kingdom #1',
-      url: 'https://uk-network.xelis.io/',
+      url: 'https://uk-node.xelis.io/',
     ),
     const NodeAddress(
       name: 'Seed Node Canada #1',
-      url: 'https://ca-network.xelis.io/',
+      url: 'https://ca-node.xelis.io/',
     ),
   ];
 
