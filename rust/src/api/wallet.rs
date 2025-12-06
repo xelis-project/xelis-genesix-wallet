@@ -458,36 +458,6 @@ impl XelisWallet {
             }
         }
 
-        let xelis_key = XELIS_ASSET.to_hex();
-        if !assets.contains_key(&xelis_key) {
-            let asset_data_opt = {
-                let network_handler = self.wallet.get_network_handler().lock().await;
-                if let Some(handler) = network_handler.as_ref() {
-                    let api = handler.get_api();
-                    Some(api.get_asset(&XELIS_ASSET).await
-                        .map_err(|e| anyhow!("Failed to fetch XELIS asset from daemon: {}", e))?
-                        .inner)
-                } else {
-                    None
-                }
-            };
-
-            if let Some(asset_data) = asset_data_opt {
-                let owner_dto = XelisAssetOwner::from(asset_data.get_owner());
-
-                let dto = XelisAssetMetadata {
-                    name: asset_data.get_name().to_string(),
-                    ticker: asset_data.get_ticker().to_string(),
-                    decimals: asset_data.get_decimals(),
-                    max_supply: asset_data.get_max_supply().get_max().unwrap_or(u64::MAX),
-                    owner: Some(owner_dto),
-                };
-
-                let json_str = serde_json::to_string(&dto)?;
-                assets.insert(xelis_key, json_str);
-            }
-        }
-
         Ok(assets)
     }
 
