@@ -272,6 +272,9 @@ pub async fn xswd_handler(
                     create_event_summary(&app_state, XswdRequestType::AppDisconnect).await;
 
                 app_disconnect_dart_callback(event_summary).await;
+            },
+            _ => {
+                info!("TODO: unhandled event");
             }
         };
     }
@@ -327,6 +330,7 @@ fn xswd_event_name(event: &XSWDEvent) -> &'static str {
         XSWDEvent::CancelRequest(_, _) => "CancelRequest",
         XSWDEvent::RequestApplication(_, _) => "RequestApplication",
         XSWDEvent::RequestPermission(_, _, _) => "RequestPermission",
+        XSWDEvent::PrefetchPermissions(_, _, _) => "PrefetchPermissions",
         XSWDEvent::AppDisconnect(_) => "AppDisconnect",
     }
 }

@@ -1536,10 +1536,11 @@ packages:
   xelis_dart_sdk:
     dependency: "direct main"
     description:
-      name: xelis_dart_sdk
-      sha256: b81e1ecc6ea953624d6fbdb1194a94c2e8a919c4417754b22771425ec2d363c0
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "7ee5a693a0de72616a538a4112d90acad8510634"
+      url: "https://github.com/Tritonn204/xelis-dart-sdk"
+    source: git
     version: "0.29.0"
   xml:
     dependency: transitive
