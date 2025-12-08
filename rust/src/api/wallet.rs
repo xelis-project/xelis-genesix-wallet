@@ -947,7 +947,7 @@ impl XelisWallet {
             info!("Broadcasting transaction...");
             if let Err(e) = self.wallet.submit_transaction(&tx).await {
                 error!("Error while submitting transaction, clearing cache...");
-                storage.clear_tx_cache();
+                storage.clear_tx_cache().await;
                 storage.delete_unconfirmed_balances().await;
 
                 warn!("Inserting back to pending transactions in case of retry...");

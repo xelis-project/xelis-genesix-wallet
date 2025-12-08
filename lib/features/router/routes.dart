@@ -221,12 +221,14 @@ class XSWDRoute extends GoRouteData with _$XSWDRoute {
 
 @TypedGoRoute<TransferRoute>(name: 'transfer', path: '/transfer')
 class TransferRoute extends GoRouteData with _$TransferRoute {
-  const TransferRoute();
+  const TransferRoute({this.$extra});
+
+  final String? $extra;
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
-      const TransferScreen(),
+      TransferScreen(recipientAddress: $extra),
       state.pageKey,
       state.fullPath,
       state.extra,

@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/features/router/routes.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/application/search_query_provider.dart';
@@ -25,18 +26,55 @@ class AddressBookContent extends ConsumerStatefulWidget {
 class _AddressBookContentState extends ConsumerState<AddressBookContent> {
   final TextEditingController _searchController = TextEditingController();
   final _scrollController = ScrollController();
+  bool _isLoadingMore = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
     _searchController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent * 0.8) {
+      _loadMore();
+    }
+  }
+
+  Future<void> _loadMore() async {
+    if (_isLoadingMore) return;
+
+    final hasMore = ref.read(addressBookProvider.notifier).hasMore;
+    if (!hasMore) return;
+
+    setState(() => _isLoadingMore = true);
+    try {
+      await ref.read(addressBookProvider.notifier).loadMore();
+    } finally {
+      if (mounted) {
+        setState(() => _isLoadingMore = false);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final addressBook = ref.watch(addressBookProvider);
+
+    ref.listen(searchQueryProvider, (previous, next) {
+      if (previous != next) {
+        ref.read(addressBookProvider.notifier).reset();
+      }
+    });
 
     return FadedScroll(
       controller: _scrollController,
@@ -54,39 +92,49 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
                   _SearchBar(
                     localizations: loc,
                     controller: _searchController,
-                    onChanged: value.isNotEmpty
-                        ? (value) => ref
-                              .read(searchQueryProvider.notifier)
-                              .change(value)
-                        : null,
+                    onChanged: (value) {
+                      ref.read(searchQueryProvider.notifier).change(value);
+                    },
                   ),
                   value.isEmpty
                       ? _CenteredInfo(message: loc.address_book_empty)
-                      : FItemGroup.builder(
-                          count: value.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            final contact = value.values.elementAt(index);
-                            return FItem(
-                              prefix: HashiconWidget(
-                                hash: contact.address,
-                                size: const Size(35, 35),
+                      : Column(
+                          children: [
+                            FItemGroup.builder(
+                              count: value.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                final contact = value.values.elementAt(index);
+                                return FItem(
+                                  prefix: HashiconWidget(
+                                    hash: contact.address,
+                                    size: const Size(35, 35),
+                                  ),
+                                  title: Text(contact.name),
+                                  subtitle: Text(
+                                    truncateText(
+                                      contact.address,
+                                      maxLength: 20,
+                                    ),
+                                  ),
+                                  suffix: _ContactActions(
+                                    localizations: loc,
+                                    name: contact.name,
+                                    onSend: () => _onSend(contact.address),
+                                    onEdit: () => _onEdit(contact),
+                                    onDelete: () => _onDelete(
+                                      contact.address,
+                                      contact.name,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                            if (_isLoadingMore)
+                              Padding(
+                                padding: const EdgeInsets.all(Spaces.medium),
+                                child: Center(child: FProgress.circularIcon()),
                               ),
-                              title: Text(contact.name),
-                              subtitle: Text(
-                                truncateText(contact.address, maxLength: 20),
-                              ),
-                              suffix: _ContactActions(
-                                localizations: loc,
-                                name: contact.name,
-                                onSend: () {
-                                  // TODO: Implement transfer action
-                                },
-                                onEdit: () => _onEdit(contact),
-                                onDelete: () =>
-                                    _onDelete(contact.address, contact.name),
-                              ),
-                            );
-                          },
+                          ],
                         ),
                 ],
               );
@@ -112,6 +160,10 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
         },
       ),
     );
+  }
+
+  void _onSend(String address) {
+    TransferRoute($extra: address).go(context);
   }
 
   void _onEdit(ContactDetails contactDetails) {

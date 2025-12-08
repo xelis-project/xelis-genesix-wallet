@@ -24,7 +24,9 @@ import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class TransferScreen extends ConsumerStatefulWidget {
-  const TransferScreen({super.key});
+  const TransferScreen({super.key, this.recipientAddress});
+
+  final String? recipientAddress;
 
   @override
   ConsumerState<TransferScreen> createState() => _TransferScreenState();
@@ -52,6 +54,15 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
       _selectedAssetBalance = AppResources.zeroBalance;
     } else {
       _selectedAssetBalance = balances.entries.first.value;
+    }
+
+    // Pre-fill address if provided
+    if (widget.recipientAddress != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _transferFormKey.currentState?.fields['address']?.didChange(
+          widget.recipientAddress,
+        );
+      });
     }
   }
 

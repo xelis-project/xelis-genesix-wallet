@@ -7,20 +7,60 @@ part 'address_book_provider.g.dart';
 
 @riverpod
 class AddressBook extends _$AddressBook {
+  static const int pageSize = 50;
+  int _currentPage = 0;
+  Map<String, ContactDetails> _allContacts = {};
+  bool _hasMore = true;
+
   @override
   Future<Map<String, ContactDetails>> build() async {
+    _currentPage = 0;
+    _allContacts = {};
+    _hasMore = true;
+    return loadMore();
+  }
+
+  Future<Map<String, ContactDetails>> loadMore() async {
+    if (!_hasMore) return _allContacts;
+
     final nativeWallet = ref.read(walletStateProvider).nativeWalletRepository;
     if (nativeWallet != null) {
+      final searchText = ref.read(searchQueryProvider);
+      final skip = _currentPage * pageSize;
+
       AddressBookData addressBook;
-      final searchText = ref.watch(searchQueryProvider);
       if (searchText.isNotEmpty) {
-        addressBook = await nativeWallet.findContactsByName(searchText);
+        addressBook = await nativeWallet.findContactsByName(
+          searchText,
+          skip: skip,
+          take: pageSize,
+        );
       } else {
-        addressBook = await nativeWallet.retrieveAllContacts();
+        addressBook = await nativeWallet.retrieveContacts(
+          skip: skip,
+          take: pageSize,
+        );
       }
-      return addressBook.contacts;
+
+      if (addressBook.contacts.length < pageSize) {
+        _hasMore = false;
+      }
+
+      _allContacts.addAll(addressBook.contacts);
+      _currentPage++;
+      state = AsyncData(_allContacts);
+      return _allContacts;
     }
     return {};
+  }
+
+  bool get hasMore => _hasMore;
+
+  void reset() {
+    _currentPage = 0;
+    _allContacts = {};
+    _hasMore = true;
+    ref.invalidateSelf();
   }
 
   Future<ContactDetails?> get(String address) async {
@@ -36,7 +76,7 @@ class AddressBook extends _$AddressBook {
     final nativeWallet = ref.read(walletStateProvider).nativeWalletRepository;
     if (nativeWallet != null) {
       await nativeWallet.upsertContact(name: name, address: address);
-      ref.invalidateSelf();
+      reset();
     }
   }
 
@@ -44,7 +84,7 @@ class AddressBook extends _$AddressBook {
     final nativeWallet = ref.read(walletStateProvider).nativeWalletRepository;
     if (nativeWallet != null) {
       await nativeWallet.removeContact(address);
-      ref.invalidateSelf();
+      reset();
     }
   }
 

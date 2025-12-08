@@ -81,29 +81,29 @@ class _UntrackedAssetDetailsState extends ConsumerState<UntrackedAssetDetails> {
                   loc.decimals,
                   widget.asset.decimals.toString(),
                 ),
-                if (widget.asset.maxSupply != null)
+                if (widget.asset.maxSupply.getMax() != null)
                   LabeledValue.child(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     loc.max_supply,
                     Text(
                       formatCoin(
-                        widget.asset.maxSupply!,
+                        widget.asset.maxSupply.getMax()!,
                         widget.asset.decimals,
                         widget.asset.ticker,
                       ),
                       style: context.theme.typography.base,
                     ),
                   ),
-                if (widget.asset.owner != null) ...[
+                if (!widget.asset.owner.isNone) ...[
                   LabeledValue.text(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     loc.contract,
-                    widget.asset.owner!.contract,
+                    loc.contract,
                   ),
                   LabeledValue.text(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     loc.id,
-                    widget.asset.owner!.id.toString(),
+                    widget.asset.owner.id.toString(),
                   ),
                 ],
               ],
