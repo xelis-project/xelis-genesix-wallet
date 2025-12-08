@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/features/router/routes.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
@@ -103,10 +104,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                 FButton(
                   style: FButtonStyle.outline(),
                   prefix: Icon(FIcons.arrowUpRight),
-                  onPress: () {
-                    // TODO: Implement send functionality
-                    print('Send button pressed');
-                  },
+                  onPress: () => TransferRoute().go(context),
                   child: Text(loc.send),
                 ),
                 const SizedBox(width: Spaces.small),

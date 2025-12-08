@@ -20,7 +20,7 @@ import 'package:genesix/features/wallet/presentation/network/network_content.dar
 import 'package:genesix/features/wallet/presentation/recovery_phrase/recovery_phrase_content.dart';
 import 'package:genesix/features/wallet/presentation/sign_transaction/sign_transaction_content.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/burn/burn_screen.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transfer/transfer_screen.dart';
+import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transfer/transfer_screen_new.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_content.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_widget_old.dart';
 import 'package:genesix/features/wallet/presentation/wallet_scaffold.dart';
@@ -250,7 +250,7 @@ class TransferRoute extends GoRouteData with _$TransferRoute {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
-      TransferScreen(recipientAddress: $extra),
+      TransferScreenNew(recipientAddress: $extra),
       state.pageKey,
       state.fullPath,
       state.extra,
