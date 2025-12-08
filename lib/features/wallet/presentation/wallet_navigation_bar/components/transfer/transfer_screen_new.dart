@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
+import 'package:genesix/features/wallet/presentation/address_book/select_address_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_dialog_old.dart';
 import 'package:genesix/src/generated/rust_bridge/api/utils.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
@@ -14,7 +13,6 @@ import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
-import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
@@ -43,8 +41,6 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
   String _estimatedFee = AppResources.zeroBalance;
   String _baseFee = AppResources.zeroBalance;
   double _boostMultiplier = 1.0;
-  String _searchQuery = '';
-  List<ContactDetails> _filteredContacts = [];
 
   @override
   void initState() {
@@ -79,13 +75,6 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
     if (widget.recipientAddress != null) {
       _addressController.text = widget.recipientAddress!;
     }
-
-    // Listen to address changes for contact suggestions
-    _addressController.addListener(() {
-      setState(() {
-        _searchQuery = _addressController.text;
-      });
-    });
   }
 
   @override
@@ -110,28 +99,10 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
     final network = ref.watch(
       walletStateProvider.select((state) => state.network),
     );
-    final addressBook = ref.watch(addressBookProvider);
 
     final validAssets = balances.entries
         .where((balance) => assets.containsKey(balance.key))
         .toList();
-
-    // Filter contacts based on search query
-    if (_searchQuery.isNotEmpty) {
-      _filteredContacts = addressBook.when(
-        data: (book) {
-          final lowerQuery = _searchQuery.toLowerCase();
-          return book.values.where((contact) {
-            return contact.name.toLowerCase().contains(lowerQuery) ||
-                contact.address.toLowerCase().contains(lowerQuery);
-          }).toList();
-        },
-        loading: () => [],
-        error: (_, _) => [],
-      );
-    } else {
-      _filteredContacts = [];
-    }
 
     return FScaffold(
       header: Padding(
@@ -283,61 +254,47 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        FTextFormField(
-                          controller: _addressController,
-                          label: Text(loc.destination),
-                          hint: loc.receiver_address,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return loc.field_required_error;
-                            }
-                            if (!isAddressValid(
-                              strAddress: value.trim(),
-                              network: network,
-                            )) {
-                              return loc.invalid_address_format_error;
-                            }
-                            return null;
-                          },
-                        ),
-                        if (_filteredContacts.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: Spaces.small),
-                            child: FCard(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(
-                                      Spaces.medium,
-                                    ),
-                                    child: Text(loc.address_book),
-                                  ),
-                                  for (final contact in _filteredContacts.take(
-                                    5,
-                                  ))
-                                    FItem(
-                                      onPress: () {
-                                        setState(() {
-                                          _addressController.text =
-                                              contact.address;
-
-                                          _updateEstimatedFee();
-                                        });
-                                      },
-                                      prefix: HashiconWidget(
-                                        hash: contact.address,
-                                        size: const Size(35, 35),
-                                      ),
-                                      title: Text(contact.name),
-                                      subtitle: Text(
-                                        truncateText(contact.address),
-                                      ),
-                                    ),
-                                ],
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: FTextFormField(
+                                controller: _addressController,
+                                label: Text(loc.destination),
+                                hint: loc.receiver_address,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return loc.field_required_error;
+                                  }
+                                  if (!isAddressValid(
+                                    strAddress: value.trim(),
+                                    network: network,
+                                  )) {
+                                    return loc.invalid_address_format_error;
+                                  }
+                                  return null;
+                                },
                               ),
                             ),
-                          ),
+                            const SizedBox(width: Spaces.medium),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 24),
+                              child: FTooltip(
+                                tipBuilder: (context, controller) {
+                                  return Text(
+                                    loc.address_book,
+                                    style: context.theme.typography.base,
+                                  );
+                                },
+                                child: FButton.icon(
+                                  style: FButtonStyle.primary(),
+                                  onPress: _onAddressBookClicked,
+                                  child: const Icon(FIcons.bookUser, size: 18),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                     const SizedBox(height: Spaces.large),
@@ -436,7 +393,12 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                     // Review Button
                     FButton(
                       style: FButtonStyle.primary(),
-                      onPress: validAssets.isEmpty ? null : _reviewTransfer,
+                      onPress:
+                          validAssets.isEmpty ||
+                              _selectedAsset == null ||
+                              _addressController.text.trim().isEmpty
+                          ? null
+                          : _reviewTransfer,
                       child: Text(loc.review_send),
                     ),
                   ],
@@ -447,6 +409,19 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
         ),
       ),
     );
+  }
+
+  Future<void> _onAddressBookClicked() async {
+    final address = await showDialog<String>(
+      context: context,
+      builder: (context) => const SelectAddressDialog(),
+    );
+    if (address != null) {
+      setState(() {
+        _addressController.text = address;
+      });
+      _updateEstimatedFee();
+    }
   }
 
   void _updateEstimatedFee() {
@@ -510,6 +485,15 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
       );
       _selectedAssetBalance =
           balances[_selectedAsset] ?? AppResources.zeroBalance;
+    }
+
+    // Ensure an asset is selected
+    if (_selectedAsset == null) {
+      final loc = ref.read(appLocalizationsProvider);
+      ref
+          .read(toastProvider.notifier)
+          .showError(description: loc.field_required_error);
+      return;
     }
 
     if (_selectedAssetBalance == AppResources.zeroBalance) {
