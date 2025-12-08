@@ -69,6 +69,8 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final addressBook = ref.watch(addressBookProvider);
+    final searchQuery = ref.watch(searchQueryProvider);
+    final isSearching = searchQuery.isNotEmpty;
 
     ref.listen(searchQueryProvider, (previous, next) {
       if (previous != next) {
@@ -95,9 +97,17 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
                     onChanged: (value) {
                       ref.read(searchQueryProvider.notifier).change(value);
                     },
+                    onClear: () {
+                      _searchController.clear();
+                      ref.read(searchQueryProvider.notifier).clear();
+                    },
                   ),
                   value.isEmpty
-                      ? _CenteredInfo(message: loc.address_book_empty)
+                      ? _CenteredInfo(
+                          message: isSearching
+                              ? loc.no_contact_found
+                              : loc.address_book_empty,
+                        )
                       : Column(
                           children: [
                             FItemGroup.builder(
@@ -145,7 +155,17 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _SearchBar(localizations: loc, controller: _searchController),
+              _SearchBar(
+                localizations: loc,
+                controller: _searchController,
+                onChanged: (value) {
+                  ref.read(searchQueryProvider.notifier).change(value);
+                },
+                onClear: () {
+                  _searchController.clear();
+                  ref.read(searchQueryProvider.notifier).clear();
+                },
+              ),
               _CenteredInfo(message: loc.oups),
             ],
           ),
@@ -154,7 +174,17 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _SearchBar(localizations: loc, controller: _searchController),
+              _SearchBar(
+                localizations: loc,
+                controller: _searchController,
+                onChanged: (value) {
+                  ref.read(searchQueryProvider.notifier).change(value);
+                },
+                onClear: () {
+                  _searchController.clear();
+                  ref.read(searchQueryProvider.notifier).clear();
+                },
+              ),
             ],
           ),
         },
@@ -212,12 +242,14 @@ class _SearchBar extends StatelessWidget {
   const _SearchBar({
     required this.localizations,
     required this.controller,
-    this.onChanged,
+    required this.onChanged,
+    required this.onClear,
   });
 
   final AppLocalizations localizations;
   final TextEditingController controller;
-  final ValueChanged<String>? onChanged;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onClear;
 
   @override
   Widget build(BuildContext context) {
@@ -226,7 +258,6 @@ class _SearchBar extends StatelessWidget {
       controller: controller,
       keyboardType: TextInputType.text,
       maxLines: 1,
-      enabled: onChanged != null,
       clearable: (v) => v.text.isNotEmpty,
       onChange: onChanged,
     );

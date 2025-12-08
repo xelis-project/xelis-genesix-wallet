@@ -6,8 +6,7 @@ use anyhow::{bail, Result};
 use regex::RegexBuilder;
 use xelis_common::{
     api::{
-        query::{Query, QueryElement, QueryValue},
-        DataElement, DataValue,
+        DataElement, DataValue, query::{Query, QueryElement, QueryValue}
     },
     crypto::Address,
 };
@@ -49,16 +48,12 @@ impl AddressBook for XelisWallet {
 
     // get contacts by name with pagination
     async fn find_contacts_by_name(&self, name: String, skip: Option<usize>, take: Option<usize>) -> Result<AddressBookData> {
-        // Create a regex pattern to match contacts starting with the given name
-        // The regex pattern is case-insensitive and matches the name followed by any number of letters, digits, underscores, or hyphens
-        let regex = RegexBuilder::new(&format!(
-            r"(?i)\b{}[\p{{L}}\p{{N}}_\-]*",
-            regex::escape(&name)
-        ))
-        .unicode(true)
-        .case_insensitive(true)
-        .build()
-        .expect("Failed to build regex");
+        // Create a regex pattern to match contacts containing the given name
+        // The regex pattern is case-insensitive and does a substring match
+        let regex = RegexBuilder::new(&regex::escape(&name))
+            .unicode(true)
+            .case_insensitive(true)
+            .build()?;
 
         // Create a query to find contacts with names matching the regex pattern
         // The query uses the `AtKey` element to search for the "name" field in the address book
@@ -71,8 +66,8 @@ impl AddressBook for XelisWallet {
 
         let address_book = storage.query_db(
             ADDRESS_BOOK_TREE,
-            Some(query_name),
             None,
+            Some(query_name),
             take,
             skip,
         )?;
