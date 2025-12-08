@@ -5,6 +5,7 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/presentation/home/receive_address_dialog.dart';
 import 'package:genesix/features/wallet/presentation/home/usd_balance_widget.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -20,6 +21,15 @@ class BalanceCard extends ConsumerStatefulWidget {
 
 class _BalanceCardState extends ConsumerState<BalanceCard> {
   final String hidden = '********';
+
+  void _showReceiveDialog() {
+    showFDialog<void>(
+      context: context,
+      builder: (context, style, animation) {
+        return ReceiveAddressDialog(style, animation);
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,10 +113,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                 FButton(
                   style: FButtonStyle.outline(),
                   prefix: Icon(FIcons.arrowDownLeft),
-                  onPress: () {
-                    // TODO: Implement receive functionality
-                    print('Receive button pressed');
-                  },
+                  onPress: _showReceiveDialog,
                   child: Text(loc.receive),
                 ),
               ],
