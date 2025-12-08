@@ -466,5 +466,15 @@
   "apply": "Apply",
   "delete_wallet_warning_message": "Are you sure you want to delete permanently this wallet?",
   "error_while_syncing": "Error while syncing:",
-  "new_asset_detected": "New asset detected:"
+  "new_asset_detected": "New asset detected:",
+  "contact_details": "Contact Details",
+  "contact_not_found": "Contact not found",
+  "notes": "Notes",
+  "no_notes": "No notes added yet",
+  "enter_notes": "Enter notes about this contact...",
+  "notes_saved": "Notes saved successfully",
+  "transaction_history": "Transaction History",
+  "no_transactions_with_contact": "No transactions with this contact yet",
+  "copied_to_clipboard": "Copied to clipboard",
+  "edit_button": "Edit"
 }

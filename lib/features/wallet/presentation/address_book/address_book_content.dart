@@ -115,6 +115,9 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
                               itemBuilder: (BuildContext context, int index) {
                                 final contact = value.values.elementAt(index);
                                 return FItem(
+                                  onPress: () => ContactDetailsRoute(
+                                    $extra: contact.address,
+                                  ).push<void>(context),
                                   prefix: HashiconWidget(
                                     hash: contact.address,
                                     size: const Size(35, 35),

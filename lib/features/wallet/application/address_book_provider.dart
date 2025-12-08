@@ -75,7 +75,11 @@ class AddressBook extends _$AddressBook {
   Future<void> upsert(String address, String name, String? note) async {
     final nativeWallet = ref.read(walletStateProvider).nativeWalletRepository;
     if (nativeWallet != null) {
-      await nativeWallet.upsertContact(name: name, address: address);
+      await nativeWallet.upsertContact(
+        name: name,
+        address: address,
+        note: note,
+      );
       reset();
     }
   }

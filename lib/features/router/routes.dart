@@ -8,6 +8,7 @@ import 'package:genesix/features/settings/presentation/components/theme_mode_swi
 import 'package:genesix/features/settings/presentation/settings_content.dart';
 import 'package:genesix/features/wallet/presentation/address_book/add_contact_header_action.dart';
 import 'package:genesix/features/wallet/presentation/address_book/address_book_content.dart';
+import 'package:genesix/features/wallet/presentation/address_book/contact_details_screen.dart';
 import 'package:genesix/features/wallet/presentation/assets/assets_content.dart';
 import 'package:genesix/features/wallet/presentation/history/filters_button.dart';
 import 'package:genesix/features/wallet/presentation/history/history_content.dart';
@@ -216,6 +217,27 @@ class XSWDRoute extends GoRouteData with _$XSWDRoute {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return NoTransitionPage(child: XSWDContent());
+  }
+}
+
+@TypedGoRoute<ContactDetailsRoute>(
+  name: 'contact_details',
+  path: '/contact_details',
+)
+class ContactDetailsRoute extends GoRouteData with _$ContactDetailsRoute {
+  const ContactDetailsRoute({required this.$extra});
+
+  final String $extra;
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      ContactDetailsScreen(contactAddress: $extra),
+      state.pageKey,
+      state.fullPath,
+      state.extra,
+      AppDurations.animNormal,
+    );
   }
 }
 
