@@ -1132,10 +1132,10 @@ packages:
     dependency: "direct main"
     description:
       name: shared_preferences
-      sha256: "6e8bf70b7fef813df4e9a36f658ac46d107db4b4cfe1048b477d4e453a8159f5"
+      sha256: "2939ae520c9024cb197fc20dee269cd8cdbf564c8b5746374ec6cacdc5169e64"
       url: "https://pub.dev"
     source: hosted
-    version: "2.5.3"
+    version: "2.5.4"
   shared_preferences_android:
     dependency: transitive
     description:
@@ -1297,26 +1297,26 @@ packages:
     dependency: transitive
     description:
       name: talker
-      sha256: "1f94c986b282ccb4efdb3bf0b2549bf314aa20c9e35cbde2c8111d6dd31a7b9a"
+      sha256: bdddfd356e0bd399b7b15628880fef40078d10259b119f2384305776e77763a5
       url: "https://pub.dev"
     source: hosted
-    version: "5.1.4"
+    version: "5.1.5"
   talker_flutter:
     dependency: "direct main"
     description:
       name: talker_flutter
-      sha256: "60350aef6b2f5f66e9d1350dc6ab60f9800ab2c4904912f635899dae64f44229"
+      sha256: ccfd62d66ce63e8125aed4f84868e554f61ae06d9b922992b1862e725ba9d36a
       url: "https://pub.dev"
     source: hosted
-    version: "5.1.4"
+    version: "5.1.5"
   talker_logger:
     dependency: transitive
     description:
       name: talker_logger
-      sha256: c2d58daa0d99518c83b4941967e7527dc4d98328b145bbf07a638bbaf4f0e039
+      sha256: a19f0741102cb98634d999a13b44fe3fe5f4c0ac75602d0308a046b130b5f3b3
       url: "https://pub.dev"
     source: hosted
-    version: "5.1.4"
+    version: "5.1.5"
   talker_riverpod_logger:
     dependency: "direct main"
     description:
@@ -1449,10 +1449,10 @@ packages:
     dependency: transitive
     description:
       name: very_good_analysis
-      sha256: e479fbc0941009262343db308133e121bf8660c2c81d48dd8e952df7b7e1e382
+      sha256: "96245839dbcc45dfab1af5fa551603b5c7a282028a64746c19c547d21a7f1e3a"
       url: "https://pub.dev"
     source: hosted
-    version: "9.0.0"
+    version: "10.0.0"
   vm_service:
     dependency: transitive
     description:
@@ -1528,12 +1528,11 @@ packages:
   xelis_dart_sdk:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "7ac5530677d9c9e2d4cf20528f3433ef7fd47cd3"
-      url: "https://github.com/Tritonn204/xelis-dart-sdk"
-    source: git
-    version: "0.29.0"
+      name: xelis_dart_sdk
+      sha256: cee45ca58354808ac0fbf72a474590a5d290a053f4d16b280b2dcab69ad1b225
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.30.6"
   xml:
     dependency: transitive
     description:

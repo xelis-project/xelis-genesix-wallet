@@ -11,6 +11,7 @@ import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:genesix/src/generated/rust_bridge/api/precomputed_tables.dart'
     as tables_api;
+    
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/features/wallet/domain/event.dart';
 import 'package:genesix/features/logger/logger.dart';
