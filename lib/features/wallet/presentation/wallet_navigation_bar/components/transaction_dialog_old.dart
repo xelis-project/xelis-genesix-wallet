@@ -48,13 +48,13 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
     final signaturePending = transactionReview is SignaturePending;
 
     var reviewContent = switch (transactionReview) {
-      DeleteMultisigTransaction() => DeleteMultisigReviewContent(
-        transactionReview,
-      ),
-      BurnTransaction() => BurnReviewContent(transactionReview),
-      SingleTransferTransaction() => TransferReviewContentWidget(
-        transactionReview,
-      ),
+      // DeleteMultisigTransaction() => DeleteMultisigReviewContent(
+      //   transactionReview,
+      // ),
+      // BurnTransaction() => BurnReviewContent(transactionReview),
+      // SingleTransferTransaction() => TransferReviewContentWidget(
+      //   transactionReview,
+      // ),
       _ => const SizedBox.shrink(),
     };
 

@@ -5,8 +5,10 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
+import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
 import 'package:genesix/features/wallet/presentation/address_book/select_address_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_dialog_old.dart';
+import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transfer/transfer_review_content.dart';
 import 'package:genesix/src/generated/rust_bridge/api/utils.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
@@ -92,6 +94,8 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
+    final inputHeight = 40.0;
+
     final Map<String, String> balances = ref.watch(
       walletStateProvider.select((value) => value.trackedBalances),
     );
@@ -183,7 +187,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                           return FSelectItem<MapEntry<String, AssetData>>(
                             title: Text(assetEntry.value.name),
                             subtitle: Text(
-                              '${balance} ${assetEntry.value.ticker}',
+                              '$balance ${assetEntry.value.ticker}',
                             ),
                             value: assetEntry,
                           );
@@ -193,7 +197,9 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                         if (assetEntry != null) {
                           setState(() {
                             _selectedAsset = assetEntry.key;
-                            _selectedAssetBalance = balances[_selectedAsset]!;
+                            _selectedAssetBalance =
+                                balances[_selectedAsset] ??
+                                    AppResources.zeroBalance;
                           });
                           _updateEstimatedFee();
                         }
@@ -230,22 +236,28 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                             },
                           ),
                         ),
-                        const SizedBox(width: Spaces.medium),
                         Padding(
-                          padding: const EdgeInsets.only(top: 20),
-                          child: FButton(
-                            style: FButtonStyle.primary(),
-                            onPress: () {
-                              final selectedAsset = _assetController.value;
-                              if (selectedAsset != null) {
-                                _selectedAsset = selectedAsset.key;
-                                _selectedAssetBalance =
-                                    balances[_selectedAsset]!;
-                              }
-                              _amountController.text = _selectedAssetBalance;
-                              _updateEstimatedFee();
-                            },
-                            child: Text(loc.max),
+                          padding: const EdgeInsets.only(
+                            left: 8,
+                            top: 20,
+                          ),
+                          child: SizedBox(
+                            height: inputHeight,
+                            child: FButton(
+                              style: FButtonStyle.outline(),
+                              onPress: () {
+                                final selectedAsset = _assetController.value;
+                                if (selectedAsset != null) {
+                                  _selectedAsset = selectedAsset.key;
+                                  _selectedAssetBalance =
+                                      balances[_selectedAsset] ??
+                                      AppResources.zeroBalance;
+                                }
+                                _amountController.text = _selectedAssetBalance;
+                                _updateEstimatedFee();
+                              },
+                              child: Text(loc.max),
+                            ),
                           ),
                         ),
                       ],
@@ -289,7 +301,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                                   );
                                 },
                                 child: FButton.icon(
-                                  style: FButtonStyle.primary(),
+                                  style: FButtonStyle.outline(),
                                   onPress: _onAddressBookClicked,
                                   child: const Icon(FIcons.bookUser, size: 18),
                                 ),
@@ -332,7 +344,15 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                               ),
                             ],
                           ),
-                          FDivider(),
+                          FDivider(
+                            style: FDividerStyle(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: Spaces.small,
+                              ),
+                              color: FTheme.of(context).colors.primary,
+                              width: 1,
+                            ),
+                          ),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             spacing: Spaces.extraSmall,
@@ -358,21 +378,21 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                                   if (value == 2.0) return 'Fastest (2x)';
                                   return 'Normal (1x)';
                                 },
-                                children: [
+                                children: const [
                                   FSelectItem(
                                     value: 1.0,
-                                    title: const Text('Normal'),
-                                    subtitle: const Text('1x fee'),
+                                    title: Text('Normal'),
+                                    subtitle: Text('1x fee'),
                                   ),
                                   FSelectItem(
                                     value: 1.5,
-                                    title: const Text('Fast'),
-                                    subtitle: const Text('1.5x fee'),
+                                    title: Text('Fast'),
+                                    subtitle: Text('1.5x fee'),
                                   ),
                                   FSelectItem(
                                     value: 2.0,
-                                    title: const Text('Fastest'),
-                                    subtitle: const Text('2x fee'),
+                                    title: Text('Fastest'),
+                                    subtitle: Text('2x fee'),
                                   ),
                                 ],
                                 onChange: (value) {
@@ -390,13 +410,12 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                       ),
                     ),
 
-                    const SizedBox(height: Spaces.medium),
+                    const SizedBox(height: Spaces.large),
 
                     // Review Button
                     FButton(
                       style: FButtonStyle.primary(),
-                      onPress:
-                          validAssets.isEmpty ||
+                      onPress: validAssets.isEmpty ||
                               _selectedAsset == null ||
                               _addressController.text.trim().isEmpty
                           ? null
@@ -450,30 +469,64 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
             asset: _selectedAsset!,
           )
           .then((value) {
-            if (mounted) {
-              setState(() {
-                final baseFee = double.parse(value);
-                _baseFee = baseFee.toStringAsFixed(AppResources.xelisDecimals);
-                final boostedFee = baseFee * _boostMultiplier;
-                _estimatedFee = boostedFee.toStringAsFixed(
-                  AppResources.xelisDecimals,
-                );
-              });
-            }
-          })
-          .catchError((_) {
-            if (mounted) {
-              setState(() {
-                _baseFee = AppResources.zeroBalance;
-                _estimatedFee = AppResources.zeroBalance;
-              });
-            }
+        if (mounted) {
+          setState(() {
+            final baseFee = double.parse(value);
+            _baseFee =
+                baseFee.toStringAsFixed(AppResources.xelisDecimals);
+            final boostedFee = baseFee * _boostMultiplier;
+            _estimatedFee = boostedFee.toStringAsFixed(
+              AppResources.xelisDecimals,
+            );
           });
+        }
+      }).catchError((_) {
+        if (mounted) {
+          setState(() {
+            _baseFee = AppResources.zeroBalance;
+            _estimatedFee = AppResources.zeroBalance;
+          });
+        }
+      });
     } else {
       setState(() {
         _baseFee = AppResources.zeroBalance;
         _estimatedFee = AppResources.zeroBalance;
       });
+    }
+  }
+
+  Future<void> _broadcastTransfer() async {
+    final loc = ref.read(appLocalizationsProvider);
+
+    try {
+      context.loaderOverlay.show();
+
+      final transactionReview = ref.read(transactionReviewProvider);
+
+      if (transactionReview is SingleTransferTransaction) {
+        await ref
+            .read(walletStateProvider.notifier)
+            .broadcastTx(hash: transactionReview.txHash);
+
+        ref.read(transactionReviewProvider.notifier).broadcast();
+
+        ref
+            .read(toastProvider.notifier)
+            .showEvent(description: loc.transaction_broadcast_message);
+      } else {
+        ref.read(toastProvider.notifier).showError(
+              description: 'Unexpected transaction type for broadcast.',
+            );
+      }
+    } catch (e) {
+      ref
+          .read(toastProvider.notifier)
+          .showError(description: e.toString());
+    } finally {
+      if (context.mounted && context.loaderOverlay.visible) {
+        context.loaderOverlay.hide();
+      }
     }
   }
 
@@ -528,28 +581,59 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
       }
 
       if (record.$2 != null) {
+        // MULTISIG: hash to sign → legacy dialog
         ref
             .read(transactionReviewProvider.notifier)
             .signaturePending(record.$2!);
+
+        if (mounted) {
+          showDialog<void>(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) {
+              return const TransactionDialog();
+            },
+          );
+        }
       } else if (record.$1 != null) {
+        // SIMPLE TRANSFER: use new forui review dialog
+        final txSummary = record.$1!;
+
+        // Populate review provider
         ref
             .read(transactionReviewProvider.notifier)
-            .setSingleTransferTransaction(record.$1!);
+            .setSingleTransferTransaction(txSummary);
+
+        // Read back the mapped state (SingleTransferTransaction) from provider
+        final state = ref.read(transactionReviewProvider);
+        if (state is SingleTransferTransaction && mounted) {
+          showFDialog<void>(
+            context: context,
+            builder: (dialogContext, style, animation) {
+              return TransferReviewContentWidget(
+                style,
+                animation,
+                transaction: state,
+                onConfirm: () async {
+                  await _broadcastTransfer();
+                  if (dialogContext.mounted) {
+                    Navigator.of(dialogContext).pop();
+                  }
+                },
+                onCancel: () {
+                  if (dialogContext.mounted) {
+                    Navigator.of(dialogContext).pop();
+                  }
+                },
+              );
+            },
+          );
+        }
       } else {
         if (mounted && context.loaderOverlay.visible) {
           context.loaderOverlay.hide();
         }
         return;
-      }
-
-      if (mounted) {
-        showDialog<void>(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) {
-            return const TransactionDialog();
-          },
-        );
       }
 
       if (mounted && context.loaderOverlay.visible) {

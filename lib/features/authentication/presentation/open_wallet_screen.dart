@@ -153,6 +153,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
                                   ),
                                   const SizedBox(height: Spaces.large),
                                   FButton(
+                                    style: FButtonStyle.primary(),
                                     onPress: () =>
                                         _handleOpenWalletButtonPressed(context),
                                     child: Text(loc.open_wallet),
@@ -168,6 +169,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
                   ),
                   FDivider(),
                   FButton(
+                    style: FButtonStyle.outline(),
                     onPress: () {
                       context.push(AppScreen.createWallet.toPath);
                     },
@@ -175,6 +177,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
                   ),
                   const SizedBox(height: Spaces.medium),
                   FButton(
+                    style: FButtonStyle.outline(),
                     onPress: () {
                       context.push(AppScreen.importWallet.toPath);
                     },
