@@ -34,6 +34,19 @@ class _TrackedAssetDetailsState extends ConsumerState<TrackedAssetDetails> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
+    final assetOwner = widget.asset.owner;
+
+    final String? contract = assetOwner?.maybeWhen(
+      creator: (contract, id) => contract,
+      owner: (origin, originId, owner) => origin,
+      orElse: () => null,
+    );
+
+    final int? id = assetOwner?.maybeWhen(
+      creator: (contract, id) => id,
+      owner: (origin, originId, owner) => originId,
+      orElse: () => null,
+    );
 
     return FDialog(
       title: Text(loc.details.capitalize()),

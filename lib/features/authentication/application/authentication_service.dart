@@ -349,7 +349,7 @@ class Authentication extends _$Authentication {
     String path,
   ) async {
     // if full size precomputed tables are not available,
-    // we need to generate them and replace the existing ones (default: L1Low)
+    // we need to generate them and replace the existing ones (default: l1Low)
     if (!await isPrecomputedTablesExists(_getExpectedTableType())) {
       ref
           .read(toastProvider.notifier)
@@ -393,15 +393,15 @@ class Authentication extends _$Authentication {
     if (await isPrecomputedTablesExists(expectedTableType)) {
       return expectedTableType;
     } else {
-      return PrecomputedTableType.l1Low;
+      return PrecomputedTableType.l1Low();
     }
   }
 
   PrecomputedTableType _getExpectedTableType() {
     if (isDesktopDevice) {
-      return PrecomputedTableType.l1Full;
+      return PrecomputedTableType.l1Full();
     } else {
-      return PrecomputedTableType.l1Medium;
+      return PrecomputedTableType.l1Medium();
     }
   }
 }

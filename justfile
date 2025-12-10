@@ -1,3 +1,5 @@
+set shell:= ["cmd.exe", "/c"] ### Uncomment on Windows ###
+
 update: flutter_get install_rust_bridge_codegen rust_update gen_rust_bridge gen_flutter format
 
 init: flutter_get install_rust_bridge_codegen gen_rust_bridge gen_flutter
@@ -31,7 +33,7 @@ rust_update:
     cd rust && cargo update
 
 install_rust_bridge_codegen:
-    cargo install 'flutter_rust_bridge_codegen'
+    cargo install flutter_rust_bridge_codegen
 
 gen_arb:
     cd lib/l10n && python ./scripts/csv_to_arb.py

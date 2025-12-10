@@ -167,6 +167,7 @@ pub fn xswd_event_name(event: &XSWDEvent) -> &'static str {
         XSWDEvent::CancelRequest => "CancelRequest",
         XSWDEvent::RequestApplication => "RequestApplication",
         XSWDEvent::RequestPermission => "RequestPermission",
+        XSWDEvent::PrefetchPermissions => "PrefetchPermissions",
         XSWDEvent::AppDisconnect => "AppDisconnect",
     }
 }
