@@ -24,7 +24,9 @@ import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class TransferScreen extends ConsumerStatefulWidget {
-  const TransferScreen({super.key});
+  const TransferScreen({super.key, this.recipientAddress});
+
+  final String? recipientAddress;
 
   @override
   ConsumerState<TransferScreen> createState() => _TransferScreenState();
@@ -48,10 +50,28 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
     final Map<String, String> balances = ref.read(
       walletStateProvider.select((value) => value.trackedBalances),
     );
-    if (balances.isEmpty) {
-      _selectedAssetBalance = AppResources.zeroBalance;
+    final Map<String, AssetData> assets = ref.read(
+      walletStateProvider.select((value) => value.knownAssets),
+    );
+
+    // Get first balance that has corresponding asset data
+    final firstValidBalance = balances.entries
+        .where((balance) => assets.containsKey(balance.key))
+        .firstOrNull;
+
+    if (firstValidBalance != null) {
+      _selectedAssetBalance = firstValidBalance.value;
     } else {
-      _selectedAssetBalance = balances.entries.first.value;
+      _selectedAssetBalance = AppResources.zeroBalance;
+    }
+
+    // Pre-fill address if provided
+    if (widget.recipientAddress != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _transferFormKey.currentState?.fields['address']?.didChange(
+          widget.recipientAddress,
+        );
+      });
     }
   }
 
@@ -89,7 +109,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
           Text(
             loc.transfer_screen_message,
             style: context.titleMedium?.copyWith(
-              color: context.moreColors.mutedColor,
+              color: context.colors.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: Spaces.extraLarge),
@@ -158,11 +178,15 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                 const SizedBox(height: Spaces.small),
                 GenericFormBuilderDropdown<String>(
                   name: 'assets',
-                  enabled: balances.isNotEmpty,
-                  initialValue: balances.isNotEmpty
-                      ? balances.entries.first.key
+                  enabled: balances.isNotEmpty && assets.isNotEmpty,
+                  initialValue: balances.isNotEmpty && assets.isNotEmpty
+                      ? balances.entries
+                            .where((balance) => assets.containsKey(balance.key))
+                            .firstOrNull
+                            ?.key
                       : null,
                   items: balances.entries
+                      .where((balance) => assets.containsKey(balance.key))
                       .map(
                         (balance) => AssetDropdownMenuItem.fromMapEntry(
                           balance,
@@ -176,7 +200,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                     ),
                   ]),
                   onChanged: (val) {
-                    if (val != null) {
+                    if (val != null && balances.containsKey(val)) {
                       setState(() {
                         _selectedAssetBalance = balances[val]!;
                       });
@@ -233,7 +257,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                     Text(
                       '$_estimatedFee ${getXelisTicker(network)}',
                       style: context.titleMedium?.copyWith(
-                        color: context.moreColors.mutedColor,
+                        color: context.colors.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -243,7 +267,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                 Text(
                   loc.boost_fees_message,
                   style: context.labelMedium?.copyWith(
-                    color: context.moreColors.mutedColor,
+                    color: context.colors.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: Spaces.small),
@@ -305,8 +329,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
           _transferFormKey.currentState?.fields['address']?.value as String;
       final asset =
           _transferFormKey.currentState?.fields['assets']?.value as String;
-      final feeMultiplier =
-          _transferFormKey.currentState?.fields['fee']?.value as double;
+      // final feeMultiplier =
+      //     _transferFormKey.currentState?.fields['fee']?.value as double;
 
       _unfocusNodes();
 
@@ -378,8 +402,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
           _transferFormKey.currentState?.fields['address']?.value as String;
       final asset =
           _transferFormKey.currentState?.fields['assets']?.value as String;
-      final multiplier =
-          _transferFormKey.currentState?.fields['fee']?.value as double;
+      // final multiplier =
+      //     _transferFormKey.currentState?.fields['fee']?.value as double;
 
       ref
           .read(walletStateProvider.notifier)

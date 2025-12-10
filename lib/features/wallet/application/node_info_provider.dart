@@ -11,7 +11,7 @@ part 'node_info_provider.g.dart';
 Future<DaemonInfoSnapshot?> nodeInfo(Ref ref) async {
   final walletState = ref.watch(walletStateProvider);
   final walletRepository = walletState.nativeWalletRepository;
-  if (walletRepository != null) {
+  if (walletRepository != null && walletState.isOnline) {
     var info = await walletRepository.getDaemonInfo();
 
     // keep the state of a successful (only) request

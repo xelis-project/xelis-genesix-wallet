@@ -8,6 +8,7 @@ import 'package:genesix/features/settings/presentation/components/theme_mode_swi
 import 'package:genesix/features/settings/presentation/settings_content.dart';
 import 'package:genesix/features/wallet/presentation/address_book/add_contact_header_action.dart';
 import 'package:genesix/features/wallet/presentation/address_book/address_book_content.dart';
+import 'package:genesix/features/wallet/presentation/address_book/contact_details_screen.dart';
 import 'package:genesix/features/wallet/presentation/assets/assets_content.dart';
 import 'package:genesix/features/wallet/presentation/history/filters_button.dart';
 import 'package:genesix/features/wallet/presentation/history/history_content.dart';
@@ -19,7 +20,7 @@ import 'package:genesix/features/wallet/presentation/network/network_content.dar
 import 'package:genesix/features/wallet/presentation/recovery_phrase/recovery_phrase_content.dart';
 import 'package:genesix/features/wallet/presentation/sign_transaction/sign_transaction_content.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/burn/burn_screen.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transfer/transfer_screen.dart';
+import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transfer/transfer_screen_new.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_content.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_widget_old.dart';
 import 'package:genesix/features/wallet/presentation/wallet_scaffold.dart';
@@ -219,14 +220,37 @@ class XSWDRoute extends GoRouteData with _$XSWDRoute {
   }
 }
 
-@TypedGoRoute<TransferRoute>(name: 'transfer', path: '/transfer')
-class TransferRoute extends GoRouteData with _$TransferRoute {
-  const TransferRoute();
+@TypedGoRoute<ContactDetailsRoute>(
+  name: 'contact_details',
+  path: '/contact_details',
+)
+class ContactDetailsRoute extends GoRouteData with _$ContactDetailsRoute {
+  const ContactDetailsRoute({required this.$extra});
+
+  final String $extra;
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
-      const TransferScreen(),
+      ContactDetailsScreen(contactAddress: $extra),
+      state.pageKey,
+      state.fullPath,
+      state.extra,
+      AppDurations.animNormal,
+    );
+  }
+}
+
+@TypedGoRoute<TransferRoute>(name: 'transfer', path: '/transfer')
+class TransferRoute extends GoRouteData with _$TransferRoute {
+  const TransferRoute({this.$extra});
+
+  final String? $extra;
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      TransferScreenNew(recipientAddress: $extra),
       state.pageKey,
       state.fullPath,
       state.extra,

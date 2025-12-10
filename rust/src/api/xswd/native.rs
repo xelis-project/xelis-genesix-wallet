@@ -238,6 +238,9 @@ pub async fn xswd_handler(
     while let Some(event) = receiver.recv().await {
         info!("Received XSWD event: {}", xswd_event_name(&event));
         match event {
+            XSWDEvent::PrefetchPermissions(_, _, _) => {
+                // Currently no action is taken for PrefetchPermission events
+            },
             XSWDEvent::CancelRequest(state, callback) => {
                 let event_summary =
                     create_event_summary(&state, XswdRequestType::CancelRequest).await;
@@ -332,5 +335,6 @@ fn xswd_event_name(event: &XSWDEvent) -> &'static str {
         XSWDEvent::RequestPermission(_, _, _) => "RequestPermission",
         XSWDEvent::PrefetchPermissions(_, _, _) => "PrefetchPermissions",
         XSWDEvent::AppDisconnect(_) => "AppDisconnect",
+        XSWDEvent::PrefetchPermissions(_, _, _) => "PrefetchPermissions",
     }
 }

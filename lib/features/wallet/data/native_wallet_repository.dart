@@ -594,8 +594,16 @@ class NativeWalletRepository {
     );
   }
 
-  Future<AddressBookData> retrieveAllContacts() async {
-    return _xelisWallet.retrieveAllContacts();
+  Future<AddressBookData> retrieveContacts({int? skip, int? take}) async {
+    return _xelisWallet.retrieveContacts(
+      skip: skip != null ? BigInt.from(skip) : null,
+      take: take != null ? BigInt.from(take) : null,
+    );
+  }
+
+  Future<int> countContacts() async {
+    final count = await _xelisWallet.countContacts();
+    return count.toInt();
   }
 
   Future<void> upsertContact({
@@ -622,8 +630,16 @@ class NativeWalletRepository {
     return contact;
   }
 
-  Future<AddressBookData> findContactsByName(String name) async {
-    final contacts = await _xelisWallet.findContactsByName(name: name);
+  Future<AddressBookData> findContactsByName(
+    String name, {
+    int? skip,
+    int? take,
+  }) async {
+    final contacts = await _xelisWallet.findContactsByName(
+      name: name,
+      skip: skip != null ? BigInt.from(skip) : null,
+      take: take != null ? BigInt.from(take) : null,
+    );
     return contacts;
   }
 
