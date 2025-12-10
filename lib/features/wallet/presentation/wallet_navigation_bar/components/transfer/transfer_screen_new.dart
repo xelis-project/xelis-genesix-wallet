@@ -433,10 +433,13 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
   }
 
   Future<void> _onAddressBookClicked() async {
-    final address = await showDialog<String>(
+    final address = await showFDialog<String>(
       context: context,
-      builder: (context) => const SelectAddressDialog(),
+      builder: (dialogContext, style, animation) {
+        return SelectAddressDialog(style, animation);
+      },
     );
+
     if (address != null) {
       setState(() {
         _addressController.text = address;
