@@ -16,7 +16,7 @@ use parking_lot::{Mutex, RwLock};
 use serde_json::json;
 use xelis_common::api::wallet::BaseFeeMode;
 use xelis_common::api::{DataElement, DataValue};
-use xelis_common::asset::{AssetData, AssetOwner};
+use xelis_common::asset::{AssetData, AssetOwner, MaxSupplyMode};
 use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
 use xelis_common::crypto::{Address, Hash, Hashable, Signature};
 use xelis_common::network::Network;
@@ -38,7 +38,7 @@ use crate::frb_generated::StreamSink;
 
 use super::models::wallet_dtos::{
     HistoryPageFilter, MultisigDartPayload, ParticipantDartPayload, SignatureMultisig,
-    SummaryTransaction, Transfer, XelisAssetMetadata, XelisAssetOwner
+    SummaryTransaction, Transfer, XelisAssetMetadata, XelisAssetOwner, XelisMaxSupplyMode
 };
 
 pub struct XelisWallet {
@@ -51,6 +51,16 @@ pub struct XelisWallet {
             TransactionTypeBuilder,
         )>,
     >,
+}
+
+impl From<MaxSupplyMode> for XelisMaxSupplyMode {
+    fn from(v: MaxSupplyMode) -> Self {
+        match v {
+            MaxSupplyMode::None => Self::None,
+            MaxSupplyMode::Fixed(x) => Self::Fixed(x),
+            MaxSupplyMode::Mintable(x) => Self::Mintable(x),
+        }
+    }
 }
 
 impl From<&AssetOwner> for XelisAssetOwner {
@@ -439,13 +449,14 @@ impl XelisWallet {
         for res in storage.get_assets_with_data().await? {
             match res {
                 Ok((hash, asset_data)) => {
+                    let supply_mode_dto = XelisMaxSupplyMode::from(asset_data.get_max_supply());
                     let owner_dto = XelisAssetOwner::from(asset_data.get_owner());
 
                     let dto = XelisAssetMetadata {
                         name: asset_data.get_name().to_string(),
                         ticker: asset_data.get_ticker().to_string(),
                         decimals: asset_data.get_decimals(),
-                        max_supply: asset_data.get_max_supply().get_max().unwrap_or(u64::MAX),
+                        max_supply: supply_mode_dto,
                         owner: Some(owner_dto),
                     };
 

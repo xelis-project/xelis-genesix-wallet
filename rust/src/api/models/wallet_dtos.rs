@@ -67,7 +67,17 @@ pub struct HistoryPageFilter {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
+#[frb(dart_metadata=("freezed"))]
+pub enum XelisMaxSupplyMode {
+    None,
+    Fixed(u64),
+    Mintable(u64),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
+#[frb(dart_metadata=("freezed"))]
 pub enum XelisAssetOwner {
     None,
     Creator {
@@ -87,6 +97,6 @@ pub struct XelisAssetMetadata {
     pub name: String,
     pub ticker: String,
     pub decimals: u8,
-    pub max_supply: u64,
+    pub max_supply: XelisMaxSupplyMode,
     pub owner: Option<XelisAssetOwner>,
 }
