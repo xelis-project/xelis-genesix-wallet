@@ -15,6 +15,8 @@ import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:recase/recase.dart';
+import 'package:go_router/go_router.dart';
 
 class TransferScreenNew extends ConsumerStatefulWidget {
   const TransferScreenNew({super.key, this.recipientAddress});
@@ -112,7 +114,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
             Padding(
               padding: const EdgeInsets.all(Spaces.small),
               child: FHeaderAction.back(
-                onPress: () => Navigator.of(context).pop(),
+                onPress: () => context.pop(),
               ),
             ),
           ],
@@ -137,7 +139,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                   children: [
                     // Asset Selection
                     FSelect<MapEntry<String, AssetData>>.searchBuilder(
-                      label: Text(loc.asset),
+                      label: Text(loc.asset.titleCase),
                       hint: validAssets.isEmpty
                           ? loc.no_balance_to_transfer
                           : loc.select_asset,
@@ -199,7 +201,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                       validator: (value) =>
                           value == null ? loc.field_required_error : null,
                     ),
-                    const SizedBox(height: Spaces.large),
+                    const SizedBox(height: Spaces.medium),
 
                     // Amount Input with Max Button
                     Row(
@@ -208,7 +210,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                         Expanded(
                           child: FTextFormField(
                             controller: _amountController,
-                            label: Text(loc.amount),
+                            label: Text(loc.amount.titleCase),
                             hint: AppResources.zeroBalance,
                             keyboardType: const TextInputType.numberWithOptions(
                               decimal: true,
@@ -248,7 +250,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                         ),
                       ],
                     ),
-                    const SizedBox(height: Spaces.large),
+                    const SizedBox(height: Spaces.medium),
 
                     // Destination Address with Contact Suggestions
                     Column(
@@ -260,7 +262,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                             Expanded(
                               child: FTextFormField(
                                 controller: _addressController,
-                                label: Text(loc.destination),
+                                label: Text(loc.destination.titleCase),
                                 hint: loc.receiver_address,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
@@ -303,7 +305,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                     FCard(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: Spaces.medium,
+                        spacing: Spaces.small,
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -314,7 +316,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                                   color: context.theme.colors.mutedForeground,
                                 ),
                               ),
-                              const SizedBox(width: Spaces.small),
+                              const SizedBox(width: Spaces.extraSmall),
                               Flexible(
                                 child: FittedBox(
                                   fit: BoxFit.scaleDown,
@@ -333,7 +335,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                           FDivider(),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            spacing: Spaces.small,
+                            spacing: Spaces.extraSmall,
                             children: [
                               Text(
                                 loc.boost_fees_title,
@@ -347,7 +349,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                                   color: context.theme.colors.mutedForeground,
                                 ),
                               ),
-                              const SizedBox(height: Spaces.small),
+                              const SizedBox(height: Spaces.extraSmall),
                               FSelect<double>.rich(
                                 controller: _boostFeeController,
                                 format: (value) {
@@ -388,7 +390,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                       ),
                     ),
 
-                    const SizedBox(height: Spaces.large),
+                    const SizedBox(height: Spaces.medium),
 
                     // Review Button
                     FButton(

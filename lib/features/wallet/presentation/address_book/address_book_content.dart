@@ -196,7 +196,7 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
   }
 
   void _onSend(String address) {
-    TransferRoute($extra: address).go(context);
+    TransferRoute($extra: address).push(context);
   }
 
   void _onEdit(ContactDetails contactDetails) {

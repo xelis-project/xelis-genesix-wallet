@@ -104,7 +104,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                 FButton(
                   style: FButtonStyle.outline(),
                   prefix: Icon(FIcons.arrowUpRight),
-                  onPress: () => TransferRoute().go(context),
+                  onPress: () => TransferRoute().push(context),
                   child: Text(loc.send),
                 ),
                 const SizedBox(width: Spaces.small),
