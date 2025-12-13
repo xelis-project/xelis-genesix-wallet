@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:forui/theme.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
 import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
@@ -20,7 +21,6 @@ class TransferReviewContentWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
-
     final muted = context.theme.colors.mutedForeground;
 
     return Container(
@@ -28,64 +28,62 @@ class TransferReviewContentWidget extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Asset + Amount card
-          Padding(
-            padding: const EdgeInsets.only(top: Spaces.extraSmall),
-            child: FCard(
-              child: Padding(
-                padding: const EdgeInsets.all(Spaces.extraSmall),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Asset
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          loc.asset,
-                          style: context.bodyLarge!.copyWith(color: muted),
+          Card(
+            margin: const EdgeInsets.only(top: Spaces.medium),
+            child: Padding(
+              padding: const EdgeInsets.all(Spaces.medium),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Asset column
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        loc.asset,
+                        style: context.theme.typography.base.copyWith(
+                          color: muted,
                         ),
-                        const SizedBox(height: Spaces.small),
-                        isXelisTransfer
-                            ? Row(
-                                children: [
-                                  Logo(
-                                    imagePath: AppResources
-                                        .greenBackgroundBlackIconPath,
-                                  ),
-                                  const SizedBox(width: Spaces.extraSmall),
-                                  Text(
-                                    transaction.name,
-                                    style: context.bodyLarge,
-                                  ),
-                                ],
-                              )
-                            : Text(
-                                truncateText(transaction.name),
-                                style: context.bodyLarge,
-                              ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: Spaces.small),
+                      isXelisTransfer
+                          ? Row(
+                              children: [
+                                Logo(
+                                  imagePath:
+                                      AppResources.greenBackgroundBlackIconPath,
+                                ),
+                                const SizedBox(width: Spaces.extraSmall),
+                                Text(
+                                  transaction.name,
+                                  style: context.theme.typography.base,
+                                ),
+                              ],
+                            )
+                          : Text(truncateText(transaction.name)),
+                    ],
+                  ),
 
-                    // Amount
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          loc.amount.capitalize(),
-                          style: context.bodyLarge!.copyWith(color: muted),
+                  // Amount column (FIXED)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        loc.amount.capitalize(),
+                        style: context.theme.typography.base.copyWith(
+                          color: muted,
                         ),
-                        const SizedBox(height: Spaces.small),
-                        SelectableText(
-                          transaction.amount,
-                          style: TextStyle(
-                            color: context.theme.colors.foreground
-                          )
+                      ),
+                      const SizedBox(height: Spaces.small),
+                      SelectableText(
+                        transaction.amount,
+                        style: TextStyle(
+                          color: context.theme.colors.foreground,
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
@@ -103,8 +101,8 @@ class TransferReviewContentWidget extends ConsumerWidget {
               SelectableText(
                 transaction.fee,
                 style: TextStyle(
-                  color: context.theme.colors.foreground
-                )
+                  color: context.theme.colors.foreground,
+                ),
               ),
             ],
           ),
@@ -126,8 +124,8 @@ class TransferReviewContentWidget extends ConsumerWidget {
           SelectableText(
             transaction.txHash,
             style: TextStyle(
-              color: context.theme.colors.primary
-            )
+              color: context.theme.colors.primary,
+            ),
           ),
           const SizedBox(height: Spaces.small),
 
@@ -160,10 +158,13 @@ class TransferReviewContentWidget extends ConsumerWidget {
           ],
 
           const SizedBox(height: Spaces.small),
+
           // Receiver
           Text(
             loc.receiver,
-            style: context.bodyLarge!.copyWith(color: muted),
+            style: context.theme.typography.base.copyWith(
+              color: muted,
+            ),
           ),
           const SizedBox(height: Spaces.extraSmall),
           AddressWidget(transaction.destinationAddress.address),
@@ -172,7 +173,9 @@ class TransferReviewContentWidget extends ConsumerWidget {
             const SizedBox(height: Spaces.small),
             Text(
               loc.payment_id,
-              style: context.bodyLarge!.copyWith(color: muted),
+              style: context.theme.typography.base.copyWith( // FIXED
+                color: muted,
+              ),
             ),
             const SizedBox(height: Spaces.extraSmall),
             SelectableText(
