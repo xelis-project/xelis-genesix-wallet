@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
-import 'package:genesix/features/router/routes.dart';
+import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
@@ -12,6 +12,7 @@ import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
+import 'package:go_router/go_router.dart';
 
 class BalanceCard extends ConsumerStatefulWidget {
   const BalanceCard({super.key});
@@ -104,7 +105,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                 FButton(
                   style: FButtonStyle.outline(),
                   prefix: Icon(FIcons.arrowUpRight),
-                  onPress: () => TransferRoute().push(context),
+                  onPress: () => context.push(AuthAppScreen.transfer.toPath),
                   child: Text(loc.send),
                 ),
                 const SizedBox(width: Spaces.small),
