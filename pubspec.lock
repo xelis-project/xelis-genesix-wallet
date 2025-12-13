@@ -837,10 +837,10 @@ packages:
     dependency: transitive
     description:
       name: meta
-      sha256: e3641ec5d63ebf0d9b41bd43201a66e3fc79a65db5f61fc181f04cd27aab950c
+      sha256: "23f08335362185a5ea2ad3a4e597f1375e78bce8a040df5c600c8d3552ef2394"
       url: "https://pub.dev"
     source: hosted
-    version: "1.16.0"
+    version: "1.17.0"
   mime:
     dependency: transitive
     description:
@@ -1536,12 +1536,11 @@ packages:
   xelis_dart_sdk:
     dependency: "direct main"
     description:
-      path: "."
-      ref: dev
-      resolved-ref: "019d640e9a3bb59c827b68aa953f63f365108faf"
-      url: "https://github.com/xelis-project/xelis-dart-sdk"
-    source: git
-    version: "0.30.5"
+      name: xelis_dart_sdk
+      sha256: "270b4bd496ec820b4cba753897ac073d9227d7744e1d0cdc33b6515843f1368c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.30.7"
   xml:
     dependency: transitive
     description:
