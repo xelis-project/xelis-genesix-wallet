@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:forui/theme.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
 import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
@@ -36,8 +37,8 @@ class TransferReviewContentWidget extends ConsumerWidget {
                     children: [
                       Text(
                         loc.asset,
-                        style: context.bodyLarge!.copyWith(
-                          color: context.moreColors.mutedColor,
+                        style: context.theme.typography.base.copyWith(
+                          color: context.theme.colors.mutedForeground,
                         ),
                       ),
                       const SizedBox(height: Spaces.small),
@@ -51,7 +52,7 @@ class TransferReviewContentWidget extends ConsumerWidget {
                                 const SizedBox(width: Spaces.extraSmall),
                                 Text(
                                   transaction.name,
-                                  style: context.bodyLarge,
+                                  style: context.theme.typography.base,
                                 ),
                               ],
                             )
@@ -63,8 +64,8 @@ class TransferReviewContentWidget extends ConsumerWidget {
                     children: [
                       Text(
                         loc.amount.capitalize(),
-                        style: context.bodyLarge!.copyWith(
-                          color: context.moreColors.mutedColor,
+                        style: context.theme.typography.base.copyWith(
+                          color: context.theme.colors.mutedForeground,
                         ),
                       ),
                       const SizedBox(height: Spaces.small),
@@ -81,8 +82,8 @@ class TransferReviewContentWidget extends ConsumerWidget {
             children: [
               Text(
                 loc.fee,
-                style: context.bodyLarge!.copyWith(
-                  color: context.moreColors.mutedColor,
+                style: context.theme.typography.base.copyWith(
+                  color: context.theme.colors.mutedForeground,
                 ),
               ),
               SelectableText(transaction.fee),
@@ -93,8 +94,8 @@ class TransferReviewContentWidget extends ConsumerWidget {
           const SizedBox(height: Spaces.small),
           Text(
             loc.hash,
-            style: context.bodyLarge!.copyWith(
-              color: context.moreColors.mutedColor,
+            style: context.theme.typography.base.copyWith(
+              color: context.theme.colors.mutedForeground,
             ),
           ),
           const SizedBox(height: Spaces.extraSmall),
@@ -106,8 +107,8 @@ class TransferReviewContentWidget extends ConsumerWidget {
               children: [
                 Text(
                   loc.destination,
-                  style: context.bodyLarge!.copyWith(
-                    color: context.moreColors.mutedColor,
+                  style: context.theme.typography.base.copyWith(
+                    color: context.theme.colors.mutedForeground,
                   ),
                 ),
                 const SizedBox(width: Spaces.small),
@@ -119,7 +120,7 @@ class TransferReviewContentWidget extends ConsumerWidget {
                   child: Icon(
                     Icons.info_outline_rounded,
                     size: 18,
-                    color: context.moreColors.mutedColor,
+                    color: context.theme.colors.mutedForeground,
                   ),
                 ),
               ],
@@ -130,8 +131,8 @@ class TransferReviewContentWidget extends ConsumerWidget {
           ],
           Text(
             loc.receiver,
-            style: context.bodyLarge!.copyWith(
-              color: context.moreColors.mutedColor,
+            style: context.theme.typography.base.copyWith(
+              color: context.theme.colors.mutedForeground,
             ),
           ),
           const SizedBox(height: Spaces.extraSmall),
@@ -140,8 +141,8 @@ class TransferReviewContentWidget extends ConsumerWidget {
             const SizedBox(height: Spaces.small),
             Text(
               loc.payment_id,
-              style: context.bodyLarge!.copyWith(
-                color: context.moreColors.mutedColor,
+              style: context.theme.typography.base..copyWith(
+                color: context.theme.colors.mutedForeground,
               ),
             ),
             const SizedBox(height: Spaces.extraSmall),
