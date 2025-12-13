@@ -230,7 +230,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                         ),
                         const SizedBox(width: Spaces.medium),
                         Padding(
-                          padding: const EdgeInsets.only(top: 20),
+                          padding: const EdgeInsets.only(top: 24),
                           child: FButton(
                             style: FButtonStyle.primary(),
                             onPress: () {
@@ -243,7 +243,12 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                               _amountController.text = _selectedAssetBalance;
                               _updateEstimatedFee();
                             },
-                            child: Text(loc.max),
+                            child: Text(
+                              loc.max.toUpperCase(),
+                              style: context.theme.typography.xs.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
                       ],
