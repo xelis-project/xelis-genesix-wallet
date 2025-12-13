@@ -3,6 +3,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:forui/forui.dart';
+import 'package:forui/theme.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
@@ -41,7 +42,7 @@ class BurnReviewContent extends ConsumerWidget {
                     children: [
                       Text(
                         loc.asset,
-                        style: context.bodyLarge!.copyWith(
+                        style: context.theme.typography.base.copyWith(
                           color: context.theme.colors.mutedForeground,
                         ),
                       ),
@@ -66,7 +67,7 @@ class BurnReviewContent extends ConsumerWidget {
                     children: [
                       Text(
                         loc.amount.capitalize(),
-                        style: context.bodyLarge!.copyWith(
+                        style: context.theme.typography.base.copyWith(
                           color: context.theme.colors.mutedForeground,
                         ),
                       ),
@@ -89,7 +90,7 @@ class BurnReviewContent extends ConsumerWidget {
             children: [
               Text(
                 loc.fee,
-                style: context.bodyLarge!.copyWith(
+                style: context.theme.typography.base.copyWith(
                   color: context.theme.colors.mutedForeground,
                 ),
               ),
@@ -109,7 +110,7 @@ class BurnReviewContent extends ConsumerWidget {
           // Hash
           Text(
             loc.hash,
-            style: context.bodyLarge!.copyWith(
+            style: context.theme.typography.base.copyWith(
               color: context.theme.colors.mutedForeground,
             ),
           ),
