@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
@@ -21,6 +22,7 @@ class BurnReviewContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
+
     return Container(
       constraints: const BoxConstraints(maxWidth: 600),
       child: Column(
@@ -33,13 +35,14 @@ class BurnReviewContent extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // Asset
                   Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         loc.asset,
                         style: context.bodyLarge!.copyWith(
-                          color: context.moreColors.mutedColor,
+                          color: context.theme.colors.mutedForeground,
                         ),
                       ),
                       const SizedBox(height: Spaces.small),
@@ -57,17 +60,23 @@ class BurnReviewContent extends ConsumerWidget {
                           : Text(truncateText(transaction.asset)),
                     ],
                   ),
+                  // Amount
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         loc.amount.capitalize(),
                         style: context.bodyLarge!.copyWith(
-                          color: context.moreColors.mutedColor,
+                          color: context.theme.colors.mutedForeground,
                         ),
                       ),
                       const SizedBox(height: Spaces.small),
-                      SelectableText(transaction.amount),
+                      SelectableText(
+                        transaction.amount,
+                        style: TextStyle(
+                          color: context.theme.colors.foreground
+                        )
+                      ),
                     ],
                   ),
                 ],
@@ -81,32 +90,48 @@ class BurnReviewContent extends ConsumerWidget {
               Text(
                 loc.fee,
                 style: context.bodyLarge!.copyWith(
-                  color: context.moreColors.mutedColor,
+                  color: context.theme.colors.mutedForeground,
                 ),
               ),
               SelectableText(transaction.fee),
             ],
           ),
           const SizedBox(height: Spaces.small),
-          Divider(),
-          SizedBox(height: Spaces.small),
+          FDivider(
+            style: FDividerStyle(
+              padding: const EdgeInsets.symmetric(vertical: Spaces.small),
+              color: FTheme.of(context).colors.primary,
+              width: 1,
+            ),
+          ),
+          const SizedBox(height: Spaces.small),
+
+          // Hash
           Text(
             loc.hash,
             style: context.bodyLarge!.copyWith(
-              color: context.moreColors.mutedColor,
+              color: context.theme.colors.mutedForeground,
             ),
           ),
           const SizedBox(height: Spaces.extraSmall),
-          SelectableText(transaction.txHash),
+          SelectableText(
+            transaction.txHash,
+            style: TextStyle(
+              color: context.theme.colors.primary
+            )
+          ),
           const SizedBox(height: Spaces.large),
+
+          // Confirmation checkbox (still here, but now only controls state,
+          // not the dialog itself)
           AnimatedSwitcher(
             duration: const Duration(milliseconds: AppDurations.animFast),
             child: transaction.isBroadcasted
-                ? SizedBox.shrink()
+                ? const SizedBox.shrink()
                 : FormBuilderCheckbox(
-                    name: 'confirm',
-                    decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.only(top: Spaces.small),
+                    name: 'confirm_burn',
+                    decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.only(top: Spaces.small),
                       isDense: true,
                       fillColor: Colors.transparent,
                     ),
@@ -124,6 +149,8 @@ class BurnReviewContent extends ConsumerWidget {
                     },
                   ),
           ),
+
+          const SizedBox(height: Spaces.extraSmall),
         ],
       ),
     );

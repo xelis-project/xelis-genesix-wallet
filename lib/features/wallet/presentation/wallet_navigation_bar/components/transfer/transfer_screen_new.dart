@@ -9,6 +9,7 @@ import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
 import 'package:genesix/features/wallet/presentation/address_book/select_address_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_dialog_old.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transfer/transfer_review_content.dart';
+import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_review_dialog_new.dart';
 import 'package:genesix/src/generated/rust_bridge/api/utils.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
@@ -598,37 +599,20 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
             },
           );
         }
-      } else if (record.$1 != null) {
-        // SIMPLE TRANSFER: use new forui review dialog
+      }  else if (record.$1 != null) {
+        // SIMPLE TRANSFER: set review state and show the new review dialog
         final txSummary = record.$1!;
 
-        // Populate review provider
         ref
             .read(transactionReviewProvider.notifier)
             .setSingleTransferTransaction(txSummary);
 
-        // Read back the mapped state (SingleTransferTransaction) from provider
-        final state = ref.read(transactionReviewProvider);
-        if (state is SingleTransferTransaction && mounted) {
-          showFDialog<void>(
+        if (mounted) {
+          await showFDialog<void>(
             context: context,
+            barrierDismissible: false,
             builder: (dialogContext, style, animation) {
-              return TransferReviewContentWidget(
-                style,
-                animation,
-                transaction: state,
-                onConfirm: () async {
-                  await _broadcastTransfer();
-                  if (dialogContext.mounted) {
-                    Navigator.of(dialogContext).pop();
-                  }
-                },
-                onCancel: () {
-                  if (dialogContext.mounted) {
-                    Navigator.of(dialogContext).pop();
-                  }
-                },
-              );
+              return TransactionReviewDialogNew(style, animation);
             },
           );
         }

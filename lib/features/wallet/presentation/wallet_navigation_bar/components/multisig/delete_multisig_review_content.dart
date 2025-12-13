@@ -13,38 +13,37 @@ class DeleteMultisigReviewContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
-    return Center(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            loc.hash,
-            style: context.bodyLarge!.copyWith(
-              color: context.moreColors.mutedColor,
-            ),
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          loc.hash,
+          style: context.bodyLarge!.copyWith(
+            color: context.moreColors.mutedColor,
           ),
-          const SizedBox(height: Spaces.extraSmall),
-          SelectableText(transaction.txHash),
-          const SizedBox(height: Spaces.small),
-          Text(
-            loc.fee,
-            style: context.bodyLarge!.copyWith(
-              color: context.moreColors.mutedColor,
-            ),
+        ),
+        const SizedBox(height: Spaces.extraSmall),
+        SelectableText(transaction.txHash),
+        const SizedBox(height: Spaces.small),
+        Text(
+          loc.fee,
+          style: context.bodyLarge!.copyWith(
+            color: context.moreColors.mutedColor,
           ),
-          const SizedBox(height: Spaces.extraSmall),
-          SelectableText(transaction.fee),
-          const SizedBox(height: Spaces.small),
-          Text(
-            loc.transaction_type,
-            style: context.bodyLarge!.copyWith(
-              color: context.moreColors.mutedColor,
-            ),
+        ),
+        const SizedBox(height: Spaces.extraSmall),
+        SelectableText(transaction.fee),
+        const SizedBox(height: Spaces.small),
+        Text(
+          loc.transaction_type,
+          style: context.bodyLarge!.copyWith(
+            color: context.moreColors.mutedColor,
           ),
-          const SizedBox(height: Spaces.extraSmall),
-          SelectableText(loc.multisig_removal),
-        ],
-      ),
+        ),
+        const SizedBox(height: Spaces.extraSmall),
+        SelectableText(loc.multisig_removal),
+      ],
     );
   }
 }

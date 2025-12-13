@@ -11,24 +11,9 @@ import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/logo.dart';
 
 class TransferReviewContentWidget extends ConsumerWidget {
-  const TransferReviewContentWidget(
-    this.style,
-    this.animation, {
-    super.key,
-    required this.transaction,
-    required this.onConfirm,
-    this.onCancel,
-  });
+  const TransferReviewContentWidget(this.transaction, {super.key});
 
   final SingleTransferTransaction transaction;
-  final FDialogStyle style;
-  final Animation<double> animation;
-
-  /// Called when user taps confirm.
-  final VoidCallback onConfirm;
-
-  /// Optional cancel handler; defaults to Navigator.pop.
-  final VoidCallback? onCancel;
 
   bool get isXelisTransfer => transaction.asset == AppResources.xelisHash;
 
@@ -36,66 +21,65 @@ class TransferReviewContentWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
 
-    return FDialog(
-      style: style,
-      animation: animation,
+    final muted = context.theme.colors.mutedForeground;
+
+    return Container(
       constraints: const BoxConstraints(maxWidth: 600),
-      body: Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Asset + Amount card
           Padding(
-            padding: const EdgeInsets.only(top: Spaces.small),
+            padding: const EdgeInsets.only(top: Spaces.extraSmall),
             child: FCard(
               child: Padding(
                 padding: const EdgeInsets.all(Spaces.extraSmall),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Asset info
+                    // Asset
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           loc.asset,
-                          style: context.bodyLarge!.copyWith(
-                            color: FTheme.of(context).colors.mutedForeground,
-                          ),
+                          style: context.bodyLarge!.copyWith(color: muted),
                         ),
                         const SizedBox(height: Spaces.small),
                         isXelisTransfer
-                          ? Row(
-                              children: [
-                                Logo(
-                                  imagePath: AppResources
-                                      .greenBackgroundBlackIconPath,
-                                ),
-                                const SizedBox(width: Spaces.extraSmall),
-                                Text(
-                                  transaction.name,
-                                  style: context.bodyLarge,
-                                ),
-                              ],
-                            )
-                          : Text(truncateText(transaction.name)),
+                            ? Row(
+                                children: [
+                                  Logo(
+                                    imagePath: AppResources
+                                        .greenBackgroundBlackIconPath,
+                                  ),
+                                  const SizedBox(width: Spaces.extraSmall),
+                                  Text(
+                                    transaction.name,
+                                    style: context.bodyLarge,
+                                  ),
+                                ],
+                              )
+                            : Text(
+                                truncateText(transaction.name),
+                                style: context.bodyLarge,
+                              ),
                       ],
                     ),
 
                     // Amount
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
                           loc.amount.capitalize(),
-                          style: context.bodyLarge!.copyWith(
-                            color: FTheme.of(context).colors.mutedForeground,
-                          ),
+                          style: context.bodyLarge!.copyWith(color: muted),
                         ),
                         const SizedBox(height: Spaces.small),
                         SelectableText(
                           transaction.amount,
                           style: TextStyle(
-                            color: FTheme.of(context).colors.foreground,
+                            color: context.theme.colors.foreground
                           )
                         ),
                       ],
@@ -106,7 +90,7 @@ class TransferReviewContentWidget extends ConsumerWidget {
             ),
           ),
 
-          const SizedBox(height: Spaces.large),
+          const SizedBox(height: Spaces.medium),
 
           // Fee row
           Row(
@@ -114,57 +98,47 @@ class TransferReviewContentWidget extends ConsumerWidget {
             children: [
               Text(
                 loc.fee,
-                style: context.bodyLarge!.copyWith(
-                  color: FTheme.of(context).colors.mutedForeground,
-                ),
+                style: context.bodyLarge!.copyWith(color: muted),
               ),
               SelectableText(
                 transaction.fee,
                 style: TextStyle(
-                  color: FTheme.of(context).colors.foreground,
+                  color: context.theme.colors.foreground
                 )
               ),
             ],
           ),
-          const SizedBox(height: Spaces.medium),
 
           FDivider(
             style: FDividerStyle(
-              padding: const EdgeInsets.symmetric(
-                vertical: Spaces.small,
-              ),
+              padding: const EdgeInsets.symmetric(vertical: Spaces.small),
               color: FTheme.of(context).colors.primary,
               width: 1,
             ),
           ),
-          const SizedBox(height: Spaces.medium),
 
           // Hash
           Text(
             loc.hash,
-            style: context.bodyLarge!.copyWith(
-              color: FTheme.of(context).colors.mutedForeground,
-            ),
+            style: context.bodyLarge!.copyWith(color: muted),
           ),
           const SizedBox(height: Spaces.extraSmall),
           SelectableText(
             transaction.txHash,
             style: TextStyle(
-              color: FTheme.of(context).colors.foreground,
-            ),
+              color: context.theme.colors.primary
+            )
           ),
-          const SizedBox(height: Spaces.medium),
+          const SizedBox(height: Spaces.small),
 
-          // Integrated destination (if applicable)
+          // Integrated address extra info
           if (transaction.destinationAddress.isIntegrated) ...[
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
                   loc.destination,
-                  style: context.bodyLarge!.copyWith(
-                    color: FTheme.of(context).colors.mutedForeground,
-                  ),
+                  style: context.bodyLarge!.copyWith(color: muted),
                 ),
                 const SizedBox(width: Spaces.small),
                 Tooltip(
@@ -175,75 +149,40 @@ class TransferReviewContentWidget extends ConsumerWidget {
                   child: Icon(
                     Icons.info_outline_rounded,
                     size: 18,
-                    color: FTheme.of(context).colors.mutedForeground,
+                    color: muted,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: Spaces.extraSmall),
-            SelectableText(
-              transaction.destination,
-              style: TextStyle(
-                color: FTheme.of(context).colors.foreground,
-              ),
-            ),
-            const SizedBox(height: Spaces.medium),
+            SelectableText(transaction.destination),
+            const SizedBox(height: Spaces.small),
           ],
 
+          const SizedBox(height: Spaces.small),
           // Receiver
           Text(
             loc.receiver,
-            style: context.bodyLarge!.copyWith(
-              color: FTheme.of(context).colors.mutedForeground,
-            ),
+            style: context.bodyLarge!.copyWith(color: muted),
           ),
           const SizedBox(height: Spaces.extraSmall),
           AddressWidget(transaction.destinationAddress.address),
-          const SizedBox(height: Spaces.medium),
 
-          // Payment ID for integrated address
           if (transaction.destinationAddress.isIntegrated) ...[
+            const SizedBox(height: Spaces.small),
             Text(
               loc.payment_id,
-              style: context.bodyLarge!.copyWith(
-                color: FTheme.of(context).colors.mutedForeground,
-              ),
+              style: context.bodyLarge!.copyWith(color: muted),
             ),
             const SizedBox(height: Spaces.extraSmall),
             SelectableText(
               transaction.destinationAddress.data.toString(),
-              style: TextStyle(
-                color: FTheme.of(context).colors.primary,
-              ),
             ),
-            const SizedBox(height: Spaces.medium),
           ],
+
+          const SizedBox(height: Spaces.small),
         ],
       ),
-      actions: [
-        SizedBox(
-          width: double.infinity,
-          child: Row(
-            children: [
-              Expanded(
-                child: FButton(
-                  style: FButtonStyle.outline(),
-                  onPress: onCancel ?? () => Navigator.of(context).pop(),
-                  child: Text(loc.cancel_button),
-                ),
-              ),
-              const SizedBox(width: Spaces.small),
-              Expanded(
-                child: FButton(
-                  style: FButtonStyle.primary(),
-                  onPress: onConfirm,
-                  child: Text(loc.confirm_button),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

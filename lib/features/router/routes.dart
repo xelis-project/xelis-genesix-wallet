@@ -19,7 +19,7 @@ import 'package:genesix/features/wallet/presentation/multisig/setup_multisig.dar
 import 'package:genesix/features/wallet/presentation/network/network_content.dart';
 import 'package:genesix/features/wallet/presentation/recovery_phrase/recovery_phrase_content.dart';
 import 'package:genesix/features/wallet/presentation/sign_transaction/sign_transaction_content.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/burn/burn_screen.dart';
+import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/burn/burn_screen_new.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transfer/transfer_screen_new.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_content.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_widget_old.dart';
@@ -266,7 +266,7 @@ class BurnRoute extends GoRouteData with _$BurnRoute {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
-      const BurnScreen(),
+      const BurnScreenNew(),
       state.pageKey,
       state.fullPath,
       state.extra,
