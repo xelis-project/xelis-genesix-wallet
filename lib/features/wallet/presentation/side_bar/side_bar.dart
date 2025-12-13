@@ -135,8 +135,7 @@ class _SideBarState extends ConsumerState<SideBar> {
                       burnTransferEnabled
                           ? () {
                             _closeSideBar();
-                            // TODO: Implement burn transfer management
-                            print('Burn pressed');
+                            context.push(AuthAppScreen.burn.toPath);
                             setState(() {
                               _selectedItem = 'Burn Transfer';
                             });
