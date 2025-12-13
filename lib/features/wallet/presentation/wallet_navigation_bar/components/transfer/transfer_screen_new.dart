@@ -304,7 +304,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                                 child: FButton.icon(
                                   style: FButtonStyle.outline(),
                                   onPress: _onAddressBookClicked,
-                                  child: const Icon(FIcons.bookUser, size: 18),
+                                  child: const Icon(FIcons.bookUser, size: 20),
                                 ),
                               ),
                             ),
