@@ -153,7 +153,7 @@
   "topoheight": "Topoheight",
   "transfer": "Transfer",
   "remaining_balance": "Remaining balance",
-  "amount": "amount",
+  "amount": "Amount",
   "receiver_address": "receiver address",
   "field_required_error": "This field cannot be empty.",
   "must_be_numeric_error": "Value must be numeric.",
