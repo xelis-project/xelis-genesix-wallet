@@ -179,7 +179,9 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                               balances[assetEntry.key] ??
                               AppResources.zeroBalance;
                           return FSelectItem<MapEntry<String, AssetData>>(
-                            title: Text(assetEntry.value.name),
+                            title: Text(
+                              '${assetEntry.value.name} (${truncateText(assetEntry.key)})',
+                            ),
                             subtitle: Text(
                               '${balance} ${assetEntry.value.ticker}',
                             ),
