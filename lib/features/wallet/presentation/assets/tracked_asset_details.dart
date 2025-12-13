@@ -100,7 +100,7 @@ class _TrackedAssetDetailsState extends ConsumerState<TrackedAssetDetails> {
                   LabeledValue.text(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     loc.contract,
-                    widget.asset.owner.currentOwner!,
+                    widget.asset.owner.originContract!,
                   ),
                   LabeledValue.text(
                     crossAxisAlignment: CrossAxisAlignment.center,
