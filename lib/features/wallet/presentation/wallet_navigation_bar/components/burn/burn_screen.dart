@@ -1,23 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/asset_dropdown_menu_item_old.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_dialog_old.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/build_context_extensions.dart';
-import 'package:genesix/shared/theme/input_decoration_old.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
-import 'package:genesix/shared/widgets/components/generic_app_bar_widget_old.dart';
-import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown_old.dart';
-import 'package:genesix/shared/widgets/components/warning_widget_old.dart';
+import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
@@ -28,10 +21,17 @@ class BurnScreen extends ConsumerStatefulWidget {
   ConsumerState createState() => _BurnScreenState();
 }
 
-class _BurnScreenState extends ConsumerState<BurnScreen> {
-  final _burnFormKey = GlobalKey<FormBuilderState>(debugLabel: '_burnFormKey');
-  late String _selectedAssetBalance;
+class _BurnScreenState extends ConsumerState<BurnScreen>
+    with TickerProviderStateMixin {
+  final _formKey = GlobalKey<FormState>();
+  final _scrollController = ScrollController();
+  final _amountController = TextEditingController();
+  late final _assetController = FSelectController<MapEntry<String, AssetData>>(
+    vsync: this,
+  );
 
+  late String _selectedAssetBalance;
+  String? _selectedAsset;
   late FocusNode _focusNodeAmount;
 
   @override
@@ -51,6 +51,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
   @override
   dispose() {
     _focusNodeAmount.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -64,135 +65,174 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
       walletStateProvider.select((value) => value.knownAssets),
     );
 
-    return CustomScaffold(
-      appBar: GenericAppBar(title: loc.burn),
-      body: ListView(
-        shrinkWrap: true,
-        padding: const EdgeInsets.fromLTRB(
-          Spaces.large,
-          Spaces.none,
-          Spaces.large,
-          Spaces.large,
+    final validAssets = balances.entries
+        .where((balance) => assets.containsKey(balance.key))
+        .toList();
+
+    return FScaffold(
+      header: Padding(
+        padding: const EdgeInsets.only(top: Spaces.medium),
+        child: FHeader.nested(
+          prefixes: [
+            Padding(
+              padding: const EdgeInsets.all(Spaces.small),
+              child: FHeaderAction.back(
+                onPress: () => Navigator.of(context).pop(),
+              ),
+            ),
+          ],
+          title: Text(loc.transfer),
         ),
-        children: [
-          WarningWidget([loc.burn_screen_warning_message]),
-          const SizedBox(height: Spaces.extraLarge),
-          FormBuilder(
-            key: _burnFormKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(loc.amount.capitalize(), style: context.titleMedium),
-                const SizedBox(height: Spaces.small),
-                FormBuilderTextField(
-                  name: 'amount',
-                  focusNode: _focusNodeAmount,
-                  style: context.headlineLarge!.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                  autocorrect: false,
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
-                  decoration: context.textInputDecoration.copyWith(
-                    labelText: AppResources.zeroBalance,
-                    labelStyle: context.headlineLarge!.copyWith(
-                      fontWeight: FontWeight.bold,
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: FadedScroll(
+            controller: _scrollController,
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(
+                horizontal: Spaces.extraLarge * 1.5,
+                vertical: Spaces.large,
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    FAlert(
+                      title: Text(loc.warning),
+                      subtitle: Text(loc.burn_screen_warning_message),
                     ),
-                    suffixIcon: Padding(
-                      padding: const EdgeInsets.all(Spaces.small),
-                      child: TextButton(
-                        onPressed: () => _burnFormKey
-                            .currentState
-                            ?.fields['amount']
-                            ?.didChange(_selectedAssetBalance),
-                        child: Text(loc.max),
+
+                    const SizedBox(height: Spaces.large),
+
+                    // Asset Selection
+                    FSelect<MapEntry<String, AssetData>>.searchBuilder(
+                      label: Text(loc.asset),
+                      hint: validAssets.isEmpty
+                          ? loc.no_balance_to_transfer
+                          : loc.select_asset,
+                      controller: _assetController,
+                      enabled: validAssets.isNotEmpty,
+                      format: (assetEntry) {
+                        final balance =
+                            balances[assetEntry.key] ??
+                            AppResources.zeroBalance;
+                        return '${assetEntry.value.name} ($balance ${assetEntry.value.ticker})';
+                      },
+                      filter: (query) {
+                        final availableAssets = validAssets
+                            .map(
+                              (balance) =>
+                                  MapEntry(balance.key, assets[balance.key]!),
+                            )
+                            .toList();
+
+                        if (query.isEmpty) {
+                          return availableAssets;
+                        }
+
+                        return availableAssets
+                            .where(
+                              (assetEntry) =>
+                                  assetEntry.value.name.toLowerCase().contains(
+                                    query.toLowerCase(),
+                                  ) ||
+                                  assetEntry.value.ticker
+                                      .toLowerCase()
+                                      .contains(query.toLowerCase()),
+                            )
+                            .toList();
+                      },
+                      contentBuilder: (context, style, data) {
+                        return data.map((assetEntry) {
+                          final balance =
+                              balances[assetEntry.key] ??
+                              AppResources.zeroBalance;
+                          return FSelectItem<MapEntry<String, AssetData>>(
+                            title: Text(
+                              '${assetEntry.value.name} (${truncateText(assetEntry.key)})',
+                            ),
+                            subtitle: Text(
+                              '$balance ${assetEntry.value.ticker}',
+                            ),
+                            value: assetEntry,
+                          );
+                        }).toList();
+                      },
+                      onChange: (assetEntry) {
+                        if (assetEntry != null) {
+                          setState(() {
+                            _selectedAsset = assetEntry.key;
+                            _selectedAssetBalance = balances[_selectedAsset]!;
+                          });
+                        }
+                      },
+                      validator: (value) =>
+                          value == null ? loc.field_required_error : null,
+                    ),
+
+                    const SizedBox(height: Spaces.large),
+
+                    FTextFormField(
+                      controller: _amountController,
+                      label: Text(loc.amount),
+                      hint: AppResources.zeroBalance,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
                       ),
-                    ),
-                  ),
-                  onChanged: (value) {
-                    // workaround to reset the error message when the user modifies the field
-                    final hasError =
-                        _burnFormKey.currentState?.fields['amount']?.hasError;
-                    if (hasError ?? false) {
-                      _burnFormKey.currentState?.fields['amount']?.reset();
-                    }
-                  },
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(
-                      errorText: loc.field_required_error,
-                    ),
-                    FormBuilderValidators.numeric(
-                      errorText: loc.must_be_numeric_error,
-                    ),
-                    (val) {
-                      if (val != null) {
-                        final amount = double.tryParse(val);
-                        if (amount == null || amount == 0) {
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return loc.field_required_error;
+                        }
+                        final amount = double.tryParse(value);
+                        if (amount == null) {
+                          return loc.must_be_numeric_error;
+                        }
+                        if (amount <= 0) {
                           return loc.invalid_amount_error;
                         }
-                      }
-                      return null;
-                    },
-                  ]),
-                ),
-                const SizedBox(height: Spaces.large),
-                Text(loc.asset, style: context.titleMedium),
-                const SizedBox(height: Spaces.small),
-                GenericFormBuilderDropdown<String>(
-                  name: 'assets',
-                  enabled: balances.isNotEmpty,
-                  initialValue: balances.isNotEmpty
-                      ? balances.entries.first.key
-                      : null,
-                  items: balances.entries
-                      .map(
-                        (balance) => AssetDropdownMenuItem.fromMapEntry(
-                          balance,
-                          assets[balance.key]!,
-                        ),
-                      )
-                      .toList(),
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(
-                      errorText: loc.field_required_error,
+                        return null;
+                      },
                     ),
-                  ]),
-                  onChanged: (val) {
-                    if (val != null) {
-                      setState(() {
-                        _selectedAssetBalance = balances[val]!;
-                      });
-                    }
-                    // workaround to reset the error message when the user modifies the field
-                    final hasError =
-                        _burnFormKey.currentState?.fields['assets']?.hasError;
-                    if (hasError ?? false) {
-                      _burnFormKey.currentState?.fields['assets']?.reset();
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: Spaces.extraLarge),
-          Row(
-            children: [
-              if (context.isWideScreen) const Spacer(),
-              Expanded(
-                child: TextButton.icon(
-                  icon: const Icon(Icons.check_circle),
-                  onPressed: _reviewBurn,
-                  label: Text(loc.review_burn),
+
+                    const SizedBox(height: Spaces.large),
+
+                    FButton(
+                      style: FButtonStyle.primary(),
+                      onPress: _reviewBurn,
+                      child: Text(loc.review_burn),
+                    ),
+                  ],
                 ),
               ),
-              if (context.isWideScreen) const Spacer(),
-            ],
+            ),
           ),
-        ],
+        ),
       ),
     );
   }
 
   void _reviewBurn() async {
+    final selectedAsset = _assetController.value;
+    if (selectedAsset != null) {
+      _selectedAsset = selectedAsset.key;
+      final Map<String, String> balances = ref.read(
+        walletStateProvider.select((value) => value.trackedBalances),
+      );
+      _selectedAssetBalance =
+          balances[_selectedAsset] ?? AppResources.zeroBalance;
+    }
+
+    if (_selectedAsset == null) {
+      final loc = ref.read(appLocalizationsProvider);
+      ref
+          .read(toastProvider.notifier)
+          .showError(description: loc.field_required_error);
+      return;
+    }
+
     if (_selectedAssetBalance == AppResources.zeroBalance) {
       final loc = ref.read(appLocalizationsProvider);
       ref
@@ -201,11 +241,8 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
       return;
     }
 
-    if (_burnFormKey.currentState?.saveAndValidate() ?? false) {
-      final amount =
-          _burnFormKey.currentState?.fields['amount']?.value as String;
-      final asset =
-          _burnFormKey.currentState?.fields['assets']?.value as String;
+    if (_formKey.currentState?.validate() ?? false) {
+      final amount = _amountController.text.trim();
 
       _focusNodeAmount.unfocus();
 
@@ -215,11 +252,11 @@ class _BurnScreenState extends ConsumerState<BurnScreen> {
       if (amount.trim() == _selectedAssetBalance) {
         record = await ref
             .read(walletStateProvider.notifier)
-            .burnAll(asset: asset);
+            .burnAll(asset: _selectedAsset!);
       } else {
         record = await ref
             .read(walletStateProvider.notifier)
-            .burn(amount: double.parse(amount), asset: asset);
+            .burn(amount: double.parse(amount), asset: _selectedAsset!);
       }
 
       if (record.$2 != null) {
