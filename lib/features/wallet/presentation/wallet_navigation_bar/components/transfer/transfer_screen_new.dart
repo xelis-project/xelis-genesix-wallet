@@ -118,9 +118,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
           prefixes: [
             Padding(
               padding: const EdgeInsets.all(Spaces.small),
-              child: FHeaderAction.back(
-                onPress: () => context.pop(),
-              ),
+              child: FHeaderAction.back(onPress: () => context.pop()),
             ),
           ],
           title: Text(loc.transfer),
@@ -202,7 +200,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                             _selectedAsset = assetEntry.key;
                             _selectedAssetBalance =
                                 balances[_selectedAsset] ??
-                                    AppResources.zeroBalance;
+                                AppResources.zeroBalance;
                           });
                           _updateEstimatedFee();
                         }
@@ -240,10 +238,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(
-                            left: 8,
-                            top: 20,
-                          ),
+                          padding: const EdgeInsets.only(left: 8, top: 20),
                           child: SizedBox(
                             height: inputHeight,
                             child: FButton(
@@ -418,7 +413,8 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                     // Review Button
                     FButton(
                       style: FButtonStyle.primary(),
-                      onPress: validAssets.isEmpty ||
+                      onPress:
+                          validAssets.isEmpty ||
                               _selectedAsset == null ||
                               _addressController.text.trim().isEmpty
                           ? null
@@ -475,25 +471,25 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
             asset: _selectedAsset!,
           )
           .then((value) {
-        if (mounted) {
-          setState(() {
-            final baseFee = double.parse(value);
-            _baseFee =
-                baseFee.toStringAsFixed(AppResources.xelisDecimals);
-            final boostedFee = baseFee * _boostMultiplier;
-            _estimatedFee = boostedFee.toStringAsFixed(
-              AppResources.xelisDecimals,
-            );
+            if (mounted) {
+              setState(() {
+                final baseFee = double.parse(value);
+                _baseFee = baseFee.toStringAsFixed(AppResources.xelisDecimals);
+                final boostedFee = baseFee * _boostMultiplier;
+                _estimatedFee = boostedFee.toStringAsFixed(
+                  AppResources.xelisDecimals,
+                );
+              });
+            }
+          })
+          .catchError((_) {
+            if (mounted) {
+              setState(() {
+                _baseFee = AppResources.zeroBalance;
+                _estimatedFee = AppResources.zeroBalance;
+              });
+            }
           });
-        }
-      }).catchError((_) {
-        if (mounted) {
-          setState(() {
-            _baseFee = AppResources.zeroBalance;
-            _estimatedFee = AppResources.zeroBalance;
-          });
-        }
-      });
     } else {
       setState(() {
         _baseFee = AppResources.zeroBalance;
@@ -521,14 +517,14 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
             .read(toastProvider.notifier)
             .showEvent(description: loc.transaction_broadcast_message);
       } else {
-        ref.read(toastProvider.notifier).showError(
+        ref
+            .read(toastProvider.notifier)
+            .showError(
               description: 'Unexpected transaction type for broadcast.',
             );
       }
     } catch (e) {
-      ref
-          .read(toastProvider.notifier)
-          .showError(description: e.toString());
+      ref.read(toastProvider.notifier).showError(description: e.toString());
     } finally {
       if (context.mounted && context.loaderOverlay.visible) {
         context.loaderOverlay.hide();
@@ -586,6 +582,10 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
             );
       }
 
+      if (mounted && context.loaderOverlay.visible) {
+        context.loaderOverlay.hide();
+      }
+
       if (record.$2 != null) {
         // MULTISIG: hash to sign → legacy dialog
         ref
@@ -601,7 +601,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
             },
           );
         }
-      }  else if (record.$1 != null) {
+      } else if (record.$1 != null) {
         // SIMPLE TRANSFER: set review state and show the new review dialog
         final txSummary = record.$1!;
 
@@ -618,15 +618,6 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
             },
           );
         }
-      } else {
-        if (mounted && context.loaderOverlay.visible) {
-          context.loaderOverlay.hide();
-        }
-        return;
-      }
-
-      if (mounted && context.loaderOverlay.visible) {
-        context.loaderOverlay.hide();
       }
     }
   }
