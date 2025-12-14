@@ -50,7 +50,7 @@ class _TrackedAssetDetailsState extends ConsumerState<TrackedAssetDetails> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   loc.name.capitalize(),
                   AssetNameWidget(
-                    assetName: widget.hash,
+                    assetName: widget.asset.name,
                     isXelis: isXelis(widget.hash),
                   ),
                 ),
