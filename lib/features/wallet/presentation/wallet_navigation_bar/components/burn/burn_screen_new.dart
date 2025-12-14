@@ -185,7 +185,7 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
                       Text(
                         loc.asset.capitalize(),
                         style: context.theme.typography.sm.copyWith(
-                          fontWeight: FontWeight.bold
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: Spaces.small),
@@ -294,6 +294,10 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
           .burn(amount: double.parse(amountText), asset: asset);
     }
 
+    if (mounted && context.loaderOverlay.visible) {
+      context.loaderOverlay.hide();
+    }
+
     // MULTISIG: hash to sign
     if (record.$2 != null) {
       ref.read(transactionReviewProvider.notifier).signaturePending(record.$2!);
@@ -318,10 +322,6 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
           return TransactionReviewDialogNew(style, animation);
         },
       );
-    }
-
-    if (mounted && context.loaderOverlay.visible) {
-      context.loaderOverlay.hide();
     }
   }
 }
