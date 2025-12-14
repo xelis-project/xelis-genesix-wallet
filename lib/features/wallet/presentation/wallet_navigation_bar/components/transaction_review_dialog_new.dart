@@ -1,9 +1,12 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 
 import 'package:genesix/features/logger/logger.dart';
@@ -145,7 +148,7 @@ class _TransactionReviewDialogNewState
 
   Widget _buildSignaturePendingContent(
     BuildContext context,
-    dynamic multisigState,
+    MultisigState multisigState,
     SignaturePending transactionReview,
   ) {
     final loc = ref.watch(appLocalizationsProvider);

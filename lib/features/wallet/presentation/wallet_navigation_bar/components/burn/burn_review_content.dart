@@ -44,7 +44,7 @@ class BurnReviewContent extends ConsumerWidget {
                         loc.asset,
                         style: context.theme.typography.base.copyWith(
                           color: context.theme.colors.mutedForeground,
-                        ),
+                        )
                       ),
                       const SizedBox(height: Spaces.small),
                       isXelisBurn

@@ -1537,10 +1537,10 @@ packages:
     dependency: "direct main"
     description:
       name: xelis_dart_sdk
-      sha256: "270b4bd496ec820b4cba753897ac073d9227d7744e1d0cdc33b6515843f1368c"
+      sha256: "58ffc1055125a92b326a7c9f85f8952223914cbbb7066154a9952d52fb1610d1"
       url: "https://pub.dev"
     source: hosted
-    version: "0.30.7"
+    version: "0.30.8"
   xml:
     dependency: transitive
     description:

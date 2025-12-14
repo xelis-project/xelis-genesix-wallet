@@ -313,27 +313,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
     );
   }
 
-  Future<void> _reviewTransfer() async {
-    // Update selected asset from controller
-    final selectedAsset = _assetController.value;
-    if (selectedAsset != null) {
-      _selectedAsset = selectedAsset.key;
-      final Map<String, String> balances = ref.read(
-        walletStateProvider.select((value) => value.trackedBalances),
-      );
-      _selectedAssetBalance =
-          balances[_selectedAsset] ?? AppResources.zeroBalance;
-    }
-
-    // Ensure an asset is selected
-    if (_selectedAsset == null) {
-      final loc = ref.read(appLocalizationsProvider);
-      ref
-          .read(toastProvider.notifier)
-          .showError(description: loc.field_required_error);
-      return;
-    }
-
+  void _reviewTransfer() async {
     if (_selectedAssetBalance == AppResources.zeroBalance) {
       final loc = ref.read(appLocalizationsProvider);
       ref
@@ -342,93 +322,69 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
       return;
     }
 
-    if (_formKey.currentState?.validate() ?? false) {
-      final amount = _amountController.text.trim();
-      final address = _addressController.text.trim();
-      final loc = ref.read(appLocalizationsProvider);
+    if (_transferFormKey.currentState?.saveAndValidate() ?? false) {
+      final amount =
+          _transferFormKey.currentState?.fields['amount']?.value as String;
+      final address =
+          _transferFormKey.currentState?.fields['address']?.value as String;
+      final asset =
+          _transferFormKey.currentState?.fields['assets']?.value as String;
+      // final feeMultiplier =
+      //     _transferFormKey.currentState?.fields['fee']?.value as double;
+
+      _unfocusNodes();
 
       context.loaderOverlay.show();
 
-      try {
-        (TransactionSummary?, String?) record;
-        if (amount == _selectedAssetBalance) {
-          record = await ref
-              .read(walletStateProvider.notifier)
-              .sendAll(destination: address, asset: _selectedAsset!);
-        } else {
-          record = await ref
-              .read(walletStateProvider.notifier)
-              .send(
-                amount: double.parse(amount),
-                destination: address,
-                asset: _selectedAsset!,
-              );
-        }
-
-        if (record.$2 != null) {
-          // MULTISIG: hash to sign → legacy dialog
-          ref
-              .read(transactionReviewProvider.notifier)
-              .signaturePending(record.$2!);
-
-          if (mounted) {
-            showDialog<void>(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) {
-                return const TransactionDialog();
-              },
+      (TransactionSummary?, String?) record;
+      if (amount.trim() == _selectedAssetBalance) {
+        record = await ref
+            .read(walletStateProvider.notifier)
+            .sendAll(
+              destination: address.trim(),
+              asset: asset,
+              // feeMultiplier: feeMultiplier != 1 ? feeMultiplier : null,
             );
-          }
-        } else if (record.$1 != null) {
-          // SIMPLE TRANSFER: use new forui review dialog
-          final txSummary = record.$1!;
-
-          // Populate review provider
-          ref
-              .read(transactionReviewProvider.notifier)
-              .setSingleTransferTransaction(txSummary);
-
-          // Read back the mapped state (SingleTransferTransaction) from provider
-          final state = ref.read(transactionReviewProvider);
-          if (state is SingleTransferTransaction && mounted) {
-            showFDialog<void>(
-              context: context,
-              builder: (dialogContext, style, animation) {
-                return TransferReviewContentWidget(
-                  style,
-                  animation,
-                  transaction: state,
-                  onConfirm: () async {
-                    await _broadcastTransfer();
-                    if (dialogContext.mounted) {
-                      Navigator.of(dialogContext).pop();
-                    }
-                  },
-                  onCancel: () {
-                    if (dialogContext.mounted) {
-                      Navigator.of(dialogContext).pop();
-                    }
-                  },
-                );
-              },
+      } else {
+        record = await ref
+            .read(walletStateProvider.notifier)
+            .send(
+              amount: double.parse(amount),
+              destination: address.trim(),
+              asset: asset,
+              // feeMultiplier: feeMultiplier != 1 ? feeMultiplier : null,
             );
-          }
-        } else {
-          // Nothing returned → just bail with a warning
-          ref
-              .read(toastProvider.notifier)
-              .showError(description: loc.oups);
-        }
-      } catch (e) {
-        // Make sure we at least tell the user something went wrong
+      }
+
+      if (record.$2 != null) {
+        // multisig is enabled, hash to sign is returned
         ref
-            .read(toastProvider.notifier)
-            .showError(description: e.toString());
-      } finally {
+            .read(transactionReviewProvider.notifier)
+            .signaturePending(record.$2!);
+      } else if (record.$1 != null) {
+        // no multisig, transaction summary is returned
+        ref
+            .read(transactionReviewProvider.notifier)
+            .setSingleTransferTransaction(record.$1!);
+      } else {
         if (mounted && context.loaderOverlay.visible) {
           context.loaderOverlay.hide();
         }
+        return;
+      }
+
+      if (mounted) {
+        showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) {
+            return TransactionDialog();
+          },
+        );
+      }
+
+      if (mounted && context.loaderOverlay.visible) {
+        context.loaderOverlay.hide();
       }
     }
   }
