@@ -112,15 +112,12 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Warning
-                FCard(
-                  child: Padding(
-                    padding: const EdgeInsets.all(Spaces.medium),
-                    child: Text(
-                      loc.burn_screen_warning_message,
-                      style: context.theme.typography.sm.copyWith(
-                        color: context.theme.colors.destructiveForeground,
-                      ),
+                FAlert(
+                  title: Text(loc.warning),
+                  subtitle: Text(
+                    loc.burn_screen_warning_message,
+                    style: context.theme.typography.sm.copyWith(
+                      color: context.theme.colors.destructiveForeground,
                     ),
                   ),
                 ),
@@ -142,8 +139,8 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
                               hint: AppResources.zeroBalance,
                               keyboardType:
                                   const TextInputType.numberWithOptions(
-                                decimal: true,
-                              ),
+                                    decimal: true,
+                                  ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
                                   return loc.field_required_error;
@@ -172,7 +169,7 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
                                     _selectedAsset = selected.key;
                                     _selectedAssetBalance =
                                         balances[_selectedAsset] ??
-                                            AppResources.zeroBalance;
+                                        AppResources.zeroBalance;
                                   }
                                   _amountController.text =
                                       _selectedAssetBalance;
@@ -185,6 +182,13 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
                       ),
 
                       const SizedBox(height: Spaces.large),
+                      Text(
+                        loc.asset.capitalize(),
+                        style: context.theme.typography.sm.copyWith(
+                          fontWeight: FontWeight.bold
+                        ),
+                      ),
+                      const SizedBox(height: Spaces.small),
 
                       // Asset select
                       FSelect<MapEntry<String, AssetData>>.rich(
@@ -201,9 +205,7 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
                           return FSelectItem<MapEntry<String, AssetData>>(
                             value: MapEntry(entry.key, assetData),
                             title: Text(assetData.name),
-                            subtitle: Text(
-                              '$balance ${assetData.ticker}',
-                            ),
+                            subtitle: Text('$balance ${assetData.ticker}'),
                           );
                         }).toList(),
                         onChange: (entry) {
@@ -212,7 +214,7 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
                               _selectedAsset = entry.key;
                               _selectedAssetBalance =
                                   balances[_selectedAsset] ??
-                                      AppResources.zeroBalance;
+                                  AppResources.zeroBalance;
                             });
                           }
                         },
@@ -283,21 +285,18 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
 
     (TransactionSummary?, String?) record;
     if (amountText == _selectedAssetBalance) {
-      record = await ref.read(walletStateProvider.notifier).burnAll(
-            asset: asset,
-          );
+      record = await ref
+          .read(walletStateProvider.notifier)
+          .burnAll(asset: asset);
     } else {
-      record = await ref.read(walletStateProvider.notifier).burn(
-            amount: double.parse(amountText),
-            asset: asset,
-          );
+      record = await ref
+          .read(walletStateProvider.notifier)
+          .burn(amount: double.parse(amountText), asset: asset);
     }
 
     // MULTISIG: hash to sign
     if (record.$2 != null) {
-      ref
-          .read(transactionReviewProvider.notifier)
-          .signaturePending(record.$2!);
+      ref.read(transactionReviewProvider.notifier).signaturePending(record.$2!);
     }
     // SIMPLE BURN: summary
     else if (record.$1 != null) {
