@@ -7,6 +7,7 @@ import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/settings/domain/settings_state.dart';
+import 'package:genesix/features/wallet/presentation/home/receive_address_dialog.dart';
 import 'package:genesix/features/wallet/presentation/side_bar/side_bar_footer.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -53,18 +54,16 @@ class _SideBarState extends ConsumerState<SideBar> {
               tag: 'genesix-logo',
               child: ScalableImageWidget(
                 scale: 0.8,
-                si:
-                    isDarkMode
-                        ? AppResources.svgGenesixWalletOneLineWhite
-                        : AppResources.svgGenesixWalletOneLineBlack,
+                si: isDarkMode
+                    ? AppResources.svgGenesixWalletOneLineWhite
+                    : AppResources.svgGenesixWalletOneLineBlack,
               ),
             ),
             const SizedBox(height: Spaces.medium),
             FDivider(
-              style:
-                  context.theme.dividerStyles.horizontalStyle
-                      .copyWith(padding: EdgeInsets.zero)
-                      .call,
+              style: context.theme.dividerStyles.horizontalStyle
+                  .copyWith(padding: EdgeInsets.zero)
+                  .call,
             ),
           ],
         ),
@@ -92,6 +91,33 @@ class _SideBarState extends ConsumerState<SideBar> {
               initiallyExpanded: false,
               children: [
                 FSidebarItem(
+                  selected: _selectedItem == AuthAppScreen.transfer.toPath,
+                  label: Text(loc.send),
+                  onPress: () {
+                    _closeSideBar();
+                    context.push(AuthAppScreen.transfer.toPath);
+                    setState(() {
+                      _selectedItem = AuthAppScreen.transfer.toPath;
+                    });
+                  },
+                ),
+                FSidebarItem(
+                  selected: _selectedItem == "receive",
+                  label: Text(loc.receive),
+                  onPress: () {
+                    _closeSideBar();
+                    showFDialog<void>(
+                      context: context,
+                      builder: (context, style, animation) {
+                        return ReceiveAddressDialog(style, animation);
+                      },
+                    );
+                    setState(() {
+                      _selectedItem = "receive";
+                    });
+                  },
+                ),
+                FSidebarItem(
                   selected:
                       _selectedItem == AuthAppScreen.signTransaction.toPath,
                   label: Text(loc.sign_transaction),
@@ -106,19 +132,21 @@ class _SideBarState extends ConsumerState<SideBar> {
                 FSidebarItem(
                   selected: _selectedItem == AuthAppScreen.multisig.toPath,
                   label: Text(loc.multisig),
-                  onPress: () {
+                  // disable for pre-alpha
+                  onPress: null /*() {
                     _closeSideBar();
                     context.go(AuthAppScreen.multisig.toPath);
                     setState(() {
                       _selectedItem = AuthAppScreen.multisig.toPath;
                     });
-                  },
+                  },*/,
                 ),
                 FSidebarItem(
                   selected: _selectedItem == AuthAppScreen.xswd.toPath,
                   label: Text(loc.xswd),
-                  onPress:
-                      xswdEnabled
+                  // disable for pre-alpha
+                  onPress: null,
+                  /* xswdEnabled
                           ? () {
                             _closeSideBar();
                             context.go(AuthAppScreen.xswd.toPath);
@@ -126,21 +154,20 @@ class _SideBarState extends ConsumerState<SideBar> {
                               _selectedItem = AuthAppScreen.xswd.toPath;
                             });
                           }
-                          : null,
+                          : null,*/
                 ),
                 FSidebarItem(
-                  selected: _selectedItem == 'Burn Transfer',
-                  label: Text(loc.burn_transfer),
-                  onPress:
-                      burnTransferEnabled
-                          ? () {
-                            _closeSideBar();
-                            context.push(AuthAppScreen.burn.toPath);
-                            setState(() {
-                              _selectedItem = 'Burn Transfer';
-                            });
-                          }
-                          : null,
+                  selected: _selectedItem == AuthAppScreen.burn.toPath,
+                  label: Text(loc.burn),
+                  onPress: burnTransferEnabled
+                      ? () {
+                          _closeSideBar();
+                          context.push(AuthAppScreen.burn.toPath);
+                          setState(() {
+                            _selectedItem = AuthAppScreen.burn.toPath;
+                          });
+                        }
+                      : null,
                 ),
               ],
             ),
