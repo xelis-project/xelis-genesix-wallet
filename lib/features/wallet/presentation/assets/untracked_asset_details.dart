@@ -33,7 +33,7 @@ class _UntrackedAssetDetailsState extends ConsumerState<UntrackedAssetDetails> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    
+
     final assetOwner = widget.asset.owner;
 
     final String? contract = assetOwner?.maybeWhen(
@@ -70,7 +70,7 @@ class _UntrackedAssetDetailsState extends ConsumerState<UntrackedAssetDetails> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   loc.name.capitalize(),
                   AssetNameWidget(
-                    assetName: widget.hash,
+                    assetName: widget.asset.name,
                     isXelis: isXelis(widget.hash),
                   ),
                 ),
@@ -108,18 +108,12 @@ class _UntrackedAssetDetailsState extends ConsumerState<UntrackedAssetDetails> {
                       style: context.theme.typography.base,
                     ),
                   ),
-                if (!widget.asset.owner.isNone) ...[
+                if (!widget.asset.owner.isNone)
                   LabeledValue.text(
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    loc.contract,
-                    loc.contract,
+                    "Origin",
+                    widget.asset.owner.originContract!,
                   ),
-                  LabeledValue.text(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    loc.id,
-                    widget.asset.owner.id.toString(),
-                  ),
-                ],
               ],
             ),
           ),
