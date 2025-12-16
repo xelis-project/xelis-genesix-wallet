@@ -37,39 +37,37 @@ class ImportWalletScreen extends ConsumerWidget {
               controller: _controller,
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: Center(
-                  child: Container(
-                    width: context.mediaWidth * 0.9,
-                    constraints: BoxConstraints(
-                      maxWidth: context.theme.breakpoints.sm,
-                      minHeight: 600,
-                    ),
-                    child: FTabs(
-                      children: [
+                child: Container(
+                  width: context.mediaWidth * 0.9,
+                  constraints: BoxConstraints(
+                    maxWidth: context.theme.breakpoints.sm,
+                    minHeight: 600,
+                  ),
+                  child: FTabs(
+                    children: [
+                      FTabEntry(
+                        label: Text(
+                          loc.recovery_phrase,
+                          textAlign: TextAlign.center,
+                        ),
+                        child: RecoveryPhraseTab(),
+                      ),
+                      FTabEntry(
+                        label: Text(
+                          loc.private_key.capitalizeAll(),
+                          textAlign: TextAlign.center,
+                        ),
+                        child: PrivateKeyTab(),
+                      ),
+                      if (isDesktopDevice)
                         FTabEntry(
                           label: Text(
-                            loc.recovery_phrase,
+                            loc.restore_folder,
                             textAlign: TextAlign.center,
                           ),
-                          child: RecoveryPhraseTab(),
+                          child: RestoreFolderTab(),
                         ),
-                        FTabEntry(
-                          label: Text(
-                            loc.private_key.capitalizeAll(),
-                            textAlign: TextAlign.center,
-                          ),
-                          child: PrivateKeyTab(),
-                        ),
-                        if (isDesktopDevice)
-                          FTabEntry(
-                            label: Text(
-                              loc.restore_folder,
-                              textAlign: TextAlign.center,
-                            ),
-                            child: RestoreFolderTab(),
-                          ),
-                      ],
-                    ),
+                    ],
                   ),
                 ),
               ),
