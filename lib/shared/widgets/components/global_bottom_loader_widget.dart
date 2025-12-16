@@ -12,15 +12,11 @@ class GlobalBottomLoader extends StatelessWidget {
     return GlobalLoaderOverlay(
       overlayColor: context.theme.colors.barrier,
       overlayWidgetBuilder: (_) {
-        return const Align(
+        return Align(
           alignment: Alignment.bottomCenter,
           child: Padding(
-            padding: EdgeInsets.fromLTRB(0, 0, 0, 50),
-            child: SizedBox(
-              width: 50,
-              height: 50,
-              child: FCircularProgress(),
-            ),
+            padding: EdgeInsets.fromLTRB(0, 0, 0, 100),
+            child: Transform.scale(scale: 2, child: FCircularProgress()),
           ),
         );
       },
