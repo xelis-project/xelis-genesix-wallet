@@ -16,9 +16,6 @@ class ToasterWidget extends ConsumerStatefulWidget {
 
 class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
   late BuildContext _toastContext;
-  FToasterExpandBehavior _fToasterExpandBehavior =
-      FToasterExpandBehavior.hoverOrPress;
-
   // TODO check possible description content overflow
 
   void _setupToastListener() {
@@ -27,9 +24,6 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
       if (next != null) {
         switch (next.type) {
           case ToastType.information:
-            setState(() {
-              _fToasterExpandBehavior = FToasterExpandBehavior.disabled;
-            });
             showFToast(
               context: _toastContext,
               alignment: FToastAlignment.topCenter,
@@ -39,9 +33,6 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
             );
             break;
           case ToastType.warning:
-            setState(() {
-              _fToasterExpandBehavior = FToasterExpandBehavior.disabled;
-            });
             showFToast(
               context: _toastContext,
               alignment: FToastAlignment.bottomCenter,
@@ -51,9 +42,6 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
             );
             break;
           case ToastType.error:
-            setState(() {
-              _fToasterExpandBehavior = FToasterExpandBehavior.hoverOrPress;
-            });
             showFToast(
               context: _toastContext,
               alignment: FToastAlignment.bottomRight,
@@ -102,9 +90,6 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
             );
             break;
           case ToastType.event:
-            setState(() {
-              _fToasterExpandBehavior = FToasterExpandBehavior.hoverOrPress;
-            });
             showFToast(
               context: _toastContext,
               alignment: FToastAlignment.bottomRight,
@@ -157,7 +142,6 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
     _setupToastListener();
 
     return FToaster(
-      style: (style) => style.copyWith(expandBehavior: _fToasterExpandBehavior),
       child: Builder(
         builder: (toastContext) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
