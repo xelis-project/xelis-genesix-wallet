@@ -455,9 +455,9 @@ checksum = "0e050f626429857a27ddccb31e0aca21356bfa709c04041aefddac081a8f068a"
 
 [[package]]
 name = "better_any"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1795ebc740ea791ffbe6685e0688ab1effec16c2864e0476db40bfdf0c02cb3d"
+checksum = "4372b9543397a4b86050cc5e7ee36953edf4bac9518e8a774c2da694977fb6e4"
 
 [[package]]
 name = "bindgen"
@@ -754,9 +754,9 @@ dependencies = [
 
 [[package]]
 name = "cmake"
-version = "0.1.54"
+version = "0.1.56"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e7caa3f9de89ddbe2c607f4101924c5abec803763ae9534e4f4d7d8f84aa81f0"
+checksum = "b042e5d8a74ae91bb0961acd039822472ec99f8ab0948cbf6d1369588f8be586"
 dependencies = [
  "cc",
 ]
@@ -3839,7 +3839,7 @@ dependencies = [
 [[package]]
 name = "xelis-ast"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#4c2abc1c4db425330372ea068ad699b3150539ac"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#fecf92565cbefe0c4e132883db39d89809e97302"
 dependencies = [
  "indexmap",
  "xelis-types",
@@ -3848,7 +3848,7 @@ dependencies = [
 [[package]]
 name = "xelis-builder"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#4c2abc1c4db425330372ea068ad699b3150539ac"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#fecf92565cbefe0c4e132883db39d89809e97302"
 dependencies = [
  "anyhow",
  "hex",
@@ -3863,7 +3863,7 @@ dependencies = [
 [[package]]
 name = "xelis-bytecode"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#4c2abc1c4db425330372ea068ad699b3150539ac"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#fecf92565cbefe0c4e132883db39d89809e97302"
 dependencies = [
  "hex",
  "indexmap",
@@ -3876,7 +3876,7 @@ dependencies = [
 [[package]]
 name = "xelis-environment"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#4c2abc1c4db425330372ea068ad699b3150539ac"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#fecf92565cbefe0c4e132883db39d89809e97302"
 dependencies = [
  "anyhow",
  "better_any",
@@ -3891,7 +3891,7 @@ dependencies = [
 [[package]]
 name = "xelis-hash"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-hash?branch=master#73786fed633446a3f8ff1a506f80962630ceb90f"
+source = "git+https://github.com/xelis-project/xelis-hash?branch=master#148d3e946075eb6a43c082bc9766699248f55f5a"
 dependencies = [
  "aes 0.8.4",
  "blake3",
@@ -3904,7 +3904,7 @@ dependencies = [
 [[package]]
 name = "xelis-types"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#4c2abc1c4db425330372ea068ad699b3150539ac"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#fecf92565cbefe0c4e132883db39d89809e97302"
 dependencies = [
  "anyhow",
  "hex",
@@ -3920,7 +3920,7 @@ dependencies = [
 [[package]]
 name = "xelis-vm"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#4c2abc1c4db425330372ea068ad699b3150539ac"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#fecf92565cbefe0c4e132883db39d89809e97302"
 dependencies = [
  "anyhow",
  "futures",
@@ -3934,8 +3934,8 @@ dependencies = [
 
 [[package]]
 name = "xelis_common"
-version = "1.19.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#9e5d21feb3d835922160ceccedc7cf0702463db3"
+version = "1.19.4"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#46fb044e354d8c0ca1fe5791426966e8f401e1ad"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -3987,8 +3987,8 @@ dependencies = [
 
 [[package]]
 name = "xelis_wallet"
-version = "1.19.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#9e5d21feb3d835922160ceccedc7cf0702463db3"
+version = "1.19.4"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#46fb044e354d8c0ca1fe5791426966e8f401e1ad"
 dependencies = [
  "actix-web",
  "actix-web-httpauth",
