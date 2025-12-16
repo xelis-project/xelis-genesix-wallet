@@ -11,6 +11,8 @@ import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:genesix/src/generated/rust_bridge/api/precomputed_tables.dart'
     as tables_api;
+import 'package:genesix/src/generated/rust_bridge/api/precomputed_tables.dart'
+    show arePrecomputedTablesAvailable;
     
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/features/wallet/domain/event.dart';
@@ -150,16 +152,18 @@ class NativeWalletRepository {
     _tableUpgradeCompleter = completer;
 
     try {
-      // Ask Rust what we're currently using from CACHED_TABLES
-      final current = await getCurrentPrecomputedTablesType();
+      final tablesExist = await arePrecomputedTablesAvailable(
+        precomputedTablesPath: precomputeTablesPath,
+        precomputedTableType: desiredType,
+      );
 
-      if (current == desiredType) {
+      if (tablesExist) {
         completer.complete();
         return;
       }
 
       talker.info(
-        'XELIS: upgrading precomputed tables from $current to $desiredType',
+        'XELIS: upgrading precomputed tables to $desiredType',
       );
 
       await updateTables(
@@ -172,7 +176,7 @@ class NativeWalletRepository {
     } catch (e, s) {
       talker.error('XELIS: precomputed table upgrade failed', e, s);
       completer.completeError(e);
-      // don’t rethrow: this is best-effort background work
+      // don't rethrow: this is best-effort background work
     } finally {
       _tableUpgradeCompleter = null;
     }
