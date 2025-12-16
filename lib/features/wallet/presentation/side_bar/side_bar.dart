@@ -68,7 +68,6 @@ class _SideBarState extends ConsumerState<SideBar> {
           ],
         ),
       ),
-      footer: SideBarFooter(),
       children: [
         FSidebarGroup(
           label: Text(loc.overview),
@@ -231,10 +230,10 @@ class _SideBarState extends ConsumerState<SideBar> {
               onPress: () {
                 _closeSideBar();
 
-                if (context.goRouterState.fullPath ==
-                    AuthAppScreen.recoveryPhrase.toPath) {
-                  return;
-                }
+                //if (context.goRouterState.fullPath ==
+                 //   AuthAppScreen.recoveryPhrase.toPath) {
+                 // return;
+               // }
 
                 startWithBiometricAuth(
                   ref,
@@ -267,6 +266,7 @@ class _SideBarState extends ConsumerState<SideBar> {
             ),
           ],
         ),
+        SideBarFooter()
       ],
     );
   }
