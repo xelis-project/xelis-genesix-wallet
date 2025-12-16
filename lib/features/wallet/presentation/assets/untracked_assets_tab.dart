@@ -58,7 +58,7 @@ class _UntrackedAssetsTabState extends ConsumerState<UntrackedAssetsTab> {
         child: FItemGroup.builder(
           maxHeight: widget.maxHeight - 100,
           scrollController: _controller,
-          count: balances.length,
+          count: untrackedAssets.length,
           itemBuilder: (context, index) {
             final hash = untrackedAssets[index];
             final asset = knownAssets[hash]!;
