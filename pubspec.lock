@@ -501,18 +501,18 @@ packages:
     dependency: "direct main"
     description:
       name: forui
-      sha256: ac105b51b21ea8b8670605bec7b5430be076b8e942a252283e346f8e4f5ac37b
+      sha256: "6cc43d4a07fefc8a6ff875483546babf614ec68ab091016399ab5526ac8124b9"
       url: "https://pub.dev"
     source: hosted
-    version: "0.15.1"
+    version: "0.16.0"
   forui_assets:
     dependency: transitive
     description:
       name: forui_assets
-      sha256: "1df308c405ac6eef740269d923e5693bcd85d1debafbc45f26937b25ba2df181"
+      sha256: "0f74f49250bca9076b5ee9ffb9c7f0476c436f9a8299aa68aa7f1cb3f1b429f4"
       url: "https://pub.dev"
     source: hosted
-    version: "0.15.0"
+    version: "0.16.0"
   freezed:
     dependency: "direct dev"
     description:

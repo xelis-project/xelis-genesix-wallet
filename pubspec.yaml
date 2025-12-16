@@ -46,7 +46,7 @@ dependencies:
   local_auth: ^2.3.0
   web: ^1.1.1
   infinite_scroll_pagination: ^5.1.1
-  forui: ^0.15.1
+  forui: ^0.16.0
   animations: ^2.0.11
   jovial_svg: ^1.1.28
   fl_chart: ^1.1.1
