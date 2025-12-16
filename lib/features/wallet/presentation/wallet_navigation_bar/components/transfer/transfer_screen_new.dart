@@ -124,16 +124,15 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
           title: Text(loc.transfer),
         ),
       ),
-      child: Center(
-        child: ConstrainedBox(
+      child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 600),
           child: FadedScroll(
             controller: _scrollController,
             child: SingleChildScrollView(
               controller: _scrollController,
               padding: const EdgeInsets.symmetric(
-                horizontal: Spaces.extraLarge * 1.5,
-                vertical: Spaces.large,
+                horizontal: Spaces.medium,
+                //vertical: Spaces.large,
               ),
               child: Form(
                 key: _formKey,
@@ -427,7 +426,6 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
             ),
           ),
         ),
-      ),
     );
   }
 
