@@ -16,7 +16,7 @@ FDialogStyle dialogStyle({
   );
   final body = typography.sm.copyWith(color: colors.mutedForeground);
   return FDialogStyle(
-    barrierFilter: (animation) => ImageFilter.compose(
+    backgroundFilter: (animation) => ImageFilter.compose(
       outer: ImageFilter.blur(sigmaX: animation * 5, sigmaY: animation * 5),
       inner: ColorFilter.mode(colors.barrier, BlendMode.srcOver),
     ),
@@ -48,11 +48,13 @@ FDialogStyle dialogStyle({
       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 25),
       actionSpacing: 8,
     ),
-    entranceExitDuration: const Duration(milliseconds: 150),
-    entranceCurve: Curves.easeOutCubic,
-    exitCurve: Curves.easeInCubic,
-    insetAnimationDuration: const Duration(milliseconds: 100),
-    insetAnimationCurve: Curves.decelerate,
+    motion: FDialogMotion(
+      //entranceExitDuration: const Duration(milliseconds: 150),
+      fadeInCurve: Curves.easeOutCubic,
+      fadeOutCurve: Curves.easeInCubic,
+      insetDuration: const Duration(milliseconds: 100),
+      insetCurve: Curves.decelerate,
+    ),
     insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
   );
 }

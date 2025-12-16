@@ -72,7 +72,7 @@ class _SignTransactionContentState
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return Center(child: FProgress.circularIcon());
+                          return Center(child: FCircularProgress());
                         } else if (snapshot.hasError) {
                           return Padding(
                             padding: const EdgeInsets.all(Spaces.medium),

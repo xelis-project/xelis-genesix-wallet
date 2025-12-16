@@ -145,7 +145,7 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
                             if (_isLoadingMore)
                               Padding(
                                 padding: const EdgeInsets.all(Spaces.medium),
-                                child: Center(child: FProgress.circularIcon()),
+                                child: Center(child: FCircularProgress()),
                               ),
                           ],
                         ),

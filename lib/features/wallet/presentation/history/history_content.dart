@@ -94,7 +94,7 @@ class _HistoryContentState extends ConsumerState<HistoryContent> {
           ),
         );
       default:
-        return Center(child: FProgress.circularIcon());
+        return Center(child: FCircularProgress());
     }
   }
 

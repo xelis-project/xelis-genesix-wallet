@@ -125,7 +125,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
                 );
               },
               loading: () => const Center(
-                child: FProgress.circularIcon(),
+                child: FCircularProgress(),
               ),
               error: (error, stack) => _CenteredMessage(
                 loc.error_loading_contacts,

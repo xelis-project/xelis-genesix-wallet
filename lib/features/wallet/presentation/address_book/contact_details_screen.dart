@@ -207,7 +207,7 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
             ),
           );
         },
-        loading: () => Center(child: FProgress.circularIcon()),
+        loading: () => Center(child: FCircularProgress()),
         error: (error, stack) => Center(child: Text('${loc.error}: $error')),
       ),
     );
@@ -489,7 +489,7 @@ class _ContactHistoryContentState
           ),
         );
       default:
-        return Center(child: FProgress.circularIcon());
+        return Center(child: FCircularProgress());
     }
   }
 

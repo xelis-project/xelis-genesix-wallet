@@ -19,7 +19,7 @@ class GlobalBottomLoader extends StatelessWidget {
             child: SizedBox(
               width: 50,
               height: 50,
-              child: FProgress.circularIcon(),
+              child: FCircularProgress(),
             ),
           ),
         );

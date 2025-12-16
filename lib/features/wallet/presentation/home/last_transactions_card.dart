@@ -123,7 +123,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
       // );
       content = SizedBox(
         height: 200,
-        child: Center(child: FProgress.circularIcon()),
+        child: Center(child: FCircularProgress()),
       );
     }
 

@@ -18,6 +18,7 @@ FTextFieldStyle textFieldStyle({
     fontFamily: typography.defaultFontFamily,
   );
   return FTextFieldStyle(
+    obscureButtonStyle: ghost,
     keyboardAppearance: colors.brightness,
     clearButtonStyle: ghost.copyWith(
       iconContentStyle: ghost.iconContentStyle
@@ -252,6 +253,7 @@ FButtonContentStyle _buttonContentStyle({
   required Color enabled,
   required Color disabled,
 }) => FButtonContentStyle(
+  circularProgressStyle: FWidgetStateMap({}), // todo maybe
   textStyle: FWidgetStateMap({
     WidgetState.disabled: typography.base.copyWith(
       color: disabled,
