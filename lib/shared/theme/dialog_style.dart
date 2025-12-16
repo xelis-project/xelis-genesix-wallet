@@ -16,12 +16,9 @@ FDialogStyle dialogStyle({
   );
   final body = typography.sm.copyWith(color: colors.mutedForeground);
   return FDialogStyle(
-    backgroundFilter: (animation) => ImageFilter.compose(
-      outer: ImageFilter.blur(sigmaX: animation * 5, sigmaY: animation * 5),
-      inner: ColorFilter.mode(colors.barrier, BlendMode.srcOver),
-    ),
     decoration: BoxDecoration(
       borderRadius: style.borderRadius,
+      border: Border.all(color: colors.primary.withValues(alpha: 0.2)),
       color: colors.background,
       boxShadow: [
         BoxShadow(
