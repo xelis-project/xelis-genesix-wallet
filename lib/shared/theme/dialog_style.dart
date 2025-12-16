@@ -25,14 +25,9 @@ FDialogStyle dialogStyle({
       color: colors.background,
       boxShadow: [
         BoxShadow(
-          color: colors.primary.withValues(alpha: 0.4),
-          blurRadius: 16,
-          spreadRadius: 2,
-        ),
-        BoxShadow(
           color: colors.primary.withValues(alpha: 0.2),
-          blurRadius: 32,
-          spreadRadius: 8,
+          blurRadius: 200,
+          spreadRadius: 20,
         ),
       ],
     ),
