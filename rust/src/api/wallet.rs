@@ -149,11 +149,7 @@ pub async fn update_tables(
     precomputed_tables_path: String,
     precomputed_table_type: PrecomputedTableType,
 ) -> Result<()> {
-    let precomputed_tables_size = if cfg!(target_arch = "wasm32") {
-        precomputed_tables::L1_LOW
-    } else {
-        precomputed_table_type.to_l1_size()?
-    };
+    let precomputed_tables_size = precomputed_table_type.to_l1_size()?;
 
     let tables = precomputed_tables::read_or_generate_precomputed_tables(
         Some(&precomputed_tables_path),
@@ -168,17 +164,20 @@ pub async fn update_tables(
 }
 
 pub fn get_current_precomputed_tables_type() -> Result<PrecomputedTableType> {
+    info!("Getting current precomputed tables type...");
     let guard = CACHED_TABLES.lock();
     let tables_arc = guard
         .as_ref()
         .ok_or_else(|| anyhow!("Precomputed tables not initialized"))?;
 
+    info!("Precomputed tables found in cache.");
     let size = {
         let tables_guard = tables_arc
             .read()
             .expect("Failed to read precomputed tables");
         tables_guard.view().get_l1()
     };
+    info!("Current precomputed tables L1 size: {}", size);
 
     let table_type = match size {
         precomputed_tables::L1_LOW => PrecomputedTableType::L1Low,
@@ -213,12 +212,7 @@ pub async fn create_xelis_wallet(
             .to_string()
     };
 
-    // Decide L1 size (WASM always uses L1_LOW)
-    let precomputed_tables_size = if cfg!(target_arch = "wasm32") {
-        precomputed_tables::L1_LOW
-    } else {
-        precomputed_table_type.to_l1_size()?
-    };
+    let precomputed_tables_size = precomputed_table_type.to_l1_size()?;
 
     info!("Creating wallet at path: {}", full_path);
 
@@ -295,11 +289,7 @@ pub async fn open_xelis_wallet(
             .to_string()
     };
 
-    let precomputed_tables_size = if cfg!(target_arch = "wasm32") {
-        precomputed_tables::L1_LOW
-    } else {
-        precomputed_table_type.to_l1_size()?
-    };
+    let precomputed_tables_size = precomputed_table_type.to_l1_size()?;
 
     let precomputed_tables = {
         let mut maybe_cached = CACHED_TABLES.lock().clone();

@@ -13,7 +13,7 @@ import 'package:genesix/src/generated/rust_bridge/api/precomputed_tables.dart'
     as tables_api;
 import 'package:genesix/src/generated/rust_bridge/api/precomputed_tables.dart'
     show arePrecomputedTablesAvailable;
-    
+
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/features/wallet/domain/event.dart';
 import 'package:genesix/features/logger/logger.dart';
@@ -23,7 +23,7 @@ class NativeWalletRepository {
   NativeWalletRepository._internal(this._xelisWallet);
 
   final XelisWallet _xelisWallet;
-  
+
   // Only one background upgrade at a time
   static Completer<void>? _tableUpgradeCompleter;
 
@@ -43,10 +43,12 @@ class NativeWalletRepository {
       precomputedTableType: precomputedTableType,
     );
 
-    unawaited(_maybeUpgradeTablesInBackground(
-      precomputeTablesPath: precomputeTablesPath,
-      desiredType: precomputedTableType,
-    ));
+    unawaited(
+      _maybeUpgradeTablesInBackground(
+        precomputeTablesPath: precomputeTablesPath,
+        desiredType: precomputedTableType,
+      ),
+    );
 
     talker.info('new XELIS Wallet created: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
@@ -70,10 +72,12 @@ class NativeWalletRepository {
       precomputedTableType: precomputedTableType,
     );
 
-    unawaited(_maybeUpgradeTablesInBackground(
-      precomputeTablesPath: precomputeTablesPath,
-      desiredType: precomputedTableType,
-    ));
+    unawaited(
+      _maybeUpgradeTablesInBackground(
+        precomputeTablesPath: precomputeTablesPath,
+        desiredType: precomputedTableType,
+      ),
+    );
 
     talker.info('XELIS Wallet recovered from seed: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
@@ -97,10 +101,12 @@ class NativeWalletRepository {
       precomputedTableType: precomputedTableType,
     );
 
-    unawaited(_maybeUpgradeTablesInBackground(
-      precomputeTablesPath: precomputeTablesPath,
-      desiredType: precomputedTableType,
-    ));
+    unawaited(
+      _maybeUpgradeTablesInBackground(
+        precomputeTablesPath: precomputeTablesPath,
+        desiredType: precomputedTableType,
+      ),
+    );
 
     talker.info('XELIS Wallet recovered from private key: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
@@ -122,10 +128,12 @@ class NativeWalletRepository {
       precomputedTableType: precomputedTableType,
     );
 
-    unawaited(_maybeUpgradeTablesInBackground(
-      precomputeTablesPath: precomputeTablesPath,
-      desiredType: precomputedTableType,
-    ));
+    unawaited(
+      _maybeUpgradeTablesInBackground(
+        precomputeTablesPath: precomputeTablesPath,
+        desiredType: precomputedTableType,
+      ),
+    );
 
     talker.info('XELIS Wallet open: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
@@ -162,9 +170,7 @@ class NativeWalletRepository {
         return;
       }
 
-      talker.info(
-        'XELIS: upgrading precomputed tables to $desiredType',
-      );
+      talker.info('XELIS: upgrading precomputed tables to $desiredType');
 
       await updateTables(
         precomputedTablesPath: precomputeTablesPath,
@@ -186,20 +192,11 @@ class NativeWalletRepository {
     String precomputeTablesPath,
     tables_api.PrecomputedTableType precomputedTableType,
   ) async {
+    talker.info('Updating precomputed tables to type: $precomputedTableType');
     await updateTables(
       precomputedTablesPath: precomputeTablesPath,
       precomputedTableType: precomputedTableType,
     );
-  }
-
-  Future<tables_api.PrecomputedTableType> getPrecomputedTablesType() async {
-    final t = await getPrecomputedTablesType();
-
-    if (t == null) {
-      throw StateError("Rust returned null for getPrecomputedTablesType()");
-    }
-
-    return t;
   }
 
   Future<void> close() async {

@@ -77,9 +77,11 @@ pub async fn are_precomputed_tables_available(
     precomputed_tables_path: String,
     precomputed_table_type: PrecomputedTableType,
 ) -> bool {
-    precomputed_tables::has_precomputed_tables(Some(precomputed_tables_path.as_str()), precomputed_table_type.to_l1_size().unwrap_or(
-      precomputed_tables::L1_LOW
-    ))
+    precomputed_tables::has_precomputed_tables(
+        Some(precomputed_tables_path.as_str()),
+        precomputed_table_type.to_l1_size()
+            .unwrap_or(precomputed_tables::L1_LOW)
+    )
         .await
         .expect("Failed to check precomputed tables existence")
 }

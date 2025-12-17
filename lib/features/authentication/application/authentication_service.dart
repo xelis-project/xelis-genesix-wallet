@@ -120,16 +120,20 @@ class Authentication extends _$Authentication {
           .read(walletsProvider.notifier)
           .setWalletAddress(name, walletRepository.address);
 
+      talker.info('Wallet created with address: ${walletRepository.address}');
       // save password in secure storage on all platforms except web
       if (!kIsWeb) {
         await _secureStorage.write(key: name, value: password);
       }
+
+      talker.info('Password saved in secure storage for wallet: $name');
 
       state = AuthenticationState.signedIn(
         name: name,
         nativeWallet: walletRepository,
       );
 
+      talker.info('State updated to SignedIn for wallet: $name');
       switch (settings.network) {
         case Network.mainnet:
           ref.read(settingsProvider.notifier).setLastMainnetWalletUsed(name);
@@ -141,6 +145,7 @@ class Authentication extends _$Authentication {
           ref.read(settingsProvider.notifier).setLastStagenetWalletUsed(name);
       }
 
+      talker.info('Navigating to home screen for wallet: $name');
       if (seed == null) {
         final seed = await walletRepository.getSeed();
         ref.read(routerProvider).go(AuthAppScreen.home.toPath, extra: seed);
@@ -149,7 +154,7 @@ class Authentication extends _$Authentication {
         // just navigate to the wallet screen
         ref.read(routerProvider).go(AuthAppScreen.home.toPath);
       }
-
+      talker.info('Connecting wallet state for wallet: $name');
       try {
         ref.read(walletStateProvider.notifier).connect();
       } finally {
@@ -157,6 +162,7 @@ class Authentication extends _$Authentication {
         // the connect() func displays an error message
       }
 
+      talker.info('Updating precomputed tables for wallet: $name');
       _updatePrecomputedTables(walletRepository, precomputedTablesPath);
     }
   }
@@ -351,6 +357,9 @@ class Authentication extends _$Authentication {
     // if full size precomputed tables are not available,
     // we need to generate them and replace the existing ones (default: l1Low)
     if (!await isPrecomputedTablesExists(_getExpectedTableType())) {
+      talker.info(
+        'Generating the final precomputed tables, this may take a while...',
+      );
       ref
           .read(toastProvider.notifier)
           .showInformation(
@@ -360,12 +369,10 @@ class Authentication extends _$Authentication {
       wallet
           .updatePrecomputedTables(path, _getExpectedTableType())
           .whenComplete(() async {
-            final tableType = await wallet.getPrecomputedTablesType();
+            talker.info('Precomputed tables updated successfully.');
             ref
                 .read(toastProvider.notifier)
-                .showInformation(
-                  title: 'Precomputed tables updated: ${tableType.name}',
-                );
+                .showInformation(title: 'Precomputed tables updated.');
           });
     }
   }
@@ -373,6 +380,9 @@ class Authentication extends _$Authentication {
   Future<bool> isPrecomputedTablesExists(
     PrecomputedTableType precomputedTableType,
   ) async {
+    talker.info(
+      'Checking if precomputed tables exist for type: $precomputedTableType',
+    );
     return arePrecomputedTablesAvailable(
       precomputedTablesPath: await _getPrecomputedTablesPath(),
       precomputedTableType: precomputedTableType,
