@@ -193,6 +193,8 @@ String translateLocaleName(Locale locale) {
       return 'Melayu';
     case 'pl':
       return 'Polski';
+    case 'id':
+      return 'Bahasa Indonesia';
     case 'uk':
       return 'українська';
     case 'ar':
