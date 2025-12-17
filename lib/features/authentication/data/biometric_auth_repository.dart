@@ -10,8 +10,17 @@ class BiometricAuthRepository {
   Future<bool> get canCheckBiometrics => auth.canCheckBiometrics;
 
   Future<bool> canAuthenticate() async {
-    final List<BiometricType> availableBiometrics = await auth
-        .getAvailableBiometrics();
+    try {
+      if (!await auth.isDeviceSupported()) {
+        return false;
+      }
+    } catch (e) {
+      talker.error('Local_Auth - isDeviceSupported error: $e');
+      return false;
+    }
+
+    final List<BiometricType> availableBiometrics =
+        await auth.getAvailableBiometrics();
     talker.debug('Local_Auth - availableBiometrics: $availableBiometrics');
     final canCheckBiometrics = await auth.canCheckBiometrics;
     talker.debug('Local_Auth - canCheckBiometrics: $canCheckBiometrics');

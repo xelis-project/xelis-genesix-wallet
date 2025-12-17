@@ -149,6 +149,10 @@
 <!--      table before it is cached on your device.</div>-->
   </div>
   <script>
+    // Check cross-origin isolation status
+    console.log('crossOriginIsolated:', window.crossOriginIsolated);
+    console.log('SharedArrayBuffer available:', typeof SharedArrayBuffer !== 'undefined');
+    
     // Polyfill for old browsers that don't support WeakRef.
     // (See https://github.com/ungap/weakrefs/blob/v0.1.0/min.js)
     /*! (c) Andrea Giammarchi - ISC */
