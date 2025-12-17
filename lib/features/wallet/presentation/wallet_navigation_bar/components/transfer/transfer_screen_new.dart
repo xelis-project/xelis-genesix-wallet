@@ -221,6 +221,9 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                             keyboardType: const TextInputType.numberWithOptions(
                               decimal: true,
                             ),
+                            onChange: (value) => {
+                              _updateEstimatedFee()
+                            },
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return loc.field_required_error;
@@ -273,6 +276,9 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                                 controller: _addressController,
                                 label: Text(loc.destination.titleCase),
                                 hint: loc.receiver_address,
+                                onChange: (value) => {
+                                  _updateEstimatedFee()
+                                },
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return loc.field_required_error;
@@ -415,7 +421,8 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                       onPress:
                           validAssets.isEmpty ||
                               _selectedAsset == null ||
-                              _addressController.text.trim().isEmpty
+                              _addressController.text.trim().isEmpty ||
+                              _amountController.text.trim().isEmpty
                           ? null
                           : _reviewTransfer,
                       child: Text(loc.review_send),
@@ -457,10 +464,9 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
       _boostMultiplier = boostValue;
     }
 
-    final amount = double.tryParse(_amountController.text);
     final address = _addressController.text.trim();
-
-    if (address.isNotEmpty && _selectedAsset != null) {
+    if (address.isNotEmpty && _amountController.text.trim().isNotEmpty && _selectedAsset != null) {
+      final amount = double.tryParse(_amountController.text);
       ref
           .read(walletStateProvider.notifier)
           .estimateFees(
