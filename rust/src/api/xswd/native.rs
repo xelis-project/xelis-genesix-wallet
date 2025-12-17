@@ -10,7 +10,7 @@ pub use xelis_wallet::api::AppState;
 use xelis_wallet::api::{APIServer, Permission, PermissionResult};
 pub use xelis_wallet::wallet::XSWDEvent;
 
-use super::{
+use crate::api::{
     models::xswd_dtos::{
         AppInfo, PermissionPolicy, UserPermissionDecision, XswdRequestSummary, XswdRequestType,
     },
@@ -75,22 +75,19 @@ impl XSWD for XelisWallet {
             + 'static,
     ) -> Result<()> {
         match self.get_wallet().enable_xswd().await {
-            Ok(receiver) => {
-                if let Some(receiver) = receiver {
-                    spawn_task("xswd_handler", async move {
-                        xswd_handler(
-                            receiver,
-                            cancel_request_dart_callback,
-                            request_application_dart_callback,
-                            request_permission_dart_callback,
-                            app_disconnect_dart_callback,
-                        )
-                        .await;
-                    });
-                } else {
-                    debug!("XSWD Server was already running");
-                }
+            Ok(Some(receiver)) => {
+                spawn_task("xswd_handler", async move {
+                    xswd_handler(
+                        receiver,
+                        cancel_request_dart_callback,
+                        request_application_dart_callback,
+                        request_permission_dart_callback,
+                        app_disconnect_dart_callback,
+                    )
+                    .await;
+                });
             }
+            Ok(None) => bail!("Failed to enable XSWD Server: receiver is None"),
             Err(e) => bail!("Error while enabling XSWD Server: {}", e),
         };
         Ok(())
@@ -241,6 +238,9 @@ pub async fn xswd_handler(
     while let Some(event) = receiver.recv().await {
         info!("Received XSWD event: {}", xswd_event_name(&event));
         match event {
+            XSWDEvent::PrefetchPermissions(_, _, _) => {
+                // Currently no action is taken for PrefetchPermission events
+            },
             XSWDEvent::CancelRequest(state, callback) => {
                 let event_summary =
                     create_event_summary(&state, XswdRequestType::CancelRequest).await;
@@ -249,12 +249,6 @@ pub async fn xswd_handler(
 
                 if callback.send(Ok(())).is_err() {
                     error!("Error while sending cancel response to XSWD");
-                }
-            },
-            XSWDEvent::PrefetchPermissions(_, _, callback) => {
-                // TODO: implement prefetch permissions handling
-                if callback.send(Ok(Default::default())).is_err() {
-                    error!("Error while sending prefetch permissions response to XSWD");
                 }
             }
             XSWDEvent::RequestApplication(state, callback) => {
@@ -281,6 +275,9 @@ pub async fn xswd_handler(
                     create_event_summary(&app_state, XswdRequestType::AppDisconnect).await;
 
                 app_disconnect_dart_callback(event_summary).await;
+            },
+            _ => {
+                info!("TODO: unhandled event");
             }
         };
     }
@@ -307,7 +304,7 @@ pub async fn create_app_info(state: &AppState) -> AppInfo {
         .collect();
 
     AppInfo {
-        id: state.get_id().to_owned(),
+        id: state.get_id().to_string(),
         name: state.get_name().clone(),
         description: state.get_description().clone(),
         url: state.get_url().clone(),
@@ -336,6 +333,7 @@ fn xswd_event_name(event: &XSWDEvent) -> &'static str {
         XSWDEvent::CancelRequest(_, _) => "CancelRequest",
         XSWDEvent::RequestApplication(_, _) => "RequestApplication",
         XSWDEvent::RequestPermission(_, _, _) => "RequestPermission",
+        XSWDEvent::PrefetchPermissions(_, _, _) => "PrefetchPermissions",
         XSWDEvent::AppDisconnect(_) => "AppDisconnect",
         XSWDEvent::PrefetchPermissions(_, _, _) => "PrefetchPermissions",
     }
