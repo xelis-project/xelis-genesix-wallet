@@ -11,7 +11,7 @@ use lru::LruCache;
 
 use anyhow::{anyhow, bail, Context, Result};
 use indexmap::IndexSet;
-use log::{debug, trace, error, info, warn};
+use log::{debug, error, info, warn};
 use parking_lot::{Mutex, RwLock};
 use serde_json::json;
 use xelis_common::api::wallet::BaseFeeMode;
@@ -220,12 +220,16 @@ pub async fn create_xelis_wallet(
         precomputed_table_type.to_l1_size()?
     };
 
+    info!("Creating wallet at path: {}", full_path);
+
     // Use cached tables if available, otherwise generate & cache
     let precomputed_tables = {
-        let maybe_cached = CACHED_TABLES.lock().clone();
+        let mut maybe_cached = CACHED_TABLES.lock().clone();
+        info!("Maybe cached tables: {}", maybe_cached.is_some());
         match maybe_cached {
             Some(tables) => tables,
             None => {
+                info!("No cached tables, generating new ones...");
                 let tables = precomputed_tables::read_or_generate_precomputed_tables(
                     precomputed_tables_path.as_deref(),
                     precomputed_tables_size,
@@ -233,8 +237,9 @@ pub async fn create_xelis_wallet(
                     true,
                 )
                 .await?;
+                info!("Precomputed tables generated.");
 
-                CACHED_TABLES.lock().replace(tables.clone());
+                maybe_cached.replace(tables.clone());
                 tables
             }
         }
@@ -297,7 +302,7 @@ pub async fn open_xelis_wallet(
     };
 
     let precomputed_tables = {
-        let maybe_cached = CACHED_TABLES.lock().clone();
+        let mut maybe_cached = CACHED_TABLES.lock().clone();
         match maybe_cached {
             Some(tables) => tables,
             None => {
@@ -309,7 +314,7 @@ pub async fn open_xelis_wallet(
                 )
                 .await?;
 
-                CACHED_TABLES.lock().replace(tables.clone());
+                maybe_cached.replace(tables.clone());
                 tables
             }
         }
