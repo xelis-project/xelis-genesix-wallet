@@ -8,7 +8,6 @@ import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
 import 'package:genesix/features/wallet/presentation/address_book/select_address_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_dialog_old.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transfer/transfer_review_content.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_review_dialog_new.dart';
 import 'package:genesix/src/generated/rust_bridge/api/utils.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
@@ -125,314 +124,308 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
         ),
       ),
       child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 600),
-          child: FadedScroll(
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: FadedScroll(
+          controller: _scrollController,
+          child: SingleChildScrollView(
             controller: _scrollController,
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(
-                horizontal: Spaces.medium,
-                //vertical: Spaces.large,
-              ),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Asset Selection
-                    FSelect<MapEntry<String, AssetData>>.searchBuilder(
-                      label: Text(loc.asset.titleCase),
-                      hint: validAssets.isEmpty
-                          ? loc.no_balance_to_transfer
-                          : loc.select_asset,
-                      controller: _assetController,
-                      enabled: validAssets.isNotEmpty,
-                      format: (assetEntry) {
+            padding: const EdgeInsets.symmetric(
+              horizontal: Spaces.medium,
+              //vertical: Spaces.large,
+            ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Asset Selection
+                  FSelect<MapEntry<String, AssetData>>.searchBuilder(
+                    label: Text(loc.asset.titleCase),
+                    hint: validAssets.isEmpty
+                        ? loc.no_balance_to_transfer
+                        : loc.select_asset,
+                    controller: _assetController,
+                    enabled: validAssets.isNotEmpty,
+                    format: (assetEntry) {
+                      final balance =
+                          balances[assetEntry.key] ?? AppResources.zeroBalance;
+                      return '${assetEntry.value.name} (${balance} ${assetEntry.value.ticker})';
+                    },
+                    filter: (query) {
+                      final availableAssets = validAssets
+                          .map(
+                            (balance) =>
+                                MapEntry(balance.key, assets[balance.key]!),
+                          )
+                          .toList();
+
+                      if (query.isEmpty) {
+                        return availableAssets;
+                      }
+
+                      return availableAssets
+                          .where(
+                            (assetEntry) =>
+                                assetEntry.value.name.toLowerCase().contains(
+                                  query.toLowerCase(),
+                                ) ||
+                                assetEntry.value.ticker.toLowerCase().contains(
+                                  query.toLowerCase(),
+                                ),
+                          )
+                          .toList();
+                    },
+                    contentBuilder: (context, style, data) {
+                      return data.map((assetEntry) {
                         final balance =
                             balances[assetEntry.key] ??
                             AppResources.zeroBalance;
-                        return '${assetEntry.value.name} (${balance} ${assetEntry.value.ticker})';
-                      },
-                      filter: (query) {
-                        final availableAssets = validAssets
-                            .map(
-                              (balance) =>
-                                  MapEntry(balance.key, assets[balance.key]!),
-                            )
-                            .toList();
-
-                        if (query.isEmpty) {
-                          return availableAssets;
-                        }
-
-                        return availableAssets
-                            .where(
-                              (assetEntry) =>
-                                  assetEntry.value.name.toLowerCase().contains(
-                                    query.toLowerCase(),
-                                  ) ||
-                                  assetEntry.value.ticker
-                                      .toLowerCase()
-                                      .contains(query.toLowerCase()),
-                            )
-                            .toList();
-                      },
-                      contentBuilder: (context, style, data) {
-                        return data.map((assetEntry) {
-                          final balance =
-                              balances[assetEntry.key] ??
+                        return FSelectItem<MapEntry<String, AssetData>>(
+                          title: Text(
+                            '${assetEntry.value.name} (${truncateText(assetEntry.key)})',
+                          ),
+                          subtitle: Text('$balance ${assetEntry.value.ticker}'),
+                          value: assetEntry,
+                        );
+                      }).toList();
+                    },
+                    onChange: (assetEntry) {
+                      if (assetEntry != null) {
+                        setState(() {
+                          _selectedAsset = assetEntry.key;
+                          _selectedAssetBalance =
+                              balances[_selectedAsset] ??
                               AppResources.zeroBalance;
-                          return FSelectItem<MapEntry<String, AssetData>>(
-                            title: Text(
-                              '${assetEntry.value.name} (${truncateText(assetEntry.key)})',
-                            ),
-                            subtitle: Text(
-                              '$balance ${assetEntry.value.ticker}',
-                            ),
-                            value: assetEntry,
-                          );
-                        }).toList();
-                      },
-                      onChange: (assetEntry) {
-                        if (assetEntry != null) {
-                          setState(() {
-                            _selectedAsset = assetEntry.key;
-                            _selectedAssetBalance =
-                                balances[_selectedAsset] ??
-                                AppResources.zeroBalance;
-                          });
-                          _updateEstimatedFee();
-                        }
-                      },
-                      validator: (value) =>
-                          value == null ? loc.field_required_error : null,
-                    ),
-                    const SizedBox(height: Spaces.medium),
+                        });
+                        _updateEstimatedFee();
+                      }
+                    },
+                    validator: (value) =>
+                        value == null ? loc.field_required_error : null,
+                  ),
+                  const SizedBox(height: Spaces.medium),
 
-                    // Amount Input with Max Button
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: FTextFormField(
-                            controller: _amountController,
-                            label: Text(loc.amount.titleCase),
-                            hint: AppResources.zeroBalance,
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            onChange: (value) => {
-                              _updateEstimatedFee()
+                  // Amount Input with Max Button
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: FTextFormField(
+                          controller: _amountController,
+                          label: Text(loc.amount.titleCase),
+                          hint: AppResources.zeroBalance,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          onChange: (value) => {_updateEstimatedFee()},
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return loc.field_required_error;
+                            }
+                            final amount = double.tryParse(value);
+                            if (amount == null) {
+                              return loc.must_be_numeric_error;
+                            }
+                            if (amount <= 0) {
+                              return loc.invalid_amount_error;
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8, top: 20),
+                        child: SizedBox(
+                          height: inputHeight,
+                          child: FButton(
+                            style: FButtonStyle.outline(),
+                            onPress: () {
+                              final selectedAsset = _assetController.value;
+                              if (selectedAsset != null) {
+                                _selectedAsset = selectedAsset.key;
+                                _selectedAssetBalance =
+                                    balances[_selectedAsset] ??
+                                    AppResources.zeroBalance;
+                              }
+                              _amountController.text = _selectedAssetBalance;
+                              _updateEstimatedFee();
                             },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return loc.field_required_error;
-                              }
-                              final amount = double.tryParse(value);
-                              if (amount == null) {
-                                return loc.must_be_numeric_error;
-                              }
-                              if (amount <= 0) {
-                                return loc.invalid_amount_error;
-                              }
-                              return null;
-                            },
+                            child: Text(loc.max),
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8, top: 20),
-                          child: SizedBox(
-                            height: inputHeight,
-                            child: FButton(
-                              style: FButtonStyle.outline(),
-                              onPress: () {
-                                final selectedAsset = _assetController.value;
-                                if (selectedAsset != null) {
-                                  _selectedAsset = selectedAsset.key;
-                                  _selectedAssetBalance =
-                                      balances[_selectedAsset] ??
-                                      AppResources.zeroBalance;
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: Spaces.medium),
+
+                  // Destination Address with Contact Suggestions
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: FTextFormField(
+                              controller: _addressController,
+                              label: Text(loc.destination.titleCase),
+                              hint: loc.receiver_address,
+                              onChange: (value) => {_updateEstimatedFee()},
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return loc.field_required_error;
                                 }
-                                _amountController.text = _selectedAssetBalance;
-                                _updateEstimatedFee();
+                                if (!isAddressValid(
+                                  strAddress: value.trim(),
+                                  network: network,
+                                )) {
+                                  return loc.invalid_address_format_error;
+                                }
+                                return null;
                               },
-                              child: Text(loc.max),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: Spaces.medium),
-
-                    // Destination Address with Contact Suggestions
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: FTextFormField(
-                                controller: _addressController,
-                                label: Text(loc.destination.titleCase),
-                                hint: loc.receiver_address,
-                                onChange: (value) => {
-                                  _updateEstimatedFee()
-                                },
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return loc.field_required_error;
-                                  }
-                                  if (!isAddressValid(
-                                    strAddress: value.trim(),
-                                    network: network,
-                                  )) {
-                                    return loc.invalid_address_format_error;
-                                  }
-                                  return null;
-                                },
+                          const SizedBox(width: Spaces.medium),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 24),
+                            child: FTooltip(
+                              tipBuilder: (context, controller) {
+                                return Text(
+                                  loc.address_book,
+                                  style: context.theme.typography.base,
+                                );
+                              },
+                              child: FButton.icon(
+                                style: FButtonStyle.outline(),
+                                onPress: _onAddressBookClicked,
+                                child: const Icon(FIcons.bookUser, size: 20),
                               ),
                             ),
-                            const SizedBox(width: Spaces.medium),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 24),
-                              child: FTooltip(
-                                tipBuilder: (context, controller) {
-                                  return Text(
-                                    loc.address_book,
-                                    style: context.theme.typography.base,
-                                  );
-                                },
-                                child: FButton.icon(
-                                  style: FButtonStyle.outline(),
-                                  onPress: _onAddressBookClicked,
-                                  child: const Icon(FIcons.bookUser, size: 20),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: Spaces.large),
+
+                  // Fee Information Section
+                  FCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: Spaces.small,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              loc.estimated_fee,
+                              style: context.theme.typography.sm.copyWith(
+                                color: context.theme.colors.mutedForeground,
+                              ),
+                            ),
+                            const SizedBox(width: Spaces.extraSmall),
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  _boostMultiplier != 1.0
+                                      ? '$_baseFee × ${_boostMultiplier}x = $_estimatedFee ${getXelisTicker(network)}'
+                                      : '$_estimatedFee ${getXelisTicker(network)}',
+                                  style: context.theme.typography.base.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                             ),
                           ],
                         ),
+                        FDivider(
+                          style: FDividerStyle(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: Spaces.small,
+                            ),
+                            color: FTheme.of(context).colors.primary,
+                            width: 1,
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: Spaces.extraSmall,
+                          children: [
+                            Text(
+                              loc.boost_fees_title,
+                              style: context.theme.typography.sm.copyWith(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Text(
+                              loc.boost_fees_message,
+                              style: context.theme.typography.xs.copyWith(
+                                color: context.theme.colors.mutedForeground,
+                              ),
+                            ),
+                            const SizedBox(height: Spaces.extraSmall),
+                            FSelect<double>.rich(
+                              controller: _boostFeeController,
+                              format: (value) {
+                                if (value == 1.0) return 'Normal (1x)';
+                                if (value == 1.5) return 'Fast (1.5x)';
+                                if (value == 2.0) return 'Fastest (2x)';
+                                return 'Normal (1x)';
+                              },
+                              children: const [
+                                FSelectItem(
+                                  value: 1.0,
+                                  title: Text('Normal'),
+                                  subtitle: Text('1x fee'),
+                                ),
+                                FSelectItem(
+                                  value: 1.5,
+                                  title: Text('Fast'),
+                                  subtitle: Text('1.5x fee'),
+                                ),
+                                FSelectItem(
+                                  value: 2.0,
+                                  title: Text('Fastest'),
+                                  subtitle: Text('2x fee'),
+                                ),
+                              ],
+                              onChange: (value) {
+                                if (value != null) {
+                                  setState(() {
+                                    _boostMultiplier = value;
+                                  });
+                                  _updateEstimatedFee();
+                                }
+                              },
+                            ),
+                          ],
+                        ),
                       ],
                     ),
-                    const SizedBox(height: Spaces.large),
+                  ),
 
-                    // Fee Information Section
-                    FCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: Spaces.small,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                loc.estimated_fee,
-                                style: context.theme.typography.sm.copyWith(
-                                  color: context.theme.colors.mutedForeground,
-                                ),
-                              ),
-                              const SizedBox(width: Spaces.extraSmall),
-                              Flexible(
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    _boostMultiplier != 1.0
-                                        ? '$_baseFee × ${_boostMultiplier}x = $_estimatedFee ${getXelisTicker(network)}'
-                                        : '$_estimatedFee ${getXelisTicker(network)}',
-                                    style: context.theme.typography.base
-                                        .copyWith(fontWeight: FontWeight.w600),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          FDivider(
-                            style: FDividerStyle(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: Spaces.small,
-                              ),
-                              color: FTheme.of(context).colors.primary,
-                              width: 1,
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            spacing: Spaces.extraSmall,
-                            children: [
-                              Text(
-                                loc.boost_fees_title,
-                                style: context.theme.typography.sm.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              Text(
-                                loc.boost_fees_message,
-                                style: context.theme.typography.xs.copyWith(
-                                  color: context.theme.colors.mutedForeground,
-                                ),
-                              ),
-                              const SizedBox(height: Spaces.extraSmall),
-                              FSelect<double>.rich(
-                                controller: _boostFeeController,
-                                format: (value) {
-                                  if (value == 1.0) return 'Normal (1x)';
-                                  if (value == 1.5) return 'Fast (1.5x)';
-                                  if (value == 2.0) return 'Fastest (2x)';
-                                  return 'Normal (1x)';
-                                },
-                                children: const [
-                                  FSelectItem(
-                                    value: 1.0,
-                                    title: Text('Normal'),
-                                    subtitle: Text('1x fee'),
-                                  ),
-                                  FSelectItem(
-                                    value: 1.5,
-                                    title: Text('Fast'),
-                                    subtitle: Text('1.5x fee'),
-                                  ),
-                                  FSelectItem(
-                                    value: 2.0,
-                                    title: Text('Fastest'),
-                                    subtitle: Text('2x fee'),
-                                  ),
-                                ],
-                                onChange: (value) {
-                                  if (value != null) {
-                                    setState(() {
-                                      _boostMultiplier = value;
-                                    });
-                                    _updateEstimatedFee();
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                  const SizedBox(height: Spaces.large),
 
-                    const SizedBox(height: Spaces.large),
-
-                    // Review Button
-                    FButton(
-                      style: FButtonStyle.primary(),
-                      onPress:
-                          validAssets.isEmpty ||
-                              _selectedAsset == null ||
-                              _addressController.text.trim().isEmpty ||
-                              _amountController.text.trim().isEmpty
-                          ? null
-                          : _reviewTransfer,
-                      child: Text(loc.review_send),
-                    ),
-                  ],
-                ),
+                  // Review Button
+                  FButton(
+                    style: FButtonStyle.primary(),
+                    onPress:
+                        validAssets.isEmpty ||
+                            _selectedAsset == null ||
+                            _addressController.text.trim().isEmpty ||
+                            _amountController.text.trim().isEmpty
+                        ? null
+                        : _reviewTransfer,
+                    child: Text(loc.review_send),
+                  ),
+                ],
               ),
             ),
           ),
         ),
+      ),
     );
   }
 
@@ -465,7 +458,9 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
     }
 
     final address = _addressController.text.trim();
-    if (address.isNotEmpty && _amountController.text.trim().isNotEmpty && _selectedAsset != null) {
+    if (address.isNotEmpty &&
+        _amountController.text.trim().isNotEmpty &&
+        _selectedAsset != null) {
       final amount = double.tryParse(_amountController.text);
       ref
           .read(walletStateProvider.notifier)

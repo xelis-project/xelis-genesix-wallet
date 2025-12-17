@@ -2587,9 +2587,9 @@ dependencies = [
 
 [[package]]
 name = "rustls-pki-types"
-version = "1.13.1"
+version = "1.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "708c0f9d5f54ba0272468c1d306a52c495b31fa155e91bc25371e6df7996908c"
+checksum = "21e6f2ab2928ca4291b86736a8bd920a277a399bba1589409d72154ff87c1282"
 dependencies = [
  "zeroize",
 ]
@@ -3161,18 +3161,18 @@ dependencies = [
 
 [[package]]
 name = "toml_datetime"
-version = "0.7.3"
+version = "0.7.4+spec-1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f2cdb639ebbc97961c51720f858597f7f24c4fc295327923af55b74c3c724533"
+checksum = "fe3cea6b2aa3b910092f6abd4053ea464fab5f9c170ba5e9a6aead16ec4af2b6"
 dependencies = [
  "serde_core",
 ]
 
 [[package]]
 name = "toml_edit"
-version = "0.23.9"
+version = "0.23.10+spec-1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d7cbc3b4b49633d57a0509303158ca50de80ae32c265093b24c414705807832"
+checksum = "84c8b9f757e028cee9fa244aea147aab2a9ec09d5325a9b01e0a49730c2b5269"
 dependencies = [
  "indexmap",
  "toml_datetime",
@@ -3182,9 +3182,9 @@ dependencies = [
 
 [[package]]
 name = "toml_parser"
-version = "1.0.4"
+version = "1.0.5+spec-1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c0cbe268d35bdb4bb5a56a2de88d0ad0eb70af5384a99d648cd4b3d04039800e"
+checksum = "4c03bee5ce3696f31250db0bbaff18bc43301ce0e8db2ed1f07cbb2acf89984c"
 dependencies = [
  "winnow",
 ]
@@ -3430,6 +3430,16 @@ name = "web-sys"
 version = "0.3.83"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9b32828d774c412041098d182a8b38b16ea816958e07cf40eec2bc080ae137ac"
+dependencies = [
+ "js-sys",
+ "wasm-bindgen",
+]
+
+[[package]]
+name = "web-time"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a6580f308b1fad9207618087a65c04e7a10bc77e02c8e84e9b00dd4b12fa0bb"
 dependencies = [
  "js-sys",
  "wasm-bindgen",
@@ -3933,8 +3943,8 @@ dependencies = [
 
 [[package]]
 name = "xelis_common"
-version = "1.19.6"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#83d0e6df76222394af0017c6cf58f39e82367318"
+version = "1.19.7"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#834c0cf3a9193c5dc9ae8bb096c8fe1a04d3b9f3"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -3975,6 +3985,7 @@ dependencies = [
  "tokio",
  "tokio-tungstenite-wasm",
  "tokio_with_wasm",
+ "web-time",
  "win32console",
  "xelis-builder",
  "xelis-bytecode",
@@ -3986,8 +3997,8 @@ dependencies = [
 
 [[package]]
 name = "xelis_wallet"
-version = "1.19.6"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#83d0e6df76222394af0017c6cf58f39e82367318"
+version = "1.19.7"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#834c0cf3a9193c5dc9ae8bb096c8fe1a04d3b9f3"
 dependencies = [
  "actix-web",
  "actix-web-httpauth",

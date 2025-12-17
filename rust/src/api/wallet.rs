@@ -1,13 +1,10 @@
 use flutter_rust_bridge::frb;
 
 use std::collections::HashMap;
-use std::num::NonZeroUsize;
 use std::fs::File;
 use std::path::Path;
 use std::sync::Arc;
 use std::thread;
-
-use lru::LruCache;
 
 use anyhow::{anyhow, bail, Context, Result};
 use indexmap::IndexSet;
@@ -82,34 +79,6 @@ impl From<&AssetOwner> for XelisAssetOwner {
 
 static CACHED_TABLES: Mutex<Option<PrecomputedTablesShared>> = Mutex::new(None);
 static MT_PARAMS: Mutex<Option<(usize, usize)>> = Mutex::new(None);
-static ASSET_DATA_CACHE: Mutex<Option<LruCache<Hash, (AssetData, std::time::Instant)>>> =
-    Mutex::new(None);
-
-const ASSET_CACHE_TTL_SECS: u64 = 300;
-
-fn init_asset_cache() {
-    let mut cache_guard = ASSET_DATA_CACHE.lock();
-    if cache_guard.is_none() {
-        let cache = LruCache::new(NonZeroUsize::new(10).unwrap());
-        *cache_guard = Some(cache);
-    }
-}
-
-#[frb(sync)]
-pub fn clear_asset_cache() {
-    if let Some(cache) = ASSET_DATA_CACHE.lock().as_mut() {
-        cache.clear();
-    }
-}
-
-#[frb(sync)]
-pub fn get_asset_cache_size() -> usize {
-    ASSET_DATA_CACHE
-        .lock()
-        .as_ref()
-        .map(|cache| cache.len())
-        .unwrap_or(0)
-}
 
 fn get_mt_params() -> (usize, usize) {
     let mut guard = MT_PARAMS.lock();
@@ -490,31 +459,11 @@ impl XelisWallet {
     }
 
     async fn get_asset_data(&self, asset_hash: &Hash) -> Result<AssetData> {
-        init_asset_cache();
-
-        // 1. cache
         {
-            let mut cache_guard = ASSET_DATA_CACHE.lock();
-            if let Some(cache) = cache_guard.as_mut() {
-                if let Some((data, timestamp)) = cache.get(asset_hash) {
-                    if timestamp.elapsed().as_secs() < ASSET_CACHE_TTL_SECS {
-                        return Ok(data.clone());
-                    } else {
-                        cache.pop(asset_hash);
-                    }
-                }
+            let storage = self.wallet.get_storage().read().await;
+            if storage.has_asset(asset_hash).await? {
+                return storage.get_asset(asset_hash).await
             }
-        }
-
-        // 2. storage
-        let storage = self.wallet.get_storage().read().await;
-        if let Ok(asset) = storage.get_asset(asset_hash).await {
-            debug!("Asset {} found in storage", asset_hash);
-            let mut cache_guard = ASSET_DATA_CACHE.lock();
-            if let Some(cache) = cache_guard.as_mut() {
-                cache.put(asset_hash.clone(), (asset.clone(), std::time::Instant::now()));
-            }
-            return Ok(asset);
         }
 
         // 3. offline guard
@@ -542,18 +491,14 @@ impl XelisWallet {
             }
         };
 
-        // 5. cache it
-        {
-            let mut cache_guard = ASSET_DATA_CACHE.lock();
-            if let Some(cache) = cache_guard.as_mut() {
-                cache.put(
-                    asset_hash.clone(),
-                    (asset_data.clone(), std::time::Instant::now()),
-                );
-            }
-        }
+        debug!("Storing fetched asset {} from network, storing it in wallet storage", asset_hash);
 
-        debug!("GET_ASSET_DATA for {} DONE", asset_hash);
+        let mut storage = self.wallet.get_storage().write().await;
+        storage.add_asset(asset_hash, asset_data.clone()).await
+            .context("Error storing fetched asset in wallet storage")?;
+
+        debug!("Asset {} stored in wallet storage", asset_hash);
+
         Ok(asset_data)
     }
 

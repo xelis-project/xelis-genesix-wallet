@@ -11,9 +11,6 @@ import 'package:genesix/features/wallet/application/transaction_review_provider.
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/multisig/multisig_participant.dart';
 import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/burn/burn_review_content.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/multisig/delete_multisig_review_content.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transfer/transfer_review_content.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
