@@ -595,9 +595,9 @@ dependencies = [
 
 [[package]]
 name = "bumpalo"
-version = "3.19.0"
+version = "3.19.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "46c5e41b57b8bba42a04676d81cb89e9ee8e859a1a66f80a5a72e1cb76b34d43"
+checksum = "5dd9dc738b7a8311c7ade152424974d8115f2cdad61e8dab8dac9f2362298510"
 
 [[package]]
 name = "byte-slice-cast"
@@ -3106,8 +3106,7 @@ dependencies = [
 [[package]]
 name = "tokio-tungstenite-wasm"
 version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f5ff91dae56f600914be4d3728ffcce2e6b5f8d1bbf6af8fbd22d3f727924bbf"
+source = "git+https://github.com/TannerRogalsky/tokio-tungstenite-wasm.git#412f73ea40a6ea3d56b9eee9277b4067f0ee8a16"
 dependencies = [
  "bytes",
  "futures-channel",
@@ -3934,8 +3933,8 @@ dependencies = [
 
 [[package]]
 name = "xelis_common"
-version = "1.19.4"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#46fb044e354d8c0ca1fe5791426966e8f401e1ad"
+version = "1.19.6"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#83d0e6df76222394af0017c6cf58f39e82367318"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -3987,8 +3986,8 @@ dependencies = [
 
 [[package]]
 name = "xelis_wallet"
-version = "1.19.4"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#46fb044e354d8c0ca1fe5791426966e8f401e1ad"
+version = "1.19.6"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#83d0e6df76222394af0017c6cf58f39e82367318"
 dependencies = [
  "actix-web",
  "actix-web-httpauth",

@@ -21,6 +21,7 @@ pub enum XSWDEvent {
     CancelRequest,
     RequestApplication,
     RequestPermission,
+    PrefetchPermissions,
     AppDisconnect,
 }
 
