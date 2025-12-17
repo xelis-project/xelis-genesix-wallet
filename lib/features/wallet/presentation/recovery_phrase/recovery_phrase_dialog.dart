@@ -1,0 +1,120 @@
+import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:forui/forui.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/faded_scroll.dart';
+import 'package:go_router/go_router.dart';
+
+class RecoveryPhraseDialog extends ConsumerStatefulWidget {
+  const RecoveryPhraseDialog(
+    this.style,
+    this.animation,
+    this.seed, {
+    super.key,
+  });
+
+  final String seed;
+  final FDialogStyle style;
+  final Animation<double> animation;
+
+  @override
+  ConsumerState<RecoveryPhraseDialog> createState() =>
+      _RecoveryPhraseDialogState();
+}
+
+class _RecoveryPhraseDialogState extends ConsumerState<RecoveryPhraseDialog> {
+  final _controller = ScrollController();
+  bool _confirmed = false;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = ref.watch(appLocalizationsProvider);
+
+    final words = widget.seed.split(' ');
+
+    return FDialog(
+      style: widget.style.call,
+      animation: widget.animation,
+      title: Row(
+        children: [
+          Expanded(child: Text(loc.my_recovery_phrase)),
+          FTooltip(
+            tipBuilder: (context, controller) => Text(loc.copy_recovery_phrase),
+            child: FButton.icon(
+              onPress: () => copyToClipboard(widget.seed, ref, loc.copied),
+              child: Icon(FIcons.copy),
+            ),
+          ),
+        ],
+      ),
+      direction: Axis.horizontal,
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: Spaces.medium),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: context.mediaHeight * 0.4),
+            child: FadedScroll(
+              controller: _controller,
+              child: SingleChildScrollView(
+                controller: _controller,
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: List.generate(
+                    words.length,
+                    (i) => FBadge(
+                      style: FBadgeStyle.secondary(),
+                      child: Row(
+                        children: [
+                          Text(
+                            '${i + 1}.',
+                            style: context.theme.typography.sm.copyWith(
+                              color: context.theme.colors.primary,
+                            ),
+                          ),
+                          const SizedBox(width: Spaces.small),
+                          Text(words[i]),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: Spaces.large),
+          Flexible(
+            child: FCheckbox(
+              label: Text(loc.recovery_phrase_acknowledgement),
+              description: Text(
+                loc.recovery_phrase_acknowledgement_description,
+              ),
+              value: _confirmed,
+              onChange: (value) => setState(() => _confirmed = value),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        FButton(
+          onPress: _confirmed
+              ? () {
+                  context.pop();
+                }
+              : null,
+          child: Text(loc.continue_button),
+        ),
+      ],
+    );
+  }
+}

@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
-import 'package:genesix/features/wallet/presentation/address_book/add_contact_dialog.dart';
+import 'package:genesix/features/wallet/presentation/address_book/add_contact_sheet.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 
 class AddressWidget extends ConsumerStatefulWidget {
-  const AddressWidget(this.address, {super.key});
+  const AddressWidget(this.address, {super.key, this.displayHashicon = true});
 
   final String address;
+
+  final bool displayHashicon;
 
   @override
   ConsumerState createState() => _AddressWidgetState();
@@ -19,12 +22,13 @@ class AddressWidget extends ConsumerStatefulWidget {
 class _AddressWidgetState extends ConsumerState<AddressWidget> {
   @override
   Widget build(BuildContext context) {
-    final future = ref.watch(addressBookProvider.future);
     final loc = ref.watch(appLocalizationsProvider);
+    final future = ref.watch(addressBookProvider.future);
 
     return Row(
       children: [
-        HashiconWidget(hash: widget.address, size: const Size(35, 35)),
+        if (widget.displayHashicon)
+          HashiconWidget(hash: widget.address, size: const Size(25, 25)),
         const SizedBox(width: Spaces.small),
         Expanded(
           child: FutureBuilder(
@@ -43,22 +47,32 @@ class _AddressWidgetState extends ConsumerState<AddressWidget> {
                 children: [
                   Flexible(
                     child: isRegistered
-                        ? Tooltip(
-                            message: widget.address,
-                            textStyle: context.bodySmall,
+                        ? FTooltip(
+                            tipBuilder: (context, controller) =>
+                                Text(widget.address),
                             child: SelectableText(
                               value,
-                              style: context.bodyMedium,
+                              style: context.theme.typography.base,
                             ),
                           )
-                        : SelectableText(value, style: context.bodySmall),
+                        : SelectableText(
+                            value,
+                            style: context.theme.typography.base,
+                          ),
                   ),
                   const SizedBox(width: Spaces.small),
                   if (!isRegistered)
-                    IconButton(
-                      icon: const Icon(Icons.add, size: 18),
-                      tooltip: loc.add_to_address_book_tooltip,
-                      onPressed: _onAddAddress,
+                    FTooltip(
+                      tipBuilder: (context, controller) {
+                        return Text(
+                          loc.add_to_address_book_tooltip,
+                          style: context.theme.typography.base,
+                        );
+                      },
+                      child: FButton.icon(
+                        onPress: _onAddAddress,
+                        child: const Icon(FIcons.plus, size: 18),
+                      ),
                     ),
                 ],
               );
@@ -70,9 +84,12 @@ class _AddressWidgetState extends ConsumerState<AddressWidget> {
   }
 
   void _onAddAddress() {
-    showDialog<void>(
+    showFSheet<void>(
       context: context,
-      builder: (context) => AddContactDialog(address: widget.address),
+      side: FLayout.btt,
+      useRootNavigator: true,
+      mainAxisMaxRatio: context.getFSheetRatio,
+      builder: (context) => AddContactSheet(address: widget.address),
     );
   }
 }

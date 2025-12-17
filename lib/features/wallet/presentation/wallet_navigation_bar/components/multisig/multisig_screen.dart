@@ -7,13 +7,13 @@ import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/multisig/setup_multisig_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/multisig/sign_transaction_dialog.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_dialog.dart';
-import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
+import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_dialog_old.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
-import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
+import 'package:genesix/shared/widgets/components/generic_app_bar_widget_old.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 
 class MultisigScreen extends ConsumerStatefulWidget {
@@ -265,7 +265,7 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
         );
       } else {
         final loc = ref.read(appLocalizationsProvider);
-        ref.read(snackBarQueueProvider.notifier).showError(loc.oups);
+        ref.read(toastProvider.notifier).showError(description: loc.oups);
       }
     }
   }

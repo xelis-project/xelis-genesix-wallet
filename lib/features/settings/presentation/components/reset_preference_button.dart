@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
-import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/storage/shared_preferences/shared_preferences_provider.dart';
-import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/extensions.dart';
-import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:go_router/go_router.dart';
 
 class ResetPreferenceButton extends ConsumerStatefulWidget {
@@ -20,19 +18,10 @@ class _ResetPreferenceButtonState extends ConsumerState<ResetPreferenceButton> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    return OutlinedButton(
-      onPressed: () => _showResetPreferencesDialog(context),
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.all(Spaces.medium + 4),
-        side: BorderSide(color: context.colors.error, width: 1),
-      ),
-      child: Text(
-        loc.reset_preferences,
-        style: context.titleMedium!.copyWith(
-          color: context.colors.error,
-          fontWeight: FontWeight.w800,
-        ),
-      ),
+    return FButton(
+      style: FButtonStyle.outline(),
+      onPress: _showResetPreferencesDialog,
+      child: Text(loc.reset_preferences),
     );
   }
 
@@ -43,41 +32,36 @@ class _ResetPreferenceButtonState extends ConsumerState<ResetPreferenceButton> {
       ref.invalidate(settingsProvider);
 
       ref
-          .read(snackBarQueueProvider.notifier)
-          .showInfo(loc.preferences_reset_snackbar);
+          .read(toastProvider.notifier)
+          .showEvent(description: loc.preferences_reset_snackbar);
     } catch (e) {
-      ref.read(snackBarQueueProvider.notifier).showError(e.toString());
+      ref.read(toastProvider.notifier).showError(description: e.toString());
     }
   }
 
-  void _showResetPreferencesDialog(BuildContext context) {
+  void _showResetPreferencesDialog() {
     final loc = ref.read(appLocalizationsProvider);
-    showDialog<void>(
+    showFDialog<void>(
       context: context,
-      builder: (context) {
-        return GenericDialog(
-          // title: Text(loc.reset_preferences, style: context.titleLarge),
-          content: Column(
+      builder: (context, style, animation) {
+        return FDialog(
+          style: style.call,
+          animation: animation,
+          direction: Axis.horizontal,
+          title: Text(loc.do_you_want_to_continue),
+          body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(loc.reset_preferences_dialog),
-              const SizedBox(height: Spaces.medium),
-              Text(
-                loc.do_you_want_to_continue,
-                style: context.bodyMedium?.copyWith(
-                  color: context.moreColors.mutedColor,
-                ),
-              ),
-            ],
+            children: [Text(loc.reset_preferences_dialog)],
           ),
           actions: [
-            TextButton(
-              onPressed: () => context.pop(),
+            FButton(
+              style: FButtonStyle.outline(),
+              onPress: () => context.pop(),
               child: Text(loc.cancel_button),
             ),
-            TextButton(
-              onPressed: () => context.pop(_resetPreferences(context)),
-              child: Text(loc.reset),
+            FButton(
+              onPress: () => context.pop(_resetPreferences(context)),
+              child: Text(loc.confirm_button),
             ),
           ],
         );

@@ -50,6 +50,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /android/app/src/main/jniLibs
+/android/.kotlin
 
 # Dart generated files (Flutter Rust Bridge, AppLocalizations, Freezed, Riverpod, GoRouter etc..)
 lib/src/generated/rust_bridge/**.dart

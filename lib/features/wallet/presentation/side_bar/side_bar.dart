@@ -1,0 +1,276 @@
+import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:forui/forui.dart';
+import 'package:genesix/features/authentication/application/authentication_service.dart';
+import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
+import 'package:genesix/features/router/route_utils.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/settings/domain/settings_state.dart';
+import 'package:genesix/features/wallet/presentation/home/receive_address_dialog.dart';
+import 'package:genesix/features/wallet/presentation/side_bar/side_bar_footer.dart';
+import 'package:genesix/shared/resources/app_resources.dart';
+import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
+import 'package:genesix/shared/utils/utils.dart';
+import 'package:go_router/go_router.dart';
+import 'package:jovial_svg/jovial_svg.dart';
+
+class SideBar extends ConsumerStatefulWidget {
+  const SideBar(this.goRouterState, {super.key});
+
+  final GoRouterState goRouterState;
+
+  @override
+  ConsumerState createState() => _SideBarState();
+}
+
+class _SideBarState extends ConsumerState<SideBar> {
+  late String _selectedItem;
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = ref.watch(appLocalizationsProvider);
+    final xswdEnabled = ref.watch(
+      settingsProvider.select((state) => state.enableXswd),
+    );
+    final burnTransferEnabled = ref.watch(
+      settingsProvider.select((state) => state.unlockBurn),
+    );
+    final appTheme = ref.watch(
+      settingsProvider.select((state) => state.appTheme),
+    );
+
+    final isDarkMode = appTheme == AppTheme.dark || appTheme == AppTheme.xelis;
+
+    _selectedItem = widget.goRouterState.fullPath ?? AuthAppScreen.home.toPath;
+
+    return FSidebar(
+      header: Padding(
+        padding: const EdgeInsets.all(Spaces.medium),
+        child: Column(
+          children: [
+            Hero(
+              tag: 'genesix-logo',
+              child: ScalableImageWidget(
+                scale: 0.8,
+                si: isDarkMode
+                    ? AppResources.svgGenesixWalletOneLineWhite
+                    : AppResources.svgGenesixWalletOneLineBlack,
+              ),
+            ),
+            const SizedBox(height: Spaces.medium),
+            FDivider(
+              style: context.theme.dividerStyles.horizontalStyle
+                  .copyWith(padding: EdgeInsets.zero)
+                  .call,
+            ),
+          ],
+        ),
+      ),
+      children: [
+        FSidebarGroup(
+          label: Text(loc.overview),
+          children: [
+            FSidebarItem(
+              selected: _selectedItem == AuthAppScreen.home.toPath,
+              icon: const Icon(FIcons.house),
+              label: Text(loc.home),
+              onPress: () {
+                _closeSideBar();
+                context.go(AuthAppScreen.home.toPath);
+                setState(() {
+                  _selectedItem = AuthAppScreen.home.toPath;
+                });
+              },
+            ),
+            FSidebarItem(
+              icon: const Icon(FIcons.wallet),
+              label: Text(loc.wallet),
+              initiallyExpanded: false,
+              children: [
+                FSidebarItem(
+                  selected: _selectedItem == AuthAppScreen.transfer.toPath,
+                  label: Text(loc.send),
+                  onPress: () {
+                    _closeSideBar();
+                    context.push(AuthAppScreen.transfer.toPath);
+                    setState(() {
+                      _selectedItem = AuthAppScreen.transfer.toPath;
+                    });
+                  },
+                ),
+                FSidebarItem(
+                  selected: _selectedItem == "receive",
+                  label: Text(loc.receive),
+                  onPress: () {
+                    _closeSideBar();
+                    showFDialog<void>(
+                      context: context,
+                      builder: (context, style, animation) {
+                        return ReceiveAddressDialog(style, animation);
+                      },
+                    );
+                    setState(() {
+                      _selectedItem = "receive";
+                    });
+                  },
+                ),
+                FSidebarItem(
+                  selected:
+                      _selectedItem == AuthAppScreen.signTransaction.toPath,
+                  label: Text(loc.sign_transaction),
+                  onPress: () {
+                    _closeSideBar();
+                    context.go(AuthAppScreen.signTransaction.toPath);
+                    setState(() {
+                      _selectedItem = AuthAppScreen.signTransaction.toPath;
+                    });
+                  },
+                ),
+                FSidebarItem(
+                  selected: _selectedItem == AuthAppScreen.multisig.toPath,
+                  label: Text(loc.multisig),
+                  // disable for pre-alpha
+                  onPress: null /*() {
+                    _closeSideBar();
+                    context.go(AuthAppScreen.multisig.toPath);
+                    setState(() {
+                      _selectedItem = AuthAppScreen.multisig.toPath;
+                    });
+                  },*/,
+                ),
+                FSidebarItem(
+                  selected: _selectedItem == AuthAppScreen.xswd.toPath,
+                  label: Text(loc.xswd),
+                  // disable for pre-alpha
+                  onPress: null,
+                  /* xswdEnabled
+                          ? () {
+                            _closeSideBar();
+                            context.go(AuthAppScreen.xswd.toPath);
+                            setState(() {
+                              _selectedItem = AuthAppScreen.xswd.toPath;
+                            });
+                          }
+                          : null,*/
+                ),
+                FSidebarItem(
+                  selected: _selectedItem == AuthAppScreen.burn.toPath,
+                  label: Text(loc.burn),
+                  onPress: burnTransferEnabled
+                      ? () {
+                          _closeSideBar();
+                          context.push(AuthAppScreen.burn.toPath);
+                          setState(() {
+                            _selectedItem = AuthAppScreen.burn.toPath;
+                          });
+                        }
+                      : null,
+                ),
+              ],
+            ),
+            FSidebarItem(
+              selected: _selectedItem == AuthAppScreen.network.toPath,
+              label: Text(loc.network),
+              icon: const Icon(FIcons.waypoints),
+              onPress: () {
+                _closeSideBar();
+                context.go(AuthAppScreen.network.toPath);
+                setState(() {
+                  _selectedItem = AuthAppScreen.network.toPath;
+                });
+              },
+            ),
+            FSidebarItem(
+              selected: _selectedItem == AuthAppScreen.addressBook.toPath,
+              label: Text(loc.address_book.capitalizeAll()),
+              icon: const Icon(FIcons.bookUser),
+              onPress: () {
+                _closeSideBar();
+                context.go(AuthAppScreen.addressBook.toPath);
+                setState(() {
+                  _selectedItem = AuthAppScreen.addressBook.toPath;
+                });
+              },
+            ),
+            FSidebarItem(
+              selected: _selectedItem == AuthAppScreen.history.toPath,
+              label: Text(loc.history),
+              icon: const Icon(FIcons.history),
+              onPress: () {
+                _closeSideBar();
+                context.go(AuthAppScreen.history.toPath);
+                setState(() {
+                  _selectedItem = AuthAppScreen.history.toPath;
+                });
+              },
+            ),
+            FSidebarItem(
+              selected: _selectedItem == AuthAppScreen.assets.toPath,
+              label: Text(loc.assets),
+              icon: const Icon(FIcons.landmark),
+              onPress: () {
+                _closeSideBar();
+                context.go(AuthAppScreen.assets.toPath);
+                setState(() {
+                  _selectedItem = AuthAppScreen.assets.toPath;
+                });
+              },
+            ),
+          ],
+        ),
+        FSidebarGroup(
+          label: Text(loc.account),
+          children: [
+            FSidebarItem(
+              selected: _selectedItem == AuthAppScreen.recoveryPhrase.toPath,
+              icon: const Icon(FIcons.key),
+              label: Text(loc.recovery_phrase),
+              onPress: () {
+                // do not close sidebar outside auth dialog or the callback context will be disposed beforehand
+                // _closeSideBar(); closes the side bar only when if the width is small
+                startWithBiometricAuth(
+                  ref,
+                  callback: (ref) {
+                    context.go(AuthAppScreen.recoveryPhrase.toPath);
+                    setState(() {
+                      _selectedItem = AuthAppScreen.recoveryPhrase.toPath;
+                    });
+
+                    _closeSideBar();
+                  },
+                  reason: loc.please_authenticate_view_seed,
+                );
+              },
+            ),
+            FSidebarItem(
+              selected: _selectedItem == AuthAppScreen.settings.toPath,
+              icon: const Icon(FIcons.settings),
+              label: Text(loc.settings),
+              onPress: () {
+                _closeSideBar();
+                context.go(AuthAppScreen.settings.toPath);
+                setState(() {
+                  _selectedItem = AuthAppScreen.settings.toPath;
+                });
+              },
+            ),
+            FSidebarItem(
+              icon: const Icon(FIcons.logOut),
+              label: Text(loc.logout),
+              onPress: () => ref.read(authenticationProvider.notifier).logout(),
+            ),
+          ],
+        ),
+        SideBarFooter(),
+      ],
+    );
+  }
+
+  void _closeSideBar() {
+    if (context.mounted && context.canPop()) {
+      context.pop();
+    }
+  }
+}

@@ -10,10 +10,9 @@ import 'package:flutter/foundation.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
 import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
-import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -89,32 +88,49 @@ class WalletState extends _$WalletState {
       try {
         await state.nativeWalletRepository!.setOnline(daemonAddress: node.url);
       } on AnyhowException catch (e) {
-        talker.warning('Cannot connect to node: ${e.message}');
+        talker.warning('Cannot connect to network: ${e.message}');
         final xelisMessage = (e).message.split("\n")[0];
         ref
-            .read(snackBarQueueProvider.notifier)
+            .read(toastProvider.notifier)
             .showError(
-              '${loc.cannot_connect_toast_error.replaceFirst(RegExp(r'\.'), ':')}\n$xelisMessage',
+              title: loc.cannot_connect_toast_error.replaceFirst(
+                RegExp(r'\.'),
+                '',
+              ),
+              description: xelisMessage,
             );
       } catch (e) {
-        talker.warning('Cannot connect to node: $e');
+        talker.warning('Cannot connect to network: $e');
         ref
-            .read(snackBarQueueProvider.notifier)
+            .read(toastProvider.notifier)
             .showError(
-              '${loc.cannot_connect_toast_error.replaceFirst(RegExp(r'\.'), ':')}\n$e',
+              title: loc.cannot_connect_toast_error.replaceFirst(
+                RegExp(r'\.'),
+                '',
+              ),
+              description: e.toString(),
             );
       }
 
       try {
+        talker.info("PRE MULTISIG STATE");
         final multisig = await state.nativeWalletRepository!.getMultisigState();
+        talker.info("post multisig state");
         if (multisig != null) state = state.copyWith(multisigState: multisig);
 
+        talker.info("Pre xel balances");
         final xelisBalance = await state.nativeWalletRepository!
             .getXelisBalance();
+
+        talker.info("Pre balances");
         final balances = await state.nativeWalletRepository!
             .getTrackedBalances();
+
+        talker.info("Pre known");
         final knownAssets = await state.nativeWalletRepository!
             .getKnownAssets();
+
+        talker.info("KNOWN ASSETS: $knownAssets");
 
         state = state.copyWith(
           xelisBalance: xelisBalance,
@@ -123,7 +139,7 @@ class WalletState extends _$WalletState {
         );
       } catch (e) {
         talker.error('Cannot retrieve wallet data: $e');
-        ref.read(snackBarQueueProvider.notifier).showError('${loc.oups}\n$e');
+        ref.read(toastProvider.notifier).showError(description: e.toString());
       }
     }
   }
@@ -162,11 +178,14 @@ class WalletState extends _$WalletState {
     } on AnyhowException catch (e) {
       talker.error('Rescan failed: $e');
       final xelisMessage = (e).message.split("\n")[0];
-      ref.read(snackBarQueueProvider.notifier).showError(xelisMessage);
+      ref
+          .read(toastProvider.notifier)
+          .showError(title: 'Rescan failed', description: xelisMessage);
     } catch (e) {
       talker.error('Rescan failed: $e');
-      final loc = ref.read(appLocalizationsProvider);
-      ref.read(snackBarQueueProvider.notifier).showError(loc.oups);
+      ref
+          .read(toastProvider.notifier)
+          .showError(title: 'Rescan failed', description: e.toString());
     }
   }
 
@@ -174,7 +193,6 @@ class WalletState extends _$WalletState {
     required double amount,
     required String destination,
     required String asset,
-    double? feeMultiplier,
   }) async {
     if (state.nativeWalletRepository != null) {
       try {
@@ -184,7 +202,6 @@ class WalletState extends _$WalletState {
                 amount: amount,
                 address: destination,
                 assetHash: asset,
-                feeMultiplier: feeMultiplier,
               );
           return (null, transactionHash);
         } else {
@@ -193,18 +210,26 @@ class WalletState extends _$WalletState {
                 amount: amount,
                 address: destination,
                 assetHash: asset,
-                feeMultiplier: feeMultiplier,
               );
           return (transactionSummary, null);
         }
       } on AnyhowException catch (e) {
         talker.error('Cannot create transaction: $e');
         final xelisMessage = (e).message.split("\n")[0];
-        ref.read(snackBarQueueProvider.notifier).showError(xelisMessage);
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot create transaction',
+              description: xelisMessage,
+            );
       } catch (e) {
         talker.error('Cannot create transaction: $e');
-        final loc = ref.read(appLocalizationsProvider);
-        ref.read(snackBarQueueProvider.notifier).showError('${loc.oups}\n$e');
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot create transaction',
+              description: e.toString(),
+            );
       }
     }
     return (null, null);
@@ -213,7 +238,6 @@ class WalletState extends _$WalletState {
   Future<(TransactionSummary?, String?)> sendAll({
     required String destination,
     required String asset,
-    double? feeMultiplier,
   }) async {
     if (state.nativeWalletRepository != null) {
       try {
@@ -222,7 +246,6 @@ class WalletState extends _$WalletState {
               .createMultisigTransferTransaction(
                 address: destination,
                 assetHash: asset,
-                feeMultiplier: feeMultiplier,
               );
           return (null, transactionHash);
         } else {
@@ -230,18 +253,26 @@ class WalletState extends _$WalletState {
               .createTransferTransaction(
                 address: destination,
                 assetHash: asset,
-                feeMultiplier: feeMultiplier,
               );
           return (transactionSummary, null);
         }
       } on AnyhowException catch (e) {
         talker.error('Cannot create transaction: $e');
         final xelisMessage = (e).message.split("\n")[0];
-        ref.read(snackBarQueueProvider.notifier).showError(xelisMessage);
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot create transaction',
+              description: xelisMessage,
+            );
       } catch (e) {
         talker.error('Cannot create transaction: $e');
-        final loc = ref.read(appLocalizationsProvider);
-        ref.read(snackBarQueueProvider.notifier).showError('${loc.oups}\n$e');
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot create transaction',
+              description: e.toString(),
+            );
       }
     }
     return (null, null);
@@ -265,11 +296,20 @@ class WalletState extends _$WalletState {
       } on AnyhowException catch (e) {
         talker.error('Cannot create transaction: $e');
         final xelisMessage = (e).message.split("\n")[0];
-        ref.read(snackBarQueueProvider.notifier).showError(xelisMessage);
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot create transaction',
+              description: xelisMessage,
+            );
       } catch (e) {
         talker.error('Cannot create transaction: $e');
-        final loc = ref.read(appLocalizationsProvider);
-        ref.read(snackBarQueueProvider.notifier).showError('${loc.oups}\n$e');
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot create transaction',
+              description: e.toString(),
+            );
       }
     }
     return (null, null);
@@ -292,11 +332,20 @@ class WalletState extends _$WalletState {
       } on AnyhowException catch (e) {
         talker.error('Cannot create transaction: $e');
         final xelisMessage = (e).message.split("\n")[0];
-        ref.read(snackBarQueueProvider.notifier).showError(xelisMessage);
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot create transaction',
+              description: xelisMessage,
+            );
       } catch (e) {
         talker.error('Cannot create transaction: $e');
-        final loc = ref.read(appLocalizationsProvider);
-        ref.read(snackBarQueueProvider.notifier).showError('${loc.oups}\n$e');
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot create transaction',
+              description: e.toString(),
+            );
       }
     }
     return (null, null);
@@ -318,7 +367,6 @@ class WalletState extends _$WalletState {
     required double amount,
     required String destination,
     required String asset,
-    double? feeMultiplier,
   }) async {
     if (state.nativeWalletRepository != null) {
       return state.nativeWalletRepository!.estimateFees([
@@ -327,7 +375,7 @@ class WalletState extends _$WalletState {
           strAddress: destination,
           assetHash: asset,
         ),
-      ], feeMultiplier);
+      ]);
     }
     return AppResources.zeroBalance;
   }
@@ -383,8 +431,7 @@ class WalletState extends _$WalletState {
           switch (txType) {
             case sdk.IncomingEntry():
               if (txType.isMultiTransfer()) {
-                message =
-                    '${loc.new_incoming_transaction.capitalize()}.\n${loc.multiple_transfers_detected.capitalize()}';
+                message = loc.multiple_transfers_detected;
               } else {
                 final atomicAmount = txType.transfers.first.amount;
                 final assetHash = txType.transfers.first.asset;
@@ -403,28 +450,39 @@ class WalletState extends _$WalletState {
                   amount = atomicAmount.toString();
                 }
 
-                final contactDetails = await ref
+                var from = truncateText(txType.from);
+                final contactExists = await ref
                     .read(addressBookProvider.notifier)
-                    .get(txType.from);
-                final from = switch (contactDetails) {
-                  ContactDetails(:final name) => name,
-                  null => truncateText(txType.from),
-                };
+                    .exists(txType.from);
+                if (contactExists) {
+                  final contactDetails = await ref
+                      .read(addressBookProvider.notifier)
+                      .get(txType.from);
+                  if (contactDetails != null &&
+                      contactDetails.name.isNotEmpty) {
+                    from = contactDetails.name;
+                  }
+                }
 
                 message =
-                    '${loc.new_incoming_transaction.capitalize()}.\n${loc.asset}: $asset\n${loc.amount}: +$amount\n${loc.from}: $from';
+                    '${loc.asset}: $asset\n${loc.amount}: +$amount\n${loc.from}: $from';
               }
-              ref.read(snackBarQueueProvider.notifier).showInfo(message);
+              ref
+                  .read(toastProvider.notifier)
+                  .showEvent(
+                    title: loc.new_incoming_transaction.capitalizeAll(),
+                    description: message,
+                  );
 
             case sdk.OutgoingEntry():
               message =
                   '(#${txType.nonce}) ${loc.outgoing_transaction_confirmed.capitalize()}';
-              ref.read(snackBarQueueProvider.notifier).showInfo(message);
+              ref.read(toastProvider.notifier).showInformation(title: message);
 
             case sdk.CoinbaseEntry():
               final amount = formatXelis(txType.reward, state.network);
               message = '${loc.new_mining_reward.capitalize()}:\n+$amount';
-              ref.read(snackBarQueueProvider.notifier).showInfo(message);
+              ref.read(toastProvider.notifier).showInformation(title: message);
 
             case sdk.BurnEntry():
               String asset;
@@ -441,25 +499,34 @@ class WalletState extends _$WalletState {
                 amount = txType.amount.toString();
               }
 
-              message =
-                  '${loc.burn_transaction_confirmed.capitalize()}\n${loc.asset}: $asset\n${loc.amount}: -$amount';
-              ref.read(snackBarQueueProvider.notifier).showInfo(message);
+              message = '${loc.asset}: $asset\n${loc.amount}: -$amount';
+              ref
+                  .read(toastProvider.notifier)
+                  .showEvent(
+                    title: loc.burn_transaction_confirmed.capitalizeAll(),
+                    description: message,
+                  );
 
             case sdk.MultisigEntry():
               ref
-                  .read(snackBarQueueProvider.notifier)
-                  .showInfo(
-                    '${loc.multisig_modified_successfully_event} ${event.transactionEntry.topoheight}',
+                  .read(toastProvider.notifier)
+                  .showInformation(
+                    title:
+                        '${loc.multisig_modified_successfully_event} ${event.transactionEntry.topoheight}',
                   );
             case sdk.InvokeContractEntry():
               ref
-                  .read(snackBarQueueProvider.notifier)
-                  .showInfo('${loc.contract_invoked} ${txType.contract}');
+                  .read(toastProvider.notifier)
+                  .showEvent(
+                    title: loc.contract_invoked,
+                    description: txType.contract,
+                  );
             case sdk.DeployContractEntry():
               ref
-                  .read(snackBarQueueProvider.notifier)
-                  .showInfo(
-                    '${loc.contract_deployed_at} ${event.transactionEntry.topoheight}',
+                  .read(toastProvider.notifier)
+                  .showInformation(
+                    title:
+                        '${loc.contract_deployed_at} ${event.transactionEntry.topoheight}',
                   );
           }
         }
@@ -480,9 +547,11 @@ class WalletState extends _$WalletState {
         final assets = await state.nativeWalletRepository!.getKnownAssets();
         state = state.copyWith(knownAssets: sortMapByKey(assets));
         ref
-            .read(snackBarQueueProvider.notifier)
-            .showInfo(
-              '${loc.new_asset_detected} ${event.rpcAssetData.name} - ${event.rpcAssetData.ticker}\n${loc.topoheight}: ${event.rpcAssetData.topoheight}',
+            .read(toastProvider.notifier)
+            .showEvent(
+              title: loc.new_asset_detected,
+              description:
+                  '${event.rpcAssetData.name} - ${event.rpcAssetData.ticker}\n${loc.topoheight}: ${event.rpcAssetData.topoheight}',
             );
 
       case Rescan():
@@ -491,16 +560,14 @@ class WalletState extends _$WalletState {
       case Online():
         talker.info(event);
         state = state.copyWith(isOnline: true);
-        ref
-            .read(snackBarQueueProvider.notifier)
-            .showInfo(loc.connected, duration: const Duration(seconds: 1));
+        ref.read(toastProvider.notifier).showInformation(title: loc.connected);
 
       case Offline():
         talker.info(event);
         state = state.copyWith(isOnline: false);
         ref
-            .read(snackBarQueueProvider.notifier)
-            .showInfo(loc.disconnected, duration: const Duration(seconds: 1));
+            .read(toastProvider.notifier)
+            .showInformation(title: loc.disconnected);
 
       case HistorySynced():
         talker.info(event);
@@ -508,8 +575,11 @@ class WalletState extends _$WalletState {
       case SyncError():
         talker.error(event);
         ref
-            .read(snackBarQueueProvider.notifier)
-            .showError('${loc.error_while_syncing} ${event.message}');
+            .read(toastProvider.notifier)
+            .showError(
+              title: loc.error_while_syncing,
+              description: event.message,
+            );
 
       case TrackAsset():
         talker.info(event);
@@ -521,8 +591,8 @@ class WalletState extends _$WalletState {
           knownAssets: sortMapByKey(assets),
         );
         ref
-            .read(snackBarQueueProvider.notifier)
-            .showInfo(loc.asset_successfully_tracked);
+            .read(toastProvider.notifier)
+            .showInformation(title: loc.asset_successfully_tracked);
 
       case UntrackAsset():
         talker.info(event);
@@ -534,8 +604,8 @@ class WalletState extends _$WalletState {
           knownAssets: sortMapByKey(assets),
         );
         ref
-            .read(snackBarQueueProvider.notifier)
-            .showInfo(loc.asset_successfully_untracked);
+            .read(toastProvider.notifier)
+            .showInformation(title: loc.asset_successfully_untracked);
     }
   }
 
@@ -561,11 +631,20 @@ class WalletState extends _$WalletState {
       } on AnyhowException catch (e) {
         talker.error('Cannot setup multisig: $e');
         final xelisMessage = (e).message.split("\n")[0];
-        ref.read(snackBarQueueProvider.notifier).showError(xelisMessage);
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot setup multisig',
+              description: xelisMessage,
+            );
       } catch (e) {
         talker.error('Cannot setup multisig: $e');
-        final loc = ref.read(appLocalizationsProvider);
-        ref.read(snackBarQueueProvider.notifier).showError('${loc.oups}\n$e');
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot setup multisig',
+              description: e.toString(),
+            );
       }
     }
     return null;
@@ -586,11 +665,20 @@ class WalletState extends _$WalletState {
       } on AnyhowException catch (e) {
         talker.error('Cannot start delete multisig: $e');
         final xelisMessage = (e).message.split("\n")[0];
-        ref.read(snackBarQueueProvider.notifier).showError(xelisMessage);
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot start delete multisig',
+              description: xelisMessage,
+            );
       } catch (e) {
         talker.error('Cannot start delete multisig: $e');
-        final loc = ref.read(appLocalizationsProvider);
-        ref.read(snackBarQueueProvider.notifier).showError('${loc.oups}\n$e');
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot start delete multisig',
+              description: e.toString(),
+            );
       }
     }
     return null;
@@ -607,11 +695,20 @@ class WalletState extends _$WalletState {
       } on AnyhowException catch (e) {
         talker.error('Cannot finalize delete multisig: $e');
         final xelisMessage = (e).message.split("\n")[0];
-        ref.read(snackBarQueueProvider.notifier).showError(xelisMessage);
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot finalize delete multisig',
+              description: xelisMessage,
+            );
       } catch (e) {
         talker.error('Cannot finalize delete multisig: $e');
-        final loc = ref.read(appLocalizationsProvider);
-        ref.read(snackBarQueueProvider.notifier).showError('${loc.oups}\n$e');
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot finalize delete multisig',
+              description: e.toString(),
+            );
       }
     }
     return null;
@@ -637,11 +734,20 @@ class WalletState extends _$WalletState {
       } on AnyhowException catch (e) {
         talker.error('Cannot sign transaction: $e');
         final xelisMessage = (e).message.split("\n")[0];
-        ref.read(snackBarQueueProvider.notifier).showError(xelisMessage);
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot sign transaction',
+              description: xelisMessage,
+            );
       } catch (e) {
         talker.error('Cannot sign transaction: $e');
-        final loc = ref.read(appLocalizationsProvider);
-        ref.read(snackBarQueueProvider.notifier).showError('${loc.oups}\n$e');
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot sign transaction',
+              description: e.toString(),
+            );
       }
     }
     return '';
@@ -674,16 +780,18 @@ class WalletState extends _$WalletState {
             if (decision == UserPermissionDecision.accept ||
                 decision == UserPermissionDecision.alwaysAccept) {
               ref
-                  .read(snackBarQueueProvider.notifier)
-                  .showInfo(
-                    '${loc.permission_granted_for} ${request.applicationInfo.name}',
+                  .read(toastProvider.notifier)
+                  .showInformation(
+                    title:
+                        '${loc.permission_granted_for} ${request.applicationInfo.name}',
                   );
             } else if (decision == UserPermissionDecision.reject ||
                 decision == UserPermissionDecision.alwaysReject) {
               ref
-                  .read(snackBarQueueProvider.notifier)
-                  .showInfo(
-                    '${loc.permission_denied_for} ${request.applicationInfo.name}',
+                  .read(toastProvider.notifier)
+                  .showInformation(
+                    title:
+                        '${loc.permission_denied_for} ${request.applicationInfo.name}',
                   );
             }
 
@@ -703,16 +811,18 @@ class WalletState extends _$WalletState {
             if (decision == UserPermissionDecision.accept ||
                 decision == UserPermissionDecision.alwaysAccept) {
               ref
-                  .read(snackBarQueueProvider.notifier)
-                  .showInfo(
-                    '${loc.permission_granted_for} ${request.applicationInfo.name}',
+                  .read(toastProvider.notifier)
+                  .showInformation(
+                    title:
+                        '${loc.permission_granted_for} ${request.applicationInfo.name}',
                   );
             } else if (decision == UserPermissionDecision.reject ||
                 decision == UserPermissionDecision.alwaysReject) {
               ref
-                  .read(snackBarQueueProvider.notifier)
-                  .showInfo(
-                    '${loc.permission_denied_for} ${request.applicationInfo.name}',
+                  .read(toastProvider.notifier)
+                  .showInformation(
+                    title:
+                        '${loc.permission_denied_for} ${request.applicationInfo.name}',
                   );
             }
 
@@ -731,11 +841,14 @@ class WalletState extends _$WalletState {
       } on AnyhowException catch (e) {
         talker.error('Cannot start XSWD: $e');
         final xelisMessage = (e).message.split("\n")[0];
-        ref.read(snackBarQueueProvider.notifier).showError(xelisMessage);
+        ref
+            .read(toastProvider.notifier)
+            .showError(title: 'Cannot start XSWD', description: xelisMessage);
       } catch (e) {
         talker.error('Cannot start XSWD: $e');
-        final loc = ref.read(appLocalizationsProvider);
-        ref.read(snackBarQueueProvider.notifier).showError('${loc.oups}\n$e');
+        ref
+            .read(toastProvider.notifier)
+            .showError(title: 'Cannot start XSWD', description: e.toString());
       }
     }
   }
@@ -747,11 +860,14 @@ class WalletState extends _$WalletState {
       } on AnyhowException catch (e) {
         talker.error('Cannot stop XSWD: $e');
         final xelisMessage = (e).message.split("\n")[0];
-        ref.read(snackBarQueueProvider.notifier).showError(xelisMessage);
+        ref
+            .read(toastProvider.notifier)
+            .showError(title: 'Cannot stop XSWD', description: xelisMessage);
       } catch (e) {
         talker.error('Cannot stop XSWD: $e');
-        final loc = ref.read(appLocalizationsProvider);
-        ref.read(snackBarQueueProvider.notifier).showError('${loc.oups}\n$e');
+        ref
+            .read(toastProvider.notifier)
+            .showError(title: 'Cannot stop XSWD', description: e.toString());
       }
     }
   }
@@ -762,18 +878,27 @@ class WalletState extends _$WalletState {
       try {
         await state.nativeWalletRepository!.removeXswdApp(appInfo.id);
         ref
-            .read(snackBarQueueProvider.notifier)
-            .showInfo(
-              'XSWD: ${appInfo.name} ${loc.disconnected.toLowerCase()}',
+            .read(toastProvider.notifier)
+            .showInformation(
+              title: '${appInfo.name} ${loc.disconnected.toLowerCase()}',
             );
       } on AnyhowException catch (e) {
         talker.error('Cannot close XSWD app connection: $e');
         final xelisMessage = (e).message.split("\n")[0];
-        ref.read(snackBarQueueProvider.notifier).showError(xelisMessage);
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot close XSWD app connection',
+              description: xelisMessage,
+            );
       } catch (e) {
         talker.error('Cannot close XSWD app connection: $e');
-        final loc = ref.read(appLocalizationsProvider);
-        ref.read(snackBarQueueProvider.notifier).showError('${loc.oups}\n$e');
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot close XSWD app connection',
+              description: e.toString(),
+            );
       }
     }
   }
@@ -791,11 +916,20 @@ class WalletState extends _$WalletState {
       } on AnyhowException catch (e) {
         talker.error('Cannot edit XSWD app permission: $e');
         final xelisMessage = (e).message.split("\n")[0];
-        ref.read(snackBarQueueProvider.notifier).showError(xelisMessage);
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot edit XSWD app permission',
+              description: xelisMessage,
+            );
       } catch (e) {
         talker.error('Cannot edit XSWD app permission: $e');
-        final loc = ref.read(appLocalizationsProvider);
-        ref.read(snackBarQueueProvider.notifier).showError('${loc.oups}\n$e');
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot edit XSWD app permission',
+              description: e.toString(),
+            );
       }
     }
   }
@@ -807,11 +941,14 @@ class WalletState extends _$WalletState {
       } on AnyhowException catch (e) {
         talker.error('Cannot track asset: $e');
         final xelisMessage = (e).message.split("\n")[0];
-        ref.read(snackBarQueueProvider.notifier).showError(xelisMessage);
+        ref
+            .read(toastProvider.notifier)
+            .showError(title: 'Cannot track asset', description: xelisMessage);
       } catch (e) {
         talker.error('Cannot track asset: $e');
-        final loc = ref.read(appLocalizationsProvider);
-        ref.read(snackBarQueueProvider.notifier).showError('${loc.oups}\n$e');
+        ref
+            .read(toastProvider.notifier)
+            .showError(title: 'Cannot track asset', description: e.toString());
       }
     }
   }
@@ -823,11 +960,20 @@ class WalletState extends _$WalletState {
       } on AnyhowException catch (e) {
         talker.error('Cannot untrack asset: $e');
         final xelisMessage = (e).message.split("\n")[0];
-        ref.read(snackBarQueueProvider.notifier).showError(xelisMessage);
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot untrack asset',
+              description: xelisMessage,
+            );
       } catch (e) {
         talker.error('Cannot untrack asset: $e');
-        final loc = ref.read(appLocalizationsProvider);
-        ref.read(snackBarQueueProvider.notifier).showError('${loc.oups}\n$e');
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot untrack asset',
+              description: e.toString(),
+            );
       }
     }
   }

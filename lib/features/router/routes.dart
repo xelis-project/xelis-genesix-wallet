@@ -1,31 +1,45 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:genesix/features/authentication/domain/create_wallet_type_enum.dart';
-import 'package:genesix/features/authentication/presentation/components/seed_content_dialog.dart';
-import 'package:genesix/features/authentication/presentation/seed_screen.dart';
-import 'package:genesix/features/wallet/presentation/address_book/address_book_screen.dart';
-import 'package:genesix/features/wallet/presentation/settings_navigation_bar/components/xswd_status_screen.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/burn/burn_screen.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/multisig/multisig_screen.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transfer/transfer_screen.dart';
-import 'package:genesix/features/logger/logger.dart';
-import 'package:genesix/features/wallet/presentation/xswd/xswd_widget.dart';
-import 'package:genesix/shared/widgets/components/dialog_page.dart';
-import 'package:genesix/features/logger/presentation/logger_screen.dart';
-import 'package:go_router/go_router.dart';
 import 'package:genesix/features/authentication/presentation/create_wallet_screen.dart';
+import 'package:genesix/features/authentication/presentation/import_wallet_screen.dart';
+import 'package:genesix/features/router/route_utils.dart';
+import 'package:genesix/features/settings/presentation/components/theme_mode_switcher.dart';
+import 'package:genesix/features/settings/presentation/settings_content.dart';
+import 'package:genesix/features/wallet/presentation/address_book/add_contact_header_action.dart';
+import 'package:genesix/features/wallet/presentation/address_book/address_book_content.dart';
+import 'package:genesix/features/wallet/presentation/address_book/contact_details_screen.dart';
+import 'package:genesix/features/wallet/presentation/assets/assets_content.dart';
+import 'package:genesix/features/wallet/presentation/history/filters_button.dart';
+import 'package:genesix/features/wallet/presentation/history/history_content.dart';
+import 'package:genesix/features/wallet/presentation/history/transaction_entry_screen.dart';
+import 'package:genesix/features/wallet/presentation/home/home_wallet_content.dart';
+import 'package:genesix/features/wallet/presentation/multisig/multisig_content.dart';
+import 'package:genesix/features/wallet/presentation/multisig/setup_multisig.dart';
+import 'package:genesix/features/wallet/presentation/network/network_content.dart';
+import 'package:genesix/features/wallet/presentation/recovery_phrase/recovery_phrase_content.dart';
+import 'package:genesix/features/wallet/presentation/sign_transaction/sign_transaction_content.dart';
+import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/burn/burn_screen_new.dart';
+import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transfer/transfer_screen_new.dart';
+import 'package:genesix/features/wallet/presentation/xswd/xswd_content.dart';
+import 'package:genesix/features/wallet/presentation/xswd/xswd_widget_old.dart';
+import 'package:genesix/features/wallet/presentation/wallet_scaffold.dart';
+import 'package:go_router/go_router.dart';
 import 'package:genesix/features/authentication/presentation/open_wallet_screen.dart';
-import 'package:genesix/features/settings/presentation/settings_screen.dart';
-import 'package:genesix/features/wallet/presentation/history_navigation_bar/components/transaction_entry_screen.dart';
-import 'package:genesix/features/wallet/presentation/settings_navigation_bar/components/change_password_screen.dart';
-import 'package:genesix/features/wallet/presentation/settings_navigation_bar/components/my_seed_screen.dart';
-import 'package:genesix/features/wallet/presentation/wallet_screen.dart';
+import 'package:genesix/features/settings/presentation/light_settings_screen.dart';
 import 'package:genesix/shared/theme/constants.dart';
 
 part 'routes.g.dart';
 
-@TypedGoRoute<OpenWalletRoute>(name: 'open_wallet', path: '/open_wallet')
-class OpenWalletRoute extends GoRouteData {
+@TypedGoRoute<OpenWalletRoute>(
+  path: '/',
+  routes: [
+    TypedGoRoute<CreateWalletRoute>(path: 'create_wallet'),
+    TypedGoRoute<ImportWalletRoute>(path: 'import_wallet'),
+    TypedGoRoute<LightSettingsRoute>(path: 'light_settings'),
+  ],
+)
+class OpenWalletRoute extends GoRouteData with _$OpenWalletRoute {
   const OpenWalletRoute();
 
   @override
@@ -35,199 +49,228 @@ class OpenWalletRoute extends GoRouteData {
       state.pageKey,
       state.fullPath,
       state.extra,
-      AppDurations.animFast,
+      AppDurations.animNormal,
     );
   }
 }
 
-@TypedGoRoute<CreateNewWalletRoute>(
-  name: 'create_new_wallet',
-  path: '/create_new_wallet',
+class CreateWalletRoute extends GoRouteData with _$CreateWalletRoute {
+  const CreateWalletRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      const CreateWalletScreen(),
+      state.pageKey,
+      state.fullPath,
+      state.extra,
+      AppDurations.animNormal,
+    );
+  }
+}
+
+class ImportWalletRoute extends GoRouteData with _$ImportWalletRoute {
+  const ImportWalletRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      ImportWalletScreen(),
+      state.pageKey,
+      state.fullPath,
+      state.extra,
+      AppDurations.animNormal,
+    );
+  }
+}
+
+class LightSettingsRoute extends GoRouteData with _$LightSettingsRoute {
+  const LightSettingsRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      const LightSettingsScreen(),
+      state.pageKey,
+      state.fullPath,
+      state.extra,
+      AppDurations.animNormal,
+    );
+  }
+}
+
+@TypedShellRoute<WalletShellRoute>(
+  routes: [
+    TypedGoRoute<HomeRoute>(path: '/home'),
+    TypedGoRoute<SettingsContentRoute>(path: '/settings'),
+    TypedGoRoute<NetworkRoute>(path: '/network'),
+    TypedGoRoute<AddressBookRoute>(path: '/address_book'),
+    TypedGoRoute<HistoryRoute>(path: '/history'),
+    TypedGoRoute<AssetsRoute>(path: '/assets'),
+    TypedGoRoute<RecoveryPhraseRoute>(path: '/recovery_phrase'),
+    TypedGoRoute<SignTransactionRoute>(path: '/sign_transaction'),
+    TypedGoRoute<MultisigRoute>(path: '/multisig'),
+    TypedGoRoute<XSWDRoute>(path: '/xswd'),
+  ],
 )
-class CreateNewWalletRoute extends GoRouteData {
-  const CreateNewWalletRoute();
-
+class WalletShellRoute extends ShellRouteData {
   @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) {
+  Page<Function> pageBuilder(
+    BuildContext context,
+    GoRouterState state,
+    Widget navigator,
+  ) {
+    final authPathScreen = AuthAppScreenExtension.fromPath(state.fullPath!);
+    final suffixes = switch (authPathScreen) {
+      AuthAppScreen.settings => [const ThemeModeSwitcher()],
+      AuthAppScreen.addressBook => [const AddContactHeaderAction()],
+      AuthAppScreen.history => [const FiltersButton()],
+      _ => null,
+    };
+
+    final title = switch (authPathScreen) {
+      AuthAppScreen.settings => 'Settings',
+      AuthAppScreen.network => 'Network',
+      AuthAppScreen.addressBook => 'Address Book',
+      AuthAppScreen.history => 'History',
+      AuthAppScreen.assets => 'Assets',
+      AuthAppScreen.recoveryPhrase => 'Recovery Phrase',
+      AuthAppScreen.signTransaction => 'Sign Transaction',
+      AuthAppScreen.multisig => 'Multisig Management',
+      _ => null,
+    };
+
     return pageTransition(
-      const CreateWalletScreen(type: CreateWalletType.newWallet),
+      WalletScaffold(state, navigator, title, suffixes),
       state.pageKey,
       state.fullPath,
       state.extra,
-      AppDurations.animFast,
+      AppDurations.animNormal,
     );
   }
 }
 
-@TypedGoRoute<RecoverWalletFromSeed1Route>(
-  name: 'recover_wallet_from_seed_1',
-  path: '/recover_wallet_from_seed/1',
-  routes: [],
+class HomeRoute extends GoRouteData with _$HomeRoute {
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return NoTransitionPage(child: HomeWalletContent());
+  }
+}
+
+class NetworkRoute extends GoRouteData with _$NetworkRoute {
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return NoTransitionPage(child: NetworkContent());
+  }
+}
+
+class SettingsContentRoute extends GoRouteData with _$SettingsContentRoute {
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return NoTransitionPage(child: SettingsContent());
+  }
+}
+
+class AddressBookRoute extends GoRouteData with _$AddressBookRoute {
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return NoTransitionPage(child: AddressBookContent());
+  }
+}
+
+class AssetsRoute extends GoRouteData with _$AssetsRoute {
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return NoTransitionPage(child: AssetsContent());
+  }
+}
+
+class HistoryRoute extends GoRouteData with _$HistoryRoute {
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return NoTransitionPage(child: HistoryContent());
+  }
+}
+
+class RecoveryPhraseRoute extends GoRouteData with _$RecoveryPhraseRoute {
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return NoTransitionPage(child: RecoveryPhraseContent());
+  }
+}
+
+class SignTransactionRoute extends GoRouteData with _$SignTransactionRoute {
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return NoTransitionPage(child: SignTransactionContent());
+  }
+}
+
+class MultisigRoute extends GoRouteData with _$MultisigRoute {
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return NoTransitionPage(child: MultisigContent());
+  }
+}
+
+class XSWDRoute extends GoRouteData with _$XSWDRoute {
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return NoTransitionPage(child: XSWDContent());
+  }
+}
+
+@TypedGoRoute<ContactDetailsRoute>(
+  name: 'contact_details',
+  path: '/contact_details',
 )
-class RecoverWalletFromSeed1Route extends GoRouteData {
-  const RecoverWalletFromSeed1Route();
+class ContactDetailsRoute extends GoRouteData with _$ContactDetailsRoute {
+  const ContactDetailsRoute({required this.$extra});
+
+  final String $extra;
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
-      const SeedScreen(),
+      ContactDetailsScreen(contactAddress: $extra),
       state.pageKey,
       state.fullPath,
       state.extra,
-      AppDurations.animFast,
-    );
-  }
-}
-
-@TypedGoRoute<RecoverWalletFromSeed2Route>(
-  name: 'recover_wallet_from_seed_2',
-  path: '/recover_wallet_from_seed/2',
-)
-class RecoverWalletFromSeed2Route extends GoRouteData {
-  const RecoverWalletFromSeed2Route();
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return pageTransition(
-      const CreateWalletScreen(type: CreateWalletType.fromSeed),
-      state.pageKey,
-      state.fullPath,
-      state.extra,
-      AppDurations.animFast,
-    );
-  }
-}
-
-@TypedGoRoute<RecoverWalletFromPrivateKeyRoute>(
-  name: 'recover_wallet_from_private_key',
-  path: '/recover_wallet_from_private_key',
-)
-class RecoverWalletFromPrivateKeyRoute extends GoRouteData {
-  const RecoverWalletFromPrivateKeyRoute();
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return pageTransition(
-      const CreateWalletScreen(type: CreateWalletType.fromPrivateKey),
-      state.pageKey,
-      state.fullPath,
-      state.extra,
-      AppDurations.animFast,
-    );
-  }
-}
-
-@TypedGoRoute<ChangePasswordRoute>(
-  name: 'change_password',
-  path: '/change_password',
-)
-class ChangePasswordRoute extends GoRouteData {
-  const ChangePasswordRoute();
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return pageTransition(
-      const ChangePasswordScreen(),
-      state.pageKey,
-      state.fullPath,
-      state.extra,
-      AppDurations.animFast,
-    );
-  }
-}
-
-@TypedGoRoute<WalletSeedRoute>(name: 'wallet_seed', path: '/wallet_seed')
-class WalletSeedRoute extends GoRouteData {
-  const WalletSeedRoute();
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return pageTransition(
-      const MySeedScreen(),
-      state.pageKey,
-      state.fullPath,
-      state.extra,
-      AppDurations.animFast,
-    );
-  }
-}
-
-@TypedGoRoute<WalletSeedDialogRoute>(
-  name: 'wallet_seed_dialog',
-  path: '/wallet_seed_dialog',
-)
-class WalletSeedDialogRoute extends GoRouteData {
-  const WalletSeedDialogRoute();
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return DialogPage(
-      barrierDismissible: false,
-      builder: (_) => SeedContentDialog(state.extra as List<String>),
-    );
-  }
-}
-
-@TypedGoRoute<WalletRoute>(name: 'wallet', path: '/wallet')
-class WalletRoute extends GoRouteData {
-  const WalletRoute();
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return pageTransition(
-      const WalletScreen(),
-      state.pageKey,
-      state.fullPath,
-      state.extra,
-      AppDurations.animFast,
-    );
-  }
-}
-
-@TypedGoRoute<SettingsRoute>(name: 'settings', path: '/settings')
-class SettingsRoute extends GoRouteData {
-  const SettingsRoute();
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return pageTransition(
-      const SettingsScreen(),
-      state.pageKey,
-      state.fullPath,
-      state.extra,
-      AppDurations.animFast,
+      AppDurations.animNormal,
     );
   }
 }
 
 @TypedGoRoute<TransferRoute>(name: 'transfer', path: '/transfer')
-class TransferRoute extends GoRouteData {
-  const TransferRoute();
+class TransferRoute extends GoRouteData with _$TransferRoute {
+  const TransferRoute({this.$extra});
+
+  final String? $extra;
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
-      const TransferScreen(),
+      TransferScreenNew(recipientAddress: $extra),
       state.pageKey,
       state.fullPath,
       state.extra,
-      AppDurations.animFast,
+      AppDurations.animNormal,
     );
   }
 }
 
 @TypedGoRoute<BurnRoute>(name: 'burn', path: '/burn')
-class BurnRoute extends GoRouteData {
+class BurnRoute extends GoRouteData with _$BurnRoute {
   const BurnRoute();
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
-      const BurnScreen(),
+      const BurnScreenNew(),
       state.pageKey,
       state.fullPath,
       state.extra,
-      AppDurations.animFast,
+      AppDurations.animNormal,
     );
   }
 }
@@ -236,81 +279,36 @@ class BurnRoute extends GoRouteData {
   name: 'transaction_entry',
   path: '/transaction_entry',
 )
-class TransactionEntryRoute extends GoRouteData {
+class TransactionEntryRoute extends GoRouteData with _$TransactionEntryRoute {
   const TransactionEntryRoute();
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
-      TransactionEntryScreen(routerState: state),
+      TransactionEntryScreen(),
       state.pageKey,
       state.fullPath,
       state.extra,
-      AppDurations.animFast,
+      AppDurations.animNormal,
     );
   }
 }
 
-@TypedGoRoute<TalkerScreenRoute>(name: 'logger', path: '/logger')
-class TalkerScreenRoute extends GoRouteData {
-  const TalkerScreenRoute();
+@TypedGoRoute<SetupMultisigRoute>(
+  name: 'setup_multisig',
+  path: '/setup_multisig',
+)
+class SetupMultisigRoute extends GoRouteData with _$SetupMultisigRoute {
+  const SetupMultisigRoute();
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
-      LoggerScreen(talker: talker),
+      SetupMultisig(),
       state.pageKey,
       state.fullPath,
       state.extra,
-      AppDurations.animFast,
-    );
-  }
-}
-
-@TypedGoRoute<MultiSigRoute>(name: 'multisig', path: '/multisig')
-class MultiSigRoute extends GoRouteData {
-  const MultiSigRoute();
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return pageTransition(
-      const MultisigScreen(),
-      state.pageKey,
-      state.fullPath,
-      state.extra,
-      AppDurations.animFast,
-    );
-  }
-}
-
-@TypedGoRoute<XswdStateRoute>(name: 'xswd_status', path: '/xswd_status')
-class XswdStateRoute extends GoRouteData {
-  const XswdStateRoute();
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return pageTransition(
-      const XswdStatusScreen(),
-      state.pageKey,
-      state.fullPath,
-      state.extra,
-      AppDurations.animFast,
-    );
-  }
-}
-
-@TypedGoRoute<AddressBookRoute>(name: 'address_book', path: '/address_book')
-class AddressBookRoute extends GoRouteData {
-  const AddressBookRoute();
-
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return pageTransition(
-      const AddressBookScreen(),
-      state.pageKey,
-      state.fullPath,
-      state.extra,
-      AppDurations.animFast,
+      AppDurations.animNormal,
     );
   }
 }
@@ -329,15 +327,13 @@ CustomTransitionPage<T> pageTransition<T>(
   arguments: arguments,
   transitionDuration: Duration(milliseconds: milliDuration),
   transitionsBuilder: (context, animation, secondaryAnimation, child) {
-    const begin = Offset(0.0, 1.0);
-    const end = Offset.zero;
-    final tween = Tween(
-      begin: begin,
-      end: end,
-    ).chain(CurveTween(curve: Curves.easeIn));
-    final offsetAnimation = animation.drive(tween);
-
-    // The XswdWidget must be added to the widget tree here to ensure the correct context is available to display the dialog
-    return SlideTransition(position: offsetAnimation, child: XswdWidget(child));
+    return SharedAxisTransition(
+      animation: animation,
+      secondaryAnimation: secondaryAnimation,
+      transitionType: SharedAxisTransitionType.horizontal,
+      // The XswdWidget must be added to the widget tree here to ensure the correct context is available to display the dialog
+      // TODO rework this to avoid adding the XswdWidget here
+      child: XswdWidget(child),
+    );
   },
 );

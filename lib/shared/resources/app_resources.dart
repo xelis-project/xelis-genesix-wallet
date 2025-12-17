@@ -1,9 +1,8 @@
 import 'package:country_flags/country_flags.dart';
-import 'package:flutter/widgets.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
+import 'package:jovial_svg/jovial_svg.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
-// import 'package:jovial_svg/jovial_svg.dart';
 
 class AppResources {
   static const String xelisWalletName = 'Genesix';
@@ -56,7 +55,7 @@ class AppResources {
     ),
   ];
 
-  static List<NodeAddress> devNodes = [
+  static List<NodeAddress> devnetNodes = [
     const NodeAddress(
       name: 'Default Local Node',
       url: 'http://${sdk.localhostAddress}',
@@ -67,126 +66,55 @@ class AppResources {
     ),
   ];
 
+  static List<NodeAddress> stagenetNodes = [
+    const NodeAddress(
+      name: 'Default Local Node',
+      url: 'http://${sdk.localhostAddress}',
+    ),
+  ];
+
   static String explorerMainnetUrl = 'https://explorer.xelis.io/';
   static String explorerTestnetUrl = 'https://testnet-explorer.xelis.io/';
 
-  /*static String svgIconGreenTarget =
-      'https://raw.githubusercontent.com/xelis-project/xelis-assets/master/icons/svg/transparent/green.svg';
-  static String svgIconBlackTarget =
-      'https://raw.githubusercontent.com/xelis-project/xelis-assets/master/icons/svg/transparent/black.svg';
-  static String svgIconWhiteTarget =
-      'https://raw.githubusercontent.com/xelis-project/xelis-assets/master/icons/svg/transparent/white.svg';
+  static late ScalableImage svgGenesixWalletOneLineWhite;
+  static late ScalableImage svgGenesixWalletOneLineBlack;
 
-  static late ScalableImage svgIconGreen;
-  static late ScalableImage svgIconWhite;
-  static late ScalableImage svgIconBlack;
-
-  static ScalableImageWidget svgIconGreenWidget = ScalableImageWidget(
-    si: AppResources.svgIconGreen,
-    scale: 0.06,
-  );
-
-  static ScalableImageWidget svgIconBlackWidget = ScalableImageWidget(
-    si: AppResources.svgIconBlack,
-    scale: 0.06,
-  );
-
-  static ScalableImageWidget svgIconWhiteWidget = ScalableImageWidget(
-    si: AppResources.svgIconWhite,
-    scale: 0.06,
-  );*/
-
-  // static String svgBannerGreenPath =
-  //     'assets/banners/svg/transparent_background_green_logo.svg';
-  // static String svgBannerBlackPath =
-  //     'assets/banners/svg/transparent_background_black_logo.svg';
-  // static String svgBannerWhitePath =
-  //     'assets/banners/svg/transparent_background_white_logo.svg';
   static const String greenBackgroundBlackIconPath =
       'assets/icons/png/circle/green_background_black_logo.png';
-  static const String bgDotsPath = 'assets/bg_dots.png';
-
-  // static late ScalableImage svgBannerGreen;
-  // static late ScalableImage svgBannerWhite;
-  // static late ScalableImage svgBannerBlack;
-  static late Image bgDots;
-
-  // static ScalableImageWidget svgBannerGreenWidget = ScalableImageWidget(
-  //   si: AppResources.svgBannerGreen,
-  //   scale: 0.15,
-  // );
-  //
-  // static ScalableImageWidget svgBannerBlackWidget = ScalableImageWidget(
-  //   si: AppResources.svgBannerBlack,
-  //   scale: 0.15,
-  // );
-  //
-  // static ScalableImageWidget svgBannerWhiteWidget = ScalableImageWidget(
-  //   si: AppResources.svgBannerWhite,
-  //   scale: 0.15,
-  // );
+  static const String genesixWalletOneLineWhitePath =
+      'assets/genesix/svg/genesix-wallet-one-line_white.svg';
+  static const String genesixWalletOneLineBlackPath =
+      'assets/genesix/svg/genesix-wallet-one-line_black.svg';
 
   static List<CountryFlag> countryFlags = List.generate(
     AppLocalizations.supportedLocales.length,
     (int index) {
+      final flagTheme = const ImageTheme(
+        height: 24,
+        width: 30,
+        shape: RoundedRectangle(8),
+      );
       String languageCode =
           AppLocalizations.supportedLocales[index].languageCode;
       switch (languageCode) {
         case 'zh':
-          return CountryFlag.fromCountryCode(
-            'CN',
-            height: 24,
-            width: 30,
-            shape: const RoundedRectangle(8),
-          );
+          return CountryFlag.fromCountryCode('CN', theme: flagTheme);
         case 'ru' || 'pt' || 'nl' || 'pl':
-          return CountryFlag.fromCountryCode(
-            languageCode,
-            height: 24,
-            width: 30,
-            shape: const RoundedRectangle(8),
-          );
+          return CountryFlag.fromCountryCode(languageCode, theme: flagTheme);
         case 'ko':
-          return CountryFlag.fromCountryCode(
-            'KR',
-            height: 24,
-            width: 30,
-            shape: const RoundedRectangle(8),
-          );
+          return CountryFlag.fromCountryCode('KR', theme: flagTheme);
         case 'ms':
-          return CountryFlag.fromCountryCode(
-            'MY',
-            height: 24,
-            width: 30,
-            shape: const RoundedRectangle(8),
-          );
+          return CountryFlag.fromCountryCode('MY', theme: flagTheme);
         case 'uk':
-          return CountryFlag.fromCountryCode(
-            'UA',
-            height: 24,
-            width: 30,
-            shape: const RoundedRectangle(8),
-          );
+          return CountryFlag.fromCountryCode('UA', theme: flagTheme);
         case 'ja':
-          return CountryFlag.fromCountryCode(
-            'JP',
-            height: 24,
-            width: 30,
-            shape: const RoundedRectangle(8),
-          );
+          return CountryFlag.fromCountryCode('JP', theme: flagTheme);
         case 'ar':
-          return CountryFlag.fromCountryCode(
-            'SA',
-            height: 24,
-            width: 30,
-            shape: const RoundedRectangle(8),
-          );
+          return CountryFlag.fromCountryCode('SA', theme: flagTheme);
         default:
           return CountryFlag.fromLanguageCode(
             AppLocalizations.supportedLocales[index].languageCode,
-            height: 24,
-            width: 30,
-            shape: const RoundedRectangle(8),
+            theme: flagTheme,
           );
       }
     },

@@ -12,7 +12,8 @@ pub fn is_address_valid(str_address: String, network: Network) -> bool {
         Ok(address) => match network {
             Network::Mainnet => address.is_mainnet(),
             Network::Testnet => !address.is_mainnet(),
-            Network::Dev => !address.is_mainnet(),
+            Network::Devnet => !address.is_mainnet(),
+            Network::Stagenet => !address.is_mainnet(),
         },
         Err(_) => false,
     }

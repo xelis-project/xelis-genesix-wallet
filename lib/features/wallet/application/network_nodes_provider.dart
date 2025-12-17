@@ -30,8 +30,10 @@ class NetworkNodes extends _$NetworkNodes {
         state = state.copyWith(mainnetNodes: nodes);
       case Network.testnet:
         state = state.copyWith(testnetNodes: nodes);
-      case Network.dev:
-        state = state.copyWith(devNodes: nodes);
+      case Network.devnet:
+        state = state.copyWith(devnetNodes: nodes);
+      case Network.stagenet:
+        state = state.copyWith(stagenetNodes: nodes);
     }
 
     networkNodesStateRepository.localSave(state);
@@ -48,8 +50,10 @@ class NetworkNodes extends _$NetworkNodes {
         state = state.copyWith(mainnetAddress: address);
       case Network.testnet:
         state = state.copyWith(testnetAddress: address);
-      case Network.dev:
-        state = state.copyWith(devAddress: address);
+      case Network.devnet:
+        state = state.copyWith(devnetAddress: address);
+      case Network.stagenet:
+        state = state.copyWith(stagenetAddress: address);
     }
 
     networkNodesStateRepository.localSave(state);

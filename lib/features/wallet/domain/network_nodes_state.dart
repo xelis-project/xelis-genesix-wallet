@@ -13,12 +13,24 @@ abstract class NetworkNodesState with _$NetworkNodesState {
   const NetworkNodesState._();
 
   const factory NetworkNodesState({
-    @JsonKey(name: "mainnet_address") required NodeAddress mainnetAddress,
+    @JsonKey(name: "mainnet_address")
+    @Default(NodeAddress())
+    NodeAddress mainnetAddress,
     @JsonKey(name: "mainnet_nodes") @Default([]) List<NodeAddress> mainnetNodes,
-    @JsonKey(name: "testnet_address") required NodeAddress testnetAddress,
+    @JsonKey(name: "testnet_address")
+    @Default(NodeAddress())
+    NodeAddress testnetAddress,
     @JsonKey(name: "testnet_nodes") @Default([]) List<NodeAddress> testnetNodes,
-    @JsonKey(name: "dev_address") required NodeAddress devAddress,
-    @JsonKey(name: "dev_nodes") @Default([]) List<NodeAddress> devNodes,
+    @JsonKey(name: "dev_address")
+    @Default(NodeAddress())
+    NodeAddress devnetAddress,
+    @JsonKey(name: "dev_nodes") @Default([]) List<NodeAddress> devnetNodes,
+    @JsonKey(name: "stagenet_address")
+    @Default(NodeAddress())
+    NodeAddress stagenetAddress,
+    @JsonKey(name: "stagenet_nodes")
+    @Default([])
+    List<NodeAddress> stagenetNodes,
   }) = _NetworkNodesState;
 
   bool nodeExists(Network network, NodeAddress nodeAddress) {
@@ -32,8 +44,10 @@ abstract class NetworkNodesState with _$NetworkNodesState {
         return mainnetNodes;
       case Network.testnet:
         return testnetNodes;
-      case Network.dev:
-        return devNodes;
+      case Network.devnet:
+        return devnetNodes;
+      case Network.stagenet:
+        return stagenetNodes;
     }
   }
 
@@ -43,11 +57,41 @@ abstract class NetworkNodesState with _$NetworkNodesState {
         return mainnetAddress;
       case Network.testnet:
         return testnetAddress;
-      case Network.dev:
-        return devAddress;
+      case Network.devnet:
+        return devnetAddress;
+      case Network.stagenet:
+        return stagenetAddress;
     }
   }
 
   factory NetworkNodesState.fromJson(Map<String, dynamic> json) =>
       _$NetworkNodesStateFromJson(json);
+}
+
+extension NetworkNodesStateExtension on NetworkNodesState {
+  List<NodeAddress> nodesFor(Network network) {
+    switch (network) {
+      case Network.mainnet:
+        return mainnetNodes;
+      case Network.testnet:
+        return testnetNodes;
+      case Network.devnet:
+        return devnetNodes;
+      case Network.stagenet:
+        return stagenetNodes;
+    }
+  }
+
+  NodeAddress addressFor(Network network) {
+    switch (network) {
+      case Network.mainnet:
+        return mainnetAddress;
+      case Network.testnet:
+        return testnetAddress;
+      case Network.devnet:
+        return devnetAddress;
+      case Network.stagenet:
+        return stagenetAddress;
+    }
+  }
 }

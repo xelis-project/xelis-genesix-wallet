@@ -6,10 +6,15 @@ part 'daemon_info_snapshot.freezed.dart';
 @freezed
 abstract class DaemonInfoSnapshot with _$DaemonInfoSnapshot {
   const factory DaemonInfoSnapshot({
+    @Default('') String height,
     @Default('') String topoHeight,
+    @Default('') String stableHeight,
     @Default(false) bool pruned,
     @Default('') String circulatingSupply,
+    @Default('') String maximumSupply,
     @Default('') String burnSupply,
+    @Default('') String emittedSupply,
+    @Default('') String hashRate,
     @Default(Duration()) Duration averageBlockTime,
     @Default(0) int mempoolSize,
     @Default('') String blockReward,
