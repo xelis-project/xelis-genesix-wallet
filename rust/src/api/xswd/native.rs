@@ -238,9 +238,6 @@ pub async fn xswd_handler(
     while let Some(event) = receiver.recv().await {
         info!("Received XSWD event: {}", xswd_event_name(&event));
         match event {
-            XSWDEvent::PrefetchPermissions(_, _, _) => {
-                // Currently no action is taken for PrefetchPermission events
-            },
             XSWDEvent::CancelRequest(state, callback) => {
                 let event_summary =
                     create_event_summary(&state, XswdRequestType::CancelRequest).await;
@@ -269,7 +266,36 @@ pub async fn xswd_handler(
                 let decision = request_permission_dart_callback(event_summary).await;
 
                 handle_permission_decision(decision, callback);
-            }
+            },
+            XSWDEvent::PrefetchPermissions(state, permissions, callback) => {
+                let mut message = format!("XSWD: Application {} ({}) is requesting multiple permissions to your wallet", app_state.get_name(), app_state.get_id());
+                if let Some(reason) = permissions.reason.as_ref() {
+                    message += &format!("\r\nReason: '{}'", reason);
+                }
+                message += "\r\nYou can accept or reject all these permissions when the application will request them individually.";
+                message += &format!("\r\nPermissions ({}):", permissions.permissions.len());
+
+                for permission in permissions.permissions.iter() {
+                    message += &format!("\r\n- {}", permission);
+                }
+
+                message += "\r\nDo you accept these permissions enabled by default?";
+                message += "\r\nThis means you won't be asked again for these permissions when the application will request them.";
+                message += "\r\n(Y/N): ";
+
+                let accepted = prompt.read_valid_str_value(prompt.colorize_string(Color::Blue, &message), &["y", "n"]).await.is_ok_and(|v| v == "y");
+
+                let mut results = IndexMap::new();
+                if accepted {
+                    for permission in permissions.permissions {
+                        results.insert(permission, Permission::Allow);
+                    }
+                }
+
+                if callback.send(Ok(results)).is_err() {
+                    error!("Error while sending prefetch permissions response back to XSWD");
+                }
+            },
             XSWDEvent::AppDisconnect(app_state) => {
                 let event_summary =
                     create_event_summary(&app_state, XswdRequestType::AppDisconnect).await;
