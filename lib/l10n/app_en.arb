@@ -414,6 +414,7 @@
   "unknown_request": "Unknown request",
   "connection_request": "Connection request",
   "permission_request": "Permission request",
+  "prefetch_permissions_request": "Batched permission request",
   "cancellation_request": "Cancellation request",
   "app_disconnected": "App disconnected",
   "xswd_setting_label": "The XSWD protocol provides secure communication with external applications.",

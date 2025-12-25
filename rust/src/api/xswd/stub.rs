@@ -126,6 +126,9 @@ pub async fn xswd_handler(
     _request_permission_dart_callback: impl Fn(
         XswdRequestSummary,
     ) -> DartFnFuture<UserPermissionDecision>,
+    _request_prefetch_permissions_dart_callback: impl Fn(
+        XswdRequestSummary,
+    ) -> DartFnFuture<UserPermissionDecision>,
     _app_disconnect_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>,
 ) {
     // no-op on wasm

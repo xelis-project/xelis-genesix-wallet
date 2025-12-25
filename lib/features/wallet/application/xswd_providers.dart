@@ -6,6 +6,7 @@ import 'package:genesix/features/authentication/application/authentication_servi
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/permission_rpc_request.dart';
+import 'package:genesix/features/wallet/domain/prefetch_permissions_rpc_request.dart';
 import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -56,8 +57,20 @@ class XswdRequest extends _$XswdRequest {
         permissionRpcRequest: PermissionRpcRequest.fromJson(data),
         snackBarVisible: true,
       );
-    } else if (xswdEventSummary.isAppDisconnect() ||
-        xswdEventSummary.isCancelRequest()) {
+    } else if (xswdEventSummary.isPrefetchPermissionsRequest()) {
+      final data = jsonDecode(
+        (xswdEventSummary.eventType as XswdRequestType_PrefetchPermissions).field0,
+      ) as Map<String, dynamic>;
+
+      state = state.copyWith(
+        xswdEventSummary: xswdEventSummary,
+        message: message,
+        snackBarTimer: snackBarTimer,
+        decision: decisionCompleter,
+        prefetchPermissionsRequest: PrefetchPermissionsRequest.fromJson(data),
+        snackBarVisible: true,
+      );
+    } else if (xswdEventSummary.isAppDisconnect() || xswdEventSummary.isCancelRequest()) {
       state = state.copyWith(
         xswdEventSummary: xswdEventSummary,
         message: message,

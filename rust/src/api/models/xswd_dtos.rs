@@ -33,8 +33,29 @@ impl XswdRequestSummary {
     }
 
     #[frb(sync)]
+    pub fn is_prefetch_permissions_request(&self) -> bool {
+        matches!(self.event_type, XswdRequestType::PrefetchPermissions(_))
+    }
+
+    #[frb(sync)]
     pub fn is_app_disconnect(&self) -> bool {
         matches!(self.event_type, XswdRequestType::AppDisconnect)
+    }
+
+    #[frb(sync)]
+    pub fn permission_json(&self) -> Option<String> {
+        match &self.event_type {
+            XswdRequestType::Permission(json) => Some(json.clone()),
+            _ => None,
+        }
+    }
+
+    #[frb(sync)]
+    pub fn prefetch_permissions_json(&self) -> Option<String> {
+        match &self.event_type {
+            XswdRequestType::PrefetchPermissions(json) => Some(json.clone()),
+            _ => None,
+        }
     }
 }
 
@@ -51,6 +72,7 @@ pub struct AppInfo {
 pub enum XswdRequestType {
     Application,
     Permission(String),
+    PrefetchPermissions(String),
     CancelRequest,
     AppDisconnect,
 }

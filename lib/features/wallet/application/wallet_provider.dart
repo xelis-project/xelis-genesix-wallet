@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
@@ -824,6 +825,60 @@ class WalletState extends _$WalletState {
                     title:
                         '${loc.permission_denied_for} ${request.applicationInfo.name}',
                   );
+            }
+
+            return decision;
+          },
+          requestPrefetchPermissionsCallback: (request) async {
+            final loc = ref.read(appLocalizationsProvider);
+
+            final app = request.applicationInfo;
+
+            final jsonStr = request.prefetchPermissionsJson();
+            final decoded = jsonStr == null
+                ? <String, dynamic>{}
+                : jsonDecode(jsonStr) as Map<String, dynamic>;
+
+            final reason = decoded['reason'] as String?;
+            final perms = (decoded['permissions'] as List<dynamic>? ?? const [])
+                .map((e) => e.toString())
+                .toList();
+
+            final sb = StringBuffer()
+              ..writeln(
+                  'XSWD: Application ${app.name} (${app.id}) is requesting multiple permissions to your wallet');
+            if (reason != null && reason.isNotEmpty) {
+              sb.writeln("Reason: '$reason'");
+            }
+            sb.writeln('Permissions (${perms.length}):');
+            for (final p in perms) {
+              sb.writeln('- $p');
+            }
+            sb.writeln(
+                'You can accept or reject all of these permissions now, or have the application request them as-needed');
+            sb.writeln(
+                "If you accept now, you won't be asked again for these permissions when the application needs them for the entirety of this session.");
+            sb.writeln('Allow the listed permissions by default?');
+
+            final message = sb.toString();
+            talker.info(message);
+
+            final completer = ref
+                .read(xswdRequestProvider.notifier)
+                .newRequest(xswdEventSummary: request, message: message);
+
+            final decision = await completer.future;
+
+            if (decision == UserPermissionDecision.accept ||
+                decision == UserPermissionDecision.alwaysAccept) {
+              ref.read(toastProvider.notifier).showInformation(
+                title: '${loc.permission_granted_for} ${app.name}',
+              );
+            } else if (decision == UserPermissionDecision.reject ||
+                decision == UserPermissionDecision.alwaysReject) {
+              ref.read(toastProvider.notifier).showInformation(
+                title: '${loc.permission_denied_for} ${app.name}',
+              );
             }
 
             return decision;

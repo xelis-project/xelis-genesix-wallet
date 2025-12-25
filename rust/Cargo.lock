@@ -686,9 +686,9 @@ dependencies = [
 
 [[package]]
 name = "chacha20"
-version = "0.10.0-rc.5"
+version = "0.10.0-rc.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "99cbf41c6ec3c4b9eaf7f8f5c11a72cd7d3aa0428125c20d5ef4d09907a0f019"
+checksum = "f895fb33c1ad22da4bc79d37c0bddff8aee2ba4575705345eb73b8ffbc386074"
 dependencies = [
  "cfg-if",
  "cipher 0.5.0-rc.2",
@@ -702,7 +702,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c662d31454533832974f2b2b3fcbd552ed3cde94c95e614a5039d297dd97076f"
 dependencies = [
  "aead",
- "chacha20 0.10.0-rc.5",
+ "chacha20 0.10.0-rc.6",
  "cipher 0.5.0-rc.2",
  "poly1305",
 ]
@@ -1000,18 +1000,18 @@ dependencies = [
 
 [[package]]
 name = "derive_more"
-version = "2.1.0"
+version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "10b768e943bed7bf2cab53df09f4bc34bfd217cdb57d971e769874c9a6710618"
+checksum = "d751e9e49156b02b44f9c1815bcb94b984cdcc4396ecc32521c739452808b134"
 dependencies = [
  "derive_more-impl",
 ]
 
 [[package]]
 name = "derive_more-impl"
-version = "2.1.0"
+version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6d286bfdaf75e988b4a78e013ecd79c581e06399ab53fbacd2d916c2f904f30b"
+checksum = "799a97264921d8623a957f6c3b9011f3b5492f557bbb7a5a19b7fa6d06ba8dcb"
 dependencies = [
  "convert_case",
  "proc-macro2",
@@ -1787,9 +1787,9 @@ dependencies = [
 
 [[package]]
 name = "itoa"
-version = "1.0.15"
+version = "1.0.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4a5f13b858c8d314ee3e8f639011f7ccefe71f97f96e50151fb991f267928e2c"
+checksum = "7ee5b5339afb4c41626dde77b7a611bd4f2c202b897852b4bcf5d03eddc61010"
 
 [[package]]
 name = "jobserver"
@@ -2217,9 +2217,9 @@ dependencies = [
 
 [[package]]
 name = "portable-atomic"
-version = "1.11.1"
+version = "1.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f84267b20a16ea918e43c6a88433c2d54fa145c92a811b5b047ccbe153674483"
+checksum = "f59e70c4aef1e55797c2e8fd94a4f2a973fc972cfde0e0b05f683667b0cd39dd"
 
 [[package]]
 name = "potential_utf"
@@ -2513,6 +2513,7 @@ name = "rust_lib"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "crypto-common 0.2.0-rc.5",
  "flutter_rust_bridge",
  "getrandom 0.3.4",
  "indexmap",
@@ -2613,9 +2614,9 @@ checksum = "b39cdef0fa800fc44525c84ccb54a029961a8215f9619753635a9c0d2538d46d"
 
 [[package]]
 name = "ryu"
-version = "1.0.20"
+version = "1.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28d3b2b1366ec20994f1fd18c3c594f05c5dd4bc44d8bb0c1c632c8d6829481f"
+checksum = "62049b2877bf12821e8f9ad256ee38fdc31db7387ec2d3b3f403024de2034aea"
 
 [[package]]
 name = "schemars"
@@ -2698,15 +2699,15 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.145"
+version = "1.0.147"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "402a6f66d8c709116cf22f558eab210f5a50187f702eb4d7e5ef38d9a7f1c79c"
+checksum = "6af14725505314343e673e9ecb7cd7e8a36aa9791eb936235a3567cc31447ae4"
 dependencies = [
  "itoa",
  "memchr",
- "ryu",
  "serde",
  "serde_core",
+ "zmij",
 ]
 
 [[package]]
@@ -3105,8 +3106,8 @@ dependencies = [
 
 [[package]]
 name = "tokio-tungstenite-wasm"
-version = "0.7.0"
-source = "git+https://github.com/TannerRogalsky/tokio-tungstenite-wasm.git#412f73ea40a6ea3d56b9eee9277b4067f0ee8a16"
+version = "0.8.0"
+source = "git+https://github.com/TannerRogalsky/tokio-tungstenite-wasm.git#71268a1cd19cc4063ce106559d66e39bb66d36c0"
 dependencies = [
  "bytes",
  "futures-channel",
@@ -3944,7 +3945,7 @@ dependencies = [
 [[package]]
 name = "xelis_common"
 version = "1.21.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#2350510bb3ed2690634a0d288c7fdabe43d7ffc4"
+source = "git+https://github.com/xelis-project/xelis-blockchain#5ff20a86ff7f5afb570c3629a1b3841d87cd42b1"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -3998,7 +3999,7 @@ dependencies = [
 [[package]]
 name = "xelis_wallet"
 version = "1.21.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#2350510bb3ed2690634a0d288c7fdabe43d7ffc4"
+source = "git+https://github.com/xelis-project/xelis-blockchain#5ff20a86ff7f5afb570c3629a1b3841d87cd42b1"
 dependencies = [
  "actix-web",
  "actix-web-httpauth",
@@ -4147,6 +4148,12 @@ dependencies = [
  "quote",
  "syn",
 ]
+
+[[package]]
+name = "zmij"
+version = "0.1.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f1dccf46b25b205e4bebe1d5258a991df1cc17801017a845cb5b3fe0269781aa"
 
 [[package]]
 name = "zstd"

@@ -80,6 +80,8 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
         title = loc.connection_request.capitalize();
       case XswdRequestType_Permission():
         title = loc.permission_request.capitalize();
+      case XswdRequestType_PrefetchPermissions():
+        title = loc.prefetch_permissions_request.capitalize();
       case XswdRequestType_CancelRequest():
         title = loc.cancellation_request.capitalize();
       case XswdRequestType_AppDisconnect():

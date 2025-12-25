@@ -551,6 +551,8 @@ class NativeWalletRepository {
     requestApplicationCallback,
     required Future<UserPermissionDecision> Function(XswdRequestSummary)
     requestPermissionCallback,
+    required Future<UserPermissionDecision> Function(XswdRequestSummary)
+    requestPrefetchPermissionsCallback,
     required Future<void> Function(XswdRequestSummary) appDisconnectCallback,
   }) async {
     if (await _xelisWallet.isXswdRunning()) {
@@ -561,6 +563,7 @@ class NativeWalletRepository {
       cancelRequestDartCallback: cancelRequestCallback,
       requestApplicationDartCallback: requestApplicationCallback,
       requestPermissionDartCallback: requestPermissionCallback,
+      requestPrefetchPermissionsDartCallback: requestPrefetchPermissionsCallback,
       appDisconnectDartCallback: appDisconnectCallback,
     );
   }
