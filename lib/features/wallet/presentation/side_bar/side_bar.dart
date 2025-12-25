@@ -143,17 +143,15 @@ class _SideBarState extends ConsumerState<SideBar> {
                 FSidebarItem(
                   selected: _selectedItem == AuthAppScreen.xswd.toPath,
                   label: Text(loc.xswd),
-                  // disable for pre-alpha
-                  onPress: null,
-                  /* xswdEnabled
-                          ? () {
-                            _closeSideBar();
-                            context.go(AuthAppScreen.xswd.toPath);
-                            setState(() {
-                              _selectedItem = AuthAppScreen.xswd.toPath;
-                            });
-                          }
-                          : null,*/
+                  onPress: xswdEnabled
+                    ? () {
+                      _closeSideBar();
+                      context.go(AuthAppScreen.xswd.toPath);
+                      setState(() {
+                        _selectedItem = AuthAppScreen.xswd.toPath;
+                      });
+                    }
+                    : null,
                 ),
                 FSidebarItem(
                   selected: _selectedItem == AuthAppScreen.burn.toPath,

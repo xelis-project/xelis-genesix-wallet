@@ -170,6 +170,8 @@
   "confirm_button": "Confirm",
   "connected": "Connected",
   "disconnected": "Disconnected",
+  "running": "Running",
+  "stopped": "Stopped",
   "loading": "Loading...",
   "oups": "Oops, something unexpected happened...",
   "coming_soon": "Coming soon...",

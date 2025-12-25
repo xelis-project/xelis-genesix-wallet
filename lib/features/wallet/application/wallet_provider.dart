@@ -36,6 +36,25 @@ class WalletState extends _$WalletState {
   WalletSnapshot build() {
     final authenticationState = ref.watch(authenticationProvider);
 
+    // Listen to XSWD setting changes
+    if (!kIsWeb) {
+      ref.listen(
+        settingsProvider.select((s) => s.enableXswd),
+        (previous, next) {
+          if (previous != null && previous != next && state.isOnline) {
+            // Setting changed while wallet is online - restart XSWD
+            if (next) {
+              talker.info('XSWD enabled - starting server');
+              unawaited(startXSWD());
+            } else {
+              talker.info('XSWD disabled - stopping server');
+              unawaited(stopXSWD());
+            }
+          }
+        },
+      );
+    }
+
     switch (authenticationState) {
       case SignedIn(:final name, :final nativeWallet):
         return WalletSnapshot(

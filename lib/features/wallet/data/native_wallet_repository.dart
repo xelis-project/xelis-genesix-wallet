@@ -576,6 +576,10 @@ class NativeWalletRepository {
     _xelisWallet.stopXswd();
   }
 
+  Future<bool> isXswdRunning() async {
+    return await _xelisWallet.isXswdRunning();
+  }
+
   Future<List<AppInfo>> getXswdState() async {
     if (!await _xelisWallet.isXswdRunning()) {
       talker.info('XSWD state not available, XSWD is not running');
