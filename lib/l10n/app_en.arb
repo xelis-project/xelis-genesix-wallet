@@ -395,6 +395,8 @@
   "deposits": "Deposits",
   "entry_id": "Entry ID",
   "no_application_found": "No applications found",
+  "xswd_started": "XSWD Server started successfully",
+  "xswd_stopped": "XSWD Server stopped",
   "xwsd_status_screen_message": "Manage application permissions with XSWD protocol",
   "xswd_status": "XSWD Status",
   "enable_xswd": "Enable XSWD protocol",

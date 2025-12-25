@@ -45,10 +45,14 @@ class WalletState extends _$WalletState {
             // Setting changed while wallet is online - restart XSWD
             if (next) {
               talker.info('XSWD enabled - starting server');
-              unawaited(startXSWD());
+              startXSWD().catchError((Object error) {
+                talker.error('Unhandled XSWD start error: $error');
+              });
             } else {
               talker.info('XSWD disabled - stopping server');
-              unawaited(stopXSWD());
+              stopXSWD().catchError((Object error) {
+                talker.error('Unhandled XSWD stop error: $error');
+              });
             }
           }
         },
@@ -90,9 +94,15 @@ class WalletState extends _$WalletState {
           settingsProvider.select((s) => s.enableXswd),
         );
         if (enableXswd) {
-          startXSWD();
+          startXSWD().catchError((Object error) {
+            // Error already handled inside startXSWD, this prevents unhandled exception
+            talker.error('Unhandled XSWD start error: $error');
+          });
         } else {
-          stopXSWD();
+          stopXSWD().catchError((Object error) {
+            // Error already handled inside stopXSWD, this prevents unhandled exception
+            talker.error('Unhandled XSWD stop error: $error');
+          });
         }
       }
 
@@ -774,11 +784,11 @@ class WalletState extends _$WalletState {
   }
 
   Future<void> startXSWD() async {
+    final loc = ref.read(appLocalizationsProvider);
     if (state.nativeWalletRepository != null) {
       try {
         await state.nativeWalletRepository!.startXSWD(
           cancelRequestCallback: (request) async {
-            final loc = ref.read(appLocalizationsProvider);
             final message =
                 '${loc.request_cancelled_from} ${request.applicationInfo.name}';
             talker.info(message);
@@ -787,7 +797,6 @@ class WalletState extends _$WalletState {
                 .newRequest(xswdEventSummary: request, message: message);
           },
           requestApplicationCallback: (request) async {
-            final loc = ref.read(appLocalizationsProvider);
             final message =
                 '${loc.connection_request_from} ${request.applicationInfo.name}';
             talker.info(message);
@@ -818,7 +827,6 @@ class WalletState extends _$WalletState {
             return decision;
           },
           requestPermissionCallback: (request) async {
-            final loc = ref.read(appLocalizationsProvider);
             final message =
                 '${loc.permission_request_from} ${request.applicationInfo.name}';
             talker.info(message);
@@ -849,8 +857,6 @@ class WalletState extends _$WalletState {
             return decision;
           },
           requestPrefetchPermissionsCallback: (request) async {
-            final loc = ref.read(appLocalizationsProvider);
-
             final app = request.applicationInfo;
 
             final jsonStr = request.prefetchPermissionsJson();
@@ -903,7 +909,6 @@ class WalletState extends _$WalletState {
             return decision;
           },
           appDisconnectCallback: (request) async {
-            final loc = ref.read(appLocalizationsProvider);
             final message =
                 'XSWD: ${request.applicationInfo.name} ${loc.disconnected.toLowerCase()}';
             talker.info(message);
@@ -912,6 +917,8 @@ class WalletState extends _$WalletState {
                 .newRequest(xswdEventSummary: request, message: message);
           },
         );
+
+        talker.info('XSWD server started successfully');
       } on AnyhowException catch (e) {
         talker.error('Cannot start XSWD: $e');
         final xelisMessage = (e).message.split("\n")[0];
@@ -928,9 +935,12 @@ class WalletState extends _$WalletState {
   }
 
   Future<void> stopXSWD() async {
+    final loc = ref.read(appLocalizationsProvider);
     if (state.nativeWalletRepository != null) {
       try {
         await state.nativeWalletRepository!.stopXSWD();
+
+        talker.info('XSWD server stop initiated');
       } on AnyhowException catch (e) {
         talker.error('Cannot stop XSWD: $e');
         final xelisMessage = (e).message.split("\n")[0];

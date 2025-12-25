@@ -559,7 +559,7 @@ class NativeWalletRepository {
       talker.warning('XSWD already running...');
       return;
     }
-    _xelisWallet.startXswd(
+    await _xelisWallet.startXswd(
       cancelRequestDartCallback: cancelRequestCallback,
       requestApplicationDartCallback: requestApplicationCallback,
       requestPermissionDartCallback: requestPermissionCallback,
@@ -573,7 +573,7 @@ class NativeWalletRepository {
       talker.warning('XSWD already stopped...');
       return;
     }
-    _xelisWallet.stopXswd();
+    await _xelisWallet.stopXswd();
   }
 
   Future<bool> isXswdRunning() async {
