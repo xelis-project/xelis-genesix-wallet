@@ -17,5 +17,6 @@ abstract class XswdRequestState with _$XswdRequestState {
     PrefetchPermissionsRequest? prefetchPermissionsRequest,
     required String message,
     required bool snackBarVisible,
+    @Default(false) bool suppressXswdToast,
   }) = _XswdRequestState;
 }

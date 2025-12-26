@@ -17,45 +17,27 @@ part 'xswd_providers.g.dart';
 class XswdRequest extends _$XswdRequest {
   @override
   XswdRequestState build() {
-    ref.watch(authenticationProvider);
     return const XswdRequestState(message: '', snackBarVisible: false);
   }
 
   Completer<UserPermissionDecision> newRequest({
     required XswdRequestSummary xswdEventSummary,
     required String message,
-    int snackBarDuration = 10,
   }) {
     final decisionCompleter = Completer<UserPermissionDecision>();
-    final snackBarTimer = Timer(
-      Duration(
-        seconds:
-            xswdEventSummary.isCancelRequest() ||
-                xswdEventSummary.isAppDisconnect()
-            ? 5
-            : snackBarDuration,
-      ),
-      () {
-        decisionCompleter.complete(UserPermissionDecision.reject);
-        state = state.copyWith(snackBarVisible: false);
-      },
-    );
 
     if (xswdEventSummary.isPermissionRequest()) {
       final data =
           jsonDecode(
-                (xswdEventSummary.eventType as XswdRequestType_Permission)
-                    .field0,
+                (xswdEventSummary.eventType as XswdRequestType_Permission).field0,
               )
               as Map<String, dynamic>;
 
       state = state.copyWith(
         xswdEventSummary: xswdEventSummary,
         message: message,
-        snackBarTimer: snackBarTimer,
         decision: decisionCompleter,
         permissionRpcRequest: PermissionRpcRequest.fromJson(data),
-        snackBarVisible: true,
       );
     } else if (xswdEventSummary.isPrefetchPermissionsRequest()) {
       final data = jsonDecode(
@@ -65,25 +47,21 @@ class XswdRequest extends _$XswdRequest {
       state = state.copyWith(
         xswdEventSummary: xswdEventSummary,
         message: message,
-        snackBarTimer: snackBarTimer,
         decision: decisionCompleter,
         prefetchPermissionsRequest: PrefetchPermissionsRequest.fromJson(data),
-        snackBarVisible: true,
       );
-    } else if (xswdEventSummary.isAppDisconnect() || xswdEventSummary.isCancelRequest()) {
+    } else if (xswdEventSummary.isAppDisconnect() ||
+        xswdEventSummary.isCancelRequest()) {
       state = state.copyWith(
         xswdEventSummary: xswdEventSummary,
         message: message,
-        snackBarTimer: snackBarTimer,
-        snackBarVisible: true,
+        decision: null,
       );
     } else {
       state = state.copyWith(
         xswdEventSummary: xswdEventSummary,
         message: message,
-        snackBarTimer: snackBarTimer,
         decision: decisionCompleter,
-        snackBarVisible: true,
       );
     }
 
@@ -91,7 +69,13 @@ class XswdRequest extends _$XswdRequest {
   }
 
   void closeSnackBar() {
-    state = state.copyWith(snackBarVisible: false);
+    state.snackBarTimer?.cancel();
+    state = state.copyWith(snackBarVisible: false, snackBarTimer: null);
+  }
+
+  void setSuppressXswdToast(bool value) {
+    if (state.suppressXswdToast == value) return;
+    state = state.copyWith(suppressXswdToast: value);
   }
 }
 
@@ -102,9 +86,11 @@ Future<List<AppInfo>> xswdApplications(Ref ref) async {
   final nativeWallet = ref.watch(
     walletStateProvider.select((state) => state.nativeWalletRepository),
   );
+
   if (xswdRequest.decision != null) {
     await xswdRequest.decision!.future;
   }
+
   if (nativeWallet != null && enableXswd) {
     return nativeWallet.getXswdState();
   }

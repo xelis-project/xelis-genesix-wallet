@@ -98,7 +98,9 @@ impl XSWD for XelisWallet {
                     .await;
                 });
             }
-            Ok(None) => bail!("Failed to enable XSWD Server: receiver is None"),
+            Ok(None) => {
+                // XSWD server is already running, this is not an error
+            }
             Err(e) => bail!("Error while enabling XSWD Server: {}", e),
         };
         Ok(())

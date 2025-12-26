@@ -22,7 +22,7 @@ import 'package:genesix/features/wallet/presentation/sign_transaction/sign_trans
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/burn/burn_screen_new.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transfer/transfer_screen_new.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_content.dart';
-import 'package:genesix/features/wallet/presentation/xswd/xswd_widget_old.dart';
+import 'package:genesix/features/wallet/presentation/xswd/xswd_widget.dart';
 import 'package:genesix/features/wallet/presentation/wallet_scaffold.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/authentication/presentation/open_wallet_screen.dart';

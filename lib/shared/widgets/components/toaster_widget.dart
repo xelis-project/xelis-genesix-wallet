@@ -1,7 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/wallet/presentation/xswd/xswd_widget.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 
@@ -15,136 +18,204 @@ class ToasterWidget extends ConsumerStatefulWidget {
 }
 
 class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
-  late BuildContext _toastContext;
-  // TODO check possible description content overflow
+  BuildContext? _toastContext;
+  late BuildContext _appContext;
+
+  bool _listenerSetup = false;
 
   void _setupToastListener() {
-    final loc = ref.watch(appLocalizationsProvider);
+    if (_listenerSetup) return;
+    _listenerSetup = true;
+
     ref.listen<ToastContent?>(toastProvider, (prev, next) {
-      if (next != null) {
-        switch (next.type) {
-          case ToastType.information:
-            showFToast(
-              context: _toastContext,
-              alignment: FToastAlignment.topCenter,
-              duration: Duration(seconds: 3),
-              icon: const Icon(FIcons.info),
-              title: Text(next.title),
-            );
-            break;
-          case ToastType.warning:
-            showFToast(
-              context: _toastContext,
-              alignment: FToastAlignment.bottomCenter,
-              duration: Duration(seconds: 3),
-              icon: const Icon(FIcons.triangleAlert),
-              title: Text(next.title),
-            );
-            break;
-          case ToastType.error:
-            showFToast(
-              context: _toastContext,
-              alignment: FToastAlignment.bottomRight,
-              title: Text(
+      if (next == null) return;
+
+      final toastCtx = _toastContext;
+      if (toastCtx == null) return;
+
+      final loc = ref.read(appLocalizationsProvider);
+
+      switch (next.type) {
+        case ToastType.information:
+          showFToast(
+            context: toastCtx,
+            alignment: FToastAlignment.topCenter,
+            duration: const Duration(seconds: 3),
+            icon: const Icon(FIcons.info),
+            title: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Text(next.title),
+            ),
+          );
+          break;
+
+        case ToastType.warning:
+          showFToast(
+            context: toastCtx,
+            alignment: FToastAlignment.bottomCenter,
+            duration: const Duration(seconds: 3),
+            icon: const Icon(FIcons.triangleAlert),
+            title: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Text(next.title),
+            ),
+          );
+          break;
+
+        case ToastType.error:
+          showFToast(
+            context: toastCtx,
+            alignment: FToastAlignment.bottomRight,
+            title: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Text(
                 next.title,
-                style: context.theme.typography.base.copyWith(
-                  color: context.colors.error,
+                style: _appContext.theme.typography.base.copyWith(
+                  color: _appContext.colors.error,
                 ),
               ),
-              description: Text(next.description!),
-              suffixBuilder:
-                  (context, entry) => IntrinsicHeight(
-                    child: FButton(
-                      style:
-                          context.theme.buttonStyles.primary
-                              .copyWith(
-                                contentStyle:
-                                    context
-                                        .theme
-                                        .buttonStyles
-                                        .primary
-                                        .contentStyle
-                                        .copyWith(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 7.5,
-                                          ),
-                                          textStyle: FWidgetStateMap.all(
-                                            context.theme.typography.xs
-                                                .copyWith(
-                                                  color:
-                                                      context
-                                                          .theme
-                                                          .colors
-                                                          .primaryForeground,
-                                                ),
-                                          ),
-                                        )
-                                        .call,
-                              )
-                              .call,
-                      onPress: entry.dismiss,
-                      child: Text(loc.ok_button),
-                    ),
+            ),
+            description: next.description == null
+                ? null
+                : ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 600),
+                    child: Text(next.description!),
                   ),
-            );
-            break;
-          case ToastType.event:
-            showFToast(
-              context: _toastContext,
-              alignment: FToastAlignment.bottomRight,
-              title: Text(next.title),
-              description: Text(next.description!),
-              suffixBuilder:
-                  (context, entry) => IntrinsicHeight(
-                    child: FButton(
-                      style:
-                          context.theme.buttonStyles.primary
-                              .copyWith(
-                                contentStyle:
-                                    context
-                                        .theme
-                                        .buttonStyles
-                                        .primary
-                                        .contentStyle
-                                        .copyWith(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 7.5,
-                                          ),
-                                          textStyle: FWidgetStateMap.all(
-                                            context.theme.typography.xs
-                                                .copyWith(
-                                                  color:
-                                                      context
-                                                          .theme
-                                                          .colors
-                                                          .primaryForeground,
-                                                ),
-                                          ),
-                                        )
-                                        .call,
-                              )
-                              .call,
-                      onPress: entry.dismiss,
-                      child: Text(loc.ok_button),
-                    ),
+            suffixBuilder: (context, entry) => IntrinsicHeight(
+              child: FButton(
+                style: context.theme.buttonStyles.primary
+                    .copyWith(
+                      contentStyle: context.theme.buttonStyles.primary.contentStyle
+                          .copyWith(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 7.5,
+                            ),
+                            textStyle: FWidgetStateMap.all(
+                              context.theme.typography.xs.copyWith(
+                                color: context.theme.colors.primaryForeground,
+                              ),
+                            ),
+                          )
+                          .call,
+                    )
+                    .call,
+                onPress: entry.dismiss,
+                child: Text(loc.ok_button),
+              ),
+            ),
+          );
+          break;
+
+        case ToastType.event:
+          showFToast(
+            context: toastCtx,
+            alignment: FToastAlignment.bottomRight,
+            title: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Text(next.title),
+            ),
+            description: next.description == null
+                ? null
+                : ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 600),
+                    child: Text(next.description!),
                   ),
-            );
-            break;
-        }
+            suffixBuilder: (context, entry) => IntrinsicHeight(
+              child: FButton(
+                style: context.theme.buttonStyles.primary
+                    .copyWith(
+                      contentStyle: context.theme.buttonStyles.primary.contentStyle
+                          .copyWith(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 7.5,
+                            ),
+                            textStyle: FWidgetStateMap.all(
+                              context.theme.typography.xs.copyWith(
+                                color: context.theme.colors.primaryForeground,
+                              ),
+                            ),
+                          )
+                          .call,
+                    )
+                    .call,
+                onPress: entry.dismiss,
+                child: Text(loc.ok_button),
+              ),
+            ),
+          );
+          break;
+
+        case ToastType.xswd:
+          showFToast(
+            context: toastCtx,
+            alignment: FToastAlignment.topCenter,
+            duration: next.sticky
+                ? const Duration(days: 365)
+                : const Duration(seconds: 3),
+            icon: const Icon(FIcons.info),
+            title: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Text(next.title),
+            ),
+            description: next.description == null
+                ? null
+                : ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 600),
+                    child: Text(next.description!),
+                  ),
+            suffixBuilder: (context, entry) {
+              final isDesktopLike = kIsWeb ||
+                  Theme.of(context).platform == TargetPlatform.macOS ||
+                  Theme.of(context).platform == TargetPlatform.windows ||
+                  Theme.of(context).platform == TargetPlatform.linux;
+
+              void openXswdDialog() {
+                entry.dismiss();
+                XswdWidget.openDialog(ref: ref);
+              }
+
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ...next.actions.map((a) => Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: FButton(
+                          style: a.isPrimary
+                              ? FButtonStyle.primary()
+                              : FButtonStyle.ghost(),
+                          onPress: openXswdDialog,
+                          child: Text(a.label),
+                        ),
+                      )),
+                  if (next.dismissible && isDesktopLike) ...[
+                    const SizedBox(width: 6),
+                    FButton.icon(
+                      style: FButtonStyle.ghost(),
+                      onPress: entry.dismiss,
+                      child: const Icon(FIcons.x, size: 18),
+                    ),
+                  ],
+                ],
+              );
+            },
+          );
+          break;
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    _appContext = context;
     _setupToastListener();
 
     return FToaster(
       child: Builder(
         builder: (toastContext) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
             _toastContext = toastContext;
           });
           return widget.child;

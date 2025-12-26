@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use flutter_rust_bridge::frb;
 
 #[derive(Clone, Debug)]
+#[frb(dart_metadata=("freezed"))]
 pub struct XswdRequestSummary {
     pub event_type: XswdRequestType,
     pub application_info: AppInfo,
@@ -60,6 +61,7 @@ impl XswdRequestSummary {
 }
 
 #[derive(Clone, Debug)]
+#[frb(dart_metadata=("freezed"))]
 pub struct AppInfo {
     pub id: String,
     pub name: String,
@@ -69,6 +71,7 @@ pub struct AppInfo {
 }
 
 #[derive(Clone, Debug)]
+#[frb(dart_metadata=("freezed"))]
 pub enum XswdRequestType {
     Application,
     Permission(String),
@@ -78,6 +81,7 @@ pub enum XswdRequestType {
 }
 
 #[derive(Clone, Debug)]
+#[frb(dart_metadata=("freezed"))]
 pub enum PermissionPolicy {
     Ask,
     Accept,
@@ -85,6 +89,7 @@ pub enum PermissionPolicy {
 }
 
 #[derive(Clone, Debug)]
+#[frb(dart_metadata=("freezed"))]
 pub enum UserPermissionDecision {
     Accept,
     Reject,
