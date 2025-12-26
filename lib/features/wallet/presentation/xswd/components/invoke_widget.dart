@@ -14,20 +14,21 @@ import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart'
     as rust;
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:forui/forui.dart';
 
 class InvokeWidget extends ConsumerStatefulWidget {
   const InvokeWidget({
     required this.maxGas,
-    required this.chunkId,
-    required this.deposits,
-    required this.parameters,
+    this.entryId,
+    this.deposits,
+    this.parameters,
     super.key,
   });
 
   final int maxGas;
-  final int chunkId;
-  final Map<String, sdk.ContractDepositBuilder> deposits;
-  final List<dynamic> parameters;
+  final int? entryId;
+  final Map<String, sdk.ContractDepositBuilder>? deposits;
+  final List<dynamic>? parameters;
 
   @override
   ConsumerState<InvokeWidget> createState() => _InvokeState();
@@ -53,26 +54,30 @@ class _InvokeState extends ConsumerState<InvokeWidget>
           loc.max_gas,
           formatXelis(widget.maxGas, network),
         ),
-        buildLabeledText(context, loc.entry_id, widget.chunkId.toString()),
-        const SizedBox(height: Spaces.small),
-        Text(
-          loc.deposits,
-          style: context.bodyMedium!.copyWith(
-            color: context.moreColors.mutedColor,
+        if (widget.entryId != null) ...[
+          buildLabeledText(context, loc.entry_id, widget.entryId.toString()),
+        ],
+        if (widget.deposits != null) ...[
+          const SizedBox(height: Spaces.small),
+          Text(
+            loc.deposits,
+            style: context.bodyMedium!.copyWith(
+              color: context.theme.colors.mutedForeground,
+            ),
           ),
-        ),
-        const SizedBox(height: Spaces.extraSmall),
-        _buildDepositsList(loc, widget.deposits, knownAssets, network),
-        if (widget.parameters.isNotEmpty) ...[
+          const SizedBox(height: Spaces.extraSmall),
+          _buildDepositsList(loc, widget.deposits!, knownAssets, network),
+        ],
+        if (widget.parameters != null && widget.parameters!.isNotEmpty) ...[
           const SizedBox(height: Spaces.small),
           Text(
             loc.parameters,
             style: context.bodyMedium!.copyWith(
-              color: context.moreColors.mutedColor,
+              color: context.theme.colors.mutedForeground,
             ),
           ),
           const SizedBox(height: Spaces.extraSmall),
-          _buildParametersList(widget.parameters),
+          _buildParametersList(widget.parameters!),
         ],
       ],
     );
@@ -126,7 +131,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
                     '${loc.asset.toLowerCase()}:',
                     style: context.bodySmall!.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: context.moreColors.mutedColor,
+                      color: context.theme.colors.mutedForeground,
                     ),
                   ),
                   const SizedBox(width: Spaces.extraSmall),
@@ -140,7 +145,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
                     '${loc.amount.toLowerCase()}:',
                     style: context.bodySmall!.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: context.moreColors.mutedColor,
+                      color: context.theme.colors.mutedForeground,
                     ),
                   ),
                   const SizedBox(width: Spaces.extraSmall),

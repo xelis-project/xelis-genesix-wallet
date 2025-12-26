@@ -38,7 +38,7 @@ class InvokeContractEntryContent extends ConsumerWidget {
             ),
             LabeledValue.text(
               loc.entry_id,
-              invokeContractEntry.chunkId.toString(),
+              invokeContractEntry.entryId.toString(),
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -50,6 +50,7 @@ class InvokeContractEntryContent extends ConsumerWidget {
                   ),
                 ),
                 FItemGroup.builder(
+                  count: invokeContractEntry.deposits.length,
                   itemBuilder: (context, index) {
                     final deposit = invokeContractEntry.deposits.entries
                         .elementAt(index);

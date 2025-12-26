@@ -59,12 +59,12 @@ class _TransactionEntryScreenState
     final entryType = transactionEntry.txEntryType;
 
     int? nonce;
-    String hashPath = 'txs/';
+    String hashPath = 'tx/';
     switch (entryType) {
       case sdk.CoinbaseEntry():
         entryTypeName = loc.coinbase;
         color = Colors.amber;
-        hashPath = 'blocks/';
+        hashPath = 'block/';
         transactionTypeContent = CoinbaseEntryContent(entryType);
       case sdk.BurnEntry():
         entryTypeName = loc.burn;

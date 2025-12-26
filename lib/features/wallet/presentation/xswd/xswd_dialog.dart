@@ -566,32 +566,39 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
   }
 
   Widget _handlePermissionRpcRequest(PermissionRpcRequest request) {
+    Widget? builderWidget;
+
     if (request.method == WalletMethod.buildTransaction.jsonKey) {
       final params = BuildTransactionParams.fromJson(request.params);
       final builder = params.transactionTypeBuilder;
 
       if (builder is TransfersBuilder) {
-        return TransfersBuilderWidget(transfersBuilder: builder);
+        builderWidget = TransfersBuilderWidget(transfersBuilder: builder);
       } else if (builder is BurnBuilder) {
-        return BurnBuilderWidget(burnBuilder: builder);
+        builderWidget = BurnBuilderWidget(burnBuilder: builder);
       } else if (builder is MultisigBuilder) {
-        return MultisigBuilderWidget(multisigBuilder: builder);
+        builderWidget = MultisigBuilderWidget(multisigBuilder: builder);
       } else if (builder is InvokeContractBuilder) {
-        return InvokeContractBuilderWidget(invokeContractBuilder: builder);
+        builderWidget = InvokeContractBuilderWidget(invokeContractBuilder: builder);
       } else if (builder is DeployContractBuilder) {
-        return DeployContractBuilderWidget(deployContractBuilder: builder);
+        builderWidget = DeployContractBuilderWidget(deployContractBuilder: builder);
       }
     }
 
+    final Widget content = builderWidget ?? SelectableText(
+      const JsonEncoder.withIndent('  ').convert(request.params),
+      style: context.bodySmall?.copyWith(fontFamily: 'monospace'),
+    );
+
     return Container(
+      constraints: const BoxConstraints(maxHeight: 300),
       padding: const EdgeInsets.all(Spaces.medium),
       decoration: BoxDecoration(
         color: context.colors.surface,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: SelectableText(
-        const JsonEncoder.withIndent('  ').convert(request.params),
-        style: context.bodySmall?.copyWith(fontFamily: 'monospace'),
+      child: SingleChildScrollView(
+        child: content,
       ),
     );
   }

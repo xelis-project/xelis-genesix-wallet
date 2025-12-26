@@ -6,6 +6,7 @@ import 'package:genesix/features/wallet/presentation/xswd/components/transaction
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:forui/forui.dart';
 
 class DeployContractBuilderWidget extends ConsumerStatefulWidget {
   final DeployContractBuilder deployContractBuilder;
@@ -35,7 +36,7 @@ class _DeployContractBuilderWidgetState
             Text(
               loc.deploy_contract,
               style: context.bodyLarge!.copyWith(
-                color: context.moreColors.mutedColor,
+                color: context.theme.colors.mutedForeground,
               ),
             ),
           ],
@@ -48,9 +49,6 @@ class _DeployContractBuilderWidgetState
         if (widget.deployContractBuilder.invoke != null)
           InvokeWidget(
             maxGas: widget.deployContractBuilder.invoke!.maxGas,
-            chunkId: widget.deployContractBuilder.invoke!.chunkId,
-            deposits: widget.deployContractBuilder.invoke!.deposits,
-            parameters: widget.deployContractBuilder.invoke!.parameters,
           ),
       ],
     );

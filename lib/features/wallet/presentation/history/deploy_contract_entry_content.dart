@@ -35,48 +35,11 @@ class DeployContractEntryContent extends ConsumerWidget {
               loc.fee,
               formatXelis(deployContractEntry.fee, network),
             ),
-            if (deployContractEntry.invoke != null) ...[
+            if (deployContractEntry.invoke != null)
               LabeledValue.text(
-                loc.max_gas,
+                'Constructor ${loc.max_gas}',
                 formatXelis(deployContractEntry.invoke!.maxGas, network),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    loc.deposits,
-                    style: context.theme.typography.base.copyWith(
-                      color: context.theme.colors.mutedForeground,
-                    ),
-                  ),
-                  FItemGroup.builder(
-                    itemBuilder: (context, index) {
-                      final deposit = deployContractEntry
-                          .invoke!
-                          .deposits
-                          .entries
-                          .elementAt(index);
-
-                      final formattedData = getFormattedAssetNameAndAmount(
-                        knownAssets,
-                        deposit.key,
-                        deposit.value,
-                      );
-                      final assetName = formattedData.$1;
-                      final amount = formattedData.$2;
-
-                      return FItem(
-                        title: AssetNameWidget(
-                          assetName: assetName,
-                          isXelis: isXelis(deposit.key),
-                        ),
-                        details: SelectableText(amount),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ],
           ],
         ),
       ),

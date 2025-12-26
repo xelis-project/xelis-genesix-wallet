@@ -367,13 +367,31 @@ class NativeWalletRepository {
 
   Future<List<sdk.TransactionEntry>> history(HistoryPageFilter filter) async {
     final rawData = await _xelisWallet.history(filter: filter);
-    return rawData
-        .map((e) => jsonDecode(e))
-        .map(
-          (entry) =>
-              sdk.TransactionEntry.fromJson(entry as Map<String, dynamic>),
-        )
-        .toList();
+    final List<sdk.TransactionEntry> entries = [];
+
+    for (final rawEntry in rawData) {
+      try {
+        final decoded = jsonDecode(rawEntry) as Map<String, dynamic>;
+
+        // Backwards compatibility: rename chunk_id to entry_id for old transactions
+        if (decoded.containsKey('invoke_contract')) {
+          final invokeContract = decoded['invoke_contract'] as Map<String, dynamic>;
+          if (invokeContract.containsKey('chunk_id') && !invokeContract.containsKey('entry_id')) {
+            invokeContract['entry_id'] = invokeContract['chunk_id'];
+          }
+        }
+
+        final entry = sdk.TransactionEntry.fromJson(decoded);
+        entries.add(entry);
+      } catch (e) {
+        talker.error('Failed to parse transaction: $e');
+        talker.error('Raw JSON: $rawEntry');
+        // Skip this transaction instead of crashing
+        continue;
+      }
+    }
+
+    return entries;
   }
 
   Future<sdk.GetInfoResult> getDaemonInfo() async {
