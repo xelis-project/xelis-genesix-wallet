@@ -338,12 +338,19 @@ class NativeWalletRepository {
 
   Future<Map<String, sdk.AssetData>> getKnownAssets() async {
     final rawData = await _xelisWallet.getKnownAssets();
-    return {
-      for (final entry in rawData.entries)
-        entry.key: sdk.AssetData.fromJson(
-          jsonDecode(entry.value) as Map<String, dynamic>,
-        ),
-    };
+    final result = <String, sdk.AssetData>{};
+
+    for (final entry in rawData.entries) {
+      try {
+        final json = jsonDecode(entry.value) as Map<String, dynamic>;
+        final assetData = sdk.AssetData.fromJson(json);
+        result[entry.key] = assetData;
+      } catch (e, stack) {
+        talker.error('Failed to parse asset ${entry.key}: $e\n${entry.value}', e, stack);
+      }
+    }
+
+    return result;
   }
 
   Future<bool> trackAsset(String assetHash) async {
@@ -354,6 +361,12 @@ class NativeWalletRepository {
   Future<bool> untrackAsset(String assetHash) async {
     final result = await _xelisWallet.untrackAsset(asset: assetHash);
     return result;
+  }
+
+  Future<sdk.AssetData> getAssetMetadata(String assetHash) async {
+    final jsonStr = await _xelisWallet.getAssetMetadata(asset: assetHash);
+    final json = jsonDecode(jsonStr) as Map<String, dynamic>;
+    return sdk.AssetData.fromJson(json);
   }
 
   Future<int> getHistoryCount() async {

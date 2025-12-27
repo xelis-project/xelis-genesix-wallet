@@ -53,7 +53,7 @@ pub struct XelisWallet {
 impl From<MaxSupplyMode> for XelisMaxSupplyMode {
     fn from(v: MaxSupplyMode) -> Self {
         match v {
-            MaxSupplyMode::None => Self::None,
+            MaxSupplyMode::None => Self::None(()),
             MaxSupplyMode::Fixed(x) => Self::Fixed(x),
             MaxSupplyMode::Mintable(x) => Self::Mintable(x),
         }
@@ -63,7 +63,7 @@ impl From<MaxSupplyMode> for XelisMaxSupplyMode {
 impl From<&AssetOwner> for XelisAssetOwner {
     fn from(value: &AssetOwner) -> Self {
         match value {
-            AssetOwner::None => XelisAssetOwner::None,
+            AssetOwner::None => XelisAssetOwner::None(()),
             AssetOwner::Creator { contract, id } => XelisAssetOwner::Creator {
                 contract: contract.to_hex(),
                 id: *id,
@@ -513,6 +513,25 @@ impl XelisWallet {
         let asset_hash = Hash::from_hex(&asset).context("Invalid asset")?;
         let data = self.get_asset_data(&asset_hash).await?;
         Ok(data.get_ticker().to_string())
+    }
+
+    pub async fn get_asset_metadata(&self, asset: String) -> Result<String> {
+        let asset_hash = Hash::from_hex(&asset).context("Invalid asset")?;
+        let asset_data = self.get_asset_data(&asset_hash).await?;
+
+        let owner_dto = XelisAssetOwner::from(asset_data.get_owner());
+        let supply_mode_dto = XelisMaxSupplyMode::from(asset_data.get_max_supply());
+
+        let dto = XelisAssetMetadata {
+            name: asset_data.get_name().to_string(),
+            ticker: asset_data.get_ticker().to_string(),
+            decimals: asset_data.get_decimals(),
+            max_supply: supply_mode_dto,
+            owner: Some(owner_dto),
+        };
+
+        let json_str = serde_json::to_string(&dto)?;
+        Ok(json_str)
     }
 
     // rescan the wallet history from a specific height

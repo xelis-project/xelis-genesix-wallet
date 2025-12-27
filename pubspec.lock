@@ -1538,7 +1538,7 @@ packages:
     description:
       path: "."
       ref: dev
-      resolved-ref: e57a7db533d1a3182bc504721540ac16862bbfed
+      resolved-ref: "7c2a5133dc950be405571bbe331d66da24d3e14d"
       url: "https://github.com/xelis-project/xelis-dart-sdk.git"
     source: git
     version: "0.30.5"

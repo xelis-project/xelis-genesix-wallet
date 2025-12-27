@@ -70,7 +70,7 @@ pub struct HistoryPageFilter {
 #[serde(rename_all = "snake_case")]
 #[frb(dart_metadata=("freezed"))]
 pub enum XelisMaxSupplyMode {
-    None,
+    None(()),
     Fixed(u64),
     Mintable(u64),
 }
@@ -79,7 +79,7 @@ pub enum XelisMaxSupplyMode {
 #[serde(rename_all = "snake_case")]
 #[frb(dart_metadata=("freezed"))]
 pub enum XelisAssetOwner {
-    None,
+    None(()),
     Creator {
         contract: String,
         id: u64,
