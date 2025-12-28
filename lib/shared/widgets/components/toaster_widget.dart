@@ -23,6 +23,13 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
 
   bool _listenerSetup = false;
 
+  bool _isDesktopPlatform(BuildContext context) {
+    return kIsWeb ||
+        Theme.of(context).platform == TargetPlatform.macOS ||
+        Theme.of(context).platform == TargetPlatform.windows ||
+        Theme.of(context).platform == TargetPlatform.linux;
+  }
+
   void _setupToastListener() {
     if (_listenerSetup) return;
     _listenerSetup = true;
@@ -46,6 +53,13 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
               constraints: const BoxConstraints(maxWidth: 600),
               child: Text(next.title),
             ),
+            suffixBuilder: _isDesktopPlatform(toastCtx)
+                ? (context, entry) => FButton.icon(
+                      style: FButtonStyle.ghost(),
+                      onPress: entry.dismiss,
+                      child: const Icon(FIcons.x, size: 18),
+                    )
+                : null,
           );
           break;
 
@@ -59,6 +73,13 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
               constraints: const BoxConstraints(maxWidth: 600),
               child: Text(next.title),
             ),
+            suffixBuilder: _isDesktopPlatform(toastCtx)
+                ? (context, entry) => FButton.icon(
+                      style: FButtonStyle.ghost(),
+                      onPress: entry.dismiss,
+                      child: const Icon(FIcons.x, size: 18),
+                    )
+                : null,
           );
           break;
 
@@ -81,28 +102,41 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
                     constraints: const BoxConstraints(maxWidth: 600),
                     child: Text(next.description!),
                   ),
-            suffixBuilder: (context, entry) => IntrinsicHeight(
-              child: FButton(
-                style: context.theme.buttonStyles.primary
-                    .copyWith(
-                      contentStyle: context.theme.buttonStyles.primary.contentStyle
-                          .copyWith(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 7.5,
-                            ),
-                            textStyle: FWidgetStateMap.all(
-                              context.theme.typography.xs.copyWith(
-                                color: context.theme.colors.primaryForeground,
-                              ),
-                            ),
-                          )
-                          .call,
-                    )
-                    .call,
-                onPress: entry.dismiss,
-                child: Text(loc.ok_button),
-              ),
+            suffixBuilder: (context, entry) => Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IntrinsicHeight(
+                  child: FButton(
+                    style: context.theme.buttonStyles.primary
+                        .copyWith(
+                          contentStyle: context.theme.buttonStyles.primary.contentStyle
+                              .copyWith(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 7.5,
+                                ),
+                                textStyle: FWidgetStateMap.all(
+                                  context.theme.typography.xs.copyWith(
+                                    color: context.theme.colors.primaryForeground,
+                                  ),
+                                ),
+                              )
+                              .call,
+                        )
+                        .call,
+                    onPress: entry.dismiss,
+                    child: Text(loc.ok_button),
+                  ),
+                ),
+                if (_isDesktopPlatform(context)) ...[
+                  const SizedBox(width: 6),
+                  FButton.icon(
+                    style: FButtonStyle.ghost(),
+                    onPress: entry.dismiss,
+                    child: const Icon(FIcons.x, size: 18),
+                  ),
+                ],
+              ],
             ),
           );
           break;
@@ -121,28 +155,41 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
                     constraints: const BoxConstraints(maxWidth: 600),
                     child: Text(next.description!),
                   ),
-            suffixBuilder: (context, entry) => IntrinsicHeight(
-              child: FButton(
-                style: context.theme.buttonStyles.primary
-                    .copyWith(
-                      contentStyle: context.theme.buttonStyles.primary.contentStyle
-                          .copyWith(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 7.5,
-                            ),
-                            textStyle: FWidgetStateMap.all(
-                              context.theme.typography.xs.copyWith(
-                                color: context.theme.colors.primaryForeground,
-                              ),
-                            ),
-                          )
-                          .call,
-                    )
-                    .call,
-                onPress: entry.dismiss,
-                child: Text(loc.ok_button),
-              ),
+            suffixBuilder: (context, entry) => Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IntrinsicHeight(
+                  child: FButton(
+                    style: context.theme.buttonStyles.primary
+                        .copyWith(
+                          contentStyle: context.theme.buttonStyles.primary.contentStyle
+                              .copyWith(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 7.5,
+                                ),
+                                textStyle: FWidgetStateMap.all(
+                                  context.theme.typography.xs.copyWith(
+                                    color: context.theme.colors.primaryForeground,
+                                  ),
+                                ),
+                              )
+                              .call,
+                        )
+                        .call,
+                    onPress: entry.dismiss,
+                    child: Text(loc.ok_button),
+                  ),
+                ),
+                if (_isDesktopPlatform(context)) ...[
+                  const SizedBox(width: 6),
+                  FButton.icon(
+                    style: FButtonStyle.ghost(),
+                    onPress: entry.dismiss,
+                    child: const Icon(FIcons.x, size: 18),
+                  ),
+                ],
+              ],
             ),
           );
           break;
@@ -166,11 +213,6 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
                     child: Text(next.description!),
                   ),
             suffixBuilder: (context, entry) {
-              final isDesktopLike = kIsWeb ||
-                  Theme.of(context).platform == TargetPlatform.macOS ||
-                  Theme.of(context).platform == TargetPlatform.windows ||
-                  Theme.of(context).platform == TargetPlatform.linux;
-
               void openXswdDialog() {
                 entry.dismiss();
                 XswdWidget.openDialog(ref: ref);
@@ -189,7 +231,7 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
                           child: Text(a.label),
                         ),
                       )),
-                  if (next.dismissible && isDesktopLike) ...[
+                  if (next.dismissible && _isDesktopPlatform(context)) ...[
                     const SizedBox(width: 6),
                     FButton.icon(
                       style: FButtonStyle.ghost(),

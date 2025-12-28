@@ -340,6 +340,9 @@ class Authentication extends _$Authentication {
     switch (state) {
       case SignedIn(:final nativeWallet):
         await ref.read(walletStateProvider.notifier).disconnect();
+        // Close the wallet first to release database and table locks
+        await nativeWallet.close();
+        // Then dispose the FFI object
         nativeWallet.dispose();
         state = const AuthenticationState.signedOut();
 

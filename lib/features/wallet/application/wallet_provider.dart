@@ -160,8 +160,6 @@ class WalletState extends _$WalletState {
         final knownAssets = await state.nativeWalletRepository!
             .getKnownAssets();
 
-        talker.info("KNOWN ASSETS: $knownAssets");
-
         state = state.copyWith(
           xelisBalance: xelisBalance,
           trackedBalances: sortMapByKey(balances),
