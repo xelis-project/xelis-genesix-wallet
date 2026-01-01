@@ -75,7 +75,10 @@ class _InvokeContractEntryContentState
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: Spaces.medium,
           children: [
-            LabeledValue.text(loc.contract, widget.invokeContractEntry.contract),
+            LabeledValue.text(
+              loc.contract,
+              widget.invokeContractEntry.contract,
+            ),
             LabeledValue.text(
               loc.fee,
               formatXelis(widget.invokeContractEntry.fee, network),
@@ -99,7 +102,10 @@ class _InvokeContractEntryContentState
                   FItemGroup.builder(
                     count: widget.invokeContractEntry.deposits.length,
                     itemBuilder: (context, index) {
-                      final deposit = widget.invokeContractEntry.deposits.entries
+                      final deposit = widget
+                          .invokeContractEntry
+                          .deposits
+                          .entries
                           .elementAt(index);
 
                       final formattedData = getFormattedAssetNameAndAmount(

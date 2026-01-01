@@ -346,7 +346,11 @@ class NativeWalletRepository {
         final assetData = sdk.AssetData.fromJson(json);
         result[entry.key] = assetData;
       } catch (e, stack) {
-        talker.error('Failed to parse asset ${entry.key}: $e\n${entry.value}', e, stack);
+        talker.error(
+          'Failed to parse asset ${entry.key}: $e\n${entry.value}',
+          e,
+          stack,
+        );
       }
     }
 
@@ -388,8 +392,10 @@ class NativeWalletRepository {
 
         // Backwards compatibility: rename chunk_id to entry_id for old transactions
         if (decoded.containsKey('invoke_contract')) {
-          final invokeContract = decoded['invoke_contract'] as Map<String, dynamic>;
-          if (invokeContract.containsKey('chunk_id') && !invokeContract.containsKey('entry_id')) {
+          final invokeContract =
+              decoded['invoke_contract'] as Map<String, dynamic>;
+          if (invokeContract.containsKey('chunk_id') &&
+              !invokeContract.containsKey('entry_id')) {
             invokeContract['entry_id'] = invokeContract['chunk_id'];
           }
         }
@@ -594,7 +600,8 @@ class NativeWalletRepository {
       cancelRequestDartCallback: cancelRequestCallback,
       requestApplicationDartCallback: requestApplicationCallback,
       requestPermissionDartCallback: requestPermissionCallback,
-      requestPrefetchPermissionsDartCallback: requestPrefetchPermissionsCallback,
+      requestPrefetchPermissionsDartCallback:
+          requestPrefetchPermissionsCallback,
       appDisconnectDartCallback: appDisconnectCallback,
     );
   }

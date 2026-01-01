@@ -20,9 +20,8 @@ class ThemeModeSwitcher extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.all(Spaces.small),
       child: FTooltip(
-        tipBuilder:
-            (context, controller) =>
-                Text(loc.switch_theme_mode(futureAppTheme.name)),
+        tipBuilder: (context, controller) =>
+            Text(loc.switch_theme_mode(futureAppTheme.name)),
         child: FHeaderAction(
           icon: AnimatedSwitcher(
             duration: Duration(milliseconds: AppDurations.animFast),

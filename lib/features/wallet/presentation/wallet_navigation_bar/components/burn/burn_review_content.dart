@@ -44,7 +44,7 @@ class BurnReviewContent extends ConsumerWidget {
                         loc.asset,
                         style: context.theme.typography.base.copyWith(
                           color: context.theme.colors.mutedForeground,
-                        )
+                        ),
                       ),
                       const SizedBox(height: Spaces.small),
                       isXelisBurn
@@ -75,8 +75,8 @@ class BurnReviewContent extends ConsumerWidget {
                       SelectableText(
                         transaction.amount,
                         style: TextStyle(
-                          color: context.theme.colors.foreground
-                        )
+                          color: context.theme.colors.foreground,
+                        ),
                       ),
                     ],
                   ),
@@ -117,9 +117,7 @@ class BurnReviewContent extends ConsumerWidget {
           const SizedBox(height: Spaces.extraSmall),
           SelectableText(
             transaction.txHash,
-            style: TextStyle(
-              color: context.theme.colors.primary
-            )
+            style: TextStyle(color: context.theme.colors.primary),
           ),
           const SizedBox(height: Spaces.large),
 

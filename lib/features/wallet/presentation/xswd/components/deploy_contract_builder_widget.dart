@@ -47,9 +47,7 @@ class _DeployContractBuilderWidgetState
           widget.deployContractBuilder.module,
         ),
         if (widget.deployContractBuilder.invoke != null)
-          InvokeWidget(
-            maxGas: widget.deployContractBuilder.invoke!.maxGas,
-          ),
+          InvokeWidget(maxGas: widget.deployContractBuilder.invoke!.maxGas),
       ],
     );
   }

@@ -28,6 +28,23 @@ class TransactionGroupedWidget extends ConsumerStatefulWidget {
 
 class _TransactionGroupedWidgetState
     extends ConsumerState<TransactionGroupedWidget> {
+  final Set<String> _animatedHashes = {};
+
+  @override
+  void initState() {
+    super.initState();
+    // Mark all initial transactions as already animated
+    for (final tx in widget.transactionGroup.value) {
+      _animatedHashes.add(tx.hash);
+    }
+  }
+
+  @override
+  void didUpdateWidget(TransactionGroupedWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Don't auto-add new transactions here - let them animate
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
@@ -67,27 +84,47 @@ class _TransactionGroupedWidgetState
               widget.addressBook,
             );
 
-            return FItem(
-              prefix: Icon(info.icon, color: info.color, size: 18),
-              title: Text(info.label, style: context.theme.typography.sm),
-              subtitle: info.subtitle != null
-                  ? Text(
-                      info.subtitle!,
-                      style: context.theme.typography.xs.copyWith(
-                        color: context.theme.colors.mutedForeground,
-                      ),
-                    )
-                  : null,
-              details: info.details != null
-                  ? Text(
-                      info.details!,
-                      style: context.theme.typography.xs.copyWith(
-                        color: context.theme.colors.mutedForeground,
-                      ),
-                    )
-                  : null,
-              suffix: Icon(FIcons.chevronRight),
-              onPress: () => _showTransactionEntry(tx),
+            final isNew = !_animatedHashes.contains(tx.hash);
+            if (isNew) {
+              // Mark as animated after first build
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  setState(() {
+                    _animatedHashes.add(tx.hash);
+                  });
+                }
+              });
+            }
+
+            return TweenAnimationBuilder<double>(
+              key: ValueKey(tx.hash),
+              tween: Tween(begin: isNew ? 0.0 : 1.0, end: 1.0),
+              duration: Duration(milliseconds: isNew ? 300 : 0),
+              curve: Curves.easeOut,
+              builder: (context, opacity, child) =>
+                  Opacity(opacity: opacity, child: child),
+              child: FItem(
+                prefix: Icon(info.icon, color: info.color, size: 18),
+                title: Text(info.label, style: context.theme.typography.sm),
+                subtitle: info.subtitle != null
+                    ? Text(
+                        info.subtitle!,
+                        style: context.theme.typography.xs.copyWith(
+                          color: context.theme.colors.mutedForeground,
+                        ),
+                      )
+                    : null,
+                details: info.details != null
+                    ? Text(
+                        info.details!,
+                        style: context.theme.typography.xs.copyWith(
+                          color: context.theme.colors.mutedForeground,
+                        ),
+                      )
+                    : null,
+                suffix: Icon(FIcons.chevronRight),
+                onPress: () => _showTransactionEntry(tx),
+              ),
             );
           },
         ),

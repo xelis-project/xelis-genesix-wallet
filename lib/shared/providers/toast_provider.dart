@@ -90,9 +90,7 @@ class Toast extends _$Toast {
       sticky: true,
       dismissible: true,
       actions: showOpen
-          ? [
-              ToastAction(label: loc.open_button, isPrimary: true),
-            ]
+          ? [ToastAction(label: loc.open_button, isPrimary: true)]
           : const [],
     );
   }

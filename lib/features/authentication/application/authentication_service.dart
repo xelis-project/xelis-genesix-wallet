@@ -170,6 +170,14 @@ class Authentication extends _$Authentication {
   Future<void> openWallet(String name, String password) async {
     final loc = ref.read(appLocalizationsProvider);
     final settings = ref.read(settingsProvider);
+
+    // Close any currently open wallet first to release locks
+    // This ensures clean state before opening a new wallet
+    if (state is SignedIn) {
+      talker.info('Closing currently open wallet before opening new one');
+      await logout(skipNavigation: true);
+    }
+
     final precomputedTablesPath = await _getPrecomputedTablesPath();
     final tableType = await _getTableType();
     talker.info('Precomputed tables type that will be used: $tableType');
@@ -336,19 +344,30 @@ class Authentication extends _$Authentication {
     _updatePrecomputedTables(walletRepository, precomputedTablesPath);
   }
 
-  Future<void> logout() async {
+  Future<void> logout({bool skipNavigation = false}) async {
     switch (state) {
       case SignedIn(:final nativeWallet):
+        talker.info('Logging out: disconnecting from network');
         await ref.read(walletStateProvider.notifier).disconnect();
+
+        talker.info('Logging out: closing wallet to release locks');
         // Close the wallet first to release database and table locks
         await nativeWallet.close();
+
+        talker.info('Logging out: disposing FFI object');
         // Then dispose the FFI object
         nativeWallet.dispose();
+
+        talker.info('Logging out: setting state to SignedOut');
         state = const AuthenticationState.signedOut();
 
-        ref.read(routerProvider).go(AppScreen.openWallet.toPath);
+        if (!skipNavigation) {
+          talker.info('Logging out: navigating to open wallet screen');
+          ref.read(routerProvider).go(AppScreen.openWallet.toPath);
+        }
 
       case SignedOut():
+        talker.info('Logout called but already signed out');
         return;
     }
   }

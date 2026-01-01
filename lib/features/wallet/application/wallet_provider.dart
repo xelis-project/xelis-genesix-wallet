@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/application/history_providers.dart';
+import 'package:genesix/features/wallet/application/last_transactions_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_providers.dart';
 import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
 import 'package:flutter/foundation.dart';
@@ -38,25 +39,25 @@ class WalletState extends _$WalletState {
 
     // Listen to XSWD setting changes
     if (!kIsWeb) {
-      ref.listen(
-        settingsProvider.select((s) => s.enableXswd),
-        (previous, next) {
-          if (previous != null && previous != next && state.isOnline) {
-            // Setting changed while wallet is online - restart XSWD
-            if (next) {
-              talker.info('XSWD enabled - starting server');
-              startXSWD().catchError((Object error) {
-                talker.error('Unhandled XSWD start error: $error');
-              });
-            } else {
-              talker.info('XSWD disabled - stopping server');
-              stopXSWD().catchError((Object error) {
-                talker.error('Unhandled XSWD stop error: $error');
-              });
-            }
+      ref.listen(settingsProvider.select((s) => s.enableXswd), (
+        previous,
+        next,
+      ) {
+        if (previous != null && previous != next && state.isOnline) {
+          // Setting changed while wallet is online - restart XSWD
+          if (next) {
+            talker.info('XSWD enabled - starting server');
+            startXSWD().catchError((Object error) {
+              talker.error('Unhandled XSWD start error: $error');
+            });
+          } else {
+            talker.info('XSWD disabled - stopping server');
+            stopXSWD().catchError((Object error) {
+              talker.error('Unhandled XSWD stop error: $error');
+            });
           }
-        },
-      );
+        }
+      });
     }
 
     switch (authenticationState) {
@@ -174,6 +175,20 @@ class WalletState extends _$WalletState {
 
   Future<void> disconnect() async {
     state = state.copyWith(isOnline: false);
+
+    // Clear any pending XSWD request state to prevent stuck spinners
+    if (!kIsWeb) {
+      ref.read(xswdRequestProvider.notifier).clearRequest();
+    }
+
+    // Stop XSWD server before disconnecting
+    if (!kIsWeb) {
+      try {
+        await stopXSWD();
+      } catch (e) {
+        talker.warning('Error stopping XSWD during disconnect: $e');
+      }
+    }
 
     try {
       await state.nativeWalletRepository?.setOffline();
@@ -448,7 +463,17 @@ class WalletState extends _$WalletState {
 
       case NewTransaction():
         talker.info(event);
-        ref.invalidate(historyPagingStateProvider);
+        // Add the single new transaction directly from the event
+        // Don't refetch - during rescan, repository page 1 keeps changing!
+        try {
+          // Just add this single transaction to the master map
+          // Both history page and home page read from the same map
+          ref
+              .read(historyPagingStateProvider.notifier)
+              .addTransaction(event.transactionEntry);
+        } catch (e) {
+          talker.error('Error updating history: $e');
+        }
         if (state.topoheight != 0 &&
             event.transactionEntry.topoheight >= state.topoheight) {
           await updateMultisigState();
@@ -599,7 +624,45 @@ class WalletState extends _$WalletState {
 
       case HistorySynced():
         talker.info(event);
-      // no need to do anything here
+        // Rescan/history sync complete - catch any transactions that arrived during rescan
+        try {
+          final repository = state.nativeWalletRepository;
+          if (repository != null) {
+            // Flush any pending batched transactions first
+            ref.read(historyPagingStateProvider.notifier).flushBatch();
+
+            // Fetch latest page from repository to catch any missed transactions
+            final historyFilterState = ref
+                .read(settingsProvider)
+                .historyFilterState;
+            final filter = HistoryPageFilter(
+              page: BigInt.one,
+              acceptIncoming: historyFilterState.showIncoming,
+              acceptOutgoing: historyFilterState.showOutgoing,
+              acceptCoinbase: historyFilterState.showCoinbase,
+              acceptBurn: historyFilterState.showBurn,
+              limit: BigInt.from(30),
+              assetHash: historyFilterState.asset,
+              address: historyFilterState.address,
+            );
+            final latestTransactions = await repository.history(filter);
+
+            // Add any transactions that aren't already in our map
+            final pagingNotifier = ref.read(
+              historyPagingStateProvider.notifier,
+            );
+            for (final tx in latestTransactions) {
+              if (!pagingNotifier.allTransactions.containsKey(tx.hash)) {
+                pagingNotifier.addTransaction(tx);
+              }
+            }
+
+            // Flush again to ensure they're processed
+            pagingNotifier.flushBatch();
+          }
+        } catch (e) {
+          talker.error('Error fetching transactions after history sync: $e');
+        }
       case SyncError():
         talker.error(event);
         ref
@@ -798,11 +861,9 @@ class WalletState extends _$WalletState {
               .newRequest(xswdEventSummary: request, message: message);
 
           if (!ref.read(xswdRequestProvider).suppressXswdToast) {
-            ref.read(toastProvider.notifier).showXswd(
-                  title: message,
-                  description: null,
-                  showOpen: false,
-                );
+            ref
+                .read(toastProvider.notifier)
+                .showXswd(title: message, description: null, showOpen: false);
           }
         },
 
@@ -816,24 +877,26 @@ class WalletState extends _$WalletState {
               .newRequest(xswdEventSummary: request, message: message);
 
           if (!ref.read(xswdRequestProvider).suppressXswdToast) {
-            ref.read(toastProvider.notifier).showXswd(
-                  title: message,
-                  description: null,
-                  showOpen: true,
-                );
+            ref
+                .read(toastProvider.notifier)
+                .showXswd(title: message, description: null, showOpen: true);
           }
 
           final decision = await completer.future;
 
           if (decision == UserPermissionDecision.accept ||
               decision == UserPermissionDecision.alwaysAccept) {
-            ref.read(toastProvider.notifier).showInformation(
+            ref
+                .read(toastProvider.notifier)
+                .showInformation(
                   title:
                       '${loc.permission_granted_for} ${request.applicationInfo.name}',
                 );
           } else if (decision == UserPermissionDecision.reject ||
               decision == UserPermissionDecision.alwaysReject) {
-            ref.read(toastProvider.notifier).showInformation(
+            ref
+                .read(toastProvider.notifier)
+                .showInformation(
                   title:
                       '${loc.permission_denied_for} ${request.applicationInfo.name}',
                 );
@@ -852,24 +915,26 @@ class WalletState extends _$WalletState {
               .newRequest(xswdEventSummary: request, message: message);
 
           if (!ref.read(xswdRequestProvider).suppressXswdToast) {
-            ref.read(toastProvider.notifier).showXswd(
-                  title: message,
-                  description: null,
-                  showOpen: true,
-                );
+            ref
+                .read(toastProvider.notifier)
+                .showXswd(title: message, description: null, showOpen: true);
           }
 
           final decision = await completer.future;
 
           if (decision == UserPermissionDecision.accept ||
               decision == UserPermissionDecision.alwaysAccept) {
-            ref.read(toastProvider.notifier).showInformation(
+            ref
+                .read(toastProvider.notifier)
+                .showInformation(
                   title:
                       '${loc.permission_granted_for} ${request.applicationInfo.name}',
                 );
           } else if (decision == UserPermissionDecision.reject ||
               decision == UserPermissionDecision.alwaysReject) {
-            ref.read(toastProvider.notifier).showInformation(
+            ref
+                .read(toastProvider.notifier)
+                .showInformation(
                   title:
                       '${loc.permission_denied_for} ${request.applicationInfo.name}',
                 );
@@ -910,23 +975,25 @@ class WalletState extends _$WalletState {
               .newRequest(xswdEventSummary: request, message: message);
 
           if (!ref.read(xswdRequestProvider).suppressXswdToast) {
-            ref.read(toastProvider.notifier).showXswd(
-                  title: message,
-                  description: null,
-                  showOpen: true,
-                );
+            ref
+                .read(toastProvider.notifier)
+                .showXswd(title: message, description: null, showOpen: true);
           }
 
           final decision = await completer.future;
 
           if (decision == UserPermissionDecision.accept ||
               decision == UserPermissionDecision.alwaysAccept) {
-            ref.read(toastProvider.notifier).showInformation(
+            ref
+                .read(toastProvider.notifier)
+                .showInformation(
                   title: '${loc.permission_granted_for} ${app.name}',
                 );
           } else if (decision == UserPermissionDecision.reject ||
               decision == UserPermissionDecision.alwaysReject) {
-            ref.read(toastProvider.notifier).showInformation(
+            ref
+                .read(toastProvider.notifier)
+                .showInformation(
                   title: '${loc.permission_denied_for} ${app.name}',
                 );
           }
@@ -944,11 +1011,9 @@ class WalletState extends _$WalletState {
               .newRequest(xswdEventSummary: request, message: message);
 
           if (!ref.read(xswdRequestProvider).suppressXswdToast) {
-            ref.read(toastProvider.notifier).showXswd(
-                  title: message,
-                  description: null,
-                  showOpen: false,
-                );
+            ref
+                .read(toastProvider.notifier)
+                .showXswd(title: message, description: null, showOpen: false);
           }
         },
       );
@@ -967,7 +1032,6 @@ class WalletState extends _$WalletState {
           .showError(title: 'Cannot start XSWD', description: e.toString());
     }
   }
-
 
   Future<void> stopXSWD() async {
     final loc = ref.read(appLocalizationsProvider);

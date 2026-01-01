@@ -32,6 +32,8 @@ class XswdWidget extends ConsumerStatefulWidget {
         if (decision != null && !decision.isCompleted) {
           decision.complete(UserPermissionDecision.reject);
         }
+        // Clear the request state to prevent stuck spinners
+        ref.read(xswdRequestProvider.notifier).clearRequest();
       });
     });
   }
@@ -45,7 +47,7 @@ class _XswdWidgetState extends ConsumerState<XswdWidget> {
   Widget build(BuildContext context) {
     // Keep provider alive by watching it (like the old widget did)
     ref.watch(xswdRequestProvider);
-    
+
     XswdWidget.dialogContext = context;
     XswdWidget.widgetRef = ref;
 

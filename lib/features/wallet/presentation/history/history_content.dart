@@ -38,51 +38,69 @@ class _HistoryContentState extends ConsumerState<HistoryContent> {
 
     switch (addressBook) {
       case AsyncData(:final value):
-        return FadedScroll(
-          controller: _controller,
-          fadeFraction: 0.08,
-          child: PagedListView<int, MapEntry<DateTime, List<TransactionEntry>>>(
-            scrollController: _controller,
-            state: pagingState,
-            fetchNextPage: _fetchPage,
-            builderDelegate:
-                PagedChildBuilderDelegate<
-                  MapEntry<DateTime, List<TransactionEntry>>
-                >(
-                  animateTransitions: true,
-                  itemBuilder: (context, item, index) =>
-                      TransactionGroupedWidget(item, value),
-                  noItemsFoundIndicatorBuilder: (context) => Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          loc.no_transactions_found,
-                          style: context.theme.typography.base.copyWith(
-                            color: context.theme.colors.mutedForeground,
-                          ),
-                        ),
-                        const SizedBox(height: Spaces.medium),
-                        FutureBuilder(
-                          future: ref.read(historyCountProvider.future),
-                          builder: (context, snapshot) {
-                            if (snapshot.data != null && snapshot.data! > 0) {
-                              return Text(
-                                loc.try_changing_filter,
-                                style: context.theme.typography.base.copyWith(
-                                  color: context.theme.colors.mutedForeground,
+        return Stack(
+          children: [
+            FadedScroll(
+              controller: _controller,
+              fadeFraction: 0.08,
+              child:
+                  PagedListView<
+                    int,
+                    MapEntry<DateTime, List<TransactionEntry>>
+                  >(
+                    scrollController: _controller,
+                    state: pagingState,
+                    fetchNextPage: _fetchPage,
+                    builderDelegate:
+                        PagedChildBuilderDelegate<
+                          MapEntry<DateTime, List<TransactionEntry>>
+                        >(
+                          animateTransitions: true,
+                          itemBuilder: (context, item, index) =>
+                              TransactionGroupedWidget(
+                                item,
+                                value,
+                                key: ValueKey(item.key),
+                              ),
+                          noItemsFoundIndicatorBuilder: (context) => Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  loc.no_transactions_found,
+                                  style: context.theme.typography.base.copyWith(
+                                    color: context.theme.colors.mutedForeground,
+                                  ),
                                 ),
-                              );
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          },
+                                const SizedBox(height: Spaces.medium),
+                                FutureBuilder(
+                                  future: ref.read(historyCountProvider.future),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.data != null &&
+                                        snapshot.data! > 0) {
+                                      return Text(
+                                        loc.try_changing_filter,
+                                        style: context.theme.typography.base
+                                            .copyWith(
+                                              color: context
+                                                  .theme
+                                                  .colors
+                                                  .mutedForeground,
+                                            ),
+                                      );
+                                    } else {
+                                      return const SizedBox.shrink();
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          firstPageProgressIndicatorBuilder: null,
                         ),
-                      ],
-                    ),
                   ),
-                ),
-          ),
+            ),
+          ],
         );
       case AsyncError():
         return Center(
@@ -99,25 +117,26 @@ class _HistoryContentState extends ConsumerState<HistoryContent> {
   }
 
   void _fetchPage() async {
+    final pagingNotifier = ref.read(historyPagingStateProvider.notifier);
     final state = ref.read(historyPagingStateProvider);
 
     if (state.isLoading) return;
+
+    final newPage = pagingNotifier.nextPageToFetch;
+
     await Future<void>.value();
-    ref.read(historyPagingStateProvider.notifier).loading();
+    pagingNotifier.loading();
 
     try {
-      final newPage = (state.keys?.last ?? 0) + 1;
       talker.info('Fetching page: $newPage');
       final transactions = await ref.read(historyProvider(newPage).future);
 
       final grouped = groupTransactionsByDateSorted2Levels(transactions);
 
-      ref
-          .read(historyPagingStateProvider.notifier)
-          .setNextPage(newPage, grouped.entries.toList());
+      pagingNotifier.setNextPage(newPage, grouped.entries.toList());
     } catch (error) {
       talker.error('Error fetching page: $error');
-      ref.read(historyPagingStateProvider.notifier).error(error);
+      pagingNotifier.error(error);
     }
   }
 }

@@ -94,15 +94,10 @@ class TransferReviewContentWidget extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                loc.fee,
-                style: context.bodyLarge!.copyWith(color: muted),
-              ),
+              Text(loc.fee, style: context.bodyLarge!.copyWith(color: muted)),
               SelectableText(
                 transaction.fee,
-                style: TextStyle(
-                  color: context.theme.colors.foreground,
-                ),
+                style: TextStyle(color: context.theme.colors.foreground),
               ),
             ],
           ),
@@ -116,16 +111,11 @@ class TransferReviewContentWidget extends ConsumerWidget {
           ),
 
           // Hash
-          Text(
-            loc.hash,
-            style: context.bodyLarge!.copyWith(color: muted),
-          ),
+          Text(loc.hash, style: context.bodyLarge!.copyWith(color: muted)),
           const SizedBox(height: Spaces.extraSmall),
           SelectableText(
             transaction.txHash,
-            style: TextStyle(
-              color: context.theme.colors.primary,
-            ),
+            style: TextStyle(color: context.theme.colors.primary),
           ),
           const SizedBox(height: Spaces.small),
 
@@ -162,9 +152,7 @@ class TransferReviewContentWidget extends ConsumerWidget {
           // Receiver
           Text(
             loc.receiver,
-            style: context.theme.typography.base.copyWith(
-              color: muted,
-            ),
+            style: context.theme.typography.base.copyWith(color: muted),
           ),
           const SizedBox(height: Spaces.extraSmall),
           AddressWidget(transaction.destinationAddress.address),
@@ -173,14 +161,13 @@ class TransferReviewContentWidget extends ConsumerWidget {
             const SizedBox(height: Spaces.small),
             Text(
               loc.payment_id,
-              style: context.theme.typography.base.copyWith( // FIXED
+              style: context.theme.typography.base.copyWith(
+                // FIXED
                 color: muted,
               ),
             ),
             const SizedBox(height: Spaces.extraSmall),
-            SelectableText(
-              transaction.destinationAddress.data.toString(),
-            ),
+            SelectableText(transaction.destinationAddress.data.toString()),
           ],
 
           const SizedBox(height: Spaces.small),

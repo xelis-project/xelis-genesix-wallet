@@ -36,10 +36,7 @@ class XswdAppDetail extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'App not found',
-                    style: context.headlineSmall,
-                  ),
+                  Text('App not found', style: context.headlineSmall),
                   const SizedBox(height: Spaces.medium),
                   FButton(
                     style: FButtonStyle.primary(),
@@ -53,9 +50,7 @@ class XswdAppDetail extends ConsumerWidget {
           return _buildAppDetails(context, ref, loc, app);
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Text('Error: $error'),
-        ),
+        error: (error, stack) => Center(child: Text('Error: $error')),
       ),
     );
   }
@@ -80,18 +75,12 @@ class XswdAppDetail extends ConsumerWidget {
             decoration: BoxDecoration(
               color: context.colors.surface,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: context.theme.colors.border,
-                width: 1,
-              ),
+              border: Border.all(color: context.theme.colors.border, width: 1),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  app.name,
-                  style: context.headlineMedium,
-                ),
+                Text(app.name, style: context.headlineMedium),
                 if (app.url != null && app.url!.isNotEmpty) ...[
                   const SizedBox(height: Spaces.small),
                   Row(
@@ -118,15 +107,15 @@ class XswdAppDetail extends ConsumerWidget {
                 const SizedBox(height: Spaces.extraSmall),
                 SelectableText(
                   app.id,
-                  style: context.bodyMedium?.copyWith(
-                    fontFamily: 'monospace'
-                  ),
+                  style: context.bodyMedium?.copyWith(fontFamily: 'monospace'),
                 ),
                 if (app.description.isNotEmpty) ...[
                   const SizedBox(height: Spaces.small),
                   FDivider(
                     style: FDividerStyle(
-                      padding: const EdgeInsets.symmetric(vertical: Spaces.extraSmall),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: Spaces.extraSmall,
+                      ),
                       color: FTheme.of(context).colors.primary,
                       width: 1,
                     ),
@@ -140,10 +129,7 @@ class XswdAppDetail extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: Spaces.extraSmall),
-                  Text(
-                    app.description,
-                    style: context.bodyMedium,
-                  ),
+                  Text(app.description, style: context.bodyMedium),
                 ],
               ],
             ),
@@ -155,10 +141,7 @@ class XswdAppDetail extends ConsumerWidget {
           Row(
             children: [
               Expanded(
-                child: Text(
-                  'Permissions',
-                  style: context.headlineMedium,
-                ),
+                child: Text('Permissions', style: context.headlineMedium),
               ),
             ],
           ),
@@ -184,20 +167,20 @@ class XswdAppDetail extends ConsumerWidget {
             )
           else
             ...(app.permissions.entries.toList()
-              ..sort((a, b) => a.key.compareTo(b.key)))
-              .map((entry) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: Spaces.small),
-                  child: _buildPermissionCard(
-                    context,
-                    ref,
-                    loc,
-                    app,
-                    entry.key,
-                    entry.value,
-                  ),
-                );
-              }),
+                  ..sort((a, b) => a.key.compareTo(b.key)))
+                .map((entry) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: Spaces.small),
+                    child: _buildPermissionChip(
+                      context,
+                      ref,
+                      loc,
+                      app,
+                      entry.key,
+                      entry.value,
+                    ),
+                  );
+                }),
 
           const SizedBox(height: Spaces.large),
 
@@ -215,7 +198,7 @@ class XswdAppDetail extends ConsumerWidget {
     );
   }
 
-  Widget _buildPermissionCard(
+  Widget _buildPermissionChip(
     BuildContext context,
     WidgetRef ref,
     dynamic loc,
@@ -224,37 +207,30 @@ class XswdAppDetail extends ConsumerWidget {
     PermissionPolicy currentPolicy,
   ) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: Spaces.medium,
-        vertical: Spaces.medium,
-      ),
+      width: double.infinity,
+      padding: const EdgeInsets.all(Spaces.small),
       decoration: BoxDecoration(
-        color: context.theme.colors.secondary.withValues(alpha: 0.05),
+        border: Border.all(
+          color: context.theme.colors.primary.withValues(alpha: 0.5),
+          width: 1,
+        ),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         children: [
+          Icon(
+            Icons.code,
+            size: 16,
+            color: context.theme.colors.mutedForeground,
+          ),
+          const SizedBox(width: Spaces.small),
           Expanded(
-            child: Row(
-              children: [
-                Icon(
-                  Icons.code,
-                  size: 16,
-                  color: context.theme.colors.mutedForeground,
-                ),
-                const SizedBox(width: Spaces.small),
-                Expanded(
-                  child: Text(
-                    permissionName,
-                    style: context.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
+            child: Text(
+              permissionName,
+              style: context.bodySmall?.copyWith(fontWeight: FontWeight.w500),
             ),
           ),
-          const SizedBox(width: Spaces.medium),
+          const SizedBox(width: Spaces.small),
           _buildPolicySelector(
             context,
             ref,
@@ -276,10 +252,7 @@ class XswdAppDetail extends ConsumerWidget {
   ) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(
-          color: context.theme.colors.border,
-          width: 1,
-        ),
+        border: Border.all(color: context.theme.colors.border, width: 1),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
@@ -337,7 +310,9 @@ class XswdAppDetail extends ConsumerWidget {
     if (isSelected) {
       switch (policy) {
         case PermissionPolicy.ask:
-          backgroundColor = context.theme.colors.mutedForeground.withValues(alpha: 0.2);
+          backgroundColor = context.theme.colors.mutedForeground.withValues(
+            alpha: 0.2,
+          );
           textColor = context.theme.colors.foreground;
         case PermissionPolicy.accept:
           backgroundColor = context.theme.colors.primary;
@@ -434,10 +409,7 @@ class XswdAppDetail extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Disconnect ${app.name}?',
-                style: context.headlineSmall,
-              ),
+              Text('Disconnect ${app.name}?', style: context.headlineSmall),
               const SizedBox(height: Spaces.medium),
               Text(
                 'This will revoke all permissions and close the connection. The app will need to reconnect to access your wallet again.',

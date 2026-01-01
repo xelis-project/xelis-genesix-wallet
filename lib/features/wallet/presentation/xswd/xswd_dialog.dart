@@ -140,6 +140,10 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     if (decision != null && !decision.isCompleted) {
       decision.complete(UserPermissionDecision.reject);
     }
+
+    // Clear the request state to prevent stuck spinners
+    ref.read(xswdRequestProvider.notifier).clearRequest();
+
     if (mounted) {
       Navigator.of(context).pop();
     }
@@ -168,8 +172,10 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     _closeDelayTimer = Timer(_rapidFireWindow, () {
       if (!mounted) return;
 
-      final latestHash =
-          ref.read(xswdRequestProvider).xswdEventSummary?.hashCode;
+      final latestHash = ref
+          .read(xswdRequestProvider)
+          .xswdEventSummary
+          ?.hashCode;
 
       if (latestHash != null &&
           _awaitingRequestHash != null &&
@@ -197,7 +203,8 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     if (isCancelOrDisconnect) return _ActionSet.okOnly;
     if (summary.isPermissionRequest()) return _ActionSet.permissionDecision;
     if (summary.isApplicationRequest()) return _ActionSet.connectionDecision;
-    if (summary.isPrefetchPermissionsRequest()) return _ActionSet.prefetchDecision;
+    if (summary.isPrefetchPermissionsRequest())
+      return _ActionSet.prefetchDecision;
 
     return _ActionSet.okOnly;
   }
@@ -292,6 +299,8 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
               if (decision != null && !decision.isCompleted) {
                 decision.complete(UserPermissionDecision.reject);
               }
+              // Clear the request state
+              ref.read(xswdRequestProvider.notifier).clearRequest();
               Navigator.of(context).pop();
             },
             child: Text(loc.close),
@@ -348,8 +357,9 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
       constraints: const BoxConstraints(maxWidth: 700),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final maxBodyHeight =
-              constraints.maxHeight.isFinite ? constraints.maxHeight * 0.82 : 620.0;
+          final maxBodyHeight = constraints.maxHeight.isFinite
+              ? constraints.maxHeight * 0.82
+              : 620.0;
 
           return ConstrainedBox(
             constraints: BoxConstraints(maxHeight: maxBodyHeight),
@@ -408,10 +418,18 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                             _cancelRapidFireWait();
 
                             // Complete decision as reject before closing
-                            final decision = ref.read(xswdRequestProvider).decision;
+                            final decision = ref
+                                .read(xswdRequestProvider)
+                                .decision;
                             if (decision != null && !decision.isCompleted) {
                               decision.complete(UserPermissionDecision.reject);
                             }
+
+                            // Clear the request state to prevent stuck spinners
+                            ref
+                                .read(xswdRequestProvider.notifier)
+                                .clearRequest();
+
                             Navigator.of(context).pop();
                           },
                           child: const Icon(FIcons.x, size: 22),
@@ -428,7 +446,9 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                     showTopFade: _showTopFade,
                     showBottomFade: _showBottomFade,
                     fadeColor: context.colors.surface,
-                    padding: const EdgeInsets.symmetric(horizontal: Spaces.small),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: Spaces.small,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -490,7 +510,10 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     );
   }
 
-  Widget _buildApplicationInfo(BuildContext context, XswdRequestState xswdState) {
+  Widget _buildApplicationInfo(
+    BuildContext context,
+    XswdRequestState xswdState,
+  ) {
     final loc = ref.read(appLocalizationsProvider);
     final appInfo = xswdState.xswdEventSummary!.applicationInfo;
     final muted = context.theme.colors.mutedForeground;
@@ -534,7 +557,10 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     );
   }
 
-  Widget _buildPermissionDetails(BuildContext context, XswdRequestState xswdState) {
+  Widget _buildPermissionDetails(
+    BuildContext context,
+    XswdRequestState xswdState,
+  ) {
     final loc = ref.read(appLocalizationsProvider);
     final permissionRequest = xswdState.permissionRpcRequest;
 
@@ -556,7 +582,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
         ),
         const SizedBox(height: Spaces.medium),
         Text(
-          loc.parameters.capitalize(),
+          loc.details.capitalize(),
           style: context.bodyLarge?.copyWith(color: muted),
         ),
         const SizedBox(height: Spaces.medium),
@@ -579,16 +605,22 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
       } else if (builder is MultisigBuilder) {
         builderWidget = MultisigBuilderWidget(multisigBuilder: builder);
       } else if (builder is InvokeContractBuilder) {
-        builderWidget = InvokeContractBuilderWidget(invokeContractBuilder: builder);
+        builderWidget = InvokeContractBuilderWidget(
+          invokeContractBuilder: builder,
+        );
       } else if (builder is DeployContractBuilder) {
-        builderWidget = DeployContractBuilderWidget(deployContractBuilder: builder);
+        builderWidget = DeployContractBuilderWidget(
+          deployContractBuilder: builder,
+        );
       }
     }
 
-    final Widget content = builderWidget ?? SelectableText(
-      const JsonEncoder.withIndent('  ').convert(request.params),
-      style: context.bodySmall?.copyWith(fontFamily: 'monospace'),
-    );
+    final Widget content =
+        builderWidget ??
+        SelectableText(
+          const JsonEncoder.withIndent('  ').convert(request.params),
+          style: context.bodySmall?.copyWith(fontFamily: 'monospace'),
+        );
 
     return Container(
       constraints: const BoxConstraints(maxHeight: 300),
@@ -597,13 +629,14 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
         color: context.colors.surface,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: SingleChildScrollView(
-        child: content,
-      ),
+      child: SingleChildScrollView(child: content),
     );
   }
 
-  Widget _buildPrefetchDetails(BuildContext context, XswdRequestState xswdState) {
+  Widget _buildPrefetchDetails(
+    BuildContext context,
+    XswdRequestState xswdState,
+  ) {
     final loc = ref.read(appLocalizationsProvider);
     final prefetchRequest = xswdState.prefetchPermissionsRequest;
     final muted = context.theme.colors.mutedForeground;
@@ -613,7 +646,8 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (prefetchRequest.reason != null && prefetchRequest.reason!.isNotEmpty) ...[
+        if (prefetchRequest.reason != null &&
+            prefetchRequest.reason!.isNotEmpty) ...[
           _buildInfoRow(context, 'Reason', prefetchRequest.reason!, muted),
           const SizedBox(height: Spaces.medium),
         ],
@@ -656,7 +690,10 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     );
   }
 
-  Widget _buildFuturePermissions(BuildContext context, XswdRequestState xswdState) {
+  Widget _buildFuturePermissions(
+    BuildContext context,
+    XswdRequestState xswdState,
+  ) {
     final loc = ref.read(appLocalizationsProvider);
     final permissions = xswdState.xswdEventSummary!.applicationInfo.permissions;
     final muted = context.theme.colors.mutedForeground;
@@ -710,7 +747,9 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
               Expanded(
                 child: FButton(
                   style: FButtonStyle.outline(),
-                  onPress: busy ? null : () => decide(UserPermissionDecision.reject),
+                  onPress: busy
+                      ? null
+                      : () => decide(UserPermissionDecision.reject),
                   child: busy ? _busyLabel(loc.deny) : Text(loc.deny),
                 ),
               ),
@@ -718,7 +757,9 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
               Expanded(
                 child: FButton(
                   style: FButtonStyle.primary(),
-                  onPress: busy ? null : () => decide(UserPermissionDecision.accept),
+                  onPress: busy
+                      ? null
+                      : () => decide(UserPermissionDecision.accept),
                   child: busy ? _busyLabel(loc.allow) : Text(loc.allow),
                 ),
               ),
@@ -733,7 +774,9 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
               Expanded(
                 child: FButton(
                   style: FButtonStyle.outline(),
-                  onPress: busy ? null : () => decide(UserPermissionDecision.reject),
+                  onPress: busy
+                      ? null
+                      : () => decide(UserPermissionDecision.reject),
                   child: busy ? _busyLabel(loc.deny) : Text(loc.deny),
                 ),
               ),
@@ -741,7 +784,9 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
               Expanded(
                 child: FButton(
                   style: FButtonStyle.primary(),
-                  onPress: busy ? null : () => decide(UserPermissionDecision.accept),
+                  onPress: busy
+                      ? null
+                      : () => decide(UserPermissionDecision.accept),
                   child: busy ? _busyLabel(loc.allow) : Text(loc.allow),
                 ),
               ),
@@ -754,11 +799,13 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
           FSwitch(
             label: const Text('Remember my decision'),
             value: _rememberDecision,
-            onChange: busy ? null : (value) {
-              setState(() {
-                _rememberDecision = value;
-              });
-            },
+            onChange: busy
+                ? null
+                : (value) {
+                    setState(() {
+                      _rememberDecision = value;
+                    });
+                  },
           ),
           const SizedBox(height: Spaces.extraSmall),
           Row(
@@ -766,12 +813,14 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
               Expanded(
                 child: FButton(
                   style: FButtonStyle.outline(),
-                  onPress: busy ? null : () {
-                    final decision = _rememberDecision
-                        ? UserPermissionDecision.alwaysReject
-                        : UserPermissionDecision.reject;
-                    decide(decision);
-                  },
+                  onPress: busy
+                      ? null
+                      : () {
+                          final decision = _rememberDecision
+                              ? UserPermissionDecision.alwaysReject
+                              : UserPermissionDecision.reject;
+                          decide(decision);
+                        },
                   child: busy ? _busyLabel(loc.deny) : Text(loc.deny),
                 ),
               ),
@@ -779,12 +828,14 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
               Expanded(
                 child: FButton(
                   style: FButtonStyle.primary(),
-                  onPress: busy ? null : () {
-                    final decision = _rememberDecision
-                        ? UserPermissionDecision.alwaysAccept
-                        : UserPermissionDecision.accept;
-                    decide(decision);
-                  },
+                  onPress: busy
+                      ? null
+                      : () {
+                          final decision = _rememberDecision
+                              ? UserPermissionDecision.alwaysAccept
+                              : UserPermissionDecision.accept;
+                          decide(decision);
+                        },
                   child: busy ? _busyLabel(loc.allow) : Text(loc.allow),
                 ),
               ),

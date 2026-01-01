@@ -9,11 +9,7 @@ import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 
 class SelectAddressDialog extends ConsumerStatefulWidget {
-  const SelectAddressDialog(
-    this.style,
-    this.animation, {
-    super.key,
-  });
+  const SelectAddressDialog(this.style, this.animation, {super.key});
 
   final FDialogStyle style;
   final Animation<double> animation;
@@ -84,10 +80,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
             child: addressBook.when(
               data: (book) {
                 if (book.isEmpty) {
-                  return _CenteredMessage(
-                    loc.no_contact_found,
-                    muted: true,
-                  );
+                  return _CenteredMessage(loc.no_contact_found, muted: true);
                 }
 
                 final filteredContacts = book.entries.where((entry) {
@@ -98,10 +91,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
                 }).toList();
 
                 if (filteredContacts.isEmpty) {
-                  return _CenteredMessage(
-                    loc.no_contact_found,
-                    muted: true,
-                  );
+                  return _CenteredMessage(loc.no_contact_found, muted: true);
                 }
 
                 return ListView.separated(
@@ -124,9 +114,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
                   },
                 );
               },
-              loading: () => const Center(
-                child: FCircularProgress(),
-              ),
+              loading: () => const Center(child: FCircularProgress()),
               error: (error, stack) => _CenteredMessage(
                 loc.error_loading_contacts,
                 destructive: true,
@@ -168,9 +156,7 @@ class _CenteredMessage extends StatelessWidget {
         child: Text(
           message,
           textAlign: TextAlign.center,
-          style: context.theme.typography.base.copyWith(
-            color: color,
-          ),
+          style: context.theme.typography.base.copyWith(color: color),
         ),
       ),
     );

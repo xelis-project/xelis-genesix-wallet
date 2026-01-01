@@ -41,8 +41,8 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
     final walletState = ref.read(walletStateProvider);
     if (walletState.nativeWalletRepository != null) {
       try {
-        final isRunning =
-            await walletState.nativeWalletRepository!.isXswdRunning();
+        final isRunning = await walletState.nativeWalletRepository!
+            .isXswdRunning();
         if (mounted) {
           setState(() {
             _isXswdRunning = isRunning;
@@ -74,9 +74,8 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
         return _buildAppsList(context, loc, apps);
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => Center(
-        child: Text('Error loading XSWD apps: $error'),
-      ),
+      error: (error, stack) =>
+          Center(child: Text('Error loading XSWD apps: $error')),
     );
   }
 
@@ -120,19 +119,18 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
             Row(
               children: [
                 Expanded(
-                  child: Text(
-                    'Connected Apps',
-                    style: context.headlineMedium,
-                  ),
+                  child: Text('Connected Apps', style: context.headlineMedium),
                 ),
                 _buildServerStatus(context, loc),
               ],
             ),
             const SizedBox(height: Spaces.large),
-            ...apps.map((app) => Padding(
-                  padding: const EdgeInsets.only(bottom: Spaces.medium),
-                  child: _buildAppCard(context, loc, app),
-                )),
+            ...apps.map(
+              (app) => Padding(
+                padding: const EdgeInsets.only(bottom: Spaces.medium),
+                child: _buildAppCard(context, loc, app),
+              ),
+            ),
           ],
         ),
       ),
@@ -150,9 +148,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
     return InkWell(
       onTap: () {
         Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => XswdAppDetail(appId: app.id),
-          ),
+          MaterialPageRoute(builder: (context) => XswdAppDetail(appId: app.id)),
         );
       },
       borderRadius: BorderRadius.circular(12),
@@ -160,10 +156,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
         decoration: BoxDecoration(
           color: context.colors.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: context.theme.colors.border,
-            width: 1,
-          ),
+          border: Border.all(color: context.theme.colors.border, width: 1),
         ),
         padding: const EdgeInsets.all(Spaces.large),
         child: Row(
@@ -172,10 +165,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    app.name,
-                    style: context.headlineSmall,
-                  ),
+                  Text(app.name, style: context.headlineSmall),
                   if (app.url != null && app.url!.isNotEmpty) ...[
                     const SizedBox(height: Spaces.extraSmall),
                     Text(
@@ -188,11 +178,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
                   const SizedBox(height: Spaces.small),
                   Row(
                     children: [
-                      Icon(
-                        Icons.verified_user,
-                        size: 16,
-                        color: muted,
-                      ),
+                      Icon(Icons.verified_user, size: 16, color: muted),
                       const SizedBox(width: Spaces.extraSmall),
                       Text(
                         permissionCount == 1
@@ -205,11 +191,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
                 ],
               ),
             ),
-            Icon(
-              Icons.chevron_right,
-              color: muted,
-              size: 24,
-            ),
+            Icon(Icons.chevron_right, color: muted, size: 24),
           ],
         ),
       ),

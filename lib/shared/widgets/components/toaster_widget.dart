@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/wallet/application/xswd_providers.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_widget.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
@@ -55,10 +56,10 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
             ),
             suffixBuilder: _isDesktopPlatform(toastCtx)
                 ? (context, entry) => FButton.icon(
-                      style: FButtonStyle.ghost(),
-                      onPress: entry.dismiss,
-                      child: const Icon(FIcons.x, size: 18),
-                    )
+                    style: FButtonStyle.ghost(),
+                    onPress: entry.dismiss,
+                    child: const Icon(FIcons.x, size: 18),
+                  )
                 : null,
           );
           break;
@@ -75,10 +76,10 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
             ),
             suffixBuilder: _isDesktopPlatform(toastCtx)
                 ? (context, entry) => FButton.icon(
-                      style: FButtonStyle.ghost(),
-                      onPress: entry.dismiss,
-                      child: const Icon(FIcons.x, size: 18),
-                    )
+                    style: FButtonStyle.ghost(),
+                    onPress: entry.dismiss,
+                    child: const Icon(FIcons.x, size: 18),
+                  )
                 : null,
           );
           break;
@@ -109,7 +110,11 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
                   child: FButton(
                     style: context.theme.buttonStyles.primary
                         .copyWith(
-                          contentStyle: context.theme.buttonStyles.primary.contentStyle
+                          contentStyle: context
+                              .theme
+                              .buttonStyles
+                              .primary
+                              .contentStyle
                               .copyWith(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
@@ -117,7 +122,8 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
                                 ),
                                 textStyle: FWidgetStateMap.all(
                                   context.theme.typography.xs.copyWith(
-                                    color: context.theme.colors.primaryForeground,
+                                    color:
+                                        context.theme.colors.primaryForeground,
                                   ),
                                 ),
                               )
@@ -162,7 +168,11 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
                   child: FButton(
                     style: context.theme.buttonStyles.primary
                         .copyWith(
-                          contentStyle: context.theme.buttonStyles.primary.contentStyle
+                          contentStyle: context
+                              .theme
+                              .buttonStyles
+                              .primary
+                              .contentStyle
                               .copyWith(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
@@ -170,7 +180,8 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
                                 ),
                                 textStyle: FWidgetStateMap.all(
                                   context.theme.typography.xs.copyWith(
-                                    color: context.theme.colors.primaryForeground,
+                                    color:
+                                        context.theme.colors.primaryForeground,
                                   ),
                                 ),
                               )
@@ -218,24 +229,32 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
                 XswdWidget.openDialog(ref: ref);
               }
 
+              void dismissXswdToast() {
+                // Clear the XSWD request state when toast is dismissed without opening dialog
+                ref.read(xswdRequestProvider.notifier).clearRequest();
+                entry.dismiss();
+              }
+
               return Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  ...next.actions.map((a) => Padding(
-                        padding: const EdgeInsets.only(left: 8),
-                        child: FButton(
-                          style: a.isPrimary
-                              ? FButtonStyle.primary()
-                              : FButtonStyle.ghost(),
-                          onPress: openXswdDialog,
-                          child: Text(a.label),
-                        ),
-                      )),
+                  ...next.actions.map(
+                    (a) => Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: FButton(
+                        style: a.isPrimary
+                            ? FButtonStyle.primary()
+                            : FButtonStyle.ghost(),
+                        onPress: openXswdDialog,
+                        child: Text(a.label),
+                      ),
+                    ),
+                  ),
                   if (next.dismissible && _isDesktopPlatform(context)) ...[
                     const SizedBox(width: 6),
                     FButton.icon(
                       style: FButtonStyle.ghost(),
-                      onPress: entry.dismiss,
+                      onPress: dismissXswdToast,
                       child: const Icon(FIcons.x, size: 18),
                     ),
                   ],

@@ -29,7 +29,8 @@ class XswdRequest extends _$XswdRequest {
     if (xswdEventSummary.isPermissionRequest()) {
       final data =
           jsonDecode(
-                (xswdEventSummary.eventType as XswdRequestType_Permission).field0,
+                (xswdEventSummary.eventType as XswdRequestType_Permission)
+                    .field0,
               )
               as Map<String, dynamic>;
 
@@ -40,9 +41,13 @@ class XswdRequest extends _$XswdRequest {
         permissionRpcRequest: PermissionRpcRequest.fromJson(data),
       );
     } else if (xswdEventSummary.isPrefetchPermissionsRequest()) {
-      final data = jsonDecode(
-        (xswdEventSummary.eventType as XswdRequestType_PrefetchPermissions).field0,
-      ) as Map<String, dynamic>;
+      final data =
+          jsonDecode(
+                (xswdEventSummary.eventType
+                        as XswdRequestType_PrefetchPermissions)
+                    .field0,
+              )
+              as Map<String, dynamic>;
 
       state = state.copyWith(
         xswdEventSummary: xswdEventSummary,
@@ -76,6 +81,20 @@ class XswdRequest extends _$XswdRequest {
   void setSuppressXswdToast(bool value) {
     if (state.suppressXswdToast == value) return;
     state = state.copyWith(suppressXswdToast: value);
+  }
+
+  void clearRequest() {
+    // Complete any pending decision with reject
+    final pendingDecision = state.decision;
+    if (pendingDecision != null && !pendingDecision.isCompleted) {
+      pendingDecision.complete(UserPermissionDecision.reject);
+    }
+
+    // Cancel any snackbar timer
+    state.snackBarTimer?.cancel();
+
+    // Reset state to initial
+    state = const XswdRequestState(message: '', snackBarVisible: false);
   }
 }
 

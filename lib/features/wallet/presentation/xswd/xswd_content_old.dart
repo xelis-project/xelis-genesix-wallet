@@ -58,7 +58,8 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
     final walletState = ref.read(walletStateProvider);
     if (walletState.nativeWalletRepository != null) {
       try {
-        final isRunning = await walletState.nativeWalletRepository!.isXswdRunning();
+        final isRunning = await walletState.nativeWalletRepository!
+            .isXswdRunning();
         if (mounted) {
           setState(() {
             _isXswdRunning = isRunning;
@@ -139,10 +140,14 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
     }
 
     final eventType = xswdState.xswdEventSummary!.eventType;
-    final isPermissionRequest = xswdState.xswdEventSummary!.isPermissionRequest();
-    final isApplicationRequest = xswdState.xswdEventSummary!.isApplicationRequest();
-    final isPrefetchRequest = xswdState.xswdEventSummary!.isPrefetchPermissionsRequest();
-    final isCancelOrDisconnect = xswdState.xswdEventSummary!.isCancelRequest() ||
+    final isPermissionRequest = xswdState.xswdEventSummary!
+        .isPermissionRequest();
+    final isApplicationRequest = xswdState.xswdEventSummary!
+        .isApplicationRequest();
+    final isPrefetchRequest = xswdState.xswdEventSummary!
+        .isPrefetchPermissionsRequest();
+    final isCancelOrDisconnect =
+        xswdState.xswdEventSummary!.isCancelRequest() ||
         xswdState.xswdEventSummary!.isAppDisconnect();
 
     String title;
@@ -198,15 +203,14 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
     );
   }
 
-  Widget _buildHeader(BuildContext context, String title, bool isCancelOrDisconnect) {
+  Widget _buildHeader(
+    BuildContext context,
+    String title,
+    bool isCancelOrDisconnect,
+  ) {
     return Row(
       children: [
-        Expanded(
-          child: Text(
-            title,
-            style: context.headlineMedium,
-          ),
-        ),
+        Expanded(child: Text(title, style: context.headlineMedium)),
         if (!isCancelOrDisconnect) ...[
           const SizedBox(width: Spaces.medium),
           Stack(
@@ -237,30 +241,21 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
     );
   }
 
-  Widget _buildApplicationInfo(BuildContext context, XswdRequestState xswdState) {
+  Widget _buildApplicationInfo(
+    BuildContext context,
+    XswdRequestState xswdState,
+  ) {
     final loc = ref.read(appLocalizationsProvider);
     final appInfo = xswdState.xswdEventSummary!.applicationInfo;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildInfoSection(
-          context,
-          loc.id.capitalize(),
-          appInfo.id,
-        ),
+        _buildInfoSection(context, loc.id.capitalize(), appInfo.id),
         const SizedBox(height: Spaces.medium),
-        _buildInfoSection(
-          context,
-          loc.name.capitalize(),
-          appInfo.name,
-        ),
+        _buildInfoSection(context, loc.name.capitalize(), appInfo.name),
         const SizedBox(height: Spaces.medium),
-        _buildInfoSection(
-          context,
-          loc.url.capitalize(),
-          appInfo.url,
-        ),
+        _buildInfoSection(context, loc.url.capitalize(), appInfo.url),
         const SizedBox(height: Spaces.medium),
         _buildInfoSection(
           context,
@@ -290,7 +285,10 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
     );
   }
 
-  Widget _buildPermissionDetails(BuildContext context, XswdRequestState xswdState) {
+  Widget _buildPermissionDetails(
+    BuildContext context,
+    XswdRequestState xswdState,
+  ) {
     final loc = ref.read(appLocalizationsProvider);
     final request = xswdState.permissionRpcRequest;
 
@@ -330,7 +328,10 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
     );
   }
 
-  Widget _buildPrefetchDetails(BuildContext context, XswdRequestState xswdState) {
+  Widget _buildPrefetchDetails(
+    BuildContext context,
+    XswdRequestState xswdState,
+  ) {
     final loc = ref.read(appLocalizationsProvider);
     final request = xswdState.prefetchPermissionsRequest;
 
@@ -347,11 +348,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
         ),
         const SizedBox(height: Spaces.medium),
         if (request.reason != null && request.reason!.isNotEmpty) ...[
-          _buildInfoSection(
-            context,
-            'Reason',
-            request.reason!,
-          ),
+          _buildInfoSection(context, 'Reason', request.reason!),
           const SizedBox(height: Spaces.medium),
         ],
         Text(
@@ -382,11 +379,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
           ),
           child: Row(
             children: [
-              Icon(
-                Icons.info_outline,
-                color: context.colors.primary,
-                size: 20,
-              ),
+              Icon(Icons.info_outline, color: context.colors.primary, size: 20),
               const SizedBox(width: Spaces.medium),
               Expanded(
                 child: Text(
@@ -401,7 +394,10 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
     );
   }
 
-  Widget _buildFuturePermissions(BuildContext context, XswdRequestState xswdState) {
+  Widget _buildFuturePermissions(
+    BuildContext context,
+    XswdRequestState xswdState,
+  ) {
     final loc = ref.read(appLocalizationsProvider);
     final permissions = xswdState.xswdEventSummary!.applicationInfo.permissions;
 
@@ -431,7 +427,11 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
     );
   }
 
-  Widget _buildActions(BuildContext context, XswdRequestState xswdState, bool isPermissionRequest) {
+  Widget _buildActions(
+    BuildContext context,
+    XswdRequestState xswdState,
+    bool isPermissionRequest,
+  ) {
     final loc = ref.read(appLocalizationsProvider);
 
     if (isPermissionRequest) {
@@ -500,7 +500,8 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
     if (decision != null && !(decision.isCompleted)) {
       if (_decisionFormKey.currentState?.saveAndValidate() ?? false) {
         final selectedDecision =
-            _decisionFormKey.currentState!.value['decisions_dropdown'] as UserPermissionDecision;
+            _decisionFormKey.currentState!.value['decisions_dropdown']
+                as UserPermissionDecision;
         decision.complete(selectedDecision);
         _timer?.cancel();
         ref.read(xswdRequestProvider.notifier).closeSnackBar();
@@ -552,9 +553,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
       ),
       child: SelectableText(
         const JsonEncoder.withIndent('  ').convert(request.params),
-        style: context.bodySmall?.copyWith(
-          fontFamily: 'monospace',
-        ),
+        style: context.bodySmall?.copyWith(fontFamily: 'monospace'),
       ),
     );
   }

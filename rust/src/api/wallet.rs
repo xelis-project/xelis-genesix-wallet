@@ -53,7 +53,7 @@ pub struct XelisWallet {
 impl From<MaxSupplyMode> for XelisMaxSupplyMode {
     fn from(v: MaxSupplyMode) -> Self {
         match v {
-            MaxSupplyMode::None => Self::None(()),
+            MaxSupplyMode::None => Self::None,
             MaxSupplyMode::Fixed(x) => Self::Fixed(x),
             MaxSupplyMode::Mintable(x) => Self::Mintable(x),
         }
@@ -63,7 +63,7 @@ impl From<MaxSupplyMode> for XelisMaxSupplyMode {
 impl From<&AssetOwner> for XelisAssetOwner {
     fn from(value: &AssetOwner) -> Self {
         match value {
-            AssetOwner::None => XelisAssetOwner::None(()),
+            AssetOwner::None => XelisAssetOwner::None,
             AssetOwner::Creator { contract, id } => XelisAssetOwner::Creator {
                 contract: contract.to_hex(),
                 id: *id,
