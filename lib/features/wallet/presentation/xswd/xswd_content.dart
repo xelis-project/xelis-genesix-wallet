@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_providers.dart';
+import 'package:genesix/features/wallet/presentation/settings_navigation_bar/components/xswd_qr_scanner_screen.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_app_detail.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -29,12 +31,19 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
   @override
   void initState() {
     super.initState();
-    _checkXswdStatus();
 
-    // Check XSWD status periodically
-    _statusCheckTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+    // Only check server status on desktop platforms
+    final isMobile = defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+
+    if (!isMobile) {
       _checkXswdStatus();
-    });
+
+      // Check XSWD status periodically
+      _statusCheckTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+        _checkXswdStatus();
+      });
+    }
   }
 
   Future<void> _checkXswdStatus() async {
@@ -66,16 +75,24 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
     final loc = ref.watch(appLocalizationsProvider);
     final appsAsync = ref.watch(xswdApplicationsProvider);
 
-    return appsAsync.when(
-      data: (apps) {
-        if (apps.isEmpty) {
-          return _buildEmptyState(context, loc);
-        }
-        return _buildAppsList(context, loc, apps);
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) =>
-          Center(child: Text('Error loading XSWD apps: $error')),
+    return Column(
+      children: [
+        Expanded(
+          child: appsAsync.when(
+            data: (apps) {
+              if (apps.isEmpty) {
+                return _buildEmptyState(context, loc);
+              }
+              return _buildAppsList(context, loc, apps);
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stack) =>
+                Center(child: Text('Error loading XSWD apps: $error')),
+          ),
+        ),
+        // Footer with "New Connection" button
+        _buildFooter(context),
+      ],
     );
   }
 
@@ -199,15 +216,31 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
   }
 
   Widget _buildServerStatus(BuildContext context, AppLocalizations loc) {
+    // Mobile uses relay mode only - show relay status instead of server status
+    final isMobile = defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+
+    final statusText = isMobile
+        ? 'Relay Mode'
+        : (_isXswdRunning
+            ? '${loc.xswd_status}: ${loc.running.capitalize()}'
+            : '${loc.xswd_status}: ${loc.stopped.capitalize()}');
+
+    final statusColor = isMobile || _isXswdRunning
+        ? context.theme.colors.primary
+        : context.theme.colors.destructive;
+
+    final bgColor = isMobile || _isXswdRunning
+        ? context.theme.colors.primaryForeground.withValues(alpha: 0.1)
+        : context.theme.colors.destructiveForeground.withValues(alpha: 0.1);
+
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: Spaces.medium,
         vertical: Spaces.small,
       ),
       decoration: BoxDecoration(
-        color: _isXswdRunning
-            ? context.theme.colors.primaryForeground.withValues(alpha: 0.1)
-            : context.theme.colors.destructiveForeground.withValues(alpha: 0.1),
+        color: bgColor,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -217,25 +250,55 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
             width: 8,
             height: 8,
             decoration: BoxDecoration(
-              color: _isXswdRunning
-                  ? context.theme.colors.primary
-                  : context.theme.colors.destructive,
+              color: statusColor,
               shape: BoxShape.circle,
             ),
           ),
           const SizedBox(width: Spaces.small),
           Text(
-            _isXswdRunning
-                ? '${loc.xswd_status}: ${loc.running.capitalize()}'
-                : '${loc.xswd_status}: ${loc.stopped.capitalize()}',
+            statusText,
             style: context.bodyMedium?.copyWith(
-              color: _isXswdRunning
-                  ? context.theme.colors.primary
-                  : context.theme.colors.destructive,
+              color: statusColor,
               fontWeight: FontWeight.w500,
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFooter(BuildContext context) {
+    return SafeArea(
+      child: Container(
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          border: Border(
+            top: BorderSide(color: context.theme.colors.border, width: 1),
+          ),
+        ),
+        padding: const EdgeInsets.all(Spaces.large),
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const XswdQRScannerScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.qr_code_scanner, size: 20),
+            label: const Text('New Connection'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: context.theme.colors.primary,
+              foregroundColor: context.theme.colors.primaryForeground,
+              padding: const EdgeInsets.symmetric(
+                vertical: Spaces.medium,
+                horizontal: Spaces.large,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

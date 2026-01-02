@@ -96,3 +96,23 @@ pub enum UserPermissionDecision {
     AlwaysAccept,
     AlwaysReject,
 }
+
+// Relay-specific types for XSWD client mode
+#[derive(Clone, Debug)]
+#[frb(dart_metadata=("freezed"))]
+pub struct ApplicationDataRelayer {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub url: Option<String>,
+    pub permissions: Vec<String>,
+    pub relayer: String,
+    pub encryption_mode: Option<EncryptionMode>,
+}
+
+#[derive(Clone, Debug)]
+#[frb(dart_metadata=("freezed"))]
+pub enum EncryptionMode {
+    Aes { key: Vec<u8> },
+    Chacha20Poly1305 { key: Vec<u8> },
+}

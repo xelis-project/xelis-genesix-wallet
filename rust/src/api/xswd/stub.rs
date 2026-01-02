@@ -28,6 +28,7 @@ pub enum XSWDEvent {
 use crate::api::{
     models::xswd_dtos::{
         AppInfo, PermissionPolicy, UserPermissionDecision, XswdRequestSummary, XswdRequestType,
+        ApplicationDataRelayer, EncryptionMode,
     },
     wallet::XelisWallet,
 };
@@ -67,6 +68,8 @@ pub trait XSWD {
     ) -> Result<()>;
 
     async fn close_application_session(&self, id: &String) -> Result<()>;
+
+    async fn add_xswd_relayer(&self, app_data: ApplicationDataRelayer) -> Result<()>;
 }
 
 impl XSWD for XelisWallet {
@@ -113,6 +116,11 @@ impl XSWD for XelisWallet {
     }
 
     async fn close_application_session(&self, _id: &String) -> Result<()> {
+        Ok(())
+    }
+
+    async fn add_xswd_relayer(&self, _app_data: ApplicationDataRelayer) -> Result<()> {
+        // WASM stub - relay connections not supported in web
         Ok(())
     }
 }

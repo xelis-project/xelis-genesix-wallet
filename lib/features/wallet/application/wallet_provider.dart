@@ -1086,6 +1086,34 @@ class WalletState extends _$WalletState {
     }
   }
 
+  Future<void> addXswdRelayer(ApplicationDataRelayer relayerData) async {
+    if (state.nativeWalletRepository != null) {
+      try {
+        await state.nativeWalletRepository!.addXswdRelayer(relayerData);
+        talker.info('XSWD relay connection added: ${relayerData.name}');
+      } on AnyhowException catch (e) {
+        talker.error('Cannot add XSWD relay connection: $e');
+        final xelisMessage = (e).message.split("\n")[0];
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot add XSWD relay connection',
+              description: xelisMessage,
+            );
+        rethrow;
+      } catch (e) {
+        talker.error('Cannot add XSWD relay connection: $e');
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              title: 'Cannot add XSWD relay connection',
+              description: e.toString(),
+            );
+        rethrow;
+      }
+    }
+  }
+
   Future<void> editXswdAppPermission(
     String appID,
     Map<String, PermissionPolicy> permissions,

@@ -15,8 +15,14 @@ pub use xelis_wallet::wallet::XSWDEvent;
 use crate::api::{
     models::xswd_dtos::{
         AppInfo, PermissionPolicy, UserPermissionDecision, XswdRequestSummary, XswdRequestType,
+        ApplicationDataRelayer, EncryptionMode,
     },
     wallet::XelisWallet,
+};
+use xelis_wallet::api::{
+    ApplicationDataRelayer as CoreApplicationDataRelayer,
+    EncryptionMode as CoreEncryptionMode,
+    ApplicationData
 };
 
 #[allow(async_fn_in_trait)]
@@ -58,6 +64,8 @@ pub trait XSWD {
     ) -> Result<()>;
 
     async fn close_application_session(&self, id: &String) -> Result<()>;
+
+    async fn add_xswd_relayer(&self, app_data: ApplicationDataRelayer) -> Result<()>;
 }
 
 impl XSWD for XelisWallet {
@@ -233,6 +241,51 @@ impl XSWD for XelisWallet {
             }
             _ => bail!("API Server is not XSWD"),
         }
+    }
+
+    async fn add_xswd_relayer(&self, app_data: ApplicationDataRelayer) -> Result<()> {
+        // Convert DTO to core ApplicationDataRelayer
+        let encryption_mode = app_data.encryption_mode.map(|mode| match mode {
+            EncryptionMode::Aes { key } => {
+                let mut key_array = [0u8; 32];
+                key_array.copy_from_slice(&key[..32]);
+                CoreEncryptionMode::AES { key: key_array }
+            }
+            EncryptionMode::Chacha20Poly1305 { key } => {
+                let mut key_array = [0u8; 32];
+                key_array.copy_from_slice(&key[..32]);
+                CoreEncryptionMode::Chacha20Poly1305 { key: key_array }
+            }
+        });
+
+        // Use serde to construct ApplicationData since fields are private
+        let app_data_json = serde_json::json!({
+            "id": app_data.id,
+            "name": app_data.name,
+            "description": app_data.description,
+            "url": app_data.url,
+            "permissions": app_data.permissions,
+        });
+        let core_app_info: ApplicationData = serde_json::from_value(app_data_json)?;
+
+        let core_app_data = CoreApplicationDataRelayer {
+            app_data: core_app_info,
+            relayer: app_data.relayer,
+            encryption_mode,
+        };
+
+        // The XSWD event channel is shared between server mode and relay mode
+        // If startXSWD was called first, this will return None and the existing
+        // handler will process relay events
+        match self.get_wallet().add_xswd_relayer(core_app_data).await? {
+            Some(_receiver) => {
+                info!("XSWD relayer connected but no handler was spawned - startXSWD should be called first");
+            }
+            None => {
+                info!("XSWD relayer connected, using existing event handler");
+            }
+        }
+        Ok(())
     }
 }
 

@@ -3108,7 +3108,8 @@ dependencies = [
 [[package]]
 name = "tokio-tungstenite-wasm"
 version = "0.8.0"
-source = "git+https://github.com/TannerRogalsky/tokio-tungstenite-wasm.git#71268a1cd19cc4063ce106559d66e39bb66d36c0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6725b2617a1a6c1caaf3dff3fba16db03bb27ae88cb3693405022566dd522c49"
 dependencies = [
  "bytes",
  "futures-channel",
@@ -3850,7 +3851,7 @@ dependencies = [
 [[package]]
 name = "xelis-ast"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#4353c578b6a35e697b58b2f54409bcc18325764a"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#6feae0ad9d2b9491926e2d063d17ac582a6e6fcc"
 dependencies = [
  "indexmap",
  "xelis-types",
@@ -3859,7 +3860,7 @@ dependencies = [
 [[package]]
 name = "xelis-builder"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#4353c578b6a35e697b58b2f54409bcc18325764a"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#6feae0ad9d2b9491926e2d063d17ac582a6e6fcc"
 dependencies = [
  "anyhow",
  "hex",
@@ -3874,7 +3875,7 @@ dependencies = [
 [[package]]
 name = "xelis-bytecode"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#4353c578b6a35e697b58b2f54409bcc18325764a"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#6feae0ad9d2b9491926e2d063d17ac582a6e6fcc"
 dependencies = [
  "hex",
  "indexmap",
@@ -3887,7 +3888,7 @@ dependencies = [
 [[package]]
 name = "xelis-environment"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#4353c578b6a35e697b58b2f54409bcc18325764a"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#6feae0ad9d2b9491926e2d063d17ac582a6e6fcc"
 dependencies = [
  "anyhow",
  "better_any",
@@ -3915,7 +3916,7 @@ dependencies = [
 [[package]]
 name = "xelis-types"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#4353c578b6a35e697b58b2f54409bcc18325764a"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#6feae0ad9d2b9491926e2d063d17ac582a6e6fcc"
 dependencies = [
  "anyhow",
  "hex",
@@ -3931,7 +3932,7 @@ dependencies = [
 [[package]]
 name = "xelis-vm"
 version = "0.1.0"
-source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#4353c578b6a35e697b58b2f54409bcc18325764a"
+source = "git+https://github.com/xelis-project/xelis-vm?branch=dev#6feae0ad9d2b9491926e2d063d17ac582a6e6fcc"
 dependencies = [
  "anyhow",
  "futures",
@@ -3945,8 +3946,8 @@ dependencies = [
 
 [[package]]
 name = "xelis_common"
-version = "1.21.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain#5ff20a86ff7f5afb570c3629a1b3841d87cd42b1"
+version = "1.21.1"
+source = "git+https://github.com/xelis-project/xelis-blockchain#d30922cf398832c4daa9d34dbdf4f3f15dcc75ad"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -3999,8 +4000,8 @@ dependencies = [
 
 [[package]]
 name = "xelis_wallet"
-version = "1.21.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain#5ff20a86ff7f5afb570c3629a1b3841d87cd42b1"
+version = "1.21.1"
+source = "git+https://github.com/xelis-project/xelis-blockchain#d30922cf398832c4daa9d34dbdf4f3f15dcc75ad"
 dependencies = [
  "actix-web",
  "actix-web-httpauth",
@@ -4152,9 +4153,9 @@ dependencies = [
 
 [[package]]
 name = "zmij"
-version = "1.0.6"
+version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aac060176f7020d62c3bcc1cdbcec619d54f48b07ad1963a3f80ce7a0c17755f"
+checksum = "de9211a9f64b825911bdf0240f58b7a8dac217fe260fc61f080a07f61372fbd5"
 
 [[package]]
 name = "zstd"

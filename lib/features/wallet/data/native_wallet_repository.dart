@@ -630,6 +630,10 @@ class NativeWalletRepository {
     await _xelisWallet.closeApplicationSession(id: appID);
   }
 
+  Future<void> addXswdRelayer(ApplicationDataRelayer relayerData) async {
+    await _xelisWallet.addXswdRelayer(appData: relayerData);
+  }
+
   Future<void> modifyXSWDAppPermissions(
     String appID,
     Map<String, PermissionPolicy> permissions,
