@@ -65,7 +65,30 @@ pub trait XSWD {
 
     async fn close_application_session(&self, id: &String) -> Result<()>;
 
-    async fn add_xswd_relayer(&self, app_data: ApplicationDataRelayer) -> Result<()>;
+    async fn add_xswd_relayer(
+        &self,
+        app_data: ApplicationDataRelayer,
+        cancel_request_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>
+            + Send
+            + Sync
+            + 'static,
+        request_application_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        request_permission_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        request_prefetch_permissions_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        app_disconnect_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>
+            + Send
+            + Sync
+            + 'static,
+    ) -> Result<()>;
 }
 
 impl XSWD for XelisWallet {
@@ -120,29 +143,54 @@ impl XSWD for XelisWallet {
     }
 
     async fn is_xswd_running(&self) -> bool {
+        // Check if local XSWD server is running
         let lock = self.get_wallet().get_api_server().lock().await;
-        lock.is_some()
+        if lock.is_some() {
+            return true;
+        }
+        drop(lock);
+
+        // Check if there are any relayer connections
+        let relayer_lock = self.get_wallet().xswd_relayer().lock().await;
+        if let Some(relayer) = relayer_lock.as_ref() {
+            let apps = relayer.applications().read().await;
+            return !apps.is_empty();
+        }
+
+        false
     }
 
     async fn get_application_permissions(&self) -> Result<Vec<AppInfo>> {
+        let mut apps = Vec::new();
+
+        // Get applications from XSWD server (local connections)
         let lock = self.get_wallet().get_api_server().lock().await;
-        let api_server: &xelis_wallet::api::APIServer<
-            std::sync::Arc<xelis_wallet::wallet::Wallet>,
-        > = lock
-            .as_ref()
-            .ok_or_else(|| anyhow::anyhow!("API Server is not running"))?;
-        match api_server {
-            APIServer::XSWD(xswd) => {
-                let applications = xswd.get_handler().get_applications().read().await;
-                let mut apps = Vec::new();
-                for (_, app) in applications.iter() {
-                    let app_info = create_app_info(app).await;
-                    apps.push(app_info);
+        if let Some(api_server) = lock.as_ref() {
+            match api_server {
+                APIServer::XSWD(xswd) => {
+                    let applications = xswd.get_handler().get_applications().read().await;
+                    for (_, app) in applications.iter() {
+                        let app_info = create_app_info(app).await;
+                        apps.push(app_info);
+                    }
                 }
-                Ok(apps)
+                _ => {}
             }
-            _ => bail!("API Server is not XSWD"),
         }
+
+        // Get applications from XSWD relayer (remote connections)
+        let relayer_lock = self.get_wallet().xswd_relayer().lock().await;
+        if let Some(relayer) = relayer_lock.as_ref() {
+            let relayer_apps = relayer.applications().read().await;
+            for (app, _) in relayer_apps.iter() {
+                let mut app_info = create_app_info(app).await;
+                // Mark as relayer connection
+                app_info.is_relayer = true;
+                apps.push(app_info);
+            }
+        }
+
+        Ok(apps)
     }
 
     async fn modify_application_permissions(
@@ -150,73 +198,61 @@ impl XSWD for XelisWallet {
         id: &String,
         permissions: HashMap<String, PermissionPolicy>,
     ) -> Result<()> {
-        let lock = self.get_wallet().get_api_server().lock().await;
-        let api_server = lock
-            .as_ref()
-            .ok_or_else(|| anyhow::anyhow!("API Server is not running"))?;
+        // Helper function to modify permissions
+        async fn modify_perms(app: &AppState, permissions: &HashMap<String, PermissionPolicy>) -> Result<()> {
+            info!("Modifying permissions for application: {}", app.get_name());
+            debug!("New permissions: {:?}", permissions);
 
-        match api_server {
-            APIServer::XSWD(xswd) => {
-                let app_exists = {
-                    let applications = xswd.get_handler().get_applications().read().await;
-                    applications.iter().any(|(_, v)| v.get_id() == id)
-                };
-
-                if !app_exists {
-                    bail!("Application not found");
-                }
-
-                let mut applications = xswd.get_handler().get_applications().write().await;
-                let app = applications
-                    .iter_mut()
-                    .find(|(_, v)| v.get_id() == id)
-                    .ok_or_else(|| anyhow::anyhow!("Application not found"))?
-                    .1;
-
-                info!("Modifying permissions for application: {}", app.get_name());
-                debug!("New permissions: {:?}", permissions);
-
-                let mut inner_permissions = app.get_permissions().lock().await;
-                for (key, value) in permissions.iter() {
-                    if let Some(entry) = inner_permissions.get_mut(key) {
-                        match value {
-                            PermissionPolicy::Accept => {
-                                *entry = Permission::Allow;
-                            }
-                            PermissionPolicy::Reject => {
-                                *entry = Permission::Reject;
-                            }
-                            PermissionPolicy::Ask => {
-                                *entry = Permission::Ask;
-                            }
+            let mut inner_permissions = app.get_permissions().lock().await;
+            for (key, value) in permissions.iter() {
+                if let Some(entry) = inner_permissions.get_mut(key) {
+                    match value {
+                        PermissionPolicy::Accept => {
+                            *entry = Permission::Allow;
                         }
-                    } else {
-                        bail!(format!("Permission {} not found", key));
+                        PermissionPolicy::Reject => {
+                            *entry = Permission::Reject;
+                        }
+                        PermissionPolicy::Ask => {
+                            *entry = Permission::Ask;
+                        }
                     }
+                } else {
+                    bail!(format!("Permission {} not found", key));
                 }
-                Ok(())
             }
-            _ => bail!("API Server is not XSWD"),
+            Ok(())
         }
+
+        // Try XSWD server first
+        let lock = self.get_wallet().get_api_server().lock().await;
+        if let Some(api_server) = lock.as_ref() {
+            if let APIServer::XSWD(xswd) = api_server {
+                let mut applications = xswd.get_handler().get_applications().write().await;
+                if let Some((_, app)) = applications.iter_mut().find(|(_, v)| v.get_id() == id) {
+                    return modify_perms(app, &permissions).await;
+                }
+            }
+        }
+        drop(lock);
+
+        // Try relayer if not found in XSWD server
+        let relayer_lock = self.get_wallet().xswd_relayer().lock().await;
+        if let Some(relayer) = relayer_lock.as_ref() {
+            let relayer_apps = relayer.applications().read().await;
+            if let Some((app, _)) = relayer_apps.iter().find(|(app, _)| app.get_id() == id) {
+                return modify_perms(app, &permissions).await;
+            }
+        }
+
+        bail!("Application not found")
     }
 
     async fn close_application_session(&self, id: &String) -> Result<()> {
+        // Try XSWD server first
         let lock = self.get_wallet().get_api_server().lock().await;
-        let api_server = lock
-            .as_ref()
-            .ok_or_else(|| anyhow::anyhow!("API Server is not running"))?;
-
-        match api_server {
-            APIServer::XSWD(xswd) => {
-                let app_exists = {
-                    let applications = xswd.get_handler().get_applications().read().await;
-                    applications.iter().any(|(_, v)| v.get_id() == id)
-                };
-
-                if !app_exists {
-                    bail!("Application not found");
-                }
-
+        if let Some(api_server) = lock.as_ref() {
+            if let APIServer::XSWD(xswd) = api_server {
                 let removed_session = {
                     let mut applications = xswd.get_handler().get_applications().write().await;
                     let mut removed_key = None;
@@ -233,17 +269,55 @@ impl XSWD for XelisWallet {
 
                 if let Some(session) = removed_session {
                     session.close(None).await?;
-                } else {
-                    bail!("Failed to close application session");
+                    return Ok(());
                 }
-
-                Ok(())
             }
-            _ => bail!("API Server is not XSWD"),
         }
+        drop(lock);
+
+        // Try relayer if not found in XSWD server
+        let relayer_lock = self.get_wallet().xswd_relayer().lock().await;
+        if let Some(relayer) = relayer_lock.as_ref() {
+            let app_state = {
+                let relayer_apps = relayer.applications().read().await;
+                relayer_apps.iter()
+                    .find(|(app, _)| app.get_id() == id)
+                    .map(|(app, _)| app.clone())
+            };
+
+            if let Some(app) = app_state {
+                relayer.on_close(app).await;
+                return Ok(());
+            }
+        }
+
+        bail!("Application not found")
     }
 
-    async fn add_xswd_relayer(&self, app_data: ApplicationDataRelayer) -> Result<()> {
+    async fn add_xswd_relayer(
+        &self,
+        app_data: ApplicationDataRelayer,
+        cancel_request_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>
+            + Send
+            + Sync
+            + 'static,
+        request_application_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        request_permission_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        request_prefetch_permissions_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        app_disconnect_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>
+            + Send
+            + Sync
+            + 'static,
+    ) -> Result<()> {
         // Convert DTO to core ApplicationDataRelayer
         let encryption_mode = app_data.encryption_mode.map(|mode| match mode {
             EncryptionMode::Aes { key } => {
@@ -274,15 +348,27 @@ impl XSWD for XelisWallet {
             encryption_mode,
         };
 
-        // The XSWD event channel is shared between server mode and relay mode
-        // If startXSWD was called first, this will return None and the existing
-        // handler will process relay events
-        match self.get_wallet().add_xswd_relayer(core_app_data).await? {
-            Some(_receiver) => {
-                info!("XSWD relayer connected but no handler was spawned - startXSWD should be called first");
+        // Initialize relayer infrastructure (without adding application yet)
+        match self.get_wallet().init_xswd_relayer().await? {
+            Some(receiver) => {
+                info!("XSWD relayer created new channel - spawning event handler");
+                // Spawn handler BEFORE adding application so it can respond to events
+                spawn_task("xswd-relayer-handler", xswd_handler(
+                    receiver,
+                    cancel_request_dart_callback,
+                    request_application_dart_callback,
+                    request_permission_dart_callback,
+                    request_prefetch_permissions_dart_callback,
+                    app_disconnect_dart_callback,
+                ));
+
+                // Now add application - handler is ready to process RequestApplication event
+                self.get_wallet().add_xswd_relayer_application(core_app_data).await?;
             }
             None => {
-                info!("XSWD relayer connected, using existing event handler");
+                info!("XSWD relayer using existing event handler from startXSWD");
+                // Handler already running, safe to add application
+                self.get_wallet().add_xswd_relayer_application(core_app_data).await?;
             }
         }
         Ok(())
@@ -383,6 +469,7 @@ pub async fn create_app_info(state: &AppState) -> AppInfo {
         description: state.get_description().clone(),
         url: state.get_url().clone(),
         permissions,
+        is_relayer: false,
     }
 }
 

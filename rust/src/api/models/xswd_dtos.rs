@@ -68,6 +68,7 @@ pub struct AppInfo {
     pub description: String,
     pub url: Option<String>,
     pub permissions: HashMap<String, PermissionPolicy>,
+    pub is_relayer: bool,
 }
 
 #[derive(Clone, Debug)]

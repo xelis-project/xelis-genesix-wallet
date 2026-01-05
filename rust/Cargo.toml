@@ -15,8 +15,8 @@ parking_lot = "0.12.1"
 simplelog = "0.12.1"
 lazy_static = "1.4.0"
 serde_json = "1"
-xelis_wallet = { git = "https://github.com/xelis-project/xelis-blockchain", ref = "dev", package = "xelis_wallet", default-features = false }
-xelis_common = { git = "https://github.com/xelis-project/xelis-blockchain", ref = "dev", package = "xelis_common" }
+xelis_wallet = { git = "https://github.com/tritonn204/xelis-blockchain", branch = "dev-upstream", package = "xelis_wallet", default-features = false }
+xelis_common = { git = "https://github.com/tritonn204/xelis-blockchain", branch = "dev-upstream", package = "xelis_common" }
 serde = { version = "1.0.197", features = ["derive"] }
 trie-rs = "0.4.2"
 regex = "1.11.1"

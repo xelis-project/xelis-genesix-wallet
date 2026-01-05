@@ -63,9 +63,10 @@ class XswdAppDetail extends ConsumerWidget {
   ) {
     final muted = context.theme.colors.mutedForeground;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(Spaces.large),
-      child: Column(
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(Spaces.large),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // App Info Card
@@ -195,8 +196,9 @@ class XswdAppDetail extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildPermissionChip(
     BuildContext context,

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:io' show Platform;
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
@@ -30,6 +31,129 @@ import 'package:genesix/features/wallet/domain/wallet_snapshot.dart';
 import 'package:genesix/features/logger/logger.dart';
 
 part 'wallet_provider.g.dart';
+
+typedef CancelCb = Future<void> Function(XswdRequestSummary request);
+typedef DecisionCb = Future<UserPermissionDecision> Function(
+  XswdRequestSummary request,
+);
+
+class XswdCallbacks {
+  const XswdCallbacks({
+    required this.cancelRequestCallback,
+    required this.requestApplicationCallback,
+    required this.requestPermissionCallback,
+    required this.requestPrefetchPermissionsCallback,
+    required this.appDisconnectCallback,
+  });
+
+  final CancelCb cancelRequestCallback;
+  final DecisionCb requestApplicationCallback;
+  final DecisionCb requestPermissionCallback;
+  final DecisionCb requestPrefetchPermissionsCallback;
+  final CancelCb appDisconnectCallback;
+}
+
+extension XswdCallbacksBuilder on WalletState {
+  XswdCallbacks buildXswdCallbacks({required String channelTitle}) {
+    final loc = ref.read(appLocalizationsProvider);
+
+    bool suppressToast() =>
+        ref.read(xswdRequestProvider).suppressXswdToast;
+
+    void showXswdToast({
+      required String title,
+      required bool showOpen,
+    }) {
+      if (!suppressToast()) {
+        ref.read(toastProvider.notifier).showXswd(
+              title: title,
+              description: null,
+              showOpen: showOpen,
+            );
+      }
+    }
+
+    Future<UserPermissionDecision> askUser({
+      required XswdRequestSummary request,
+      required String message,
+      required bool showOpen,
+    }) async {
+      talker.info(message);
+
+      final completer = ref
+          .read(xswdRequestProvider.notifier)
+          .newRequest(xswdEventSummary: request, message: message);
+
+      showXswdToast(title: message, showOpen: showOpen);
+
+      final decision = await completer.future;
+      final appName = request.applicationInfo.name;
+
+      if (decision == UserPermissionDecision.accept ||
+          decision == UserPermissionDecision.alwaysAccept) {
+        ref
+            .read(toastProvider.notifier)
+            .showInformation(title: '${loc.permission_granted_for} $appName');
+      } else if (decision == UserPermissionDecision.reject ||
+          decision == UserPermissionDecision.alwaysReject) {
+        ref
+            .read(toastProvider.notifier)
+            .showInformation(title: '${loc.permission_denied_for} $appName');
+      }
+
+      return decision;
+    }
+
+    return XswdCallbacks(
+      cancelRequestCallback: (request) async {
+        final appName = request.applicationInfo.name;
+        final message =
+            '$channelTitle: ${loc.request_cancelled_from} $appName';
+
+        talker.info(message);
+        ref
+            .read(xswdRequestProvider.notifier)
+            .newRequest(xswdEventSummary: request, message: message);
+
+        showXswdToast(title: message, showOpen: false);
+      },
+
+      requestApplicationCallback: (request) {
+        final appName = request.applicationInfo.name;
+        final message =
+            '$channelTitle: ${loc.connection_request_from} $appName';
+        return askUser(request: request, message: message, showOpen: true);
+      },
+
+      requestPermissionCallback: (request) {
+        final appName = request.applicationInfo.name;
+        final message =
+            '$channelTitle: ${loc.permission_request_from} $appName';
+        return askUser(request: request, message: message, showOpen: true);
+      },
+
+      requestPrefetchPermissionsCallback: (request) async {
+        final appName = request.applicationInfo.name;
+        final message =
+            '$channelTitle: ${loc.prefetch_permissions_request_from} $appName';
+        return askUser(request: request, message: message, showOpen: true);
+      },
+
+      appDisconnectCallback: (request) async {
+        final appName = request.applicationInfo.name;
+        final message =
+            '$channelTitle: $appName ${loc.disconnected.toLowerCase()}';
+
+        talker.info(message);
+        ref
+            .read(xswdRequestProvider.notifier)
+            .newRequest(xswdEventSummary: request, message: message);
+
+        showXswdToast(title: message, showOpen: false);
+      },
+    );
+  }
+}
 
 @riverpod
 class WalletState extends _$WalletState {
@@ -845,191 +969,40 @@ class WalletState extends _$WalletState {
   }
 
   Future<void> startXSWD() async {
-    final loc = ref.read(appLocalizationsProvider);
+    if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
+      talker.info('XSWD skipped: unsupported platform');
+      return;
+    }
 
+    final loc = ref.read(appLocalizationsProvider);
     if (state.nativeWalletRepository == null) return;
 
     try {
+      final cb = buildXswdCallbacks(channelTitle: 'XSWD');
+
       await state.nativeWalletRepository!.startXSWD(
-        cancelRequestCallback: (request) async {
-          final message =
-              '${loc.request_cancelled_from} ${request.applicationInfo.name}';
-          talker.info(message);
-
-          ref
-              .read(xswdRequestProvider.notifier)
-              .newRequest(xswdEventSummary: request, message: message);
-
-          if (!ref.read(xswdRequestProvider).suppressXswdToast) {
-            ref
-                .read(toastProvider.notifier)
-                .showXswd(title: message, description: null, showOpen: false);
-          }
-        },
-
-        requestApplicationCallback: (request) async {
-          final message =
-              '${loc.connection_request_from} ${request.applicationInfo.name}';
-          talker.info(message);
-
-          final completer = ref
-              .read(xswdRequestProvider.notifier)
-              .newRequest(xswdEventSummary: request, message: message);
-
-          if (!ref.read(xswdRequestProvider).suppressXswdToast) {
-            ref
-                .read(toastProvider.notifier)
-                .showXswd(title: message, description: null, showOpen: true);
-          }
-
-          final decision = await completer.future;
-
-          if (decision == UserPermissionDecision.accept ||
-              decision == UserPermissionDecision.alwaysAccept) {
-            ref
-                .read(toastProvider.notifier)
-                .showInformation(
-                  title:
-                      '${loc.permission_granted_for} ${request.applicationInfo.name}',
-                );
-          } else if (decision == UserPermissionDecision.reject ||
-              decision == UserPermissionDecision.alwaysReject) {
-            ref
-                .read(toastProvider.notifier)
-                .showInformation(
-                  title:
-                      '${loc.permission_denied_for} ${request.applicationInfo.name}',
-                );
-          }
-
-          return decision;
-        },
-
-        requestPermissionCallback: (request) async {
-          final message =
-              '${loc.permission_request_from} ${request.applicationInfo.name}';
-          talker.info(message);
-
-          final completer = ref
-              .read(xswdRequestProvider.notifier)
-              .newRequest(xswdEventSummary: request, message: message);
-
-          if (!ref.read(xswdRequestProvider).suppressXswdToast) {
-            ref
-                .read(toastProvider.notifier)
-                .showXswd(title: message, description: null, showOpen: true);
-          }
-
-          final decision = await completer.future;
-
-          if (decision == UserPermissionDecision.accept ||
-              decision == UserPermissionDecision.alwaysAccept) {
-            ref
-                .read(toastProvider.notifier)
-                .showInformation(
-                  title:
-                      '${loc.permission_granted_for} ${request.applicationInfo.name}',
-                );
-          } else if (decision == UserPermissionDecision.reject ||
-              decision == UserPermissionDecision.alwaysReject) {
-            ref
-                .read(toastProvider.notifier)
-                .showInformation(
-                  title:
-                      '${loc.permission_denied_for} ${request.applicationInfo.name}',
-                );
-          }
-
-          return decision;
-        },
-
-        requestPrefetchPermissionsCallback: (request) async {
-          final app = request.applicationInfo;
-
-          final jsonStr = request.prefetchPermissionsJson();
-          final decoded = jsonStr == null
-              ? <String, dynamic>{}
-              : jsonDecode(jsonStr) as Map<String, dynamic>;
-
-          final reason = decoded['reason'] as String?;
-          final perms = (decoded['permissions'] as List<dynamic>? ?? const [])
-              .map((e) => e.toString())
-              .toList();
-
-          final sb = StringBuffer()
-            ..writeln(
-              'XSWD: Application ${app.name} (${app.id}) is requesting multiple permissions to your wallet',
-            );
-          if (reason != null && reason.isNotEmpty) {
-            sb.writeln('Reason: $reason');
-          }
-          if (perms.isNotEmpty) {
-            sb.writeln('Permissions: ${perms.join(', ')}');
-          }
-
-          final message = sb.toString().trim();
-          talker.info(message);
-
-          final completer = ref
-              .read(xswdRequestProvider.notifier)
-              .newRequest(xswdEventSummary: request, message: message);
-
-          if (!ref.read(xswdRequestProvider).suppressXswdToast) {
-            ref
-                .read(toastProvider.notifier)
-                .showXswd(title: message, description: null, showOpen: true);
-          }
-
-          final decision = await completer.future;
-
-          if (decision == UserPermissionDecision.accept ||
-              decision == UserPermissionDecision.alwaysAccept) {
-            ref
-                .read(toastProvider.notifier)
-                .showInformation(
-                  title: '${loc.permission_granted_for} ${app.name}',
-                );
-          } else if (decision == UserPermissionDecision.reject ||
-              decision == UserPermissionDecision.alwaysReject) {
-            ref
-                .read(toastProvider.notifier)
-                .showInformation(
-                  title: '${loc.permission_denied_for} ${app.name}',
-                );
-          }
-
-          return decision;
-        },
-
-        appDisconnectCallback: (request) async {
-          final message =
-              'XSWD: ${request.applicationInfo.name} ${loc.disconnected.toLowerCase()}';
-          talker.info(message);
-
-          ref
-              .read(xswdRequestProvider.notifier)
-              .newRequest(xswdEventSummary: request, message: message);
-
-          if (!ref.read(xswdRequestProvider).suppressXswdToast) {
-            ref
-                .read(toastProvider.notifier)
-                .showXswd(title: message, description: null, showOpen: false);
-          }
-        },
+        cancelRequestCallback: cb.cancelRequestCallback,
+        requestApplicationCallback: cb.requestApplicationCallback,
+        requestPermissionCallback: cb.requestPermissionCallback,
+        requestPrefetchPermissionsCallback:
+            cb.requestPrefetchPermissionsCallback,
+        appDisconnectCallback: cb.appDisconnectCallback,
       );
 
       talker.info('XSWD server started successfully');
     } on AnyhowException catch (e) {
       talker.error('Cannot start XSWD: $e');
-      final xelisMessage = (e).message.split("\n")[0];
-      ref
-          .read(toastProvider.notifier)
-          .showError(title: 'Cannot start XSWD', description: xelisMessage);
+      final xelisMessage = e.message.split("\n")[0];
+      ref.read(toastProvider.notifier).showError(
+            title: 'Cannot start XSWD',
+            description: xelisMessage,
+          );
     } catch (e) {
       talker.error('Cannot start XSWD: $e');
-      ref
-          .read(toastProvider.notifier)
-          .showError(title: 'Cannot start XSWD', description: e.toString());
+      ref.read(toastProvider.notifier).showError(
+            title: 'Cannot start XSWD',
+            description: e.toString(),
+          );
     }
   }
 
@@ -1087,30 +1060,36 @@ class WalletState extends _$WalletState {
   }
 
   Future<void> addXswdRelayer(ApplicationDataRelayer relayerData) async {
-    if (state.nativeWalletRepository != null) {
-      try {
-        await state.nativeWalletRepository!.addXswdRelayer(relayerData);
-        talker.info('XSWD relay connection added: ${relayerData.name}');
-      } on AnyhowException catch (e) {
-        talker.error('Cannot add XSWD relay connection: $e');
-        final xelisMessage = (e).message.split("\n")[0];
-        ref
-            .read(toastProvider.notifier)
-            .showError(
-              title: 'Cannot add XSWD relay connection',
-              description: xelisMessage,
-            );
-        rethrow;
-      } catch (e) {
-        talker.error('Cannot add XSWD relay connection: $e');
-        ref
-            .read(toastProvider.notifier)
-            .showError(
-              title: 'Cannot add XSWD relay connection',
-              description: e.toString(),
-            );
-        rethrow;
-      }
+    if (state.nativeWalletRepository == null) return;
+
+    try {
+      final cb = buildXswdCallbacks(channelTitle: 'XSWD Relayer');
+
+      await state.nativeWalletRepository!.addXswdRelayer(
+        cancelRequestCallback: cb.cancelRequestCallback,
+        requestApplicationCallback: cb.requestApplicationCallback,
+        requestPermissionCallback: cb.requestPermissionCallback,
+        requestPrefetchPermissionsCallback: cb.requestPrefetchPermissionsCallback,
+        appDisconnectCallback: cb.appDisconnectCallback,
+        relayerData: relayerData,
+      );
+
+      talker.info('XSWD relay connection added: ${relayerData.name}');
+    } on AnyhowException catch (e) {
+      talker.error('Cannot add XSWD relay connection: $e');
+      final xelisMessage = e.message.split("\n")[0];
+      ref.read(toastProvider.notifier).showError(
+        title: 'Cannot add XSWD relay connection',
+        description: xelisMessage,
+      );
+      rethrow;
+    } catch (e) {
+      talker.error('Cannot add XSWD relay connection: $e');
+      ref.read(toastProvider.notifier).showError(
+        title: 'Cannot add XSWD relay connection',
+        description: e.toString(),
+      );
+      rethrow;
     }
   }
 

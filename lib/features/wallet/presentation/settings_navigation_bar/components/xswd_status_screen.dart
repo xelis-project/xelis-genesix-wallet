@@ -103,19 +103,39 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
                                 padding: const EdgeInsets.all(Spaces.small),
                                 child: Row(
                                   children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(appInfo.name),
-                                        const SizedBox(height: Spaces.extraSmall),
-                                        Text(
-                                          appInfo.url ?? '/',
-                                          style: context.labelMedium?.copyWith(
-                                            color: context.moreColors.mutedColor,
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Flexible(
+                                                child: Text(
+                                                  appInfo.name,
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                              if (appInfo.isRelayer) ...[
+                                                const SizedBox(width: Spaces.extraSmall),
+                                                Icon(
+                                                  Icons.cloud_outlined,
+                                                  size: 16,
+                                                  color: context.moreColors.mutedColor,
+                                                ),
+                                              ],
+                                            ],
                                           ),
-                                        ),
-                                      ],
+                                          const SizedBox(height: Spaces.extraSmall),
+                                          Text(
+                                            appInfo.url ?? '/',
+                                            style: context.labelMedium?.copyWith(
+                                              color: context.moreColors.mutedColor,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                     const Spacer(),
                                     IconButton(

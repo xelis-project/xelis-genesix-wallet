@@ -69,7 +69,30 @@ pub trait XSWD {
 
     async fn close_application_session(&self, id: &String) -> Result<()>;
 
-    async fn add_xswd_relayer(&self, app_data: ApplicationDataRelayer) -> Result<()>;
+    async fn add_xswd_relayer(
+        &self,
+        app_data: ApplicationDataRelayer,
+        cancel_request_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>
+            + Send
+            + Sync
+            + 'static,
+        request_application_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        request_permission_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        request_prefetch_permissions_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        app_disconnect_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>
+            + Send
+            + Sync
+            + 'static,
+    ) -> Result<()>;
 }
 
 impl XSWD for XelisWallet {
@@ -119,7 +142,30 @@ impl XSWD for XelisWallet {
         Ok(())
     }
 
-    async fn add_xswd_relayer(&self, _app_data: ApplicationDataRelayer) -> Result<()> {
+    async fn add_xswd_relayer(
+        &self,
+        _app_data: ApplicationDataRelayer,
+        _cancel_request_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>
+            + Send
+            + Sync
+            + 'static,
+        _request_application_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        _request_permission_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        _request_prefetch_permissions_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        _app_disconnect_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>
+            + Send
+            + Sync
+            + 'static,
+    ) -> Result<()> {
         // WASM stub - relay connections not supported in web
         Ok(())
     }
@@ -157,6 +203,7 @@ pub async fn create_app_info(_state: &AppState) -> AppInfo {
         description: String::new(),
         url: None,
         permissions: HashMap::new(),
+        is_relayer: false,
     }
 }
 

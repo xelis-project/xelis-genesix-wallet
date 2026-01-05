@@ -630,8 +630,28 @@ class NativeWalletRepository {
     await _xelisWallet.closeApplicationSession(id: appID);
   }
 
-  Future<void> addXswdRelayer(ApplicationDataRelayer relayerData) async {
-    await _xelisWallet.addXswdRelayer(appData: relayerData);
+  Future<void> addXswdRelayer(
+    {
+      required Future<void> Function(XswdRequestSummary) cancelRequestCallback,
+      required Future<UserPermissionDecision> Function(XswdRequestSummary)
+      requestApplicationCallback,
+      required Future<UserPermissionDecision> Function(XswdRequestSummary)
+      requestPermissionCallback,
+      required Future<UserPermissionDecision> Function(XswdRequestSummary)
+      requestPrefetchPermissionsCallback,
+      required Future<void> Function(XswdRequestSummary) appDisconnectCallback,
+      required ApplicationDataRelayer relayerData,
+    }
+  ) async {
+    await _xelisWallet.addXswdRelayer(
+      appData: relayerData,
+      cancelRequestDartCallback: cancelRequestCallback,
+      requestApplicationDartCallback: requestApplicationCallback,
+      requestPermissionDartCallback: requestPermissionCallback,
+      requestPrefetchPermissionsDartCallback:
+          requestPrefetchPermissionsCallback,
+      appDisconnectDartCallback: appDisconnectCallback,      
+    );
   }
 
   Future<void> modifyXSWDAppPermissions(
