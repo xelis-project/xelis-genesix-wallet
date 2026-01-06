@@ -114,6 +114,11 @@ pub fn clear_cached_tables() {
     CACHED_TABLES.lock().take();
 }
 
+#[frb(sync)]
+pub fn drop_wallet(wallet: XelisWallet) {
+    drop(wallet);
+}
+
 pub async fn update_tables(
     precomputed_tables_path: String,
     precomputed_table_type: PrecomputedTableType,

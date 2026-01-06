@@ -204,6 +204,7 @@ class NativeWalletRepository {
   }
 
   void dispose() {
+    dropWallet(wallet: _xelisWallet);
     _xelisWallet.dispose();
     if (_xelisWallet.isDisposed) talker.info('Rust Wallet disposed');
   }
