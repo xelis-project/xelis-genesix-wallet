@@ -810,12 +810,36 @@ class WalletState extends _$WalletState {
 
       case TrackAsset():
         talker.info(event);
-        final updatedBalances = await state.nativeWalletRepository!
-            .getTrackedBalances();
-        // No need to refetch knownAssets - they don't change when tracking
-        state = state.copyWith(
-          trackedBalances: sortMapByKey(updatedBalances),
-        );
+
+        // Fetch metadata for the tracked asset (from node if not cached)
+        try {
+          final assetData = await state.nativeWalletRepository!
+              .getAssetMetadata(event.asset);
+
+          // Update knownAssets with the tracked asset
+          final updatedAssets = LinkedHashMap<String, sdk.AssetData>.from(
+            state.knownAssets,
+          );
+          updatedAssets[event.asset] = assetData;
+
+          // Get balances (backend now returns "0" for tracked assets without balance)
+          final updatedBalances = await state.nativeWalletRepository!
+              .getTrackedBalances();
+
+          state = state.copyWith(
+            trackedBalances: sortMapByKey(updatedBalances),
+            knownAssets: sortMapByKey(updatedAssets),
+          );
+        } catch (e) {
+          talker.error('Failed to fetch asset metadata for ${event.asset}: $e');
+          // Fallback: just update balances
+          final updatedBalances = await state.nativeWalletRepository!
+              .getTrackedBalances();
+          state = state.copyWith(
+            trackedBalances: sortMapByKey(updatedBalances),
+          );
+        }
+
         ref
             .read(toastProvider.notifier)
             .showInformation(title: loc.asset_successfully_tracked);

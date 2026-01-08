@@ -37,7 +37,12 @@ class _TrackedAssetsTabState extends ConsumerState<TrackedAssetsTab> {
       walletStateProvider.select((state) => state.trackedBalances),
     );
 
-    if (balances.isEmpty) {
+    // Filter out assets that don't have metadata yet (defensive)
+    final validBalances = Map.fromEntries(
+      balances.entries.where((entry) => knownAssets.containsKey(entry.key)),
+    );
+
+    if (validBalances.isEmpty) {
       return SizedBox(
         height: widget.maxHeight - 100,
         child: Center(
@@ -56,11 +61,11 @@ class _TrackedAssetsTabState extends ConsumerState<TrackedAssetsTab> {
         child: FItemGroup.builder(
           maxHeight: widget.maxHeight - 100,
           scrollController: _controller,
-          count: balances.length,
+          count: validBalances.length,
           itemBuilder: (context, index) {
-            final hash = balances.keys.toList()[index];
+            final hash = validBalances.keys.toList()[index];
             final asset = knownAssets[hash]!;
-            final balance = balances[hash]!;
+            final balance = validBalances[hash]!;
             return FItem(
               title: AssetNameWidget(
                 assetName: asset.name,
