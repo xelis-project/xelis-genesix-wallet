@@ -544,6 +544,28 @@ impl XelisWallet {
         Ok(json_str)
     }
 
+    pub async fn get_contract_logs(&self, tx_hash: String) -> Result<String> {
+        if !self.wallet.is_online().await {
+            return Err(anyhow!("Wallet is offline"));
+        }
+
+        let hash = Hash::from_hex(&tx_hash).context("Invalid transaction hash")?;
+
+        let network_handler = self.wallet.get_network_handler().lock().await;
+        if let Some(handler) = network_handler.as_ref() {
+            let api = handler.get_api();
+            let result = api
+                .get_contract_logs(&hash)
+                .await
+                .map_err(|e| anyhow!("Failed to fetch contract logs from daemon: {}", e))?;
+
+            let json_str = serde_json::to_string(&result)?;
+            Ok(json_str)
+        } else {
+            Err(anyhow!("Network handler not available"))
+        }
+    }
+
     // rescan the wallet history from a specific height
     pub async fn rescan(&self, topoheight: u64) -> Result<()> {
         Ok(self.wallet.rescan(topoheight, true).await?)

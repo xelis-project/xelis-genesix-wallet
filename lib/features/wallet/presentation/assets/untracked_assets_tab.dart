@@ -65,8 +65,15 @@ class _UntrackedAssetsTabState extends ConsumerState<UntrackedAssetsTab> {
             return FItem(
               title: Text(asset.name),
               subtitle: Text(asset.ticker),
-              suffix: Icon(FIcons.plus),
-              onPress: () => _trackAsset(hash, asset),
+              onPress: () => _showDetails(hash, asset),
+              suffix: InkWell(
+                borderRadius: BorderRadius.circular(999),
+                onTap: () => _trackAssetDirect(hash),
+                child: const Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Icon(FIcons.plus),
+                ),
+              ),
             );
           },
         ),
@@ -74,11 +81,14 @@ class _UntrackedAssetsTabState extends ConsumerState<UntrackedAssetsTab> {
     }
   }
 
-  void _trackAsset(String hash, sdk.AssetData assetData) {
+  void _trackAssetDirect(String hash) {
+    ref.read(walletStateProvider.notifier).trackAsset(hash);
+  }
+
+  void _showDetails(String hash, sdk.AssetData assetData) {
     showFDialog<void>(
       context: context,
-      builder: (context, style, animation) =>
-          UntrackedAssetDetails(hash, assetData),
+      builder: (context, style, animation) => UntrackedAssetDetails(hash, assetData),
     );
   }
 }

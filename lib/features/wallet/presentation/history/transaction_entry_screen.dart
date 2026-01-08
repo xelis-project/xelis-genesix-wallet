@@ -89,7 +89,10 @@ class _TransactionEntryScreenState
         entryTypeName = 'Contract Invocation';
         color = Colors.deepPurple;
         nonce = entryType.nonce;
-        transactionTypeContent = InvokeContractEntryContent(entryType);
+        transactionTypeContent = InvokeContractEntryContent(
+          entryType,
+          transactionEntry,
+        );
       case sdk.DeployContractEntry():
         entryTypeName = 'Contract Deployment';
         color = Colors.teal;
@@ -130,28 +133,31 @@ class _TransactionEntryScreenState
           ),
         ],
       ),
-      child: BodyLayoutBuilder(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: Spaces.small),
-          child: FadedScroll(
-            controller: _controller,
-            fadeFraction: 0.08,
-            child: SingleChildScrollView(
+      child: SafeArea(
+        top: false,
+        child: BodyLayoutBuilder(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: Spaces.small),
+            child: FadedScroll(
               controller: _controller,
-              child: Column(
-                spacing: Spaces.medium,
-                children: [
-                  BaseTransactionEntryCard(
-                    transactionEntry: transactionEntry,
-                    type: entryTypeName,
-                    color: color,
-                    timestamp: displayTimestamp,
-                    topoheight: displayTopoheight,
-                    url: url,
-                    nonce: nonce,
-                  ),
-                  transactionTypeContent,
-                ],
+              fadeFraction: 0.08,
+              child: SingleChildScrollView(
+                controller: _controller,
+                child: Column(
+                  spacing: Spaces.medium,
+                  children: [
+                    BaseTransactionEntryCard(
+                      transactionEntry: transactionEntry,
+                      type: entryTypeName,
+                      color: color,
+                      timestamp: displayTimestamp,
+                      topoheight: displayTopoheight,
+                      url: url,
+                      nonce: nonce,
+                    ),
+                    transactionTypeContent,
+                  ],
+                ),
               ),
             ),
           ),

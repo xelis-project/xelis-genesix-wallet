@@ -1,3 +1,6 @@
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,13 +8,16 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_providers.dart';
-import 'package:genesix/features/wallet/presentation/settings_navigation_bar/components/xswd_edit_permission_dialog.dart';
-import 'package:genesix/features/wallet/presentation/settings_navigation_bar/components/xswd_qr_scanner_screen.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget_old.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
+
+import 'xswd_edit_permission_dialog.dart';
+import 'xswd_new_connection_dialog.dart';
+import 'xswd_paste_connection_dialog.dart';
+import 'xswd_qr_scanner_screen.dart';
 
 class XswdStatusScreen extends ConsumerStatefulWidget {
   const XswdStatusScreen({super.key});
@@ -21,6 +27,9 @@ class XswdStatusScreen extends ConsumerStatefulWidget {
 }
 
 class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
+  bool get _showFooter =>
+      Platform.isAndroid || Platform.isIOS || kIsWeb;
+
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
@@ -164,7 +173,8 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
             ),
           ),
           // Footer with "New Connection" button
-          _buildFooter(context),
+          if (_showFooter)
+            _buildFooter(context),
         ],
       ),
     );
@@ -183,7 +193,21 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
         child: SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            onPressed: _onNewConnection,
+          onPressed: () async {
+            if (kIsWeb) {
+              showFDialog<void>(
+                context: context,
+                builder: (context, style, animation) =>
+                    XswdNewConnectionDialog(style, animation),
+              );
+              return;
+            }
+            await Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const XswdQRScannerScreen(),
+              ),
+            );
+          },
             icon: const Icon(Icons.qr_code_scanner, size: 20),
             label: const Text('New Connection'),
             style: ElevatedButton.styleFrom(

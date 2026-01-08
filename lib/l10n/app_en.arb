@@ -400,6 +400,8 @@
   "xwsd_status_screen_message": "Manage application permissions with XSWD protocol",
   "xswd_status": "XSWD Status",
   "enable_xswd": "Enable XSWD protocol",
+  "scan_qr_code": "Scan QR code",
+  "point_camera_at_qr": "Point camera at QR code",
   "applications": "Applications",
   "error_loading_applications": "Error loading applications",
   "no_application_connected": "No connected applications",

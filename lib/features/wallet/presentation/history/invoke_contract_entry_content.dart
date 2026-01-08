@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/assets/asset_name_widget.dart';
@@ -10,9 +11,14 @@ import 'package:genesix/shared/utils/utils.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class InvokeContractEntryContent extends ConsumerStatefulWidget {
-  const InvokeContractEntryContent(this.invokeContractEntry, {super.key});
+  const InvokeContractEntryContent(
+    this.invokeContractEntry,
+    this.transactionEntry, {
+    super.key,
+  });
 
   final InvokeContractEntry invokeContractEntry;
+  final TransactionEntry transactionEntry;
 
   @override
   ConsumerState<InvokeContractEntryContent> createState() =>
@@ -22,15 +28,16 @@ class InvokeContractEntryContent extends ConsumerStatefulWidget {
 class _InvokeContractEntryContentState
     extends ConsumerState<InvokeContractEntryContent> {
   final Map<String, AssetData> _fetchedAssets = {};
+  List<Map<String, dynamic>> _contractLogs = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchMissingAssetMetadata();
+    _fetchData();
   }
 
-  Future<void> _fetchMissingAssetMetadata() async {
+  Future<void> _fetchData() async {
     final knownAssets = ref.read(
       walletStateProvider.select((state) => state.knownAssets),
     );
@@ -46,14 +53,235 @@ class _InvokeContractEntryContentState
         try {
           final assetData = await repository.getAssetMetadata(assetHash);
           _fetchedAssets[assetHash] = assetData;
-        } catch (e) {
-          // If fetch fails, leave it as unknown
+        } catch (e) {}
+      }
+    }
+
+    try {
+      final logs = await repository.getContractLogs(widget.transactionEntry.hash);
+      _contractLogs = logs;
+
+      for (final log in logs) {
+        final type = log['type'] as String;
+        final value = log['value'] as Map<String, dynamic>?;
+
+        if (value != null && value.containsKey('asset')) {
+          final asset = value['asset'] as String;
+
+          if (!knownAssets.containsKey(asset) &&
+              !_fetchedAssets.containsKey(asset)) {
+            try {
+              final assetData = await repository.getAssetMetadata(asset);
+              _fetchedAssets[asset] = assetData;
+            } catch (e) {}
+          }
         }
       }
+    } catch (e) {
+      talker.error('Failed to fetch contract logs: $e');
     }
 
     setState(() => _isLoading = false);
   }
+
+Widget _buildLogWidget(
+  BuildContext context,
+  Map<String, dynamic> log,
+  Map<String, AssetData> allAssets,
+) {
+  final type = log['type'] as String;
+  final value = log['value'];
+
+  String header;
+  Widget? details;
+
+  switch (type) {
+    case 'transfer':
+      header = 'Transfer';
+      final data = value as Map<String, dynamic>;
+      final asset = data['asset'] as String;
+      final amount = data['amount'] as int;
+      final destination = data['destination'] as String;
+
+      final formattedData =
+          getFormattedAssetNameAndAmount(allAssets, asset, amount);
+
+      details = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: Spaces.extraSmall,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: AssetNameWidget(
+                  assetName: formattedData.$1,
+                  isXelis: isXelis(asset),
+                ),
+              ),
+              SelectableText(
+                formattedData.$2,
+                style: context.theme.typography.base,
+              ),
+            ],
+          ),
+          Text(
+            'To: ${truncateText(destination, maxLength: 20)}',
+            style: context.theme.typography.base.copyWith(
+              color: context.theme.colors.mutedForeground,
+            ),
+          ),
+        ],
+      );
+      break;
+
+    case 'transfer_contract':
+      header = 'Transfer to Contract';
+      final data = value as Map<String, dynamic>;
+      final asset = data['asset'] as String;
+      final amount = data['amount'] as int;
+      final destination = data['destination'] as String;
+
+      final formattedData =
+          getFormattedAssetNameAndAmount(allAssets, asset, amount);
+
+      details = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: Spaces.extraSmall,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: AssetNameWidget(
+                  assetName: formattedData.$1,
+                  isXelis: isXelis(asset),
+                ),
+              ),
+              SelectableText(
+                formattedData.$2,
+                style: context.theme.typography.base,
+              ),
+            ],
+          ),
+          Text(
+            'To Contract: ${truncateText(destination, maxLength: 16)}',
+            style: context.theme.typography.base.copyWith(
+              color: context.theme.colors.mutedForeground,
+            ),
+          ),
+        ],
+      );
+      break;
+
+    case 'burn':
+      header = 'Burn';
+      final data = value as Map<String, dynamic>;
+      final asset = data['asset'] as String;
+      final amount = data['amount'] as int;
+
+      final formattedData =
+          getFormattedAssetNameAndAmount(allAssets, asset, amount);
+
+      details = Row(
+        children: [
+          Expanded(
+            child: AssetNameWidget(
+              assetName: formattedData.$1,
+              isXelis: isXelis(asset),
+            ),
+          ),
+          SelectableText(
+            formattedData.$2,
+            style: context.theme.typography.base,
+          ),
+        ],
+      );
+      break;
+
+    case 'mint':
+      header = 'Mint';
+      final data = value as Map<String, dynamic>;
+      final asset = data['asset'] as String;
+      final amount = data['amount'] as int;
+
+      final formattedData =
+          getFormattedAssetNameAndAmount(allAssets, asset, amount);
+
+      details = Row(
+        children: [
+          Expanded(
+            child: AssetNameWidget(
+              assetName: formattedData.$1,
+              isXelis: isXelis(asset),
+            ),
+          ),
+          SelectableText(
+            formattedData.$2,
+            style: context.theme.typography.base,
+          ),
+        ],
+      );
+      break;
+
+    case 'refund_gas':
+      header = 'Gas Refund';
+      final data = value as Map<String, dynamic>;
+      final amount = data['amount'] as int;
+
+      details = SelectableText(
+        formatCoin(amount, 8, 'XEL'),
+        style: context.theme.typography.base,
+      );
+      break;
+
+    case 'exit_code':
+      header = 'Exit Code';
+      details = SelectableText(
+        value.toString(),
+        style: context.theme.typography.base.copyWith(
+          fontWeight: FontWeight.bold,
+        ),
+      );
+      break;
+
+    default:
+      header = type.capitalize();
+      details = Text(
+        value?.toString() ?? 'N/A',
+        style: context.theme.typography.base,
+      );
+  }
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Spaces.small),
+        border: Border.all(
+          color: context.theme.colors.primary.withValues(alpha: 0.5),
+          width: 1,
+        ),
+      ),
+      padding: const EdgeInsets.all(Spaces.small),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: Spaces.small,
+        children: [
+          Text(
+            header,
+            style: context.theme.typography.xs.copyWith(
+              color: context.theme.colors.primary,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.6,
+            ),
+          ),
+          if (details != null)
+            DefaultTextStyle.merge(
+              style: context.theme.typography.base,
+              child: details,
+            ),
+        ],
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -87,44 +315,72 @@ class _InvokeContractEntryContentState
               loc.entry_id,
               widget.invokeContractEntry.entryId.toString(),
             ),
+            FDivider(
+            style: context.theme.dividerStyles.horizontalStyle
+                .copyWith(
+                  padding: EdgeInsets.zero,
+                  color: context.theme.colors.primary,
+                )
+                .call,
+            ),
             if (_isLoading)
               const Center(child: CircularProgressIndicator())
             else
               Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                spacing: Spaces.medium,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    loc.deposits,
-                    style: context.theme.typography.base.copyWith(
-                      color: context.theme.colors.mutedForeground,
-                    ),
-                  ),
-                  FItemGroup.builder(
-                    count: widget.invokeContractEntry.deposits.length,
-                    itemBuilder: (context, index) {
-                      final deposit = widget
-                          .invokeContractEntry
-                          .deposits
-                          .entries
-                          .elementAt(index);
-
-                      final formattedData = getFormattedAssetNameAndAmount(
-                        allAssets,
-                        deposit.key,
-                        deposit.value,
-                      );
-                      final assetName = formattedData.$1;
-                      final amount = formattedData.$2;
-
-                      return FItem(
-                        title: AssetNameWidget(
-                          assetName: assetName,
-                          isXelis: isXelis(deposit.key),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        loc.deposits,
+                        style: context.theme.typography.xl.copyWith(
+                          color: context.theme.colors.foreground,
                         ),
-                        details: SelectableText(amount),
-                      );
-                    },
+                      ),
+                      FItemGroup.builder(
+                        count: widget.invokeContractEntry.deposits.length,
+                        itemBuilder: (context, index) {
+                          final deposit = widget
+                              .invokeContractEntry
+                              .deposits
+                              .entries
+                              .elementAt(index);
+
+                          final formattedData = getFormattedAssetNameAndAmount(
+                            allAssets,
+                            deposit.key,
+                            deposit.value,
+                          );
+                          final assetName = formattedData.$1;
+                          final amount = formattedData.$2;
+
+                          return FItem(
+                            title: AssetNameWidget(
+                              assetName: assetName,
+                              isXelis: isXelis(deposit.key),
+                            ),
+                            details: SelectableText(amount),
+                          );
+                        },
+                      ),
+                    ],
                   ),
+                  if (_contractLogs.isNotEmpty)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: Spaces.small,
+                      children: [
+                        Text(
+                          'Contract Logs',
+                          style: context.theme.typography.xl.copyWith(
+                            color: context.theme.colors.foreground,
+                          ),
+                        ),
+                        ..._contractLogs.map((log) => _buildLogWidget(context, log, allAssets)),
+                      ],
+                    ),
                 ],
               ),
           ],

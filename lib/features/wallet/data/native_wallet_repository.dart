@@ -374,6 +374,12 @@ class NativeWalletRepository {
     return sdk.AssetData.fromJson(json);
   }
 
+  Future<List<Map<String, dynamic>>> getContractLogs(String txHash) async {
+    final jsonStr = await _xelisWallet.getContractLogs(txHash: txHash);
+    final json = jsonDecode(jsonStr) as List;
+    return json.cast<Map<String, dynamic>>();
+  }
+
   Future<int> getHistoryCount() async {
     final count = await _xelisWallet.getHistoryCount();
     if (count.isValidInt) {
