@@ -721,8 +721,20 @@ class WalletState extends _$WalletState {
 
       case NewAsset():
         talker.info(event);
-        final assets = await state.nativeWalletRepository!.getKnownAssets();
-        state = state.copyWith(knownAssets: sortMapByKey(assets));
+        // Use event data directly to avoid race conditions with getKnownAssets()
+        final updatedAssets = LinkedHashMap<String, sdk.AssetData>.from(
+          state.knownAssets,
+        );
+        // Convert RPCAssetData to AssetData
+        final assetData = sdk.AssetData(
+          decimals: event.rpcAssetData.decimals,
+          name: event.rpcAssetData.name,
+          ticker: event.rpcAssetData.ticker,
+          maxSupply: event.rpcAssetData.maxSupply,
+          owner: event.rpcAssetData.owner,
+        );
+        updatedAssets[event.rpcAssetData.asset] = assetData;
+        state = state.copyWith(knownAssets: sortMapByKey(updatedAssets));
         ref
             .read(toastProvider.notifier)
             .showEvent(
@@ -800,10 +812,9 @@ class WalletState extends _$WalletState {
         talker.info(event);
         final updatedBalances = await state.nativeWalletRepository!
             .getTrackedBalances();
-        final assets = await state.nativeWalletRepository!.getKnownAssets();
+        // No need to refetch knownAssets - they don't change when tracking
         state = state.copyWith(
           trackedBalances: sortMapByKey(updatedBalances),
-          knownAssets: sortMapByKey(assets),
         );
         ref
             .read(toastProvider.notifier)
@@ -813,10 +824,9 @@ class WalletState extends _$WalletState {
         talker.info(event);
         final updatedBalances = await state.nativeWalletRepository!
             .getTrackedBalances();
-        final assets = await state.nativeWalletRepository!.getKnownAssets();
+        // No need to refetch knownAssets - they don't change when untracking
         state = state.copyWith(
           trackedBalances: sortMapByKey(updatedBalances),
-          knownAssets: sortMapByKey(assets),
         );
         ref
             .read(toastProvider.notifier)
