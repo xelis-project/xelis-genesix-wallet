@@ -264,7 +264,9 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     _closeDelayTimer?.cancel();
     _timer?.cancel();
 
-    _setSuppress(false);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _setSuppress(false);
+    });
 
     _scrollController
       ..removeListener(_updateFades)
@@ -320,7 +322,9 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
       _awaitingNextRequest = false;
       _awaitingRequestHash = null;
 
-      _setSuppress(false);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _setSuppress(false);
+      });
 
       if (_scrollController.hasClients) {
         _scrollController.jumpTo(0);

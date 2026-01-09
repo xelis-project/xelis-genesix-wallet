@@ -87,19 +87,6 @@ extension XswdCallbacksBuilder on WalletState {
       showXswdToast(title: message, showOpen: showOpen);
 
       final decision = await completer.future;
-      final appName = request.applicationInfo.name;
-
-      if (decision == UserPermissionDecision.accept ||
-          decision == UserPermissionDecision.alwaysAccept) {
-        ref
-            .read(toastProvider.notifier)
-            .showInformation(title: '${loc.permission_granted_for} $appName');
-      } else if (decision == UserPermissionDecision.reject ||
-          decision == UserPermissionDecision.alwaysReject) {
-        ref
-            .read(toastProvider.notifier)
-            .showInformation(title: '${loc.permission_denied_for} $appName');
-      }
 
       return decision;
     }
