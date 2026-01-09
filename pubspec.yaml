@@ -25,11 +25,11 @@ dependencies:
   path_provider: ^2.1.5
   riverpod_annotation: ^2.6.1
   shared_preferences: ^2.5.3
-  # xelis_dart_sdk: ^0.30.8
-  xelis_dart_sdk:
-    git:
-      url: https://github.com/xelis-project/xelis-dart-sdk.git
-      ref: 84bb644a2bf0fe32410d39f65482ae2c629c2da5
+  xelis_dart_sdk: ^0.30.10
+  # xelis_dart_sdk:
+  #   git:
+  #     url: https://github.com/xelis-project/xelis-dart-sdk.git
+  #     ref: 84bb644a2bf0fe32410d39f65482ae2c629c2da5
   loader_overlay: ^5.0.0
   pretty_qr_code: ^3.5.0
   mobile_scanner: ^5.2.3
