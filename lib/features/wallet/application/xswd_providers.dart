@@ -10,6 +10,7 @@ import 'package:genesix/features/wallet/domain/prefetch_permissions_rpc_request.
 import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:genesix/features/logger/logger.dart';
 
 part 'xswd_providers.g.dart';
 
@@ -26,51 +27,73 @@ class XswdRequest extends _$XswdRequest {
   }) {
     final decisionCompleter = Completer<UserPermissionDecision>();
 
-    if (xswdEventSummary.isPermissionRequest()) {
-      final data =
-          jsonDecode(
-                (xswdEventSummary.eventType as XswdRequestType_Permission)
-                    .field0,
-              )
-              as Map<String, dynamic>;
+    try {
+      if (xswdEventSummary.isPermissionRequest()) {
+        final jsonString = xswdEventSummary.permissionJson();
+        if (jsonString == null) {
+          throw Exception('Permission request JSON is null');
+        }
 
-      state = state.copyWith(
-        xswdEventSummary: xswdEventSummary,
-        message: message,
-        decision: decisionCompleter,
-        permissionRpcRequest: PermissionRpcRequest.fromJson(data),
-      );
-    } else if (xswdEventSummary.isPrefetchPermissionsRequest()) {
-      final data =
-          jsonDecode(
-                (xswdEventSummary.eventType
-                        as XswdRequestType_PrefetchPermissions)
-                    .field0,
-              )
-              as Map<String, dynamic>;
+        final data = jsonDecode(jsonString) as Map<String, dynamic>;
 
-      state = state.copyWith(
-        xswdEventSummary: xswdEventSummary,
-        message: message,
-        decision: decisionCompleter,
-        prefetchPermissionsRequest: PrefetchPermissionsRequest.fromJson(data),
-      );
-    } else if (xswdEventSummary.isAppDisconnect() ||
-        xswdEventSummary.isCancelRequest()) {
-      state = state.copyWith(
-        xswdEventSummary: xswdEventSummary,
-        message: message,
-        decision: null,
-      );
-    } else {
-      state = state.copyWith(
-        xswdEventSummary: xswdEventSummary,
-        message: message,
-        decision: decisionCompleter,
-      );
+        state = state.copyWith(
+          xswdEventSummary: xswdEventSummary,
+          message: message,
+          decision: decisionCompleter,
+          permissionRpcRequest: PermissionRpcRequest.fromJson(data),
+        );
+      } else if (xswdEventSummary.isPrefetchPermissionsRequest()) {
+        final jsonString = xswdEventSummary.prefetchPermissionsJson();
+        if (jsonString == null) {
+          throw Exception('Prefetch permissions request JSON is null');
+        }
+
+        final data = jsonDecode(jsonString) as Map<String, dynamic>;
+
+        state = state.copyWith(
+          xswdEventSummary: xswdEventSummary,
+          message: message,
+          decision: decisionCompleter,
+          prefetchPermissionsRequest: PrefetchPermissionsRequest.fromJson(data),
+        );
+      } else if (xswdEventSummary.isAppDisconnect() ||
+          xswdEventSummary.isCancelRequest()) {
+        state = state.copyWith(
+          xswdEventSummary: xswdEventSummary,
+          message: message,
+          decision: null,
+        );
+      } else {
+        state = state.copyWith(
+          xswdEventSummary: xswdEventSummary,
+          message: message,
+          decision: decisionCompleter,
+        );
+      }
+    } catch (e) {
+      // On error, terminate the XSWD session
+      final appId = xswdEventSummary.applicationInfo.id;
+      _terminateSession(appId, e);
+      rethrow;
     }
 
     return decisionCompleter;
+  }
+
+  Future<void> _terminateSession(String appId, Object error) async {
+    try {
+      final nativeWallet = ref.read(
+        walletStateProvider.select((state) => state.nativeWalletRepository),
+      );
+
+      if (nativeWallet != null) {
+        await nativeWallet.removeXswdApp(appId);
+      }
+    } catch (terminateError) {
+      talker.error(
+        'Failed to terminate XSWD session for $appId after error: $error. Terminate error: $terminateError',
+      );
+    }
   }
 
   void closeSnackBar() {

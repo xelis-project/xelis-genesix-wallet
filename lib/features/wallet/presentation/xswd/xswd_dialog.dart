@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_providers.dart';
+import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:genesix/features/wallet/domain/permission_rpc_request.dart';
 import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/burn_builder_widget.dart';
@@ -561,6 +562,48 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     );
   }
 
+  void _showAssetDetails(
+    BuildContext context,
+    AppLocalizations loc,
+    String asset,
+  ) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.token),
+            const SizedBox(width: Spaces.small),
+            Expanded(child: Text(loc.details.capitalize())),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                loc.asset,
+                style: context.bodySmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: context.theme.colors.mutedForeground,
+                ),
+              ),
+              const SizedBox(height: Spaces.extraSmall),
+              SelectableText(asset, style: context.bodySmall),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(loc.close),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPermissionDetails(
     BuildContext context,
     XswdRequestState xswdState,
@@ -584,13 +627,16 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
           label: Text(permissionRequest.method),
           avatar: const Icon(Icons.code, size: 16),
         ),
-        const SizedBox(height: Spaces.medium),
-        Text(
-          loc.details.capitalize(),
-          style: context.bodyLarge?.copyWith(color: muted),
-        ),
-        const SizedBox(height: Spaces.medium),
-        _handlePermissionRpcRequest(permissionRequest),
+        if (permissionRequest.params != null &&
+            permissionRequest.params!.isNotEmpty) ...[
+          const SizedBox(height: Spaces.medium),
+          Text(
+            loc.details.capitalize(),
+            style: context.bodyLarge?.copyWith(color: muted),
+          ),
+          const SizedBox(height: Spaces.small),
+          _handlePermissionRpcRequest(permissionRequest),
+        ],
       ],
     );
   }
@@ -598,8 +644,12 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
   Widget _handlePermissionRpcRequest(PermissionRpcRequest request) {
     Widget? builderWidget;
 
+    if (request.params == null || request.params!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     if (request.method == WalletMethod.buildTransaction.jsonKey) {
-      final params = BuildTransactionParams.fromJson(request.params);
+      final params = BuildTransactionParams.fromJson(request.params!);
       final builder = params.transactionTypeBuilder;
 
       if (builder is TransfersBuilder) {
@@ -617,6 +667,55 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
           deployContractBuilder: builder,
         );
       }
+    } else if (request.params!.length == 1 &&
+               request.params!.containsKey('asset') &&
+               request.params!['asset'] is String) {
+      final asset = request.params!['asset'] as String;
+      final loc = ref.read(appLocalizationsProvider);
+      final truncated = asset.length > 16
+          ? '${asset.substring(0, 8)}...${asset.substring(asset.length - 6)}'
+          : asset;
+
+      builderWidget = Wrap(
+        spacing: Spaces.small,
+        runSpacing: Spaces.small,
+        children: [
+          InkWell(
+            onTap: () => _showAssetDetails(context, loc, asset),
+            borderRadius: BorderRadius.circular(8),
+            child: Chip(
+              label: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        loc.asset,
+                        style: context.bodySmall?.copyWith(
+                          color: context.theme.colors.mutedForeground,
+                          fontSize: 11,
+                        ),
+                      ),
+                      Text(truncated, style: context.bodySmall),
+                    ],
+                  ),
+                  if (asset.length > 16) ...[
+                    const SizedBox(width: Spaces.extraSmall),
+                    Icon(
+                      Icons.info_outline,
+                      size: 14,
+                      color: context.theme.colors.mutedForeground,
+                    ),
+                  ],
+                ],
+              ),
+              avatar: const Icon(Icons.token, size: 16),
+            ),
+          ),
+        ],
+      );
     }
 
     final Widget content =
