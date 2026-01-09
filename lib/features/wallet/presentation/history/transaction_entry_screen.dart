@@ -22,6 +22,7 @@ import 'package:intl/intl.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:genesix/features/wallet/presentation/history/coinbase_entry_content.dart';
+import 'package:genesix/features/wallet/presentation/history/incoming_contract_entry_content.dart';
 
 class TransactionEntryScreen extends ConsumerStatefulWidget {
   const TransactionEntryScreen({super.key});
@@ -98,6 +99,10 @@ class _TransactionEntryScreenState
         color = Colors.teal;
         nonce = entryType.nonce;
         transactionTypeContent = DeployContractEntryContent(entryType);
+      case sdk.IncomingContractEntry():
+        entryTypeName = 'Contract Transfer';
+        color = Colors.purple.shade300;
+        transactionTypeContent = IncomingContractEntryContent(entryType);
     }
 
     Uri url;

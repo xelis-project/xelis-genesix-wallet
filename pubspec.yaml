@@ -29,7 +29,7 @@ dependencies:
   xelis_dart_sdk:
     git:
       url: https://github.com/xelis-project/xelis-dart-sdk.git
-      ref: 4818e34ce89794ec3e830f26d30fa20568034978
+      ref: 84bb644a2bf0fe32410d39f65482ae2c629c2da5
   loader_overlay: ^5.0.0
   pretty_qr_code: ^3.5.0
   mobile_scanner: ^5.2.3

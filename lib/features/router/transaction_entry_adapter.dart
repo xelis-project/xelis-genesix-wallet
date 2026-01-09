@@ -17,6 +17,7 @@ class TransactionEntryAdapter extends ExtraTypeAdapter<TransactionEntry> {
       MultisigEntry e => ('multi_sig', e.toJson()),
       InvokeContractEntry e => ('invoke_contract', e.toJson()),
       DeployContractEntry e => ('deploy_contract', e.toJson()),
+      IncomingContractEntry e => ('incoming_contract', e.toJson()),
     };
 
     final Json payload = {

@@ -63,9 +63,9 @@ class _InvokeContractEntryContentState
 
       for (final log in logs) {
         final type = log['type'] as String;
-        final value = log['value'] as Map<String, dynamic>?;
+        final value = log['value'];
 
-        if (value != null && value.containsKey('asset')) {
+        if (value is Map<String, dynamic> && value.containsKey('asset')) {
           final asset = value['asset'] as String;
 
           if (!knownAssets.containsKey(asset) &&
@@ -235,11 +235,92 @@ Widget _buildLogWidget(
 
     case 'exit_code':
       header = 'Exit Code';
+      final exitCodeValue = value as int?;
       details = SelectableText(
-        value.toString(),
+        exitCodeValue?.toString() ?? 'Failed',
         style: context.theme.typography.base.copyWith(
           fontWeight: FontWeight.bold,
         ),
+      );
+      break;
+
+    case 'new_asset':
+      header = 'New Asset';
+      final data = value as Map<String, dynamic>;
+      final assetHash = data['asset'] as String?;
+      final name = data['name'] as String?;
+      final ticker = data['ticker'] as String?;
+      final decimals = data['decimals'] as int?;
+
+      details = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: Spaces.extraSmall,
+        children: [
+          if (name != null)
+            Row(
+              children: [
+                Text(
+                  'Name: ',
+                  style: context.theme.typography.sm.copyWith(
+                    color: context.theme.colors.mutedForeground,
+                  ),
+                ),
+                Expanded(
+                  child: SelectableText(
+                    name,
+                    style: context.theme.typography.sm,
+                  ),
+                ),
+              ],
+            ),
+          if (ticker != null)
+            Row(
+              children: [
+                Text(
+                  'Ticker: ',
+                  style: context.theme.typography.sm.copyWith(
+                    color: context.theme.colors.mutedForeground,
+                  ),
+                ),
+                SelectableText(
+                  ticker,
+                  style: context.theme.typography.sm,
+                ),
+              ],
+            ),
+          if (decimals != null)
+            Row(
+              children: [
+                Text(
+                  'Decimals: ',
+                  style: context.theme.typography.sm.copyWith(
+                    color: context.theme.colors.mutedForeground,
+                  ),
+                ),
+                SelectableText(
+                  decimals.toString(),
+                  style: context.theme.typography.sm,
+                ),
+              ],
+            ),
+          if (assetHash != null)
+            Row(
+              children: [
+                Text(
+                  'Asset: ',
+                  style: context.theme.typography.sm.copyWith(
+                    color: context.theme.colors.mutedForeground,
+                  ),
+                ),
+                Expanded(
+                  child: SelectableText(
+                    truncateText(assetHash, maxLength: 20),
+                    style: context.theme.typography.sm,
+                  ),
+                ),
+              ],
+            ),
+        ],
       );
       break;
 
@@ -312,8 +393,8 @@ Widget _buildLogWidget(
               formatXelis(widget.invokeContractEntry.fee, network),
             ),
             LabeledValue.text(
-              loc.entry_id,
-              widget.invokeContractEntry.entryId.toString(),
+              'Chunk ID',
+              widget.invokeContractEntry.chunkId.toString(),
             ),
             FDivider(
             style: context.theme.dividerStyles.horizontalStyle
@@ -331,7 +412,7 @@ Widget _buildLogWidget(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         loc.deposits,
@@ -367,6 +448,44 @@ Widget _buildLogWidget(
                       ),
                     ],
                   ),
+                  if (widget.invokeContractEntry.received.isNotEmpty)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Received',
+                          style: context.theme.typography.xl.copyWith(
+                            color: context.theme.colors.foreground,
+                          ),
+                        ),
+                        FItemGroup.builder(
+                          count: widget.invokeContractEntry.received.length,
+                          itemBuilder: (context, index) {
+                            final received = widget
+                                .invokeContractEntry
+                                .received
+                                .entries
+                                .elementAt(index);
+
+                            final formattedData = getFormattedAssetNameAndAmount(
+                              allAssets,
+                              received.key,
+                              received.value,
+                            );
+                            final assetName = formattedData.$1;
+                            final amount = formattedData.$2;
+
+                            return FItem(
+                              title: AssetNameWidget(
+                                assetName: assetName,
+                                isXelis: isXelis(received.key),
+                              ),
+                              details: SelectableText(amount),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   if (_contractLogs.isNotEmpty)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

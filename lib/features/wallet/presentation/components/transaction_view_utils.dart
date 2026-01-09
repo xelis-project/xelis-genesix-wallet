@@ -163,6 +163,12 @@ TransactionDisplayInfo parseTxInfo(
         color: Colors.teal,
         label: loc.tx_contract_deployment,
       );
+    case IncomingContractEntry():
+      return TransactionDisplayInfo(
+        icon: FIcons.arrowDownToLine,
+        color: Colors.purple.shade300,
+        label: 'Contract Transfer',
+      );
   }
 }
 

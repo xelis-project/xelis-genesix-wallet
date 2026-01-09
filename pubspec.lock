@@ -1569,11 +1569,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "4818e34ce89794ec3e830f26d30fa20568034978"
-      resolved-ref: "4818e34ce89794ec3e830f26d30fa20568034978"
+      ref: "84bb644a2bf0fe32410d39f65482ae2c629c2da5"
+      resolved-ref: "84bb644a2bf0fe32410d39f65482ae2c629c2da5"
       url: "https://github.com/xelis-project/xelis-dart-sdk.git"
     source: git
-    version: "0.30.9"
+    version: "0.30.10"
   xml:
     dependency: transitive
     description:

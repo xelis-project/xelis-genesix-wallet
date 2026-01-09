@@ -705,6 +705,12 @@ class WalletState extends _$WalletState {
                     title:
                         '${loc.contract_deployed_at} ${event.transactionEntry.topoheight}',
                   );
+            case sdk.IncomingContractEntry():
+              ref
+                  .read(toastProvider.notifier)
+                  .showInformation(
+                    title: 'Contract Transfer Received',
+                  );
           }
         }
 
