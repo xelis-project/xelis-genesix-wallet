@@ -6,6 +6,7 @@ import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_providers.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 import 'package:go_router/go_router.dart';
 
@@ -58,7 +59,7 @@ class XswdAppDetail extends ConsumerWidget {
   Widget _buildAppDetails(
     BuildContext context,
     WidgetRef ref,
-    dynamic loc,
+    AppLocalizations loc,
     AppInfo app,
   ) {
     final muted = context.theme.colors.mutedForeground;
@@ -398,7 +399,7 @@ class XswdAppDetail extends ConsumerWidget {
   Future<void> _handleDisconnectApp(
     BuildContext context,
     WidgetRef ref,
-    dynamic loc,
+    AppLocalizations loc,
     AppInfo app,
   ) async {
     final confirmed = await showFDialog<bool>(
