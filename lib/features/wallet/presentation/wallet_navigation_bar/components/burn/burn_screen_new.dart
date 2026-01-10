@@ -92,9 +92,7 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
           prefixes: [
             Padding(
               padding: const EdgeInsets.all(Spaces.small),
-              child: FHeaderAction.back(
-                onPress: () => context.pop(),
-              ),
+              child: FHeaderAction.back(onPress: () => context.pop()),
             ),
           ],
           title: Text(loc.burn),

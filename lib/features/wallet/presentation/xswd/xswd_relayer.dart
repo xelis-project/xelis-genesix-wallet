@@ -39,19 +39,27 @@ class RelaySessionData {
     final appData = json['app_data'];
 
     if (channelId is! String) {
-      throw const FormatException('RelaySessionData: channel_id must be a string');
+      throw const FormatException(
+        'RelaySessionData: channel_id must be a string',
+      );
     }
     if (relayer is! String) {
       throw const FormatException('RelaySessionData: relayer must be a string');
     }
     if (encryptionMode is! String) {
-      throw const FormatException('RelaySessionData: encryption_mode must be a string');
+      throw const FormatException(
+        'RelaySessionData: encryption_mode must be a string',
+      );
     }
     if (encryptionKey != null && encryptionKey is! String) {
-      throw const FormatException('RelaySessionData: encryption_key must be a string or null');
+      throw const FormatException(
+        'RelaySessionData: encryption_key must be a string or null',
+      );
     }
     if (appData != null && appData is! Map<String, dynamic>) {
-      throw const FormatException('RelaySessionData: app_data must be an object or null');
+      throw const FormatException(
+        'RelaySessionData: app_data must be an object or null',
+      );
     }
 
     return RelaySessionData(
@@ -64,12 +72,12 @@ class RelaySessionData {
   }
 
   Map<String, dynamic> toJson() => {
-        'channel_id': channelId,
-        'relayer': relayer,
-        'encryption_mode': encryptionMode,
-        'encryption_key': encryptionKey,
-        'app_data': appData,
-      };
+    'channel_id': channelId,
+    'relayer': relayer,
+    'encryption_mode': encryptionMode,
+    'encryption_key': encryptionKey,
+    'app_data': appData,
+  };
 
   /// Basic structural validation: required fields + app_data present.
   ///
@@ -143,8 +151,14 @@ class RelaySessionData {
   /// Extract required app_data fields with safe errors.
   ///
   /// Returns a record for convenience (Dart 3).
-  ({String id, String name, String description, String? url, List<String> permissions})
-      parseAppData() {
+  ({
+    String id,
+    String name,
+    String description,
+    String? url,
+    List<String> permissions,
+  })
+  parseAppData() {
     final app = appData;
     if (app == null) {
       throw Exception('Connection data missing app_data');

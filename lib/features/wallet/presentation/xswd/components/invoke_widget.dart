@@ -174,10 +174,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => context.pop(),
-            child: Text(loc.close),
-          ),
+          TextButton(onPressed: () => context.pop(), child: Text(loc.close)),
         ],
       ),
     );
@@ -414,10 +411,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => context.pop(),
-            child: Text(loc.close),
-          ),
+          TextButton(onPressed: () => context.pop(), child: Text(loc.close)),
         ],
       ),
     );

@@ -26,21 +26,20 @@ class XSWDContent extends ConsumerStatefulWidget {
   ConsumerState createState() => _XSWDContentState();
 }
 
-
 class _XSWDContentState extends ConsumerState<XSWDContent> {
   final _scrollController = ScrollController();
   Timer? _statusCheckTimer;
   bool _isXswdRunning = false;
 
-  bool get _showFooter =>
-      Platform.isAndroid || Platform.isIOS || kIsWeb;
+  bool get _showFooter => Platform.isAndroid || Platform.isIOS || kIsWeb;
 
   @override
   void initState() {
     super.initState();
 
     // Only check server status on desktop platforms
-    final isMobile = defaultTargetPlatform == TargetPlatform.android ||
+    final isMobile =
+        defaultTargetPlatform == TargetPlatform.android ||
         defaultTargetPlatform == TargetPlatform.iOS;
 
     if (!isMobile) {
@@ -98,8 +97,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
           ),
         ),
         // Footer with "New Connection" button
-        if (_showFooter)
-          _buildFooter(context),
+        if (_showFooter) _buildFooter(context),
       ],
     );
   }
@@ -226,14 +224,15 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
 
   Widget _buildServerStatus(BuildContext context, AppLocalizations loc) {
     // Mobile uses relay mode only - show relay status instead of server status
-    final isMobile = defaultTargetPlatform == TargetPlatform.android ||
+    final isMobile =
+        defaultTargetPlatform == TargetPlatform.android ||
         defaultTargetPlatform == TargetPlatform.iOS;
 
     final statusText = isMobile
         ? 'Relay Mode'
         : (_isXswdRunning
-            ? '${loc.xswd_status}: ${loc.running.capitalize()}'
-            : '${loc.xswd_status}: ${loc.stopped.capitalize()}');
+              ? '${loc.xswd_status}: ${loc.running.capitalize()}'
+              : '${loc.xswd_status}: ${loc.stopped.capitalize()}');
 
     final statusColor = isMobile || _isXswdRunning
         ? context.theme.colors.primary
@@ -289,22 +288,22 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
         child: SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-          onPressed: () async {
-            if (kIsWeb) {
-              showFDialog<void>(
-                context: context,
-                builder: (context, style, animation) =>
-                    XswdNewConnectionDialog(style, animation),
+            onPressed: () async {
+              if (kIsWeb) {
+                showFDialog<void>(
+                  context: context,
+                  builder: (context, style, animation) =>
+                      XswdNewConnectionDialog(style, animation),
+                );
+                return;
+              }
+              // TODO: use GoRouter
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const XswdQRScannerScreen(),
+                ),
               );
-              return;
-            }
-            // TODO: use GoRouter
-            await Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => const XswdQRScannerScreen(),
-              ),
-            );
-          },
+            },
             icon: const Icon(Icons.qr_code_scanner, size: 20),
             label: const Text('New Connection'),
             style: ElevatedButton.styleFrom(

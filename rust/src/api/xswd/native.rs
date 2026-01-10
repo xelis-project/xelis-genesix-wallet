@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use indexmap::IndexMap;
+use std::collections::HashMap;
 
 use anyhow::{bail, Error, Result};
 pub use flutter_rust_bridge::DartFnFuture;
@@ -8,21 +8,19 @@ use xelis_common::tokio::spawn_task;
 pub use xelis_common::tokio::sync::mpsc::UnboundedReceiver;
 pub use xelis_common::tokio::sync::oneshot::Sender;
 pub use xelis_wallet::api::AppState;
-use xelis_wallet::api::{APIServer, Permission, InternalPrefetchPermissions, PermissionResult};
+use xelis_wallet::api::{APIServer, InternalPrefetchPermissions, Permission, PermissionResult};
 pub use xelis_wallet::wallet::XSWDEvent;
-
 
 use crate::api::{
     models::xswd_dtos::{
-        AppInfo, PermissionPolicy, UserPermissionDecision, XswdRequestSummary, XswdRequestType,
-        ApplicationDataRelayer, EncryptionMode,
+        AppInfo, ApplicationDataRelayer, EncryptionMode, PermissionPolicy, UserPermissionDecision,
+        XswdRequestSummary, XswdRequestType,
     },
     wallet::XelisWallet,
 };
 use xelis_wallet::api::{
-    ApplicationDataRelayer as CoreApplicationDataRelayer,
+    ApplicationData, ApplicationDataRelayer as CoreApplicationDataRelayer,
     EncryptionMode as CoreEncryptionMode,
-    ApplicationData
 };
 
 #[allow(async_fn_in_trait)]
@@ -199,7 +197,10 @@ impl XSWD for XelisWallet {
         permissions: HashMap<String, PermissionPolicy>,
     ) -> Result<()> {
         // Helper function to modify permissions
-        async fn modify_perms(app: &AppState, permissions: &HashMap<String, PermissionPolicy>) -> Result<()> {
+        async fn modify_perms(
+            app: &AppState,
+            permissions: &HashMap<String, PermissionPolicy>,
+        ) -> Result<()> {
             info!("Modifying permissions for application: {}", app.get_name());
             debug!("New permissions: {:?}", permissions);
 
@@ -280,7 +281,8 @@ impl XSWD for XelisWallet {
         if let Some(relayer) = relayer_lock.as_ref() {
             let app_state = {
                 let relayer_apps = relayer.applications().read().await;
-                relayer_apps.iter()
+                relayer_apps
+                    .iter()
                     .find(|(app, _)| app.get_id() == id)
                     .map(|(app, _)| app.clone())
             };
@@ -353,22 +355,29 @@ impl XSWD for XelisWallet {
             Some(receiver) => {
                 info!("XSWD relayer created new channel - spawning event handler");
                 // Spawn handler BEFORE adding application so it can respond to events
-                spawn_task("xswd-relayer-handler", xswd_handler(
-                    receiver,
-                    cancel_request_dart_callback,
-                    request_application_dart_callback,
-                    request_permission_dart_callback,
-                    request_prefetch_permissions_dart_callback,
-                    app_disconnect_dart_callback,
-                ));
+                spawn_task(
+                    "xswd-relayer-handler",
+                    xswd_handler(
+                        receiver,
+                        cancel_request_dart_callback,
+                        request_application_dart_callback,
+                        request_permission_dart_callback,
+                        request_prefetch_permissions_dart_callback,
+                        app_disconnect_dart_callback,
+                    ),
+                );
 
                 // Now add application - handler is ready to process RequestApplication event
-                self.get_wallet().add_xswd_relayer_application(core_app_data).await?;
+                self.get_wallet()
+                    .add_xswd_relayer_application(core_app_data)
+                    .await?;
             }
             None => {
                 info!("XSWD relayer using existing event handler from startXSWD");
                 // Handler already running, safe to add application
-                self.get_wallet().add_xswd_relayer_application(core_app_data).await?;
+                self.get_wallet()
+                    .add_xswd_relayer_application(core_app_data)
+                    .await?;
             }
         }
         Ok(())
@@ -421,7 +430,7 @@ pub async fn xswd_handler(
                 let decision = request_permission_dart_callback(event_summary).await;
 
                 handle_permission_decision(decision, callback);
-            },
+            }
             XSWDEvent::PrefetchPermissions(state, permissions, callback) => {
                 let json = serde_json::to_string(&permissions)
                     .expect("Failed to serialize prefetch permissions request");
@@ -432,13 +441,13 @@ pub async fn xswd_handler(
                 let decision = request_prefetch_permissions_dart_callback(event_summary).await;
 
                 handle_prefetch_permissions_decision(decision, permissions, callback);
-            },
+            }
             XSWDEvent::AppDisconnect(app_state) => {
                 let event_summary =
                     create_event_summary(&app_state, XswdRequestType::AppDisconnect).await;
 
                 app_disconnect_dart_callback(event_summary).await;
-            },
+            }
         };
     }
 }

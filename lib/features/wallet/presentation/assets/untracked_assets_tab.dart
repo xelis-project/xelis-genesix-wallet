@@ -88,7 +88,8 @@ class _UntrackedAssetsTabState extends ConsumerState<UntrackedAssetsTab> {
   void _showDetails(String hash, sdk.AssetData assetData) {
     showFDialog<void>(
       context: context,
-      builder: (context, style, animation) => UntrackedAssetDetails(hash, assetData),
+      builder: (context, style, animation) =>
+          UntrackedAssetDetails(hash, assetData),
     );
   }
 }

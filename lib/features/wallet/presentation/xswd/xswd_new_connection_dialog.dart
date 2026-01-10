@@ -43,9 +43,7 @@ class XswdNewConnectionDialog extends StatelessWidget {
             ),
           ),
           const SizedBox(height: Spaces.small),
-          const Text(
-            'Choose how you want to connect:',
-          ),
+          const Text('Choose how you want to connect:'),
           const SizedBox(height: Spaces.medium),
         ],
       ),

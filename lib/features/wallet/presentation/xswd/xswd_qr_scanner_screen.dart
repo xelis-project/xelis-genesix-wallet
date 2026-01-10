@@ -23,10 +23,8 @@ class XswdQRScannerScreen extends ConsumerStatefulWidget {
       _XswdQRScannerScreenState();
 }
 
-class _XswdQRScannerScreenState
-    extends ConsumerState<XswdQRScannerScreen> {
-  final MobileScannerController cameraController =
-      MobileScannerController();
+class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
+  final MobileScannerController cameraController = MobileScannerController();
 
   bool _isProcessing = false;
 
@@ -142,18 +140,14 @@ class _XswdQRScannerScreenState
       // ✅ Shared validation + conversion
       final relayerData = session.toApplicationDataRelayer();
 
-      await ref
-          .read(walletStateProvider.notifier)
-          .addXswdRelayer(relayerData);
+      await ref.read(walletStateProvider.notifier).addXswdRelayer(relayerData);
 
       if (!mounted) return;
 
       context.pop();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Connected to "${relayerData.name}" via relay',
-          ),
+          content: Text('Connected to "${relayerData.name}" via relay'),
           backgroundColor: Colors.green,
         ),
       );
@@ -162,10 +156,7 @@ class _XswdQRScannerScreenState
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString()),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
         );
         setState(() => _isProcessing = false);
       }

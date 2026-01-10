@@ -27,8 +27,8 @@ pub enum XSWDEvent {
 
 use crate::api::{
     models::xswd_dtos::{
-        AppInfo, PermissionPolicy, UserPermissionDecision, XswdRequestSummary, XswdRequestType,
-        ApplicationDataRelayer, EncryptionMode,
+        AppInfo, ApplicationDataRelayer, PermissionPolicy, UserPermissionDecision,
+        XswdRequestSummary, XswdRequestType,
     },
     wallet::XelisWallet,
 };
@@ -46,6 +46,10 @@ pub trait XSWD {
             + Sync
             + 'static,
         request_permission_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        request_prefetch_permissions_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
             + Send
             + Sync
             + 'static,
@@ -107,6 +111,10 @@ impl XSWD for XelisWallet {
             + Sync
             + 'static,
         _request_permission_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        _request_prefetch_permissions_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
             + Send
             + Sync
             + 'static,

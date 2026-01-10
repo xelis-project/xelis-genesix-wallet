@@ -4,12 +4,11 @@ use std::ops::ControlFlow;
 
 use anyhow::{bail, Result};
 use log::trace;
+use serde::{Deserialize, Serialize};
 use xelis_common::crypto::ecdlp;
 use xelis_wallet::precomputed_tables;
-use serde::{Serialize, Deserialize};
 
 use crate::api::progress_report::{add_progress_report, ProgressReport};
-
 
 #[frb]
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -17,7 +16,7 @@ pub enum PrecomputedTableType {
     L1Low,
     L1Medium,
     L1Full,
-    Custom(usize)
+    Custom(usize),
 }
 
 impl PrecomputedTableType {
@@ -40,21 +39,21 @@ impl PrecomputedTableType {
     // Custom(_) variant forces a sealed class instead of a Dart enum, so adding generic helper maps
     pub fn name(&self) -> String {
         match self {
-            PrecomputedTableType::L1Low    => "l1Low".to_string(),
+            PrecomputedTableType::L1Low => "l1Low".to_string(),
             PrecomputedTableType::L1Medium => "l1Medium".to_string(),
-            PrecomputedTableType::L1Full   => "l1Full".to_string(),
+            PrecomputedTableType::L1Full => "l1Full".to_string(),
             PrecomputedTableType::Custom(n) => format!("custom({})", n),
         }
     }
 
     pub fn index(&self) -> u32 {
         match self {
-            PrecomputedTableType::L1Low    => 0,
+            PrecomputedTableType::L1Low => 0,
             PrecomputedTableType::L1Medium => 1,
-            PrecomputedTableType::L1Full   => 2,
+            PrecomputedTableType::L1Full => 2,
             PrecomputedTableType::Custom(_) => 3,
         }
-    }    
+    }
 }
 
 pub struct LogProgressTableGenerationReportFunction;
@@ -79,9 +78,10 @@ pub async fn are_precomputed_tables_available(
 ) -> bool {
     precomputed_tables::has_precomputed_tables(
         Some(precomputed_tables_path.as_str()),
-        precomputed_table_type.to_l1_size()
-            .unwrap_or(precomputed_tables::L1_LOW)
+        precomputed_table_type
+            .to_l1_size()
+            .unwrap_or(precomputed_tables::L1_LOW),
     )
-        .await
-        .expect("Failed to check precomputed tables existence")
+    .await
+    .expect("Failed to check precomputed tables existence")
 }

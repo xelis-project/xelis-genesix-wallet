@@ -27,8 +27,7 @@ class XswdStatusScreen extends ConsumerStatefulWidget {
 }
 
 class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
-  bool get _showFooter =>
-      Platform.isAndroid || Platform.isIOS || kIsWeb;
+  bool get _showFooter => Platform.isAndroid || Platform.isIOS || kIsWeb;
 
   @override
   Widget build(BuildContext context) {
@@ -53,128 +52,148 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
               ),
               child: ListView(
                 children: [
-            Text(
-              loc.xwsd_status_screen_message,
-              style: context.titleMedium?.copyWith(
-                color: context.moreColors.mutedColor,
-              ),
-            ),
-            const SizedBox(height: Spaces.large),
-            // Switch to enable/disable XSWD
-            Card(
-              child: FormBuilderSwitch(
-                name: 'xswd_switch',
-                initialValue: enableXswd,
-                decoration: const InputDecoration(
-                  fillColor: Colors.transparent,
-                ),
-                title: Text(loc.enable_xswd, style: context.bodyLarge),
-                onChanged: _onXswdSwitch,
-              ),
-            ),
-            const SizedBox(height: Spaces.large),
-            // List of connected applications
-            if (enableXswd)
-              FutureBuilder(
-                future: appInfos,
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: Spaces.large),
-                      child: Text(
-                        loc.error_loading_applications,
-                        style: context.titleSmall?.copyWith(
-                          color: context.moreColors.mutedColor,
-                        ),
+                  Text(
+                    loc.xwsd_status_screen_message,
+                    style: context.titleMedium?.copyWith(
+                      color: context.moreColors.mutedColor,
+                    ),
+                  ),
+                  const SizedBox(height: Spaces.large),
+                  // Switch to enable/disable XSWD
+                  Card(
+                    child: FormBuilderSwitch(
+                      name: 'xswd_switch',
+                      initialValue: enableXswd,
+                      decoration: const InputDecoration(
+                        fillColor: Colors.transparent,
                       ),
-                    );
-                  } else if (snapshot.hasData) {
-                    final value = snapshot.data as List<AppInfo>;
-                    if (value.isEmpty) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: Spaces.large),
-                        child: Text(
-                          loc.no_application_connected,
-                          style: context.titleSmall?.copyWith(
-                            color: context.moreColors.mutedColor,
-                          ),
-                        ),
-                      );
-                    } else {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(loc.applications, style: context.titleMedium),
-                          const SizedBox(height: Spaces.small),
-                          ...value.map((appInfo) {
-                            return Card(
-                              child: Padding(
-                                padding: const EdgeInsets.all(Spaces.small),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                      title: Text(loc.enable_xswd, style: context.bodyLarge),
+                      onChanged: _onXswdSwitch,
+                    ),
+                  ),
+                  const SizedBox(height: Spaces.large),
+                  // List of connected applications
+                  if (enableXswd)
+                    FutureBuilder(
+                      future: appInfos,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: Spaces.large,
+                            ),
+                            child: Text(
+                              loc.error_loading_applications,
+                              style: context.titleSmall?.copyWith(
+                                color: context.moreColors.mutedColor,
+                              ),
+                            ),
+                          );
+                        } else if (snapshot.hasData) {
+                          final value = snapshot.data as List<AppInfo>;
+                          if (value.isEmpty) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: Spaces.large,
+                              ),
+                              child: Text(
+                                loc.no_application_connected,
+                                style: context.titleSmall?.copyWith(
+                                  color: context.moreColors.mutedColor,
+                                ),
+                              ),
+                            );
+                          } else {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  loc.applications,
+                                  style: context.titleMedium,
+                                ),
+                                const SizedBox(height: Spaces.small),
+                                ...value.map((appInfo) {
+                                  return Card(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(
+                                        Spaces.small,
+                                      ),
+                                      child: Row(
                                         children: [
-                                          Row(
-                                            children: [
-                                              Flexible(
-                                                child: Text(
-                                                  appInfo.name,
-                                                  overflow: TextOverflow.ellipsis,
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Flexible(
+                                                      child: Text(
+                                                        appInfo.name,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      ),
+                                                    ),
+                                                    if (appInfo.isRelayer) ...[
+                                                      const SizedBox(
+                                                        width:
+                                                            Spaces.extraSmall,
+                                                      ),
+                                                      Icon(
+                                                        Icons.cloud_outlined,
+                                                        size: 16,
+                                                        color: context
+                                                            .moreColors
+                                                            .mutedColor,
+                                                      ),
+                                                    ],
+                                                  ],
                                                 ),
-                                              ),
-                                              if (appInfo.isRelayer) ...[
-                                                const SizedBox(width: Spaces.extraSmall),
-                                                Icon(
-                                                  Icons.cloud_outlined,
-                                                  size: 16,
-                                                  color: context.moreColors.mutedColor,
+                                                const SizedBox(
+                                                  height: Spaces.extraSmall,
+                                                ),
+                                                Text(
+                                                  appInfo.url ?? '/',
+                                                  style: context.labelMedium
+                                                      ?.copyWith(
+                                                        color: context
+                                                            .moreColors
+                                                            .mutedColor,
+                                                      ),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                 ),
                                               ],
-                                            ],
-                                          ),
-                                          const SizedBox(height: Spaces.extraSmall),
-                                          Text(
-                                            appInfo.url ?? '/',
-                                            style: context.labelMedium?.copyWith(
-                                              color: context.moreColors.mutedColor,
                                             ),
-                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const Spacer(),
+                                          IconButton(
+                                            onPressed: () => _onEdit(appInfo),
+                                            icon: Icon(Icons.edit, size: 18),
+                                          ),
+                                          IconButton(
+                                            onPressed: () => _onClose(appInfo),
+                                            icon: Icon(Icons.delete, size: 18),
                                           ),
                                         ],
                                       ),
                                     ),
-                                    const Spacer(),
-                                    IconButton(
-                                      onPressed: () => _onEdit(appInfo),
-                                      icon: Icon(Icons.edit, size: 18),
-                                    ),
-                                    IconButton(
-                                      onPressed: () => _onClose(appInfo),
-                                      icon: Icon(Icons.delete, size: 18),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                                  );
+                                }),
+                              ],
                             );
-                          }),
-                        ],
-                      );
-                    }
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              ),
+                          }
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                    ),
                 ],
               ),
             ),
           ),
           // Footer with "New Connection" button
-          if (_showFooter)
-            _buildFooter(context),
+          if (_showFooter) _buildFooter(context),
         ],
       ),
     );
@@ -193,22 +212,22 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
         child: SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-          onPressed: () async {
-            if (kIsWeb) {
-              showFDialog<void>(
-                context: context,
-                builder: (context, style, animation) =>
-                    XswdNewConnectionDialog(style, animation),
+            onPressed: () async {
+              if (kIsWeb) {
+                showFDialog<void>(
+                  context: context,
+                  builder: (context, style, animation) =>
+                      XswdNewConnectionDialog(style, animation),
+                );
+                return;
+              }
+              // TODO: use GoRouter
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const XswdQRScannerScreen(),
+                ),
               );
-              return;
-            }
-            // TODO: use GoRouter
-            await Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => const XswdQRScannerScreen(),
-              ),
-            );
-          },
+            },
             icon: const Icon(Icons.qr_code_scanner, size: 20),
             label: const Text('New Connection'),
             style: ElevatedButton.styleFrom(
@@ -254,9 +273,7 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
 
   Future<void> _onNewConnection() async {
     await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const XswdQRScannerScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const XswdQRScannerScreen()),
     );
   }
 }

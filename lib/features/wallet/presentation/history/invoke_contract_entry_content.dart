@@ -58,7 +58,9 @@ class _InvokeContractEntryContentState
     }
 
     try {
-      final logs = await repository.getContractLogs(widget.transactionEntry.hash);
+      final logs = await repository.getContractLogs(
+        widget.transactionEntry.hash,
+      );
       _contractLogs = logs;
 
       for (final log in logs) {
@@ -84,253 +86,262 @@ class _InvokeContractEntryContentState
     setState(() => _isLoading = false);
   }
 
-Widget _buildLogWidget(
-  BuildContext context,
-  Map<String, dynamic> log,
-  Map<String, AssetData> allAssets,
-) {
-  final type = log['type'] as String;
-  final value = log['value'];
+  Widget _buildLogWidget(
+    BuildContext context,
+    Map<String, dynamic> log,
+    Map<String, AssetData> allAssets,
+  ) {
+    final type = log['type'] as String;
+    final value = log['value'];
 
-  String header;
-  Widget? details;
+    String header;
+    Widget? details;
 
-  switch (type) {
-    case 'transfer':
-      header = 'Transfer';
-      final data = value as Map<String, dynamic>;
-      final asset = data['asset'] as String;
-      final amount = data['amount'] as int;
-      final destination = data['destination'] as String;
+    switch (type) {
+      case 'transfer':
+        header = 'Transfer';
+        final data = value as Map<String, dynamic>;
+        final asset = data['asset'] as String;
+        final amount = data['amount'] as int;
+        final destination = data['destination'] as String;
 
-      final formattedData =
-          getFormattedAssetNameAndAmount(allAssets, asset, amount);
+        final formattedData = getFormattedAssetNameAndAmount(
+          allAssets,
+          asset,
+          amount,
+        );
 
-      details = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: Spaces.extraSmall,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: AssetNameWidget(
-                  assetName: formattedData.$1,
-                  isXelis: isXelis(asset),
-                ),
-              ),
-              SelectableText(
-                formattedData.$2,
-                style: context.theme.typography.base,
-              ),
-            ],
-          ),
-          Text(
-            'To: ${truncateText(destination, maxLength: 20)}',
-            style: context.theme.typography.base.copyWith(
-              color: context.theme.colors.mutedForeground,
-            ),
-          ),
-        ],
-      );
-      break;
-
-    case 'transfer_contract':
-      header = 'Transfer to Contract';
-      final data = value as Map<String, dynamic>;
-      final asset = data['asset'] as String;
-      final amount = data['amount'] as int;
-      final destination = data['destination'] as String;
-
-      final formattedData =
-          getFormattedAssetNameAndAmount(allAssets, asset, amount);
-
-      details = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: Spaces.extraSmall,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: AssetNameWidget(
-                  assetName: formattedData.$1,
-                  isXelis: isXelis(asset),
-                ),
-              ),
-              SelectableText(
-                formattedData.$2,
-                style: context.theme.typography.base,
-              ),
-            ],
-          ),
-          Text(
-            'To Contract: ${truncateText(destination, maxLength: 16)}',
-            style: context.theme.typography.base.copyWith(
-              color: context.theme.colors.mutedForeground,
-            ),
-          ),
-        ],
-      );
-      break;
-
-    case 'burn':
-      header = 'Burn';
-      final data = value as Map<String, dynamic>;
-      final asset = data['asset'] as String;
-      final amount = data['amount'] as int;
-
-      final formattedData =
-          getFormattedAssetNameAndAmount(allAssets, asset, amount);
-
-      details = Row(
-        children: [
-          Expanded(
-            child: AssetNameWidget(
-              assetName: formattedData.$1,
-              isXelis: isXelis(asset),
-            ),
-          ),
-          SelectableText(
-            formattedData.$2,
-            style: context.theme.typography.base,
-          ),
-        ],
-      );
-      break;
-
-    case 'mint':
-      header = 'Mint';
-      final data = value as Map<String, dynamic>;
-      final asset = data['asset'] as String;
-      final amount = data['amount'] as int;
-
-      final formattedData =
-          getFormattedAssetNameAndAmount(allAssets, asset, amount);
-
-      details = Row(
-        children: [
-          Expanded(
-            child: AssetNameWidget(
-              assetName: formattedData.$1,
-              isXelis: isXelis(asset),
-            ),
-          ),
-          SelectableText(
-            formattedData.$2,
-            style: context.theme.typography.base,
-          ),
-        ],
-      );
-      break;
-
-    case 'refund_gas':
-      header = 'Gas Refund';
-      final data = value as Map<String, dynamic>;
-      final amount = data['amount'] as int;
-
-      details = SelectableText(
-        formatCoin(amount, 8, 'XEL'),
-        style: context.theme.typography.base,
-      );
-      break;
-
-    case 'exit_code':
-      header = 'Exit Code';
-      final exitCodeValue = value as int?;
-      details = SelectableText(
-        exitCodeValue?.toString() ?? 'Failed',
-        style: context.theme.typography.base.copyWith(
-          fontWeight: FontWeight.bold,
-        ),
-      );
-      break;
-
-    case 'new_asset':
-      header = 'New Asset';
-      final data = value as Map<String, dynamic>;
-      final assetHash = data['asset'] as String?;
-      final name = data['name'] as String?;
-      final ticker = data['ticker'] as String?;
-      final decimals = data['decimals'] as int?;
-
-      details = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: Spaces.extraSmall,
-        children: [
-          if (name != null)
+        details = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: Spaces.extraSmall,
+          children: [
             Row(
               children: [
-                Text(
-                  'Name: ',
-                  style: context.theme.typography.sm.copyWith(
-                    color: context.theme.colors.mutedForeground,
-                  ),
-                ),
                 Expanded(
-                  child: SelectableText(
-                    name,
-                    style: context.theme.typography.sm,
-                  ),
-                ),
-              ],
-            ),
-          if (ticker != null)
-            Row(
-              children: [
-                Text(
-                  'Ticker: ',
-                  style: context.theme.typography.sm.copyWith(
-                    color: context.theme.colors.mutedForeground,
+                  child: AssetNameWidget(
+                    assetName: formattedData.$1,
+                    isXelis: isXelis(asset),
                   ),
                 ),
                 SelectableText(
-                  ticker,
-                  style: context.theme.typography.sm,
+                  formattedData.$2,
+                  style: context.theme.typography.base,
                 ),
               ],
             ),
-          if (decimals != null)
+            Text(
+              'To: ${truncateText(destination, maxLength: 20)}',
+              style: context.theme.typography.base.copyWith(
+                color: context.theme.colors.mutedForeground,
+              ),
+            ),
+          ],
+        );
+        break;
+
+      case 'transfer_contract':
+        header = 'Transfer to Contract';
+        final data = value as Map<String, dynamic>;
+        final asset = data['asset'] as String;
+        final amount = data['amount'] as int;
+        final destination = data['destination'] as String;
+
+        final formattedData = getFormattedAssetNameAndAmount(
+          allAssets,
+          asset,
+          amount,
+        );
+
+        details = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: Spaces.extraSmall,
+          children: [
             Row(
               children: [
-                Text(
-                  'Decimals: ',
-                  style: context.theme.typography.sm.copyWith(
-                    color: context.theme.colors.mutedForeground,
+                Expanded(
+                  child: AssetNameWidget(
+                    assetName: formattedData.$1,
+                    isXelis: isXelis(asset),
                   ),
                 ),
                 SelectableText(
-                  decimals.toString(),
-                  style: context.theme.typography.sm,
+                  formattedData.$2,
+                  style: context.theme.typography.base,
                 ),
               ],
             ),
-          if (assetHash != null)
-            Row(
-              children: [
-                Text(
-                  'Asset: ',
-                  style: context.theme.typography.sm.copyWith(
-                    color: context.theme.colors.mutedForeground,
+            Text(
+              'To Contract: ${truncateText(destination, maxLength: 16)}',
+              style: context.theme.typography.base.copyWith(
+                color: context.theme.colors.mutedForeground,
+              ),
+            ),
+          ],
+        );
+        break;
+
+      case 'burn':
+        header = 'Burn';
+        final data = value as Map<String, dynamic>;
+        final asset = data['asset'] as String;
+        final amount = data['amount'] as int;
+
+        final formattedData = getFormattedAssetNameAndAmount(
+          allAssets,
+          asset,
+          amount,
+        );
+
+        details = Row(
+          children: [
+            Expanded(
+              child: AssetNameWidget(
+                assetName: formattedData.$1,
+                isXelis: isXelis(asset),
+              ),
+            ),
+            SelectableText(
+              formattedData.$2,
+              style: context.theme.typography.base,
+            ),
+          ],
+        );
+        break;
+
+      case 'mint':
+        header = 'Mint';
+        final data = value as Map<String, dynamic>;
+        final asset = data['asset'] as String;
+        final amount = data['amount'] as int;
+
+        final formattedData = getFormattedAssetNameAndAmount(
+          allAssets,
+          asset,
+          amount,
+        );
+
+        details = Row(
+          children: [
+            Expanded(
+              child: AssetNameWidget(
+                assetName: formattedData.$1,
+                isXelis: isXelis(asset),
+              ),
+            ),
+            SelectableText(
+              formattedData.$2,
+              style: context.theme.typography.base,
+            ),
+          ],
+        );
+        break;
+
+      case 'refund_gas':
+        header = 'Gas Refund';
+        final data = value as Map<String, dynamic>;
+        final amount = data['amount'] as int;
+
+        details = SelectableText(
+          formatCoin(amount, 8, 'XEL'),
+          style: context.theme.typography.base,
+        );
+        break;
+
+      case 'exit_code':
+        header = 'Exit Code';
+        final exitCodeValue = value as int?;
+        details = SelectableText(
+          exitCodeValue?.toString() ?? 'Failed',
+          style: context.theme.typography.base.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        );
+        break;
+
+      case 'new_asset':
+        header = 'New Asset';
+        final data = value as Map<String, dynamic>;
+        final assetHash = data['asset'] as String?;
+        final name = data['name'] as String?;
+        final ticker = data['ticker'] as String?;
+        final decimals = data['decimals'] as int?;
+
+        details = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: Spaces.extraSmall,
+          children: [
+            if (name != null)
+              Row(
+                children: [
+                  Text(
+                    'Name: ',
+                    style: context.theme.typography.sm.copyWith(
+                      color: context.theme.colors.mutedForeground,
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: SelectableText(
-                    truncateText(assetHash, maxLength: 20),
+                  Expanded(
+                    child: SelectableText(
+                      name,
+                      style: context.theme.typography.sm,
+                    ),
+                  ),
+                ],
+              ),
+            if (ticker != null)
+              Row(
+                children: [
+                  Text(
+                    'Ticker: ',
+                    style: context.theme.typography.sm.copyWith(
+                      color: context.theme.colors.mutedForeground,
+                    ),
+                  ),
+                  SelectableText(ticker, style: context.theme.typography.sm),
+                ],
+              ),
+            if (decimals != null)
+              Row(
+                children: [
+                  Text(
+                    'Decimals: ',
+                    style: context.theme.typography.sm.copyWith(
+                      color: context.theme.colors.mutedForeground,
+                    ),
+                  ),
+                  SelectableText(
+                    decimals.toString(),
                     style: context.theme.typography.sm,
                   ),
-                ),
-              ],
-            ),
-        ],
-      );
-      break;
+                ],
+              ),
+            if (assetHash != null)
+              Row(
+                children: [
+                  Text(
+                    'Asset: ',
+                    style: context.theme.typography.sm.copyWith(
+                      color: context.theme.colors.mutedForeground,
+                    ),
+                  ),
+                  Expanded(
+                    child: SelectableText(
+                      truncateText(assetHash, maxLength: 20),
+                      style: context.theme.typography.sm,
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        );
+        break;
 
-    default:
-      header = type.capitalize();
-      details = Text(
-        value?.toString() ?? 'N/A',
-        style: context.theme.typography.base,
-      );
-  }
+      default:
+        header = type.capitalize();
+        details = Text(
+          value?.toString() ?? 'N/A',
+          style: context.theme.typography.base,
+        );
+    }
 
     return Container(
       decoration: BoxDecoration(
@@ -361,7 +372,6 @@ Widget _buildLogWidget(
       ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -396,12 +406,12 @@ Widget _buildLogWidget(
               widget.invokeContractEntry.chunkId.toString(),
             ),
             FDivider(
-            style: context.theme.dividerStyles.horizontalStyle
-                .copyWith(
-                  padding: EdgeInsets.zero,
-                  color: context.theme.colors.primary,
-                )
-                .call,
+              style: context.theme.dividerStyles.horizontalStyle
+                  .copyWith(
+                    padding: EdgeInsets.zero,
+                    color: context.theme.colors.primary,
+                  )
+                  .call,
             ),
             if (_isLoading)
               const Center(child: CircularProgressIndicator())
@@ -466,11 +476,12 @@ Widget _buildLogWidget(
                                 .entries
                                 .elementAt(index);
 
-                            final formattedData = getFormattedAssetNameAndAmount(
-                              allAssets,
-                              received.key,
-                              received.value,
-                            );
+                            final formattedData =
+                                getFormattedAssetNameAndAmount(
+                                  allAssets,
+                                  received.key,
+                                  received.value,
+                                );
                             final assetName = formattedData.$1;
                             final amount = formattedData.$2;
 
@@ -496,7 +507,9 @@ Widget _buildLogWidget(
                             color: context.theme.colors.foreground,
                           ),
                         ),
-                        ..._contractLogs.map((log) => _buildLogWidget(context, log, allAssets)),
+                        ..._contractLogs.map(
+                          (log) => _buildLogWidget(context, log, allAssets),
+                        ),
                       ],
                     ),
                 ],

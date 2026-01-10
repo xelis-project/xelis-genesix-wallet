@@ -13,7 +13,7 @@ use parking_lot::{Mutex, RwLock};
 use serde_json::json;
 use xelis_common::api::wallet::BaseFeeMode;
 use xelis_common::api::{DataElement, DataValue};
-use xelis_common::asset::{self, AssetData, AssetOwner, MaxSupplyMode};
+use xelis_common::asset::{AssetData, AssetOwner, MaxSupplyMode};
 use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
 use xelis_common::crypto::{Address, Hash, Hashable, Signature};
 use xelis_common::network::Network;

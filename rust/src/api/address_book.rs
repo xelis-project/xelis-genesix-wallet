@@ -6,7 +6,8 @@ use anyhow::{bail, Result};
 use regex::RegexBuilder;
 use xelis_common::{
     api::{
-        DataElement, DataValue, query::{Query, QueryElement, QueryValue}
+        query::{Query, QueryElement, QueryValue},
+        DataElement, DataValue,
     },
     crypto::Address,
 };
@@ -16,11 +17,20 @@ const ADDRESS_BOOK_TREE: &str = "address_book";
 // AddressBook trait for managing contacts
 #[allow(async_fn_in_trait)]
 pub trait AddressBook {
-    async fn retrieve_contacts(&self, skip: Option<usize>, take: Option<usize>) -> Result<AddressBookData>;
+    async fn retrieve_contacts(
+        &self,
+        skip: Option<usize>,
+        take: Option<usize>,
+    ) -> Result<AddressBookData>;
 
     async fn count_contacts(&self) -> Result<usize>;
 
-    async fn find_contacts_by_name(&self, name: String, skip: Option<usize>, take: Option<usize>) -> Result<AddressBookData>;
+    async fn find_contacts_by_name(
+        &self,
+        name: String,
+        skip: Option<usize>,
+        take: Option<usize>,
+    ) -> Result<AddressBookData>;
 
     async fn upsert_contact(&self, entry: ContactDetails) -> Result<()>;
 
@@ -34,7 +44,11 @@ pub trait AddressBook {
 impl AddressBook for XelisWallet {
     // get contacts with pagination
     // returns a map of address to ContactDetails
-    async fn retrieve_contacts(&self, skip: Option<usize>, take: Option<usize>) -> Result<AddressBookData> {
+    async fn retrieve_contacts(
+        &self,
+        skip: Option<usize>,
+        take: Option<usize>,
+    ) -> Result<AddressBookData> {
         let storage = self.get_wallet().get_storage().read().await;
         let address_book = storage.query_db(ADDRESS_BOOK_TREE, None, None, take, skip)?;
         Ok(AddressBookData::from(address_book.entries)?)
@@ -47,7 +61,12 @@ impl AddressBook for XelisWallet {
     }
 
     // get contacts by name with pagination
-    async fn find_contacts_by_name(&self, name: String, skip: Option<usize>, take: Option<usize>) -> Result<AddressBookData> {
+    async fn find_contacts_by_name(
+        &self,
+        name: String,
+        skip: Option<usize>,
+        take: Option<usize>,
+    ) -> Result<AddressBookData> {
         // Create a regex pattern to match contacts containing the given name
         // The regex pattern is case-insensitive and does a substring match
         let regex = RegexBuilder::new(&regex::escape(&name))
@@ -64,13 +83,8 @@ impl AddressBook for XelisWallet {
 
         let storage = self.get_wallet().get_storage().read().await;
 
-        let address_book = storage.query_db(
-            ADDRESS_BOOK_TREE,
-            None,
-            Some(query_name),
-            take,
-            skip,
-        )?;
+        let address_book =
+            storage.query_db(ADDRESS_BOOK_TREE, None, Some(query_name), take, skip)?;
         Ok(AddressBookData::from(address_book.entries)?)
     }
 
@@ -109,10 +123,8 @@ impl AddressBook for XelisWallet {
         }
         let storage = self.get_wallet().get_storage().read().await;
 
-        let entry = storage.get_custom_data(
-            ADDRESS_BOOK_TREE,
-            &DataValue::String(address.clone()),
-        )?;
+        let entry =
+            storage.get_custom_data(ADDRESS_BOOK_TREE, &DataValue::String(address.clone()))?;
 
         match entry {
             DataElement::Fields(content) => {

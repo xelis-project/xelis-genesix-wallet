@@ -68,89 +68,11 @@ class XswdAppDetail extends ConsumerWidget {
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(Spaces.large),
         child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // App Info Card
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(Spaces.large),
-            decoration: BoxDecoration(
-              color: context.colors.surface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: context.theme.colors.border, width: 1),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(app.name, style: context.headlineMedium),
-                if (app.url != null && app.url!.isNotEmpty) ...[
-                  const SizedBox(height: Spaces.small),
-                  Row(
-                    children: [
-                      Icon(Icons.link, size: 16, color: muted),
-                      const SizedBox(width: Spaces.extraSmall),
-                      Expanded(
-                        child: Text(
-                          app.url!,
-                          style: context.bodyMedium?.copyWith(color: muted),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-                const SizedBox(height: Spaces.medium),
-                Text(
-                  'App ID',
-                  style: context.bodySmall?.copyWith(
-                    color: muted,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: Spaces.extraSmall),
-                SelectableText(
-                  app.id,
-                  style: context.bodyMedium?.copyWith(fontFamily: 'monospace'),
-                ),
-                if (app.description.isNotEmpty) ...[
-                  const SizedBox(height: Spaces.small),
-                  FDivider(
-                    style: FDividerStyle(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: Spaces.extraSmall,
-                      ),
-                      color: FTheme.of(context).colors.primary,
-                      width: 1,
-                    ),
-                  ),
-                  const SizedBox(height: Spaces.small),
-                  Text(
-                    'Description',
-                    style: context.bodySmall?.copyWith(
-                      color: muted,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: Spaces.extraSmall),
-                  Text(app.description, style: context.bodyMedium),
-                ],
-              ],
-            ),
-          ),
-
-          const SizedBox(height: Spaces.large),
-
-          // Permissions Section
-          Row(
-            children: [
-              Expanded(
-                child: Text('Permissions', style: context.headlineMedium),
-              ),
-            ],
-          ),
-          const SizedBox(height: Spaces.medium),
-
-          if (app.permissions.isEmpty)
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // App Info Card
             Container(
+              width: double.infinity,
               padding: const EdgeInsets.all(Spaces.large),
               decoration: BoxDecoration(
                 color: context.colors.surface,
@@ -160,46 +82,129 @@ class XswdAppDetail extends ConsumerWidget {
                   width: 1,
                 ),
               ),
-              child: Center(
-                child: Text(
-                  'No permissions configured',
-                  style: context.bodyMedium?.copyWith(color: muted),
-                ),
-              ),
-            )
-          else
-            ...(app.permissions.entries.toList()
-                  ..sort((a, b) => a.key.compareTo(b.key)))
-                .map((entry) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: Spaces.small),
-                    child: _buildPermissionChip(
-                      context,
-                      ref,
-                      loc,
-                      app,
-                      entry.key,
-                      entry.value,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(app.name, style: context.headlineMedium),
+                  if (app.url != null && app.url!.isNotEmpty) ...[
+                    const SizedBox(height: Spaces.small),
+                    Row(
+                      children: [
+                        Icon(Icons.link, size: 16, color: muted),
+                        const SizedBox(width: Spaces.extraSmall),
+                        Expanded(
+                          child: Text(
+                            app.url!,
+                            style: context.bodyMedium?.copyWith(color: muted),
+                          ),
+                        ),
+                      ],
                     ),
-                  );
-                }),
-
-          const SizedBox(height: Spaces.large),
-
-          // Disconnect Button
-          SizedBox(
-            width: double.infinity,
-            child: FButton(
-              style: FButtonStyle.destructive(),
-              onPress: () => _handleDisconnectApp(context, ref, loc, app),
-              child: const Text('Disconnect App'),
+                  ],
+                  const SizedBox(height: Spaces.medium),
+                  Text(
+                    'App ID',
+                    style: context.bodySmall?.copyWith(
+                      color: muted,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: Spaces.extraSmall),
+                  SelectableText(
+                    app.id,
+                    style: context.bodyMedium?.copyWith(
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                  if (app.description.isNotEmpty) ...[
+                    const SizedBox(height: Spaces.small),
+                    FDivider(
+                      style: FDividerStyle(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: Spaces.extraSmall,
+                        ),
+                        color: FTheme.of(context).colors.primary,
+                        width: 1,
+                      ),
+                    ),
+                    const SizedBox(height: Spaces.small),
+                    Text(
+                      'Description',
+                      style: context.bodySmall?.copyWith(
+                        color: muted,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: Spaces.extraSmall),
+                    Text(app.description, style: context.bodyMedium),
+                  ],
+                ],
+              ),
             ),
-          ),
-        ],
+
+            const SizedBox(height: Spaces.large),
+
+            // Permissions Section
+            Row(
+              children: [
+                Expanded(
+                  child: Text('Permissions', style: context.headlineMedium),
+                ),
+              ],
+            ),
+            const SizedBox(height: Spaces.medium),
+
+            if (app.permissions.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(Spaces.large),
+                decoration: BoxDecoration(
+                  color: context.colors.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: context.theme.colors.border,
+                    width: 1,
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    'No permissions configured',
+                    style: context.bodyMedium?.copyWith(color: muted),
+                  ),
+                ),
+              )
+            else
+              ...(app.permissions.entries.toList()
+                    ..sort((a, b) => a.key.compareTo(b.key)))
+                  .map((entry) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: Spaces.small),
+                      child: _buildPermissionChip(
+                        context,
+                        ref,
+                        loc,
+                        app,
+                        entry.key,
+                        entry.value,
+                      ),
+                    );
+                  }),
+
+            const SizedBox(height: Spaces.large),
+
+            // Disconnect Button
+            SizedBox(
+              width: double.infinity,
+              child: FButton(
+                style: FButtonStyle.destructive(),
+                onPress: () => _handleDisconnectApp(context, ref, loc, app),
+                child: const Text('Disconnect App'),
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildPermissionChip(
     BuildContext context,

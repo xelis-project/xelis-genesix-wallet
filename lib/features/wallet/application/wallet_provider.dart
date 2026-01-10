@@ -31,9 +31,8 @@ import 'package:genesix/features/logger/logger.dart';
 part 'wallet_provider.g.dart';
 
 typedef CancelCb = Future<void> Function(XswdRequestSummary request);
-typedef DecisionCb = Future<UserPermissionDecision> Function(
-  XswdRequestSummary request,
-);
+typedef DecisionCb =
+    Future<UserPermissionDecision> Function(XswdRequestSummary request);
 
 class XswdCallbacks {
   const XswdCallbacks({
@@ -55,19 +54,13 @@ extension XswdCallbacksBuilder on WalletState {
   XswdCallbacks buildXswdCallbacks({required String channelTitle}) {
     final loc = ref.read(appLocalizationsProvider);
 
-    bool suppressToast() =>
-        ref.read(xswdRequestProvider).suppressXswdToast;
+    bool suppressToast() => ref.read(xswdRequestProvider).suppressXswdToast;
 
-    void showXswdToast({
-      required String title,
-      required bool showOpen,
-    }) {
+    void showXswdToast({required String title, required bool showOpen}) {
       if (!suppressToast()) {
-        ref.read(toastProvider.notifier).showXswd(
-              title: title,
-              description: null,
-              showOpen: showOpen,
-            );
+        ref
+            .read(toastProvider.notifier)
+            .showXswd(title: title, description: null, showOpen: showOpen);
       }
     }
 
@@ -92,8 +85,7 @@ extension XswdCallbacksBuilder on WalletState {
     return XswdCallbacks(
       cancelRequestCallback: (request) async {
         final appName = request.applicationInfo.name;
-        final message =
-            '$channelTitle: ${loc.request_cancelled_from} $appName';
+        final message = '$channelTitle: ${loc.request_cancelled_from} $appName';
 
         talker.info(message);
         ref
@@ -693,9 +685,7 @@ class WalletState extends _$WalletState {
             case sdk.IncomingContractEntry():
               ref
                   .read(toastProvider.notifier)
-                  .showInformation(
-                    title: 'Contract Transfer Received',
-                  );
+                  .showInformation(title: 'Contract Transfer Received');
           }
         }
 
@@ -840,9 +830,7 @@ class WalletState extends _$WalletState {
         final updatedBalances = await state.nativeWalletRepository!
             .getTrackedBalances();
         // No need to refetch knownAssets - they don't change when untracking
-        state = state.copyWith(
-          trackedBalances: sortMapByKey(updatedBalances),
-        );
+        state = state.copyWith(trackedBalances: sortMapByKey(updatedBalances));
         ref
             .read(toastProvider.notifier)
             .showInformation(title: loc.asset_successfully_untracked);
@@ -1018,16 +1006,14 @@ class WalletState extends _$WalletState {
     } on AnyhowException catch (e) {
       talker.error('Cannot start XSWD: $e');
       final xelisMessage = e.message.split("\n")[0];
-      ref.read(toastProvider.notifier).showError(
-            title: 'Cannot start XSWD',
-            description: xelisMessage,
-          );
+      ref
+          .read(toastProvider.notifier)
+          .showError(title: 'Cannot start XSWD', description: xelisMessage);
     } catch (e) {
       talker.error('Cannot start XSWD: $e');
-      ref.read(toastProvider.notifier).showError(
-            title: 'Cannot start XSWD',
-            description: e.toString(),
-          );
+      ref
+          .read(toastProvider.notifier)
+          .showError(title: 'Cannot start XSWD', description: e.toString());
     }
   }
 
@@ -1094,7 +1080,8 @@ class WalletState extends _$WalletState {
         cancelRequestCallback: cb.cancelRequestCallback,
         requestApplicationCallback: cb.requestApplicationCallback,
         requestPermissionCallback: cb.requestPermissionCallback,
-        requestPrefetchPermissionsCallback: cb.requestPrefetchPermissionsCallback,
+        requestPrefetchPermissionsCallback:
+            cb.requestPrefetchPermissionsCallback,
         appDisconnectCallback: cb.appDisconnectCallback,
         relayerData: relayerData,
       );
@@ -1103,17 +1090,21 @@ class WalletState extends _$WalletState {
     } on AnyhowException catch (e) {
       talker.error('Cannot add XSWD relay connection: $e');
       final xelisMessage = e.message.split("\n")[0];
-      ref.read(toastProvider.notifier).showError(
-        title: 'Cannot add XSWD relay connection',
-        description: xelisMessage,
-      );
+      ref
+          .read(toastProvider.notifier)
+          .showError(
+            title: 'Cannot add XSWD relay connection',
+            description: xelisMessage,
+          );
       rethrow;
     } catch (e) {
       talker.error('Cannot add XSWD relay connection: $e');
-      ref.read(toastProvider.notifier).showError(
-        title: 'Cannot add XSWD relay connection',
-        description: e.toString(),
-      );
+      ref
+          .read(toastProvider.notifier)
+          .showError(
+            title: 'Cannot add XSWD relay connection',
+            description: e.toString(),
+          );
       rethrow;
     }
   }

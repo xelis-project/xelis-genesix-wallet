@@ -36,7 +36,8 @@ class IncomingContractEntryContent extends ConsumerWidget {
             FItemGroup.builder(
               count: incomingContractEntry.transfers.length,
               itemBuilder: (context, index) {
-                final transfer = incomingContractEntry.transfers.entries.elementAt(index);
+                final transfer = incomingContractEntry.transfers.entries
+                    .elementAt(index);
 
                 final formattedData = getFormattedAssetNameAndAmount(
                   knownAssets,

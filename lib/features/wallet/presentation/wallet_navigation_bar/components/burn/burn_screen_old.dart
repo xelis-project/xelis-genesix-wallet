@@ -77,9 +77,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
           prefixes: [
             Padding(
               padding: const EdgeInsets.all(Spaces.small),
-              child: FHeaderAction.back(
-                onPress: () => context.pop(),
-              ),
+              child: FHeaderAction.back(onPress: () => context.pop()),
             ),
           ],
           title: Text(loc.transfer),

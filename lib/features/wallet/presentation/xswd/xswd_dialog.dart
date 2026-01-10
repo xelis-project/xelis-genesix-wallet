@@ -597,10 +597,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => context.pop(),
-            child: Text(loc.close),
-          ),
+          TextButton(onPressed: () => context.pop(), child: Text(loc.close)),
         ],
       ),
     );
@@ -670,8 +667,8 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
         );
       }
     } else if (request.params!.length == 1 &&
-               request.params!.containsKey('asset') &&
-               request.params!['asset'] is String) {
+        request.params!.containsKey('asset') &&
+        request.params!['asset'] is String) {
       final asset = request.params!['asset'] as String;
       final loc = ref.read(appLocalizationsProvider);
       final truncated = asset.length > 16
