@@ -202,6 +202,7 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
               );
               return;
             }
+            // TODO: use GoRouter
             await Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => const XswdQRScannerScreen(),

@@ -172,6 +172,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
 
     return InkWell(
       onTap: () {
+        // TODO: use GoRouter
         Navigator.of(context).push(
           MaterialPageRoute(builder: (context) => XswdAppDetail(appId: app.id)),
         );
@@ -297,6 +298,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
               );
               return;
             }
+            // TODO: use GoRouter
             await Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => const XswdQRScannerScreen(),

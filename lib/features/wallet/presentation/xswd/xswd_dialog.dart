@@ -19,6 +19,7 @@ import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
+import 'package:go_router/go_router.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class XswdDialog extends ConsumerStatefulWidget {
@@ -146,7 +147,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     ref.read(xswdRequestProvider.notifier).clearRequest();
 
     if (mounted) {
-      Navigator.of(context).pop();
+      context.pop();
     }
   }
 
@@ -190,7 +191,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
       }
 
       _setSuppress(false);
-      Navigator.of(context).pop();
+      context.pop();
     });
   }
 
@@ -305,7 +306,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
               }
               // Clear the request state
               ref.read(xswdRequestProvider.notifier).clearRequest();
-              Navigator.of(context).pop();
+              context.pop();
             },
             child: Text(loc.close),
           ),
@@ -436,7 +437,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                                 .read(xswdRequestProvider.notifier)
                                 .clearRequest();
 
-                            Navigator.of(context).pop();
+                            context.pop();
                           },
                           child: const Icon(FIcons.x, size: 22),
                         ),
@@ -597,7 +598,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.pop(),
             child: Text(loc.close),
           ),
         ],
@@ -839,7 +840,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
         return [
           FButton(
             style: FButtonStyle.primary(),
-            onPress: busy ? null : () => Navigator.of(context).pop(),
+            onPress: busy ? null : () => context.pop(),
             child: Text(loc.ok_button),
           ),
         ];
@@ -964,7 +965,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
       return;
     }
 
-    Navigator.of(context).pop();
+    context.pop();
   }
 }
 

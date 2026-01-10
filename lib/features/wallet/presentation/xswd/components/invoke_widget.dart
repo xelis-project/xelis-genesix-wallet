@@ -9,6 +9,7 @@ import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart'
     as rust;
@@ -174,7 +175,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.pop(),
             child: Text(loc.close),
           ),
         ],
@@ -414,7 +415,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.pop(),
             child: Text(loc.close),
           ),
         ],

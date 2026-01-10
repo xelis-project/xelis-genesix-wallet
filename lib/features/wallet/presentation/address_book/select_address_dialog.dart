@@ -6,6 +6,7 @@ import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
+import 'package:go_router/go_router.dart';
 
 class SelectAddressDialog extends ConsumerStatefulWidget {
   const SelectAddressDialog(this.style, this.animation, {super.key});
@@ -52,7 +53,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
                 ),
               ),
               FButton.icon(
-                onPress: () => Navigator.of(context).pop(),
+                onPress: () => context.pop(),
                 child: const Icon(FIcons.x, size: 20),
               ),
             ],
@@ -102,7 +103,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
                     final address = entry.key;
                     final details = entry.value;
                     return FItem(
-                      onPress: () => Navigator.of(context).pop(address),
+                      onPress: () => context.pop(address),
                       prefix: HashiconWidget(
                         hash: address,
                         size: const Size(40, 40),

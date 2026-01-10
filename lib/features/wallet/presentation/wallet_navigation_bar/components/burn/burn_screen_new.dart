@@ -11,6 +11,7 @@ import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 // import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
@@ -92,7 +93,7 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
             Padding(
               padding: const EdgeInsets.all(Spaces.small),
               child: FHeaderAction.back(
-                onPress: () => Navigator.of(context).pop(),
+                onPress: () => context.pop(),
               ),
             ),
           ],

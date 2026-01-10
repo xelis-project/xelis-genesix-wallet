@@ -5,6 +5,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
+import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 
 import 'package:genesix/features/logger/logger.dart';
@@ -97,7 +98,7 @@ class _TransactionReviewDialogNewState
                 if (!transactionReview.isBroadcasted)
                   FButton.icon(
                     style: FButtonStyle.ghost(),
-                    onPress: () => Navigator.of(context).pop(),
+                    onPress: () => context.pop(),
                     child: const Icon(FIcons.x, size: 22),
                   ),
               ],
@@ -308,7 +309,7 @@ class _TransactionReviewDialogNewState
       return FButton(
         key: const ValueKey('ok'),
         style: FButtonStyle.primary(),
-        onPress: () => Navigator.of(context).pop(),
+        onPress: () => context.pop(),
         child: Text(loc.ok_button),
       );
     }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:go_router/go_router.dart';
 
 import 'xswd_paste_connection_dialog.dart';
 import 'xswd_qr_scanner_screen.dart';
@@ -35,7 +36,7 @@ class XswdNewConnectionDialog extends StatelessWidget {
                 ),
                 FButton.icon(
                   style: FButtonStyle.ghost(),
-                  onPress: () => Navigator.of(context).pop(),
+                  onPress: () => context.pop(),
                   child: const Icon(FIcons.x, size: 22),
                 ),
               ],
@@ -55,7 +56,7 @@ class XswdNewConnectionDialog extends StatelessWidget {
             FButton(
               style: FButtonStyle.secondary(),
               onPress: () {
-                Navigator.of(context).pop();
+                context.pop();
                 showFDialog<void>(
                   context: context,
                   builder: (context, style, animation) =>
@@ -69,7 +70,9 @@ class XswdNewConnectionDialog extends StatelessWidget {
             FButton(
               style: FButtonStyle.primary(),
               onPress: () async {
-                Navigator.of(context).pop();
+                context.pop();
+
+                // TODO: use GoRouter
                 await Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => XswdQRScannerScreen(),

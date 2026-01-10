@@ -7,6 +7,7 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:go_router/go_router.dart';
 
 import 'xswd_relayer.dart';
 
@@ -56,7 +57,7 @@ class _XswdPasteConnectionDialogState
                 ),
                 FButton.icon(
                   style: FButtonStyle.ghost(),
-                  onPress: _isProcessing ? null : () => Navigator.of(context).pop(),
+                  onPress: _isProcessing ? null : () => context.pop(),
                   child: const Icon(FIcons.x, size: 22),
                 ),
               ],
@@ -90,7 +91,7 @@ class _XswdPasteConnectionDialogState
           children: [
             FButton(
               style: FButtonStyle.secondary(),
-              onPress: _isProcessing ? null : () => Navigator.of(context).pop(),
+              onPress: _isProcessing ? null : () => context.pop(),
               child: const Text('Cancel'),
             ),
             const SizedBox(width: Spaces.small),
@@ -133,7 +134,7 @@ class _XswdPasteConnectionDialogState
 
       if (!mounted) return;
 
-      Navigator.of(context).pop(); // close dialog
+      context.pop(); // close dialog
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Connected to "${relayerData.name}" via relay'),
