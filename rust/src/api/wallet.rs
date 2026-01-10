@@ -13,7 +13,7 @@ use parking_lot::{Mutex, RwLock};
 use serde_json::json;
 use xelis_common::api::wallet::BaseFeeMode;
 use xelis_common::api::{DataElement, DataValue};
-use xelis_common::asset::{AssetData, AssetOwner, MaxSupplyMode};
+use xelis_common::asset::{self, AssetData, AssetOwner, MaxSupplyMode};
 use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
 use xelis_common::crypto::{Address, Hash, Hashable, Signature};
 use xelis_common::network::Network;
@@ -26,8 +26,8 @@ use xelis_common::transaction::BurnPayload;
 pub use xelis_common::transaction::Transaction;
 use xelis_common::utils::{format_coin, format_xelis};
 use xelis_wallet::precomputed_tables;
-pub use xelis_wallet::transaction_builder::TransactionBuilderState;
 pub use xelis_wallet::precomputed_tables::PrecomputedTablesShared;
+pub use xelis_wallet::transaction_builder::TransactionBuilderState;
 use xelis_wallet::wallet::{RecoverOption, Wallet};
 
 use super::precomputed_tables::{LogProgressTableGenerationReportFunction, PrecomputedTableType};
@@ -35,7 +35,7 @@ use crate::frb_generated::StreamSink;
 
 use super::models::wallet_dtos::{
     HistoryPageFilter, MultisigDartPayload, ParticipantDartPayload, SignatureMultisig,
-    SummaryTransaction, Transfer, XelisAssetMetadata, XelisAssetOwner, XelisMaxSupplyMode
+    SummaryTransaction, Transfer, XelisAssetMetadata, XelisAssetOwner, XelisMaxSupplyMode,
 };
 
 pub struct XelisWallet {
@@ -68,7 +68,11 @@ impl From<&AssetOwner> for XelisAssetOwner {
                 contract: contract.to_hex(),
                 id: *id,
             },
-            AssetOwner::Owner { origin, origin_id, owner } => XelisAssetOwner::Owner {
+            AssetOwner::Owner {
+                origin,
+                origin_id,
+                owner,
+            } => XelisAssetOwner::Owner {
                 origin: origin.to_hex(),
                 origin_id: *origin_id,
                 owner: owner.to_hex(),
@@ -380,34 +384,35 @@ impl XelisWallet {
 
     // get all the balances of the tracked assets
     pub async fn get_tracked_balances(&self) -> Result<HashMap<String, String>> {
+        info!("Retrieving tracked asset balances from wallet...");
         let storage = self.wallet.get_storage().read().await;
-        let tracked_assets = storage.get_tracked_assets()?;
 
         let mut balances = HashMap::new();
 
-        for asset in tracked_assets {
-            let asset = asset?;
-            let asset_data = storage
-                .get_asset(&asset)
-                .await
-                .context("Error retrieving asset data")?;
+        let count = storage.get_tracked_assets_count()?;
+        if count == 0 {
+            info!("No tracked assets found");
+            return Ok(balances);
+        }
+        info!("Retrieving {} tracked asset balances from wallet", count);
+        let tracked_assets = storage.get_tracked_assets()?;
 
-            if storage.has_balance_for(&asset).await.unwrap_or(false) {
-                info!("Asset {} is tracked and has a balance", asset);
-                let balance = storage
-                    .get_plaintext_balance_for(&asset)
-                    .await
-                    .context("Error retrieving balance")?;
-                balances.insert(
-                    asset.to_hex(),
-                    format_coin(balance, asset_data.get_decimals()),
-                );
-            } else {
-                info!("Asset {} is tracked but has no balance, showing 0", asset);
-                balances.insert(
-                    asset.to_hex(),
-                    format_coin(0, asset_data.get_decimals()),
-                );
+        for res in tracked_assets {
+            match res {
+                Ok(asset) => {
+                    if let Some(data) = storage.get_optional_asset(&asset).await? {
+                        let balance = storage
+                            .get_plaintext_balance_for(&asset)
+                            .await
+                            .context("Error retrieving balance")?;
+                        balances.insert(asset.to_hex(), format_coin(balance, data.get_decimals()));
+                    } else {
+                        warn!("No asset data for {}", asset);
+                    }
+                }
+                Err(e) => {
+                    error!("Error retrieving tracked asset: {}", e);
+                }
             }
         }
 
@@ -420,9 +425,17 @@ impl XelisWallet {
 
         let mut assets = HashMap::new();
 
+        let count = storage.get_untracked_assets_count()?;
+        if count == 0 {
+            info!("No known assets in wallet");
+            return Ok(assets);
+        }
+        info!("Retrieving {} known assets from wallet", count);
+
         for res in storage.get_assets_with_data().await? {
             match res {
                 Ok((hash, asset_data)) => {
+                    info!("Retrieving asset data for asset {}", hash);
                     let supply_mode_dto = XelisMaxSupplyMode::from(asset_data.get_max_supply());
                     let owner_dto = XelisAssetOwner::from(asset_data.get_owner());
 
@@ -453,7 +466,7 @@ impl XelisWallet {
             .wallet
             .track_asset(asset_hash)
             .await
-            .expect("Error tracking asset");
+            .context("Error tracking asset")?;
         Ok(result)
     }
 
@@ -464,7 +477,7 @@ impl XelisWallet {
             .wallet
             .untrack_asset(asset_hash)
             .await
-            .expect("Error tracking asset");
+            .context("Error tracking asset")?;
         Ok(result)
     }
 
@@ -472,7 +485,7 @@ impl XelisWallet {
         {
             let storage = self.wallet.get_storage().read().await;
             if storage.has_asset(asset_hash).await? {
-                return storage.get_asset(asset_hash).await
+                return storage.get_asset(asset_hash).await;
             }
         }
 
@@ -501,10 +514,15 @@ impl XelisWallet {
             }
         };
 
-        debug!("Storing fetched asset {} from network, storing it in wallet storage", asset_hash);
+        debug!(
+            "Storing fetched asset {} from network, storing it in wallet storage",
+            asset_hash
+        );
 
         let mut storage = self.wallet.get_storage().write().await;
-        storage.add_asset(asset_hash, asset_data.clone()).await
+        storage
+            .add_asset(asset_hash, asset_data.clone())
+            .await
             .context("Error storing fetched asset in wallet storage")?;
 
         debug!("Asset {} stored in wallet storage", asset_hash);
