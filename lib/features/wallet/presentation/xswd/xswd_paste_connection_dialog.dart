@@ -6,7 +6,6 @@ import 'package:forui/forui.dart';
 
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
-import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 
 import 'xswd_relayer.dart';

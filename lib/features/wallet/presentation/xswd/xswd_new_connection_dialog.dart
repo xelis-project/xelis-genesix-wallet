@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import 'package:go_router/go_router.dart';
 import 'package:genesix/shared/theme/constants.dart';
 
 import 'xswd_paste_connection_dialog.dart';

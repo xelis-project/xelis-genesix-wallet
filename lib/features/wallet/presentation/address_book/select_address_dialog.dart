@@ -4,7 +4,6 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 

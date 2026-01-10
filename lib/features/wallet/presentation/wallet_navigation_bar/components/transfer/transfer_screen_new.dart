@@ -5,9 +5,8 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
-import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
-import 'package:genesix/features/wallet/presentation/address_book/select_address_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_dialog_old.dart';
+import 'package:genesix/features/wallet/presentation/address_book/select_address_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_review_dialog_new.dart';
 import 'package:genesix/src/generated/rust_bridge/api/utils.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
@@ -19,6 +18,7 @@ import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:recase/recase.dart';
 import 'package:go_router/go_router.dart';
+// import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
 
 class TransferScreenNew extends ConsumerStatefulWidget {
   const TransferScreenNew({super.key, this.recipientAddress});
@@ -149,7 +149,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                     format: (assetEntry) {
                       final balance =
                           balances[assetEntry.key] ?? AppResources.zeroBalance;
-                      return '${assetEntry.value.name} (${balance} ${assetEntry.value.ticker})';
+                      return '${assetEntry.value.name} ($balance ${assetEntry.value.ticker})';
                     },
                     filter: (query) {
                       final availableAssets = validAssets
@@ -347,7 +347,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                             ),
                             color: FTheme.of(context).colors.primary,
                             width: 1,
-                          ),
+                          ).call,
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -497,39 +497,39 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
     }
   }
 
-  Future<void> _broadcastTransfer() async {
-    final loc = ref.read(appLocalizationsProvider);
-
-    try {
-      context.loaderOverlay.show();
-
-      final transactionReview = ref.read(transactionReviewProvider);
-
-      if (transactionReview is SingleTransferTransaction) {
-        await ref
-            .read(walletStateProvider.notifier)
-            .broadcastTx(hash: transactionReview.txHash);
-
-        ref.read(transactionReviewProvider.notifier).broadcast();
-
-        ref
-            .read(toastProvider.notifier)
-            .showEvent(description: loc.transaction_broadcast_message);
-      } else {
-        ref
-            .read(toastProvider.notifier)
-            .showError(
-              description: 'Unexpected transaction type for broadcast.',
-            );
-      }
-    } catch (e) {
-      ref.read(toastProvider.notifier).showError(description: e.toString());
-    } finally {
-      if (context.mounted && context.loaderOverlay.visible) {
-        context.loaderOverlay.hide();
-      }
-    }
-  }
+  // Future<void> _broadcastTransfer() async {
+  //   final loc = ref.read(appLocalizationsProvider);
+  //
+  //   try {
+  //     context.loaderOverlay.show();
+  //
+  //     final transactionReview = ref.read(transactionReviewProvider);
+  //
+  //     if (transactionReview is SingleTransferTransaction) {
+  //       await ref
+  //           .read(walletStateProvider.notifier)
+  //           .broadcastTx(hash: transactionReview.txHash);
+  //
+  //       ref.read(transactionReviewProvider.notifier).broadcast();
+  //
+  //       ref
+  //           .read(toastProvider.notifier)
+  //           .showEvent(description: loc.transaction_broadcast_message);
+  //     } else {
+  //       ref
+  //           .read(toastProvider.notifier)
+  //           .showError(
+  //             description: 'Unexpected transaction type for broadcast.',
+  //           );
+  //     }
+  //   } catch (e) {
+  //     ref.read(toastProvider.notifier).showError(description: e.toString());
+  //   } finally {
+  //     if (context.mounted && context.loaderOverlay.visible) {
+  //       context.loaderOverlay.hide();
+  //     }
+  //   }
+  // }
 
   void _reviewTransfer() async {
     // Update selected asset from controller

@@ -204,8 +204,9 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     if (isCancelOrDisconnect) return _ActionSet.okOnly;
     if (summary.isPermissionRequest()) return _ActionSet.permissionDecision;
     if (summary.isApplicationRequest()) return _ActionSet.connectionDecision;
-    if (summary.isPrefetchPermissionsRequest())
+    if (summary.isPrefetchPermissionsRequest()) {
       return _ActionSet.prefetchDecision;
+    }
 
     return _ActionSet.okOnly;
   }
@@ -529,12 +530,12 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
         _buildInfoRow(context, loc.id.capitalize(), appInfo.id, muted),
         const SizedBox(height: Spaces.medium),
         _buildInfoRow(context, loc.name.capitalize(), appInfo.name, muted),
-        if (appInfo.description != null && appInfo.description!.isNotEmpty) ...[
+        if (appInfo.description.isNotEmpty) ...[
           const SizedBox(height: Spaces.medium),
           _buildInfoRow(
             context,
             loc.description.capitalize(),
-            appInfo.description!,
+            appInfo.description,
             muted,
           ),
         ],

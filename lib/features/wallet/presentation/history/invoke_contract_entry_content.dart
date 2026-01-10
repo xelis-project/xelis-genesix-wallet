@@ -353,11 +353,10 @@ Widget _buildLogWidget(
               letterSpacing: 0.6,
             ),
           ),
-          if (details != null)
-            DefaultTextStyle.merge(
-              style: context.theme.typography.base,
-              child: details,
-            ),
+          DefaultTextStyle.merge(
+            style: context.theme.typography.base,
+            child: details,
+          ),
         ],
       ),
     );

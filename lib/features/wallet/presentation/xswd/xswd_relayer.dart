@@ -108,7 +108,7 @@ class RelaySessionData {
 
   /// Builds the relayer WebSocket URL used by the wallet to connect.
   /// Example: https://relay.xelis.io/ws/<channelId>
-  String buildRelayerWsUrl() => '${relayerNormalized}/ws/$channelId';
+  String buildRelayerWsUrl() => '$relayerNormalized/ws/$channelId';
 
   /// Decode and validate the optional encryption key + mode from the session.
   ///

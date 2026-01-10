@@ -1,12 +1,10 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:convert';
 import 'dart:io' show Platform;
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/application/history_providers.dart';
-import 'package:genesix/features/wallet/application/last_transactions_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_providers.dart';
 import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
 import 'package:flutter/foundation.dart';

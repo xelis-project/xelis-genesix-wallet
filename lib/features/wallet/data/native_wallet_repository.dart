@@ -292,7 +292,7 @@ class NativeWalletRepository {
             yield untrackAsset;
         }
       } catch (e) {
-        talker.error('Unknown event: ${json['event']}: ${json}');
+        talker.error('Unknown event: ${json['event']}: $json');
         continue;
       }
     }

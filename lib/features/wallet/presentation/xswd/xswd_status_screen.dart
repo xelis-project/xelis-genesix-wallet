@@ -17,7 +17,6 @@ import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 
 import 'xswd_edit_permission_dialog.dart';
 import 'xswd_new_connection_dialog.dart';
-import 'xswd_paste_connection_dialog.dart';
 import 'xswd_qr_scanner_screen.dart';
 
 class XswdStatusScreen extends ConsumerStatefulWidget {

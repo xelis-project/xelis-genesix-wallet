@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

@@ -529,7 +529,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
 
   Widget _handlePermissionRpcRequest(PermissionRpcRequest request) {
     if (request.method == WalletMethod.buildTransaction.jsonKey) {
-      final params = BuildTransactionParams.fromJson(request.params);
+      final params = BuildTransactionParams.fromJson(request.params!);
       final builder = params.transactionTypeBuilder;
 
       if (builder is TransfersBuilder) {
