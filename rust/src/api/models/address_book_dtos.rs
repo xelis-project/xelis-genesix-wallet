@@ -75,7 +75,7 @@ impl ContactDetails {
     }
 
     #[frb(ignore)]
-    pub fn from(fields: HashMap<DataValue, DataElement>) -> Result<Self, DataConversionError> {
+    pub fn from(fields: IndexMap<DataValue, DataElement>) -> Result<Self, DataConversionError> {
         let name = fields
             .get(&DataValue::String("name".to_string()))
             .and_then(|v| v.as_value().ok())
@@ -105,7 +105,7 @@ impl ContactDetails {
 
     #[frb(ignore)]
     pub fn to_data_element(&self) -> DataElement {
-        let mut fields = HashMap::new();
+        let mut fields = IndexMap::new();
         fields.insert(
             DataValue::String("name".to_string()),
             DataElement::Value(DataValue::String(self.name.clone())),

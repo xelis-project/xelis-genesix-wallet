@@ -4,7 +4,6 @@ import 'dart:io' show Platform;
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
-import 'package:genesix/features/wallet/application/history_providers.dart';
 import 'package:genesix/features/wallet/application/xswd_providers.dart';
 import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
 import 'package:flutter/foundation.dart';
@@ -317,19 +316,33 @@ class WalletState extends _$WalletState {
   }
 
   Future<void> rescan() async {
-    try {
-      await state.nativeWalletRepository?.rescan(topoheight: 0);
-    } on AnyhowException catch (e) {
-      talker.error('Rescan failed: $e');
-      final xelisMessage = (e).message.split("\n")[0];
-      ref
-          .read(toastProvider.notifier)
-          .showError(title: 'Rescan failed', description: xelisMessage);
-    } catch (e) {
-      talker.error('Rescan failed: $e');
-      ref
-          .read(toastProvider.notifier)
-          .showError(title: 'Rescan failed', description: e.toString());
+    final repository = state.nativeWalletRepository?.nativeWallet;
+    if (repository != null) {
+      try {
+        final txsCount = await repository.getHistoryCount();
+        if (txsCount > BigInt.zero) {
+          await repository.rescan(topoheight: BigInt.zero);
+          state = state.copyWith(isRescanning: true);
+          ref
+              .read(toastProvider.notifier)
+              .showInformation(title: 'Rescanning, please wait...');
+        } else {
+          ref
+              .read(toastProvider.notifier)
+              .showInformation(title: 'No history, rescan is not needed.');
+        }
+      } on AnyhowException catch (e) {
+        talker.error('Rescan failed: $e');
+        final xelisMessage = (e).message.split("\n")[0];
+        ref
+            .read(toastProvider.notifier)
+            .showError(title: 'Rescan failed', description: xelisMessage);
+      } catch (e) {
+        talker.error('Rescan failed: $e');
+        ref
+            .read(toastProvider.notifier)
+            .showError(title: 'Rescan failed', description: e.toString());
+      }
     }
   }
 
@@ -558,23 +571,14 @@ class WalletState extends _$WalletState {
   // Handle incoming events
   Future<void> _onEvent(Event event) async {
     final loc = ref.read(appLocalizationsProvider);
+    state = state.copyWith(lastEvent: event);
     switch (event) {
       case NewTopoHeight():
+        talker.info(event);
         state = state.copyWith(topoheight: event.topoheight);
 
       case NewTransaction():
         talker.info(event);
-        // Add the single new transaction directly from the event
-        // Don't refetch - during rescan, repository page 1 keeps changing!
-        try {
-          // Just add this single transaction to the master map
-          // Both history page and home page read from the same map
-          ref
-              .read(historyPagingStateProvider.notifier)
-              .addTransaction(event.transactionEntry);
-        } catch (e) {
-          talker.error('Error updating history: $e');
-        }
         if (state.topoheight != 0 &&
             event.transactionEntry.topoheight >= state.topoheight) {
           await updateMultisigState();
@@ -730,56 +734,27 @@ class WalletState extends _$WalletState {
       case Online():
         talker.info(event);
         state = state.copyWith(isOnline: true);
-        ref.read(toastProvider.notifier).showInformation(title: loc.connected);
+        if (!state.isRescanning) {
+          ref
+              .read(toastProvider.notifier)
+              .showInformation(title: loc.connected);
+        }
 
       case Offline():
         talker.info(event);
         state = state.copyWith(isOnline: false);
-        ref
-            .read(toastProvider.notifier)
-            .showInformation(title: loc.disconnected);
+        if (!state.isRescanning) {
+          ref
+              .read(toastProvider.notifier)
+              .showInformation(title: loc.disconnected);
+        }
 
       case HistorySynced():
         talker.info(event);
-        // Rescan/history sync complete - catch any transactions that arrived during rescan
-        try {
-          final repository = state.nativeWalletRepository;
-          if (repository != null) {
-            // Flush any pending batched transactions first
-            ref.read(historyPagingStateProvider.notifier).flushBatch();
-
-            // Fetch latest page from repository to catch any missed transactions
-            final historyFilterState = ref
-                .read(settingsProvider)
-                .historyFilterState;
-            final filter = HistoryPageFilter(
-              page: BigInt.one,
-              acceptIncoming: historyFilterState.showIncoming,
-              acceptOutgoing: historyFilterState.showOutgoing,
-              acceptCoinbase: historyFilterState.showCoinbase,
-              acceptBurn: historyFilterState.showBurn,
-              limit: BigInt.from(30),
-              assetHash: historyFilterState.asset,
-              address: historyFilterState.address,
-            );
-            final latestTransactions = await repository.history(filter);
-
-            // Add any transactions that aren't already in our map
-            final pagingNotifier = ref.read(
-              historyPagingStateProvider.notifier,
-            );
-            for (final tx in latestTransactions) {
-              if (!pagingNotifier.allTransactions.containsKey(tx.hash)) {
-                pagingNotifier.addTransaction(tx);
-              }
-            }
-
-            // Flush again to ensure they're processed
-            pagingNotifier.flushBatch();
-          }
-        } catch (e) {
-          talker.error('Error fetching transactions after history sync: $e');
-        }
+        state = state.copyWith(isRescanning: false);
+        ref
+            .read(toastProvider.notifier)
+            .showInformation(title: 'Rescan completed');
       case SyncError():
         talker.error(event);
         ref

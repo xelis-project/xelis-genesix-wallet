@@ -40,7 +40,7 @@ class OutgoingEntryContent extends ConsumerWidget {
       child: Padding(
         padding: const EdgeInsets.all(Spaces.medium),
         child: TransfersView.outgoing(
-          localizations: loc,
+          loc: loc,
           rows: rows,
           fee: formatXelis(outgoingEntry.fee, network),
         ),

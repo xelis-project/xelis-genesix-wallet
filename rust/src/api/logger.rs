@@ -19,10 +19,12 @@ static INIT_LOGGER_ONCE: Once = Once::new();
 pub fn init_logger() {
     INIT_LOGGER_ONCE.call_once(|| {
         CombinedLogger::init(vec![
+            // Box::new(SendToDartLogger {
+            //     level: LevelFilter::Debug,
+            // }),
             Box::new(SendToDartLogger {
-                level: LevelFilter::Debug,
+                level: LevelFilter::Info,
             }),
-            // Box::new(SendToDartLogger { level: LevelFilter::Info }),
             // Box::new(SendToDartLogger { level: LevelFilter::Trace }),
         ])
         .unwrap_or_else(|e| {

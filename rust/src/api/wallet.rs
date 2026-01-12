@@ -18,6 +18,7 @@ use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
 use xelis_common::crypto::{Address, Hash, Hashable, Signature};
 use xelis_common::network::Network;
 use xelis_common::serializer::Serializer;
+use xelis_common::tokio::sync::broadcast::error::RecvError;
 use xelis_common::transaction::builder::{
     FeeBuilder, MultiSigBuilder, TransactionTypeBuilder, TransferBuilder, UnsignedTransaction,
 };
@@ -1298,8 +1299,12 @@ impl XelisWallet {
                     sink.add(json_event)
                         .expect("Unable to send event data through stream");
                 }
-                Err(e) => {
-                    error!("Error with events stream: {}", e);
+                Err(RecvError::Lagged(skipped)) => {
+                    warn!("Events stream lagged; skipped {} messages", skipped);
+                    continue;
+                }
+                Err(RecvError::Closed) => {
+                    error!("Events stream closed; stopping listener");
                     break;
                 }
             }
