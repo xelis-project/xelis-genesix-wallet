@@ -37,7 +37,7 @@ class IncomingEntryContent extends ConsumerWidget {
       child: Padding(
         padding: const EdgeInsets.all(Spaces.medium),
         child: TransfersView.incoming(
-          localizations: loc,
+          loc: loc,
           rows: rows,
           fromAddress: incomingEntry.from,
         ),
