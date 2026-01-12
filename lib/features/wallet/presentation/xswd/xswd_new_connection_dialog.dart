@@ -14,10 +14,13 @@ class XswdNewConnectionDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+    final colors = theme.colors;
+
     return FDialog(
       style: style,
       animation: animation,
-      constraints: const BoxConstraints(maxWidth: 520),
+      constraints: const BoxConstraints(maxWidth: 600),
       body: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -27,9 +30,12 @@ class XswdNewConnectionDialog extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
                     'New Connection',
+                    style: theme.typography.xl2.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),
@@ -42,47 +48,106 @@ class XswdNewConnectionDialog extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: Spaces.small),
-          const Text('Choose how you want to connect:'),
-          const SizedBox(height: Spaces.medium),
+          const SizedBox(height: Spaces.large),
+          Row(
+            children: [
+              // Scan QR Button
+              Expanded(
+                child: _ConnectionMethodButton(
+                  title: 'Scan',
+                  description: 'Scan the QR code from a dApp',
+                  icon: FIcons.qrCode,
+                  onPressed: () async {
+                    context.pop();
+                    // TODO: use GoRouter
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const XswdQRScannerScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: Spaces.large),
+              // Paste JSON Button
+              Expanded(
+                child: _ConnectionMethodButton(
+                  title: 'Paste JSON',
+                  description: 'Paste the connection payload from a dApp',
+                  icon: FIcons.clipboard,
+                  onPressed: () {
+                    context.pop();
+                    showFDialog<void>(
+                      context: context,
+                      builder: (context, style, animation) =>
+                          XswdPasteConnectionDialog(style, animation),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ],
       ),
-      actions: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            FButton(
-              style: FButtonStyle.secondary(),
-              onPress: () {
-                context.pop();
-                showFDialog<void>(
-                  context: context,
-                  builder: (context, style, animation) =>
-                      XswdPasteConnectionDialog(style, animation),
-                );
-              },
-              prefix: const Icon(FIcons.clipboard, size: 18),
-              child: const Text('Paste'),
-            ),
-            const SizedBox(width: Spaces.small),
-            FButton(
-              style: FButtonStyle.primary(),
-              onPress: () async {
-                context.pop();
+      actions: const [],
+    );
+  }
+}
 
-                // TODO: use GoRouter
-                await Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => XswdQRScannerScreen(),
-                  ),
-                );
-              },
-              prefix: const Icon(FIcons.qrCode, size: 18),
-              child: const Text('Scan QR'),
+class _ConnectionMethodButton extends StatelessWidget {
+  const _ConnectionMethodButton({
+    required this.title,
+    required this.description,
+    required this.icon,
+    required this.onPressed,
+  });
+
+  final String title;
+  final String description;
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    final colors = theme.colors;
+
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: colors.border, width: 1.5),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        padding: const EdgeInsets.all(Spaces.extraLarge),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 64,
+              color: colors.primary,
+            ),
+            const SizedBox(height: Spaces.large),
+            Text(
+              title,
+              style: theme.typography.base.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: Spaces.small),
+            Text(
+              description,
+              style: theme.typography.sm.copyWith(
+                color: colors.mutedForeground,
+              ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
-      ],
+      ),
     );
   }
 }
