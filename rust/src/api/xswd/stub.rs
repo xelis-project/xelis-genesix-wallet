@@ -174,7 +174,7 @@ impl XSWD for XelisWallet {
             + Sync
             + 'static,
     ) -> Result<()> {
-        // WASM stub - relay connections not supported in web
+        // stub - relay connections require network_handler
         Ok(())
     }
 }
@@ -193,7 +193,7 @@ pub async fn xswd_handler(
     ) -> DartFnFuture<UserPermissionDecision>,
     _app_disconnect_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>,
 ) {
-    // no-op on wasm
+    // no-op w/o network_handler
 }
 
 pub async fn create_event_summary(

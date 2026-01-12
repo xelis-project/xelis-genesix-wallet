@@ -450,7 +450,9 @@ checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
 [[package]]
 name = "base64ct"
 version = "1.8.3"
+version = "1.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2af50177e190e07a26ab74f8b1efbfe2ef87da2116221318cb1c2e82baf7de06"
 checksum = "2af50177e190e07a26ab74f8b1efbfe2ef87da2116221318cb1c2e82baf7de06"
 
 [[package]]
@@ -1154,7 +1156,9 @@ dependencies = [
 [[package]]
 name = "flate2"
 version = "1.1.8"
+version = "1.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b375d6465b98090a5f25b1c7703f3859783755aa9a80433b36e0379a3ec2f369"
 checksum = "b375d6465b98090a5f25b1c7703f3859783755aa9a80433b36e0379a3ec2f369"
 dependencies = [
  "crc32fast",
@@ -1357,7 +1361,9 @@ dependencies = [
 [[package]]
 name = "getrandom"
 version = "0.2.17"
+version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ff2abc00be7fca6ebc474524697ae276ad847ad0a6b3faa4bcb027e9a4614ad0"
 checksum = "ff2abc00be7fca6ebc474524697ae276ad847ad0a6b3faa4bcb027e9a4614ad0"
 dependencies = [
  "cfg-if",
@@ -2340,6 +2346,7 @@ checksum = "6db2770f06117d490610c7488547d543617b21bfa07796d7a12f6f1bd53850d1"
 dependencies = [
  "rand_chacha 0.9.0",
  "rand_core 0.9.4",
+ "rand_core 0.9.4",
 ]
 
 [[package]]
@@ -2360,6 +2367,7 @@ checksum = "d3022b5f1df60f26e1ffddd6c66e8aa15de382ae63b3a0c1bfc0e4d3e3f325cb"
 dependencies = [
  "ppv-lite86",
  "rand_core 0.9.4",
+ "rand_core 0.9.4",
 ]
 
 [[package]]
@@ -2369,12 +2377,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c"
 dependencies = [
  "getrandom 0.2.17",
+ "getrandom 0.2.17",
 ]
 
 [[package]]
 name = "rand_core"
 version = "0.9.4"
+version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4f1b3bc831f92381018fd9c6350b917c7b21f1eed35a65a51900e0e55a3d7afa"
 checksum = "4f1b3bc831f92381018fd9c6350b917c7b21f1eed35a65a51900e0e55a3d7afa"
 dependencies = [
  "getrandom 0.3.4",
@@ -2517,6 +2528,7 @@ checksum = "a4689e6c2294d81e88dc6261c768b63bc4fcdb852be6d1352498b114f61383b7"
 dependencies = [
  "cc",
  "cfg-if",
+ "getrandom 0.2.17",
  "getrandom 0.2.17",
  "libc",
  "untrusted",
@@ -3123,8 +3135,7 @@ dependencies = [
 [[package]]
 name = "tokio-tungstenite-wasm"
 version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6725b2617a1a6c1caaf3dff3fba16db03bb27ae88cb3693405022566dd522c49"
+source = "git+https://github.com/Slixe/tokio-tungstenite-wasm?branch=main#41ef3302d11a2dc50cbc414963dabde5f9c2c133"
 dependencies = [
  "bytes",
  "futures-channel",
@@ -3962,7 +3973,7 @@ dependencies = [
 [[package]]
 name = "xelis_common"
 version = "1.21.2"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#9e35ac465b2085110300a8535b01aa49a86fdd1a"
+source = "git+https://github.com/tritonn204/xelis-blockchain?branch=trace#5efec1d3f7c23fd85f16726f3c7cbd674de8e38f"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -3980,6 +3991,7 @@ dependencies = [
  "fern",
  "futures",
  "futures-util",
+ "getrandom 0.2.17",
  "getrandom 0.2.17",
  "getrandom 0.4.0-rc.0",
  "hex",
@@ -4016,7 +4028,7 @@ dependencies = [
 [[package]]
 name = "xelis_wallet"
 version = "1.21.2"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#9e35ac465b2085110300a8535b01aa49a86fdd1a"
+source = "git+https://github.com/tritonn204/xelis-blockchain?branch=trace#5efec1d3f7c23fd85f16726f3c7cbd674de8e38f"
 dependencies = [
  "actix-web",
  "actix-web-httpauth",
@@ -4169,7 +4181,9 @@ dependencies = [
 [[package]]
 name = "zmij"
 version = "1.0.13"
+version = "1.0.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ac93432f5b761b22864c774aac244fa5c0fd877678a4c37ebf6cf42208f9c9ec"
 checksum = "ac93432f5b761b22864c774aac244fa5c0fd877678a4c37ebf6cf42208f9c9ec"
 
 [[package]]

@@ -15,8 +15,8 @@ parking_lot = "0.12.1"
 simplelog = "0.12.1"
 lazy_static = "1.4.0"
 serde_json = "1"
-xelis_wallet = { git = "https://github.com/xelis-project/xelis-blockchain", branch = "dev", package = "xelis_wallet", default-features = false }
-xelis_common = { git = "https://github.com/xelis-project/xelis-blockchain", branch = "dev", package = "xelis_common" }
+xelis_wallet = { git = "https://github.com/tritonn204/xelis-blockchain", branch = "trace", package = "xelis_wallet", default-features = false }
+xelis_common = { git = "https://github.com/tritonn204/xelis-blockchain", branch = "trace", package = "xelis_common" }
 serde = { version = "1.0.197", features = ["derive"] }
 trie-rs = "0.4.2"
 regex = "1.11.1"
@@ -31,8 +31,12 @@ wasm-bindgen = "0.2.92"
 getrandom = { version = "0.3", features = ["wasm_js"] }
 
 [features]
-default = ["xelis_wallet/api_server"]
+default = ["xelis_wallet/api_server", "network_handler", "xswd"]
 network_handler = ["xelis_wallet/network_handler"]
+xswd = ["xelis_wallet/xswd"]
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
+
+[patch.crates-io]
+tokio-tungstenite-wasm = { git = "https://github.com/Slixe/tokio-tungstenite-wasm", branch = "main" }

@@ -31,7 +31,10 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
   Timer? _statusCheckTimer;
   bool _isXswdRunning = false;
 
-  bool get _showFooter => Platform.isAndroid || Platform.isIOS || kIsWeb;
+  bool get _showFooter {
+    if (kIsWeb) return true;
+    return Platform.isAndroid || Platform.isIOS;
+  }
 
   @override
   void initState() {
@@ -223,22 +226,23 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
   }
 
   Widget _buildServerStatus(BuildContext context, AppLocalizations loc) {
-    // Mobile uses relay mode only - show relay status instead of server status
-    final isMobile =
+    // Mobile and Web use relay mode only - show relay status instead of server status
+    final isRelay =
+        kIsWeb ||
         defaultTargetPlatform == TargetPlatform.android ||
         defaultTargetPlatform == TargetPlatform.iOS;
 
-    final statusText = isMobile
+    final statusText = isRelay
         ? 'Relay Mode'
         : (_isXswdRunning
               ? '${loc.xswd_status}: ${loc.running.capitalize()}'
               : '${loc.xswd_status}: ${loc.stopped.capitalize()}');
 
-    final statusColor = isMobile || _isXswdRunning
+    final statusColor = isRelay || _isXswdRunning
         ? context.theme.colors.primary
         : context.theme.colors.destructive;
 
-    final bgColor = isMobile || _isXswdRunning
+    final bgColor = isRelay || _isXswdRunning
         ? context.theme.colors.primaryForeground.withValues(alpha: 0.1)
         : context.theme.colors.destructiveForeground.withValues(alpha: 0.1);
 

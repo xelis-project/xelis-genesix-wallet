@@ -12,6 +12,7 @@ import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget_old.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
 
 import 'xswd_relayer.dart';
 
@@ -133,11 +134,12 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
   }
 
   Future<void> _processPayload(String raw) async {
+    final loc = ref.read(appLocalizationsProvider);
+
     try {
       final json = jsonDecode(raw) as Map<String, dynamic>;
       final session = RelaySessionData.fromJson(json);
 
-      // ✅ Shared validation + conversion
       final relayerData = session.toApplicationDataRelayer();
 
       await ref.read(walletStateProvider.notifier).addXswdRelayer(relayerData);
@@ -145,21 +147,20 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
       if (!mounted) return;
 
       context.pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Connected to "${relayerData.name}" via relay'),
-          backgroundColor: Colors.green,
-        ),
+
+      ref.read(toastProvider.notifier).showEvent(
+        description: 'Connected to "${relayerData.name}" via relay',
       );
     } catch (e, st) {
       talker.error('XSWD QR processing failed', e, st);
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
-        );
-        setState(() => _isProcessing = false);
-      }
+      if (!mounted) return;
+
+      ref.read(toastProvider.notifier).showError(
+        description: e.toString(),
+      );
+
+      setState(() => _isProcessing = false);
     }
   }
 }

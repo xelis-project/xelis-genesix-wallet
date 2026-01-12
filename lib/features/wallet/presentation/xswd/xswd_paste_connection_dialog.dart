@@ -8,6 +8,7 @@ import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:go_router/go_router.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
 
 import 'xswd_relayer.dart';
 
@@ -134,20 +135,18 @@ class _XswdPasteConnectionDialogState
 
       if (!mounted) return;
 
-      context.pop(); // close dialog
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Connected to "${relayerData.name}" via relay'),
-          backgroundColor: Colors.green,
-        ),
+      context.pop();
+
+      ref.read(toastProvider.notifier).showEvent(
+        description: 'Connected to "${relayerData.name}" via relay',
       );
     } catch (e, st) {
       talker.error('XSWD paste processing failed', e, st);
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+      ref.read(toastProvider.notifier).showError(
+        description: e.toString(),
       );
 
       setState(() => _isProcessing = false);

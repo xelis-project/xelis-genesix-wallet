@@ -8,7 +8,9 @@ use xelis_common::tokio::spawn_task;
 pub use xelis_common::tokio::sync::mpsc::UnboundedReceiver;
 pub use xelis_common::tokio::sync::oneshot::Sender;
 pub use xelis_wallet::api::AppState;
-use xelis_wallet::api::{APIServer, InternalPrefetchPermissions, Permission, PermissionResult};
+use xelis_wallet::api::{InternalPrefetchPermissions, Permission, PermissionResult};
+#[cfg(not(target_arch = "wasm32"))]
+use xelis_wallet::api::APIServer;
 pub use xelis_wallet::wallet::XSWDEvent;
 
 use crate::api::{
@@ -92,63 +94,78 @@ pub trait XSWD {
 impl XSWD for XelisWallet {
     async fn start_xswd(
         &self,
-        cancel_request_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>
+        _cancel_request_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>
             + Send
             + Sync
             + 'static,
-        request_application_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+        _request_application_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
             + Send
             + Sync
             + 'static,
-        request_permission_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+        _request_permission_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
             + Send
             + Sync
             + 'static,
-        request_prefetch_permissions_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+        _request_prefetch_permissions_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
             + Send
             + Sync
             + 'static,
-        app_disconnect_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>
+        _app_disconnect_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>
             + Send
             + Sync
             + 'static,
     ) -> Result<()> {
-        match self.get_wallet().enable_xswd().await {
-            Ok(Some(receiver)) => {
-                spawn_task("xswd_handler", async move {
-                    xswd_handler(
-                        receiver,
-                        cancel_request_dart_callback,
-                        request_application_dart_callback,
-                        request_permission_dart_callback,
-                        request_prefetch_permissions_dart_callback,
-                        app_disconnect_dart_callback,
-                    )
-                    .await;
-                });
-            }
-            Ok(None) => {
-                // XSWD server is already running, this is not an error
-            }
-            Err(e) => bail!("Error while enabling XSWD Server: {}", e),
-        };
-        Ok(())
+        #[cfg(target_arch = "wasm32")]
+        {
+            let _ = (_cancel_request_dart_callback, _request_application_dart_callback, _request_permission_dart_callback, _request_prefetch_permissions_dart_callback, _app_disconnect_dart_callback);
+            bail!("Local XSWD server not supported on web. Use relay mode instead.");
+        }
+
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            match self.get_wallet().enable_xswd().await {
+                Ok(Some(receiver)) => {
+                    spawn_task("xswd_handler", async move {
+                        xswd_handler(
+                            receiver,
+                            _cancel_request_dart_callback,
+                            _request_application_dart_callback,
+                            _request_permission_dart_callback,
+                            _request_prefetch_permissions_dart_callback,
+                            _app_disconnect_dart_callback,
+                        )
+                        .await;
+                    });
+                }
+                Ok(None) => {
+                    // XSWD server is already running, this is not an error
+                }
+                Err(e) => bail!("Error while enabling XSWD Server: {}", e),
+            };
+            Ok(())
+        }
     }
 
     async fn stop_xswd(&self) -> Result<()> {
-        self.get_wallet().stop_api_server().await?;
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            self.get_wallet().stop_api_server().await?;
+        }
         Ok(())
     }
 
     async fn is_xswd_running(&self) -> bool {
-        // Check if local XSWD server is running
-        let lock = self.get_wallet().get_api_server().lock().await;
-        if lock.is_some() {
-            return true;
+        // Check if local XSWD server is running (native only)
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let lock = self.get_wallet().get_api_server().lock().await;
+            if lock.is_some() {
+                return true;
+            }
+            drop(lock);
         }
-        drop(lock);
 
-        // Check if there are any relayer connections
+        // Check if there are any relayer connections (works on both native and web)
         let relayer_lock = self.get_wallet().xswd_relayer().lock().await;
         if let Some(relayer) = relayer_lock.as_ref() {
             let apps = relayer.applications().read().await;
@@ -161,22 +178,25 @@ impl XSWD for XelisWallet {
     async fn get_application_permissions(&self) -> Result<Vec<AppInfo>> {
         let mut apps = Vec::new();
 
-        // Get applications from XSWD server (local connections)
-        let lock = self.get_wallet().get_api_server().lock().await;
-        if let Some(api_server) = lock.as_ref() {
-            match api_server {
-                APIServer::XSWD(xswd) => {
-                    let applications = xswd.get_handler().get_applications().read().await;
-                    for (_, app) in applications.iter() {
-                        let app_info = create_app_info(app).await;
-                        apps.push(app_info);
+        // Get applications from XSWD server (local connections - native only)
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let lock = self.get_wallet().get_api_server().lock().await;
+            if let Some(api_server) = lock.as_ref() {
+                match api_server {
+                    APIServer::XSWD(xswd) => {
+                        let applications = xswd.get_handler().get_applications().read().await;
+                        for (_, app) in applications.iter() {
+                            let app_info = create_app_info(app).await;
+                            apps.push(app_info);
+                        }
                     }
+                    _ => {}
                 }
-                _ => {}
             }
         }
 
-        // Get applications from XSWD relayer (remote connections)
+        // Get applications from XSWD relayer (remote connections - works on both native and web)
         let relayer_lock = self.get_wallet().xswd_relayer().lock().await;
         if let Some(relayer) = relayer_lock.as_ref() {
             let relayer_apps = relayer.applications().read().await;
@@ -225,17 +245,20 @@ impl XSWD for XelisWallet {
             Ok(())
         }
 
-        // Try XSWD server first
-        let lock = self.get_wallet().get_api_server().lock().await;
-        if let Some(api_server) = lock.as_ref() {
-            if let APIServer::XSWD(xswd) = api_server {
-                let mut applications = xswd.get_handler().get_applications().write().await;
-                if let Some((_, app)) = applications.iter_mut().find(|(_, v)| v.get_id() == id) {
-                    return modify_perms(app, &permissions).await;
+        // Try XSWD server first (native only)
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let lock = self.get_wallet().get_api_server().lock().await;
+            if let Some(api_server) = lock.as_ref() {
+                if let APIServer::XSWD(xswd) = api_server {
+                    let mut applications = xswd.get_handler().get_applications().write().await;
+                    if let Some((_, app)) = applications.iter_mut().find(|(_, v)| v.get_id() == id) {
+                        return modify_perms(app, &permissions).await;
+                    }
                 }
             }
+            drop(lock);
         }
-        drop(lock);
 
         // Try relayer if not found in XSWD server
         let relayer_lock = self.get_wallet().xswd_relayer().lock().await;
@@ -250,31 +273,34 @@ impl XSWD for XelisWallet {
     }
 
     async fn close_application_session(&self, id: &String) -> Result<()> {
-        // Try XSWD server first
-        let lock = self.get_wallet().get_api_server().lock().await;
-        if let Some(api_server) = lock.as_ref() {
-            if let APIServer::XSWD(xswd) = api_server {
-                let removed_session = {
-                    let mut applications = xswd.get_handler().get_applications().write().await;
-                    let mut removed_key = None;
-                    applications.retain(|k, v| {
-                        if v.get_id() == id {
-                            removed_key = Some(k.clone());
-                            false
-                        } else {
-                            true
-                        }
-                    });
-                    removed_key
-                };
+        // Try XSWD server first (native only)
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let lock = self.get_wallet().get_api_server().lock().await;
+            if let Some(api_server) = lock.as_ref() {
+                if let APIServer::XSWD(xswd) = api_server {
+                    let removed_session = {
+                        let mut applications = xswd.get_handler().get_applications().write().await;
+                        let mut removed_key = None;
+                        applications.retain(|k, v| {
+                            if v.get_id() == id {
+                                removed_key = Some(k.clone());
+                                false
+                            } else {
+                                true
+                            }
+                        });
+                        removed_key
+                    };
 
-                if let Some(session) = removed_session {
-                    session.close(None).await?;
-                    return Ok(());
+                    if let Some(session) = removed_session {
+                        session.close(None).await?;
+                        return Ok(());
+                    }
                 }
             }
+            drop(lock);
         }
-        drop(lock);
 
         // Try relayer if not found in XSWD server
         let relayer_lock = self.get_wallet().xswd_relayer().lock().await;

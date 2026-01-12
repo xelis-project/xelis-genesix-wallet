@@ -1,4 +1,4 @@
-#set shell:= ["cmd.exe", "/c"] ### Uncomment on Windows ###
+# set shell:= ["cmd.exe", "/c"] ### Uncomment on Windows ###
 
 update: flutter_get install_rust_bridge_codegen rust_update gen_rust_bridge gen_flutter format
 
@@ -45,7 +45,7 @@ gen_arb:
 CRATE_DIR      := 'rust'
 OUT_DIR        := '../web/pkg'
 WASM_NAME      := 'rust_lib'
-FEATURES       := 'network_handler'
+FEATURES       := 'network_handler,xswd'
 BUILD_STD      := 'std,panic_abort'
 WASM_TARGET    := 'no-modules'
 
