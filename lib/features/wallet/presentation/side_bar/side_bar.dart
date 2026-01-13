@@ -238,6 +238,7 @@ class _SideBarState extends ConsumerState<SideBar> {
                     _closeSideBar();
                   },
                   reason: loc.please_authenticate_view_seed,
+                  popOnSubmit: false,
                 );
               },
             ),

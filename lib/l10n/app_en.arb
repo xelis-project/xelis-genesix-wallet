@@ -188,7 +188,7 @@
   "disconnecting_toast_error": "Something went wrong during disconnection...",
   "transfer_failed": "The transfer has failed.",
   "warning": "Warning",
-  "seed_warning_message_1": "Never disclose your seed phrase. Sharing it may result in a lost of funds.",
+  "seed_warning_message_1": "Never disclose your seed phrase. Sharing it may result in a loss of funds.",
   "seed_warning_message_2": "Your wallet recovery phrase is:",
   "seed_warning_message_3": "Save it somewhere safe. You can write it down on a piece of paper.",
   "seed_warning_message_4": "Yes, I have saved my seed.",

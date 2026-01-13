@@ -19,6 +19,7 @@ Future<void> startWithBiometricAuth(
   required void Function(WidgetRef ref) callback,
   required String reason,
   bool closeCurrentDialog = false,
+  bool popOnSubmit = true,
 }) async {
   var authenticated = false;
   if (!kIsWeb) {
@@ -33,7 +34,12 @@ Future<void> startWithBiometricAuth(
       await showFDialog<void>(
         context: ref.context,
         builder: (context, style, animation) {
-          return PasswordDialog(style, animation, onValid: () => callback(ref));
+          return PasswordDialog(
+            style,
+            animation,
+            onValid: () => callback(ref),
+            closeOnValid: popOnSubmit,
+          );
         },
       );
     }
