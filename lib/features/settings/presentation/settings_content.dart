@@ -81,6 +81,7 @@ class _SettingsContentState extends ConsumerState<SettingsContent> {
                     suffix: Icon(FIcons.chevronRight),
                     onPress: () {
                       showFDialog<void>(
+                        useRootNavigator: true,
                         context: context,
                         builder: (context, style, animation) {
                           return LanguageSelectorDialog(style, animation);

@@ -409,6 +409,7 @@ class XswdAppDetail extends ConsumerWidget {
   ) async {
     final confirmed = await showFDialog<bool>(
       context: context,
+      useRootNavigator: true,
       builder: (dialogContext, style, animation) {
         return FDialog(
           style: style,

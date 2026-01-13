@@ -296,6 +296,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
               if (kIsWeb) {
                 showFDialog<void>(
                   context: context,
+                  useRootNavigator: true,
                   builder: (context, style, animation) =>
                       XswdNewConnectionDialog(style, animation),
                 );

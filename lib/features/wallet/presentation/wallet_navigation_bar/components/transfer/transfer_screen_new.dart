@@ -431,6 +431,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
 
   Future<void> _onAddressBookClicked() async {
     final address = await showFDialog<String>(
+      useRootNavigator: true,
       context: context,
       builder: (dialogContext, style, animation) {
         return SelectAddressDialog(style, animation);

@@ -212,6 +212,7 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
   void _onDelete(String address, String name) {
     final loc = ref.read(appLocalizationsProvider);
     showFDialog<void>(
+      useRootNavigator: true,
       context: context,
       builder: (context, style, animation) {
         return ConfirmDialog(

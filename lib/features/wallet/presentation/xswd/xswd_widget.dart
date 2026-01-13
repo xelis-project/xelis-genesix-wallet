@@ -24,6 +24,7 @@ class XswdWidget extends ConsumerStatefulWidget {
 
       showFDialog<void>(
         context: ctx,
+        useRootNavigator: true,
         builder: (context, style, animation) => XswdDialog(style, animation),
       ).then((_) {
         // Dialog closed - ensure decision is completed (handles barrier dismissal)

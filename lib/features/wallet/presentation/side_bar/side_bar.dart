@@ -105,6 +105,7 @@ class _SideBarState extends ConsumerState<SideBar> {
                   onPress: () {
                     _closeSideBar();
                     showFDialog<void>(
+                      useRootNavigator: true,
                       context: context,
                       builder: (context, style, animation) {
                         return ReceiveAddressDialog(style, animation);

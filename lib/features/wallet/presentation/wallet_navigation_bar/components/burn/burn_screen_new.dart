@@ -313,6 +313,7 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
 
     if (mounted) {
       await showFDialog<void>(
+        useRootNavigator: true,
         context: context,
         barrierDismissible: false,
         builder: (dialogContext, style, animation) {

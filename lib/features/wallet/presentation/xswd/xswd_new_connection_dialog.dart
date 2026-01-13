@@ -79,6 +79,7 @@ class XswdNewConnectionDialog extends StatelessWidget {
                     context.pop();
                     showFDialog<void>(
                       context: context,
+                      useRootNavigator: true,
                       builder: (context, style, animation) =>
                           XswdPasteConnectionDialog(style, animation),
                     );

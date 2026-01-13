@@ -34,6 +34,7 @@ class _HomeWalletContentState extends ConsumerState<HomeWalletContent> {
       final seed = extra;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showFDialog<void>(
+          useRootNavigator: true,
           context: context,
           barrierDismissible: false,
           builder: (context, style, animation) {

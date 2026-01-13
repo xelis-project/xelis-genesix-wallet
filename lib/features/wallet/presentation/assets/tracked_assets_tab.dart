@@ -83,6 +83,7 @@ class _TrackedAssetsTabState extends ConsumerState<TrackedAssetsTab> {
 
   void _showDetails(String hash, sdk.AssetData asset, String balance) {
     showFDialog<void>(
+      useRootNavigator: true,
       context: context,
       builder: (context, style, animation) =>
           TrackedAssetDetails(hash, asset, balance),

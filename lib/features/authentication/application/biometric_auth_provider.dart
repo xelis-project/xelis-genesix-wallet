@@ -33,6 +33,7 @@ Future<void> startWithBiometricAuth(
     if (ref.context.mounted) {
       await showFDialog<void>(
         context: ref.context,
+        useRootNavigator: true,
         builder: (context, style, animation) {
           return PasswordDialog(
             style,
