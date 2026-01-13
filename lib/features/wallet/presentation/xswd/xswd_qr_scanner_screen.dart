@@ -146,7 +146,7 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
 
       if (!mounted) return;
 
-      context.pop();
+      Navigator.of(context).pop();
 
       ref.read(toastProvider.notifier).showEvent(
         description: 'Connected to "${relayerData.name}" via relay',

@@ -73,7 +73,7 @@ class XswdNewConnectionDialog extends StatelessWidget {
               Expanded(
                 child: _ConnectionMethodButton(
                   title: 'Paste JSON',
-                  description: 'Paste the connection payload from a dApp',
+                  description: 'Paste the connection data from a dApp',
                   icon: FIcons.clipboard,
                   onPressed: () {
                     context.pop();

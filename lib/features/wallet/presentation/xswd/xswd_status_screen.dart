@@ -27,7 +27,10 @@ class XswdStatusScreen extends ConsumerStatefulWidget {
 }
 
 class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
-  bool get _showFooter => Platform.isAndroid || Platform.isIOS || kIsWeb;
+  // bool get _showFooter {
+  //   if (kIsWeb) return true;
+  //   return Platform.isAndroid || Platform.isIOS;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -193,7 +196,7 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
             ),
           ),
           // Footer with "New Connection" button
-          if (_showFooter) _buildFooter(context),
+          _buildFooter(context)
         ],
       ),
     );
@@ -213,21 +216,13 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
           width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: () async {
-              if (kIsWeb) {
-                showFDialog<void>(
-                  context: context,
-                  useRootNavigator: true,
-                  builder: (context, style, animation) =>
-                      XswdNewConnectionDialog(style, animation),
-                );
-                return;
-              }
-              // TODO: use GoRouter
-              await Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const XswdQRScannerScreen(),
-                ),
+              showFDialog<void>(
+                context: context,
+                useRootNavigator: true,
+                builder: (context, style, animation) =>
+                    XswdNewConnectionDialog(style, animation),
               );
+              return;
             },
             icon: const Icon(Icons.qr_code_scanner, size: 20),
             label: const Text('New Connection'),

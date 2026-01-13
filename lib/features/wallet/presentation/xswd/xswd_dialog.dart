@@ -41,7 +41,7 @@ enum _ActionSet {
 
 class _XswdDialogState extends ConsumerState<XswdDialog> {
   static const int _requestLifetime = 60000;
-  static const Duration _rapidFireWindow = Duration(milliseconds: 300);
+  static const Duration _rapidFireWindow = Duration(milliseconds: 500);
 
   int _millisecondsLeft = _requestLifetime;
   double _progress = 1.0;
