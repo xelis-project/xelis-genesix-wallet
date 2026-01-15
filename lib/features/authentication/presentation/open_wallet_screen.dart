@@ -217,6 +217,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
     // Fallback to password dialog
     showFDialog<void>(
       context: context,
+      useRootNavigator: true,
       builder: (dialogContext, style, animation) {
         return PasswordDialog(
           style,

@@ -22,6 +22,7 @@ import 'package:intl/intl.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:genesix/features/wallet/presentation/history/coinbase_entry_content.dart';
+import 'package:genesix/features/wallet/presentation/history/incoming_contract_entry_content.dart';
 
 class TransactionEntryScreen extends ConsumerStatefulWidget {
   const TransactionEntryScreen({super.key});
@@ -59,12 +60,12 @@ class _TransactionEntryScreenState
     final entryType = transactionEntry.txEntryType;
 
     int? nonce;
-    String hashPath = 'txs/';
+    String hashPath = 'tx/';
     switch (entryType) {
       case sdk.CoinbaseEntry():
         entryTypeName = loc.coinbase;
         color = Colors.amber;
-        hashPath = 'blocks/';
+        hashPath = 'block/';
         transactionTypeContent = CoinbaseEntryContent(entryType);
       case sdk.BurnEntry():
         entryTypeName = loc.burn;
@@ -89,12 +90,19 @@ class _TransactionEntryScreenState
         entryTypeName = 'Contract Invocation';
         color = Colors.deepPurple;
         nonce = entryType.nonce;
-        transactionTypeContent = InvokeContractEntryContent(entryType);
+        transactionTypeContent = InvokeContractEntryContent(
+          entryType,
+          transactionEntry,
+        );
       case sdk.DeployContractEntry():
         entryTypeName = 'Contract Deployment';
         color = Colors.teal;
         nonce = entryType.nonce;
         transactionTypeContent = DeployContractEntryContent(entryType);
+      case sdk.IncomingContractEntry():
+        entryTypeName = 'Contract Transfer';
+        color = Colors.purple.shade300;
+        transactionTypeContent = IncomingContractEntryContent(entryType);
     }
 
     Uri url;
@@ -130,28 +138,31 @@ class _TransactionEntryScreenState
           ),
         ],
       ),
-      child: BodyLayoutBuilder(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: Spaces.small),
-          child: FadedScroll(
-            controller: _controller,
-            fadeFraction: 0.08,
-            child: SingleChildScrollView(
+      child: SafeArea(
+        top: false,
+        child: BodyLayoutBuilder(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: Spaces.small),
+            child: FadedScroll(
               controller: _controller,
-              child: Column(
-                spacing: Spaces.medium,
-                children: [
-                  BaseTransactionEntryCard(
-                    transactionEntry: transactionEntry,
-                    type: entryTypeName,
-                    color: color,
-                    timestamp: displayTimestamp,
-                    topoheight: displayTopoheight,
-                    url: url,
-                    nonce: nonce,
-                  ),
-                  transactionTypeContent,
-                ],
+              fadeFraction: 0.08,
+              child: SingleChildScrollView(
+                controller: _controller,
+                child: Column(
+                  spacing: Spaces.medium,
+                  children: [
+                    BaseTransactionEntryCard(
+                      transactionEntry: transactionEntry,
+                      type: entryTypeName,
+                      color: color,
+                      timestamp: displayTimestamp,
+                      topoheight: displayTopoheight,
+                      url: url,
+                      nonce: nonce,
+                    ),
+                    transactionTypeContent,
+                  ],
+                ),
               ),
             ),
           ),

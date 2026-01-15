@@ -1,5 +1,3 @@
-// lib/features/wallet/presentation/wallet_navigation_bar/components/burn/burn_screen_new.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
@@ -7,15 +5,16 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
-import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_review_dialog_new.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+// import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
 
 class BurnScreenNew extends ConsumerStatefulWidget {
   const BurnScreenNew({super.key});
@@ -93,9 +92,7 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
           prefixes: [
             Padding(
               padding: const EdgeInsets.all(Spaces.small),
-              child: FHeaderAction.back(
-                onPress: () => Navigator.of(context).pop(),
-              ),
+              child: FHeaderAction.back(onPress: () => context.pop()),
             ),
           ],
           title: Text(loc.burn),
@@ -316,6 +313,7 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
 
     if (mounted) {
       await showFDialog<void>(
+        useRootNavigator: true,
         context: context,
         barrierDismissible: false,
         builder: (dialogContext, style, animation) {

@@ -80,6 +80,8 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
         title = loc.connection_request.capitalize();
       case XswdRequestType_Permission():
         title = loc.permission_request.capitalize();
+      case XswdRequestType_PrefetchPermissions():
+        title = loc.prefetch_permissions_request.capitalize();
       case XswdRequestType_CancelRequest():
         title = loc.cancellation_request.capitalize();
       case XswdRequestType_AppDisconnect():
@@ -328,7 +330,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
 
   Widget _handlePermissionRpcRequest(PermissionRpcRequest request) {
     if (request.method == WalletMethod.buildTransaction.jsonKey) {
-      final params = BuildTransactionParams.fromJson(request.params);
+      final params = BuildTransactionParams.fromJson(request.params!);
       final builder = params.transactionTypeBuilder;
 
       if (builder is TransfersBuilder) {

@@ -77,6 +77,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
 
   void _showChangePasswordDialog() {
     showFDialog<void>(
+      useRootNavigator: true,
       context: context,
       builder: (context, style, animation) {
         return ChangePasswordDialog();
@@ -87,6 +88,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
   void _showDeleteWalletDialog() {
     final loc = ref.read(appLocalizationsProvider);
     showFDialog<void>(
+      useRootNavigator: true,
       context: ref.context,
       builder: (context, style, animation) {
         return ConfirmDialog(

@@ -27,6 +27,7 @@ const Set<String> _releaseExcludedProviders = {
   'walletStateProvider',
   'historyProvider',
   'lastTransactionsProvider',
+  'historyPagingStateProvider',
 };
 
 // Build Riverpod logger settings based on build mode

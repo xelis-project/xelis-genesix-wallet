@@ -21,12 +21,14 @@ pub enum XSWDEvent {
     CancelRequest,
     RequestApplication,
     RequestPermission,
+    PrefetchPermissions,
     AppDisconnect,
 }
 
 use crate::api::{
     models::xswd_dtos::{
-        AppInfo, PermissionPolicy, UserPermissionDecision, XswdRequestSummary, XswdRequestType,
+        AppInfo, ApplicationDataRelayer, PermissionPolicy, UserPermissionDecision,
+        XswdRequestSummary, XswdRequestType,
     },
     wallet::XelisWallet,
 };
@@ -44,6 +46,10 @@ pub trait XSWD {
             + Sync
             + 'static,
         request_permission_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        request_prefetch_permissions_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
             + Send
             + Sync
             + 'static,
@@ -66,6 +72,31 @@ pub trait XSWD {
     ) -> Result<()>;
 
     async fn close_application_session(&self, id: &String) -> Result<()>;
+
+    async fn add_xswd_relayer(
+        &self,
+        app_data: ApplicationDataRelayer,
+        cancel_request_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>
+            + Send
+            + Sync
+            + 'static,
+        request_application_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        request_permission_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        request_prefetch_permissions_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        app_disconnect_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>
+            + Send
+            + Sync
+            + 'static,
+    ) -> Result<()>;
 }
 
 impl XSWD for XelisWallet {
@@ -80,6 +111,10 @@ impl XSWD for XelisWallet {
             + Sync
             + 'static,
         _request_permission_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        _request_prefetch_permissions_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
             + Send
             + Sync
             + 'static,
@@ -114,6 +149,34 @@ impl XSWD for XelisWallet {
     async fn close_application_session(&self, _id: &String) -> Result<()> {
         Ok(())
     }
+
+    async fn add_xswd_relayer(
+        &self,
+        _app_data: ApplicationDataRelayer,
+        _cancel_request_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>
+            + Send
+            + Sync
+            + 'static,
+        _request_application_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        _request_permission_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        _request_prefetch_permissions_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>
+            + Send
+            + Sync
+            + 'static,
+        _app_disconnect_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>
+            + Send
+            + Sync
+            + 'static,
+    ) -> Result<()> {
+        // stub - relay connections require network_handler
+        Ok(())
+    }
 }
 
 pub async fn xswd_handler(
@@ -125,9 +188,12 @@ pub async fn xswd_handler(
     _request_permission_dart_callback: impl Fn(
         XswdRequestSummary,
     ) -> DartFnFuture<UserPermissionDecision>,
+    _request_prefetch_permissions_dart_callback: impl Fn(
+        XswdRequestSummary,
+    ) -> DartFnFuture<UserPermissionDecision>,
     _app_disconnect_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>,
 ) {
-    // no-op on wasm
+    // no-op w/o network_handler
 }
 
 pub async fn create_event_summary(
@@ -145,6 +211,7 @@ pub async fn create_app_info(_state: &AppState) -> AppInfo {
         description: String::new(),
         url: None,
         permissions: HashMap::new(),
+        is_relayer: false,
     }
 }
 

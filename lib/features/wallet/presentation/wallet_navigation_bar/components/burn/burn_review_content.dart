@@ -3,7 +3,6 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:forui/forui.dart';
-import 'package:forui/theme.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
@@ -44,7 +43,7 @@ class BurnReviewContent extends ConsumerWidget {
                         loc.asset,
                         style: context.theme.typography.base.copyWith(
                           color: context.theme.colors.mutedForeground,
-                        )
+                        ),
                       ),
                       const SizedBox(height: Spaces.small),
                       isXelisBurn
@@ -75,8 +74,8 @@ class BurnReviewContent extends ConsumerWidget {
                       SelectableText(
                         transaction.amount,
                         style: TextStyle(
-                          color: context.theme.colors.foreground
-                        )
+                          color: context.theme.colors.foreground,
+                        ),
                       ),
                     ],
                   ),
@@ -117,9 +116,7 @@ class BurnReviewContent extends ConsumerWidget {
           const SizedBox(height: Spaces.extraSmall),
           SelectableText(
             transaction.txHash,
-            style: TextStyle(
-              color: context.theme.colors.primary
-            )
+            style: TextStyle(color: context.theme.colors.primary),
           ),
           const SizedBox(height: Spaces.large),
 

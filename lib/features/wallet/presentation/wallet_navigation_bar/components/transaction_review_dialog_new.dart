@@ -5,6 +5,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
+import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 
 import 'package:genesix/features/logger/logger.dart';
@@ -27,11 +28,7 @@ import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown_old.dart';
 
 class TransactionReviewDialogNew extends ConsumerStatefulWidget {
-  const TransactionReviewDialogNew(
-    this.style,
-    this.animation, {
-    super.key,
-  });
+  const TransactionReviewDialogNew(this.style, this.animation, {super.key});
 
   final FDialogStyle style;
   final Animation<double> animation;
@@ -58,11 +55,13 @@ class _TransactionReviewDialogNewState
     final signaturePending = transactionReview is SignaturePending;
 
     final Widget reviewContent = switch (transactionReview) {
-      DeleteMultisigTransaction() =>
-        DeleteMultisigReviewContent(transactionReview),
+      DeleteMultisigTransaction() => DeleteMultisigReviewContent(
+        transactionReview,
+      ),
       BurnTransaction() => BurnReviewContent(transactionReview),
-      SingleTransferTransaction() =>
-        TransferReviewContentWidget(transactionReview),
+      SingleTransferTransaction() => TransferReviewContentWidget(
+        transactionReview,
+      ),
       _ => const SizedBox.shrink(),
     };
 
@@ -76,16 +75,16 @@ class _TransactionReviewDialogNewState
         children: [
           // Header
           Padding(
-            padding: const EdgeInsets.all(
-              Spaces.extraSmall
-            ),
+            padding: const EdgeInsets.all(Spaces.extraSmall),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
                   child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: AppDurations.animFast),
+                    duration: const Duration(
+                      milliseconds: AppDurations.animFast,
+                    ),
                     child: Text(
                       key: ValueKey(signaturePending),
                       signaturePending ? loc.multisig : loc.review,
@@ -99,7 +98,7 @@ class _TransactionReviewDialogNewState
                 if (!transactionReview.isBroadcasted)
                   FButton.icon(
                     style: FButtonStyle.ghost(),
-                    onPress: () => Navigator.of(context).pop(),
+                    onPress: () => context.pop(),
                     child: const Icon(FIcons.x, size: 22),
                   ),
               ],
@@ -219,17 +218,15 @@ class _TransactionReviewDialogNewState
                             .toList(),
                         validator:
                             FormBuilderValidators.required<MultisigParticipant>(
-                          errorText: loc.field_required_error,
-                        ),
+                              errorText: loc.field_required_error,
+                            ),
                         onChanged: (value) {
                           final hasError = _signaturesFormKey
                               .currentState
                               ?.fields['id_$index']
                               ?.hasError;
                           if (hasError ?? false) {
-                            _signaturesFormKey
-                                .currentState
-                                ?.fields['id_$index']
+                            _signaturesFormKey.currentState?.fields['id_$index']
                                 ?.reset();
                           }
                         },
@@ -312,7 +309,7 @@ class _TransactionReviewDialogNewState
       return FButton(
         key: const ValueKey('ok'),
         style: FButtonStyle.primary(),
-        onPress: () => Navigator.of(context).pop(),
+        onPress: () => context.pop(),
         child: Text(loc.ok_button),
       );
     }
@@ -325,10 +322,10 @@ class _TransactionReviewDialogNewState
       style: FButtonStyle.primary(),
       onPress: canBroadcast
           ? () => startWithBiometricAuth(
-                ref,
-                callback: _broadcastTransfer,
-                reason: loc.please_authenticate_tx,
-              )
+              ref,
+              callback: _broadcastTransfer,
+              reason: loc.please_authenticate_tx,
+            )
           : null,
       prefix: const Icon(FIcons.send, size: 18),
       child: Text(loc.broadcast),

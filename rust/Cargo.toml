@@ -21,6 +21,7 @@ serde = { version = "1.0.197", features = ["derive"] }
 trie-rs = "0.4.2"
 regex = "1.11.1"
 lru = "0.12"
+crypto-common = "=0.2.0-rc.5"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 rustls = { version = "*", features = ["ring"], default-features = false }
@@ -30,8 +31,12 @@ wasm-bindgen = "0.2.92"
 getrandom = { version = "0.3", features = ["wasm_js"] }
 
 [features]
-default = ["xelis_wallet/api_server"]
+default = ["xelis_wallet/api_server", "network_handler", "xswd"]
 network_handler = ["xelis_wallet/network_handler"]
+xswd = ["xelis_wallet/xswd"]
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
+
+[patch.crates-io]
+tokio-tungstenite-wasm = { git = "https://github.com/Slixe/tokio-tungstenite-wasm", branch = "main" }

@@ -57,6 +57,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.7.0"
+  asn1lib:
+    dependency: transitive
+    description:
+      name: asn1lib
+      sha256: "9a8f69025044eb466b9b60ef3bc3ac99b4dc6c158ae9c56d25eeccf5bc56d024"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.6.5"
   async:
     dependency: transitive
     description:
@@ -237,10 +245,10 @@ packages:
     dependency: "direct main"
     description:
       name: country_flags
-      sha256: "714f2d415e74828eb08787d552a05e94cdf2cbe0607a5656f3e70087cd7bb7e0"
+      sha256: "457c545369eaddcaa47dc351ea97f00dbe2ee74ee7b487a805b86c10d1dfd880"
       url: "https://pub.dev"
     source: hosted
-    version: "4.1.0"
+    version: "4.1.1"
   cross_file:
     dependency: transitive
     description:
@@ -313,6 +321,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.11"
+  encrypt:
+    dependency: "direct main"
+    description:
+      name: encrypt
+      sha256: "62d9aa4670cc2a8798bab89b39fc71b6dfbacf615de6cf5001fb39f7e4a996a2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.0.3"
   equatable:
     dependency: transitive
     description:
@@ -341,10 +357,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: "7872545770c277236fd32b022767576c562ba28366204ff1a5628853cf8f2200"
+      sha256: d974b6ba2606371ac71dd94254beefb6fa81185bde0b59bdc1df09885da85fde
       url: "https://pub.dev"
     source: hosted
-    version: "10.3.7"
+    version: "10.3.8"
   fixnum:
     dependency: transitive
     description:
@@ -597,10 +613,10 @@ packages:
     dependency: transitive
     description:
       name: hashlib
-      sha256: caeb9618a9f5fcdeee39bee9e65b79ec99eca99bc981c985e61314566e39ae83
+      sha256: f547a6273fa2bba211e903f32b234a6a7097aca1d218d2391f40021d25e7f200
       url: "https://pub.dev"
     source: hosted
-    version: "1.23.0"
+    version: "1.24.0"
   hashlib_codecs:
     dependency: transitive
     description:
@@ -661,10 +677,10 @@ packages:
     dependency: transitive
     description:
       name: image
-      sha256: "4e973fcf4caae1a4be2fa0a13157aa38a8f9cb049db6529aa00b4d71abc4d928"
+      sha256: "492bd52f6c4fbb6ee41f781ff27765ce5f627910e1e0cbecfa3d9add5562604c"
       url: "https://pub.dev"
     source: hosted
-    version: "4.5.4"
+    version: "4.7.2"
   infinite_scroll_pagination:
     dependency: "direct main"
     description:
@@ -849,6 +865,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+  mobile_scanner:
+    dependency: "direct main"
+    description:
+      name: mobile_scanner
+      sha256: d234581c090526676fd8fab4ada92f35c6746e3fb4f05a399665d75a399fb760
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.2.3"
   msix:
     dependency: "direct dev"
     description:
@@ -969,6 +993,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
+  pointycastle:
+    dependency: transitive
+    description:
+      name: pointycastle
+      sha256: "4be0097fcf3fd3e8449e53730c631200ebc7b88016acecab2b0da2f0149222fe"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.9.1"
   pool:
     dependency: transitive
     description:
@@ -1212,10 +1244,10 @@ packages:
     dependency: "direct main"
     description:
       name: skeletonizer
-      sha256: "5d2d44120916cc749ede54c236cef60c2478742806df0b1f065212f00721b185"
+      sha256: "83157d8e2e41f0252079cfec496281c16e4c63660052dab8d4cd72a206bb7109"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.1"
+    version: "2.1.2"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -1305,26 +1337,26 @@ packages:
     dependency: transitive
     description:
       name: talker
-      sha256: bdddfd356e0bd399b7b15628880fef40078d10259b119f2384305776e77763a5
+      sha256: e5d4f7cce6a639037e551660ae1b93b451f107e78dabcc9f89fc52ffeb6d63d5
       url: "https://pub.dev"
     source: hosted
-    version: "5.1.5"
+    version: "5.1.9"
   talker_flutter:
     dependency: "direct main"
     description:
       name: talker_flutter
-      sha256: ccfd62d66ce63e8125aed4f84868e554f61ae06d9b922992b1862e725ba9d36a
+      sha256: c4b77632e9fe9cc2c370b7ea294294973ce4d394c584f28e87f7f8b5f5f31a51
       url: "https://pub.dev"
     source: hosted
-    version: "5.1.5"
+    version: "5.1.9"
   talker_logger:
     dependency: transitive
     description:
       name: talker_logger
-      sha256: a19f0741102cb98634d999a13b44fe3fe5f4c0ac75602d0308a046b130b5f3b3
+      sha256: "0c9f37cd17012e5f45986007340de95e9ebccb7a64c5375919cb27e2f0cc60ee"
       url: "https://pub.dev"
     source: hosted
-    version: "5.1.5"
+    version: "5.1.9"
   talker_riverpod_logger:
     dependency: "direct main"
     description:
@@ -1473,10 +1505,10 @@ packages:
     dependency: transitive
     description:
       name: watcher
-      sha256: "592ab6e2892f67760543fb712ff0177f4ec76c031f02f5b4ff8d3fc5eb9fb61a"
+      sha256: f52385d4f73589977c80797e60fe51014f7f2b957b5e9a62c3f6ada439889249
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.4"
+    version: "1.2.0"
   web:
     dependency: "direct main"
     description:
@@ -1494,7 +1526,7 @@ packages:
     source: hosted
     version: "1.0.1"
   web_socket_channel:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: web_socket_channel
       sha256: d645757fb0f4773d602444000a8131ff5d48c9e47adfe9772652dd1a4f2d45c8
@@ -1537,10 +1569,10 @@ packages:
     dependency: "direct main"
     description:
       name: xelis_dart_sdk
-      sha256: "58ffc1055125a92b326a7c9f85f8952223914cbbb7066154a9952d52fb1610d1"
+      sha256: "76db514fb46662678619b77dc46e30bb067ef617b67573051d9f415cd3612a8c"
       url: "https://pub.dev"
     source: hosted
-    version: "0.30.8"
+    version: "0.30.10"
   xml:
     dependency: transitive
     description:

@@ -25,6 +25,10 @@ Future<void> main() async {
   await RustLib.init();
   await initRustLogging();
 
+  // Initialize xelis_common config (VM libraries, etc.)
+  talker.info('initializing xelis config ...');
+  await initializeXelisConfig();
+
   if (kIsWeb) {
     talker.info('initializing local storage ...');
     await initLocalStorage();

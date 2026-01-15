@@ -42,6 +42,7 @@ class _ResetPreferenceButtonState extends ConsumerState<ResetPreferenceButton> {
   void _showResetPreferencesDialog() {
     final loc = ref.read(appLocalizationsProvider);
     showFDialog<void>(
+      useRootNavigator: true,
       context: context,
       builder: (context, style, animation) {
         return FDialog(

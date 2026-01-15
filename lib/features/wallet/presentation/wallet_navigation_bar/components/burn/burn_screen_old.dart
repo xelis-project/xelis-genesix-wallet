@@ -11,6 +11,7 @@ import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
+import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
@@ -76,9 +77,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
           prefixes: [
             Padding(
               padding: const EdgeInsets.all(Spaces.small),
-              child: FHeaderAction.back(
-                onPress: () => Navigator.of(context).pop(),
-              ),
+              child: FHeaderAction.back(onPress: () => context.pop()),
             ),
           ],
           title: Text(loc.transfer),

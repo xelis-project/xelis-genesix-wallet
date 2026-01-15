@@ -1,4 +1,4 @@
-set shell:= ["cmd.exe", "/c"] ### Uncomment on Windows ###
+# set shell:= ["cmd.exe", "/c"] ### Uncomment on Windows ###
 
 update: flutter_get install_rust_bridge_codegen rust_update gen_rust_bridge gen_flutter format
 
@@ -45,13 +45,12 @@ gen_arb:
 CRATE_DIR      := 'rust'
 OUT_DIR        := '../web/pkg'
 WASM_NAME      := 'rust_lib'
-FEATURES       := 'network_handler'
+FEATURES       := 'network_handler,xswd'
 BUILD_STD      := 'std,panic_abort'
 WASM_TARGET    := 'no-modules'
 
 run_web:
-    # Generating WebAssembly with wasm-pack
-    RUSTUP_TOOLCHAIN="nightly" \
+    RUSTUP_TOOLCHAIN=nightly \
     wasm-pack build \
         -t {{WASM_TARGET}} \
         -d "{{OUT_DIR}}" \
@@ -59,7 +58,6 @@ run_web:
         --out-name {{WASM_NAME}} \
         {{CRATE_DIR}} \
         -- -Z build-std={{BUILD_STD}} --no-default-features --features {{FEATURES}}
-    # Running Flutter web with necessary headers for cross-origin isolation
     flutter run -d chrome \
         --web-header=Cross-Origin-Opener-Policy=same-origin \
         --web-header=Cross-Origin-Embedder-Policy=require-corp

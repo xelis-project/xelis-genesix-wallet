@@ -11,7 +11,7 @@ abstract class PermissionRpcRequest with _$PermissionRpcRequest {
     @JsonKey(name: 'id') required int id,
     @JsonKey(name: 'jsonrpc') required String jsonrpc,
     @JsonKey(name: 'method') required String method,
-    @JsonKey(name: 'params') required Map<String, dynamic> params,
+    @JsonKey(name: 'params') Map<String, dynamic>? params,
   }) = _PermissionRpcRequest;
 
   factory PermissionRpcRequest.fromJson(Map<String, dynamic> json) =>

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
-import 'package:genesix/features/wallet/presentation/assets/asset_name_widget.dart';
 import 'package:genesix/shared/widgets/components/labeled_value.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -20,9 +19,9 @@ class DeployContractEntryContent extends ConsumerWidget {
     final network = ref.watch(
       walletStateProvider.select((state) => state.network),
     );
-    final knownAssets = ref.watch(
-      walletStateProvider.select((state) => state.knownAssets),
-    );
+    // final knownAssets = ref.watch(
+    //   walletStateProvider.select((state) => state.knownAssets),
+    // );
 
     return FCard.raw(
       child: Padding(
@@ -35,48 +34,11 @@ class DeployContractEntryContent extends ConsumerWidget {
               loc.fee,
               formatXelis(deployContractEntry.fee, network),
             ),
-            if (deployContractEntry.invoke != null) ...[
+            if (deployContractEntry.invoke != null)
               LabeledValue.text(
-                loc.max_gas,
+                'Constructor ${loc.max_gas}',
                 formatXelis(deployContractEntry.invoke!.maxGas, network),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    loc.deposits,
-                    style: context.theme.typography.base.copyWith(
-                      color: context.theme.colors.mutedForeground,
-                    ),
-                  ),
-                  FItemGroup.builder(
-                    itemBuilder: (context, index) {
-                      final deposit = deployContractEntry
-                          .invoke!
-                          .deposits
-                          .entries
-                          .elementAt(index);
-
-                      final formattedData = getFormattedAssetNameAndAmount(
-                        knownAssets,
-                        deposit.key,
-                        deposit.value,
-                      );
-                      final assetName = formattedData.$1;
-                      final amount = formattedData.$2;
-
-                      return FItem(
-                        title: AssetNameWidget(
-                          assetName: assetName,
-                          isXelis: isXelis(deposit.key),
-                        ),
-                        details: SelectableText(amount),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ],
           ],
         ),
       ),

@@ -18,7 +18,7 @@ import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 class TransfersView extends StatelessWidget {
   const TransfersView.incoming({
     super.key,
-    required this.localizations,
+    required this.loc,
     required this.rows,
     this.fromAddress,
     this.fee,
@@ -27,14 +27,14 @@ class TransfersView extends StatelessWidget {
 
   const TransfersView.outgoing({
     super.key,
-    required this.localizations,
+    required this.loc,
     required this.rows,
     this.fromAddress,
     this.fee,
     this.summaryCard,
   }) : mode = TransferDirection.outgoing;
 
-  final AppLocalizations localizations;
+  final AppLocalizations loc;
   final List<TransferEntryRow> rows;
   final TransferDirection mode;
   final String? fromAddress;
@@ -46,9 +46,9 @@ class TransfersView extends StatelessWidget {
     return Column(
       children: [
         if (fee != null)
-          Row(children: [LabeledValue.text(localizations.fee, fee!), Spacer()]),
+          Row(children: [LabeledValue.text(loc.fee, fee!), Spacer()]),
         if (fromAddress != null)
-          LabeledValue.child(localizations.from, AddressWidget(fromAddress!)),
+          LabeledValue.child(loc.from, AddressWidget(fromAddress!)),
         if (summaryCard != null) ...[summaryCard!],
         const SizedBox(height: Spaces.medium),
         Row(
@@ -57,7 +57,7 @@ class TransfersView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Spaces.medium),
               child: Text(
-                localizations.transfers,
+                loc.transfers,
                 style: context.theme.typography.sm.copyWith(
                   color: context.theme.colors.mutedForeground,
                 ),
@@ -67,19 +67,19 @@ class TransfersView extends StatelessWidget {
           ],
         ),
         if (context.isWideScreen)
-          _WideTable(localizations: localizations, rows: rows, mode: mode)
+          _WideTable(loc: loc, rows: rows, mode: mode)
         else
-          _NarrowList(localizations: localizations, rows: rows),
+          _NarrowList(loc: loc, rows: rows),
       ],
     );
   }
 }
 
 class _NarrowList extends ConsumerWidget {
-  const _NarrowList({required this.rows, required this.localizations});
+  const _NarrowList({required this.rows, required this.loc});
 
   final List<TransferEntryRow> rows;
-  final AppLocalizations localizations;
+  final AppLocalizations loc;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -88,8 +88,6 @@ class _NarrowList extends ConsumerWidget {
         (value) => value.historyFilterState.hideExtraData,
       ),
     );
-
-    final loc = AppLocalizations.of(context);
 
     return FItemGroup.builder(
       count: rows.length,
@@ -109,7 +107,7 @@ class _NarrowList extends ConsumerWidget {
                     if (row.destination != null)
                       Expanded(
                         child: LabeledValue.child(
-                          localizations.destination,
+                          loc.destination,
                           AddressWidget(row.destination!),
                         ),
                       ),
@@ -120,7 +118,7 @@ class _NarrowList extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   LabeledValue.child(
-                    localizations.asset,
+                    loc.asset,
                     FBadge(
                       style: FBadgeStyle.outline(),
                       child: Text(row.asset),
@@ -128,7 +126,7 @@ class _NarrowList extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                   ),
                   LabeledValue.text(
-                    localizations.amount.capitalize(),
+                    loc.amount.capitalize(),
                     row.amountText,
                     crossAxisAlignment: CrossAxisAlignment.center,
                   ),
@@ -136,7 +134,7 @@ class _NarrowList extends ConsumerWidget {
               ),
               if (row.extra != null)
                 LabeledValue.child(
-                  localizations.extra_data.capitalizeAll(),
+                  loc.extra_data.capitalizeAll(),
                   hideExtraData
                       ? FBadge(
                           style: FBadgeStyle.secondary(),
@@ -144,7 +142,8 @@ class _NarrowList extends ConsumerWidget {
                         )
                       : ExtraDataIndicator(
                           extra: row.extra,
-                          onOpen: () => _openExtraSheet(context, row.extra!),
+                          onOpen: () =>
+                              _openExtraSheet(context, loc, row.extra!),
                         ),
                   crossAxisAlignment: CrossAxisAlignment.center,
                 ),
@@ -157,13 +156,9 @@ class _NarrowList extends ConsumerWidget {
 }
 
 class _WideTable extends ConsumerWidget {
-  _WideTable({
-    required this.localizations,
-    required this.rows,
-    required this.mode,
-  });
+  _WideTable({required this.loc, required this.rows, required this.mode});
 
-  final AppLocalizations localizations;
+  final AppLocalizations loc;
   final List<TransferEntryRow> rows;
   final TransferDirection mode;
 
@@ -177,8 +172,6 @@ class _WideTable extends ConsumerWidget {
       ),
     );
 
-    final loc = AppLocalizations.of(context);
-
     return FadedScroll(
       axis: Axis.horizontal,
       controller: _controller,
@@ -188,21 +181,15 @@ class _WideTable extends ConsumerWidget {
         child: DataTable(
           columns: switch (mode) {
             TransferDirection.incoming => [
-              _transfersDataColumn(context, localizations.asset),
-              _transfersDataColumn(context, localizations.amount.capitalize()),
-              _transfersDataColumn(
-                context,
-                localizations.extra_data.capitalizeAll(),
-              ),
+              _transfersDataColumn(context, loc.asset),
+              _transfersDataColumn(context, loc.amount.capitalize()),
+              _transfersDataColumn(context, loc.extra_data.capitalizeAll()),
             ],
             TransferDirection.outgoing => [
-              _transfersDataColumn(context, localizations.asset),
-              _transfersDataColumn(context, localizations.amount.capitalize()),
-              _transfersDataColumn(context, localizations.destination),
-              _transfersDataColumn(
-                context,
-                localizations.extra_data.capitalizeAll(),
-              ),
+              _transfersDataColumn(context, loc.asset),
+              _transfersDataColumn(context, loc.amount.capitalize()),
+              _transfersDataColumn(context, loc.destination),
+              _transfersDataColumn(context, loc.extra_data.capitalizeAll()),
             ],
           },
           rows: rows.map((row) {
@@ -236,7 +223,7 @@ class _WideTable extends ConsumerWidget {
                             : ExtraDataIndicator(
                                 extra: row.extra,
                                 onOpen: () =>
-                                    _openExtraSheet(context, row.extra!),
+                                    _openExtraSheet(context, loc, row.extra!),
                               ),
                       ),
                     ),
@@ -271,7 +258,7 @@ class _WideTable extends ConsumerWidget {
                             : ExtraDataIndicator(
                                 extra: row.extra,
                                 onOpen: () =>
-                                    _openExtraSheet(context, row.extra!),
+                                    _openExtraSheet(context, loc, row.extra!),
                               ),
                       ),
                     ),
@@ -297,8 +284,11 @@ class _WideTable extends ConsumerWidget {
   }
 }
 
-void _openExtraSheet(BuildContext context, ExtraData extra) {
-  final loc = AppLocalizations.of(context);
+void _openExtraSheet(
+  BuildContext context,
+  AppLocalizations loc,
+  ExtraData extra,
+) {
   showFSheet<void>(
     context: context,
     side: FLayout.btt,

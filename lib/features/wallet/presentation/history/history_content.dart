@@ -6,6 +6,7 @@ import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/application/history_providers.dart';
+import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/history/transaction_grouped_widget.dart';
 import 'package:genesix/features/wallet/presentation/components/transaction_view_utils.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -34,6 +35,10 @@ class _HistoryContentState extends ConsumerState<HistoryContent> {
     final loc = ref.watch(appLocalizationsProvider);
     final pagingState = ref.watch(historyPagingStateProvider);
 
+    if (ref.watch(walletStateProvider.select((s) => s.isRescanning))) {
+      return Center(child: FCircularProgress());
+    }
+
     final addressBook = ref.watch(addressBookProvider);
 
     switch (addressBook) {
@@ -51,7 +56,11 @@ class _HistoryContentState extends ConsumerState<HistoryContent> {
                 >(
                   animateTransitions: true,
                   itemBuilder: (context, item, index) =>
-                      TransactionGroupedWidget(item, value),
+                      TransactionGroupedWidget(
+                        item,
+                        value,
+                        key: ValueKey(item.key),
+                      ),
                   noItemsFoundIndicatorBuilder: (context) => Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -81,6 +90,7 @@ class _HistoryContentState extends ConsumerState<HistoryContent> {
                       ],
                     ),
                   ),
+                  firstPageProgressIndicatorBuilder: null,
                 ),
           ),
         );
@@ -99,11 +109,13 @@ class _HistoryContentState extends ConsumerState<HistoryContent> {
   }
 
   void _fetchPage() async {
+    final pagingNotifier = ref.read(historyPagingStateProvider.notifier);
     final state = ref.read(historyPagingStateProvider);
 
     if (state.isLoading) return;
+
     await Future<void>.value();
-    ref.read(historyPagingStateProvider.notifier).loading();
+    pagingNotifier.loading();
 
     try {
       final newPage = (state.keys?.last ?? 0) + 1;
@@ -112,12 +124,10 @@ class _HistoryContentState extends ConsumerState<HistoryContent> {
 
       final grouped = groupTransactionsByDateSorted2Levels(transactions);
 
-      ref
-          .read(historyPagingStateProvider.notifier)
-          .setNextPage(newPage, grouped.entries.toList());
+      pagingNotifier.setNextPage(newPage, grouped.entries.toList());
     } catch (error) {
       talker.error('Error fetching page: $error');
-      ref.read(historyPagingStateProvider.notifier).error(error);
+      pagingNotifier.error(error);
     }
   }
 }

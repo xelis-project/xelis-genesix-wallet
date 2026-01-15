@@ -2,7 +2,7 @@ name: genesix
 description: Secure and intuitive cross-platform wallet for the XELIS network.
 publish_to: 'none'
 
-version: 0.1.0
+version: 0.1.1
 
 environment:
   sdk: ^3.9.0
@@ -25,9 +25,14 @@ dependencies:
   path_provider: ^2.1.5
   riverpod_annotation: ^2.6.1
   shared_preferences: ^2.5.3
-  xelis_dart_sdk: ^0.30.8
+  xelis_dart_sdk: ^0.30.10
+  # xelis_dart_sdk:
+  #   git:
+  #     url: https://github.com/xelis-project/xelis-dart-sdk.git
+  #     ref: 84bb644a2bf0fe32410d39f65482ae2c629c2da5
   loader_overlay: ^5.0.0
   pretty_qr_code: ^3.5.0
+  mobile_scanner: ^5.2.3
   flutter_native_splash: ^2.4.6
   window_manager: ^0.5.1
   country_flags: ^4.0.1
@@ -52,6 +57,8 @@ dependencies:
   fl_chart: ^1.1.1
   skeletonizer: ^2.1.0+1
   recase: ^4.0.0
+  web_socket_channel: ^3.0.1
+  encrypt: ^5.0.3
   #  flutter_hooks: ^0.20.5
   #  hooks_riverpod: ^2.4.10
   #  flutter_animate: ^4.5.0

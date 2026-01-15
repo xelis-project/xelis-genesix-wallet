@@ -26,6 +26,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
 
   void _showReceiveDialog() {
     showFDialog<void>(
+      useRootNavigator: true,
       context: context,
       builder: (context, style, animation) {
         return ReceiveAddressDialog(style, animation);

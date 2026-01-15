@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/wallet/domain/event.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -14,7 +17,6 @@ enum TransactionCategory { incoming, outgoing, coinbase, burn }
 
 @riverpod
 Future<List<TransactionEntry>> history(Ref ref, int page) async {
-  ref.watch(walletStateProvider.select((value) => value.trackedBalances));
   final repository = ref.watch(
     walletStateProvider.select((value) => value.nativeWalletRepository),
   );
@@ -54,6 +56,11 @@ Future<int?> historyCount(Ref ref) async {
 class HistoryPagingState extends _$HistoryPagingState {
   @override
   PagingState<int, MapEntry<DateTime, List<TransactionEntry>>> build() {
+    ref.listen(walletStateProvider, (previous, next) {
+      if (next.lastEvent is HistorySynced || next.lastEvent is NewTransaction) {
+        ref.invalidateSelf();
+      }
+    });
     return PagingState();
   }
 
@@ -63,12 +70,14 @@ class HistoryPagingState extends _$HistoryPagingState {
 
   void setNextPage(
     int newKey,
-    List<MapEntry<DateTime, List<TransactionEntry>>> newItems,
+    List<MapEntry<DateTime, List<TransactionEntry>>> txs,
   ) {
+    final total = txs.fold(0, (sum, e) => sum + e.value.length);
+
     state = state.copyWith(
-      pages: [...?state.pages, newItems],
+      pages: [...?state.pages, txs],
       keys: [...?state.keys, newKey],
-      hasNextPage: newItems.length == pageSize,
+      hasNextPage: total == pageSize,
       isLoading: false,
     );
   }

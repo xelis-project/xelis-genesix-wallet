@@ -4,16 +4,12 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
+import 'package:go_router/go_router.dart';
 
 class SelectAddressDialog extends ConsumerStatefulWidget {
-  const SelectAddressDialog(
-    this.style,
-    this.animation, {
-    super.key,
-  });
+  const SelectAddressDialog(this.style, this.animation, {super.key});
 
   final FDialogStyle style;
   final Animation<double> animation;
@@ -57,7 +53,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
                 ),
               ),
               FButton.icon(
-                onPress: () => Navigator.of(context).pop(),
+                onPress: () => context.pop(),
                 child: const Icon(FIcons.x, size: 20),
               ),
             ],
@@ -84,10 +80,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
             child: addressBook.when(
               data: (book) {
                 if (book.isEmpty) {
-                  return _CenteredMessage(
-                    loc.no_contact_found,
-                    muted: true,
-                  );
+                  return _CenteredMessage(loc.no_contact_found, muted: true);
                 }
 
                 final filteredContacts = book.entries.where((entry) {
@@ -98,10 +91,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
                 }).toList();
 
                 if (filteredContacts.isEmpty) {
-                  return _CenteredMessage(
-                    loc.no_contact_found,
-                    muted: true,
-                  );
+                  return _CenteredMessage(loc.no_contact_found, muted: true);
                 }
 
                 return ListView.separated(
@@ -113,7 +103,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
                     final address = entry.key;
                     final details = entry.value;
                     return FItem(
-                      onPress: () => Navigator.of(context).pop(address),
+                      onPress: () => context.pop(address),
                       prefix: HashiconWidget(
                         hash: address,
                         size: const Size(40, 40),
@@ -124,9 +114,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
                   },
                 );
               },
-              loading: () => const Center(
-                child: FCircularProgress(),
-              ),
+              loading: () => const Center(child: FCircularProgress()),
               error: (error, stack) => _CenteredMessage(
                 loc.error_loading_contacts,
                 destructive: true,
@@ -168,9 +156,7 @@ class _CenteredMessage extends StatelessWidget {
         child: Text(
           message,
           textAlign: TextAlign.center,
-          style: context.theme.typography.base.copyWith(
-            color: color,
-          ),
+          style: context.theme.typography.base.copyWith(color: color),
         ),
       ),
     );

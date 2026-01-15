@@ -11,7 +11,6 @@ import 'package:genesix/features/wallet/presentation/home/receive_address_dialog
 import 'package:genesix/features/wallet/presentation/side_bar/side_bar_footer.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jovial_svg/jovial_svg.dart';
@@ -106,6 +105,7 @@ class _SideBarState extends ConsumerState<SideBar> {
                   onPress: () {
                     _closeSideBar();
                     showFDialog<void>(
+                      useRootNavigator: true,
                       context: context,
                       builder: (context, style, animation) {
                         return ReceiveAddressDialog(style, animation);
@@ -143,17 +143,15 @@ class _SideBarState extends ConsumerState<SideBar> {
                 FSidebarItem(
                   selected: _selectedItem == AuthAppScreen.xswd.toPath,
                   label: Text(loc.xswd),
-                  // disable for pre-alpha
-                  onPress: null,
-                  /* xswdEnabled
-                          ? () {
-                            _closeSideBar();
-                            context.go(AuthAppScreen.xswd.toPath);
-                            setState(() {
-                              _selectedItem = AuthAppScreen.xswd.toPath;
-                            });
-                          }
-                          : null,*/
+                  onPress: xswdEnabled
+                      ? () {
+                          _closeSideBar();
+                          context.go(AuthAppScreen.xswd.toPath);
+                          setState(() {
+                            _selectedItem = AuthAppScreen.xswd.toPath;
+                          });
+                        }
+                      : null,
                 ),
                 FSidebarItem(
                   selected: _selectedItem == AuthAppScreen.burn.toPath,
@@ -241,6 +239,7 @@ class _SideBarState extends ConsumerState<SideBar> {
                     _closeSideBar();
                   },
                   reason: loc.please_authenticate_view_seed,
+                  popOnSubmit: false,
                 );
               },
             ),

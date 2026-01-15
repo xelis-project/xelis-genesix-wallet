@@ -36,6 +36,7 @@ class _FiltersButtonState extends ConsumerState<FiltersButton> {
     if (!mounted) return;
 
     showFDialog<bool>(
+      useRootNavigator: true,
       context: context,
       builder: (context, style, animation) => FiltersDialog(addressBook),
     ).then((isSaved) {

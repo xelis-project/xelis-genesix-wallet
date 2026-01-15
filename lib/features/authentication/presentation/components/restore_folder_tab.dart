@@ -159,6 +159,7 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
   Future<String?> _getPassword() async {
     return showFDialog<String>(
       context: context,
+      useRootNavigator: true,
       builder: (context, style, animation) {
         return PasswordDialog(
           style,

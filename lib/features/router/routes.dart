@@ -10,6 +10,7 @@ import 'package:genesix/features/wallet/presentation/address_book/add_contact_he
 import 'package:genesix/features/wallet/presentation/address_book/address_book_content.dart';
 import 'package:genesix/features/wallet/presentation/address_book/contact_details_screen.dart';
 import 'package:genesix/features/wallet/presentation/assets/assets_content.dart';
+import 'package:genesix/features/wallet/presentation/history/export_button.dart';
 import 'package:genesix/features/wallet/presentation/history/filters_button.dart';
 import 'package:genesix/features/wallet/presentation/history/history_content.dart';
 import 'package:genesix/features/wallet/presentation/history/transaction_entry_screen.dart';
@@ -21,8 +22,10 @@ import 'package:genesix/features/wallet/presentation/recovery_phrase/recovery_ph
 import 'package:genesix/features/wallet/presentation/sign_transaction/sign_transaction_content.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/burn/burn_screen_new.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transfer/transfer_screen_new.dart';
+import 'package:genesix/features/wallet/presentation/xswd/xswd_app_detail.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_content.dart';
-import 'package:genesix/features/wallet/presentation/xswd/xswd_widget_old.dart';
+import 'package:genesix/features/wallet/presentation/xswd/xswd_qr_scanner_screen.dart';
+import 'package:genesix/features/wallet/presentation/xswd/xswd_widget.dart';
 import 'package:genesix/features/wallet/presentation/wallet_scaffold.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/authentication/presentation/open_wallet_screen.dart';
@@ -124,7 +127,7 @@ class WalletShellRoute extends ShellRouteData {
     final suffixes = switch (authPathScreen) {
       AuthAppScreen.settings => [const ThemeModeSwitcher()],
       AuthAppScreen.addressBook => [const AddContactHeaderAction()],
-      AuthAppScreen.history => [const FiltersButton()],
+      AuthAppScreen.history => [const FiltersButton(), const ExportButton()],
       _ => null,
     };
 
@@ -305,6 +308,46 @@ class SetupMultisigRoute extends GoRouteData with _$SetupMultisigRoute {
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
       SetupMultisig(),
+      state.pageKey,
+      state.fullPath,
+      state.extra,
+      AppDurations.animNormal,
+    );
+  }
+}
+
+@TypedGoRoute<XswdQRScannerRoute>(
+  name: 'xswd_qr_scanner',
+  path: '/xswd_qr_scanner',
+)
+class XswdQRScannerRoute extends GoRouteData with _$XswdQRScannerRoute {
+  const XswdQRScannerRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      const XswdQRScannerScreen(),
+      state.pageKey,
+      state.fullPath,
+      state.extra,
+      AppDurations.animNormal,
+    );
+  }
+}
+
+@TypedGoRoute<XswdAppDetailRoute>(
+  name: 'xswd_app_detail',
+  path: '/xswd_app_detail',
+)
+class XswdAppDetailRoute extends GoRouteData with _$XswdAppDetailRoute {
+  const XswdAppDetailRoute({required this.$extra});
+
+  final String $extra;
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      XswdAppDetail(appId: $extra),
       state.pageKey,
       state.fullPath,
       state.extra,

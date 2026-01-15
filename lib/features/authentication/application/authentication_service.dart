@@ -27,10 +27,40 @@ part 'authentication_service.g.dart';
 class Authentication extends _$Authentication {
   late SecureStorageRepository _secureStorage;
 
+  // Track currently open wallet to prevent lock conflicts
+  static NativeWalletRepository? _activeWallet;
+
+  // Prevent concurrent logout operations
+  static bool _logoutInProgress = false;
+
   @override
   AuthenticationState build() {
     _secureStorage = ref.watch(secureStorageProvider);
     return const AuthenticationState.signedOut();
+  }
+
+  /// Close the currently active wallet if one exists to release file locks
+  Future<void> _closeActiveWalletIfNeeded() async {
+    if (_activeWallet != null) {
+      try {
+        talker.info('Closing active wallet before opening new one');
+
+        // Disconnect from network first
+        await ref.read(walletStateProvider.notifier).disconnect();
+
+        // Close wallet to release locks
+        await _activeWallet!.close();
+
+        // Dispose FFI resources
+        _activeWallet!.dispose();
+
+        talker.info('Active wallet closed successfully');
+      } catch (e) {
+        talker.error('Error closing active wallet: $e');
+      } finally {
+        _activeWallet = null;
+      }
+    }
   }
 
   Future<void> createWallet(
@@ -39,7 +69,17 @@ class Authentication extends _$Authentication {
     String? seed,
     String? privateKey,
   }) async {
+    // Wait for any logout in progress to prevent race conditions
+    while (_logoutInProgress) {
+      talker.info('Waiting for logout to complete before creating wallet');
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+    }
+
     final loc = ref.read(appLocalizationsProvider);
+
+    // Close any currently open wallet first to release locks
+    await _closeActiveWalletIfNeeded();
+
     final precomputedTablesPath = await _getPrecomputedTablesPath();
     final settings = ref.read(settingsProvider);
     final walletPath = await getWalletPath(settings.network, name);
@@ -120,16 +160,23 @@ class Authentication extends _$Authentication {
           .read(walletsProvider.notifier)
           .setWalletAddress(name, walletRepository.address);
 
+      talker.info('Wallet created with address: ${walletRepository.address}');
       // save password in secure storage on all platforms except web
       if (!kIsWeb) {
         await _secureStorage.write(key: name, value: password);
       }
+
+      talker.info('Password saved in secure storage for wallet: $name');
+
+      // Track as active wallet
+      _activeWallet = walletRepository;
 
       state = AuthenticationState.signedIn(
         name: name,
         nativeWallet: walletRepository,
       );
 
+      talker.info('State updated to SignedIn for wallet: $name');
       switch (settings.network) {
         case Network.mainnet:
           ref.read(settingsProvider.notifier).setLastMainnetWalletUsed(name);
@@ -141,6 +188,7 @@ class Authentication extends _$Authentication {
           ref.read(settingsProvider.notifier).setLastStagenetWalletUsed(name);
       }
 
+      talker.info('Navigating to home screen for wallet: $name');
       if (seed == null) {
         final seed = await walletRepository.getSeed();
         ref.read(routerProvider).go(AuthAppScreen.home.toPath, extra: seed);
@@ -149,7 +197,7 @@ class Authentication extends _$Authentication {
         // just navigate to the wallet screen
         ref.read(routerProvider).go(AuthAppScreen.home.toPath);
       }
-
+      talker.info('Connecting wallet state for wallet: $name');
       try {
         ref.read(walletStateProvider.notifier).connect();
       } finally {
@@ -157,13 +205,24 @@ class Authentication extends _$Authentication {
         // the connect() func displays an error message
       }
 
+      talker.info('Updating precomputed tables for wallet: $name');
       _updatePrecomputedTables(walletRepository, precomputedTablesPath);
     }
   }
 
   Future<void> openWallet(String name, String password) async {
+    // Wait for any logout in progress to prevent race conditions
+    while (_logoutInProgress) {
+      talker.info('Waiting for logout to complete before opening wallet');
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+    }
+
     final loc = ref.read(appLocalizationsProvider);
     final settings = ref.read(settingsProvider);
+
+    // Close any currently open wallet first to release locks
+    await _closeActiveWalletIfNeeded();
+
     final precomputedTablesPath = await _getPrecomputedTablesPath();
     final tableType = await _getTableType();
     talker.info('Precomputed tables type that will be used: $tableType');
@@ -217,6 +276,9 @@ class Authentication extends _$Authentication {
       ref
           .read(walletsProvider.notifier)
           .setWalletAddress(name, walletRepository.address);
+
+      // Track as active wallet
+      _activeWallet = walletRepository;
 
       state = AuthenticationState.signedIn(
         name: name,
@@ -300,6 +362,9 @@ class Authentication extends _$Authentication {
         .read(walletsProvider.notifier)
         .setWalletAddress(walletName, walletRepository.address);
 
+    // Track as active wallet
+    _activeWallet = walletRepository;
+
     state = AuthenticationState.signedIn(
       name: walletName,
       nativeWallet: walletRepository,
@@ -330,17 +395,46 @@ class Authentication extends _$Authentication {
     _updatePrecomputedTables(walletRepository, precomputedTablesPath);
   }
 
-  Future<void> logout() async {
-    switch (state) {
-      case SignedIn(:final nativeWallet):
-        await ref.read(walletStateProvider.notifier).disconnect();
-        nativeWallet.dispose();
-        state = const AuthenticationState.signedOut();
+  Future<void> logout({bool skipNavigation = false}) async {
+    // Prevent concurrent logout operations
+    if (_logoutInProgress) {
+      talker.warning('Logout already in progress, skipping duplicate call');
+      return;
+    }
 
-        ref.read(routerProvider).go(AppScreen.openWallet.toPath);
+    _logoutInProgress = true;
 
-      case SignedOut():
-        return;
+    try {
+      switch (state) {
+        case SignedIn(:final nativeWallet):
+          talker.info('Logging out: disconnecting from network');
+          await ref.read(walletStateProvider.notifier).disconnect();
+
+          talker.info('Logging out: closing wallet to release locks');
+          // Close the wallet first to release database and table locks
+          await nativeWallet.close();
+
+          talker.info('Logging out: disposing FFI object');
+          // Then dispose the FFI object
+          nativeWallet.dispose();
+
+          talker.info('Logging out: clearing active wallet reference');
+          _activeWallet = null;
+
+          talker.info('Logging out: setting state to SignedOut');
+          state = const AuthenticationState.signedOut();
+
+          if (!skipNavigation) {
+            talker.info('Logging out: navigating to open wallet screen');
+            ref.read(routerProvider).go(AppScreen.openWallet.toPath);
+          }
+
+        case SignedOut():
+          talker.info('Logout called but already signed out');
+          return;
+      }
+    } finally {
+      _logoutInProgress = false;
     }
   }
 
@@ -351,6 +445,9 @@ class Authentication extends _$Authentication {
     // if full size precomputed tables are not available,
     // we need to generate them and replace the existing ones (default: l1Low)
     if (!await isPrecomputedTablesExists(_getExpectedTableType())) {
+      talker.info(
+        'Generating the final precomputed tables, this may take a while...',
+      );
       ref
           .read(toastProvider.notifier)
           .showInformation(
@@ -360,12 +457,10 @@ class Authentication extends _$Authentication {
       wallet
           .updatePrecomputedTables(path, _getExpectedTableType())
           .whenComplete(() async {
-            final tableType = await wallet.getPrecomputedTablesType();
+            talker.info('Precomputed tables updated successfully.');
             ref
                 .read(toastProvider.notifier)
-                .showInformation(
-                  title: 'Precomputed tables updated: ${tableType.name}',
-                );
+                .showInformation(title: 'Precomputed tables updated.');
           });
     }
   }
@@ -373,6 +468,9 @@ class Authentication extends _$Authentication {
   Future<bool> isPrecomputedTablesExists(
     PrecomputedTableType precomputedTableType,
   ) async {
+    talker.info(
+      'Checking if precomputed tables exist for type: $precomputedTableType',
+    );
     return arePrecomputedTablesAvailable(
       precomputedTablesPath: await _getPrecomputedTablesPath(),
       precomputedTableType: precomputedTableType,
