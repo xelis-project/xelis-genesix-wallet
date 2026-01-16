@@ -9,6 +9,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:go_router/go_router.dart';
@@ -157,9 +158,8 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
   }
 
   Future<String?> _getPassword() async {
-    return showFDialog<String>(
+    return showAppDialog<String>(
       context: context,
-      useRootNavigator: true,
       builder: (context, style, animation) {
         return PasswordDialog(
           style,

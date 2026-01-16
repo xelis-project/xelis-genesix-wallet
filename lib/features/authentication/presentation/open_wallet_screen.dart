@@ -19,6 +19,7 @@ import 'package:genesix/features/authentication/application/wallets_state_provid
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:genesix/features/authentication/presentation/components/network_select_menu_tile.dart';
@@ -215,9 +216,8 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
     if (opened || !context.mounted) return;
 
     // Fallback to password dialog
-    showFDialog<void>(
+    showAppDialog<void>(
       context: context,
-      useRootNavigator: true,
       builder: (dialogContext, style, animation) {
         return PasswordDialog(
           style,

@@ -10,6 +10,7 @@ import 'package:genesix/features/wallet/presentation/home/receive_address_dialog
 import 'package:genesix/features/wallet/presentation/home/usd_balance_widget.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:go_router/go_router.dart';
@@ -25,8 +26,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
   final String hidden = '********';
 
   void _showReceiveDialog() {
-    showFDialog<void>(
-      useRootNavigator: true,
+    showAppDialog<void>(
       context: context,
       builder: (context, style, animation) {
         return ReceiveAddressDialog(style, animation);

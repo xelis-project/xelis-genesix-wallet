@@ -9,6 +9,7 @@ import 'package:genesix/features/wallet/presentation/side_bar/change_password_di
 import 'package:genesix/features/wallet/presentation/side_bar/wallet_name_widget.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/confirm_dialog.dart';
 import 'package:genesix/shared/widgets/components/sheet_content.dart';
@@ -76,8 +77,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
   }
 
   void _showChangePasswordDialog() {
-    showFDialog<void>(
-      useRootNavigator: true,
+    showAppDialog<void>(
       context: context,
       builder: (context, style, animation) {
         return ChangePasswordDialog();
@@ -87,8 +87,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
 
   void _showDeleteWalletDialog() {
     final loc = ref.read(appLocalizationsProvider);
-    showFDialog<void>(
-      useRootNavigator: true,
+    showAppDialog<void>(
       context: ref.context,
       builder: (context, style, animation) {
         return ConfirmDialog(

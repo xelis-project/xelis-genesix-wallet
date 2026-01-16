@@ -6,6 +6,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/settings/presentation/components/reset_preference_button.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -80,8 +81,7 @@ class _SettingsContentState extends ConsumerState<SettingsContent> {
                     subtitle: Text(translateLocaleName(locale)),
                     suffix: Icon(FIcons.chevronRight),
                     onPress: () {
-                      showFDialog<void>(
-                        useRootNavigator: true,
+                      showAppDialog<void>(
                         context: context,
                         builder: (context, style, animation) {
                           return LanguageSelectorDialog(style, animation);

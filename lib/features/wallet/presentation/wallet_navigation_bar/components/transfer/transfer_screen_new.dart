@@ -12,6 +12,7 @@ import 'package:genesix/src/generated/rust_bridge/api/utils.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -430,8 +431,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
   }
 
   Future<void> _onAddressBookClicked() async {
-    final address = await showFDialog<String>(
-      useRootNavigator: true,
+    final address = await showAppDialog<String>(
       context: context,
       builder: (dialogContext, style, animation) {
         return SelectAddressDialog(style, animation);
@@ -610,9 +610,8 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
             .setSingleTransferTransaction(txSummary);
 
         if (mounted) {
-          await showFDialog<void>(
+          await showAppDialog<void>(
             context: context,
-            barrierDismissible: false,
             builder: (dialogContext, style, animation) {
               return TransactionReviewDialogNew(style, animation);
             },

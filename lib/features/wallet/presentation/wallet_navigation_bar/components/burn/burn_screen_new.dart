@@ -10,6 +10,7 @@ import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -312,10 +313,8 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
     }
 
     if (mounted) {
-      await showFDialog<void>(
-        useRootNavigator: true,
+      await showAppDialog<void>(
         context: context,
-        barrierDismissible: false,
         builder: (dialogContext, style, animation) {
           return TransactionReviewDialogNew(style, animation);
         },

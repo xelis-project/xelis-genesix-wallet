@@ -6,6 +6,7 @@ import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/application/history_providers.dart';
 import 'package:genesix/features/wallet/presentation/history/filters_dialog.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 
 class FiltersButton extends ConsumerStatefulWidget {
   const FiltersButton({super.key});
@@ -35,8 +36,7 @@ class _FiltersButtonState extends ConsumerState<FiltersButton> {
 
     if (!mounted) return;
 
-    showFDialog<bool>(
-      useRootNavigator: true,
+    showAppDialog<bool>(
       context: context,
       builder: (context, style, animation) => FiltersDialog(addressBook),
     ).then((isSaved) {

@@ -6,6 +6,7 @@ import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_providers.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 import 'package:go_router/go_router.dart';
@@ -407,9 +408,8 @@ class XswdAppDetail extends ConsumerWidget {
     AppLocalizations loc,
     AppInfo app,
   ) async {
-    final confirmed = await showFDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
-      useRootNavigator: true,
       builder: (dialogContext, style, animation) {
         return FDialog(
           style: style,

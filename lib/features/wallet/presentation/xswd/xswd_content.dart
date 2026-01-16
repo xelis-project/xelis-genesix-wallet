@@ -11,6 +11,7 @@ import 'package:genesix/features/wallet/application/xswd_providers.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_app_detail.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
@@ -293,9 +294,8 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
           width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: () async {
-              showFDialog<void>(
+              showAppDialog<void>(
                 context: context,
-                useRootNavigator: true,
                 builder: (context, style, animation) =>
                     XswdNewConnectionDialog(style, animation),
               );
