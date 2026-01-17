@@ -437,11 +437,19 @@ impl XelisWallet {
 
         let mut assets = HashMap::new();
 
+        let count = storage.get_assets_count()?;
+        if count == 0 {
+            info!("No known assets in wallet");
+            return Ok(assets);
+        }
+        info!("Retrieving {} known assets from wallet", count);
+
         for res in storage.get_assets_with_data().await? {
             match res {
                 Ok((hash, asset_data)) => {
-                    let owner_dto = XelisAssetOwner::from(asset_data.get_owner());
+                    info!("Retrieving asset data for asset {}", hash);
                     let supply_mode_dto = XelisMaxSupplyMode::from(asset_data.get_max_supply());
+                    let owner_dto = XelisAssetOwner::from(asset_data.get_owner());
 
                     let dto = XelisAssetMetadata {
                         name: asset_data.get_name().to_string(),
