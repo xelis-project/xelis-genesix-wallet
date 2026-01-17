@@ -4,6 +4,7 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/assets/untracked_asset_details.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 
@@ -103,8 +104,7 @@ class _UntrackedAssetsTabState extends ConsumerState<UntrackedAssetsTab> {
   }
 
   void _showDetails(String hash, sdk.AssetData assetData) {
-    showFDialog<void>(
-      useRootNavigator: true,
+    showAppDialog<void>(
       context: context,
       builder: (context, style, animation) => UntrackedAssetDetails(
         hash,

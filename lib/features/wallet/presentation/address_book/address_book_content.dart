@@ -9,6 +9,7 @@ import 'package:genesix/features/wallet/presentation/address_book/edit_contact_s
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/confirm_dialog.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
@@ -211,8 +212,7 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
 
   void _onDelete(String address, String name) {
     final loc = ref.read(appLocalizationsProvider);
-    showFDialog<void>(
-      useRootNavigator: true,
+    showAppDialog<void>(
       context: context,
       builder: (context, style, animation) {
         return ConfirmDialog(

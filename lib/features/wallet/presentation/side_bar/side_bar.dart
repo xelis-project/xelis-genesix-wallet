@@ -11,6 +11,7 @@ import 'package:genesix/features/wallet/presentation/home/receive_address_dialog
 import 'package:genesix/features/wallet/presentation/side_bar/side_bar_footer.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jovial_svg/jovial_svg.dart';
@@ -104,8 +105,7 @@ class _SideBarState extends ConsumerState<SideBar> {
                   label: Text(loc.receive),
                   onPress: () {
                     _closeSideBar();
-                    showFDialog<void>(
-                      useRootNavigator: true,
+                    showAppDialog<void>(
                       context: context,
                       builder: (context, style, animation) {
                         return ReceiveAddressDialog(style, animation);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 
 import 'package:genesix/features/wallet/application/xswd_providers.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_dialog.dart';
@@ -22,9 +23,8 @@ class XswdWidget extends ConsumerStatefulWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!ctx.mounted) return;
 
-      showFDialog<void>(
+      showAppDialog<void>(
         context: ctx,
-        useRootNavigator: true,
         builder: (context, style, animation) => XswdDialog(style, animation),
       ).then((_) {
         // Dialog closed - ensure decision is completed (handles barrier dismissal)
