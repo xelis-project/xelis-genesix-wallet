@@ -319,18 +319,11 @@ class WalletState extends _$WalletState {
     final repository = state.nativeWalletRepository?.nativeWallet;
     if (repository != null) {
       try {
-        final txsCount = await repository.getHistoryCount();
-        if (txsCount > BigInt.zero) {
-          await repository.rescan(topoheight: BigInt.zero);
-          state = state.copyWith(isRescanning: true);
-          ref
-              .read(toastProvider.notifier)
-              .showInformation(title: 'Rescanning, please wait...');
-        } else {
-          ref
-              .read(toastProvider.notifier)
-              .showInformation(title: 'No history, rescan is not needed.');
-        }
+        await repository.rescan(topoheight: BigInt.zero);
+        state = state.copyWith(isRescanning: true);
+        ref
+            .read(toastProvider.notifier)
+            .showInformation(title: 'Rescanning, please wait...');
       } on AnyhowException catch (e) {
         talker.error('Rescan failed: $e');
         final xelisMessage = (e).message.split("\n")[0];
@@ -962,7 +955,6 @@ class WalletState extends _$WalletState {
       return;
     }
 
-    final loc = ref.read(appLocalizationsProvider);
     if (state.nativeWalletRepository == null) return;
 
     try {
@@ -993,7 +985,6 @@ class WalletState extends _$WalletState {
   }
 
   Future<void> stopXSWD() async {
-    final loc = ref.read(appLocalizationsProvider);
     if (state.nativeWalletRepository != null) {
       try {
         await state.nativeWalletRepository!.stopXSWD();
