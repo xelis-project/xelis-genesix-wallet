@@ -137,17 +137,15 @@ class _XswdPasteConnectionDialogState
 
       Navigator.of(context).pop();
 
-      ref.read(toastProvider.notifier).showEvent(
-        description: 'Connected to "${relayerData.name}" via relay',
-      );
+      ref
+          .read(toastProvider.notifier)
+          .showEvent(
+            description: 'Connected to "${relayerData.name}" via relay',
+          );
     } catch (e, st) {
       talker.error('XSWD paste processing failed', e, st);
 
       if (!mounted) return;
-
-      ref.read(toastProvider.notifier).showError(
-        description: e.toString(),
-      );
 
       setState(() => _isProcessing = false);
     }
