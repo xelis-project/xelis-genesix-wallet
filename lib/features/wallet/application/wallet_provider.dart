@@ -276,33 +276,11 @@ class WalletState extends _$WalletState {
   Future<void> disconnect() async {
     state = state.copyWith(isOnline: false);
 
-    // Clear any pending XSWD request state to prevent stuck spinners
-    if (!kIsWeb) {
-      ref.read(xswdRequestProvider.notifier).clearRequest();
-    }
-
-    // Stop XSWD server before disconnecting
-    if (!kIsWeb) {
-      try {
-        await stopXSWD();
-      } catch (e) {
-        talker.warning('Error stopping XSWD during disconnect: $e');
-      }
-    }
-
     try {
       await state.nativeWalletRepository?.setOffline();
     } catch (e) {
       talker.warning('Something went wrong when disconnecting: $e');
     }
-
-    try {
-      await state.nativeWalletRepository?.close();
-    } catch (e) {
-      talker.warning('Something went wrong when closing wallet: $e');
-    }
-
-    await state.streamSubscription?.cancel();
   }
 
   void reconnect([NodeAddress? nodeAddress]) {
