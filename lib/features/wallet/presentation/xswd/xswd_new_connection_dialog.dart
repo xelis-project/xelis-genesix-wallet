@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:go_router/go_router.dart';
 
 import 'xswd_paste_connection_dialog.dart';
@@ -66,8 +67,9 @@ class XswdNewConnectionDialog extends StatelessWidget {
                         description: 'Scan the QR code from a dApp',
                         icon: FIcons.qrCode,
                         onPressed: () async {
-                          context.pop();
-                          await Navigator.of(context).push(
+                          final navigator = Navigator.of(context, rootNavigator: true);
+                          navigator.pop();
+                          await navigator.push(
                             MaterialPageRoute(
                               builder: (context) => const XswdQRScannerScreen(),
                             ),
@@ -85,12 +87,16 @@ class XswdNewConnectionDialog extends StatelessWidget {
                         description: 'Paste dApp connection data',
                         icon: FIcons.clipboard,
                         onPressed: () {
-                          context.pop();
+                          Navigator.of(context, rootNavigator: true).pop();
                           showFDialog<void>(
                             context: context,
                             useRootNavigator: true,
-                            builder: (context, style, animation) =>
-                                XswdPasteConnectionDialog(style, animation),
+                            builder: (ctx, style, animation) =>
+                                XswdPasteConnectionDialog(
+                                  style,
+                                  animation,
+                                  () => Navigator.of(ctx, rootNavigator: true).pop(),
+                                ),
                           );
                         },
                       ),

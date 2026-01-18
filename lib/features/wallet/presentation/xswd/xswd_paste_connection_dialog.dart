@@ -6,6 +6,7 @@ import 'package:forui/forui.dart';
 
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/xswd_providers.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
@@ -13,10 +14,11 @@ import 'package:genesix/shared/providers/toast_provider.dart';
 import 'xswd_relayer.dart';
 
 class XswdPasteConnectionDialog extends ConsumerStatefulWidget {
-  const XswdPasteConnectionDialog(this.style, this.animation, {super.key});
+  const XswdPasteConnectionDialog(this.style, this.animation, this.close, {super.key});
 
   final FDialogStyle style;
   final Animation<double> animation;
+  final VoidCallback close;
 
   @override
   ConsumerState<XswdPasteConnectionDialog> createState() =>
@@ -58,7 +60,7 @@ class _XswdPasteConnectionDialogState
                 ),
                 FButton.icon(
                   style: FButtonStyle.ghost(),
-                  onPress: _isProcessing ? null : () => context.pop(),
+                  onPress: _isProcessing ? null : () => widget.close(),
                   child: const Icon(FIcons.x, size: 22),
                 ),
               ],
@@ -92,7 +94,7 @@ class _XswdPasteConnectionDialogState
           children: [
             FButton(
               style: FButtonStyle.secondary(),
-              onPress: _isProcessing ? null : () => context.pop(),
+              onPress: _isProcessing ? null : () => widget.close(),
               child: const Text('Cancel'),
             ),
             const SizedBox(width: Spaces.small),
@@ -115,7 +117,9 @@ class _XswdPasteConnectionDialogState
   }
 
   Future<void> _connectFromPaste() async {
-    final raw = _controller.text.trim();
+    final raw = _controller.text
+      .replaceAll(RegExp(r'[\r\n\u2028\u2029\u200B\u200C\u200D]'), '')
+      .trim();
     if (raw.isEmpty) return;
 
     setState(() => _isProcessing = true);
@@ -133,9 +137,14 @@ class _XswdPasteConnectionDialogState
 
       await ref.read(walletStateProvider.notifier).addXswdRelayer(relayerData);
 
+      // Wait for all XSWD permission dialogs to fully complete
+      while (mounted && ref.read(xswdRequestProvider).decision != null) {
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+      }
+
       if (!mounted) return;
 
-      Navigator.of(context).pop();
+      widget.close();
 
       ref.read(toastProvider.notifier).showEvent(
         description: 'Connected to "${relayerData.name}" via relay',
