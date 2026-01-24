@@ -325,7 +325,7 @@ class NativeWalletRepository {
     return _xelisWallet.isValidPassword(password: password);
   }
 
-  Future<String> getXelisBalance() async {
+  Future<BigInt> getXelisBalance() async {
     return _xelisWallet.getXelisBalance();
   }
 

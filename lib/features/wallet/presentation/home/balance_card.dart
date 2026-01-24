@@ -40,8 +40,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
     final settings = ref.watch(settingsProvider);
     final walletState = ref.watch(walletStateProvider);
 
-    var displayedBalance =
-        '${walletState.xelisBalance.isNotEmpty ? walletState.xelisBalance : AppResources.zeroBalance} ${getXelisTicker(settings.network)}';
+    var displayedBalance = walletState.xelisBalance;
 
     if (settings.hideBalance) {
       displayedBalance = hidden;

@@ -262,7 +262,7 @@ class WalletState extends _$WalletState {
             .getKnownAssets();
 
         state = state.copyWith(
-          xelisBalance: xelisBalance,
+          xelisBalance: formatXelis(xelisBalance, state.network),
           trackedBalances: sortMapByKey(balances),
           knownAssets: sortMapByKey(knownAssets),
         );
@@ -672,7 +672,7 @@ class WalletState extends _$WalletState {
             .getTrackedBalances();
         state = state.copyWith(
           trackedBalances: sortMapByKey(updatedBalances),
-          xelisBalance: xelisBalance,
+          xelisBalance: formatXelis(xelisBalance, state.network),
         );
 
       case NewAsset():

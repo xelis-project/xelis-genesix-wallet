@@ -374,13 +374,13 @@ impl XelisWallet {
     }
 
     // get the wallet Xelis balance
-    pub async fn get_xelis_balance(&self) -> Result<String> {
+    pub async fn get_xelis_balance(&self) -> u64 {
         let storage = self.wallet.get_storage().read().await;
         let balance = storage
             .get_plaintext_balance_for(&XELIS_ASSET)
             .await
             .unwrap_or(0);
-        Ok(format_xelis(balance))
+        balance
     }
 
     // get all the balances of the tracked assets
