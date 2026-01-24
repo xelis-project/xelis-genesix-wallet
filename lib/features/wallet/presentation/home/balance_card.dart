@@ -8,10 +8,8 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/home/receive_address_dialog.dart';
 import 'package:genesix/features/wallet/presentation/home/usd_balance_widget.dart';
-import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
-import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:go_router/go_router.dart';
 

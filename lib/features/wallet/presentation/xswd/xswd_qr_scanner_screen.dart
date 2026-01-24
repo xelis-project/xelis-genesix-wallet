@@ -125,9 +125,8 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
     if (capture.barcodes.isEmpty) return;
 
     final raw = (capture.barcodes.first.rawValue ?? "")
-      .replaceAll(RegExp(r'[\r\n\u2028\u2029\u200B\u200C\u200D]'), '')
-      .trim();
-    if (raw == null) return;
+        .replaceAll(RegExp(r'[\r\n\u2028\u2029\u200B\u200C\u200D]'), '')
+        .trim();
 
     talker.info('=== XSWD QR SCANNED ===');
     talker.info(raw);
@@ -156,17 +155,17 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
 
       Navigator.of(context).pop();
 
-      ref.read(toastProvider.notifier).showEvent(
-        description: 'Connected to "${relayerData.name}" via relay',
-      );
+      ref
+          .read(toastProvider.notifier)
+          .showEvent(
+            description: 'Connected to "${relayerData.name}" via relay',
+          );
     } catch (e, st) {
       talker.error('XSWD QR processing failed', e, st);
 
       if (!mounted) return;
 
-      ref.read(toastProvider.notifier).showError(
-        description: e.toString(),
-      );
+      ref.read(toastProvider.notifier).showError(description: e.toString());
 
       setState(() => _isProcessing = false);
     }

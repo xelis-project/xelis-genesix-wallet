@@ -14,7 +14,12 @@ import 'package:genesix/shared/providers/toast_provider.dart';
 import 'xswd_relayer.dart';
 
 class XswdPasteConnectionDialog extends ConsumerStatefulWidget {
-  const XswdPasteConnectionDialog(this.style, this.animation, this.close, {super.key});
+  const XswdPasteConnectionDialog(
+    this.style,
+    this.animation,
+    this.close, {
+    super.key,
+  });
 
   final FDialogStyle style;
   final Animation<double> animation;
@@ -118,8 +123,8 @@ class _XswdPasteConnectionDialogState
 
   Future<void> _connectFromPaste() async {
     final raw = _controller.text
-      .replaceAll(RegExp(r'[\r\n\u2028\u2029\u200B\u200C\u200D]'), '')
-      .trim();
+        .replaceAll(RegExp(r'[\r\n\u2028\u2029\u200B\u200C\u200D]'), '')
+        .trim();
     if (raw.isEmpty) return;
 
     setState(() => _isProcessing = true);

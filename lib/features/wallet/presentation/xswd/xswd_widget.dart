@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:forui/forui.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 
 import 'package:genesix/features/wallet/application/xswd_providers.dart';

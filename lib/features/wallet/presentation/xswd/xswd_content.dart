@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:io' show Platform;
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,7 +16,6 @@ import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 
 import 'xswd_new_connection_dialog.dart';
-import 'xswd_qr_scanner_screen.dart';
 
 class XSWDContent extends ConsumerStatefulWidget {
   const XSWDContent({super.key});

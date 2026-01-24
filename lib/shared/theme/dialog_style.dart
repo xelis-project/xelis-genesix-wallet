@@ -73,7 +73,12 @@ FDialogStyle dialogStyle({
 
 Future<T?> showAppDialog<T>({
   required BuildContext context,
-  required Widget Function(BuildContext context, FDialogStyle style, Animation<double> animation) builder,
+  required Widget Function(
+    BuildContext context,
+    FDialogStyle style,
+    Animation<double> animation,
+  )
+  builder,
   bool useRootNavigator = true,
 }) {
   final theme = context.theme;

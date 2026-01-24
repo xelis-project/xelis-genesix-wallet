@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:forui/forui.dart';
 import 'package:genesix/features/wallet/presentation/recovery_phrase/recovery_phrase_dialog.dart';
 import 'package:genesix/features/wallet/presentation/home/balance_card.dart';
 import 'package:genesix/features/wallet/presentation/home/connection_status_card.dart';

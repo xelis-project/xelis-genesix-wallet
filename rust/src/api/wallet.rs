@@ -25,7 +25,7 @@ use xelis_common::transaction::builder::{
 use xelis_common::transaction::multisig::{MultiSig, SignatureId};
 use xelis_common::transaction::BurnPayload;
 pub use xelis_common::transaction::Transaction;
-use xelis_common::utils::{format_coin, format_xelis};
+use xelis_common::utils::format_coin;
 use xelis_wallet::precomputed_tables;
 pub use xelis_wallet::precomputed_tables::PrecomputedTablesShared;
 pub use xelis_wallet::transaction_builder::TransactionBuilderState;
