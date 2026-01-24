@@ -276,33 +276,11 @@ class WalletState extends _$WalletState {
   Future<void> disconnect() async {
     state = state.copyWith(isOnline: false);
 
-    // Clear any pending XSWD request state to prevent stuck spinners
-    if (!kIsWeb) {
-      ref.read(xswdRequestProvider.notifier).clearRequest();
-    }
-
-    // Stop XSWD server before disconnecting
-    if (!kIsWeb) {
-      try {
-        await stopXSWD();
-      } catch (e) {
-        talker.warning('Error stopping XSWD during disconnect: $e');
-      }
-    }
-
     try {
       await state.nativeWalletRepository?.setOffline();
     } catch (e) {
       talker.warning('Something went wrong when disconnecting: $e');
     }
-
-    try {
-      await state.nativeWalletRepository?.close();
-    } catch (e) {
-      talker.warning('Something went wrong when closing wallet: $e');
-    }
-
-    await state.streamSubscription?.cancel();
   }
 
   void reconnect([NodeAddress? nodeAddress]) {
@@ -319,18 +297,11 @@ class WalletState extends _$WalletState {
     final repository = state.nativeWalletRepository?.nativeWallet;
     if (repository != null) {
       try {
-        final txsCount = await repository.getHistoryCount();
-        if (txsCount > BigInt.zero) {
-          await repository.rescan(topoheight: BigInt.zero);
-          state = state.copyWith(isRescanning: true);
-          ref
-              .read(toastProvider.notifier)
-              .showInformation(title: 'Rescanning, please wait...');
-        } else {
-          ref
-              .read(toastProvider.notifier)
-              .showInformation(title: 'No history, rescan is not needed.');
-        }
+        await repository.rescan(topoheight: BigInt.zero);
+        state = state.copyWith(isRescanning: true);
+        ref
+            .read(toastProvider.notifier)
+            .showInformation(title: 'Rescanning, please wait...');
       } on AnyhowException catch (e) {
         talker.error('Rescan failed: $e');
         final xelisMessage = (e).message.split("\n")[0];
@@ -962,7 +933,6 @@ class WalletState extends _$WalletState {
       return;
     }
 
-    final loc = ref.read(appLocalizationsProvider);
     if (state.nativeWalletRepository == null) return;
 
     try {
@@ -993,7 +963,6 @@ class WalletState extends _$WalletState {
   }
 
   Future<void> stopXSWD() async {
-    final loc = ref.read(appLocalizationsProvider);
     if (state.nativeWalletRepository != null) {
       try {
         await state.nativeWalletRepository!.stopXSWD();

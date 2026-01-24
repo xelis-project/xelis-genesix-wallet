@@ -437,35 +437,23 @@ impl XelisWallet {
 
         let mut assets = HashMap::new();
 
-        let count = storage.get_assets_count()?;
-        if count == 0 {
-            info!("No known assets in wallet");
-            return Ok(assets);
-        }
-        info!("Retrieving {} known assets from wallet", count);
-
         for res in storage.get_assets_with_data().await? {
-            match res {
-                Ok((hash, asset_data)) => {
-                    info!("Retrieving asset data for asset {}", hash);
-                    let supply_mode_dto = XelisMaxSupplyMode::from(asset_data.get_max_supply());
-                    let owner_dto = XelisAssetOwner::from(asset_data.get_owner());
+            let (hash, asset_data) = res?;
 
-                    let dto = XelisAssetMetadata {
-                        name: asset_data.get_name().to_string(),
-                        ticker: asset_data.get_ticker().to_string(),
-                        decimals: asset_data.get_decimals(),
-                        max_supply: supply_mode_dto,
-                        owner: Some(owner_dto),
-                    };
+            info!("Retrieving asset data for asset {}", hash);
+            let supply_mode_dto = XelisMaxSupplyMode::from(asset_data.get_max_supply());
+            let owner_dto = XelisAssetOwner::from(asset_data.get_owner());
 
-                    let json_str = serde_json::to_string(&dto)?;
-                    assets.insert(hash.to_hex(), json_str);
-                }
-                Err(e) => {
-                    error!("Error retrieving asset data: {}", e);
-                }
-            }
+            let dto = XelisAssetMetadata {
+                name: asset_data.get_name().to_string(),
+                ticker: asset_data.get_ticker().to_string(),
+                decimals: asset_data.get_decimals(),
+                max_supply: supply_mode_dto,
+                owner: Some(owner_dto),
+            };
+
+            let json_str = serde_json::to_string(&dto)?;
+            assets.insert(hash.to_hex(), json_str);
         }
 
         Ok(assets)
