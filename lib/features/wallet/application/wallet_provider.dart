@@ -210,6 +210,7 @@ class WalletState extends _$WalletState {
       StreamSubscription<void> sub = state.nativeWalletRepository!
           .convertRawEvents()
           .listen(_onEvent);
+
       state = state.copyWith(streamSubscription: sub);
 
       final settings = ref.read(settingsProvider);
@@ -294,14 +295,11 @@ class WalletState extends _$WalletState {
   }
 
   Future<void> rescan() async {
-    final repository = state.nativeWalletRepository?.nativeWallet;
+    final repository = state.nativeWalletRepository;
     if (repository != null) {
       try {
-        await repository.rescan(topoheight: BigInt.zero);
+        await repository.rescan(topoheight: 0);
         state = state.copyWith(isRescanning: true);
-        ref
-            .read(toastProvider.notifier)
-            .showInformation(title: 'Rescanning, please wait...');
       } on AnyhowException catch (e) {
         talker.error('Rescan failed: $e');
         final xelisMessage = (e).message.split("\n")[0];
@@ -542,7 +540,8 @@ class WalletState extends _$WalletState {
   // Handle incoming events
   Future<void> _onEvent(Event event) async {
     final loc = ref.read(appLocalizationsProvider);
-    state = state.copyWith(lastEvent: event);
+    final isSyncing = await state.nativeWalletRepository!.isSyncing;
+    state = state.copyWith(lastEvent: event, isSyncing: isSyncing);
     switch (event) {
       case NewTopoHeight():
         talker.info(event);
@@ -705,27 +704,21 @@ class WalletState extends _$WalletState {
       case Online():
         talker.info(event);
         state = state.copyWith(isOnline: true);
-        if (!state.isRescanning) {
-          ref
-              .read(toastProvider.notifier)
-              .showInformation(title: loc.connected);
-        }
+        ref.read(toastProvider.notifier).showInformation(title: loc.connected);
 
       case Offline():
         talker.info(event);
         state = state.copyWith(isOnline: false);
-        if (!state.isRescanning) {
-          ref
-              .read(toastProvider.notifier)
-              .showInformation(title: loc.disconnected);
-        }
+        ref
+            .read(toastProvider.notifier)
+            .showInformation(title: loc.disconnected);
 
       case HistorySynced():
         talker.info(event);
-        state = state.copyWith(isRescanning: false);
         ref
             .read(toastProvider.notifier)
-            .showInformation(title: 'Rescan completed');
+            .showInformation(title: 'History synced');
+        state = state.copyWith(isRescanning: false);
       case SyncError():
         talker.error(event);
         ref

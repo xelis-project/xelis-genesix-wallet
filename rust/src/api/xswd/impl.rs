@@ -4,13 +4,14 @@ use std::collections::HashMap;
 use anyhow::{bail, Error, Result};
 pub use flutter_rust_bridge::DartFnFuture;
 use log::{debug, error, info};
+pub use xelis_common::api::wallet::XSWDPrefetchPermissions;
 use xelis_common::tokio::spawn_task;
 pub use xelis_common::tokio::sync::mpsc::UnboundedReceiver;
 pub use xelis_common::tokio::sync::oneshot::Sender;
 #[cfg(not(target_arch = "wasm32"))]
 use xelis_wallet::api::APIServer;
 pub use xelis_wallet::api::AppState;
-use xelis_wallet::api::{InternalPrefetchPermissions, Permission, PermissionResult};
+use xelis_wallet::api::{Permission, PermissionResult};
 pub use xelis_wallet::wallet::XSWDEvent;
 
 use crate::api::{
@@ -533,7 +534,7 @@ fn handle_permission_decision(
 
 fn handle_prefetch_permissions_decision(
     decision: UserPermissionDecision,
-    permissions: InternalPrefetchPermissions,
+    permissions: XSWDPrefetchPermissions,
     callback: Sender<Result<IndexMap<String, Permission>, Error>>,
 ) {
     let accepted = matches!(

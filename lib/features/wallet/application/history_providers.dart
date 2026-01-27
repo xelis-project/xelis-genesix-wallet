@@ -72,12 +72,10 @@ class HistoryPagingState extends _$HistoryPagingState {
     int newKey,
     List<MapEntry<DateTime, List<TransactionEntry>>> txs,
   ) {
-    final total = txs.fold(0, (sum, e) => sum + e.value.length);
-
     state = state.copyWith(
       pages: [...?state.pages, txs],
       keys: [...?state.keys, newKey],
-      hasNextPage: total == pageSize,
+      hasNextPage: txs.isNotEmpty,
       isLoading: false,
     );
   }

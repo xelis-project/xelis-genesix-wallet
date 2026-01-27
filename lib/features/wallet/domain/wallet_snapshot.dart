@@ -15,6 +15,8 @@ part 'wallet_snapshot.freezed.dart';
 abstract class WalletSnapshot with _$WalletSnapshot {
   factory WalletSnapshot({
     @Default(false) bool isOnline,
+    @Default(false) bool isSyncing,
+    @Default(false) bool isRescanning,
     @Default(0) int topoheight,
     @Default('') String xelisBalance,
     required LinkedHashMap<String, String> trackedBalances,
@@ -26,6 +28,5 @@ abstract class WalletSnapshot with _$WalletSnapshot {
     NativeWalletRepository? nativeWalletRepository,
     StreamSubscription<void>? streamSubscription,
     Event? lastEvent,
-    @Default(false) bool isRescanning,
   }) = _WalletSnapshot;
 }

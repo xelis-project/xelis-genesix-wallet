@@ -333,6 +333,12 @@ impl XelisWallet {
         self.wallet.is_online().await
     }
 
+    // Check if the wallet is synced
+    pub async fn is_syncing(&self) -> bool {
+        let storage = self.wallet.get_storage().read().await;
+        storage.is_syncing()
+    }
+
     // Get the wallet address as a string
     #[frb(sync)]
     pub fn get_address_str(&self) -> String {

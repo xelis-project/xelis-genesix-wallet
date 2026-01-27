@@ -31,9 +31,6 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
     final knownAssets = ref.watch(
       walletStateProvider.select((value) => value.knownAssets),
     );
-    final isRescanning = ref.watch(
-      walletStateProvider.select((s) => s.isRescanning),
-    );
 
     final lastTransactions = ref.watch(lastTransactionsProvider).valueOrNull;
 
@@ -124,15 +121,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
         );
       }
     } else {
-      content = Padding(
-        padding: const EdgeInsets.only(top: Spaces.small),
-        child: Text(
-          loc.oups,
-          style: context.theme.typography.sm.copyWith(
-            color: context.theme.colors.mutedForeground,
-          ),
-        ),
-      );
+      content = Center(child: FCircularProgress());
     }
 
     return FCard(
@@ -149,9 +138,16 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
                   ),
                 ),
               ),
+              FTooltip(
+                tipBuilder: (context, controller) => Text('refresh'),
+                child: FButton.icon(
+                  child: const Icon(FIcons.refreshCcw),
+                  onPress: () => ref.invalidate(lastTransactionsProvider),
+                ),
+              ),
             ],
           ),
-          isRescanning ? Center(child: FCircularProgress()) : content,
+          content,
         ],
       ),
     );

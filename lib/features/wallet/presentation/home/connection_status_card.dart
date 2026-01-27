@@ -31,9 +31,11 @@ class ConnectionStatusCard extends ConsumerWidget {
       walletStateProvider.select((state) => state.topoheight),
     );
 
-    var displayedTopoheight = NumberFormat().format(topoheight);
+    final isRescanning = ref.watch(
+      walletStateProvider.select((state) => state.isRescanning),
+    );
 
-    ValueNotifier<bool> isRescanningNotifier = ValueNotifier(false);
+    var displayedTopoheight = NumberFormat().format(topoheight);
 
     return FCard(
       child: Column(
@@ -88,25 +90,19 @@ class ConnectionStatusCard extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    ValueListenableBuilder(
-                      valueListenable: isRescanningNotifier,
-                      builder:
-                          (BuildContext context, bool isRescanning, Widget? _) {
-                            return FButton(
-                              style: FButtonStyle.outline(),
-                              onPress: isRescanning
-                                  ? null
-                                  : () async {
-                                      isRescanningNotifier.value = true;
-                                      await ref
-                                          .read(walletStateProvider.notifier)
-                                          .rescan();
-                                      isRescanningNotifier.value = false;
-                                    },
-                              prefix: Icon(FIcons.rotateCcw),
-                              child: Text(loc.rescan),
-                            );
-                          },
+                    FButton(
+                      style: FButtonStyle.outline(),
+                      onPress: isRescanning
+                          ? null
+                          : () async {
+                              await ref
+                                  .read(walletStateProvider.notifier)
+                                  .rescan();
+                            },
+                      prefix: isRescanning
+                          ? const FCircularProgress.loader()
+                          : Icon(FIcons.rotateCcw),
+                      child: isRescanning ? Text(loc.wait) : Text(loc.rescan),
                     ),
                   ],
                 ),
