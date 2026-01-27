@@ -488,7 +488,7 @@ class Authentication extends _$Authentication {
     if (await isPrecomputedTablesExists(expectedTableType)) {
       return expectedTableType;
     } else {
-      return PrecomputedTableType.l1Low();
+      return PrecomputedTableType.l1Medium();
     }
   }
 
