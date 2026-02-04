@@ -4,13 +4,14 @@ use std::collections::HashMap;
 use anyhow::{bail, Error, Result};
 pub use flutter_rust_bridge::DartFnFuture;
 use log::{debug, error, info};
+pub use xelis_common::api::wallet::XSWDPrefetchPermissions;
 use xelis_common::tokio::spawn_task;
 pub use xelis_common::tokio::sync::mpsc::UnboundedReceiver;
 pub use xelis_common::tokio::sync::oneshot::Sender;
-pub use xelis_wallet::api::AppState;
-use xelis_wallet::api::{InternalPrefetchPermissions, Permission, PermissionResult};
 #[cfg(not(target_arch = "wasm32"))]
 use xelis_wallet::api::APIServer;
+pub use xelis_wallet::api::AppState;
+use xelis_wallet::api::{Permission, PermissionResult};
 pub use xelis_wallet::wallet::XSWDEvent;
 
 use crate::api::{
@@ -117,7 +118,13 @@ impl XSWD for XelisWallet {
     ) -> Result<()> {
         #[cfg(target_arch = "wasm32")]
         {
-            let _ = (_cancel_request_dart_callback, _request_application_dart_callback, _request_permission_dart_callback, _request_prefetch_permissions_dart_callback, _app_disconnect_dart_callback);
+            let _ = (
+                _cancel_request_dart_callback,
+                _request_application_dart_callback,
+                _request_permission_dart_callback,
+                _request_prefetch_permissions_dart_callback,
+                _app_disconnect_dart_callback,
+            );
             bail!("Local XSWD server not supported on web. Use relay mode instead.");
         }
 
@@ -252,7 +259,8 @@ impl XSWD for XelisWallet {
             if let Some(api_server) = lock.as_ref() {
                 if let APIServer::XSWD(xswd) = api_server {
                     let mut applications = xswd.get_handler().get_applications().write().await;
-                    if let Some((_, app)) = applications.iter_mut().find(|(_, v)| v.get_id() == id) {
+                    if let Some((_, app)) = applications.iter_mut().find(|(_, v)| v.get_id() == id)
+                    {
                         return modify_perms(app, &permissions).await;
                     }
                 }
@@ -526,7 +534,7 @@ fn handle_permission_decision(
 
 fn handle_prefetch_permissions_decision(
     decision: UserPermissionDecision,
-    permissions: InternalPrefetchPermissions,
+    permissions: XSWDPrefetchPermissions,
     callback: Sender<Result<IndexMap<String, Permission>, Error>>,
 ) {
     let accepted = matches!(

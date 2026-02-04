@@ -25,7 +25,7 @@ use xelis_common::transaction::builder::{
 use xelis_common::transaction::multisig::{MultiSig, SignatureId};
 use xelis_common::transaction::BurnPayload;
 pub use xelis_common::transaction::Transaction;
-use xelis_common::utils::{format_coin, format_xelis};
+use xelis_common::utils::format_coin;
 use xelis_wallet::precomputed_tables;
 pub use xelis_wallet::precomputed_tables::PrecomputedTablesShared;
 pub use xelis_wallet::transaction_builder::TransactionBuilderState;
@@ -333,6 +333,12 @@ impl XelisWallet {
         self.wallet.is_online().await
     }
 
+    // Check if the wallet is synced
+    pub async fn is_syncing(&self) -> bool {
+        let storage = self.wallet.get_storage().read().await;
+        storage.is_syncing()
+    }
+
     // Get the wallet address as a string
     #[frb(sync)]
     pub fn get_address_str(&self) -> String {
@@ -374,47 +380,58 @@ impl XelisWallet {
     }
 
     // get the wallet Xelis balance
-    pub async fn get_xelis_balance(&self) -> Result<String> {
+    pub async fn get_xelis_balance(&self) -> u64 {
         let storage = self.wallet.get_storage().read().await;
         let balance = storage
             .get_plaintext_balance_for(&XELIS_ASSET)
             .await
             .unwrap_or(0);
-        Ok(format_xelis(balance))
+        balance
     }
 
     // get all the balances of the tracked assets
     pub async fn get_tracked_balances(&self) -> Result<HashMap<String, String>> {
         info!("Retrieving tracked asset balances from wallet...");
-        let storage = self.wallet.get_storage().read().await;
+
+        // First pass: collect tracked assets
+        let tracked_assets: Vec<Hash> = {
+            let storage = self.wallet.get_storage().read().await;
+            let count = storage.get_tracked_assets_count()?;
+            if count == 0 {
+                info!("No tracked assets found");
+                return Ok(HashMap::new());
+            }
+            info!("Retrieving {} tracked asset balances from wallet", count);
+            let mut assets = Vec::with_capacity(count);
+            for res in storage.get_tracked_assets()? {
+                if let Ok(hash) = res {
+                    assets.push(hash);
+                }
+            }
+            assets
+        };
 
         let mut balances = HashMap::new();
 
-        let count = storage.get_tracked_assets_count()?;
-        if count == 0 {
-            info!("No tracked assets found");
-            return Ok(balances);
-        }
-        info!("Retrieving {} tracked asset balances from wallet", count);
-        let tracked_assets = storage.get_tracked_assets()?;
-
-        for res in tracked_assets {
-            match res {
-                Ok(asset) => {
-                    if let Some(data) = storage.get_optional_asset(&asset).await? {
-                        let balance = storage
-                            .get_plaintext_balance_for(&asset)
-                            .await
-                            .context("Error retrieving balance")?;
-                        balances.insert(asset.to_hex(), format_coin(balance, data.get_decimals()));
-                    } else {
-                        warn!("No asset data for {}", asset);
-                    }
-                }
+        for asset in tracked_assets {
+            // get_asset_data fetches from daemon if missing (self-healing)
+            let data = match self.get_asset_data(&asset).await {
+                Ok(d) => d,
                 Err(e) => {
-                    error!("Error retrieving tracked asset: {}", e);
+                    warn!("Failed to get asset data for {}: {}", asset, e);
+                    continue;
                 }
-            }
+            };
+
+            let balance = {
+                let storage = self.wallet.get_storage().read().await;
+                storage
+                    .get_plaintext_balance_for(&asset)
+                    .await
+                    .context("Error retrieving balance")?
+            };
+
+            balances.insert(asset.to_hex(), format_coin(balance, data.get_decimals()));
         }
 
         Ok(balances)

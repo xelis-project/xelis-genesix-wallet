@@ -4,6 +4,7 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/assets/untracked_asset_details.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 
@@ -18,6 +19,7 @@ class UntrackedAssetsTab extends ConsumerStatefulWidget {
 
 class _UntrackedAssetsTabState extends ConsumerState<UntrackedAssetsTab> {
   final _controller = ScrollController();
+  final Set<String> _trackingAssets = {};
 
   @override
   dispose() {
@@ -62,18 +64,28 @@ class _UntrackedAssetsTabState extends ConsumerState<UntrackedAssetsTab> {
           itemBuilder: (context, index) {
             final hash = untrackedAssets[index];
             final asset = knownAssets[hash]!;
+            final isTracking = _trackingAssets.contains(hash);
             return FItem(
               title: Text(asset.name),
               subtitle: Text(asset.ticker),
               onPress: () => _showDetails(hash, asset),
-              suffix: InkWell(
-                borderRadius: BorderRadius.circular(999),
-                onTap: () => _trackAssetDirect(hash),
-                child: const Padding(
-                  padding: EdgeInsets.all(8),
-                  child: Icon(FIcons.plus),
-                ),
-              ),
+              suffix: isTracking
+                  ? const Padding(
+                      padding: EdgeInsets.all(8),
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    )
+                  : InkWell(
+                      borderRadius: BorderRadius.circular(999),
+                      onTap: () => _trackAssetDirect(hash),
+                      child: const Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Icon(FIcons.plus),
+                      ),
+                    ),
             );
           },
         ),
@@ -81,16 +93,25 @@ class _UntrackedAssetsTabState extends ConsumerState<UntrackedAssetsTab> {
     }
   }
 
-  void _trackAssetDirect(String hash) {
-    ref.read(walletStateProvider.notifier).trackAsset(hash);
+  Future<void> _trackAssetDirect(String hash) async {
+    setState(() => _trackingAssets.add(hash));
+    await ref.read(walletStateProvider.notifier).trackAsset(hash);
+    // Asset will be removed from untracked list automatically once tracked
+    // but clean up the set just in case
+    if (mounted) {
+      setState(() => _trackingAssets.remove(hash));
+    }
   }
 
   void _showDetails(String hash, sdk.AssetData assetData) {
-    showFDialog<void>(
-      useRootNavigator: true,
+    showAppDialog<void>(
       context: context,
-      builder: (context, style, animation) =>
-          UntrackedAssetDetails(hash, assetData),
+      builder: (context, style, animation) => UntrackedAssetDetails(
+        hash,
+        assetData,
+        isTracking: _trackingAssets.contains(hash),
+        onTrack: () => _trackAssetDirect(hash),
+      ),
     );
   }
 }

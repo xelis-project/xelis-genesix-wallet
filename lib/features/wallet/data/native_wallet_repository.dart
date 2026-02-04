@@ -217,6 +217,8 @@ class NativeWalletRepository {
 
   Future<bool> get isOnline => _xelisWallet.isOnline();
 
+  Future<bool> get isSyncing => _xelisWallet.isSyncing();
+
   Network get network => _xelisWallet.getNetwork();
 
   Future<void> setOnline({required String daemonAddress}) async {
@@ -325,7 +327,7 @@ class NativeWalletRepository {
     return _xelisWallet.isValidPassword(password: password);
   }
 
-  Future<String> getXelisBalance() async {
+  Future<BigInt> getXelisBalance() async {
     return _xelisWallet.getXelisBalance();
   }
 

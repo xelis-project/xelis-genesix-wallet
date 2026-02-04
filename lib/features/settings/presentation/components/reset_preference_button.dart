@@ -5,6 +5,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/storage/shared_preferences/shared_preferences_provider.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:go_router/go_router.dart';
 
 class ResetPreferenceButton extends ConsumerStatefulWidget {
@@ -41,8 +42,7 @@ class _ResetPreferenceButtonState extends ConsumerState<ResetPreferenceButton> {
 
   void _showResetPreferencesDialog() {
     final loc = ref.read(appLocalizationsProvider);
-    showFDialog<void>(
-      useRootNavigator: true,
+    showAppDialog<void>(
       context: context,
       builder: (context, style, animation) {
         return FDialog(

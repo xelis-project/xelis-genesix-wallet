@@ -9,6 +9,8 @@ import 'package:genesix/shared/widgets/components/labeled_value.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/network.dart'
+    as rust;
 
 class InvokeContractEntryContent extends ConsumerStatefulWidget {
   const InvokeContractEntryContent(
@@ -38,10 +40,9 @@ class _InvokeContractEntryContentState
   }
 
   Future<void> _fetchData() async {
-    final knownAssets = ref.read(
-      walletStateProvider.select((state) => state.knownAssets),
-    );
-    final repository = ref.read(walletStateProvider).nativeWalletRepository;
+    final walletState = ref.read(walletStateProvider);
+    final knownAssets = walletState.knownAssets;
+    final repository = walletState.nativeWalletRepository;
 
     if (repository == null) {
       setState(() => _isLoading = false);
@@ -64,7 +65,7 @@ class _InvokeContractEntryContentState
       _contractLogs = logs;
 
       for (final log in logs) {
-        final type = log['type'] as String;
+        // final type = log['type'] as String;
         final value = log['value'];
 
         if (value is Map<String, dynamic> && value.containsKey('asset')) {
@@ -90,6 +91,7 @@ class _InvokeContractEntryContentState
     BuildContext context,
     Map<String, dynamic> log,
     Map<String, AssetData> allAssets,
+    rust.Network network,
   ) {
     final type = log['type'] as String;
     final value = log['value'];
@@ -102,7 +104,7 @@ class _InvokeContractEntryContentState
         header = 'Transfer';
         final data = value as Map<String, dynamic>;
         final asset = data['asset'] as String;
-        final amount = data['amount'] as int;
+        final amount = data['amount'];
         final destination = data['destination'] as String;
 
         final formattedData = getFormattedAssetNameAndAmount(
@@ -143,7 +145,7 @@ class _InvokeContractEntryContentState
         header = 'Transfer to Contract';
         final data = value as Map<String, dynamic>;
         final asset = data['asset'] as String;
-        final amount = data['amount'] as int;
+        final amount = data['amount'];
         final destination = data['destination'] as String;
 
         final formattedData = getFormattedAssetNameAndAmount(
@@ -184,7 +186,7 @@ class _InvokeContractEntryContentState
         header = 'Burn';
         final data = value as Map<String, dynamic>;
         final asset = data['asset'] as String;
-        final amount = data['amount'] as int;
+        final amount = data['amount'];
 
         final formattedData = getFormattedAssetNameAndAmount(
           allAssets,
@@ -212,7 +214,7 @@ class _InvokeContractEntryContentState
         header = 'Mint';
         final data = value as Map<String, dynamic>;
         final asset = data['asset'] as String;
-        final amount = data['amount'] as int;
+        final amount = data['amount'];
 
         final formattedData = getFormattedAssetNameAndAmount(
           allAssets,
@@ -239,10 +241,10 @@ class _InvokeContractEntryContentState
       case 'refund_gas':
         header = 'Gas Refund';
         final data = value as Map<String, dynamic>;
-        final amount = data['amount'] as int;
+        final amount = data['amount'];
 
         details = SelectableText(
-          formatCoin(amount, 8, 'XEL'),
+          formatXelis(amount, network),
           style: context.theme.typography.base,
         );
         break;
@@ -508,7 +510,8 @@ class _InvokeContractEntryContentState
                           ),
                         ),
                         ..._contractLogs.map(
-                          (log) => _buildLogWidget(context, log, allAssets),
+                          (log) =>
+                              _buildLogWidget(context, log, allAssets, network),
                         ),
                       ],
                     ),

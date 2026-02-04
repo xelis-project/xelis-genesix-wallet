@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:forui/forui.dart';
 import 'package:genesix/features/wallet/presentation/recovery_phrase/recovery_phrase_dialog.dart';
 import 'package:genesix/features/wallet/presentation/home/balance_card.dart';
 import 'package:genesix/features/wallet/presentation/home/connection_status_card.dart';
@@ -8,6 +7,7 @@ import 'package:genesix/features/wallet/presentation/home/last_news_card.dart';
 import 'package:genesix/features/wallet/presentation/home/last_transactions_card.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 
 class HomeWalletContent extends ConsumerStatefulWidget {
@@ -33,10 +33,8 @@ class _HomeWalletContentState extends ConsumerState<HomeWalletContent> {
     if (extra is String) {
       final seed = extra;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        showFDialog<void>(
-          useRootNavigator: true,
+        showAppDialog<void>(
           context: context,
-          barrierDismissible: false,
           builder: (context, style, animation) {
             return RecoveryPhraseDialog(style, animation, seed);
           },

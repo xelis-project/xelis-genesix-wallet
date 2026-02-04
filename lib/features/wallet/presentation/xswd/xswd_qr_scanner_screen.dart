@@ -8,6 +8,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/xswd_providers.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
@@ -123,8 +124,9 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
     if (_isProcessing) return;
     if (capture.barcodes.isEmpty) return;
 
-    final raw = capture.barcodes.first.rawValue;
-    if (raw == null) return;
+    final raw = (capture.barcodes.first.rawValue ?? "")
+        .replaceAll(RegExp(r'[\r\n\u2028\u2029\u200B\u200C\u200D]'), '')
+        .trim();
 
     talker.info('=== XSWD QR SCANNED ===');
     talker.info(raw);
@@ -144,21 +146,26 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
 
       await ref.read(walletStateProvider.notifier).addXswdRelayer(relayerData);
 
+      // Wait for all XSWD permission dialogs to fully complete
+      while (mounted && ref.read(xswdRequestProvider).decision != null) {
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+      }
+
       if (!mounted) return;
 
       Navigator.of(context).pop();
 
-      ref.read(toastProvider.notifier).showEvent(
-        description: 'Connected to "${relayerData.name}" via relay',
-      );
+      ref
+          .read(toastProvider.notifier)
+          .showEvent(
+            description: 'Connected to "${relayerData.name}" via relay',
+          );
     } catch (e, st) {
       talker.error('XSWD QR processing failed', e, st);
 
       if (!mounted) return;
 
-      ref.read(toastProvider.notifier).showError(
-        description: e.toString(),
-      );
+      ref.read(toastProvider.notifier).showError(description: e.toString());
 
       setState(() => _isProcessing = false);
     }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/assets/asset_name_widget.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -12,10 +11,18 @@ import 'package:go_router/go_router.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 
 class UntrackedAssetDetails extends ConsumerStatefulWidget {
-  const UntrackedAssetDetails(this.hash, this.asset, {super.key});
+  const UntrackedAssetDetails(
+    this.hash,
+    this.asset, {
+    super.key,
+    this.isTracking = false,
+    this.onTrack,
+  });
 
   final String hash;
   final sdk.AssetData asset;
+  final bool isTracking;
+  final VoidCallback? onTrack;
 
   @override
   ConsumerState createState() => _UntrackedAssetDetailsState();
@@ -107,11 +114,29 @@ class _UntrackedAssetDetailsState extends ConsumerState<UntrackedAssetDetails> {
       ),
       actions: [
         FButton(
-          onPress: () {
-            ref.read(walletStateProvider.notifier).trackAsset(widget.hash);
-            context.pop();
-          },
-          child: Text(loc.track),
+          onPress: widget.isTracking
+              ? null
+              : () {
+                  widget.onTrack?.call();
+                  context.pop();
+                },
+          child: widget.isTracking
+              ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: context.theme.colors.mutedForeground,
+                      ),
+                    ),
+                    const SizedBox(width: Spaces.small),
+                    Text('Tracking...'),
+                  ],
+                )
+              : Text('Tracking'),
         ),
       ],
     );

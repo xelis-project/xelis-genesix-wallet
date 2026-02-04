@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -57,14 +57,20 @@ class _ConnectionIndicatorState extends ConsumerState<ConnectionIndicator>
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final isOnline = ref.watch(
-      walletStateProvider.select((value) => value.isOnline),
+    final (isOnline, isSyncing) = ref.watch(
+      walletStateProvider.select((value) => (value.isOnline, value.isSyncing)),
     );
 
     final color = isOnline
-        ? context.theme.colors.primary
+        ? isSyncing
+              ? Colors.orangeAccent
+              : context.theme.colors.primary
         : context.theme.colors.error;
-    final text = isOnline ? loc.connected : loc.disconnected;
+    final text = isOnline
+        ? isSyncing
+              ? 'Syncing'
+              : loc.connected
+        : loc.disconnected;
 
     return Padding(
       padding: const EdgeInsets.all(Spaces.small),

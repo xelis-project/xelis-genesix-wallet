@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:forui/forui.dart';
 import 'package:genesix/features/authentication/data/biometric_auth_repository.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_auth/error_codes.dart';
@@ -31,9 +31,8 @@ Future<void> startWithBiometricAuth(
     callback(ref);
   } else {
     if (ref.context.mounted) {
-      await showFDialog<void>(
+      await showAppDialog<void>(
         context: ref.context,
-        useRootNavigator: true,
         builder: (context, style, animation) {
           return PasswordDialog(
             style,

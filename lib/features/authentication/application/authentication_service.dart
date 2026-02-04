@@ -488,7 +488,7 @@ class Authentication extends _$Authentication {
     if (await isPrecomputedTablesExists(expectedTableType)) {
       return expectedTableType;
     } else {
-      return PrecomputedTableType.l1Low();
+      return PrecomputedTableType.l1Medium();
     }
   }
 
@@ -496,7 +496,7 @@ class Authentication extends _$Authentication {
     if (isDesktopDevice) {
       return PrecomputedTableType.l1Full();
     } else {
-      return PrecomputedTableType.l1Medium();
+      return PrecomputedTableType.custom(BigInt.from(24));
     }
   }
 }

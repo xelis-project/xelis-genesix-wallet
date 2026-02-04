@@ -3,7 +3,6 @@ export 'unsupported.dart' if (dart.library.html) 'web.dart';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,20 +40,67 @@ String formatUsd(num value, {bool withSymbol = true}) {
   return format.format(value);
 }
 
-String formatCoin(int value, int decimals, String ticker) {
-  final pattern = '#,##0.${'#' * decimals}';
-  final formatter = NumberFormat(pattern);
-  final xelisValue = formatter.format(value / pow(10, decimals));
-  return '$xelisValue $ticker';
+String _formatBigIntWithGrouping(BigInt value, NumberFormat decimalFormat) {
+  if (value.bitLength <= 62) {
+    return decimalFormat.format(value.toInt());
+  }
+
+  final groupSep = decimalFormat.symbols.GROUP_SEP;
+  final s = value.toString();
+  final buf = StringBuffer();
+
+  for (var i = 0; i < s.length; i++) {
+    final left = s.length - i;
+    buf.write(s[i]);
+    if (left > 1 && left % 3 == 1) {
+      buf.write(groupSep);
+    }
+  }
+
+  return buf.toString();
 }
 
-String formatXelis(int value, rust.Network network) {
-  final pattern = '#,##0.${'#' * AppResources.xelisDecimals}';
-  final formatter = NumberFormat(pattern);
-  final xelisValue = formatter.format(
-    value / pow(10, AppResources.xelisDecimals),
+String formatCoin(dynamic value, int decimals, String ticker) {
+  BigInt amount;
+  if (value is BigInt) {
+    amount = value;
+  } else if (value is int) {
+    amount = BigInt.from(value);
+  } else {
+    throw ArgumentError.value(value, 'coin value', 'Must be a int or a BigInt');
+  }
+
+  if (decimals < 0) {
+    throw ArgumentError.value(decimals, 'decimals', 'Must be >= 0');
+  }
+
+  final decimalFormat = NumberFormat.decimalPattern();
+
+  if (decimals == 0) {
+    final formattedInteger = _formatBigIntWithGrouping(amount, decimalFormat);
+    return '$formattedInteger $ticker';
+  }
+
+  final divisor = BigInt.from(10).pow(decimals);
+  final integerPart = amount ~/ divisor;
+  final formattedInteger = _formatBigIntWithGrouping(
+    integerPart,
+    decimalFormat,
   );
-  return '$xelisValue ${getXelisTicker(network)}';
+
+  var fraction = (amount % divisor).toString().padLeft(decimals, '0');
+  fraction = fraction.replaceFirst(RegExp(r'0+$'), '');
+
+  if (fraction.isEmpty) {
+    return '$formattedInteger $ticker';
+  }
+
+  final decimalSep = decimalFormat.symbols.DECIMAL_SEP;
+  return '$formattedInteger$decimalSep$fraction $ticker';
+}
+
+String formatXelis(dynamic value, rust.Network network) {
+  return formatCoin(value, AppResources.xelisDecimals, getXelisTicker(network));
 }
 
 String getXelisTicker(rust.Network network) {
@@ -292,7 +338,7 @@ String formatPrettyTimestamp(
 (String, String) getFormattedAssetNameAndAmount(
   Map<String, sdk.AssetData> knownAssets,
   String assetHash,
-  int rawAmount,
+  dynamic rawAmount,
 ) {
   final assetData = knownAssets[assetHash];
   if (assetData != null) {
