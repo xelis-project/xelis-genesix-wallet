@@ -391,47 +391,19 @@ impl XelisWallet {
 
     // get all the balances of the tracked assets
     pub async fn get_tracked_balances(&self) -> Result<HashMap<String, String>> {
-        info!("Retrieving tracked asset balances from wallet...");
-
-        // First pass: collect tracked assets
-        let tracked_assets: Vec<Hash> = {
-            let storage = self.wallet.get_storage().read().await;
-            let count = storage.get_tracked_assets_count()?;
-            if count == 0 {
-                info!("No tracked assets found");
-                return Ok(HashMap::new());
-            }
-            info!("Retrieving {} tracked asset balances from wallet", count);
-            let mut assets = Vec::with_capacity(count);
-            for res in storage.get_tracked_assets()? {
-                if let Ok(hash) = res {
-                    assets.push(hash);
-                }
-            }
-            assets
-        };
-
         let mut balances = HashMap::new();
+        
+        let storage = self.wallet.get_storage().read().await;
 
-        for asset in tracked_assets {
-            // get_asset_data fetches from daemon if missing (self-healing)
-            let data = match self.get_asset_data(&asset).await {
-                Ok(d) => d,
-                Err(e) => {
-                    warn!("Failed to get asset data for {}: {}", asset, e);
-                    continue;
-                }
-            };
-
-            let balance = {
-                let storage = self.wallet.get_storage().read().await;
-                storage
-                    .get_plaintext_balance_for(&asset)
-                    .await
-                    .context("Error retrieving balance")?
-            };
-
-            balances.insert(asset.to_hex(), format_coin(balance, data.get_decimals()));
+        for res in storage.get_tracked_assets()? {
+            let asset = res?;
+            if let Some(data) = storage.get_optional_asset(&asset).await? {
+                info!("Retrieving balance for asset {}", asset);
+                let balance = storage.get_plaintext_balance_for(&asset).await.unwrap_or(0);
+                balances.insert(asset.to_hex(), format_coin(balance, data.get_decimals()));
+            } else {
+                info!("No asset data for {}", asset);
+            }
         }
 
         Ok(balances)
