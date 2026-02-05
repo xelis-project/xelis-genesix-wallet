@@ -42,6 +42,8 @@ Future<List<TransactionEntry>> lastTransactions(Ref ref) async {
       return b.topoheight.compareTo(a.topoheight);
     });
 
+    if (txs.length <= 5) return txs;
+
     return txs.sublist(0, 4);
   }
   return [];
