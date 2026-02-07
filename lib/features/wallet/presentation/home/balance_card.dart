@@ -8,6 +8,7 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/home/receive_address_dialog.dart';
 import 'package:genesix/features/wallet/presentation/home/usd_balance_widget.dart';
+import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
@@ -91,7 +92,12 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                         (settings.showBalanceUSDT && kDebugMode))
                       // Show USD balance only on mainnet
                       UsdBalanceWidget(
-                        double.tryParse(walletState.xelisBalance) ?? 0.0,
+                        double.tryParse(
+                              walletState.trackedBalances[AppResources
+                                      .xelisHash] ??
+                                  AppResources.zeroBalance,
+                            ) ??
+                            0.0,
                       ),
                   ],
                 ),
