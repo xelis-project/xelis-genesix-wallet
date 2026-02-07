@@ -1,4 +1,5 @@
 import 'package:country_flags/country_flags.dart';
+import 'package:flutter/foundation.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:jovial_svg/jovial_svg.dart';
@@ -46,6 +47,11 @@ class AppResources {
       name: 'Seed Node Canada #1',
       url: 'https://ca-node.xelis.io/',
     ),
+    if (kDebugMode)
+      const NodeAddress(
+        name: 'Android simulator localhost',
+        url: 'http://10.0.2.2:8080',
+      ),
   ];
 
   static List<NodeAddress> testnetNodes = [
@@ -53,6 +59,15 @@ class AppResources {
       name: 'Official XELIS Testnet',
       url: 'https://${sdk.testnetNodeURL}',
     ),
+    const NodeAddress(
+      name: 'Default Local Node',
+      url: 'http://${sdk.localhostAddress}',
+    ),
+    if (kDebugMode)
+      const NodeAddress(
+        name: 'Android simulator localhost',
+        url: 'http://10.0.2.2:8080',
+      ),
   ];
 
   static List<NodeAddress> devnetNodes = [
