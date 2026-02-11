@@ -425,10 +425,14 @@ impl XelisWallet {
 
             let balance = {
                 let storage = self.wallet.get_storage().read().await;
-                storage
-                    .get_plaintext_balance_for(&asset)
-                    .await
-                    .context("Error retrieving balance")?
+                if storage.has_balance_for(&asset).await? {
+                    storage
+                        .get_plaintext_balance_for(&asset)
+                        .await
+                        .context("Error retrieving balance")?
+                } else {
+                    0
+                }
             };
 
             balances.insert(asset.to_hex(), format_coin(balance, data.get_decimals()));
