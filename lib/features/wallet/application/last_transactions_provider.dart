@@ -42,7 +42,7 @@ Future<List<TransactionEntry>> lastTransactions(Ref ref) async {
       return b.topoheight.compareTo(a.topoheight);
     });
 
-    return txs.sublist(0, 4);
+    return txs.take(4).toList();
   }
   return [];
 }
