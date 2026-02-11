@@ -90,9 +90,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                     if ((settings.showBalanceUSDT && isMainnet) ||
                         (settings.showBalanceUSDT && kDebugMode))
                       // Show USD balance only on mainnet
-                      UsdBalanceWidget(
-                        double.tryParse(walletState.xelisBalance) ?? 0.0,
-                      ),
+                      UsdBalanceWidget(walletState.xelisBalance),
                   ],
                 ),
               ],

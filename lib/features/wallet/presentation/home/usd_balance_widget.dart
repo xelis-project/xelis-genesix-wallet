@@ -10,11 +10,12 @@ import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/more_colors.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/custom_skeletonizer.dart';
+import 'package:intl/intl.dart';
 
 class UsdBalanceWidget extends ConsumerStatefulWidget {
-  const UsdBalanceWidget(this.xelisBalance, {super.key});
+  const UsdBalanceWidget(this.xelisBalanceText, {super.key});
 
-  final double xelisBalance;
+  final String xelisBalanceText;
 
   @override
   ConsumerState createState() => _UsdBalanceWidgetState();
@@ -55,7 +56,8 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
     if (xelisCoingeckoResponse != null) {
       final response = xelisCoingeckoResponse;
       final xelisPrice = response.price.usd;
-      final usdtBalance = xelisPrice * widget.xelisBalance;
+      final xelisBalance = _parseFormattedBalance(widget.xelisBalanceText);
+      final usdtBalance = xelisPrice * xelisBalance;
       var displayedUSDBalance = formatUsd(usdtBalance);
 
       final percentChange24h = response.price.usd24hChange;
@@ -126,6 +128,17 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
           ],
         ),
       );
+    }
+  }
+
+  double _parseFormattedBalance(String formatted) {
+    if (formatted.trim().isEmpty) return 0.0;
+    final numberPart = formatted.split(' ').first;
+    try {
+      final parsed = NumberFormat.decimalPattern().parse(numberPart);
+      return parsed.toDouble();
+    } catch (_) {
+      return double.tryParse(numberPart) ?? 0.0;
     }
   }
 }
