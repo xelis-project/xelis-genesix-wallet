@@ -126,6 +126,8 @@ class AppResources {
           return CountryFlag.fromCountryCode('JP', theme: flagTheme);
         case 'ar':
           return CountryFlag.fromCountryCode('SA', theme: flagTheme);
+        case 'id':
+          return CountryFlag.fromCountryCode('ID', theme: flagTheme);
         default:
           return CountryFlag.fromLanguageCode(
             AppLocalizations.supportedLocales[index].languageCode,
