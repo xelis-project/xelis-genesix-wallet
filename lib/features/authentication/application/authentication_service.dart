@@ -496,7 +496,9 @@ class Authentication extends _$Authentication {
     if (isDesktopDevice) {
       return PrecomputedTableType.l1Full();
     } else {
-      return PrecomputedTableType.custom(BigInt.from(24));
+      // For web, we can't use more than l1Medium tables due to browser storage & memory limitations,
+      // so we use l1Medium as the expected type
+      return PrecomputedTableType.l1Medium();
     }
   }
 }
