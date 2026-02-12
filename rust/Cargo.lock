@@ -3233,9 +3233,9 @@ dependencies = [
 
 [[package]]
 name = "toml_parser"
-version = "1.0.7+spec-1.1.0"
+version = "1.0.8+spec-1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "247eaa3197818b831697600aadf81514e577e0cba5eab10f7e064e78ae154df1"
+checksum = "0742ff5ff03ea7e67c8ae6c93cac239e0d9784833362da3f9a9c1da8dfefcbdc"
 dependencies = [
  "winnow",
 ]
@@ -4122,7 +4122,7 @@ dependencies = [
 [[package]]
 name = "xelis_common"
 version = "1.21.3"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#10c6a5d4fd27009f523fdd5af2cb23d5de3ac0e1"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#13352c419fc67fc88d66bd110f0ce998e2c70fe1"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -4178,7 +4178,7 @@ dependencies = [
 [[package]]
 name = "xelis_wallet"
 version = "1.21.3"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#10c6a5d4fd27009f523fdd5af2cb23d5de3ac0e1"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#13352c419fc67fc88d66bd110f0ce998e2c70fe1"
 dependencies = [
  "actix-web",
  "actix-web-httpauth",
