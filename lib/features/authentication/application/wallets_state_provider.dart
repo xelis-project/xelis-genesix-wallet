@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:genesix/features/authentication/domain/wallets_state.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:path/path.dart' as p;
-import 'dart:convert';
-
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
@@ -15,18 +15,22 @@ part 'wallets_state_provider.g.dart';
 @riverpod
 class Wallets extends _$Wallets {
   final String _addressFileName = "addr.txt";
-  final String _orderingFileName = "ordering.json";
   late Network _network;
-  List<String> _ordering = [];
 
   @override
-  Map<String, String> build() {
+  Future<WalletsState> build() async {
     final network = ref.watch(
       settingsProvider.select((state) => state.network),
     );
     _network = network;
-    _loadWallets();
-    return {};
+
+    final lastWalletsUsed = ref.watch(
+      settingsProvider.select((state) => state.lastWalletsUsed),
+    );
+
+    final wallets = await _loadWallets();
+
+    return WalletsState(wallets: wallets, lastWalletsUsed: lastWalletsUsed);
   }
 
   Future<String> _getWalletDirPath() async {
@@ -37,52 +41,6 @@ class Wallets extends _$Wallets {
   Future<Directory> _getWalletsDir() async {
     final walletsPath = await _getWalletDirPath();
     return Directory(walletsPath);
-  }
-
-  Future<String> _getOrderingFilePath() async {
-    final walletsDir = await _getWalletsDir();
-    return p.join(walletsDir.path, _orderingFileName);
-  }
-
-  Future<void> _loadOrdering() async {
-    var orderingPath = await _getOrderingFilePath();
-    List<String> ordering = [];
-
-    String? data;
-
-    if (kIsWeb) {
-      data = localStorage.getItem(orderingPath);
-    } else {
-      var file = File(orderingPath);
-      var exists = await file.exists();
-
-      if (exists) {
-        data = await file.readAsString();
-      }
-    }
-
-    if (data != null) {
-      try {
-        ordering = (json.decode(data) as List<dynamic>).cast<String>();
-      } catch (e) {
-        // skip and default to []
-      }
-    }
-
-    _ordering = ordering;
-  }
-
-  Future<void> _saveWalletsOrdering() async {
-    var orderingPath = await _getOrderingFilePath();
-
-    if (kIsWeb) {
-      var data = json.encode(_ordering);
-      localStorage.setItem(orderingPath, data);
-    } else {
-      var file = File(orderingPath);
-      var data = json.encode(_ordering);
-      await file.writeAsString(data);
-    }
   }
 
   Future<String> _getWalletAddressPath(String name) async {
@@ -111,7 +69,7 @@ class Wallets extends _$Wallets {
     }
   }
 
-  Future<void> _loadWallets() async {
+  Future<Map<String, String>> _loadWallets() async {
     Map<String, String> wallets = {};
 
     if (kIsWeb) {
@@ -122,9 +80,7 @@ class Wallets extends _$Wallets {
 
       for (int i = 0; i < localStorage.length; i++) {
         var key = localStorage.key(i)!;
-        if (key.startsWith(walletsPath) &&
-            !key.endsWith(_addressFileName) &&
-            !key.endsWith(_orderingFileName)) {
+        if (key.startsWith(walletsPath) && !key.endsWith(_addressFileName)) {
           var name = p.basename(key);
 
           var addr = await _getWalletAddress(name);
@@ -135,7 +91,7 @@ class Wallets extends _$Wallets {
       final walletsDir = await _getWalletsDir();
       var exists = await walletsDir.exists();
       if (!exists) {
-        return;
+        return wallets;
       }
 
       final files = await walletsDir.list().toList();
@@ -149,71 +105,56 @@ class Wallets extends _$Wallets {
       }
     }
 
-    state = wallets;
-    await _loadOrdering();
-    _applyOrdering();
-  }
-
-  void _applyOrdering() {
-    Map<String, String> orderedWallets = {};
-
-    for (var name in state.keys) {
-      if (!_ordering.contains(name)) {
-        _ordering.add(name);
-      }
-    }
-
-    List<String> toRemove = [];
-    for (var name in _ordering) {
-      if (state.containsKey(name)) {
-        orderedWallets[name] = state[name]!;
-      } else {
-        toRemove.add(name);
-      }
-    }
-
-    _ordering.removeWhere((element) => toRemove.contains(element));
-
-    state = orderedWallets;
-    _saveWalletsOrdering();
+    return wallets;
   }
 
   Future<void> renameWallet(String name, String newName) async {
     final walletsPath = await _getWalletDirPath();
     final walletPath = p.join(walletsPath, name);
     final newWalletPath = p.join(walletsPath, newName);
+    final loc = ref.read(appLocalizationsProvider);
 
     if (kIsWeb) {
       final newPath = localStorage.getItem(newWalletPath);
       if (newPath != null) {
-        throw 'A wallet with this name already exists.';
+        throw loc.wallet_name_already_exists;
       }
     } else {
       final newDir = Directory(newWalletPath);
       final exists = await newDir.exists();
       if (exists) {
-        throw 'A wallet with this name already exists.';
+        throw loc.wallet_name_already_exists;
       }
     }
 
-    final auth = ref.read(authenticationProvider.notifier);
-    await auth.logout();
+    if (Platform.isWindows) {
+      // On Windows, we need to logout before renaming the wallet
+      // because the wallet file is locked by the process.
+      // Otherwise, we get an "Access is denied" error.
+      // TODO: test for web
+      final auth = ref.read(authenticationProvider.notifier);
+      await auth.logout();
+    }
 
     if (kIsWeb) {
       final wallet = localStorage.getItem(walletPath);
       localStorage.setItem(newWalletPath, wallet!);
+      localStorage.removeItem(walletPath);
     } else {
       await Directory(walletPath).rename(newWalletPath);
     }
 
-    for (var i = 0; i < _ordering.length; i++) {
-      if (_ordering[i] == name) {
-        _ordering[i] = newName;
-        break;
-      }
+    final settingsNotifier = ref.read(settingsProvider.notifier);
+    switch (_network) {
+      case Network.mainnet:
+        settingsNotifier.setLastMainnetWalletUsed(newName);
+      case Network.testnet:
+        settingsNotifier.setLastTestnetWalletUsed(newName);
+      case Network.devnet:
+        settingsNotifier.setLastDevnetWalletUsed(newName);
+      case Network.stagenet:
+        settingsNotifier.setLastStagenetWalletUsed(newName);
     }
-
-    _applyOrdering();
   }
 
   Future<void> setWalletAddress(String name, String address) async {
@@ -243,18 +184,6 @@ class Wallets extends _$Wallets {
       localStorage.removeItem(walletPath);
     } else {
       await Directory(walletPath).delete(recursive: true);
-    }
-
-    _ordering.remove(name);
-    _applyOrdering();
-  }
-
-  Future<void> orderWallet(String name, int order) async {
-    if (order >= 0 && order < _ordering.length) {
-      _ordering.removeWhere((e) => e == name);
-      _ordering.insert(order, name);
-
-      _applyOrdering();
     }
   }
 }

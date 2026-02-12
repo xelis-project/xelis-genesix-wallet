@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
-import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/extensions.dart';
-import 'package:genesix/shared/widgets/components/generic_dialog.dart';
-import 'package:genesix/shared/widgets/components/warning_widget.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
+import 'package:genesix/shared/widgets/components/generic_dialog_old.dart';
+import 'package:genesix/shared/widgets/components/warning_widget_old.dart';
 import 'package:go_router/go_router.dart';
 
 class BurnWarningDialog extends ConsumerWidget {
@@ -55,6 +55,8 @@ class BurnWarningDialog extends ConsumerWidget {
   void _unlockBurn(WidgetRef ref) {
     final loc = ref.read(appLocalizationsProvider);
     ref.read(settingsProvider.notifier).setUnlockBurn(true);
-    ref.read(snackBarQueueProvider.notifier).showInfo(loc.burn_transfer_unlock);
+    ref
+        .read(toastProvider.notifier)
+        .showEvent(description: loc.burn_transfer_unlock);
   }
 }

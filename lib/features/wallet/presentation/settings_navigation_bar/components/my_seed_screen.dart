@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
-import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
-import 'package:genesix/shared/widgets/components/generic_app_bar_widget.dart';
-import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown.dart';
+import 'package:genesix/shared/widgets/components/generic_app_bar_widget_old.dart';
+import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown_old.dart';
 
 class MySeedScreen extends ConsumerStatefulWidget {
   const MySeedScreen({super.key});
@@ -36,7 +36,7 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
             });
           },
           onError: (_, _) =>
-              ref.read(snackBarQueueProvider.notifier).showError(loc.oups),
+              ref.read(toastProvider.notifier).showError(description: loc.oups),
         );
   }
 
@@ -124,8 +124,8 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                                   });
                                 },
                                 onError: (_, _) => ref
-                                    .read(snackBarQueueProvider.notifier)
-                                    .showError(loc.oups),
+                                    .read(toastProvider.notifier)
+                                    .showError(description: loc.oups),
                               );
                         },
                       ),
@@ -158,7 +158,7 @@ class _MySeedScreenState extends ConsumerState<MySeedScreen> {
                 const SizedBox(height: Spaces.small),
                 Flexible(
                   child: GridView.count(
-                    crossAxisCount: context.isHandset ? 2 : 3,
+                    crossAxisCount: context.isMobile ? 2 : 3,
                     semanticChildCount: _seedWords.length,
                     childAspectRatio: 5,
                     mainAxisSpacing: Spaces.none,

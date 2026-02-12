@@ -1,0 +1,47 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:forui/forui.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/shared/widgets/components/labeled_value.dart';
+import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/utils/utils.dart';
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+
+class DeployContractEntryContent extends ConsumerWidget {
+  const DeployContractEntryContent(this.deployContractEntry, {super.key});
+
+  final DeployContractEntry deployContractEntry;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = ref.watch(appLocalizationsProvider);
+    final network = ref.watch(
+      walletStateProvider.select((state) => state.network),
+    );
+    // final knownAssets = ref.watch(
+    //   walletStateProvider.select((state) => state.knownAssets),
+    // );
+
+    return FCard.raw(
+      child: Padding(
+        padding: const EdgeInsets.all(Spaces.medium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: Spaces.medium,
+          children: [
+            LabeledValue.text(
+              loc.fee,
+              formatXelis(deployContractEntry.fee, network),
+            ),
+            if (deployContractEntry.invoke != null)
+              LabeledValue.text(
+                'Constructor ${loc.max_gas}',
+                formatXelis(deployContractEntry.invoke!.maxGas, network),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}

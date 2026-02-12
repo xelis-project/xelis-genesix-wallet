@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:forui/forui.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 
 class CustomScaffold extends StatelessWidget {
   const CustomScaffold({
@@ -58,59 +59,59 @@ class CustomScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: appBar,
-      body: Row(
+    return FScaffold(
+      header: appBar,
+      child: Row(
         children: [
           if (context.isWideScreen) Spacer(),
           Flexible(flex: 2, child: body),
           if (context.isWideScreen) Spacer(),
         ],
       ),
-      floatingActionButton: floatingActionButton != null
-          ? Row(
-              children: [
-                if (context.isWideScreen) Spacer(),
-                Expanded(
-                  flex: 2,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [floatingActionButton!],
-                  ),
-                ),
-                if (context.isWideScreen) Spacer(),
-              ],
-            )
-          : null,
-      floatingActionButtonLocation: floatingActionButtonLocation,
-      floatingActionButtonAnimator: floatingActionButtonAnimator,
-      persistentFooterButtons: persistentFooterButtons,
-      persistentFooterAlignment: persistentFooterAlignment,
-      drawer: drawer,
-      onDrawerChanged: onDrawerChanged,
-      endDrawer: endDrawer,
-      onEndDrawerChanged: onEndDrawerChanged,
-      bottomNavigationBar: bottomNavigationBar != null
-          ? Row(
-              children: [
-                if (context.isWideScreen) Spacer(),
-                Expanded(flex: 2, child: bottomNavigationBar!),
-                if (context.isWideScreen) Spacer(),
-              ],
-            )
-          : null,
-      bottomSheet: bottomSheet,
-      backgroundColor: backgroundColor,
-      resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-      primary: primary,
-      drawerDragStartBehavior: drawerDragStartBehavior,
-      extendBody: extendBody,
-      extendBodyBehindAppBar: extendBodyBehindAppBar,
-      drawerScrimColor: drawerScrimColor,
-      drawerEdgeDragWidth: drawerEdgeDragWidth,
-      drawerEnableOpenDragGesture: drawerEnableOpenDragGesture,
-      endDrawerEnableOpenDragGesture: endDrawerEnableOpenDragGesture,
-      restorationId: restorationId,
+      // floatingActionButton: floatingActionButton != null
+      //     ? Row(
+      //         children: [
+      //           if (context.isWideScreen) Spacer(),
+      //           Expanded(
+      //             flex: 2,
+      //             child: Row(
+      //               mainAxisAlignment: MainAxisAlignment.end,
+      //               children: [floatingActionButton!],
+      //             ),
+      //           ),
+      //           if (context.isWideScreen) Spacer(),
+      //         ],
+      //       )
+      //     : null,
+      // floatingActionButtonLocation: floatingActionButtonLocation,
+      // floatingActionButtonAnimator: floatingActionButtonAnimator,
+      // persistentFooterButtons: persistentFooterButtons,
+      // persistentFooterAlignment: persistentFooterAlignment,
+      // drawer: drawer,
+      // onDrawerChanged: onDrawerChanged,
+      // endDrawer: endDrawer,
+      // onEndDrawerChanged: onEndDrawerChanged,
+      // bottomNavigationBar: bottomNavigationBar != null
+      //     ? Row(
+      //         children: [
+      //           if (context.isWideScreen) Spacer(),
+      //           Expanded(flex: 2, child: bottomNavigationBar!),
+      //           if (context.isWideScreen) Spacer(),
+      //         ],
+      //       )
+      //     : null,
+      // bottomSheet: bottomSheet,
+      // backgroundColor: backgroundColor,
+      // resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+      // primary: primary,
+      // drawerDragStartBehavior: drawerDragStartBehavior,
+      // extendBody: extendBody,
+      // extendBodyBehindAppBar: extendBodyBehindAppBar,
+      // drawerScrimColor: drawerScrimColor,
+      // drawerEdgeDragWidth: drawerEdgeDragWidth,
+      // drawerEnableOpenDragGesture: drawerEnableOpenDragGesture,
+      // endDrawerEnableOpenDragGesture: endDrawerEnableOpenDragGesture,
+      // restorationId: restorationId,
     );
   }
 }

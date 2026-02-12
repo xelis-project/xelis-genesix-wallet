@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/authentication/data/biometric_auth_repository.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
-import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_auth/error_codes.dart';
@@ -18,18 +19,27 @@ Future<void> startWithBiometricAuth(
   required void Function(WidgetRef ref) callback,
   required String reason,
   bool closeCurrentDialog = false,
+  bool popOnSubmit = true,
 }) async {
-  final authenticated = await ref
-      .read(biometricAuthProvider.notifier)
-      .authenticate(reason);
+  var authenticated = false;
+  if (!kIsWeb) {
+    authenticated = await ref
+        .read(biometricAuthProvider.notifier)
+        .authenticate(reason);
+  }
   if (authenticated) {
     callback(ref);
   } else {
     if (ref.context.mounted) {
-      await showDialog<void>(
+      await showAppDialog<void>(
         context: ref.context,
-        builder: (context) {
-          return PasswordDialog(onValid: () => callback(ref));
+        builder: (context, style, animation) {
+          return PasswordDialog(
+            style,
+            animation,
+            onValid: () => callback(ref),
+            closeOnValid: popOnSubmit,
+          );
         },
       );
     }
@@ -72,16 +82,16 @@ class BiometricAuth extends _$BiometricAuth {
         if (e.code == lockedOut || e.code == permanentlyLockedOut) {
           state = BiometricAuthProviderStatus.locked;
           ref
-              .read(snackBarQueueProvider.notifier)
-              .showError(loc.biometric_locked_warning);
+              .read(toastProvider.notifier)
+              .showWarning(title: loc.biometric_locked_warning);
         } else if (e.message != null && !e.message!.contains('canceled')) {
           ref
-              .read(snackBarQueueProvider.notifier)
-              .showError(loc.biometric_not_available_warning);
+              .read(toastProvider.notifier)
+              .showWarning(title: loc.biometric_not_available_warning);
         }
       } catch (e) {
         talker.error('BiometricAuthProvider:authenticate', e);
-        ref.read(snackBarQueueProvider.notifier).showError(loc.oups);
+        ref.read(toastProvider.notifier).showError(description: e.toString());
       }
     }
     return false;

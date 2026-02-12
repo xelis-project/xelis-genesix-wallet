@@ -1,14 +1,15 @@
+import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 
-String translateNetworkName(Network network) {
+String translateNetworkName(AppLocalizations loc, Network network) {
   switch (network) {
     case Network.devnet:
-      return 'Devnet';
-    case Network.stagenet:
-      return 'Stagenet';
+      return loc.devnet;
     case Network.testnet:
-      return 'Testnet';
+      return loc.testnet;
     case Network.mainnet:
-      return 'Mainnet';
+      return loc.mainnet;
+    case Network.stagenet:
+      return loc.stagenet;
   }
 }

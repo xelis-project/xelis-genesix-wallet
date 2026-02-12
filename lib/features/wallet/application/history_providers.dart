@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/wallet/domain/event.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -8,11 +11,12 @@ import 'package:genesix/features/wallet/application/wallet_provider.dart';
 
 part 'history_providers.g.dart';
 
-const pageSize = 10;
+const pageSize = 30;
+
+enum TransactionCategory { incoming, outgoing, coinbase, burn }
 
 @riverpod
 Future<List<TransactionEntry>> history(Ref ref, int page) async {
-  ref.watch(walletStateProvider.select((value) => value.trackedBalances));
   final repository = ref.watch(
     walletStateProvider.select((value) => value.nativeWalletRepository),
   );
@@ -30,6 +34,12 @@ Future<List<TransactionEntry>> history(Ref ref, int page) async {
       limit: BigInt.from(pageSize),
       assetHash: historyFilterState.asset,
       address: historyFilterState.address,
+      minTimestamp: historyFilterState.minTimestamp != null
+          ? BigInt.from(historyFilterState.minTimestamp!.millisecondsSinceEpoch)
+          : null,
+      maxTimestamp: historyFilterState.maxTimestamp != null
+          ? BigInt.from(historyFilterState.maxTimestamp!.millisecondsSinceEpoch)
+          : null,
     );
 
     return repository.history(filter);
@@ -51,7 +61,12 @@ Future<int?> historyCount(Ref ref) async {
 @riverpod
 class HistoryPagingState extends _$HistoryPagingState {
   @override
-  PagingState<int, TransactionEntry> build() {
+  PagingState<int, MapEntry<DateTime, List<TransactionEntry>>> build() {
+    ref.listen(walletStateProvider, (previous, next) {
+      if (next.lastEvent is HistorySynced || next.lastEvent is NewTransaction) {
+        ref.invalidateSelf();
+      }
+    });
     return PagingState();
   }
 
@@ -59,11 +74,14 @@ class HistoryPagingState extends _$HistoryPagingState {
     state = state.copyWith(isLoading: true, error: null);
   }
 
-  void setNextPage(int newKey, List<TransactionEntry> newItems) {
+  void setNextPage(
+    int newKey,
+    List<MapEntry<DateTime, List<TransactionEntry>>> txs,
+  ) {
     state = state.copyWith(
-      pages: [...?state.pages, newItems],
+      pages: [...?state.pages, txs],
       keys: [...?state.keys, newKey],
-      hasNextPage: newItems.length == pageSize,
+      hasNextPage: txs.isNotEmpty,
       isLoading: false,
     );
   }

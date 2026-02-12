@@ -1,31 +1,96 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:forui/forui.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-/// Function type for showing toast notifications
-typedef ShowToast = void Function({
-  required String message,
-  FToastStyle? style,
-  Duration? duration,
-});
+part 'toast_provider.g.dart';
+part 'toast_provider.freezed.dart';
 
-/// Provider for managing toast notifications
-/// This should be overridden with the actual FToast.show function from forui context
-final toastProvider = Provider<ShowToast>((ref) {
-  throw UnimplementedError('toastProvider must be overridden with FToast.show');
-});
+enum ToastType { information, warning, error, event, xswd }
 
-/// Extension to show toast messages easily
-extension ToastRef on Ref {
-  /// Show a toast message
-  void showToast({
-    required String message,
-    FToastStyle? style,
-    Duration? duration,
+@freezed
+abstract class ToastAction with _$ToastAction {
+  const factory ToastAction({
+    required String label,
+    @Default(false) bool isPrimary,
+  }) = _ToastAction;
+}
+
+@freezed
+abstract class ToastContent with _$ToastContent {
+  const factory ToastContent({
+    required ToastType type,
+    required String title,
+    String? description,
+
+    @Default(<ToastAction>[]) List<ToastAction> actions,
+
+    @Default(false) bool sticky,
+
+    @Default(true) bool dismissible,
+  }) = _ToastContent;
+}
+
+@riverpod
+class Toast extends _$Toast {
+  @override
+  ToastContent? build() => null;
+
+  void clear() => state = null;
+
+  void show(
+    ToastType type,
+    String title,
+    String? description, {
+    List<ToastAction> actions = const [],
+    bool sticky = false,
+    bool dismissible = true,
   }) {
-    read(toastProvider)(
-      message: message,
-      style: style,
-      duration: duration,
+    state = ToastContent(
+      type: type,
+      title: title,
+      description: description,
+      actions: actions,
+      sticky: sticky,
+      dismissible: dismissible,
+    );
+  }
+
+  void showInformation({required String title}) {
+    show(ToastType.information, title, null);
+  }
+
+  void showWarning({required String title}) {
+    show(ToastType.warning, title, null);
+  }
+
+  void showEvent({String? title, required String description}) {
+    final loc = ref.read(appLocalizationsProvider);
+    final eventDescription = title ?? loc.event;
+    show(ToastType.event, eventDescription, description);
+  }
+
+  void showError({String? title, required String description}) {
+    final loc = ref.read(appLocalizationsProvider);
+    final errorDescription = title ?? loc.error;
+    show(ToastType.error, errorDescription, description);
+  }
+
+  void showXswd({
+    required String title,
+    String? description,
+    bool showOpen = true,
+  }) {
+    final loc = ref.read(appLocalizationsProvider);
+
+    show(
+      ToastType.xswd,
+      title,
+      description,
+      sticky: true,
+      dismissible: true,
+      actions: showOpen
+          ? [ToastAction(label: loc.open_button, isPrimary: true)]
+          : const [],
     );
   }
 }

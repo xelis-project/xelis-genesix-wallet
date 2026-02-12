@@ -3,6 +3,7 @@ import 'dart:collection';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
+import 'package:genesix/features/wallet/domain/event.dart';
 import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart'
@@ -14,6 +15,8 @@ part 'wallet_snapshot.freezed.dart';
 abstract class WalletSnapshot with _$WalletSnapshot {
   factory WalletSnapshot({
     @Default(false) bool isOnline,
+    @Default(false) bool isSyncing,
+    @Default(false) bool isRescanning,
     @Default(0) int topoheight,
     @Default('') String xelisBalance,
     required LinkedHashMap<String, String> trackedBalances,
@@ -23,7 +26,7 @@ abstract class WalletSnapshot with _$WalletSnapshot {
     @Default(MultisigState()) MultisigState multisigState,
     @Default(rust.Network.mainnet) rust.Network network,
     NativeWalletRepository? nativeWalletRepository,
-
     StreamSubscription<void>? streamSubscription,
+    Event? lastEvent,
   }) = _WalletSnapshot;
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:genesix/features/wallet/domain/permission_rpc_request.dart';
+import 'package:genesix/features/wallet/domain/prefetch_permissions_rpc_request.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 
 part 'xswd_request_state.freezed.dart';
@@ -13,7 +14,9 @@ abstract class XswdRequestState with _$XswdRequestState {
     Timer? snackBarTimer,
     Completer<UserPermissionDecision>? decision,
     PermissionRpcRequest? permissionRpcRequest,
+    PrefetchPermissionsRequest? prefetchPermissionsRequest,
     required String message,
     required bool snackBarVisible,
+    @Default(false) bool suppressXswdToast,
   }) = _XswdRequestState;
 }

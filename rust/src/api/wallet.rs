@@ -1,41 +1,42 @@
+use flutter_rust_bridge::frb;
+
 use std::collections::HashMap;
 use std::fs::File;
+use std::io::Write;
 use std::path::Path;
 use std::sync::Arc;
+use std::thread;
 
+use super::precomputed_tables::{LogProgressTableGenerationReportFunction, PrecomputedTableType};
+use crate::frb_generated::StreamSink;
 use anyhow::{anyhow, bail, Context, Result};
-use flutter_rust_bridge::frb;
 use indexmap::IndexSet;
-use log::{error, info, warn};
-use parking_lot::RwLock;
+use log::{debug, error, info, warn};
+use parking_lot::{Mutex, RwLock};
 use serde_json::json;
+use xelis_common::api::wallet::BaseFeeMode;
 use xelis_common::api::{DataElement, DataValue};
+use xelis_common::asset::{AssetData, AssetOwner, MaxSupplyMode};
 use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
 use xelis_common::crypto::{Address, Hash, Hashable, Signature};
 use xelis_common::network::Network;
 use xelis_common::serializer::Serializer;
+use xelis_common::tokio::sync::broadcast::error::RecvError;
 use xelis_common::transaction::builder::{
-    FeeBuilder,
-    ExtraFeeMode,
-    MultiSigBuilder,
-    TransactionTypeBuilder,
-    TransferBuilder,
-    UnsignedTransaction,
+    FeeBuilder, MultiSigBuilder, TransactionTypeBuilder, TransferBuilder, UnsignedTransaction,
 };
 use xelis_common::transaction::multisig::{MultiSig, SignatureId};
 use xelis_common::transaction::BurnPayload;
 pub use xelis_common::transaction::Transaction;
-use xelis_common::utils::{detect_available_parallelism, format_coin, format_xelis};
+use xelis_common::utils::format_coin;
 use xelis_wallet::precomputed_tables;
+pub use xelis_wallet::precomputed_tables::PrecomputedTablesShared;
 pub use xelis_wallet::transaction_builder::TransactionBuilderState;
 use xelis_wallet::wallet::{RecoverOption, Wallet};
 
-use super::precomputed_tables::{LogProgressTableGenerationReportFunction, PrecomputedTableType};
-use crate::frb_generated::StreamSink;
-
 use super::models::wallet_dtos::{
     HistoryPageFilter, MultisigDartPayload, ParticipantDartPayload, SignatureMultisig,
-    SummaryTransaction, Transfer,
+    SummaryTransaction, Transfer, XelisAssetMetadata, XelisAssetOwner, XelisMaxSupplyMode,
 };
 
 pub struct XelisWallet {
@@ -50,8 +51,126 @@ pub struct XelisWallet {
     >,
 }
 
+impl From<MaxSupplyMode> for XelisMaxSupplyMode {
+    fn from(v: MaxSupplyMode) -> Self {
+        match v {
+            MaxSupplyMode::None => Self::None,
+            MaxSupplyMode::Fixed(x) => Self::Fixed(x),
+            MaxSupplyMode::Mintable(x) => Self::Mintable(x),
+        }
+    }
+}
+
+impl From<&AssetOwner> for XelisAssetOwner {
+    fn from(value: &AssetOwner) -> Self {
+        match value {
+            AssetOwner::None => XelisAssetOwner::None,
+            AssetOwner::Creator { contract, id } => XelisAssetOwner::Creator {
+                contract: contract.to_hex(),
+                id: *id,
+            },
+            AssetOwner::Owner {
+                origin,
+                origin_id,
+                owner,
+            } => XelisAssetOwner::Owner {
+                origin: origin.to_hex(),
+                origin_id: *origin_id,
+                owner: owner.to_hex(),
+            },
+        }
+    }
+}
+
+static CACHED_TABLES: Mutex<Option<PrecomputedTablesShared>> = Mutex::new(None);
+static MT_PARAMS: Mutex<Option<(usize, usize)>> = Mutex::new(None);
+
+fn get_mt_params() -> (usize, usize) {
+    let mut guard = MT_PARAMS.lock();
+
+    if let Some(params) = *guard {
+        return params;
+    }
+
+    let cpu_cores = thread::available_parallelism()
+        .map(|p| p.get())
+        .unwrap_or(1);
+
+    let thread_count = (cpu_cores.saturating_sub(2)).max(1).min(32);
+    let concurrency = thread_count * 4;
+
+    *guard = Some((thread_count, concurrency));
+    (thread_count, concurrency)
+}
+
+#[frb(sync)]
+pub fn refresh_mt_params() {
+    *MT_PARAMS.lock() = None;
+    let _ = get_mt_params();
+}
+
+#[frb(sync)]
+pub fn set_mt_params(thread_count: usize, concurrency: usize) {
+    *MT_PARAMS.lock() = Some((thread_count, concurrency));
+}
+
+#[frb(sync)]
+pub fn clear_cached_tables() {
+    CACHED_TABLES.lock().take();
+}
+
+#[frb(sync)]
+pub fn drop_wallet(wallet: XelisWallet) {
+    drop(wallet);
+}
+
+pub async fn update_tables(
+    precomputed_tables_path: String,
+    precomputed_table_type: PrecomputedTableType,
+) -> Result<()> {
+    let precomputed_tables_size = precomputed_table_type.to_l1_size()?;
+
+    let tables = precomputed_tables::read_or_generate_precomputed_tables(
+        Some(&precomputed_tables_path),
+        precomputed_tables_size,
+        LogProgressTableGenerationReportFunction,
+        true,
+    )
+    .await?;
+
+    CACHED_TABLES.lock().replace(tables.clone());
+    Ok(())
+}
+
+pub fn get_current_precomputed_tables_type() -> Result<PrecomputedTableType> {
+    info!("Getting current precomputed tables type...");
+    let guard = CACHED_TABLES.lock();
+    let tables_arc = guard
+        .as_ref()
+        .ok_or_else(|| anyhow!("Precomputed tables not initialized"))?;
+
+    info!("Precomputed tables found in cache.");
+    let size = {
+        let tables_guard = tables_arc
+            .read()
+            .expect("Failed to read precomputed tables");
+        tables_guard.view().get_l1()
+    };
+    info!("Current precomputed tables L1 size: {}", size);
+
+    let table_type = match size {
+        precomputed_tables::L1_LOW => PrecomputedTableType::L1Low,
+        precomputed_tables::L1_MEDIUM => PrecomputedTableType::L1Medium,
+        precomputed_tables::L1_FULL => PrecomputedTableType::L1Full,
+        c => PrecomputedTableType::Custom(c),
+    };
+
+    Ok(table_type)
+}
+
 pub async fn create_xelis_wallet(
     name: String,
+    directory: String,
     password: String,
     network: Network,
     seed: Option<String>,
@@ -59,20 +178,47 @@ pub async fn create_xelis_wallet(
     precomputed_tables_path: Option<String>,
     precomputed_table_type: PrecomputedTableType,
 ) -> Result<XelisWallet> {
-    let table_type = match precomputed_table_type {
-        PrecomputedTableType::L1Low => precomputed_tables::L1_LOW,
-        PrecomputedTableType::L1Medium => precomputed_tables::L1_MEDIUM,
-        PrecomputedTableType::L1Full => precomputed_tables::L1_FULL,
+    // Build full wallet path: <directory>/<name>
+    let full_path = if name.is_empty() {
+        if directory.is_empty() {
+            bail!("Either 'name' or 'directory' must be non-empty");
+        }
+        directory.clone()
+    } else {
+        Path::new(&directory)
+            .join(&name)
+            .to_string_lossy()
+            .to_string()
     };
 
-    let precomputed_tables = precomputed_tables::read_or_generate_precomputed_tables(
-        precomputed_tables_path.as_deref(),
-        table_type,
-        LogProgressTableGenerationReportFunction,
-        true,
-    )
-    .await?;
+    let precomputed_tables_size = precomputed_table_type.to_l1_size()?;
 
+    info!("Creating wallet at path: {}", full_path);
+
+    // Use cached tables if available, otherwise generate & cache
+    let precomputed_tables = {
+        let mut maybe_cached = CACHED_TABLES.lock().clone();
+        info!("Maybe cached tables: {}", maybe_cached.is_some());
+        match maybe_cached {
+            Some(tables) => tables,
+            None => {
+                info!("No cached tables, generating new ones...");
+                let tables = precomputed_tables::read_or_generate_precomputed_tables(
+                    precomputed_tables_path.as_deref(),
+                    precomputed_tables_size,
+                    LogProgressTableGenerationReportFunction,
+                    true,
+                )
+                .await?;
+                info!("Precomputed tables generated.");
+
+                maybe_cached.replace(tables.clone());
+                tables
+            }
+        }
+    };
+
+    // Recover option (seed / private key / none)
     let recover: Option<RecoverOption> = if let Some(seed) = seed.as_deref() {
         Some(RecoverOption::Seed(seed))
     } else if let Some(private_key) = private_key.as_deref() {
@@ -81,15 +227,16 @@ pub async fn create_xelis_wallet(
         None
     };
 
-    let n_threads = detect_available_parallelism();
+    let (thread_count, concurrency) = get_mt_params();
+
     let xelis_wallet = Wallet::create(
-        &name,
+        &full_path,
         &password,
         recover,
         network,
         precomputed_tables,
-        n_threads,
-        n_threads,
+        thread_count,
+        concurrency,
     )
     .await?;
 
@@ -102,33 +249,55 @@ pub async fn create_xelis_wallet(
 
 pub async fn open_xelis_wallet(
     name: String,
+    directory: String,
     password: String,
     network: Network,
     precomputed_tables_path: Option<String>,
     precomputed_table_type: PrecomputedTableType,
 ) -> Result<XelisWallet> {
-    let table_type = match precomputed_table_type {
-        PrecomputedTableType::L1Low => precomputed_tables::L1_LOW,
-        PrecomputedTableType::L1Medium => precomputed_tables::L1_MEDIUM,
-        PrecomputedTableType::L1Full => precomputed_tables::L1_FULL,
+    // Build full wallet path: <directory>/<name>
+    let full_path = if name.is_empty() {
+        if directory.is_empty() {
+            bail!("Either 'name' or 'directory' must be non-empty");
+        }
+        directory.clone()
+    } else {
+        Path::new(&directory)
+            .join(&name)
+            .to_string_lossy()
+            .to_string()
     };
 
-    let precomputed_tables = precomputed_tables::read_or_generate_precomputed_tables(
-        precomputed_tables_path.as_deref(),
-        table_type,
-        LogProgressTableGenerationReportFunction,
-        true,
-    )
-    .await?;
+    let precomputed_tables_size = precomputed_table_type.to_l1_size()?;
 
-    let n_threads = detect_available_parallelism();
+    let precomputed_tables = {
+        let mut maybe_cached = CACHED_TABLES.lock().clone();
+        match maybe_cached {
+            Some(tables) => tables,
+            None => {
+                let tables = precomputed_tables::read_or_generate_precomputed_tables(
+                    precomputed_tables_path.as_deref(),
+                    precomputed_tables_size,
+                    LogProgressTableGenerationReportFunction,
+                    true,
+                )
+                .await?;
+
+                maybe_cached.replace(tables.clone());
+                tables
+            }
+        }
+    };
+
+    let (thread_count, concurrency) = get_mt_params();
+
     let xelis_wallet = Wallet::open(
-        &name,
+        &full_path,
         &password,
         network,
         precomputed_tables,
-        n_threads,
-        n_threads,
+        thread_count,
+        concurrency,
     )?;
 
     Ok(XelisWallet {
@@ -142,62 +311,6 @@ impl XelisWallet {
     #[frb(ignore)]
     pub fn get_wallet(&self) -> &Arc<Wallet> {
         &self.wallet // Return a reference to the private field
-    }
-
-    pub async fn update_precomputed_tables(
-        &self,
-        precomputed_tables_path: Option<String>,
-        precomputed_table_type: PrecomputedTableType,
-    ) -> Result<()> {
-        let table_type = match precomputed_table_type {
-            PrecomputedTableType::L1Low => precomputed_tables::L1_LOW,
-            PrecomputedTableType::L1Medium => precomputed_tables::L1_MEDIUM,
-            PrecomputedTableType::L1Full => precomputed_tables::L1_FULL,
-        };
-
-        let precomputed_tables = precomputed_tables::read_or_generate_precomputed_tables(
-            precomputed_tables_path.as_deref(),
-            table_type,
-            LogProgressTableGenerationReportFunction,
-            true,
-        )
-        .await?;
-
-        let mut existing_tables_lock = self
-            .wallet
-            .get_precomputed_tables()
-            .write()
-            .expect("Failed to lock old precomputed tables");
-
-        let mut new_tables_lock = precomputed_tables
-            .write()
-            .expect("Failed to lock new precomputed tables");
-
-        // Replace the precomputed tables in the wallet
-        std::mem::swap(&mut *existing_tables_lock, &mut *new_tables_lock);
-
-        Ok(())
-    }
-
-    pub async fn get_precomputed_tables_type(&self) -> Result<PrecomputedTableType> {
-        let size = {
-            let tables = self
-                .wallet
-                .get_precomputed_tables()
-                .read()
-                .expect("Failed to read precomputed tables");
-
-            tables.view().get_l1()
-        };
-
-        let table_type = match size {
-            precomputed_tables::L1_LOW => PrecomputedTableType::L1Low,
-            precomputed_tables::L1_MEDIUM => PrecomputedTableType::L1Medium,
-            precomputed_tables::L1_FULL => PrecomputedTableType::L1Full,
-            _ => bail!("Unknown precomputed tables type"),
-        };
-
-        Ok(table_type)
     }
 
     // Change the wallet password
@@ -218,6 +331,12 @@ impl XelisWallet {
     // Check if the wallet is online
     pub async fn is_online(&self) -> bool {
         self.wallet.is_online().await
+    }
+
+    // Check if the wallet is synced
+    pub async fn is_syncing(&self) -> bool {
+        let storage = self.wallet.get_storage().read().await;
+        storage.is_syncing()
     }
 
     // Get the wallet address as a string
@@ -261,44 +380,29 @@ impl XelisWallet {
     }
 
     // get the wallet Xelis balance
-    pub async fn get_xelis_balance(&self) -> Result<String> {
+    pub async fn get_xelis_balance(&self) -> u64 {
         let storage = self.wallet.get_storage().read().await;
         let balance = storage
             .get_plaintext_balance_for(&XELIS_ASSET)
             .await
             .unwrap_or(0);
-        Ok(format_xelis(balance))
+        balance
     }
 
     // get all the balances of the tracked assets
     pub async fn get_tracked_balances(&self) -> Result<HashMap<String, String>> {
-        let storage = self.wallet.get_storage().read().await;
-        let tracked_assets = storage.get_tracked_assets()?;
-
         let mut balances = HashMap::new();
 
-        for asset in tracked_assets {
-            let asset = asset?;
-            if storage.has_balance_for(&asset).await? {
-                info!("Asset {} is tracked and has a balance", asset);
-                let balance = storage
-                    .get_plaintext_balance_for(&asset)
-                    .await
-                    .context("Error retrieving balance")?;
-                let asset_data = storage
-                    .get_asset(&asset)
-                    .await
-                    .context("Error retrieving asset data")?;
-                balances.insert(
-                    asset.to_hex(),
-                    format_coin(balance, asset_data.get_decimals()),
-                );
+        let storage = self.wallet.get_storage().read().await;
+
+        for res in storage.get_tracked_assets()? {
+            let asset = res?;
+            if let Some(data) = storage.get_optional_asset(&asset).await? {
+                info!("Retrieving balance for asset {}", asset);
+                let balance = storage.get_plaintext_balance_for(&asset).await.unwrap_or(0);
+                balances.insert(asset.to_hex(), format_coin(balance, data.get_decimals()));
             } else {
-                warn!("Asset {} is tracked but not found in storage, default to 0", asset);
-                balances.insert(
-                    asset.to_hex(),
-                    "0".to_owned(),
-                );
+                info!("No asset data for {}", asset);
             }
         }
 
@@ -308,14 +412,27 @@ impl XelisWallet {
     // get all the assets known by the wallet
     pub async fn get_known_assets(&self) -> Result<HashMap<String, String>> {
         let storage = self.wallet.get_storage().read().await;
-        let assets = storage
-            .get_assets_with_data()
-            .await?
-            .map(|result| {
-                let (hash, data) = result?;
-                Ok((hash.to_hex(), json!(data).to_string()))
-            })
-            .collect::<Result<HashMap<String, String>>>()?;
+
+        let mut assets = HashMap::new();
+
+        for res in storage.get_assets_with_data().await? {
+            let (hash, asset_data) = res?;
+
+            info!("Retrieving asset data for asset {}", hash);
+            let supply_mode_dto = XelisMaxSupplyMode::from(asset_data.get_max_supply());
+            let owner_dto = XelisAssetOwner::from(asset_data.get_owner());
+
+            let dto = XelisAssetMetadata {
+                name: asset_data.get_name().to_string(),
+                ticker: asset_data.get_ticker().to_string(),
+                decimals: asset_data.get_decimals(),
+                max_supply: supply_mode_dto,
+                owner: Some(owner_dto),
+            };
+
+            let json_str = serde_json::to_string(&dto)?;
+            assets.insert(hash.to_hex(), json_str);
+        }
 
         Ok(assets)
     }
@@ -327,7 +444,7 @@ impl XelisWallet {
             .wallet
             .track_asset(asset_hash)
             .await
-            .expect("Error tracking asset");
+            .context("Error tracking asset")?;
         Ok(result)
     }
 
@@ -338,19 +455,111 @@ impl XelisWallet {
             .wallet
             .untrack_asset(asset_hash)
             .await
-            .expect("Error tracking asset");
+            .context("Error tracking asset")?;
         Ok(result)
+    }
+
+    async fn get_asset_data(&self, asset_hash: &Hash) -> Result<AssetData> {
+        {
+            let storage = self.wallet.get_storage().read().await;
+            if storage.has_asset(asset_hash).await? {
+                return storage.get_asset(asset_hash).await;
+            }
+        }
+
+        // 3. offline guard
+        if !self.wallet.is_online().await {
+            return Err(anyhow!(
+                "Asset {} not found in wallet storage/cache and wallet is offline",
+                asset_hash
+            ));
+        }
+
+        // 4. daemon
+        let asset_data = {
+            let network_handler = self.wallet.get_network_handler().lock().await;
+            if let Some(handler) = network_handler.as_ref() {
+                let api = handler.get_api();
+                debug!("Fetching asset {} from daemon", asset_hash);
+                let data = api
+                    .get_asset(asset_hash)
+                    .await
+                    .map_err(|e| anyhow!("Failed to fetch asset from daemon: {}", e))?;
+
+                data.inner
+            } else {
+                return Err(anyhow!("Network handler not available"));
+            }
+        };
+
+        debug!(
+            "Storing fetched asset {} from network, storing it in wallet storage",
+            asset_hash
+        );
+
+        let mut storage = self.wallet.get_storage().write().await;
+        storage
+            .add_asset(asset_hash, asset_data.clone())
+            .await
+            .context("Error storing fetched asset in wallet storage")?;
+
+        debug!("Asset {} stored in wallet storage", asset_hash);
+
+        Ok(asset_data)
     }
 
     // get the number of decimals of an asset
     pub async fn get_asset_decimals(&self, asset: String) -> Result<u8> {
         let asset_hash = Hash::from_hex(&asset).context("Invalid asset")?;
-        let storage = self.wallet.get_storage().read().await;
-        let asset = storage
-            .get_asset(&asset_hash)
-            .await
-            .context("Asset not found in storage")?;
-        Ok(asset.get_decimals())
+        let data = self.get_asset_data(&asset_hash).await?;
+        Ok(data.get_decimals())
+    }
+
+    pub async fn get_asset_ticker(&self, asset: String) -> Result<String> {
+        let asset_hash = Hash::from_hex(&asset).context("Invalid asset")?;
+        let data = self.get_asset_data(&asset_hash).await?;
+        Ok(data.get_ticker().to_string())
+    }
+
+    pub async fn get_asset_metadata(&self, asset: String) -> Result<String> {
+        let asset_hash = Hash::from_hex(&asset).context("Invalid asset")?;
+        let asset_data = self.get_asset_data(&asset_hash).await?;
+
+        let owner_dto = XelisAssetOwner::from(asset_data.get_owner());
+        let supply_mode_dto = XelisMaxSupplyMode::from(asset_data.get_max_supply());
+
+        let dto = XelisAssetMetadata {
+            name: asset_data.get_name().to_string(),
+            ticker: asset_data.get_ticker().to_string(),
+            decimals: asset_data.get_decimals(),
+            max_supply: supply_mode_dto,
+            owner: Some(owner_dto),
+        };
+
+        let json_str = serde_json::to_string(&dto)?;
+        Ok(json_str)
+    }
+
+    pub async fn get_contract_logs(&self, tx_hash: String) -> Result<String> {
+        if !self.wallet.is_online().await {
+            return Err(anyhow!("Wallet is offline"));
+        }
+
+        let hash = Hash::from_hex(&tx_hash).context("Invalid transaction hash")?;
+
+        let network_handler = self.wallet.get_network_handler().lock().await;
+        if let Some(handler) = network_handler.as_ref() {
+            let api = handler.get_api();
+            let result = api
+                .get_contract_logs(&hash)
+                .await
+                .map_err(|e| anyhow!("Failed to fetch contract logs from daemon: {}", e))?;
+
+            let json_str = serde_json::to_string(&result)?;
+            Ok(json_str)
+        } else {
+            Err(anyhow!("Network handler not available"))
+        }
     }
 
     // rescan the wallet history from a specific height
@@ -362,7 +571,7 @@ impl XelisWallet {
     pub async fn estimate_fees(
         &self,
         transfers: Vec<Transfer>,
-        fee_multiplier: Option<f64>,
+        // TODO: add extra fee options
     ) -> Result<String> {
         let transaction_type_builder = self
             .create_transfers(transfers)
@@ -373,11 +582,8 @@ impl XelisWallet {
             .wallet
             .estimate_fees(
                 transaction_type_builder,
-                match fee_multiplier {
-                    Some(value) => FeeBuilder::Extra(ExtraFeeMode::Multiplier(value)),
-                    None => FeeBuilder::default(),
-                },
-                Default::default()
+                FeeBuilder::default(),
+                BaseFeeMode::None,
             )
             .await
             .context("Error while estimating fees")?;
@@ -389,7 +595,7 @@ impl XelisWallet {
     pub async fn create_transfers_transaction(
         &self,
         transfers: Vec<Transfer>,
-        fee_multiplier: Option<f64>,
+        // TODO: add extra fee options
     ) -> Result<String> {
         self.pending_transactions.write().clear();
 
@@ -406,12 +612,8 @@ impl XelisWallet {
                 .create_transaction_with_storage(
                     &mut storage,
                     transaction_type_builder.clone(),
-                    match fee_multiplier {
-                        Some(value) => FeeBuilder::Extra(ExtraFeeMode::Multiplier(value)),
-                        None => FeeBuilder::default(),
-                    },
-                    // TODO: configurable
-                    Default::default(),
+                    FeeBuilder::default(),
+                    BaseFeeMode::None,
                     None,
                 )
                 .await?
@@ -437,7 +639,7 @@ impl XelisWallet {
     pub async fn create_multisig_transfers_transaction(
         &self,
         transfers: Vec<Transfer>,
-        fee_multiplier: Option<f64>,
+        // TODO: add extra fee options
     ) -> Result<String> {
         info!("Building transaction...");
 
@@ -460,10 +662,7 @@ impl XelisWallet {
                 let (unsigned, state) = self
                     .build_unsigned_transaction(
                         transaction_type_builder.clone(),
-                        match fee_multiplier {
-                            Some(value) => FeeBuilder::Extra(ExtraFeeMode::Multiplier(value)),
-                            None => FeeBuilder::default(),
-                        },
+                        FeeBuilder::default(),
                         multisig.payload.threshold,
                     )
                     .await?;
@@ -491,7 +690,7 @@ impl XelisWallet {
         asset_hash: Option<String>,
         extra_data: Option<String>,
         encrypt_extra_data: Option<bool>,
-        fee_multiplier: Option<f64>,
+        // TODO: add extra fee options
     ) -> Result<String> {
         self.pending_transactions.write().clear();
 
@@ -521,7 +720,7 @@ impl XelisWallet {
             extra_data: extra_data.clone(),
             encrypt_extra_data: match encrypt_extra_data {
                 Some(value) => value,
-                None => false,
+                None => true,
             },
         };
 
@@ -529,12 +728,8 @@ impl XelisWallet {
             .wallet
             .estimate_fees(
                 TransactionTypeBuilder::Transfers(vec![transfer]),
-                match fee_multiplier {
-                    Some(value) => FeeBuilder::Extra(ExtraFeeMode::Multiplier(value)),
-                    None => FeeBuilder::default(),
-                },
-                // TODO: configurable
-                Default::default(),
+                FeeBuilder::default(),
+                BaseFeeMode::None,
             )
             .await
             .context("Error while estimating fees")?;
@@ -552,7 +747,7 @@ impl XelisWallet {
             extra_data,
             encrypt_extra_data: match encrypt_extra_data {
                 Some(value) => value,
-                None => false,
+                None => true,
             },
         };
 
@@ -564,12 +759,8 @@ impl XelisWallet {
                 .create_transaction_with_storage(
                     &mut storage,
                     transaction_type_builder.clone(),
-                  match fee_multiplier {
-                        Some(value) => FeeBuilder::Extra(ExtraFeeMode::Multiplier(value)),
-                        None => FeeBuilder::default(),
-                    },
-                    // TODO: configurable
-                    Default::default(),
+                    FeeBuilder::default(),
+                    BaseFeeMode::None,
                     None,
                 )
                 .await?
@@ -598,7 +789,7 @@ impl XelisWallet {
         asset_hash: Option<String>,
         extra_data: Option<String>,
         encrypt_extra_data: Option<bool>,
-        fee_multiplier: Option<f64>,
+        // TODO: add extra fee options
     ) -> Result<String> {
         info!("Building multisig transfer all transaction...");
 
@@ -633,7 +824,7 @@ impl XelisWallet {
                     extra_data: extra_data.clone(),
                     encrypt_extra_data: match encrypt_extra_data {
                         Some(value) => value,
-                        None => false,
+                        None => true,
                     },
                 };
 
@@ -641,12 +832,8 @@ impl XelisWallet {
                     .wallet
                     .estimate_fees(
                         TransactionTypeBuilder::Transfers(vec![transfer]),
-                        match fee_multiplier {
-                            Some(value) => FeeBuilder::Extra(ExtraFeeMode::Multiplier(value)),
-                            None => FeeBuilder::default(),
-                        },
-                        // TODO: configurable
-                        Default::default(),
+                        FeeBuilder::default(),
+                        BaseFeeMode::None,
                     )
                     .await
                     .context("Error while estimating fees")?;
@@ -664,7 +851,7 @@ impl XelisWallet {
                     extra_data,
                     encrypt_extra_data: match encrypt_extra_data {
                         Some(value) => value,
-                        None => false,
+                        None => true,
                     },
                 };
 
@@ -673,10 +860,7 @@ impl XelisWallet {
                 let (unsigned, state) = self
                     .build_unsigned_transaction(
                         transaction_type_builder.clone(),
-                        match fee_multiplier {
-                            Some(value) => FeeBuilder::Extra(ExtraFeeMode::Multiplier(value)),
-                            None => FeeBuilder::default(),
-                        },
+                        FeeBuilder::default(),
                         multisig.payload.threshold,
                     )
                     .await?;
@@ -736,8 +920,7 @@ impl XelisWallet {
                     &mut storage,
                     transaction_type_builder.clone(),
                     FeeBuilder::default(),
-                    // TODO: configurable
-                    Default::default(),
+                    BaseFeeMode::None,
                     None,
                 )
                 .await?
@@ -844,7 +1027,7 @@ impl XelisWallet {
             .estimate_fees(
                 TransactionTypeBuilder::Burn(payload.clone()),
                 FeeBuilder::default(),
-                Default::default(),
+                BaseFeeMode::None,
             )
             .await
             .context("Error while estimating fees")?;
@@ -863,8 +1046,7 @@ impl XelisWallet {
                     &mut storage,
                     transaction_type_builder.clone(),
                     FeeBuilder::default(),
-                    // TODO: configurable
-                    Default::default(),
+                    BaseFeeMode::None,
                     None,
                 )
                 .await?
@@ -917,7 +1099,7 @@ impl XelisWallet {
                     .estimate_fees(
                         TransactionTypeBuilder::Burn(payload.clone()),
                         FeeBuilder::default(),
-                        Default::default(),
+                        BaseFeeMode::None,
                     )
                     .await
                     .context("Error while estimating fees")?;
@@ -1037,41 +1219,7 @@ impl XelisWallet {
             }
         }
 
-        let address = match filter.address {
-            Some(address) => {
-                let address = Address::from_string(&address).context("Invalid address")?;
-                Some(address.get_public_key().to_owned())
-            }
-            None => None,
-        };
-
-        let asset = match filter.asset_hash {
-            Some(asset_hash) => Some(Hash::from_hex(&asset_hash).context("Invalid asset")?),
-            None => None,
-        };
-
-        let transactions = storage.get_filtered_transactions(
-            address.as_ref(),
-            asset.as_ref(),
-            filter.min_topoheight,
-            filter.max_topoheight,
-            filter.accept_incoming,
-            filter.accept_outgoing,
-            match address {
-                Some(_) => false,
-                None => filter.accept_coinbase,
-            },
-            match address {
-                Some(_) => false,
-                None => filter.accept_burn,
-            },
-            None,
-            filter.limit,
-            match filter.limit {
-                Some(limit) => Some((filter.page - 1) * limit),
-                None => None,
-            },
-        )?;
+        let transactions = storage.get_filtered_transactions(filter.options()?)?;
 
         for tx in transactions {
             let transaction_entry = tx.serializable(self.wallet.get_network().is_mainnet());
@@ -1094,8 +1242,12 @@ impl XelisWallet {
                     sink.add(json_event)
                         .expect("Unable to send event data through stream");
                 }
-                Err(e) => {
-                    error!("Error with events stream: {}", e);
+                Err(RecvError::Lagged(skipped)) => {
+                    warn!("Events stream lagged; skipped {} messages", skipped);
+                    continue;
+                }
+                Err(RecvError::Closed) => {
+                    error!("Events stream closed; stopping listener");
                     break;
                 }
             }
@@ -1132,46 +1284,45 @@ impl XelisWallet {
             Some(value) => Hash::from_hex(&value).context("Invalid asset")?,
         };
 
-        let decimals = {
-            let storage = self.wallet.get_storage().read().await;
-            let asset = storage
-                .get_asset(&asset)
-                .await
-                .context("Asset not found in storage")?;
-            asset.get_decimals()
-        };
+        let data = self.get_asset_data(&asset).await?;
+        Ok(format_coin(atomic_amount, data.get_decimals()))
+    }
 
-        Ok(format_coin(atomic_amount, decimals))
+    async fn export_csv_transactions(
+        &self,
+        filter: HistoryPageFilter,
+        writer: &mut impl Write,
+    ) -> Result<()> {
+        let storage = self.wallet.get_storage().read().await;
+        let transactions = storage.get_filtered_transactions(filter.options()?)?;
+
+        if transactions.is_empty() {
+            bail!("No transactions to export");
+        }
+
+        self.wallet
+            .export_transactions_in_csv(&storage, transactions, writer)
+            .await
+            .context("Error while exporting transactions to CSV")
     }
 
     // Export transactions to a CSV file
-    pub async fn export_transactions_to_csv_file(&self, file_path: String) -> Result<()> {
+    pub async fn export_transactions_to_csv_file(
+        &self,
+        file_path: String,
+        filter: HistoryPageFilter,
+    ) -> Result<()> {
         let path = Path::new(&file_path);
-        let storage = self.wallet.get_storage().read().await;
-        let transactions = storage.get_transactions()?;
-        if transactions.is_empty() {
-            bail!("No transactions to export");
-        }
         let mut file = File::create(&path).context("Error while creating CSV file")?;
-        self.wallet
-            .export_transactions_in_csv(&storage, transactions, &mut file)
-            .await
-            .context("Error while exporting transactions to CSV")?;
-        Ok(())
+
+        self.export_csv_transactions(filter, &mut file).await
     }
 
-    pub async fn convert_transactions_to_csv(&self) -> Result<String> {
-        let storage = self.wallet.get_storage().read().await;
-        let transactions = storage.get_transactions()?;
-        if transactions.is_empty() {
-            bail!("No transactions to export");
-        }
-        let mut csv = Vec::new();
-        self.wallet
-            .export_transactions_in_csv(&storage, transactions, &mut csv)
-            .await
-            .context("Error while exporting transactions to CSV")?;
-        Ok(String::from_utf8(csv).context("Error while converting CSV to string")?)
+    pub async fn convert_transactions_to_csv(&self, filter: HistoryPageFilter) -> Result<String> {
+        let mut buffer = Vec::new();
+
+        self.export_csv_transactions(filter, &mut buffer).await?;
+        String::from_utf8(buffer).context("Error while converting CSV to string")
     }
 
     // Get multisig state
@@ -1242,7 +1393,7 @@ impl XelisWallet {
                             &mut storage,
                             transaction_type_builder.clone(),
                             FeeBuilder::default(),
-                            Default::default(),
+                            BaseFeeMode::None,
                             None,
                         )
                         .await?
@@ -1400,7 +1551,14 @@ impl XelisWallet {
         let storage = self.wallet.get_storage().write().await;
         let mut state = self
             .wallet
-            .create_transaction_state_with_storage(&storage, &tx_type, fee, Default::default(), None, None)
+            .create_transaction_state_with_storage(
+                &storage,
+                &tx_type,
+                fee,
+                BaseFeeMode::None,
+                None,
+                None,
+            )
             .await
             .context("Error while creating transaction state")?;
 
@@ -1445,7 +1603,7 @@ impl XelisWallet {
                 },
                 encrypt_extra_data: match transfer.encrypt_extra_data {
                     Some(value) => value,
-                    None => false,
+                    None => true,
                 },
             };
 

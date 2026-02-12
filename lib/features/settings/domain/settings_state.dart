@@ -3,6 +3,7 @@
 import 'dart:ui';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:genesix/features/settings/domain/last_wallets_used.dart';
 import 'package:genesix/features/wallet/domain/history_filter_state.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:genesix/features/settings/domain/locale_json_converter.dart';
@@ -11,7 +12,11 @@ part 'settings_state.freezed.dart';
 
 part 'settings_state.g.dart';
 
-enum AppTheme { light, dark, xelis }
+enum AppTheme {
+  light,
+  dark,
+  xelis, // Keep for legacy support
+}
 
 @freezed
 abstract class SettingsState with _$SettingsState {
@@ -21,14 +26,17 @@ abstract class SettingsState with _$SettingsState {
     @Default(HistoryFilterState())
     HistoryFilterState historyFilterState,
     @JsonKey(name: 'unlock_burn') @Default(false) bool unlockBurn,
-    @JsonKey(name: 'show_balance_usdt') @Default(false) bool showBalanceUSDT,
+    @JsonKey(name: 'display_currency') String? displayCurrency,
     @JsonKey(name: 'enable_xswd') @Default(false) bool enableXswd,
     @JsonKey(name: 'activate_biometric_auth')
     @Default(false)
     bool activateBiometricAuth,
     @JsonKey(name: 'network') @Default(Network.mainnet) Network network,
-    @JsonKey(name: 'theme') @Default(AppTheme.xelis) AppTheme theme,
+    @JsonKey(name: 'theme') @Default(AppTheme.dark) AppTheme appTheme,
     @LocaleJsonConverter() required Locale locale,
+    @JsonKey(name: 'last_wallets_used')
+    @Default(LastWalletsUsed())
+    LastWalletsUsed lastWalletsUsed,
   }) = _SettingsState;
 
   factory SettingsState.fromJson(Map<String, dynamic> json) =>

@@ -1,13 +1,19 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
-import 'package:genesix/src/generated/rust_bridge/api/precomputed_tables.dart';
+import 'package:genesix/src/generated/rust_bridge/api/precomputed_tables.dart'
+    as tables_api;
+import 'package:genesix/src/generated/rust_bridge/api/precomputed_tables.dart'
+    show arePrecomputedTablesAvailable;
+
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/features/wallet/domain/event.dart';
 import 'package:genesix/features/logger/logger.dart';
@@ -18,20 +24,32 @@ class NativeWalletRepository {
 
   final XelisWallet _xelisWallet;
 
+  // Only one background upgrade at a time
+  static Completer<void>? _tableUpgradeCompleter;
+
   static Future<NativeWalletRepository> create(
     String walletPath,
     String pwd,
     Network network, {
     String? precomputeTablesPath,
-    required PrecomputedTableType precomputedTableType,
+    required tables_api.PrecomputedTableType precomputedTableType,
   }) async {
     final xelisWallet = await createXelisWallet(
-      name: walletPath,
+      directory: walletPath,
+      name: "",
       password: pwd,
       network: network,
       precomputedTablesPath: precomputeTablesPath,
       precomputedTableType: precomputedTableType,
     );
+
+    unawaited(
+      _maybeUpgradeTablesInBackground(
+        precomputeTablesPath: precomputeTablesPath,
+        desiredType: precomputedTableType,
+      ),
+    );
+
     talker.info('new XELIS Wallet created: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }
@@ -42,16 +60,25 @@ class NativeWalletRepository {
     Network network, {
     required String seed,
     String? precomputeTablesPath,
-    required PrecomputedTableType precomputedTableType,
+    required tables_api.PrecomputedTableType precomputedTableType,
   }) async {
     final xelisWallet = await createXelisWallet(
-      name: walletPath,
+      directory: walletPath,
+      name: "",
       password: pwd,
       seed: seed,
       network: network,
       precomputedTablesPath: precomputeTablesPath,
       precomputedTableType: precomputedTableType,
     );
+
+    unawaited(
+      _maybeUpgradeTablesInBackground(
+        precomputeTablesPath: precomputeTablesPath,
+        desiredType: precomputedTableType,
+      ),
+    );
+
     talker.info('XELIS Wallet recovered from seed: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }
@@ -62,16 +89,25 @@ class NativeWalletRepository {
     Network network, {
     required String privateKey,
     String? precomputeTablesPath,
-    required PrecomputedTableType precomputedTableType,
+    required tables_api.PrecomputedTableType precomputedTableType,
   }) async {
     final xelisWallet = await createXelisWallet(
-      name: walletPath,
+      directory: walletPath,
+      name: "",
       password: pwd,
       privateKey: privateKey,
       network: network,
       precomputedTablesPath: precomputeTablesPath,
       precomputedTableType: precomputedTableType,
     );
+
+    unawaited(
+      _maybeUpgradeTablesInBackground(
+        precomputeTablesPath: precomputeTablesPath,
+        desiredType: precomputedTableType,
+      ),
+    );
+
     talker.info('XELIS Wallet recovered from private key: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }
@@ -81,31 +117,86 @@ class NativeWalletRepository {
     String pwd,
     Network network, {
     String? precomputeTablesPath,
-    required PrecomputedTableType precomputedTableType,
+    required tables_api.PrecomputedTableType precomputedTableType,
   }) async {
     final xelisWallet = await openXelisWallet(
-      name: walletPath,
+      directory: walletPath,
+      name: "",
       password: pwd,
       network: network,
       precomputedTablesPath: precomputeTablesPath,
       precomputedTableType: precomputedTableType,
     );
+
+    unawaited(
+      _maybeUpgradeTablesInBackground(
+        precomputeTablesPath: precomputeTablesPath,
+        desiredType: precomputedTableType,
+      ),
+    );
+
     talker.info('XELIS Wallet open: $walletPath');
     return NativeWalletRepository._internal(xelisWallet);
   }
 
+  static Future<void> _maybeUpgradeTablesInBackground({
+    required String? precomputeTablesPath,
+    required tables_api.PrecomputedTableType desiredType,
+  }) async {
+    if (precomputeTablesPath == null) return;
+    if (kIsWeb) return;
+
+    // If an upgrade is already running, just wait for it once.
+    if (_tableUpgradeCompleter != null) {
+      try {
+        await _tableUpgradeCompleter!.future;
+      } catch (_) {
+        // Previous attempt failed; allow caller to trigger another one later.
+      }
+      return;
+    }
+
+    final completer = Completer<void>();
+    _tableUpgradeCompleter = completer;
+
+    try {
+      final tablesExist = await arePrecomputedTablesAvailable(
+        precomputedTablesPath: precomputeTablesPath,
+        precomputedTableType: desiredType,
+      );
+
+      if (tablesExist) {
+        completer.complete();
+        return;
+      }
+
+      talker.info('XELIS: upgrading precomputed tables to $desiredType');
+
+      await updateTables(
+        precomputedTablesPath: precomputeTablesPath,
+        precomputedTableType: desiredType,
+      );
+
+      talker.info('XELIS: precomputed table upgrade complete');
+      completer.complete();
+    } catch (e, s) {
+      talker.error('XELIS: precomputed table upgrade failed', e, s);
+      completer.completeError(e);
+      // don't rethrow: this is best-effort background work
+    } finally {
+      _tableUpgradeCompleter = null;
+    }
+  }
+
   Future<void> updatePrecomputedTables(
     String precomputeTablesPath,
-    PrecomputedTableType precomputedTableType,
+    tables_api.PrecomputedTableType precomputedTableType,
   ) async {
-    await _xelisWallet.updatePrecomputedTables(
+    talker.info('Updating precomputed tables to type: $precomputedTableType');
+    await updateTables(
       precomputedTablesPath: precomputeTablesPath,
       precomputedTableType: precomputedTableType,
     );
-  }
-
-  Future<PrecomputedTableType> getPrecomputedTablesType() async {
-    return _xelisWallet.getPrecomputedTablesType();
   }
 
   Future<void> close() async {
@@ -113,6 +204,7 @@ class NativeWalletRepository {
   }
 
   void dispose() {
+    dropWallet(wallet: _xelisWallet);
     _xelisWallet.dispose();
     if (_xelisWallet.isDisposed) talker.info('Rust Wallet disposed');
   }
@@ -124,6 +216,8 @@ class NativeWalletRepository {
   Future<BigInt> get nonce => _xelisWallet.getNonce();
 
   Future<bool> get isOnline => _xelisWallet.isOnline();
+
+  Future<bool> get isSyncing => _xelisWallet.isSyncing();
 
   Network get network => _xelisWallet.getNetwork();
 
@@ -200,7 +294,7 @@ class NativeWalletRepository {
             yield untrackAsset;
         }
       } catch (e) {
-        talker.error('Unknown event: ${json['event']}');
+        talker.error('Unknown event: ${json['event']}: $json');
         continue;
       }
     }
@@ -233,7 +327,7 @@ class NativeWalletRepository {
     return _xelisWallet.isValidPassword(password: password);
   }
 
-  Future<String> getXelisBalance() async {
+  Future<BigInt> getXelisBalance() async {
     return _xelisWallet.getXelisBalance();
   }
 
@@ -247,12 +341,23 @@ class NativeWalletRepository {
 
   Future<Map<String, sdk.AssetData>> getKnownAssets() async {
     final rawData = await _xelisWallet.getKnownAssets();
-    return {
-      for (final entry in rawData.entries)
-        entry.key: sdk.AssetData.fromJson(
-          jsonDecode(entry.value) as Map<String, dynamic>,
-        ),
-    };
+    final result = <String, sdk.AssetData>{};
+
+    for (final entry in rawData.entries) {
+      try {
+        final json = jsonDecode(entry.value) as Map<String, dynamic>;
+        final assetData = sdk.AssetData.fromJson(json);
+        result[entry.key] = assetData;
+      } catch (e, stack) {
+        talker.error(
+          'Failed to parse asset ${entry.key}: $e\n${entry.value}',
+          e,
+          stack,
+        );
+      }
+    }
+
+    return result;
   }
 
   Future<bool> trackAsset(String assetHash) async {
@@ -263,6 +368,18 @@ class NativeWalletRepository {
   Future<bool> untrackAsset(String assetHash) async {
     final result = await _xelisWallet.untrackAsset(asset: assetHash);
     return result;
+  }
+
+  Future<sdk.AssetData> getAssetMetadata(String assetHash) async {
+    final jsonStr = await _xelisWallet.getAssetMetadata(asset: assetHash);
+    final json = jsonDecode(jsonStr) as Map<String, dynamic>;
+    return sdk.AssetData.fromJson(json);
+  }
+
+  Future<List<Map<String, dynamic>>> getContractLogs(String txHash) async {
+    final jsonStr = await _xelisWallet.getContractLogs(txHash: txHash);
+    final json = jsonDecode(jsonStr) as List;
+    return json.cast<Map<String, dynamic>>();
   }
 
   Future<int> getHistoryCount() async {
@@ -276,13 +393,33 @@ class NativeWalletRepository {
 
   Future<List<sdk.TransactionEntry>> history(HistoryPageFilter filter) async {
     final rawData = await _xelisWallet.history(filter: filter);
-    return rawData
-        .map((e) => jsonDecode(e))
-        .map(
-          (entry) =>
-              sdk.TransactionEntry.fromJson(entry as Map<String, dynamic>),
-        )
-        .toList();
+    final List<sdk.TransactionEntry> entries = [];
+
+    for (final rawEntry in rawData) {
+      try {
+        final decoded = jsonDecode(rawEntry) as Map<String, dynamic>;
+
+        // Backwards compatibility: rename chunk_id to entry_id for old transactions
+        if (decoded.containsKey('invoke_contract')) {
+          final invokeContract =
+              decoded['invoke_contract'] as Map<String, dynamic>;
+          if (invokeContract.containsKey('chunk_id') &&
+              !invokeContract.containsKey('entry_id')) {
+            invokeContract['entry_id'] = invokeContract['chunk_id'];
+          }
+        }
+
+        final entry = sdk.TransactionEntry.fromJson(decoded);
+        entries.add(entry);
+      } catch (e) {
+        talker.error('Failed to parse transaction: $e');
+        talker.error('Raw JSON: $rawEntry');
+        // Skip this transaction instead of crashing
+        continue;
+      }
+    }
+
+    return entries;
   }
 
   Future<sdk.GetInfoResult> getDaemonInfo() async {
@@ -295,21 +432,14 @@ class NativeWalletRepository {
     return _xelisWallet.rescan(topoheight: BigInt.from(topoheight));
   }
 
-  Future<String> estimateFees(
-    List<Transfer> transfers,
-    double? feeMultiplier,
-  ) async {
-    return _xelisWallet.estimateFees(
-      transfers: transfers,
-      feeMultiplier: feeMultiplier,
-    );
+  Future<String> estimateFees(List<Transfer> transfers) async {
+    return _xelisWallet.estimateFees(transfers: transfers);
   }
 
   Future<TransactionSummary> createTransferTransaction({
     double? amount,
     required String address,
     required String assetHash,
-    double? feeMultiplier,
   }) async {
     String rawTx;
     if (amount != null) {
@@ -321,13 +451,11 @@ class NativeWalletRepository {
             assetHash: assetHash,
           ),
         ],
-        feeMultiplier: feeMultiplier,
       );
     } else {
       rawTx = await _xelisWallet.createTransferAllTransaction(
         strAddress: address,
         assetHash: assetHash,
-        feeMultiplier: feeMultiplier,
       );
     }
     final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
@@ -338,7 +466,6 @@ class NativeWalletRepository {
     double? amount,
     required String address,
     required String assetHash,
-    double? feeMultiplier,
   }) async {
     if (amount != null) {
       return _xelisWallet.createMultisigTransfersTransaction(
@@ -349,13 +476,11 @@ class NativeWalletRepository {
             assetHash: assetHash,
           ),
         ],
-        feeMultiplier: feeMultiplier,
       );
     } else {
       return _xelisWallet.createMultisigTransferAllTransaction(
         strAddress: address,
         assetHash: assetHash,
-        feeMultiplier: feeMultiplier,
       );
     }
   }
@@ -472,16 +597,20 @@ class NativeWalletRepository {
     requestApplicationCallback,
     required Future<UserPermissionDecision> Function(XswdRequestSummary)
     requestPermissionCallback,
+    required Future<UserPermissionDecision> Function(XswdRequestSummary)
+    requestPrefetchPermissionsCallback,
     required Future<void> Function(XswdRequestSummary) appDisconnectCallback,
   }) async {
     if (await _xelisWallet.isXswdRunning()) {
       talker.warning('XSWD already running...');
       return;
     }
-    _xelisWallet.startXswd(
+    await _xelisWallet.startXswd(
       cancelRequestDartCallback: cancelRequestCallback,
       requestApplicationDartCallback: requestApplicationCallback,
       requestPermissionDartCallback: requestPermissionCallback,
+      requestPrefetchPermissionsDartCallback:
+          requestPrefetchPermissionsCallback,
       appDisconnectDartCallback: appDisconnectCallback,
     );
   }
@@ -491,7 +620,11 @@ class NativeWalletRepository {
       talker.warning('XSWD already stopped...');
       return;
     }
-    _xelisWallet.stopXswd();
+    await _xelisWallet.stopXswd();
+  }
+
+  Future<bool> isXswdRunning() async {
+    return await _xelisWallet.isXswdRunning();
   }
 
   Future<List<AppInfo>> getXswdState() async {
@@ -506,6 +639,28 @@ class NativeWalletRepository {
     await _xelisWallet.closeApplicationSession(id: appID);
   }
 
+  Future<void> addXswdRelayer({
+    required Future<void> Function(XswdRequestSummary) cancelRequestCallback,
+    required Future<UserPermissionDecision> Function(XswdRequestSummary)
+    requestApplicationCallback,
+    required Future<UserPermissionDecision> Function(XswdRequestSummary)
+    requestPermissionCallback,
+    required Future<UserPermissionDecision> Function(XswdRequestSummary)
+    requestPrefetchPermissionsCallback,
+    required Future<void> Function(XswdRequestSummary) appDisconnectCallback,
+    required ApplicationDataRelayer relayerData,
+  }) async {
+    await _xelisWallet.addXswdRelayer(
+      appData: relayerData,
+      cancelRequestDartCallback: cancelRequestCallback,
+      requestApplicationDartCallback: requestApplicationCallback,
+      requestPermissionDartCallback: requestPermissionCallback,
+      requestPrefetchPermissionsDartCallback:
+          requestPrefetchPermissionsCallback,
+      appDisconnectDartCallback: appDisconnectCallback,
+    );
+  }
+
   Future<void> modifyXSWDAppPermissions(
     String appID,
     Map<String, PermissionPolicy> permissions,
@@ -516,8 +671,16 @@ class NativeWalletRepository {
     );
   }
 
-  Future<AddressBookData> retrieveAllContacts() async {
-    return _xelisWallet.retrieveAllContacts();
+  Future<AddressBookData> retrieveContacts({int? skip, int? take}) async {
+    return _xelisWallet.retrieveContacts(
+      skip: skip != null ? BigInt.from(skip) : null,
+      take: take != null ? BigInt.from(take) : null,
+    );
+  }
+
+  Future<int> countContacts() async {
+    final count = await _xelisWallet.countContacts();
+    return count.toInt();
   }
 
   Future<void> upsertContact({
@@ -544,16 +707,30 @@ class NativeWalletRepository {
     return contact;
   }
 
-  Future<AddressBookData> findContactsByName(String name) async {
-    final contacts = await _xelisWallet.findContactsByName(name: name);
+  Future<AddressBookData> findContactsByName(
+    String name, {
+    int? skip,
+    int? take,
+  }) async {
+    final contacts = await _xelisWallet.findContactsByName(
+      name: name,
+      skip: skip != null ? BigInt.from(skip) : null,
+      take: take != null ? BigInt.from(take) : null,
+    );
     return contacts;
   }
 
-  Future<void> exportTransactionsToCsvFile(String path) async {
-    await _xelisWallet.exportTransactionsToCsvFile(filePath: path);
+  Future<void> exportTransactionsToCsvFile(
+    String path,
+    HistoryPageFilter filter,
+  ) async {
+    await _xelisWallet.exportTransactionsToCsvFile(
+      filePath: path,
+      filter: filter,
+    );
   }
 
-  Future<String> convertTransactionsToCsv() async {
-    return _xelisWallet.convertTransactionsToCsv();
+  Future<String> convertTransactionsToCsv(HistoryPageFilter filter) async {
+    return _xelisWallet.convertTransactionsToCsv(filter: filter);
   }
 }

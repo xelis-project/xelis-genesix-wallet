@@ -8,12 +8,13 @@ import 'package:genesix/features/wallet/presentation/address_book/address_widget
 import 'package:genesix/features/wallet/presentation/xswd/components/transaction_builder_mixin.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/extensions.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart'
     as rust;
+import 'package:forui/forui.dart';
 
 class TransfersBuilderWidget extends ConsumerStatefulWidget {
   final TransfersBuilder transfersBuilder;
@@ -46,7 +47,7 @@ class _TransfersBuilderWidgetState extends ConsumerState<TransfersBuilderWidget>
             Text(
               loc.transfers,
               style: context.bodyLarge!.copyWith(
-                color: context.moreColors.mutedColor,
+                color: context.theme.colors.mutedForeground,
               ),
             ),
           ],
@@ -106,7 +107,7 @@ class _TransfersBuilderWidgetState extends ConsumerState<TransfersBuilderWidget>
                 '${loc.destination.toLowerCase()}:',
                 style: context.bodyMedium!.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: context.moreColors.mutedColor,
+                  color: context.theme.colors.mutedForeground,
                 ),
               ),
               AddressWidget(t.destination),
@@ -116,7 +117,7 @@ class _TransfersBuilderWidgetState extends ConsumerState<TransfersBuilderWidget>
                   loc.extra_data,
                   style: context.bodyMedium!.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: context.moreColors.mutedColor,
+                    color: context.theme.colors.mutedForeground,
                   ),
                 ),
                 SelectableText(extraData, style: context.bodySmall),

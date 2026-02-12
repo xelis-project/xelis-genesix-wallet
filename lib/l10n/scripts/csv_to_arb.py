@@ -23,6 +23,10 @@ for row in lines[1:]:
     for i, value in enumerate(row[1:]):
         lang = languages[i]
         translations[lang][key] = value.strip()
+        if translations[lang][key] == "":
+            print(f"Warning: Missing translation for key '{key}' in language '{lang}'. Falling back to English.")
+            if "en" in translations and key in translations["en"]:
+                translations[lang][key] = translations["en"][key]  # Fallback to English if empty
 
 # Generate .arb files
 print("Generating .arb files...")

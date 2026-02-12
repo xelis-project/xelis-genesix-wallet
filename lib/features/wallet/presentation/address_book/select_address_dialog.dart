@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
-import 'package:genesix/features/wallet/application/search_query_provider.dart';
-import 'package:genesix/shared/providers/snackbar_queue_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/extensions.dart';
-import 'package:genesix/shared/theme/input_decoration.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/shared/widgets/components/generic_dialog.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:go_router/go_router.dart';
 
 class SelectAddressDialog extends ConsumerStatefulWidget {
-  const SelectAddressDialog({super.key});
+  const SelectAddressDialog(this.style, this.animation, {super.key});
+
+  final FDialogStyle style;
+  final Animation<double> animation;
 
   @override
   ConsumerState<SelectAddressDialog> createState() =>
@@ -22,170 +20,145 @@ class SelectAddressDialog extends ConsumerStatefulWidget {
 }
 
 class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
-  final _formKey = GlobalKey<FormBuilderState>(
-    debugLabel: '_selectSearchFormKey',
-  );
-
-  final _searchFocusNode = FocusNode();
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void dispose() {
-    _searchFocusNode.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final future = ref.watch(addressBookProvider.future);
-    return GenericDialog(
-      scrollable: false,
-      title: SizedBox(
-        width: double.infinity,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  left: Spaces.medium,
-                  top: Spaces.large,
-                ),
-                child: Text(
-                  loc.address_book,
-                  style: context.headlineSmall,
-                  overflow: TextOverflow.ellipsis,
-                  softWrap: false,
-                  maxLines: 1,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                right: Spaces.small,
-                top: Spaces.small,
-              ),
-              child: IconButton(
-                onPressed: () => context.pop(),
-                icon: const Icon(Icons.close_rounded),
-              ),
-            ),
-          ],
-        ),
-      ),
-      content: Container(
-        constraints: BoxConstraints(maxWidth: 800, maxHeight: 600),
-        width: double.maxFinite,
-        padding: const EdgeInsets.all(Spaces.small),
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(Spaces.small),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-        ),
-        child: Column(
-          children: [
-            FormBuilder(
-              key: _formKey,
-              child: FormBuilderTextField(
-                name: 'search',
-                focusNode: _searchFocusNode,
-                style: context.bodyLarge,
-                autocorrect: false,
-                keyboardType: TextInputType.text,
-                decoration: context.textInputDecoration.copyWith(
-                  labelText: loc.filter_contacts_label_text,
-                  suffixIcon: IconButton(
-                    hoverColor: Colors.transparent,
-                    onPressed: _onSearchQueryClear,
-                    icon: Icon(
-                      Icons.clear,
-                      size: 18,
-                      color: context.moreColors.mutedColor,
-                    ),
-                  ),
-                ),
-                onChanged: (value) {
-                  // workaround to reset the error message when the user modifies the field
-                  final hasError =
-                      _formKey.currentState?.fields['search']?.hasError;
-                  if (hasError ?? false) {
-                    _formKey.currentState?.fields['search']?.reset();
-                  }
+    final addressBook = ref.watch(addressBookProvider);
 
-                  ref.read(searchQueryProvider.notifier).change(value ?? '');
-                },
+    return FDialog(
+      style: widget.style,
+      animation: widget.animation,
+      constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                loc.address_book,
+                style: context.theme.typography.xl2.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              FButton.icon(
+                onPress: () => context.pop(),
+                child: const Icon(FIcons.x, size: 20),
+              ),
+            ],
+          ),
+          const SizedBox(height: Spaces.large),
+
+          // Search Field
+          FTextField(
+            controller: _searchController,
+            hint: loc.filter_contacts_label_text,
+            keyboardType: TextInputType.text,
+            maxLines: 1,
+            clearable: (v) => v.text.isNotEmpty,
+            onChange: (value) {
+              setState(() {
+                _searchQuery = value;
+              });
+            },
+          ),
+          const SizedBox(height: Spaces.large),
+
+          // Contacts List
+          Flexible(
+            child: addressBook.when(
+              data: (book) {
+                if (book.isEmpty) {
+                  return _CenteredMessage(loc.no_contact_found, muted: true);
+                }
+
+                final filteredContacts = book.entries.where((entry) {
+                  if (_searchQuery.isEmpty) return true;
+                  final lowerQuery = _searchQuery.toLowerCase();
+                  return entry.value.name.toLowerCase().contains(lowerQuery) ||
+                      entry.key.toLowerCase().contains(lowerQuery);
+                }).toList();
+
+                if (filteredContacts.isEmpty) {
+                  return _CenteredMessage(loc.no_contact_found, muted: true);
+                }
+
+                return ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: filteredContacts.length,
+                  separatorBuilder: (context, index) => const FDivider(),
+                  itemBuilder: (context, index) {
+                    final entry = filteredContacts[index];
+                    final address = entry.key;
+                    final details = entry.value;
+                    return FItem(
+                      onPress: () => context.pop(address),
+                      prefix: HashiconWidget(
+                        hash: address,
+                        size: const Size(40, 40),
+                      ),
+                      title: Text(details.name),
+                      subtitle: Text(truncateText(address)),
+                    );
+                  },
+                );
+              },
+              loading: () => const Center(child: FCircularProgress()),
+              error: (error, stack) => _CenteredMessage(
+                loc.error_loading_contacts,
+                destructive: true,
               ),
             ),
-            const SizedBox(height: Spaces.medium),
-            FutureBuilder(
-              future: future,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  if (snapshot.data!.isEmpty) {
-                    return Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            loc.no_contact_found,
-                            style: context.textTheme.bodyLarge?.copyWith(
-                              color: context.moreColors.mutedColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                  return ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: snapshot.data!.length,
-                    separatorBuilder: (context, index) => const Divider(),
-                    itemBuilder: (context, index) {
-                      final entry = snapshot.data!.entries.elementAt(index);
-                      final address = entry.key;
-                      final details = entry.value;
-                      return ListTile(
-                        leading: HashiconWidget(
-                          hash: address,
-                          size: const Size(35, 35),
-                        ),
-                        title: Text(details.name, style: context.titleLarge),
-                        subtitle: Tooltip(
-                          message: address,
-                          child: Text(
-                            truncateText(address, maxLength: 20),
-                            style: context.bodySmall?.copyWith(
-                              color: context.moreColors.mutedColor,
-                            ),
-                          ),
-                        ),
-                        onTap: () => context.pop(entry.key),
-                      );
-                    },
-                  );
-                } else {
-                  if (snapshot.hasError) {
-                    ref
-                        .read(snackBarQueueProvider.notifier)
-                        .showError(
-                          '${loc.error_loading_contacts} ${snapshot.error}',
-                        );
-                  }
-                  return const SizedBox.shrink();
-                }
-              },
-            ),
-          ],
+          ),
+        ],
+      ),
+      actions: const [],
+    );
+  }
+}
+
+class _CenteredMessage extends StatelessWidget {
+  const _CenteredMessage(
+    this.message, {
+    this.destructive = false,
+    this.muted = false,
+  });
+
+  final String message;
+  final bool destructive;
+  final bool muted;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.theme.colors;
+
+    Color color = colors.foreground;
+    if (destructive) {
+      color = colors.destructiveForeground;
+    } else if (muted) {
+      color = colors.mutedForeground;
+    }
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(Spaces.medium),
+        child: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: context.theme.typography.base.copyWith(color: color),
         ),
       ),
     );
-  }
-
-  void _onSearchQueryClear() {
-    _formKey.currentState?.fields['search']?.reset();
-    _searchFocusNode.unfocus();
-    ref.read(searchQueryProvider.notifier).clear();
   }
 }

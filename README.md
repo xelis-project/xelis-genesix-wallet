@@ -26,6 +26,12 @@ Follow the steps below to install and run Genesix on your desired platform.
 - [Rust tool chain](https://www.rust-lang.org/tools/install)
 - [Just command runner](https://just.systems/)
 
+#### Linux
+For Linux, you may need to install additional dependencies:
+```bash
+apt-get install libsecret-1-dev libjsoncpp-dev
+```
+
 ### Clone the Repository
 
 ```

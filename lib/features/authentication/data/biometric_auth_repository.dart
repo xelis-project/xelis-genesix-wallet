@@ -19,8 +19,8 @@ class BiometricAuthRepository {
       return false;
     }
 
-    final List<BiometricType> availableBiometrics =
-        await auth.getAvailableBiometrics();
+    final List<BiometricType> availableBiometrics = await auth
+        .getAvailableBiometrics();
     talker.debug('Local_Auth - availableBiometrics: $availableBiometrics');
     final canCheckBiometrics = await auth.canCheckBiometrics;
     talker.debug('Local_Auth - canCheckBiometrics: $canCheckBiometrics');
