@@ -14,12 +14,22 @@ import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class FiltersDialog extends ConsumerStatefulWidget {
-  const FiltersDialog(this.addressBook, {super.key});
+  const FiltersDialog(
+    this.addressBook, {
+    super.key,
+    this.title,
+    this.applyLabel,
+    this.persistToSettings = true,
+  });
 
   final Map<String, ContactDetails> addressBook;
+  final String? title;
+  final String? applyLabel;
+  final bool persistToSettings;
 
   @override
   ConsumerState createState() => _FiltersDialogState();
@@ -39,6 +49,10 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
   final _scrollController = ScrollController();
   late bool _hideExtraData;
   late bool _hideZeroBalance;
+  DateTime? _minTimestamp;
+  DateTime? _maxTimestamp;
+  final _fromDateController = TextEditingController();
+  final _toDateController = TextEditingController();
 
   @override
   void initState() {
@@ -61,6 +75,10 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
         : null;
     _hideExtraData = filterState.hideExtraData;
     _hideZeroBalance = filterState.hideZeroTransfer;
+    _minTimestamp = filterState.minTimestamp;
+    _maxTimestamp = filterState.maxTimestamp;
+    _fromDateController.text = _formatDate(filterState.minTimestamp);
+    _toDateController.text = _formatDate(filterState.maxTimestamp);
   }
 
   @override
@@ -69,6 +87,8 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
     _assetController.dispose();
     _contactController.dispose();
     _scrollController.dispose();
+    _fromDateController.dispose();
+    _toDateController.dispose();
     super.dispose();
   }
 
@@ -86,9 +106,12 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
         .where((entry) => balances.containsKey(entry.key))
         .toList();
 
+    final titleText = widget.title ?? loc.filters;
+    final applyText = widget.applyLabel ?? loc.apply;
+
     return FDialog(
       direction: Axis.horizontal,
-      title: Text(loc.filters),
+      title: Text(titleText),
       body: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: context.mediaHeight * 0.6),
         child: FadedScroll(
@@ -186,6 +209,109 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                           .toList();
                     },
                   ),
+                  FCard(
+                    child: Column(
+                      spacing: Spaces.medium,
+                      children: [
+                        FTextField(
+                          label: Text(loc.from_date),
+                          hint: loc.select_start_date,
+                          readOnly: true,
+                          showCursor: false,
+                          enableInteractiveSelection: false,
+                          controller: _fromDateController,
+                          onTap: () async {
+                            final date = await showDatePicker(
+                              context: context,
+                              initialDate: _minTimestamp ?? DateTime.now(),
+                              firstDate: DateTime(2024),
+                              lastDate: DateTime.now(),
+                            );
+                            if (date != null) {
+                              setState(() {
+                                _minTimestamp = date;
+                                _fromDateController.text = _formatDate(date);
+                              });
+                            }
+                          },
+                          suffixBuilder: _minTimestamp != null
+                              ? (_, _, _) => GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () {
+                                    setState(() {
+                                      _minTimestamp = null;
+                                      _fromDateController.text = '';
+                                    });
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                    child: Icon(
+                                      FIcons.x,
+                                      size: 14,
+                                      color:
+                                          context.theme.colors.mutedForeground,
+                                    ),
+                                  ),
+                                )
+                              : null,
+                        ),
+                        FTextField(
+                          label: Text(loc.to_date),
+                          hint: loc.select_end_date,
+                          readOnly: true,
+                          showCursor: false,
+                          enableInteractiveSelection: false,
+                          controller: _toDateController,
+                          onTap: () async {
+                            final date = await showDatePicker(
+                              context: context,
+                              initialDate: _maxTimestamp ?? DateTime.now(),
+                              firstDate: _minTimestamp ?? DateTime(2024),
+                              lastDate: DateTime.now(),
+                            );
+                            if (date != null) {
+                              setState(() {
+                                _maxTimestamp = DateTime(
+                                  date.year,
+                                  date.month,
+                                  date.day,
+                                  23,
+                                  59,
+                                  59,
+                                  999,
+                                );
+                                _toDateController.text = _formatDate(date);
+                              });
+                            }
+                          },
+                          suffixBuilder: _maxTimestamp != null
+                              ? (_, _, _) => GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () {
+                                    setState(() {
+                                      _maxTimestamp = null;
+                                      _toDateController.text = '';
+                                    });
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                    child: Icon(
+                                      FIcons.x,
+                                      size: 14,
+                                      color:
+                                          context.theme.colors.mutedForeground,
+                                    ),
+                                  ),
+                                )
+                              : null,
+                        ),
+                      ],
+                    ),
+                  ),
                   // Other options
                   FCard(
                     child: Column(
@@ -226,7 +352,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
           onPress: _resetFilters,
           child: Text(loc.reset_all),
         ),
-        FButton(onPress: _applyFilters, child: Text(loc.apply)),
+        FButton(onPress: _applyFilters, child: Text(applyText)),
       ],
     );
   }
@@ -254,9 +380,12 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
       _contactController.value = null;
       _hideExtraData = false;
       _hideZeroBalance = false;
+      _minTimestamp = null;
+      _maxTimestamp = null;
+      _fromDateController.text = '';
+      _toDateController.text = '';
     });
     ref.read(searchQueryProvider.notifier).clear();
-    _applyFilters();
   }
 
   void _applyFilters() {
@@ -274,10 +403,20 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
         showBurn: selectedCategories.contains(TransactionCategory.burn),
         asset: assetEntry?.key,
         address: contact?.address,
+        minTimestamp: _minTimestamp,
+        maxTimestamp: _maxTimestamp,
       );
-
-      ref.read(settingsProvider.notifier).setHistoryFilterState(newFilterState);
-      context.pop(true);
+      if (widget.persistToSettings) {
+        ref
+            .read(settingsProvider.notifier)
+            .setHistoryFilterState(newFilterState);
+      }
+      context.pop(newFilterState);
     }
+  }
+
+  String _formatDate(DateTime? value) {
+    if (value == null) return '';
+    return DateFormat.yMd().format(value);
   }
 }

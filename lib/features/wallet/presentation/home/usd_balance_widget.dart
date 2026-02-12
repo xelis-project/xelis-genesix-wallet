@@ -54,11 +54,12 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
 
     if (xelisCoingeckoResponse != null) {
       final response = xelisCoingeckoResponse;
-      final xelisPrice = response.price.usd;
-      final usdtBalance = xelisPrice * widget.xelisBalance;
-      var displayedUSDBalance = formatUsd(usdtBalance);
+      final xelisPrice = response.price.price;
+      final currencySymbol = response.price.currencySymbol;
+      final convertedBalance = xelisPrice * widget.xelisBalance;
+      var displayedBalance = formatCurrency(convertedBalance, currencySymbol);
 
-      final percentChange24h = response.price.usd24hChange;
+      final percentChange24h = response.price.change24h;
       final isPositiveChange = percentChange24h >= 0;
       var displayedPercentChange24h =
           '${percentChange24h.abs().toStringAsFixed(2)}%';
@@ -75,7 +76,7 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
         spacing: Spaces.medium,
         children: [
           Text(
-            displayedUSDBalance,
+            displayedBalance,
             style: context.theme.typography.sm.copyWith(
               color: context.theme.colors.mutedForeground,
             ),
@@ -111,6 +112,7 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
               child: XelisPriceSparkline(
                 pricePoints: response.pricePoints,
                 sparklineColor: sparklineColor,
+                currencySymbol: currencySymbol,
               ),
             ),
         ],
@@ -119,7 +121,7 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
       return CustomSkeletonizer(
         child: Row(
           children: [
-            Text('Dummy USDT Balance'),
+            Text('Dummy Balance'),
             SizedBox(width: Spaces.medium),
             Text('Dummy Change'),
             SizedBox(width: 100, height: 24),

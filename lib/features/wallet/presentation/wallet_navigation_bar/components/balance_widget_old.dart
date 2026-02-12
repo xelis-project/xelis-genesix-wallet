@@ -37,7 +37,7 @@ class BalanceWidget extends ConsumerWidget {
         '${xelisBalance.isNotEmpty ? xelisBalance : AppResources.zeroBalance} ${getXelisTicker(network)}';
 
     XelisTicker? xelisTicker;
-    if (settings.showBalanceUSDT && settings.network == Network.mainnet) {
+    if (settings.displayCurrency != null && settings.network == Network.mainnet) {
       xelisTicker = ref.watch(xelisPriceProvider).valueOrNull;
     }
 
@@ -77,7 +77,7 @@ class BalanceWidget extends ConsumerWidget {
                         style: context.displaySmall,
                       ),
                     ),
-                    if (settings.showBalanceUSDT &&
+                    if (settings.displayCurrency != null &&
                         settings.network == Network.mainnet) ...[
                       const SizedBox(height: Spaces.extraSmall),
                       FittedBox(

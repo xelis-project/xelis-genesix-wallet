@@ -88,9 +88,9 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                         color: context.theme.colors.foreground,
                       ),
                     ),
-                    if ((settings.showBalanceUSDT && isMainnet) ||
-                        (settings.showBalanceUSDT && kDebugMode))
-                      // Show USD balance only on mainnet
+                    if (settings.displayCurrency != null &&
+                        (isMainnet || kDebugMode))
+                      // Show converted balance only on mainnet
                       UsdBalanceWidget(
                         double.tryParse(
                               walletState.trackedBalances[AppResources

@@ -26,7 +26,7 @@ abstract class SettingsState with _$SettingsState {
     @Default(HistoryFilterState())
     HistoryFilterState historyFilterState,
     @JsonKey(name: 'unlock_burn') @Default(false) bool unlockBurn,
-    @JsonKey(name: 'show_balance_usdt') @Default(false) bool showBalanceUSDT,
+    @JsonKey(name: 'display_currency') String? displayCurrency,
     @JsonKey(name: 'enable_xswd') @Default(false) bool enableXswd,
     @JsonKey(name: 'activate_biometric_auth')
     @Default(false)

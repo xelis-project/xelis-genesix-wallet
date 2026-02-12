@@ -40,6 +40,15 @@ String formatUsd(num value, {bool withSymbol = true}) {
   return format.format(value);
 }
 
+// Usage: formatCurrency(1234.5, '€') -> €1,234.50
+String formatCurrency(num value, String symbol, {bool withSymbol = true}) {
+  final format = NumberFormat.currency(
+    symbol: withSymbol ? symbol : null,
+    decimalDigits: 2,
+  );
+  return format.format(value);
+}
+
 String _formatBigIntWithGrouping(BigInt value, NumberFormat decimalFormat) {
   if (value.bitLength <= 62) {
     return decimalFormat.format(value.toInt());

@@ -9,8 +9,10 @@ part 'xelis_price.g.dart';
 @freezed
 abstract class XelisPrice with _$XelisPrice {
   const factory XelisPrice({
-    required double usd,
-    @JsonKey(name: 'usd_24h_change') required double usd24hChange,
+    required double price,
+    required double change24h,
+    required String currencyCode,
+    required String currencySymbol,
   }) = _XelisPrice;
 
   factory XelisPrice.fromJson(Map<String, dynamic> json) =>

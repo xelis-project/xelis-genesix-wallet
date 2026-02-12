@@ -27,9 +27,9 @@ class _HistoryContentState extends ConsumerState<HistoryContent> {
 
     final addressBook = ref.watch(addressBookProvider);
 
-    switch (addressBook) {
-      case AsyncData(:final value):
-        return PagedListView<int, MapEntry<DateTime, List<TransactionEntry>>>(
+    return switch (addressBook) {
+      AsyncData(:final value) =>
+        PagedListView<int, MapEntry<DateTime, List<TransactionEntry>>>(
           state: pagingState,
           fetchNextPage: _fetchPage,
           builderDelegate:
@@ -78,19 +78,17 @@ class _HistoryContentState extends ConsumerState<HistoryContent> {
                   child: FCircularProgress.loader(),
                 ),
               ),
-        );
-      case AsyncError():
-        return Center(
-          child: Text(
-            loc.oups,
-            style: context.theme.typography.base.copyWith(
-              color: context.theme.colors.error,
-            ),
+        ),
+      AsyncError() => Center(
+        child: Text(
+          loc.oups,
+          style: context.theme.typography.base.copyWith(
+            color: context.theme.colors.error,
           ),
-        );
-      default:
-        return Center(child: FCircularProgress());
-    }
+        ),
+      ),
+      _ => Center(child: FCircularProgress()),
+    };
   }
 
   void _fetchPage() async {

@@ -101,7 +101,7 @@ class SettingsNavigationBar extends ConsumerWidget {
             if (settings.network == Network.mainnet)
               FormBuilderSwitch(
                 name: 'show_balance_usdt_switch',
-                initialValue: settings.showBalanceUSDT,
+                initialValue: settings.displayCurrency != null,
                 decoration: const InputDecoration(
                   fillColor: Colors.transparent,
                 ),
@@ -112,7 +112,7 @@ class SettingsNavigationBar extends ConsumerWidget {
                 onChanged: (value) {
                   ref
                       .read(settingsProvider.notifier)
-                      .setShowBalanceUSDT(value!);
+                      .setDisplayCurrency(value! ? 'usd' : null);
                 },
               ),
             FormBuilderSwitch(

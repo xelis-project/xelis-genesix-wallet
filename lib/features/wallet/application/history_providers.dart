@@ -34,6 +34,12 @@ Future<List<TransactionEntry>> history(Ref ref, int page) async {
       limit: BigInt.from(pageSize),
       assetHash: historyFilterState.asset,
       address: historyFilterState.address,
+      minTimestamp: historyFilterState.minTimestamp != null
+          ? BigInt.from(historyFilterState.minTimestamp!.millisecondsSinceEpoch)
+          : null,
+      maxTimestamp: historyFilterState.maxTimestamp != null
+          ? BigInt.from(historyFilterState.maxTimestamp!.millisecondsSinceEpoch)
+          : null,
     );
 
     return repository.history(filter);

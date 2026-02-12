@@ -32,28 +32,31 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
       walletStateProvider.select((value) => value.knownAssets),
     );
 
-    final lastTransactions = ref.watch(lastTransactionsProvider).valueOrNull;
+    final lastTransactionsAsync = ref.watch(lastTransactionsProvider);
 
     Widget content;
 
-    if (lastTransactions != null) {
-      if (lastTransactions.isEmpty) {
-        content = Padding(
-          padding: const EdgeInsets.only(top: Spaces.small),
-          child: Text(
-            loc.no_recent_transactions,
-            style: context.theme.typography.sm.copyWith(
-              color: context.theme.colors.mutedForeground,
+    content = lastTransactionsAsync.when(
+      data: (lastTransactions) {
+        if (lastTransactions.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.only(top: Spaces.small),
+            child: Text(
+              loc.no_recent_transactions,
+              style: context.theme.typography.sm.copyWith(
+                color: context.theme.colors.mutedForeground,
+              ),
             ),
-          ),
-        );
-      } else {
+          );
+        }
+
         if (_animatedHashes.isEmpty) {
           for (final tx in lastTransactions) {
             _animatedHashes.add(tx.hash);
           }
         }
-        content = Column(
+
+        return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FItemGroup.builder(
@@ -119,10 +122,29 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
             ),
           ],
         );
-      }
-    } else {
-      content = Center(child: FCircularProgress());
-    }
+      },
+      loading: () => Center(child: FCircularProgress()),
+      error: (err, stack) => Padding(
+        padding: const EdgeInsets.only(top: Spaces.small),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                loc.oups,
+                style: context.theme.typography.sm.copyWith(
+                  color: context.theme.colors.destructive,
+                ),
+              ),
+            ),
+            FButton.icon(
+              onPress: () => ref.invalidate(lastTransactionsProvider),
+              child: const Icon(FIcons.refreshCcw),
+            ),
+          ],
+        ),
+      ),
+    );
 
     return FCard(
       child: Column(

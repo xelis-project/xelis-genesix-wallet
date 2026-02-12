@@ -9,10 +9,12 @@ class XelisPriceSparkline extends StatelessWidget {
     super.key,
     required this.pricePoints,
     required this.sparklineColor,
+    required this.currencySymbol,
   });
 
   final List<XelisPricePoint> pricePoints;
   final Color sparklineColor;
+  final String currencySymbol;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +56,7 @@ class XelisPriceSparkline extends StatelessWidget {
               getTooltipItems: (List<LineBarSpot> touchedSpots) {
                 return touchedSpots.map((spot) {
                   return LineTooltipItem(
-                    formatUsd(spot.y),
+                    formatCurrency(spot.y, currencySymbol),
                     TextStyle(
                       color: context.theme.colors.foreground,
                       fontSize: 10,

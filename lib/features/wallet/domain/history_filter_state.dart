@@ -17,6 +17,8 @@ abstract class HistoryFilterState with _$HistoryFilterState {
     @JsonKey(name: 'show_burn') @Default(true) bool showBurn,
     @JsonKey(name: 'asset') String? asset,
     @JsonKey(name: 'address') String? address,
+    @JsonKey(name: 'min_timestamp') DateTime? minTimestamp,
+    @JsonKey(name: 'max_timestamp') DateTime? maxTimestamp,
   }) = _HistoryFilterState;
 
   factory HistoryFilterState.fromJson(Map<String, dynamic> json) =>

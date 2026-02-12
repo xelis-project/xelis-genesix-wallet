@@ -1,8 +1,14 @@
+use std::borrow::Cow;
+
+use anyhow::{Context, Result};
 use flutter_rust_bridge::frb;
 
 use serde::{Deserialize, Serialize};
+use xelis_common::crypto::Hash;
+use xelis_common::serializer::Serializer;
 pub use xelis_common::transaction::builder::TransactionTypeBuilder;
 pub use xelis_common::{api::DataElement, crypto::Address};
+use xelis_wallet::storage::TransactionFilterOptions;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[frb(dart_metadata=("freezed"))]
@@ -64,6 +70,52 @@ pub struct HistoryPageFilter {
     pub accept_outgoing: bool,
     pub accept_coinbase: bool,
     pub accept_burn: bool,
+    pub min_timestamp: Option<u64>,
+    pub max_timestamp: Option<u64>,
+}
+
+impl HistoryPageFilter {
+    pub fn options<'a>(&'a self) -> Result<TransactionFilterOptions<'a>> {
+        let address = match self.address.as_ref() {
+            Some(address) => {
+                let address = Address::from_string(&address).context("Invalid address")?;
+                Some(Cow::Owned(address.to_public_key()))
+            }
+            None => None,
+        };
+
+        let asset = match self.asset_hash.as_ref() {
+            Some(asset_hash) => Some(Cow::Owned(
+                Hash::from_hex(&asset_hash).context("Invalid asset")?,
+            )),
+            None => None,
+        };
+
+        Ok(TransactionFilterOptions {
+            address,
+            asset,
+            min_topoheight: self.min_topoheight,
+            max_topoheight: self.max_topoheight,
+            accept_incoming: self.accept_incoming,
+            accept_outgoing: self.accept_outgoing,
+            accept_coinbase: match self.address {
+                Some(_) => false,
+                None => self.accept_coinbase,
+            },
+            accept_burn: match self.address {
+                Some(_) => false,
+                None => self.accept_burn,
+            },
+            min_timestamp: self.min_timestamp,
+            max_timestamp: self.max_timestamp,
+            skip: match self.limit {
+                Some(limit) => Some((self.page - 1) * limit),
+                None => None,
+            },
+            limit: self.limit,
+            query: None,
+        })
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
