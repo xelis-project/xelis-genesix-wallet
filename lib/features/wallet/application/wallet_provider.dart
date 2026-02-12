@@ -506,17 +506,18 @@ class WalletState extends _$WalletState {
     return AppResources.zeroBalance;
   }
 
-  Future<void> exportCsv(String path) async {
+  Future<void> exportCsv(String path, HistoryPageFilter filter) async {
     if (state.nativeWalletRepository != null) {
       return state.nativeWalletRepository!.exportTransactionsToCsvFile(
         '$path/genesix_transactions.csv',
+        filter,
       );
     }
   }
 
-  Future<String?> exportCsvForWeb() async {
+  Future<String?> exportCsvForWeb(HistoryPageFilter filter) async {
     if (state.nativeWalletRepository != null) {
-      return state.nativeWalletRepository!.convertTransactionsToCsv();
+      return state.nativeWalletRepository!.convertTransactionsToCsv(filter);
     }
     return null;
   }

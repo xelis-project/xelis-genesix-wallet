@@ -2936,9 +2936,9 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 
 [[package]]
 name = "syn"
-version = "2.0.114"
+version = "2.0.115"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d4d107df263a3013ef9b1879b0df87d706ff80f65a86ea879bd9c31f9b307c2a"
+checksum = "6e614ed320ac28113fa64972c4262d5dbc89deacdfd00c34a3e4cea073243c12"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4122,7 +4122,7 @@ dependencies = [
 [[package]]
 name = "xelis_common"
 version = "1.21.3"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#02a67dba3ef3aa3bb956946404b4c03cbc948987"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#10c6a5d4fd27009f523fdd5af2cb23d5de3ac0e1"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -4178,7 +4178,7 @@ dependencies = [
 [[package]]
 name = "xelis_wallet"
 version = "1.21.3"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#02a67dba3ef3aa3bb956946404b4c03cbc948987"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#10c6a5d4fd27009f523fdd5af2cb23d5de3ac0e1"
 dependencies = [
  "actix-web",
  "actix-web-httpauth",
@@ -4330,9 +4330,9 @@ dependencies = [
 
 [[package]]
 name = "zmij"
-version = "1.0.20"
+version = "1.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4de98dfa5d5b7fef4ee834d0073d560c9ca7b6c46a71d058c48db7960f8cfaf7"
+checksum = "b8848ee67ecc8aedbaf3e4122217aff892639231befc6a1b58d29fff4c2cabaa"
 
 [[package]]
 name = "zstd"

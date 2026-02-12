@@ -2,6 +2,7 @@ use flutter_rust_bridge::frb;
 
 use std::collections::HashMap;
 use std::fs::File;
+use std::io::Write;
 use std::path::Path;
 use std::sync::Arc;
 use std::thread;
@@ -30,7 +31,6 @@ use xelis_wallet::precomputed_tables;
 pub use xelis_wallet::precomputed_tables::PrecomputedTablesShared;
 pub use xelis_wallet::transaction_builder::TransactionBuilderState;
 use xelis_wallet::wallet::{RecoverOption, Wallet};
-
 use super::precomputed_tables::{LogProgressTableGenerationReportFunction, PrecomputedTableType};
 use crate::frb_generated::StreamSink;
 
@@ -752,7 +752,7 @@ impl XelisWallet {
             extra_data: extra_data.clone(),
             encrypt_extra_data: match encrypt_extra_data {
                 Some(value) => value,
-                None => false,
+                None => true,
             },
         };
 
@@ -779,7 +779,7 @@ impl XelisWallet {
             extra_data,
             encrypt_extra_data: match encrypt_extra_data {
                 Some(value) => value,
-                None => false,
+                None => true,
             },
         };
 
@@ -856,7 +856,7 @@ impl XelisWallet {
                     extra_data: extra_data.clone(),
                     encrypt_extra_data: match encrypt_extra_data {
                         Some(value) => value,
-                        None => false,
+                        None => true,
                     },
                 };
 
@@ -883,7 +883,7 @@ impl XelisWallet {
                     extra_data,
                     encrypt_extra_data: match encrypt_extra_data {
                         Some(value) => value,
-                        None => false,
+                        None => true,
                     },
                 };
 
@@ -1251,41 +1251,7 @@ impl XelisWallet {
             }
         }
 
-        let address = match filter.address {
-            Some(address) => {
-                let address = Address::from_string(&address).context("Invalid address")?;
-                Some(address.get_public_key().to_owned())
-            }
-            None => None,
-        };
-
-        let asset = match filter.asset_hash {
-            Some(asset_hash) => Some(Hash::from_hex(&asset_hash).context("Invalid asset")?),
-            None => None,
-        };
-
-        let transactions = storage.get_filtered_transactions(
-            address.as_ref(),
-            asset.as_ref(),
-            filter.min_topoheight,
-            filter.max_topoheight,
-            filter.accept_incoming,
-            filter.accept_outgoing,
-            match address {
-                Some(_) => false,
-                None => filter.accept_coinbase,
-            },
-            match address {
-                Some(_) => false,
-                None => filter.accept_burn,
-            },
-            None,
-            filter.limit,
-            match filter.limit {
-                Some(limit) => Some((filter.page - 1) * limit),
-                None => None,
-            },
-        )?;
+        let transactions = storage.get_filtered_transactions(filter.options()?)?;
 
         for tx in transactions {
             let transaction_entry = tx.serializable(self.wallet.get_network().is_mainnet());
@@ -1354,34 +1320,32 @@ impl XelisWallet {
         Ok(format_coin(atomic_amount, data.get_decimals()))
     }
 
-    // Export transactions to a CSV file
-    pub async fn export_transactions_to_csv_file(&self, file_path: String) -> Result<()> {
-        let path = Path::new(&file_path);
+    async fn export_csv_transactions(&self, filter: HistoryPageFilter, writer: &mut impl Write) -> Result<()> {
         let storage = self.wallet.get_storage().read().await;
-        let transactions = storage.get_transactions()?;
+        let transactions = storage.get_filtered_transactions(filter.options()?)?;
+
         if transactions.is_empty() {
             bail!("No transactions to export");
         }
-        let mut file = File::create(&path).context("Error while creating CSV file")?;
-        self.wallet
-            .export_transactions_in_csv(&storage, transactions, &mut file)
+
+        self.wallet.export_transactions_in_csv(&storage, transactions, writer)
             .await
-            .context("Error while exporting transactions to CSV")?;
-        Ok(())
+            .context("Error while exporting transactions to CSV")
     }
 
-    pub async fn convert_transactions_to_csv(&self) -> Result<String> {
-        let storage = self.wallet.get_storage().read().await;
-        let transactions = storage.get_transactions()?;
-        if transactions.is_empty() {
-            bail!("No transactions to export");
-        }
-        let mut csv = Vec::new();
-        self.wallet
-            .export_transactions_in_csv(&storage, transactions, &mut csv)
-            .await
-            .context("Error while exporting transactions to CSV")?;
-        Ok(String::from_utf8(csv).context("Error while converting CSV to string")?)
+    // Export transactions to a CSV file
+    pub async fn export_transactions_to_csv_file(&self, file_path: String, filter: HistoryPageFilter) -> Result<()> {
+        let path = Path::new(&file_path);        
+        let mut file = File::create(&path).context("Error while creating CSV file")?;
+
+        self.export_csv_transactions(filter, &mut file).await
+    }
+
+    pub async fn convert_transactions_to_csv(&self, filter: HistoryPageFilter) -> Result<String> {
+        let mut buffer = Vec::new();
+
+        self.export_csv_transactions(filter, &mut buffer).await?;
+        String::from_utf8(buffer).context("Error while converting CSV to string")
     }
 
     // Get multisig state
@@ -1662,7 +1626,7 @@ impl XelisWallet {
                 },
                 encrypt_extra_data: match transfer.encrypt_extra_data {
                     Some(value) => value,
-                    None => false,
+                    None => true,
                 },
             };
 

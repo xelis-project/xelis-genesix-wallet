@@ -720,11 +720,17 @@ class NativeWalletRepository {
     return contacts;
   }
 
-  Future<void> exportTransactionsToCsvFile(String path) async {
-    await _xelisWallet.exportTransactionsToCsvFile(filePath: path);
+  Future<void> exportTransactionsToCsvFile(
+    String path,
+    HistoryPageFilter filter,
+  ) async {
+    await _xelisWallet.exportTransactionsToCsvFile(
+      filePath: path,
+      filter: filter,
+    );
   }
 
-  Future<String> convertTransactionsToCsv() async {
-    return _xelisWallet.convertTransactionsToCsv();
+  Future<String> convertTransactionsToCsv(HistoryPageFilter filter) async {
+    return _xelisWallet.convertTransactionsToCsv(filter: filter);
   }
 }
