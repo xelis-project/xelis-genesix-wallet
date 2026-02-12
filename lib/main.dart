@@ -33,9 +33,11 @@ Future<void> main() async {
     talker.info('initializing local storage ...');
     await initLocalStorage();
   } else {
+    // TODO: Works on desktop without? To be investigated...
+    // TODO: forced to kill the app when returning to the android's home screen and wanting to reopen it
     // need to call this before any tls calls
-    talker.info('initializing crypto provider ...');
-    await initializeCryptoProvider();
+    // talker.info('initializing crypto provider ...');
+    // await initializeCryptoProvider();
   }
 
   if (isDesktopDevice) {
