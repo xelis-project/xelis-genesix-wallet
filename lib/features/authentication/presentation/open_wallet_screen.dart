@@ -70,18 +70,18 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
       ),
       child: Column(
         children: [
-          Container(
-            width: context.mediaWidth * 0.9,
-            constraints: BoxConstraints(maxWidth: context.theme.breakpoints.sm),
-            child: FAlert(
-              title: Text("IMPORTANT"),
-              subtitle: Text(
-                "This is an alpha pre-release build. Not all features are implemented yet, and some that are present may be unstable or disabled.",
-              ),
-              style: FAlertStyle.destructive(),
-            ),
-          ),
-          Spacer(flex: 2),
+          // Container(
+          //   width: context.mediaWidth * 0.9,
+          //   constraints: BoxConstraints(maxWidth: context.theme.breakpoints.sm),
+          //   child: FAlert(
+          //     title: Text("IMPORTANT"),
+          //     subtitle: Text(
+          //       "This is an alpha pre-release build. Not all features are implemented yet, and some that are present may be unstable or disabled.",
+          //     ),
+          //     style: FAlertStyle.destructive(),
+          //   ),
+          // ),
+          // Spacer(flex: 2),
           Hero(
             tag: 'genesix-logo',
             child: ScalableImageWidget(
