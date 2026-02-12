@@ -5,6 +5,7 @@ import 'package:genesix/features/router/routes.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/application/search_query_provider.dart';
+import 'package:genesix/features/wallet/presentation/address_book/add_contact_sheet.dart';
 import 'package:genesix/features/wallet/presentation/address_book/edit_contact_sheet.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -104,10 +105,37 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
                     },
                   ),
                   value.isEmpty
-                      ? _CenteredInfo(
-                          message: isSearching
-                              ? loc.no_contact_found
-                              : loc.address_book_empty,
+                      ? AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 220),
+                          switchInCurve: Curves.easeOut,
+                          switchOutCurve: Curves.easeIn,
+                          transitionBuilder: (child, animation) {
+                            final slide = Tween<Offset>(
+                              begin: const Offset(0, 0.04),
+                              end: Offset.zero,
+                            ).animate(animation);
+                            return FadeTransition(
+                              opacity: animation,
+                              child: SlideTransition(
+                                position: slide,
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: isSearching
+                              ? _EmptyStateCard(
+                                  key: const ValueKey('empty-search'),
+                                  title: loc.no_contact_found,
+                                  icon: FIcons.search,
+                                )
+                              : _EmptyStateCard(
+                                  key: const ValueKey('empty-all'),
+                                  title: loc.address_book,
+                                  message: loc.address_book_empty,
+                                  icon: FIcons.users,
+                                  actionLabel: loc.add_contact,
+                                  onAction: _onAddContact,
+                                ),
                         )
                       : Column(
                           children: [
@@ -210,6 +238,16 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
     );
   }
 
+  void _onAddContact() {
+    showFSheet<void>(
+      context: context,
+      side: FLayout.btt,
+      useRootNavigator: true,
+      mainAxisMaxRatio: context.getFSheetRatio,
+      builder: (context) => const AddContactSheet(),
+    );
+  }
+
   void _onDelete(String address, String name) {
     final loc = ref.read(appLocalizationsProvider);
     showAppDialog<void>(
@@ -283,6 +321,83 @@ class _CenteredInfo extends StatelessWidget {
           textAlign: TextAlign.center,
           style: context.theme.typography.base.copyWith(
             color: context.theme.colors.mutedForeground,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyStateCard extends StatelessWidget {
+  const _EmptyStateCard({
+    super.key,
+    required this.title,
+    required this.icon,
+    this.message,
+    this.actionLabel,
+    this.onAction,
+  });
+
+  final String title;
+  final String? message;
+  final IconData icon;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Spaces.medium),
+        child: FCard(
+          child: Padding(
+            padding: const EdgeInsets.all(Spaces.large),
+            child: Column(
+              spacing: Spaces.medium,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: context.theme.colors.muted,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 32,
+                    color: context.theme.colors.primary,
+                  ),
+                ),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: context.theme.typography.lg.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                if (message != null)
+                  Text(
+                    message!,
+                    textAlign: TextAlign.center,
+                    style: context.theme.typography.base.copyWith(
+                      color: context.theme.colors.mutedForeground,
+                    ),
+                  ),
+                if (actionLabel != null && onAction != null)
+                  FButton(
+                    onPress: onAction,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: Spaces.small,
+                      children: [
+                        const Icon(FIcons.plus, size: 16),
+                        Text(actionLabel!),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
