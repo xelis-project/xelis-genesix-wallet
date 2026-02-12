@@ -54,8 +54,8 @@ class Settings extends _$Settings {
     _setState(state);
   }
 
-  void setShowBalanceUSDT(bool showBalanceUSDT) {
-    state = state.copyWith(showBalanceUSDT: showBalanceUSDT);
+  void setDisplayCurrency(String? displayCurrency) {
+    state = state.copyWith(displayCurrency: displayCurrency);
     _setState(state);
   }
 
