@@ -32,6 +32,13 @@ class _EditNodeSheetState extends ConsumerState<EditNodeSheet> {
   }
 
   @override
+  void dispose() {
+    _nameController.dispose();
+    _urlController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
 
@@ -43,7 +50,10 @@ class _EditNodeSheetState extends ConsumerState<EditNodeSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FTextFormField(
-              controller: _nameController,
+              control: .managed(
+                initial: TextEditingValue(text: widget.nodeAddress.name),
+                controller: _nameController,
+              ),
               label: Text(loc.node_name),
               keyboardType: TextInputType.text,
               maxLines: 1,
@@ -57,7 +67,10 @@ class _EditNodeSheetState extends ConsumerState<EditNodeSheet> {
             ),
             const SizedBox(height: Spaces.medium),
             FTextFormField(
-              controller: _urlController,
+              control: .managed(
+                initial: TextEditingValue(text: widget.nodeAddress.url),
+                controller: _urlController,
+              ),
               label: Text(loc.node_url),
               keyboardType: TextInputType.text,
               maxLines: 1,

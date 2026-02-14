@@ -66,7 +66,7 @@ class _TransactionReviewDialogNewState
     };
 
     return FDialog(
-      style: widget.style,
+      style: widget.style.call,
       animation: widget.animation,
       constraints: const BoxConstraints(maxWidth: 600),
       body: Column(

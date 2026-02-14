@@ -92,32 +92,35 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
                 children: [
                   Expanded(
                     flex: 2,
-                    child: FSelectMenuTile.builder(
+                    child: FSelectMenuTile<MnemonicLanguage>.builder(
                       title: Text(loc.language),
                       count: MnemonicLanguage.values.length,
-                      initialValue: MnemonicLanguage.english,
+                      selectControl: .managedRadio(
+                        initial: MnemonicLanguage.english,
+                        onChange: (values) {
+                          final selected = values.isEmpty ? null : values.first;
+                          if (selected == null) return;
+                          ref
+                              .read(walletStateProvider.notifier)
+                              .getSeed(selected)
+                              .then(
+                                (words) {
+                                  setState(() {
+                                    _seedWords = words;
+                                  });
+                                },
+                                onError: (_, _) => ref
+                                    .read(toastProvider.notifier)
+                                    .showError(description: loc.oups),
+                              );
+                        },
+                      ),
                       detailsBuilder: (context, values, _) =>
                           Text(values.first.displayName),
                       menuBuilder: (context, index) => FSelectTile(
                         title: Text(MnemonicLanguage.values[index].displayName),
                         value: MnemonicLanguage.values[index],
                       ),
-                      onChange: (values) {
-                        final language = values.first;
-                        ref
-                            .read(walletStateProvider.notifier)
-                            .getSeed(language)
-                            .then(
-                              (words) {
-                                setState(() {
-                                  _seedWords = words;
-                                });
-                              },
-                              onError: (_, _) => ref
-                                  .read(toastProvider.notifier)
-                                  .showError(description: loc.oups),
-                            );
-                      },
                     ),
                   ),
                   Spacer(),

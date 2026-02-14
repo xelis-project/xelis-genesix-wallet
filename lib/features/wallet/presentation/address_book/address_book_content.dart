@@ -297,11 +297,15 @@ class _SearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return FTextField(
       hint: localizations.search,
-      controller: controller,
+      control: .managed(
+        controller: controller,
+        onChange: (value) {
+          onChanged.call(value.text);
+        },
+      ),
       keyboardType: TextInputType.text,
       maxLines: 1,
       clearable: (v) => v.text.isNotEmpty,
-      onChange: onChanged,
     );
   }
 }

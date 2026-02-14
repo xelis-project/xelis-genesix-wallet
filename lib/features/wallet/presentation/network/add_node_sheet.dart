@@ -23,6 +23,13 @@ class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
   final TextEditingController _urlController = TextEditingController();
 
   @override
+  void dispose() {
+    _nameController.dispose();
+    _urlController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
 
@@ -34,7 +41,7 @@ class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FTextFormField(
-              controller: _nameController,
+              control: .managed(controller: _nameController),
               label: Text(loc.node_name),
               hint: loc.node_name_hint,
               keyboardType: TextInputType.text,
@@ -49,7 +56,7 @@ class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
             ),
             const SizedBox(height: Spaces.medium),
             FTextFormField(
-              controller: _urlController,
+              control: .managed(controller: _urlController),
               label: Text(loc.node_url),
               hint: loc.node_url_hint,
               keyboardType: TextInputType.text,
@@ -68,17 +75,7 @@ class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
             const SizedBox(height: Spaces.large),
             FButton(
               child: Text(loc.add_node),
-              onPress: () {
-                if (_formKey.currentState?.validate() ?? false) {
-                  _add(
-                    NodeAddress(
-                      name: _nameController.text,
-                      url: _urlController.text,
-                    ),
-                  );
-                  context.pop();
-                }
-              },
+              onPress: () => _addNodeAndReconnect(context),
             ),
           ],
         ),
@@ -86,13 +83,20 @@ class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
     );
   }
 
-  void _add(NodeAddress? value) {
-    if (value != null) {
-      final network = ref.read(settingsProvider).network;
-      ref.read(networkNodesProvider.notifier).addNode(network, value);
-      // set the newly added network as the current network
-      ref.read(networkNodesProvider.notifier).setNodeAddress(network, value);
-      ref.read(walletStateProvider.notifier).reconnect(value);
+  void _addNodeAndReconnect(BuildContext context) {
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
     }
+
+    final node = NodeAddress(
+      name: _nameController.text,
+      url: _urlController.text,
+    );
+    final network = ref.read(settingsProvider).network;
+    ref.read(networkNodesProvider.notifier).addNode(network, node);
+    // set the newly added network as the current network
+    ref.read(networkNodesProvider.notifier).setNodeAddress(network, node);
+    ref.read(walletStateProvider.notifier).reconnect(node);
+    context.pop();
   }
 }

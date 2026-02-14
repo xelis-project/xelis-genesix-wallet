@@ -38,14 +38,9 @@ class FiltersDialog extends ConsumerStatefulWidget {
 class _FiltersDialogState extends ConsumerState<FiltersDialog>
     with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  final _categoriesController =
-      FSelectTileGroupController<TransactionCategory>();
-  late final _assetController = FSelectController<MapEntry<String, AssetData>>(
-    vsync: this,
-  );
-  late final _contactController = FSelectController<ContactDetails>(
-    vsync: this,
-  );
+  late Set<TransactionCategory> _categoriesSelected;
+  late final FSelectController<MapEntry<String, AssetData>> _assetController;
+  late final FSelectController<ContactDetails> _contactController;
   final _scrollController = ScrollController();
   late bool _hideExtraData;
   late bool _hideZeroBalance;
@@ -60,19 +55,32 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
     final filterState = ref.read(
       settingsProvider.select((state) => state.historyFilterState),
     );
-    _categoriesController.value = _getSelectedCategories(filterState);
-    _assetController.value = filterState.asset != null
-        ? ref
-              .read(walletStateProvider)
-              .knownAssets
-              .entries
-              .firstWhere((entry) => entry.key == filterState.asset)
-        : null;
-    _contactController.value = filterState.address != null
-        ? widget.addressBook.values.firstWhere(
-            (contact) => contact.address == filterState.address,
-          )
-        : null;
+    _categoriesSelected = _getSelectedCategories(filterState);
+
+    final knownAssets = ref.read(walletStateProvider).knownAssets;
+
+    MapEntry<String, AssetData>? initialAssetEntry;
+    if (filterState.asset != null) {
+      final matches = knownAssets.entries.where(
+        (e) => e.key == filterState.asset,
+      );
+      if (matches.isNotEmpty) initialAssetEntry = matches.first;
+    }
+
+    ContactDetails? initialContact;
+    if (filterState.address != null) {
+      final matches = widget.addressBook.values.where(
+        (c) => c.address == filterState.address,
+      );
+      if (matches.isNotEmpty) initialContact = matches.first;
+    }
+
+    _assetController = FSelectController<MapEntry<String, AssetData>>(
+      value: initialAssetEntry,
+    );
+    _contactController = FSelectController<ContactDetails>(
+      value: initialContact,
+    );
     _hideExtraData = filterState.hideExtraData;
     _hideZeroBalance = filterState.hideZeroTransfer;
     _minTimestamp = filterState.minTimestamp;
@@ -83,7 +91,6 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
 
   @override
   void dispose() {
-    _categoriesController.dispose();
     _assetController.dispose();
     _contactController.dispose();
     _scrollController.dispose();
@@ -126,7 +133,11 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                 children: [
                   // Categories selection
                   FSelectTileGroup(
-                    selectController: _categoriesController,
+                    control: .lifted(
+                      value: _categoriesSelected,
+                      onChange: (values) =>
+                          setState(() => _categoriesSelected = values),
+                    ),
                     label: Text(loc.category),
                     validator: (values) => values?.isEmpty ?? true
                         ? loc.category_select_error
@@ -158,20 +169,18 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                   FSelect<MapEntry<String, AssetData>>.searchBuilder(
                     label: Text(loc.asset),
                     hint: loc.select_asset,
-                    controller: _assetController,
+                    control: .managed(controller: _assetController),
                     format: (assetEntry) => assetEntry.value.name,
                     clearable: true,
-                    filter: (query) => query.isEmpty
-                        ? trackedAssets
-                        : trackedAssets
-                              .where(
-                                (assetEntry) => assetEntry.value.name
-                                    .toLowerCase()
-                                    .contains(query.toLowerCase()),
-                              )
-                              .toList(),
-                    contentBuilder: (context, style, data) {
-                      return data
+                    filter: (query) {
+                      if (query.isEmpty) return trackedAssets;
+                      final q = query.toLowerCase();
+                      return trackedAssets.where(
+                        (e) => e.value.name.toLowerCase().contains(q),
+                      );
+                    },
+                    contentBuilder: (context, query, values) {
+                      return values
                           .map(
                             (assetEntry) =>
                                 FSelectItem<MapEntry<String, AssetData>>(
@@ -186,7 +195,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                   FSelect<ContactDetails>.searchBuilder(
                     label: Text(loc.contact),
                     hint: loc.select_contract,
-                    controller: _contactController,
+                    control: .managed(controller: _contactController),
                     format: (contact) => contact.name,
                     clearable: true,
                     filter: (query) async {
@@ -219,7 +228,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                           readOnly: true,
                           showCursor: false,
                           enableInteractiveSelection: false,
-                          controller: _fromDateController,
+                          control: .managed(controller: _fromDateController),
                           onTap: () async {
                             final date = await showDatePicker(
                               context: context,
@@ -263,7 +272,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                           readOnly: true,
                           showCursor: false,
                           enableInteractiveSelection: false,
-                          controller: _toDateController,
+                          control: .managed(controller: _toDateController),
                           onTap: () async {
                             final date = await showDatePicker(
                               context: context,
@@ -370,7 +379,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
 
   void _resetFilters() {
     setState(() {
-      _categoriesController.value = {
+      _categoriesSelected = {
         TransactionCategory.incoming,
         TransactionCategory.outgoing,
         TransactionCategory.coinbase,
@@ -390,17 +399,22 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
 
   void _applyFilters() {
     if (_formKey.currentState?.validate() ?? false) {
-      final selectedCategories = _categoriesController.value;
       final assetEntry = _assetController.value;
       final contact = _contactController.value;
 
       final newFilterState = HistoryFilterState(
         hideExtraData: _hideExtraData,
         hideZeroTransfer: _hideZeroBalance,
-        showIncoming: selectedCategories.contains(TransactionCategory.incoming),
-        showOutgoing: selectedCategories.contains(TransactionCategory.outgoing),
-        showCoinbase: selectedCategories.contains(TransactionCategory.coinbase),
-        showBurn: selectedCategories.contains(TransactionCategory.burn),
+        showIncoming: _categoriesSelected.contains(
+          TransactionCategory.incoming,
+        ),
+        showOutgoing: _categoriesSelected.contains(
+          TransactionCategory.outgoing,
+        ),
+        showCoinbase: _categoriesSelected.contains(
+          TransactionCategory.coinbase,
+        ),
+        showBurn: _categoriesSelected.contains(TransactionCategory.burn),
         asset: assetEntry?.key,
         address: contact?.address,
         minTimestamp: _minTimestamp,

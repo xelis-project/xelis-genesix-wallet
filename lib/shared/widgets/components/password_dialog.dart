@@ -98,19 +98,9 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
           const SizedBox(height: Spaces.large),
           Form(
             key: _formKey,
-            child: FTextFormField(
-              controller: _passwordController,
+            child: FTextFormField.password(
+              control: .managed(controller: _passwordController),
               focusNode: _focusNode,
-              obscureText: true,
-              // obscureText: isPasswordVisible,
-              // suffixBuilder: (context, styleAndState, defaultSuffix) {
-              //   return GestureDetector(
-              //     onTap: () {
-              //       setState(() => isPasswordVisible = !isPasswordVisible);
-              //     },
-              //     child: Icon(isPasswordVisible ? FIcons.eyeOff : FIcons.eye),
-              //   );
-              // },
               label: Text(loc.password.capitalize()),
               keyboardType: TextInputType.visiblePassword,
               validator: (value) {

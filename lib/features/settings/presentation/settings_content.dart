@@ -94,7 +94,7 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
                   ),
                   if (authState.isAuth)
                     FTile(
-                      prefix: Icon(FIcons.fingerprint),
+                      prefix: Icon(FIcons.fingerprintPattern),
                       title: Text(loc.biometric_auth),
                       subtitle: Text(loc.enable_biometric_auth),
                       suffix: FSwitch(
@@ -191,7 +191,15 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
             child: FSelect<DisplayCurrency?>.rich(
               label: Text(loc.conversion_rate),
               description: Text(loc.show_or_hide_conversion_rate),
-              initialValue: currentCurrency,
+              control: .managed(
+                initial: currentCurrency,
+                onChange: (currency) {
+                  ref
+                      .read(settingsProvider.notifier)
+                      .setDisplayCurrency(currency?.code);
+                  context.pop();
+                },
+              ),
               format: (currency) =>
                   currency == null ? loc.disabled : currency.label,
               children: [
@@ -205,11 +213,6 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
                     value: currency,
                   ),
               ],
-              onChange: (value) {
-                ref
-                    .read(settingsProvider.notifier)
-                    .setDisplayCurrency(value?.code);
-              },
             ),
           ),
           actions: [

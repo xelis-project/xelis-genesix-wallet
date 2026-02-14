@@ -68,19 +68,23 @@ class _NodeCardState extends ConsumerState<NodeCard> {
               title: Text(loc.node),
               subtitle: Text(widget.info?.network?.name ?? loc.unknown_network),
               count: nodes.length,
-              initialValue: nodeAddress,
+              selectControl: .managedRadio(
+                initial: nodeAddress,
+                onChange: (values) {
+                  final selected = values.isEmpty ? null : values.first;
+                  if (selected == null) return;
+                  ref
+                      .read(networkNodesProvider.notifier)
+                      .setNodeAddress(network, selected);
+                  ref.read(walletStateProvider.notifier).reconnect(selected);
+                },
+              ),
               detailsBuilder: (_, values, _) => Text(values.first.name),
               menuBuilder: (context, index) => FSelectTile(
                 title: Text(nodes[index].name),
                 subtitle: Text(nodes[index].url),
                 value: nodes[index],
               ),
-              onSelect: (selection) {
-                ref
-                    .read(networkNodesProvider.notifier)
-                    .setNodeAddress(network, selection.$1);
-                ref.read(walletStateProvider.notifier).reconnect(selection.$1);
-              },
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

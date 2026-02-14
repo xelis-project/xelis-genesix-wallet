@@ -39,7 +39,15 @@ class _SignTransactionContentState
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             FTextFormField(
-              controller: _transactionController,
+              control: .managed(
+                controller: _transactionController,
+                onChange: (_) {
+                  if (_submitted) {
+                    setState(() => _submitted = false);
+                    _formKey.currentState?.validate();
+                  }
+                },
+              ),
               autovalidateMode: _submitted
                   ? AutovalidateMode.always
                   : AutovalidateMode.disabled,
@@ -52,12 +60,6 @@ class _SignTransactionContentState
                   return loc.field_required_error;
                 }
                 return null;
-              },
-              onChange: (_) {
-                if (_submitted) {
-                  setState(() => _submitted = false);
-                  _formKey.currentState?.validate();
-                }
               },
             ),
             AnimatedSize(

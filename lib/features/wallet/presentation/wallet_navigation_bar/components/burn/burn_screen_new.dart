@@ -29,8 +29,7 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
 
-  late final FSelectController<MapEntry<String, AssetData>> _assetController =
-      FSelectController<MapEntry<String, AssetData>>(vsync: this);
+  late final FSelectController<MapEntry<String, AssetData>> _assetController;
 
   String? _selectedAsset;
   String _selectedAssetBalance = AppResources.zeroBalance;
@@ -50,16 +49,19 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
         .where((entry) => assets.containsKey(entry.key))
         .firstOrNull;
 
+    MapEntry<String, AssetData>? initialAssetEntry;
     if (firstValidBalance != null) {
-      _selectedAsset = firstValidBalance.key;
-      _selectedAssetBalance = firstValidBalance.value;
-
-      final assetEntry = MapEntry(
+      initialAssetEntry = MapEntry(
         firstValidBalance.key,
         assets[firstValidBalance.key]!,
       );
-      _assetController.value = assetEntry;
+      _selectedAsset = firstValidBalance.key;
+      _selectedAssetBalance = firstValidBalance.value;
     }
+
+    _assetController = FSelectController<MapEntry<String, AssetData>>(
+      value: initialAssetEntry,
+    );
   }
 
   @override
@@ -132,7 +134,7 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
                         children: [
                           Expanded(
                             child: FTextFormField(
-                              controller: _amountController,
+                              control: .managed(controller: _amountController),
                               label: Text(loc.amount.capitalize()),
                               hint: AppResources.zeroBalance,
                               keyboardType:
@@ -190,7 +192,19 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
 
                       // Asset select
                       FSelect<MapEntry<String, AssetData>>.rich(
-                        controller: _assetController,
+                        control: .managed(
+                          controller: _assetController,
+                          onChange: (entry) {
+                            if (entry != null) {
+                              setState(() {
+                                _selectedAsset = entry.key;
+                                _selectedAssetBalance =
+                                    balances[_selectedAsset] ??
+                                    AppResources.zeroBalance;
+                              });
+                            }
+                          },
+                        ),
                         enabled: validAssets.isNotEmpty,
                         hint: validAssets.isEmpty
                             ? loc.no_balance_to_burn
@@ -206,16 +220,6 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
                             subtitle: Text('$balance ${assetData.ticker}'),
                           );
                         }).toList(),
-                        onChange: (entry) {
-                          if (entry != null) {
-                            setState(() {
-                              _selectedAsset = entry.key;
-                              _selectedAssetBalance =
-                                  balances[_selectedAsset] ??
-                                  AppResources.zeroBalance;
-                            });
-                          }
-                        },
                         validator: (value) {
                           if (value == null) {
                             return loc.field_required_error;

@@ -87,7 +87,7 @@ class _XswdPasteConnectionDialogState
             ),
           ),
           FTextField(
-            controller: _controller,
+            control: .managed(controller: _controller),
             label: Text(loc.parameters),
             hint:
                 '{"channel_id":"...","relayer":"...","encryption_mode":"aes","encryption_key":"...","app_data":{...}}',
