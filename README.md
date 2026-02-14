@@ -1,7 +1,7 @@
 # Genesix Wallet
 
-[![CI (main)](https://github.com/xelis-project/xelis-genesix-wallet/actions/workflows/ci_checks_main.yml/badge.svg)](https://github.com/xelis-project/xelis-genesix-wallet/actions/workflows/ci_checks_main.yml)
-[![CI (dev)](https://github.com/xelis-project/xelis-genesix-wallet/actions/workflows/ci_checks_dev.yml/badge.svg)](https://github.com/xelis-project/xelis-genesix-wallet/actions/workflows/ci_checks_dev.yml)
+[![CI Checks (Main)](https://github.com/xelis-project/xelis-genesix-wallet/actions/workflows/ci_checks_main.yml/badge.svg)](https://github.com/xelis-project/xelis-genesix-wallet/actions/workflows/ci_checks_main.yml)
+[![CI Checks (Dev)](https://github.com/xelis-project/xelis-genesix-wallet/actions/workflows/ci_checks_dev.yml/badge.svg)](https://github.com/xelis-project/xelis-genesix-wallet/actions/workflows/ci_checks_dev.yml)
 [![Latest release](https://img.shields.io/github/v/release/xelis-project/xelis-genesix-wallet?display_name=tag)](https://github.com/xelis-project/xelis-genesix-wallet/releases)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
