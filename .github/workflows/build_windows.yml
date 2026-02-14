@@ -57,7 +57,7 @@ jobs:
           "BUILD_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Install Flutter Rust bridge
-        run: cargo install flutter_rust_bridge_codegen --version "$FRB_CODEGEN_VERSION" --locked
+        run: cargo install flutter_rust_bridge_codegen --version $env:FRB_CODEGEN_VERSION --locked
 
       - name: Install dependencies
         run: flutter pub get
