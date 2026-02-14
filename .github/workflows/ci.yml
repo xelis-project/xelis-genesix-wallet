@@ -48,7 +48,27 @@ jobs:
         run: dart run build_runner build -d
 
       - name: Dart analyze
-        run: dart analyze --options analysis_options_ci.yaml ${{ inputs.dart_analyze_args }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          backup=""
+          if [[ -f analysis_options.yaml ]]; then
+            backup="$(mktemp)"
+            cp analysis_options.yaml "$backup"
+          fi
+
+          cleanup() {
+            if [[ -n "$backup" ]]; then
+              cp "$backup" analysis_options.yaml
+              rm -f "$backup"
+            else
+              rm -f analysis_options.yaml
+            fi
+          }
+          trap cleanup EXIT
+
+          cp analysis_options_ci.yaml analysis_options.yaml
+          dart analyze ${{ inputs.dart_analyze_args }}
 
   rust-check:
     name: Rust Check
