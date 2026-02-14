@@ -1,7 +1,3 @@
-# Genesix Wallet {{VERSION}} ({{TAG}})
-
-Released on {{DATE_UTC}}.
-
 ## Overview
 Fresh release drop! 🚀  
 This version bundles builds for Android, Linux, and Windows.
@@ -59,3 +55,7 @@ _Optional: list temporary limitations or known bugs for this version._
 ## Platform Coverage
 - Included: Android, Linux, Windows
 - Not included in this pipeline: macOS (for now) 🙂
+
+Full Changelog: {{FULL_CHANGELOG}}
+
+_Released on {{DATE_UTC}}._
