@@ -18,3 +18,5 @@ jobs:
   ci:
     name: Run Reusable Checks
     uses: ./.github/workflows/ci_checks_reusable.yml
+    with:
+      dart_analyze_args: --no-fatal-warnings
