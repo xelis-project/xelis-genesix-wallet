@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  workflow_call:
+    inputs:
+      dart_analyze_args:
+        description: Additional arguments forwarded to dart analyze
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  FRB_CODEGEN_VERSION: 2.11.1
+
+jobs:
+  dart-analyze:
+    name: Dart Analyze
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Dart analyze
+        run: dart analyze ${{ inputs.dart_analyze_args }}
+
+  dart-codegen-check:
+    name: Dart Codegen Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate Dart code
+        run: dart run build_runner build -d
+
+      - name: Verify generated Dart code is up to date
+        run: git diff --exit-code
+
+  ffi-bridge-check:
+    name: FFI Bridge Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Install Flutter Rust bridge codegen
+        run: cargo install flutter_rust_bridge_codegen --version "$FRB_CODEGEN_VERSION" --locked
+
+      - name: Generate bridge code
+        run: flutter_rust_bridge_codegen generate
+
+      - name: Verify generated bridge code is up to date
+        run: git diff --exit-code
+
+  rust-check:
+    name: Rust Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Cargo check
+        working-directory: rust
+        run: cargo check
