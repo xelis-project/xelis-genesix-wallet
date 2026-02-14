@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security issue (private)
+    url: https://github.com/xelis-project/xelis-genesix-wallet/security/advisories/new
+    about: Report vulnerabilities privately through GitHub Security Advisories.
+  - name: XELIS Discord support
+    url: https://discord.gg/z543umPUdj
+    about: Ask usage questions and get community support on Discord.
