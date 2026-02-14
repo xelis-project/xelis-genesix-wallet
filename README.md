@@ -1,75 +1,112 @@
-# Genesix
+# Genesix Wallet
 
-Genesix is a multiplatform wallet for the XELIS network. Built using the Flutter framework, it provides a convenient and secure way to manage your XELIS cryptocurrency assets.
+[![CI (main)](https://github.com/xelis-project/xelis-genesix-wallet/actions/workflows/ci_checks_main.yml/badge.svg)](https://github.com/xelis-project/xelis-genesix-wallet/actions/workflows/ci_checks_main.yml)
+[![CI (dev)](https://github.com/xelis-project/xelis-genesix-wallet/actions/workflows/ci_checks_dev.yml/badge.svg)](https://github.com/xelis-project/xelis-genesix-wallet/actions/workflows/ci_checks_dev.yml)
+[![Latest release](https://img.shields.io/github/v/release/xelis-project/xelis-genesix-wallet?display_name=tag)](https://github.com/xelis-project/xelis-genesix-wallet/releases)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
-This wallet harnesses the power of Rust by incorporating a native Rust library from the XELIS blockchain, ensuring the same level of security as the XELIS Wallet CLI.
+Genesix is a cross-platform wallet application for XELIS, built to deliver a smooth and secure experience on desktop and mobile.
 
-## Features
+It reuses the same [`xelis_wallet`](https://github.com/xelis-project/xelis-blockchain) core library as the XELIS Wallet CLI, so both clients share the same wallet primitives and core security model while offering different user experiences.
 
-- Securely store and manage your XELIS tokens
-- View your account balance and transaction history
-- Send and receive XELIS tokens easily
-- Support for multiple platforms, including:
-  - iOS
-  - Android
-  - Windows
-  - macOS
-  - Linux
+## Why Genesix
 
-## Installation
+- Cross-platform app for desktop and mobile environments.
+- Rust-backed wallet logic bridged to Flutter.
+- Focused UX for core wallet actions: create/import, send/receive, history, and balance.
+- Open source and community-driven.
 
-Follow the steps below to install and run Genesix on your desired platform.
+## Platform Support
+
+| Platform | Build from source | Release assets |
+| --- | --- | --- |
+| Android | Yes | Yes |
+| Windows | Yes | Yes |
+| Linux | Yes | Yes |
+| macOS | Yes | Not in current release draft pipeline |
+| iOS | Yes | Not in current release draft pipeline |
+| Web | Yes (special build flow) | No |
+
+Download prebuilt artifacts from the [GitHub Releases page](https://github.com/xelis-project/xelis-genesix-wallet/releases).
+
+## Quick Start (Developers)
 
 ### Prerequisites
 
 - [Flutter SDK](https://docs.flutter.dev/get-started/install)
-- [Rust tool chain](https://www.rust-lang.org/tools/install)
-- [Just command runner](https://just.systems/)
+- [Rust toolchain](https://www.rust-lang.org/tools/install)
+- [flutter_rust_bridge](https://github.com/fzyzcjy/flutter_rust_bridge) :
 
-#### Linux
-For Linux, you may need to install additional dependencies:
 ```bash
-apt-get install libsecret-1-dev libjsoncpp-dev
+cargo install flutter_rust_bridge_codegen
 ```
 
-### Clone the Repository
+Linux build dependencies vary by distro. On Ubuntu/Debian, common packages include:
 
+```bash
+sudo apt-get update
+sudo apt-get install -y clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev libsecret-1-dev libjsoncpp-dev
 ```
+
+### Clone
+
+```bash
 git clone https://github.com/xelis-project/xelis-genesix-wallet.git
-```
-
-### Build and Run
-
-1. Navigate to the cloned repository:
-
-```
 cd xelis-genesix-wallet
 ```
 
-2. Install the required dependencies and generate glue code:
+### Bootstrap
 
-```
-just init
-```
-
-3. Run the app for the current device:
-
-```
-flutter run --release
+```bash
+flutter pub get
+flutter_rust_bridge_codegen generate
+dart run build_runner build -d
 ```
 
-4. Or, build the application for your platform (e.g. ``windows``, etc.):
+### Run
 
+```bash
+flutter run
 ```
+
+### Build
+
+```bash
 flutter build <platform>
 ```
 
-For platform-specific instructions and additional configuration steps, please refer to the documentation available by following the links provided.
+Examples: `flutter build windows`, `flutter build linux`, `flutter build apk`.
+
+## Optional `just` Shortcuts
+
+If you use [just](https://just.systems/), helper commands are available:
+
+- `just init`
+- `just gen`
+- `just update`
+- `just run_web`
+
+These are optional convenience commands, not required.
+
+## Architecture (Short Version)
+
+- Flutter app code: `lib/`
+- Rust wallet core and APIs: `rust/`
+- Generated Flutter/Rust bridge code: `lib/src/generated/`
+
+## Security Notes
+
+- Back up your seed/recovery phrase before using real funds.
+- Never share your seed phrase with anyone.
+- Consider using a dedicated device profile for wallet operations.
+
+If you discover a vulnerability, report it privately via [GitHub Security Advisories](https://github.com/xelis-project/xelis-genesix-wallet/security/advisories/new).
+
+## Contributing
+
+- Open bugs and feature requests in [GitHub Issues](https://github.com/xelis-project/xelis-genesix-wallet/issues).
+- For usage questions and community support, join [XELIS Discord](https://discord.gg/z543umPUdj).
 
 ## License
 
-Genesix is open source and licensed under the [GPL License](LICENSE). Feel free to modify and distribute the application as per the terms of the license.
-
-## Contact
-
-For any questions or inquiries, please contact the XELIS team on [Discord](https://discord.gg/z543umPUdj).
+This project is licensed under the [GNU GPL v3.0](LICENSE).

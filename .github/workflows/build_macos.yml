@@ -2,6 +2,21 @@ name: Build MacOS
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: Build version when not running from a tag (e.g. 0.1.3-test)
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-macos-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FRB_CODEGEN_VERSION: 2.11.1
 
 jobs:
   build:
@@ -10,20 +25,34 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Rust and Cargo
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
 
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
+
+      - name: Resolve build version
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          if [[ "${GITHUB_REF:-}" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          elif [[ -n "${INPUT_VERSION:-}" ]]; then
+            VERSION="${INPUT_VERSION}"
+          else
+            echo "Error: build version is required for workflow_dispatch when not building from a tag (refs/tags/v*)."
+            exit 1
+          fi
+          echo "BUILD_VERSION=$VERSION" >> "$GITHUB_ENV"
 
       - name: Install Flutter Rust bridge
-        run: |
-          cargo install 'flutter_rust_bridge_codegen'
+        run: cargo install flutter_rust_bridge_codegen --version "$FRB_CODEGEN_VERSION" --locked
 
       - name: Install dependencies
         run: flutter pub get
@@ -35,7 +64,7 @@ jobs:
         run: dart run build_runner build -d
 
       - name: Build MacOS app
-        run: flutter build macos
+        run: flutter build macos --release
 
       - name: Set app as executable
         run: chmod +x build/macos/Build/Products/Release/genesix.app/Contents/MacOS/genesix
@@ -43,5 +72,6 @@ jobs:
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: genesix-macos
+          name: genesix-macos-${{ env.BUILD_VERSION }}
           path: build/macos/Build/Products/Release/genesix.app
+          if-no-files-found: error

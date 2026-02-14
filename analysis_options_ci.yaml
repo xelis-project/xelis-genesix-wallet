@@ -1,0 +1,12 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "rust_builder/**"
+    - "lib/src/generated/**"
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true

@@ -2,28 +2,57 @@ name: Build Android
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: Build version when not running from a tag (e.g. 0.1.3-test)
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-android-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FRB_CODEGEN_VERSION: 2.11.1
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Rust and Cargo
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
 
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
+
+      - name: Resolve build version
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          if [[ "${GITHUB_REF:-}" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          elif [[ -n "${INPUT_VERSION:-}" ]]; then
+            VERSION="${INPUT_VERSION}"
+          else
+            echo "Error: build version is required for workflow_dispatch when not building from a tag (refs/tags/v*)."
+            exit 1
+          fi
+          echo "BUILD_VERSION=$VERSION" >> "$GITHUB_ENV"
 
       - name: Install Flutter Rust bridge
-        run: |
-          cargo install 'flutter_rust_bridge_codegen'
+        run: cargo install flutter_rust_bridge_codegen --version "$FRB_CODEGEN_VERSION" --locked
 
       - name: Install dependencies
         run: flutter pub get
@@ -34,11 +63,33 @@ jobs:
       - name: Generate Dart code
         run: dart run build_runner build -d
 
-      - name: Build Android apk
-        run: flutter build apk --release
+      - name: Build Android APKs (arm64-v8a + armeabi-v7a)
+        run: flutter build apk --release --target-platform android-arm64,android-arm --split-per-abi
+
+      - name: Rename APKs for end users
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist/android
+
+          ARM64_SRC="build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
+          ARMV7_SRC="build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk"
+
+          if [[ ! -f "$ARM64_SRC" ]]; then
+            echo "Missing APK: $ARM64_SRC"
+            exit 1
+          fi
+          if [[ ! -f "$ARMV7_SRC" ]]; then
+            echo "Missing APK: $ARMV7_SRC"
+            exit 1
+          fi
+
+          cp "$ARM64_SRC" "dist/android/genesix-android-${BUILD_VERSION}-64bit-arm.apk"
+          cp "$ARMV7_SRC" "dist/android/genesix-android-${BUILD_VERSION}-32bit-arm.apk"
 
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: android-build
-          path: build/app/outputs/apk/release/*.apk
+          name: genesix-android-apks-${{ env.BUILD_VERSION }}
+          path: dist/android/*.apk
+          if-no-files-found: error
