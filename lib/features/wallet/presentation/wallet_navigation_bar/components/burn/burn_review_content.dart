@@ -100,9 +100,9 @@ class BurnReviewContent extends ConsumerWidget {
           FDivider(
             style: FDividerStyle(
               padding: const EdgeInsets.symmetric(vertical: Spaces.small),
-              color: FTheme.of(context).colors.primary,
+              color: context.theme.colors.primary,
               width: 1,
-            ),
+            ).call,
           ),
           const SizedBox(height: Spaces.small),
 

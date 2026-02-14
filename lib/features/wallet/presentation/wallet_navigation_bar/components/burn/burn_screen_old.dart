@@ -27,9 +27,8 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
   final _formKey = GlobalKey<FormState>();
   final _scrollController = ScrollController();
   final _amountController = TextEditingController();
-  late final _assetController = FSelectController<MapEntry<String, AssetData>>(
-    vsync: this,
-  );
+  late final _assetController =
+      FSelectController<MapEntry<String, AssetData>>();
 
   late String _selectedAssetBalance;
   String? _selectedAsset;
@@ -53,6 +52,8 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
   dispose() {
     _focusNodeAmount.dispose();
     _scrollController.dispose();
+    _amountController.dispose();
+    _assetController.dispose();
     super.dispose();
   }
 
@@ -112,7 +113,17 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
                       hint: validAssets.isEmpty
                           ? loc.no_balance_to_transfer
                           : loc.select_asset,
-                      controller: _assetController,
+                      control: .managed(
+                        controller: _assetController,
+                        onChange: (assetEntry) {
+                          if (assetEntry != null) {
+                            setState(() {
+                              _selectedAsset = assetEntry.key;
+                              _selectedAssetBalance = balances[_selectedAsset]!;
+                            });
+                          }
+                        },
+                      ),
                       enabled: validAssets.isNotEmpty,
                       format: (assetEntry) {
                         final balance =
@@ -160,14 +171,6 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
                           );
                         }).toList();
                       },
-                      onChange: (assetEntry) {
-                        if (assetEntry != null) {
-                          setState(() {
-                            _selectedAsset = assetEntry.key;
-                            _selectedAssetBalance = balances[_selectedAsset]!;
-                          });
-                        }
-                      },
                       validator: (value) =>
                           value == null ? loc.field_required_error : null,
                     ),
@@ -175,7 +178,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
                     const SizedBox(height: Spaces.large),
 
                     FTextFormField(
-                      controller: _amountController,
+                      control: .managed(controller: _amountController),
                       label: Text(loc.amount),
                       hint: AppResources.zeroBalance,
                       keyboardType: const TextInputType.numberWithOptions(
@@ -195,9 +198,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
                         return null;
                       },
                     ),
-
                     const SizedBox(height: Spaces.large),
-
                     FButton(
                       style: FButtonStyle.primary(),
                       onPress: _reviewBurn,

@@ -35,7 +35,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
     final addressBook = ref.watch(addressBookProvider);
 
     return FDialog(
-      style: widget.style,
+      style: widget.style.call,
       animation: widget.animation,
       constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
       body: Column(
@@ -62,16 +62,18 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
 
           // Search Field
           FTextField(
-            controller: _searchController,
+            control: .managed(
+              controller: _searchController,
+              onChange: (value) {
+                setState(() {
+                  _searchQuery = value.text;
+                });
+              },
+            ),
             hint: loc.filter_contacts_label_text,
             keyboardType: TextInputType.text,
             maxLines: 1,
             clearable: (v) => v.text.isNotEmpty,
-            onChange: (value) {
-              setState(() {
-                _searchQuery = value;
-              });
-            },
           ),
           const SizedBox(height: Spaces.large),
 

@@ -26,16 +26,12 @@ dependencies:
   riverpod_annotation: ^2.6.1
   shared_preferences: ^2.5.4
   xelis_dart_sdk: ^0.30.12
-#  xelis_dart_sdk:
-#     git:
-#       url: https://github.com/xelis-project/xelis-dart-sdk.git
-#       ref: d9621feca8c40a15811cadc11a006576fcceeb5a
   loader_overlay: ^5.0.0
-  pretty_qr_code: ^3.5.0
+  pretty_qr_code: ^3.6.0
   mobile_scanner: ^7.1.4
   flutter_native_splash: ^2.4.7
   window_manager: ^0.5.1
-  country_flags: ^4.1.1
+  country_flags: ^4.1.2
   package_info_plus: ^9.0.0
   file_picker: ^10.3.8
   icons_launcher: ^3.0.3
@@ -45,13 +41,13 @@ dependencies:
   talker_riverpod_logger: ^5.0.1
   group_button: ^5.3.4
   http: ^1.6.0
-  google_fonts: ^6.3.2
+  google_fonts: ^6.3.3
   io: ^1.0.5
   flutter_secure_storage: ^9.2.4
   local_auth: ^2.3.0
   web: ^1.1.1
   infinite_scroll_pagination: ^5.1.1
-  forui: ^0.16.0
+  forui: ^0.17.0
   animations: ^2.1.1
   jovial_svg: ^1.1.28
   fl_chart: ^1.1.1

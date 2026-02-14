@@ -18,7 +18,7 @@ class XswdNewConnectionDialog extends StatelessWidget {
     final colors = theme.colors;
 
     return FDialog(
-      style: style,
+      style: style.call,
       animation: animation,
       constraints: const BoxConstraints(maxWidth: 600),
       body: LayoutBuilder(

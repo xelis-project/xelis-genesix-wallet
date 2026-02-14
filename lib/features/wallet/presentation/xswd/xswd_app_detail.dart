@@ -124,9 +124,9 @@ class XswdAppDetail extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(
                           vertical: Spaces.extraSmall,
                         ),
-                        color: FTheme.of(context).colors.primary,
+                        color: context.theme.colors.primary,
                         width: 1,
-                      ),
+                      ).call,
                     ),
                     const SizedBox(height: Spaces.small),
                     Text(
@@ -412,7 +412,7 @@ class XswdAppDetail extends ConsumerWidget {
       context: context,
       builder: (dialogContext, style, animation) {
         return FDialog(
-          style: style,
+          style: style.call,
           animation: animation,
           body: Column(
             mainAxisSize: MainAxisSize.min,

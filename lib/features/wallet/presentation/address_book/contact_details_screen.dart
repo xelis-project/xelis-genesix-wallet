@@ -260,7 +260,9 @@ class _ContactInfoCardState extends ConsumerState<_ContactInfoCard> {
             ),
             if (widget.isEditingName)
               FTextField(
-                controller: widget.nameController,
+                control: FTextFieldControl.managed(
+                  controller: widget.nameController,
+                ),
                 hint: 'Contact name',
               )
             else
@@ -382,7 +384,7 @@ class _NotesCard extends StatelessWidget {
                 spacing: Spaces.small,
                 children: [
                   FTextField(
-                    controller: controller,
+                    control: .managed(controller: controller),
                     maxLines: 5,
                     hint: localizations.enter_notes,
                   ),

@@ -44,7 +44,7 @@ class _XswdPasteConnectionDialogState
   @override
   Widget build(BuildContext context) {
     return FDialog(
-      style: widget.style,
+      style: widget.style.call,
       animation: widget.animation,
       constraints: const BoxConstraints(maxWidth: 700),
       body: Column(
@@ -79,17 +79,14 @@ class _XswdPasteConnectionDialogState
             ),
           ),
           const SizedBox(height: Spaces.medium),
-          TextField(
-            controller: _controller,
+          FTextField(
+            control: .managed(controller: _controller),
             enabled: !_isProcessing,
             maxLines: 10,
             minLines: 6,
             keyboardType: TextInputType.multiline,
-            decoration: const InputDecoration(
-              hintText:
-                  '{"channel_id":"...","relayer":"...","encryption_mode":"aes","encryption_key":"...","app_data":{...}}',
-              border: OutlineInputBorder(),
-            ),
+            hint:
+                '{"channel_id":"...","relayer":"...","encryption_mode":"aes","encryption_key":"...","app_data":{...}}',
           ),
         ],
       ),

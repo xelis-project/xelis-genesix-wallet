@@ -35,7 +35,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
     with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   late final FSelectController<String> _selectController =
-      FSelectController<String>(vsync: this);
+      FSelectController<String>();
 
   @override
   void dispose() {
@@ -134,9 +134,11 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
                                 children: [
                                   const SizedBox(height: Spaces.medium),
                                   FSelect<String>.rich(
-                                    controller: _selectController,
+                                    control: .managed(
+                                      controller: _selectController,
+                                    ),
                                     hint: loc.select_wallet,
-                                    contentScrollHandles: true,
+                                    // contentScrollHandles: true,
                                     // autovalidateMode: AutovalidateMode.disabled,
                                     format: (s) => s,
                                     validator: (value) {

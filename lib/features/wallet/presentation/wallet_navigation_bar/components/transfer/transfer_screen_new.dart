@@ -36,10 +36,8 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
   final _scrollController = ScrollController();
   final _amountController = TextEditingController();
   final _addressController = TextEditingController();
-  late final _assetController = FSelectController<MapEntry<String, AssetData>>(
-    vsync: this,
-  );
-  late final _boostFeeController = FSelectController<double>(vsync: this);
+  late final FSelectController<MapEntry<String, AssetData>> _assetController;
+  late final FSelectController<double> _boostFeeController;
 
   String? _selectedAsset;
   String _selectedAssetBalance = AppResources.zeroBalance;
@@ -63,18 +61,22 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
         .where((balance) => assets.containsKey(balance.key))
         .firstOrNull;
 
+    MapEntry<String, AssetData>? initialAssetEntry;
     if (firstValidBalance != null) {
-      _selectedAsset = firstValidBalance.key;
-      _selectedAssetBalance = firstValidBalance.value;
-      final assetEntry = MapEntry(
+      initialAssetEntry = MapEntry(
         firstValidBalance.key,
         assets[firstValidBalance.key]!,
       );
-      _assetController.value = assetEntry;
+      _selectedAsset = firstValidBalance.key;
+      _selectedAssetBalance = firstValidBalance.value;
     }
 
-    // Initialize boost fee to normal (1.0x)
-    _boostFeeController.value = 1.0;
+    _assetController = FSelectController<MapEntry<String, AssetData>>(
+      value: initialAssetEntry,
+    );
+
+    _boostFeeController = FSelectController<double>(value: 1.0);
+    _boostMultiplier = _boostFeeController.value ?? 1.0;
 
     // Pre-fill address if provided
     if (widget.recipientAddress != null) {
@@ -145,7 +147,20 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                     hint: validAssets.isEmpty
                         ? loc.no_balance_to_transfer
                         : loc.select_asset,
-                    controller: _assetController,
+                    control: .managed(
+                      controller: _assetController,
+                      onChange: (assetEntry) {
+                        if (assetEntry != null) {
+                          setState(() {
+                            _selectedAsset = assetEntry.key;
+                            _selectedAssetBalance =
+                                balances[_selectedAsset] ??
+                                AppResources.zeroBalance;
+                          });
+                          _updateEstimatedFee();
+                        }
+                      },
+                    ),
                     enabled: validAssets.isNotEmpty,
                     format: (assetEntry) {
                       final balance =
@@ -190,17 +205,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                         );
                       }).toList();
                     },
-                    onChange: (assetEntry) {
-                      if (assetEntry != null) {
-                        setState(() {
-                          _selectedAsset = assetEntry.key;
-                          _selectedAssetBalance =
-                              balances[_selectedAsset] ??
-                              AppResources.zeroBalance;
-                        });
-                        _updateEstimatedFee();
-                      }
-                    },
+
                     validator: (value) =>
                         value == null ? loc.field_required_error : null,
                   ),
@@ -212,13 +217,15 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                     children: [
                       Expanded(
                         child: FTextFormField(
-                          controller: _amountController,
+                          control: .managed(
+                            controller: _amountController,
+                            onChange: (_) => _updateEstimatedFee(),
+                          ),
                           label: Text(loc.amount.titleCase),
                           hint: AppResources.zeroBalance,
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
                           ),
-                          onChange: (value) => {_updateEstimatedFee()},
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return loc.field_required_error;
@@ -268,10 +275,12 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                         children: [
                           Expanded(
                             child: FTextFormField(
-                              controller: _addressController,
+                              control: .managed(
+                                controller: _addressController,
+                                onChange: (_) => _updateEstimatedFee(),
+                              ),
                               label: Text(loc.destination.titleCase),
                               hint: loc.receiver_address,
-                              onChange: (value) => {_updateEstimatedFee()},
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return loc.field_required_error;
@@ -368,7 +377,17 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                             ),
                             const SizedBox(height: Spaces.extraSmall),
                             FSelect<double>.rich(
-                              controller: _boostFeeController,
+                              control: .managed(
+                                controller: _boostFeeController,
+                                onChange: (value) {
+                                  if (value != null) {
+                                    setState(() {
+                                      _boostMultiplier = value;
+                                    });
+                                    _updateEstimatedFee();
+                                  }
+                                },
+                              ),
                               format: (value) {
                                 if (value == 1.0) return 'Normal (1x)';
                                 if (value == 1.5) return 'Fast (1.5x)';
@@ -392,14 +411,6 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                                   subtitle: Text('2x fee'),
                                 ),
                               ],
-                              onChange: (value) {
-                                if (value != null) {
-                                  setState(() {
-                                    _boostMultiplier = value;
-                                  });
-                                  _updateEstimatedFee();
-                                }
-                              },
                             ),
                           ],
                         ),

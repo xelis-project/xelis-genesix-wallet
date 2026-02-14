@@ -78,7 +78,7 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
                   child: Form(
                     key: _formKey,
                     child: FTextFormField(
-                      controller: _nameController,
+                      control: .managed(controller: _nameController),
                       focusNode: _focusNode,
                       enabled: editing,
                       autocorrect: false,

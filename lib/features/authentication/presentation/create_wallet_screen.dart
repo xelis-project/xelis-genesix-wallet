@@ -59,7 +59,7 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
                   children: [
                     const SizedBox(height: Spaces.medium),
                     FTextFormField(
-                      controller: _nameController,
+                      control: .managed(controller: _nameController),
                       label: Text(loc.wallet_name),
                       keyboardType: TextInputType.text,
                       validator: (value) {
@@ -73,7 +73,7 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
                     ),
                     const SizedBox(height: Spaces.medium),
                     FTextFormField(
-                      controller: _passwordController,
+                      control: .managed(controller: _passwordController),
                       label: Text(loc.password.capitalize()),
                       obscureText: true,
                       keyboardType: TextInputType.visiblePassword,
@@ -88,7 +88,7 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
                     ),
                     const SizedBox(height: Spaces.medium),
                     FTextFormField(
-                      controller: _confirmPasswordController,
+                      control: .managed(controller: _confirmPasswordController),
                       label: Text(loc.confirm_your_password),
                       obscureText: true,
                       keyboardType: TextInputType.visiblePassword,

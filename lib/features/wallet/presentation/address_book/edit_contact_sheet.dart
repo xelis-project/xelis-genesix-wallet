@@ -40,7 +40,7 @@ class _EditContactSheetState extends ConsumerState<EditContactSheet> {
         child: Column(
           children: [
             FTextFormField(
-              controller: _nameController,
+              control: .managed(controller: _nameController),
               label: Text(loc.contact_name),
               keyboardType: TextInputType.text,
               maxLines: 1,
@@ -54,7 +54,7 @@ class _EditContactSheetState extends ConsumerState<EditContactSheet> {
             ),
             const SizedBox(height: Spaces.medium),
             FTextFormField(
-              controller: _addressController,
+              control: .managed(controller: _addressController),
               label: Text(loc.address),
               enabled: false,
               maxLines: 1,

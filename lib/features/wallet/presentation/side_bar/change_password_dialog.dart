@@ -49,11 +49,12 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            FTextFormField(
+            FTextFormField.password(
               label: Text(loc.current_password),
-              controller: _currentPasswordController,
+              control: FTextFieldControl.managed(
+                controller: _currentPasswordController,
+              ),
               autovalidateMode: AutovalidateMode.onUnfocus,
-              obscureText: true,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return loc.cannot_be_empty;
@@ -62,11 +63,12 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
               },
             ),
             const SizedBox(height: Spaces.medium),
-            FTextFormField(
+            FTextFormField.password(
               label: Text(loc.new_password),
-              controller: _newPasswordController,
+              control: FTextFieldControl.managed(
+                controller: _newPasswordController,
+              ),
               autovalidateMode: AutovalidateMode.onUnfocus,
-              obscureText: true,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return loc.cannot_be_empty;
@@ -78,11 +80,12 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
               },
             ),
             const SizedBox(height: Spaces.medium),
-            FTextFormField(
+            FTextFormField.password(
               label: Text(loc.confirm_new_password),
-              controller: _confirmNewPasswordController,
+              control: FTextFieldControl.managed(
+                controller: _confirmNewPasswordController,
+              ),
               autovalidateMode: AutovalidateMode.onUnfocus,
-              obscureText: true,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return loc.cannot_be_empty;

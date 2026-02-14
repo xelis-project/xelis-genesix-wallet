@@ -94,7 +94,7 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
                   ),
                   if (authState.isAuth)
                     FTile(
-                      prefix: Icon(FIcons.fingerprint),
+                      prefix: Icon(FIcons.fingerprintPattern),
                       title: Text(loc.biometric_auth),
                       subtitle: Text(loc.enable_biometric_auth),
                       suffix: FSwitch(

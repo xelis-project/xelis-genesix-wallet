@@ -288,7 +288,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
       _syncTimerWithState(_ActionSet.okOnly);
 
       return FDialog(
-        style: widget.style,
+        style: widget.style.call,
         animation: widget.animation,
         body: Center(
           child: Text(
@@ -359,7 +359,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     }
 
     return FDialog(
-      style: widget.style,
+      style: widget.style.call,
       animation: widget.animation,
       constraints: const BoxConstraints(maxWidth: 700),
       body: LayoutBuilder(
