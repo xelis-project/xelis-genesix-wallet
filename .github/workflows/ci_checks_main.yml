@@ -1,4 +1,4 @@
-name: CI Checks (Main)
+name: Checks · Main · Branch Gate
 
 on:
   push:
@@ -6,6 +6,8 @@ on:
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
+
+run-name: "Main checks • ${{ github.event_name }} • ${{ github.ref_name }}"
 
 permissions:
   contents: read
@@ -16,7 +18,7 @@ concurrency:
 
 jobs:
   ci:
-    name: Run Reusable Checks
+    name: Checks · Main · Run Core
     uses: ./.github/workflows/ci_checks_reusable.yml
     with:
       dart_analyze_args: --no-fatal-warnings
