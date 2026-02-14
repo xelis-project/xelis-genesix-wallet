@@ -35,7 +35,7 @@ Download prebuilt artifacts from the [GitHub Releases page](https://github.com/x
 
 - [Flutter SDK](https://docs.flutter.dev/get-started/install)
 - [Rust toolchain](https://www.rust-lang.org/tools/install)
-- `flutter_rust_bridge_codegen`:
+- [flutter_rust_bridge](https://github.com/fzyzcjy/flutter_rust_bridge) :
 
 ```bash
 cargo install flutter_rust_bridge_codegen
