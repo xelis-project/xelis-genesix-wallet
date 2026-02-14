@@ -56,6 +56,6 @@ _Optional: list temporary limitations or known bugs for this version._
 - Included: Android, Linux, Windows
 - Not included in this pipeline: macOS (for now) 🙂
 
-Full Changelog: {{FULL_CHANGELOG}}
+Full Changelog: {{FULL_CHANGELOG_LINK}}
 
 _Released on {{DATE_UTC}}._
