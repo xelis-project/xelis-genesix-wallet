@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
-run-name: "Main checks • ${{ github.event_name }} • ${{ github.ref_name }}"
+run-name: "Checks • ${{ github.event_name }} • ${{ github.ref_name }}"
 
 permissions:
   contents: read

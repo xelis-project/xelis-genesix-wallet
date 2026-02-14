@@ -17,7 +17,7 @@ env:
 
 jobs:
   dart-analyze:
-    name: Checks · Dart · Analyze
+    name: Dart · Analyze
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -71,7 +71,7 @@ jobs:
           dart analyze ${{ inputs.dart_analyze_args }}
 
   rust-check:
-    name: Checks · Rust · Cargo Check
+    name: Rust · Cargo Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
