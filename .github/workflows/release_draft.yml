@@ -329,16 +329,26 @@ jobs:
         run: |
           set -euo pipefail
           DATE_UTC="$(date -u +"%Y-%m-%d %H:%M UTC")"
+          git fetch --tags --force
+          PREV_TAG="$(git tag --sort=-v:refname | grep -Fvx "$TAG" | head -n1 || true)"
+          if [[ -n "$PREV_TAG" ]]; then
+            FULL_CHANGELOG="${PREV_TAG#v}...${VERSION}"
+          else
+            FULL_CHANGELOG="N/A (first tagged release)"
+          fi
+
           cp .github/release_template.md release_body.md
           sed -i "s/{{VERSION}}/${VERSION}/g" release_body.md
           sed -i "s/{{TAG}}/${TAG}/g" release_body.md
+          ESCAPED_CHANGELOG="$(printf '%s' "$FULL_CHANGELOG" | sed -e 's/[\/&]/\\&/g')"
+          sed -i "s/{{FULL_CHANGELOG}}/${ESCAPED_CHANGELOG}/g" release_body.md
           sed -i "s/{{DATE_UTC}}/${DATE_UTC}/g" release_body.md
 
       - name: Create or update draft release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.resolve-version.outputs.tag }}
-          name: Genesix v${{ needs.resolve-version.outputs.version }}
+          name: ✨ Genesix Wallet Release ${{ needs.resolve-version.outputs.version }}
           draft: true
           prerelease: false
           body_path: release_body.md
