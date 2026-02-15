@@ -278,6 +278,7 @@ class WalletState extends _$WalletState {
     state = state.copyWith(isOnline: false);
 
     try {
+      await state.streamSubscription?.cancel();
       await state.nativeWalletRepository?.setOffline();
     } catch (e) {
       talker.warning('Something went wrong when disconnecting: $e');
