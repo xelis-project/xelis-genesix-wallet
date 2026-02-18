@@ -7,6 +7,8 @@
 
 ## Repository-Specific Expectations
 - Reuse existing architecture under `lib/features` and `lib/shared`.
+- For Flutter UI/UX tasks, prefer Forui as the primary UI library.
+- Reuse existing UI elements from `lib/shared` before creating new components.
 - Do not edit generated files directly.
 - For Rust or model contract changes, include codegen steps in requested output.
 
@@ -15,4 +17,3 @@
 - Goal: expected behavior and constraints.
 - Validation: commands to run (from `docs/ai/shared/workflow.md`).
 - Output shape: patch/diff plus short rationale.
-
