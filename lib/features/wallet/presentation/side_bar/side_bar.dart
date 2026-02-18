@@ -31,9 +31,6 @@ class _SideBarState extends ConsumerState<SideBar> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final xswdEnabled = ref.watch(
-      settingsProvider.select((state) => state.enableXswd),
-    );
     final burnTransferEnabled = ref.watch(
       settingsProvider.select((state) => state.unlockBurn),
     );
@@ -141,19 +138,6 @@ class _SideBarState extends ConsumerState<SideBar> {
                   },*/,
                 ),
                 FSidebarItem(
-                  selected: _selectedItem == AuthAppScreen.xswd.toPath,
-                  label: Text(loc.xswd),
-                  onPress: xswdEnabled
-                      ? () {
-                          _closeSideBar();
-                          context.go(AuthAppScreen.xswd.toPath);
-                          setState(() {
-                            _selectedItem = AuthAppScreen.xswd.toPath;
-                          });
-                        }
-                      : null,
-                ),
-                FSidebarItem(
                   selected: _selectedItem == AuthAppScreen.burn.toPath,
                   label: Text(loc.burn),
                   onPress: burnTransferEnabled
@@ -213,6 +197,18 @@ class _SideBarState extends ConsumerState<SideBar> {
                 context.go(AuthAppScreen.assets.toPath);
                 setState(() {
                   _selectedItem = AuthAppScreen.assets.toPath;
+                });
+              },
+            ),
+            FSidebarItem(
+              icon: Icon(FIcons.cable),
+              selected: _selectedItem == AuthAppScreen.xswd.toPath,
+              label: Text("Connected Apps"),
+              onPress: () {
+                _closeSideBar();
+                context.go(AuthAppScreen.xswd.toPath);
+                setState(() {
+                  _selectedItem = AuthAppScreen.xswd.toPath;
                 });
               },
             ),

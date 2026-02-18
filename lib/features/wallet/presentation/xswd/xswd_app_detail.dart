@@ -4,12 +4,14 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_providers.dart';
-import 'package:genesix/shared/theme/build_context_extensions.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
+import 'package:genesix/shared/widgets/components/body_layout_builder.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class XswdAppDetail extends ConsumerWidget {
   const XswdAppDetail({required this.appId, super.key});
@@ -21,16 +23,17 @@ class XswdAppDetail extends ConsumerWidget {
     final loc = ref.watch(appLocalizationsProvider);
     final appsAsync = ref.watch(xswdApplicationsProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('App Details'),
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
+    return FScaffold(
+      header: FHeader.nested(
+        title: Text('${loc.applications} ${loc.details}'),
+        prefixes: [
+          Padding(
+            padding: const EdgeInsets.all(Spaces.small),
+            child: FHeaderAction.back(onPress: () => context.pop()),
+          ),
+        ],
       ),
-      body: appsAsync.when(
+      child: appsAsync.when(
         data: (apps) {
           final app = apps.where((a) => a.id == appId).firstOrNull;
           if (app == null) {
@@ -38,12 +41,17 @@ class XswdAppDetail extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('App not found', style: context.headlineSmall),
+                  Text(
+                    loc.no_application_found,
+                    style: context.theme.typography.lg.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   const SizedBox(height: Spaces.medium),
                   FButton(
                     style: FButtonStyle.primary(),
                     onPress: () => context.pop(),
-                    child: const Text('Go Back'),
+                    child: Text(loc.ok_button),
                   ),
                 ],
               ),
@@ -51,8 +59,9 @@ class XswdAppDetail extends ConsumerWidget {
           }
           return _buildAppDetails(context, ref, loc, app);
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error: $error')),
+        loading: () => const Center(child: FCircularProgress()),
+        error: (error, stack) =>
+            Center(child: Text('${loc.error_loading_applications}: $error')),
       ),
     );
   }
@@ -66,142 +75,140 @@ class XswdAppDetail extends ConsumerWidget {
     final muted = context.theme.colors.mutedForeground;
 
     return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(Spaces.large),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // App Info Card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(Spaces.large),
-              decoration: BoxDecoration(
-                color: context.colors.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: context.theme.colors.border,
-                  width: 1,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(app.name, style: context.headlineMedium),
-                  if (app.url != null && app.url!.isNotEmpty) ...[
-                    const SizedBox(height: Spaces.small),
-                    Row(
-                      children: [
-                        Icon(Icons.link, size: 16, color: muted),
-                        const SizedBox(width: Spaces.extraSmall),
-                        Expanded(
-                          child: Text(
-                            app.url!,
-                            style: context.bodyMedium?.copyWith(color: muted),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                  const SizedBox(height: Spaces.medium),
-                  Text(
-                    'App ID',
-                    style: context.bodySmall?.copyWith(
-                      color: muted,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: Spaces.extraSmall),
-                  SelectableText(
-                    app.id,
-                    style: context.bodyMedium?.copyWith(
-                      fontFamily: 'monospace',
-                    ),
-                  ),
-                  if (app.description.isNotEmpty) ...[
-                    const SizedBox(height: Spaces.small),
-                    FDivider(
-                      style: FDividerStyle(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: Spaces.extraSmall,
-                        ),
-                        color: FTheme.of(context).colors.primary,
-                        width: 1,
+      top: false,
+      child: BodyLayoutBuilder(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(Spaces.large),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      app.name,
+                      style: context.theme.typography.xl.copyWith(
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: Spaces.small),
+                    if (app.url != null && app.url!.isNotEmpty) ...[
+                      const SizedBox(height: Spaces.small),
+                      Row(
+                        children: [
+                          Icon(FIcons.link, size: 16, color: muted),
+                          const SizedBox(width: Spaces.extraSmall),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => _launchAppUrl(ref, app.url!),
+                              child: Text(
+                                app.url!,
+                                style: context.theme.typography.sm.copyWith(
+                                  color: context.theme.colors.primary,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: context.theme.colors.primary,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                    const SizedBox(height: Spaces.medium),
                     Text(
-                      'Description',
-                      style: context.bodySmall?.copyWith(
+                      '${loc.applications} ${loc.id}',
+                      style: context.theme.typography.xs.copyWith(
                         color: muted,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: Spaces.extraSmall),
-                    Text(app.description, style: context.bodyMedium),
+                    SelectableText(
+                      app.id,
+                      style: context.theme.typography.sm.copyWith(
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                    if (app.description.isNotEmpty) ...[
+                      const SizedBox(height: Spaces.small),
+                      FDivider(
+                        style: FDividerStyle(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: Spaces.extraSmall,
+                          ),
+                          color: context.theme.colors.primary,
+                          width: 1,
+                        ).call,
+                      ),
+                      const SizedBox(height: Spaces.small),
+                      Text(
+                        loc.description,
+                        style: context.theme.typography.xs.copyWith(
+                          color: muted,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: Spaces.extraSmall),
+                      Text(app.description, style: context.theme.typography.sm),
+                    ],
                   ],
+                ),
+              ),
+
+              const SizedBox(height: Spaces.large),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      loc.permissions,
+                      style: context.theme.typography.lg.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
                 ],
               ),
-            ),
+              const SizedBox(height: Spaces.medium),
 
-            const SizedBox(height: Spaces.large),
-
-            // Permissions Section
-            Row(
-              children: [
-                Expanded(
-                  child: Text('Permissions', style: context.headlineMedium),
-                ),
-              ],
-            ),
-            const SizedBox(height: Spaces.medium),
-
-            if (app.permissions.isEmpty)
-              Container(
-                padding: const EdgeInsets.all(Spaces.large),
-                decoration: BoxDecoration(
-                  color: context.colors.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: context.theme.colors.border,
-                    width: 1,
+              if (app.permissions.isEmpty)
+                FCard(
+                  child: Center(
+                    child: Text(
+                      loc.no_data,
+                      style: context.theme.typography.sm.copyWith(color: muted),
+                    ),
                   ),
-                ),
-                child: Center(
-                  child: Text(
-                    'No permissions configured',
-                    style: context.bodyMedium?.copyWith(color: muted),
-                  ),
-                ),
-              )
-            else
-              ...(app.permissions.entries.toList()
-                    ..sort((a, b) => a.key.compareTo(b.key)))
-                  .map((entry) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: Spaces.small),
-                      child: _buildPermissionChip(
-                        context,
-                        ref,
-                        loc,
-                        app,
-                        entry.key,
-                        entry.value,
-                      ),
-                    );
-                  }),
+                )
+              else
+                ...(app.permissions.entries.toList()
+                      ..sort((a, b) => a.key.compareTo(b.key)))
+                    .map((entry) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: Spaces.small),
+                        child: _buildPermissionChip(
+                          context,
+                          ref,
+                          app,
+                          entry.key,
+                          entry.value,
+                          loc,
+                        ),
+                      );
+                    }),
 
-            const SizedBox(height: Spaces.large),
+              const SizedBox(height: Spaces.large),
 
-            // Disconnect Button
-            SizedBox(
-              width: double.infinity,
-              child: FButton(
-                style: FButtonStyle.destructive(),
-                onPress: () => _handleDisconnectApp(context, ref, loc, app),
-                child: const Text('Disconnect App'),
+              SizedBox(
+                width: double.infinity,
+                child: FButton(
+                  style: FButtonStyle.destructive(),
+                  onPress: () => _handleDisconnectApp(context, ref, loc, app),
+                  child: const Text('Disconnect'),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -210,44 +217,49 @@ class XswdAppDetail extends ConsumerWidget {
   Widget _buildPermissionChip(
     BuildContext context,
     WidgetRef ref,
-    dynamic loc,
     AppInfo app,
     String permissionName,
     PermissionPolicy currentPolicy,
+    AppLocalizations loc,
   ) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(Spaces.small),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: context.theme.colors.primary.withValues(alpha: 0.5),
-          width: 1,
+    return FCard.raw(
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(Spaces.small),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: context.theme.colors.primary.withValues(alpha: 0.5),
+            width: 1,
+          ),
+          borderRadius: BorderRadius.circular(8),
         ),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.code,
-            size: 16,
-            color: context.theme.colors.mutedForeground,
-          ),
-          const SizedBox(width: Spaces.small),
-          Expanded(
-            child: Text(
-              permissionName,
-              style: context.bodySmall?.copyWith(fontWeight: FontWeight.w500),
+        child: Row(
+          children: [
+            Icon(
+              Icons.code,
+              size: 16,
+              color: context.theme.colors.mutedForeground,
             ),
-          ),
-          const SizedBox(width: Spaces.small),
-          _buildPolicySelector(
-            context,
-            ref,
-            app,
-            permissionName,
-            currentPolicy,
-          ),
-        ],
+            const SizedBox(width: Spaces.small),
+            Expanded(
+              child: Text(
+                permissionName,
+                style: context.theme.typography.sm.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            const SizedBox(width: Spaces.small),
+            _buildPolicySelector(
+              context,
+              ref,
+              loc,
+              app,
+              permissionName,
+              currentPolicy,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -255,124 +267,70 @@ class XswdAppDetail extends ConsumerWidget {
   Widget _buildPolicySelector(
     BuildContext context,
     WidgetRef ref,
+    AppLocalizations loc,
     AppInfo app,
     String permissionName,
     PermissionPolicy currentPolicy,
   ) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: context.theme.colors.border, width: 1),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildPolicyOption(
-            context,
-            ref,
-            app,
-            permissionName,
-            PermissionPolicy.reject,
-            'Deny',
-            currentPolicy == PermissionPolicy.reject,
-            isFirst: true,
-          ),
-          _buildPolicyOption(
-            context,
-            ref,
-            app,
-            permissionName,
-            PermissionPolicy.ask,
-            'Ask',
-            currentPolicy == PermissionPolicy.ask,
-          ),
-          _buildPolicyOption(
-            context,
-            ref,
-            app,
-            permissionName,
-            PermissionPolicy.accept,
-            'Allow',
-            currentPolicy == PermissionPolicy.accept,
-            isLast: true,
-          ),
-        ],
-      ),
+    return Wrap(
+      spacing: Spaces.extraSmall,
+      runSpacing: Spaces.extraSmall,
+      children: [
+        _buildPolicyButton(
+          context,
+          ref,
+          app,
+          permissionName,
+          PermissionPolicy.reject,
+          loc.deny,
+          currentPolicy == PermissionPolicy.reject,
+        ),
+        _buildPolicyButton(
+          context,
+          ref,
+          app,
+          permissionName,
+          PermissionPolicy.ask,
+          loc.ask,
+          currentPolicy == PermissionPolicy.ask,
+        ),
+        _buildPolicyButton(
+          context,
+          ref,
+          app,
+          permissionName,
+          PermissionPolicy.accept,
+          loc.allow,
+          currentPolicy == PermissionPolicy.accept,
+        ),
+      ],
     );
   }
 
-  Widget _buildPolicyOption(
+  Widget _buildPolicyButton(
     BuildContext context,
     WidgetRef ref,
     AppInfo app,
     String permissionName,
     PermissionPolicy policy,
     String label,
-    bool isSelected, {
-    bool isFirst = false,
-    bool isLast = false,
-  }) {
-    Color backgroundColor;
-    Color textColor;
-    Color? borderColor;
+    bool isSelected,
+  ) {
+    final style = switch (policy) {
+      PermissionPolicy.reject =>
+        isSelected ? FButtonStyle.destructive() : FButtonStyle.outline(),
+      PermissionPolicy.ask =>
+        isSelected ? FButtonStyle.secondary() : FButtonStyle.outline(),
+      PermissionPolicy.accept =>
+        isSelected ? FButtonStyle.primary() : FButtonStyle.outline(),
+    };
 
-    if (isSelected) {
-      switch (policy) {
-        case PermissionPolicy.ask:
-          backgroundColor = context.theme.colors.mutedForeground.withValues(
-            alpha: 0.2,
-          );
-          textColor = context.theme.colors.foreground;
-        case PermissionPolicy.accept:
-          backgroundColor = context.theme.colors.primary;
-          textColor = context.theme.colors.primaryForeground;
-        case PermissionPolicy.reject:
-          backgroundColor = context.theme.colors.destructive;
-          textColor = context.theme.colors.destructiveForeground;
-      }
-      borderColor = null;
-    } else {
-      backgroundColor = Colors.transparent;
-      textColor = context.theme.colors.mutedForeground;
-      borderColor = context.theme.colors.border;
-    }
-
-    return InkWell(
-      onTap: isSelected
+    return FButton(
+      style: style,
+      onPress: isSelected
           ? null
           : () => _handlePermissionChange(ref, app, permissionName, policy),
-      borderRadius: BorderRadius.horizontal(
-        left: isFirst ? const Radius.circular(5) : Radius.zero,
-        right: isLast ? const Radius.circular(5) : Radius.zero,
-      ),
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: Spaces.medium,
-          vertical: Spaces.small,
-        ),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          border: !isFirst && !isSelected
-              ? Border(
-                  left: BorderSide(
-                    color: borderColor ?? context.theme.colors.border,
-                    width: 1,
-                  ),
-                )
-              : null,
-          borderRadius: BorderRadius.horizontal(
-            left: isFirst ? const Radius.circular(5) : Radius.zero,
-            right: isLast ? const Radius.circular(5) : Radius.zero,
-          ),
-        ),
-        child: Text(
-          label,
-          style: context.bodySmall?.copyWith(
-            color: textColor,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-          ),
-        ),
-      ),
+      child: Text(label),
     );
   }
 
@@ -412,30 +370,85 @@ class XswdAppDetail extends ConsumerWidget {
       context: context,
       builder: (dialogContext, style, animation) {
         return FDialog(
-          style: style,
+          style: style.call,
           animation: animation,
-          body: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Disconnect ${app.name}?', style: context.headlineSmall),
-              const SizedBox(height: Spaces.medium),
-              Text(
-                'This will revoke all permissions and close the connection. The app will need to reconnect to access your wallet again.',
-                style: context.bodyMedium,
-              ),
-            ],
+          constraints: const BoxConstraints(maxWidth: 560),
+          title: Text(
+            'Disconnect ${app.name}?',
+            style: context.theme.typography.xl.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          body: Padding(
+            padding: const EdgeInsets.symmetric(vertical: Spaces.small),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'This will revoke all permissions and close this application connection.',
+                  textAlign: TextAlign.center,
+                  style: context.theme.typography.sm.copyWith(
+                    color: context.theme.colors.mutedForeground,
+                  ),
+                ),
+                const SizedBox(height: Spaces.medium),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Spaces.medium,
+                    vertical: Spaces.small,
+                  ),
+                  decoration: BoxDecoration(
+                    color: context.theme.colors.secondary.withValues(
+                      alpha: 0.12,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: context.theme.colors.border.withValues(alpha: 0.6),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        FIcons.triangleAlert,
+                        size: 16,
+                        color: context.theme.colors.mutedForeground,
+                      ),
+                      const SizedBox(height: Spaces.extraSmall),
+                      Text(
+                        'The app will need to reconnect to request wallet access again.',
+                        textAlign: TextAlign.center,
+                        style: context.theme.typography.xs.copyWith(
+                          color: context.theme.colors.mutedForeground,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
           actions: [
-            FButton(
-              style: FButtonStyle.ghost(),
-              onPress: () => Navigator.of(dialogContext).pop(false),
-              child: Text(loc.cancel_button),
-            ),
-            FButton(
-              style: FButtonStyle.destructive(),
-              onPress: () => Navigator.of(dialogContext).pop(true),
-              child: const Text('Disconnect'),
+            Row(
+              children: [
+                Expanded(
+                  child: FButton(
+                    style: FButtonStyle.outline(),
+                    onPress: () => dialogContext.pop(false),
+                    child: Text(loc.cancel_button),
+                  ),
+                ),
+                const SizedBox(width: Spaces.small),
+                Expanded(
+                  child: FButton(
+                    style: FButtonStyle.destructive(),
+                    onPress: () => dialogContext.pop(true),
+                    child: Text(loc.confirm_button),
+                  ),
+                ),
+              ],
             ),
           ],
         );
@@ -453,8 +466,30 @@ class XswdAppDetail extends ConsumerWidget {
       if (context.mounted) {
         context.pop();
       }
+      // TODO: find a better way to refresh the app list after disconnecting because the app detail page is reloaded instantly after the app is removed, causing a brief flash of "app not found" before the list is refreshed.
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => ref.invalidate(xswdApplicationsProvider),
+      );
     } catch (e) {
       // Error handling
+    }
+  }
+
+  Future<void> _launchAppUrl(WidgetRef ref, String rawUrl) async {
+    final uri = Uri.tryParse(rawUrl);
+    if (uri == null || (!uri.hasScheme)) {
+      final loc = ref.read(appLocalizationsProvider);
+      ref
+          .read(toastProvider.notifier)
+          .showError(description: '${loc.launch_url_error} $rawUrl');
+      return;
+    }
+
+    if (!await launchUrl(uri)) {
+      final loc = ref.read(appLocalizationsProvider);
+      ref
+          .read(toastProvider.notifier)
+          .showError(description: '${loc.launch_url_error} $rawUrl');
     }
   }
 }

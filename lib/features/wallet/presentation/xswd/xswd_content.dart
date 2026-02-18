@@ -1,12 +1,14 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/features/router/routes.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_providers.dart';
-import 'package:genesix/features/wallet/presentation/xswd/xswd_app_detail.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
@@ -29,11 +31,6 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
   Timer? _statusCheckTimer;
   bool _isXswdRunning = false;
 
-  // bool get _showFooter {
-  //   if (kIsWeb) return true;
-  //   return Platform.isAndroid || Platform.isIOS;
-  // }
-
   @override
   void initState() {
     super.initState();
@@ -45,8 +42,6 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
 
     if (!isMobile) {
       _checkXswdStatus();
-
-      // Check XSWD status periodically
       _statusCheckTimer = Timer.periodic(const Duration(seconds: 5), (_) {
         _checkXswdStatus();
       });
@@ -64,7 +59,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
             _isXswdRunning = isRunning;
           });
         }
-      } catch (e) {
+      } catch (_) {
         // Silently fail - server might not be available
       }
     }
@@ -80,204 +75,262 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
+    final enableXswd = ref.watch(
+      settingsProvider.select((settings) => settings.enableXswd),
+    );
     final appsAsync = ref.watch(xswdApplicationsProvider);
+
+    final stateBody = enableXswd
+        ? appsAsync.when(
+            data: (apps) {
+              if (apps.isEmpty) {
+                return _buildStatePanel(
+                  key: const ValueKey<String>('xswd-enabled-empty'),
+                  icon: FIcons.link,
+                  title: loc.no_application_connected,
+                  description: 'Use New Connection to add a trusted app.',
+                  trailing: _buildConnectionStatusBadge(
+                    context,
+                    loc,
+                    enableXswd: true,
+                  ),
+                );
+              }
+              return _buildAppsList(context, apps);
+            },
+            loading: () => Center(
+              key: const ValueKey<String>('xswd-loading'),
+              child: FCircularProgress(),
+            ),
+            error: (error, stack) => Center(
+              key: const ValueKey<String>('xswd-error'),
+              child: Text('Error loading connected apps: $error'),
+            ),
+          )
+        : _buildStatePanel(
+            key: const ValueKey<String>('xswd-disabled'),
+            icon: FIcons.cable,
+            title: 'Connected Apps is off',
+            description: 'Turn it on to approve requests from trusted apps.',
+            trailing: _buildConnectionStatusBadge(
+              context,
+              loc,
+              enableXswd: false,
+            ),
+          );
 
     return Column(
       children: [
         Expanded(
-          child: appsAsync.when(
-            data: (apps) {
-              if (apps.isEmpty) {
-                return _buildEmptyState(context, loc);
-              }
-              return _buildAppsList(context, loc, apps);
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stack) =>
-                Center(child: Text('Error loading XSWD apps: $error')),
+          child: FadedScroll(
+            controller: _scrollController,
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              padding: const EdgeInsets.all(Spaces.large),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildModeCard(context, enableXswd),
+                  const SizedBox(height: Spaces.large),
+                  AnimatedSwitcher(
+                    duration: const Duration(
+                      milliseconds: AppDurations.animFast,
+                    ),
+                    switchInCurve: Curves.easeOut,
+                    switchOutCurve: Curves.easeIn,
+                    child: stateBody,
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
-        // Footer with "New Connection" button
-        _buildFooter(context),
+        _buildFooter(context, enableXswd),
       ],
     );
   }
 
-  Widget _buildEmptyState(BuildContext context, AppLocalizations loc) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildModeCard(BuildContext context, bool enableXswd) {
+    final subtitle = enableXswd
+        ? 'Manage connected apps and their permissions.'
+        : 'Turn this on to connect trusted apps.';
+
+    return FCard(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.link,
-            size: 64,
-            color: context.theme.colors.mutedForeground,
-          ),
-          const SizedBox(height: Spaces.large),
-          Text(
-            'No Connected Apps',
-            style: context.headlineSmall?.copyWith(
-              color: context.theme.colors.mutedForeground,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Connected Apps',
+                  style: context.theme.typography.lg.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: Spaces.extraSmall),
+                Text(
+                  subtitle,
+                  style: context.theme.typography.sm.copyWith(
+                    color: context.theme.colors.mutedForeground,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: Spaces.medium),
-          _buildServerStatus(context, loc),
+          const SizedBox(width: Spaces.medium),
+          FSwitch(value: enableXswd, onChange: _onXswdSwitch),
         ],
       ),
     );
   }
 
-  Widget _buildAppsList(
-    BuildContext context,
-    AppLocalizations loc,
-    List<AppInfo> apps,
-  ) {
-    return FadedScroll(
-      controller: _scrollController,
-      child: SingleChildScrollView(
-        controller: _scrollController,
-        padding: const EdgeInsets.all(Spaces.large),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+  Widget _buildStatePanel({
+    required Key key,
+    required IconData icon,
+    required String title,
+    required String description,
+    required Widget trailing,
+  }) {
+    return SizedBox(
+      key: key,
+      width: double.infinity,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 320),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Spaces.medium),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: Text('Connected Apps', style: context.headlineMedium),
+                Icon(
+                  icon,
+                  size: 64,
+                  color: context.theme.colors.mutedForeground,
                 ),
-                _buildServerStatus(context, loc),
+                const SizedBox(height: Spaces.large),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: context.theme.typography.xl.copyWith(
+                    color: context.theme.colors.foreground,
+                  ),
+                ),
+                const SizedBox(height: Spaces.small),
+                Text(
+                  description,
+                  textAlign: TextAlign.center,
+                  style: context.theme.typography.sm.copyWith(
+                    color: context.theme.colors.mutedForeground,
+                  ),
+                ),
+                const SizedBox(height: Spaces.medium),
+                trailing,
               ],
             ),
-            const SizedBox(height: Spaces.large),
-            ...apps.map(
-              (app) => Padding(
-                padding: const EdgeInsets.only(bottom: Spaces.medium),
-                child: _buildAppCard(context, loc, app),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildAppCard(
-    BuildContext context,
-    AppLocalizations loc,
-    AppInfo app,
-  ) {
+  Widget _buildAppsList(BuildContext context, List<AppInfo> apps) {
     final muted = context.theme.colors.mutedForeground;
-    final permissionCount = app.permissions.length;
 
-    return InkWell(
-      onTap: () {
-        // TODO: use GoRouter
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => XswdAppDetail(appId: app.id)),
-        );
-      },
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        decoration: BoxDecoration(
-          color: context.colors.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: context.theme.colors.border, width: 1),
-        ),
-        padding: const EdgeInsets.all(Spaces.large),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(app.name, style: context.headlineSmall),
-                  if (app.url != null && app.url!.isNotEmpty) ...[
-                    const SizedBox(height: Spaces.extraSmall),
-                    Text(
-                      app.url!,
-                      style: context.bodySmall?.copyWith(color: muted),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                  const SizedBox(height: Spaces.small),
-                  Row(
-                    children: [
-                      Icon(Icons.verified_user, size: 16, color: muted),
-                      const SizedBox(width: Spaces.extraSmall),
-                      Text(
-                        permissionCount == 1
-                            ? '1 permission'
-                            : '$permissionCount permissions',
-                        style: context.bodySmall?.copyWith(color: muted),
-                      ),
-                    ],
+    return SizedBox(
+      key: const ValueKey<String>('xswd-enabled-list'),
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Connected Apps',
+                  style: context.theme.typography.xl.copyWith(
+                    fontWeight: FontWeight.w600,
                   ),
-                ],
+                ),
               ),
-            ),
-            Icon(Icons.chevron_right, color: muted, size: 24),
-          ],
-        ),
+              _buildConnectionStatusBadge(
+                context,
+                ref.read(appLocalizationsProvider),
+                enableXswd: true,
+              ),
+            ],
+          ),
+          const SizedBox(height: Spaces.medium),
+          FItemGroup.builder(
+            count: apps.length,
+            itemBuilder: (BuildContext context, int index) {
+              final app = apps[index];
+              final permissionCount = app.permissions.length;
+              final permissionText = permissionCount == 1
+                  ? '1 permission'
+                  : '$permissionCount permissions';
+
+              return FItem(
+                onPress: () =>
+                    XswdAppDetailRoute($extra: app.id).push<void>(context),
+                prefix: Icon(
+                  FIcons.cable,
+                  size: 18,
+                  color: context.theme.colors.primary,
+                ),
+                title: Text(app.name),
+                subtitle: app.url != null && app.url!.isNotEmpty
+                    ? Text(
+                        app.url!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    : null,
+                details: Text(
+                  permissionText,
+                  style: context.theme.typography.xs.copyWith(color: muted),
+                ),
+                suffix: Icon(FIcons.chevronRight, color: muted),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildServerStatus(BuildContext context, AppLocalizations loc) {
-    // Mobile and Web use relay mode only - show relay status instead of server status
+  Widget _buildConnectionStatusBadge(
+    BuildContext context,
+    AppLocalizations loc, {
+    required bool enableXswd,
+  }) {
+    if (!enableXswd) {
+      return FBadge(
+        style: FBadgeStyle.secondary(),
+        child: Text(loc.disabled.capitalize()),
+      );
+    }
+
     final isRelay =
         kIsWeb ||
         defaultTargetPlatform == TargetPlatform.android ||
         defaultTargetPlatform == TargetPlatform.iOS;
 
     final statusText = isRelay
-        ? 'Relay Mode'
+        ? 'Relay mode'
         : (_isXswdRunning
-              ? '${loc.xswd_status}: ${loc.running.capitalize()}'
-              : '${loc.xswd_status}: ${loc.stopped.capitalize()}');
+              ? loc.running.capitalize()
+              : loc.stopped.capitalize());
 
-    final statusColor = isRelay || _isXswdRunning
-        ? context.theme.colors.primary
-        : context.theme.colors.destructive;
+    if (isRelay || _isXswdRunning) {
+      return FBadge(style: FBadgeStyle.primary(), child: Text(statusText));
+    }
 
-    final bgColor = isRelay || _isXswdRunning
-        ? context.theme.colors.primaryForeground.withValues(alpha: 0.1)
-        : context.theme.colors.destructiveForeground.withValues(alpha: 0.1);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: Spaces.medium,
-        vertical: Spaces.small,
-      ),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              color: statusColor,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: Spaces.small),
-          Text(
-            statusText,
-            style: context.bodyMedium?.copyWith(
-              color: statusColor,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
+    return FBadge(style: FBadgeStyle.destructive(), child: Text(statusText));
   }
 
-  Widget _buildFooter(BuildContext context) {
+  Widget _buildFooter(BuildContext context, bool enableXswd) {
     return SafeArea(
       child: Container(
         decoration: BoxDecoration(
@@ -287,30 +340,40 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
           ),
         ),
         padding: const EdgeInsets.all(Spaces.large),
-        child: SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: () async {
-              showAppDialog<void>(
-                context: context,
-                builder: (context, style, animation) =>
-                    XswdNewConnectionDialog(style, animation),
-              );
-              return;
-            },
-            icon: const Icon(Icons.qr_code_scanner, size: 20),
-            label: const Text('New Connection'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: context.theme.colors.primary,
-              foregroundColor: context.theme.colors.primaryForeground,
-              padding: const EdgeInsets.symmetric(
-                vertical: Spaces.medium,
-                horizontal: Spaces.large,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (!enableXswd) ...[
+              Text(
+                'Turn on Connected Apps to add a new application.',
+                textAlign: TextAlign.center,
+                style: context.theme.typography.xs.copyWith(
+                  color: context.theme.colors.mutedForeground,
+                ),
               ),
+              const SizedBox(height: Spaces.small),
+            ],
+            FButton(
+              style: FButtonStyle.primary(),
+              onPress: enableXswd
+                  ? () {
+                      showAppDialog<void>(
+                        context: context,
+                        builder: (context, style, animation) =>
+                            XswdNewConnectionDialog(style, animation),
+                      );
+                    }
+                  : null,
+              prefix: const Icon(FIcons.qrCode, size: 18),
+              child: const Text('New Connection'),
             ),
-          ),
+          ],
         ),
       ),
     );
+  }
+
+  void _onXswdSwitch(bool enabled) {
+    ref.read(settingsProvider.notifier).setEnableXswd(enabled);
   }
 }

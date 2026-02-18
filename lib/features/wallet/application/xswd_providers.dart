@@ -123,7 +123,6 @@ class XswdRequest extends _$XswdRequest {
 @riverpod
 Future<List<AppInfo>> xswdApplications(Ref ref) async {
   final xswdRequest = ref.watch(xswdRequestProvider);
-  final enableXswd = ref.watch(settingsProvider.select((s) => s.enableXswd));
   final nativeWallet = ref.watch(
     walletStateProvider.select((state) => state.nativeWalletRepository),
   );
@@ -132,7 +131,7 @@ Future<List<AppInfo>> xswdApplications(Ref ref) async {
     await xswdRequest.decision!.future;
   }
 
-  if (nativeWallet != null && enableXswd) {
+  if (nativeWallet != null) {
     return nativeWallet.getXswdState();
   }
   return [];
