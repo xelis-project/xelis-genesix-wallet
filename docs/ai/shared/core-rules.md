@@ -23,6 +23,12 @@
   - Shared code in `lib/shared/...`
 - UI concerns SHOULD stay in presentation layers, and business/data logic SHOULD stay in application/data/domain layers.
 
+## Code Organization
+- Agents MUST NOT declare named functions inside other functions.
+- Prefer file-level/private helpers (or class-level private methods/classes) over inner function declarations.
+- Anonymous closures MAY be used only for callback-style APIs when they stay short, local, and non-reused.
+- If a closure grows beyond trivial callback glue, it SHOULD be extracted to a private helper.
+
 ## Safety and Correctness
 - Agents MUST NOT invent APIs or file paths; usage MUST be verified from current code.
 - Backward compatibility MUST be preserved unless the task explicitly allows breaking changes.

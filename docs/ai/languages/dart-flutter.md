@@ -18,8 +18,11 @@
 - Keep widgets lean; move business decisions to application/domain layers.
 - Reuse existing shared components before creating new variants.
 - Preserve responsive behavior for desktop and mobile.
+- Do not declare named nested functions in Dart code; keep helpers at class/file scope.
+- Anonymous callback closures are allowed only when short and UI-local (for example `onPressed`, `builder`).
+- If callback logic grows or is reused, extract a private method or widget class.
+- In widget classes, do not use local functions that build/return widgets; extract a private `StatelessWidget` or `StatefulWidget` instead.
 
 ## Generated Code and Serialization
 - Do not edit generated files directly.
 - When model annotations change, regenerate builders and verify imports/usages.
-
