@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_providers.dart';
-import 'package:genesix/features/wallet/presentation/xswd/xswd_widget.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 
@@ -225,7 +224,7 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
             suffixBuilder: (context, entry) {
               void openXswdDialog() {
                 entry.dismiss();
-                XswdWidget.openDialog(ref: ref);
+                ref.read(xswdRequestProvider.notifier).requestOpenDialog();
               }
 
               void dismissXswdToast() {

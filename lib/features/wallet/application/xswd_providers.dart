@@ -14,6 +14,18 @@ import 'package:genesix/features/logger/logger.dart';
 part 'xswd_providers.g.dart';
 
 @riverpod
+class XswdDialogOpenSignal extends _$XswdDialogOpenSignal {
+  @override
+  int build() {
+    return 0;
+  }
+
+  void increment() {
+    state++;
+  }
+}
+
+@riverpod
 class XswdRequest extends _$XswdRequest {
   @override
   XswdRequestState build() {
@@ -105,6 +117,10 @@ class XswdRequest extends _$XswdRequest {
     state = state.copyWith(suppressXswdToast: value);
   }
 
+  void requestOpenDialog() {
+    ref.read(xswdDialogOpenSignalProvider.notifier).increment();
+  }
+
   void clearRequest() {
     // Complete any pending decision with reject
     final pendingDecision = state.decision;
@@ -123,6 +139,7 @@ class XswdRequest extends _$XswdRequest {
 @riverpod
 Future<List<AppInfo>> xswdApplications(Ref ref) async {
   final xswdRequest = ref.watch(xswdRequestProvider);
+  final enableXswd = ref.watch(settingsProvider.select((s) => s.enableXswd));
   final nativeWallet = ref.watch(
     walletStateProvider.select((state) => state.nativeWalletRepository),
   );
@@ -131,7 +148,7 @@ Future<List<AppInfo>> xswdApplications(Ref ref) async {
     await xswdRequest.decision!.future;
   }
 
-  if (nativeWallet != null) {
+  if (nativeWallet != null && enableXswd) {
     return nativeWallet.getXswdState();
   }
   return [];
