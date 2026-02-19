@@ -1,29 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:go_router/go_router.dart';
 
 import 'xswd_paste_connection_dialog.dart';
 import 'xswd_qr_scanner_screen.dart';
 
-class XswdNewConnectionDialog extends StatelessWidget {
+class XswdNewConnectionDialog extends ConsumerWidget {
   const XswdNewConnectionDialog(this.style, this.animation, {super.key});
 
   final FDialogStyle style;
   final Animation<double> animation;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = context.theme;
-    final colors = theme.colors;
+    final loc = ref.watch(appLocalizationsProvider);
 
     return FDialog(
-      style: style,
+      style: style.call,
       animation: animation,
       constraints: const BoxConstraints(maxWidth: 600),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final width = constraints.maxWidth;
+          final compactLayout = width < 520;
 
           final verticalGap = (width * 0.05).clamp(12.0, Spaces.large);
           final horizontalGap = (width * 0.04).clamp(12.0, Spaces.large);
@@ -47,68 +51,120 @@ class XswdNewConnectionDialog extends StatelessWidget {
                         maxLines: 1,
                       ),
                     ),
-                    FButton.icon(
-                      style: FButtonStyle.ghost(),
-                      onPress: () => context.pop(),
-                      child: const Icon(FIcons.x, size: 22),
+                    FTooltip(
+                      tipBuilder: (context, controller) => Text(loc.close),
+                      child: FButton.icon(
+                        style: FButtonStyle.ghost(),
+                        onPress: () => context.pop(),
+                        child: const Icon(FIcons.x, size: 22),
+                      ),
                     ),
                   ],
                 ),
               ),
               SizedBox(height: verticalGap),
-              Row(
-                children: [
-                  Expanded(
-                    child: AspectRatio(
-                      aspectRatio: 1,
-                      child: _ConnectionMethodButton(
-                        title: 'Scan',
-                        description: 'Scan the QR code from a dApp',
-                        icon: FIcons.qrCode,
-                        onPressed: () async {
-                          final navigator = Navigator.of(
-                            context,
-                            rootNavigator: true,
-                          );
-                          navigator.pop();
-                          await navigator.push(
-                            MaterialPageRoute(
-                              builder: (context) => const XswdQRScannerScreen(),
-                            ),
-                          );
-                        },
+              if (compactLayout) ...[
+                _ConnectionMethodButton(
+                  compact: true,
+                  title: loc.scan_qr_code,
+                  description: loc.point_camera_at_qr,
+                  icon: FIcons.qrCode,
+                  onPressed: () async {
+                    final navigator = Navigator.of(
+                      context,
+                      rootNavigator: true,
+                    );
+                    navigator.pop();
+                    await navigator.push(
+                      MaterialPageRoute<void>(
+                        builder: (context) => const XswdQRScannerScreen(),
+                      ),
+                    );
+                  },
+                ),
+                SizedBox(height: verticalGap),
+                _ConnectionMethodButton(
+                  compact: true,
+                  title: 'Paste JSON',
+                  description: 'Paste dApp connection data',
+                  icon: FIcons.clipboard,
+                  onPressed: () {
+                    final navigator = Navigator.of(
+                      context,
+                      rootNavigator: true,
+                    );
+                    navigator.pop();
+                    showAppDialog<void>(
+                      context: navigator.context,
+                      useRootNavigator: true,
+                      builder: (ctx, style, animation) =>
+                          XswdPasteConnectionDialog(
+                            style,
+                            animation,
+                            () => Navigator.of(ctx, rootNavigator: true).pop(),
+                          ),
+                    );
+                  },
+                ),
+              ] else
+                Row(
+                  children: [
+                    Expanded(
+                      child: AspectRatio(
+                        aspectRatio: 1,
+                        child: _ConnectionMethodButton(
+                          title: loc.scan_qr_code,
+                          description: loc.point_camera_at_qr,
+                          icon: FIcons.qrCode,
+                          onPressed: () async {
+                            final navigator = Navigator.of(
+                              context,
+                              rootNavigator: true,
+                            );
+                            navigator.pop();
+                            await navigator.push(
+                              MaterialPageRoute<void>(
+                                builder: (context) =>
+                                    const XswdQRScannerScreen(),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(width: horizontalGap),
-                  Expanded(
-                    child: AspectRatio(
-                      aspectRatio: 1,
-                      child: _ConnectionMethodButton(
-                        title: 'Paste JSON',
-                        description: 'Paste dApp connection data',
-                        icon: FIcons.clipboard,
-                        onPressed: () {
-                          Navigator.of(context, rootNavigator: true).pop();
-                          showFDialog<void>(
-                            context: context,
-                            useRootNavigator: true,
-                            builder: (ctx, style, animation) =>
-                                XswdPasteConnectionDialog(
-                                  style,
-                                  animation,
-                                  () => Navigator.of(
-                                    ctx,
-                                    rootNavigator: true,
-                                  ).pop(),
-                                ),
-                          );
-                        },
+                    SizedBox(width: horizontalGap),
+                    Expanded(
+                      child: AspectRatio(
+                        aspectRatio: 1,
+                        child: _ConnectionMethodButton(
+                          title: 'Paste JSON',
+                          description: 'Paste dApp connection data',
+                          icon: FIcons.clipboard,
+                          onPressed: () {
+                            final navigator = Navigator.of(
+                              context,
+                              rootNavigator: true,
+                            );
+                            navigator.pop();
+                            showAppDialog<void>(
+                              context: navigator.context,
+                              useRootNavigator: true,
+                              builder: (ctx, style, animation) =>
+                                  XswdPasteConnectionDialog(
+                                    style,
+                                    animation,
+                                    () => Navigator.of(
+                                      ctx,
+                                      rootNavigator: true,
+                                    ).pop(),
+                                  ),
+                            );
+                          },
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
             ],
           );
         },
@@ -120,12 +176,14 @@ class XswdNewConnectionDialog extends StatelessWidget {
 
 class _ConnectionMethodButton extends StatelessWidget {
   const _ConnectionMethodButton({
+    this.compact = false,
     required this.title,
     required this.description,
     required this.icon,
     required this.onPressed,
   });
 
+  final bool compact;
   final String title;
   final String description;
   final IconData icon;
@@ -146,63 +204,64 @@ class _ConnectionMethodButton extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final w = constraints.maxWidth;
+          final h = constraints.maxHeight;
 
-          // Responsive padding so the icon area never gets starved in a square.
-          final padding = (w * 0.08).clamp(10.0, 22.0);
+          final padding = compact
+              ? const EdgeInsets.all(14)
+              : EdgeInsets.all((w * 0.08).clamp(10.0, 22.0));
+          final iconSize = compact ? 56.0 : (w * 0.30).clamp(56.0, 92.0);
+          final buttonHeight = compact
+              ? 180.0
+              : (h.isFinite && h > 0)
+              ? h
+              : 220.0;
 
-          // Minimum icon area height inside the card (does NOT change text margins).
-          final minIconAreaH = (w * 0.28).clamp(44.0, 72.0);
-
-          return InkWell(
-            onTap: onPressed,
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: colors.border, width: 1.5),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: EdgeInsets.all(padding),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Icon gets all leftover space, but never collapses to zero.
-                  Flexible(
-                    fit: FlexFit.tight,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(minHeight: minIconAreaH),
-                      child: Center(
-                        child: FittedBox(
-                          fit: BoxFit.contain,
-                          // Give the vector a "design size" so it scales nicely.
-                          child: Icon(icon, size: 96, color: colors.primary),
-                        ),
+          return Semantics(
+            button: true,
+            label: '$title. $description',
+            child: SizedBox(
+              width: double.infinity,
+              height: buttonHeight,
+              child: FButton.raw(
+                style: FButtonStyle.outline(),
+                onPress: onPressed,
+                child: SizedBox.expand(
+                  child: Padding(
+                    padding: padding,
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(icon, size: iconSize, color: colors.primary),
+                          const SizedBox(height: Spaces.small),
+                          Text(
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: theme.typography.base.copyWith(
+                              fontWeight: FontWeight.w600,
+                              height: 1.1,
+                            ),
+                          ),
+                          const SizedBox(height: Spaces.small),
+                          Text(
+                            description,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: theme.typography.sm.copyWith(
+                              color: colors.mutedForeground,
+                              height: 1.15,
+                            ),
+                          ),
+                          const SizedBox(height: Spaces.extraSmall),
+                        ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: Spaces.small),
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: theme.typography.base.copyWith(
-                      fontWeight: FontWeight.w600,
-                      height: 1.1,
-                    ),
-                  ),
-                  const SizedBox(height: Spaces.small),
-                  Text(
-                    description,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: theme.typography.sm.copyWith(
-                      color: colors.mutedForeground,
-                      height: 1.15,
-                    ),
-                  ),
-                  const SizedBox(height: Spaces.extraSmall),
-                ],
+                ),
               ),
             ),
           );
