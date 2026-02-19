@@ -4,6 +4,7 @@ use anyhow::{Context, Result};
 use flutter_rust_bridge::frb;
 
 use serde::{Deserialize, Serialize};
+use xelis_common::asset::{AssetOwner, MaxSupplyMode};
 use xelis_common::crypto::Hash;
 use xelis_common::serializer::Serializer;
 pub use xelis_common::transaction::builder::TransactionTypeBuilder;
@@ -127,6 +128,16 @@ pub enum XelisMaxSupplyMode {
     Mintable(u64),
 }
 
+impl From<MaxSupplyMode> for XelisMaxSupplyMode {
+    fn from(value: MaxSupplyMode) -> Self {
+        match value {
+            MaxSupplyMode::None => Self::None,
+            MaxSupplyMode::Fixed(max_supply) => Self::Fixed(max_supply),
+            MaxSupplyMode::Mintable(max_supply) => Self::Mintable(max_supply),
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
 #[frb(dart_metadata=("freezed"))]
@@ -141,6 +152,27 @@ pub enum XelisAssetOwner {
         origin_id: u64,
         owner: String,
     },
+}
+
+impl From<&AssetOwner> for XelisAssetOwner {
+    fn from(value: &AssetOwner) -> Self {
+        match value {
+            AssetOwner::None => Self::None,
+            AssetOwner::Creator { contract, id } => Self::Creator {
+                contract: contract.to_hex(),
+                id: *id,
+            },
+            AssetOwner::Owner {
+                origin,
+                origin_id,
+                owner,
+            } => Self::Owner {
+                origin: origin.to_hex(),
+                origin_id: *origin_id,
+                owner: owner.to_hex(),
+            },
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
