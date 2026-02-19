@@ -9,6 +9,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_providers.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
@@ -27,41 +28,22 @@ class XSWDContent extends ConsumerStatefulWidget {
 }
 
 class _XSWDContentState extends ConsumerState<XSWDContent> {
+  static const _xswdStartupGrace = Duration(seconds: 15);
+
   final _scrollController = ScrollController();
   Timer? _statusCheckTimer;
   bool _isXswdRunning = false;
+  DateTime? _xswdEnableRequestedAt;
 
   @override
   void initState() {
     super.initState();
 
-    // Only check server status on desktop platforms
-    final isMobile =
-        defaultTargetPlatform == TargetPlatform.android ||
-        defaultTargetPlatform == TargetPlatform.iOS;
-
-    if (!isMobile) {
+    if (isDesktopDevice) {
       _checkXswdStatus();
       _statusCheckTimer = Timer.periodic(const Duration(seconds: 5), (_) {
         _checkXswdStatus();
       });
-    }
-  }
-
-  Future<void> _checkXswdStatus() async {
-    final walletState = ref.read(walletStateProvider);
-    if (walletState.nativeWalletRepository != null) {
-      try {
-        final isRunning = await walletState.nativeWalletRepository!
-            .isXswdRunning();
-        if (mounted) {
-          setState(() {
-            _isXswdRunning = isRunning;
-          });
-        }
-      } catch (_) {
-        // Silently fail - server might not be available
-      }
     }
   }
 
@@ -72,34 +54,106 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
     super.dispose();
   }
 
+  Future<void> _checkXswdStatus() async {
+    final walletState = ref.read(walletStateProvider);
+    if (walletState.nativeWalletRepository != null) {
+      try {
+        final isRunning = await walletState.nativeWalletRepository!
+            .isXswdRunning();
+        if (mounted) {
+          if (isRunning) {
+            _xswdEnableRequestedAt = null;
+          }
+          setState(() {
+            _isXswdRunning = isRunning;
+          });
+        }
+      } catch (_) {
+        // Silently fail: server may be unavailable.
+      }
+    }
+  }
+
+  bool get _isRelayMode => kIsWeb || isMobileDevice;
+
+  bool _isConnectionReady(bool enableXswd) {
+    if (!enableXswd) return false;
+    return _isRelayMode || _isXswdRunning;
+  }
+
+  bool _isConnectionStopped(bool enableXswd) {
+    if (!enableXswd) return false;
+    if (_isRelayMode) return false;
+    return !_isXswdRunning;
+  }
+
+  bool _isStartupTimedOut(bool enableXswd) {
+    if (!enableXswd || _isRelayMode || _isXswdRunning) return false;
+    final requestedAt = _xswdEnableRequestedAt;
+    if (requestedAt == null) return true;
+    return DateTime.now().difference(requestedAt) >= _xswdStartupGrace;
+  }
+
+  void _onXswdSwitch(bool enabled) {
+    setState(() {
+      if (enabled) {
+        _xswdEnableRequestedAt ??= DateTime.now();
+      } else {
+        _xswdEnableRequestedAt = null;
+      }
+
+      if (isDesktopDevice) {
+        // Prevent stale "running" UI while local server restarts.
+        _isXswdRunning = false;
+      }
+    });
+
+    ref.read(settingsProvider.notifier).setEnableXswd(enabled);
+
+    if (enabled && isDesktopDevice) {
+      unawaited(_checkXswdStatus());
+    }
+  }
+
+  void _openNewConnectionDialog(BuildContext context) {
+    showAppDialog<void>(
+      context: context,
+      builder: (context, style, animation) =>
+          XswdNewConnectionDialog(style, animation),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final enableXswd = ref.watch(
       settingsProvider.select((settings) => settings.enableXswd),
     );
+    final isConnectionReady = _isConnectionReady(enableXswd);
+    final isConnectionStopped = _isConnectionStopped(enableXswd);
+    final isStartupTimedOut = _isStartupTimedOut(enableXswd);
+    final lockSwitchWhileStarting = isConnectionStopped && !isStartupTimedOut;
     final appsAsync = ref.watch(xswdApplicationsProvider);
 
     final stateBody = enableXswd
         ? appsAsync.when(
             data: (apps) {
               if (apps.isEmpty) {
-                return _buildStatePanel(
+                return _XswdStatePanel(
                   key: const ValueKey<String>('xswd-enabled-empty'),
                   icon: FIcons.link,
                   title: loc.no_application_connected,
                   description: 'Use New Connection to add a trusted app.',
-                  trailing: _buildConnectionStatusBadge(
-                    context,
-                    loc,
-                    enableXswd: true,
-                  ),
                 );
               }
-              return _buildAppsList(context, apps);
+              return _XswdAppsList(
+                key: const ValueKey<String>('xswd-enabled-list'),
+                loc: loc,
+                apps: apps,
+              );
             },
-            loading: () => Center(
-              key: const ValueKey<String>('xswd-loading'),
+            loading: () => const Center(
+              key: ValueKey<String>('xswd-loading'),
               child: FCircularProgress(),
             ),
             error: (error, stack) => Center(
@@ -107,16 +161,11 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
               child: Text('Error loading connected apps: $error'),
             ),
           )
-        : _buildStatePanel(
+        : _XswdStatePanel(
             key: const ValueKey<String>('xswd-disabled'),
             icon: FIcons.cable,
             title: 'Connected Apps is off',
             description: 'Turn it on to approve requests from trusted apps.',
-            trailing: _buildConnectionStatusBadge(
-              context,
-              loc,
-              enableXswd: false,
-            ),
           );
 
     return Column(
@@ -130,14 +179,34 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildModeCard(context, enableXswd),
+                  _XswdModeCard(
+                    loc: loc,
+                    enableXswd: enableXswd,
+                    isRelayMode: _isRelayMode,
+                    isRunning: _isXswdRunning,
+                    lockSwitchWhileStarting: lockSwitchWhileStarting,
+                    isStartupTimedOut: isStartupTimedOut,
+                    onSwitchChange: _onXswdSwitch,
+                  ),
                   const SizedBox(height: Spaces.large),
                   AnimatedSwitcher(
                     duration: const Duration(
-                      milliseconds: AppDurations.animFast,
+                      milliseconds: AppDurations.animNormal,
                     ),
                     switchInCurve: Curves.easeOut,
                     switchOutCurve: Curves.easeIn,
+                    transitionBuilder: (child, animation) {
+                      return FadeTransition(opacity: animation, child: child);
+                    },
+                    layoutBuilder: (currentChild, previousChildren) {
+                      return Stack(
+                        alignment: Alignment.topCenter,
+                        children: [
+                          ...previousChildren,
+                          ...<Widget?>[currentChild].whereType<Widget>(),
+                        ],
+                      );
+                    },
                     child: stateBody,
                   ),
                 ],
@@ -145,15 +214,65 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
             ),
           ),
         ),
-        _buildFooter(context, enableXswd),
+        _XswdFooter(
+          enableXswd: enableXswd,
+          isConnectionReady: isConnectionReady,
+          isConnectionStopped: isConnectionStopped,
+          isStartupTimedOut: isStartupTimedOut,
+          onNewConnection: () => _openNewConnectionDialog(context),
+        ),
       ],
     );
   }
+}
 
-  Widget _buildModeCard(BuildContext context, bool enableXswd) {
-    final subtitle = enableXswd
-        ? 'Manage connected apps and their permissions.'
-        : 'Turn this on to connect trusted apps.';
+class _XswdModeCard extends StatelessWidget {
+  const _XswdModeCard({
+    required this.loc,
+    required this.enableXswd,
+    required this.isRelayMode,
+    required this.isRunning,
+    required this.lockSwitchWhileStarting,
+    required this.isStartupTimedOut,
+    required this.onSwitchChange,
+  });
+
+  final AppLocalizations loc;
+  final bool enableXswd;
+  final bool isRelayMode;
+  final bool isRunning;
+  final bool lockSwitchWhileStarting;
+  final bool isStartupTimedOut;
+  final ValueChanged<bool> onSwitchChange;
+
+  String _buildSubtitle() {
+    if (lockSwitchWhileStarting) {
+      return 'Starting local service...';
+    }
+    if (isStartupTimedOut && enableXswd) {
+      return 'Startup is taking longer than expected.';
+    }
+    if (enableXswd) {
+      return 'Manage connected apps and their permissions.';
+    }
+    return 'Turn this on to connect trusted apps.';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final subtitle = _buildSubtitle();
+
+    final canDisableAfterTimeout =
+        enableXswd && isStartupTimedOut && !lockSwitchWhileStarting;
+
+    final switchOnChange = lockSwitchWhileStarting
+        ? null
+        : canDisableAfterTimeout
+        ? (bool value) {
+            // Recovery path: allow disabling only when startup timed out.
+            if (!value) onSwitchChange(false);
+          }
+        : onSwitchChange;
 
     return FCard(
       child: Row(
@@ -176,25 +295,39 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
                     color: context.theme.colors.mutedForeground,
                   ),
                 ),
+                const SizedBox(height: Spaces.small),
+                _XswdConnectionStatusLabel(
+                  loc: loc,
+                  enableXswd: enableXswd,
+                  isRelayMode: isRelayMode,
+                  isRunning: isRunning,
+                ),
               ],
             ),
           ),
           const SizedBox(width: Spaces.medium),
-          FSwitch(value: enableXswd, onChange: _onXswdSwitch),
+          FSwitch(value: enableXswd, onChange: switchOnChange),
         ],
       ),
     );
   }
+}
 
-  Widget _buildStatePanel({
-    required Key key,
-    required IconData icon,
-    required String title,
-    required String description,
-    required Widget trailing,
-  }) {
+class _XswdStatePanel extends StatelessWidget {
+  const _XswdStatePanel({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.description,
+  });
+
+  final IconData icon;
+  final String title;
+  final String description;
+
+  @override
+  Widget build(BuildContext context) {
     return SizedBox(
-      key: key,
       width: double.infinity,
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 320),
@@ -225,8 +358,6 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
                     color: context.theme.colors.mutedForeground,
                   ),
                 ),
-                const SizedBox(height: Spaces.medium),
-                trailing,
               ],
             ),
           ),
@@ -234,103 +365,212 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
       ),
     );
   }
+}
 
-  Widget _buildAppsList(BuildContext context, List<AppInfo> apps) {
+class _XswdAppsList extends ConsumerStatefulWidget {
+  const _XswdAppsList({super.key, required this.loc, required this.apps});
+
+  final AppLocalizations loc;
+  final List<AppInfo> apps;
+
+  @override
+  ConsumerState<_XswdAppsList> createState() => _XswdAppsListState();
+}
+
+class _XswdAppsListState extends ConsumerState<_XswdAppsList> {
+  String? _disconnectingAppId;
+
+  bool get _isDisconnecting => _disconnectingAppId != null;
+
+  Future<void> _handleAppDisconnection(String appId) async {
+    final walletState = ref.read(walletStateProvider);
+    if (walletState.nativeWalletRepository == null) {
+      ref
+          .read(toastProvider.notifier)
+          .showError(description: widget.loc.disconnecting_toast_error);
+      return;
+    }
+
+    try {
+      await walletState.nativeWalletRepository!.removeXswdApp(appId);
+      ref.invalidate(xswdApplicationsProvider);
+      ref
+          .read(toastProvider.notifier)
+          .showInformation(title: widget.loc.app_disconnected.capitalize());
+    } catch (_) {
+      ref
+          .read(toastProvider.notifier)
+          .showError(description: widget.loc.disconnecting_toast_error);
+    }
+  }
+
+  Future<void> _openAppDetails(BuildContext context, String appId) async {
+    if (_isDisconnecting) return;
+
+    final hasDisconnected = await XswdAppDetailRoute(
+      $extra: appId,
+    ).push<bool>(context);
+
+    if (hasDisconnected == true) {
+      if (!mounted) return;
+      setState(() {
+        _disconnectingAppId = appId;
+      });
+      await _handleAppDisconnection(appId);
+      if (mounted) {
+        setState(() {
+          _disconnectingAppId = null;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final muted = context.theme.colors.mutedForeground;
 
-    return SizedBox(
-      key: const ValueKey<String>('xswd-enabled-list'),
-      width: double.infinity,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Stack(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Text(
-                  'Connected Apps',
-                  style: context.theme.typography.xl.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+              Text(
+                'Connected Apps',
+                style: context.theme.typography.xl.copyWith(
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              _buildConnectionStatusBadge(
-                context,
-                ref.read(appLocalizationsProvider),
-                enableXswd: true,
+              const SizedBox(height: Spaces.medium),
+              FItemGroup.builder(
+                count: widget.apps.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final app = widget.apps[index];
+                  final permissionCount = app.permissions.length;
+                  final permissionText = permissionCount == 1
+                      ? '1 permission'
+                      : '$permissionCount permissions';
+
+                  return FItem(
+                    onPress: _isDisconnecting
+                        ? null
+                        : () => _openAppDetails(context, app.id),
+                    prefix: Icon(
+                      FIcons.cable,
+                      size: 18,
+                      color: context.theme.colors.primary,
+                    ),
+                    title: Text(app.name),
+                    subtitle: app.url != null && app.url!.isNotEmpty
+                        ? Text(
+                            app.url!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          )
+                        : null,
+                    details: Text(
+                      permissionText,
+                      style: context.theme.typography.xs.copyWith(color: muted),
+                    ),
+                    suffix: Icon(FIcons.chevronRight, color: muted),
+                  );
+                },
               ),
             ],
           ),
-          const SizedBox(height: Spaces.medium),
-          FItemGroup.builder(
-            count: apps.length,
-            itemBuilder: (BuildContext context, int index) {
-              final app = apps[index];
-              final permissionCount = app.permissions.length;
-              final permissionText = permissionCount == 1
-                  ? '1 permission'
-                  : '$permissionCount permissions';
-
-              return FItem(
-                onPress: () =>
-                    XswdAppDetailRoute($extra: app.id).push<void>(context),
-                prefix: Icon(
-                  FIcons.cable,
-                  size: 18,
-                  color: context.theme.colors.primary,
-                ),
-                title: Text(app.name),
-                subtitle: app.url != null && app.url!.isNotEmpty
-                    ? Text(
-                        app.url!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      )
-                    : null,
-                details: Text(
-                  permissionText,
-                  style: context.theme.typography.xs.copyWith(color: muted),
-                ),
-                suffix: Icon(FIcons.chevronRight, color: muted),
-              );
-            },
+        ),
+        if (_isDisconnecting)
+          Positioned.fill(
+            child: ColoredBox(
+              color: context.theme.colors.background.withValues(alpha: 0.55),
+              child: const Center(child: FCircularProgress()),
+            ),
           ),
-        ],
-      ),
+      ],
     );
   }
+}
 
-  Widget _buildConnectionStatusBadge(
-    BuildContext context,
-    AppLocalizations loc, {
-    required bool enableXswd,
-  }) {
-    if (!enableXswd) {
-      return FBadge(
-        style: FBadgeStyle.secondary(),
-        child: Text(loc.disabled.capitalize()),
-      );
-    }
+class _XswdConnectionStatusLabel extends StatelessWidget {
+  const _XswdConnectionStatusLabel({
+    required this.loc,
+    required this.enableXswd,
+    required this.isRelayMode,
+    required this.isRunning,
+  });
 
-    final isRelay =
-        kIsWeb ||
-        defaultTargetPlatform == TargetPlatform.android ||
-        defaultTargetPlatform == TargetPlatform.iOS;
+  final AppLocalizations loc;
+  final bool enableXswd;
+  final bool isRelayMode;
+  final bool isRunning;
 
-    final statusText = isRelay
+  @override
+  Widget build(BuildContext context) {
+    final statusText = !enableXswd
+        ? loc.disabled.capitalize()
+        : isRelayMode
         ? 'Relay mode'
-        : (_isXswdRunning
-              ? loc.running.capitalize()
-              : loc.stopped.capitalize());
+        : (isRunning ? loc.running.capitalize() : loc.stopped.capitalize());
+    final statusColor = !enableXswd
+        ? context.theme.colors.mutedForeground
+        : (isRelayMode || isRunning
+              ? context.theme.colors.primary
+              : context.theme.colors.destructive);
 
-    if (isRelay || _isXswdRunning) {
-      return FBadge(style: FBadgeStyle.primary(), child: Text(statusText));
-    }
-
-    return FBadge(style: FBadgeStyle.destructive(), child: Text(statusText));
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          'Status',
+          style: context.theme.typography.xs.copyWith(
+            color: context.theme.colors.mutedForeground,
+          ),
+        ),
+        const SizedBox(width: Spaces.small),
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: Spaces.extraSmall),
+        Text(
+          statusText,
+          style: context.theme.typography.sm.copyWith(
+            color: statusColor,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
   }
+}
 
-  Widget _buildFooter(BuildContext context, bool enableXswd) {
+class _XswdFooter extends StatelessWidget {
+  const _XswdFooter({
+    required this.enableXswd,
+    required this.isConnectionReady,
+    required this.isConnectionStopped,
+    required this.isStartupTimedOut,
+    required this.onNewConnection,
+  });
+
+  final bool enableXswd;
+  final bool isConnectionReady;
+  final bool isConnectionStopped;
+  final bool isStartupTimedOut;
+  final VoidCallback onNewConnection;
+
+  @override
+  Widget build(BuildContext context) {
+    final helperText = !enableXswd
+        ? 'Turn on Connected Apps to add a new application.'
+        : isConnectionStopped
+        ? (isStartupTimedOut
+              ? 'Startup is taking longer than expected. You can disable and retry.'
+              : 'Connected Apps is starting. Actions are temporarily disabled.')
+        : null;
+
     return SafeArea(
       child: Container(
         decoration: BoxDecoration(
@@ -343,9 +583,9 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (!enableXswd) ...[
+            if (helperText != null) ...[
               Text(
-                'Turn on Connected Apps to add a new application.',
+                helperText,
                 textAlign: TextAlign.center,
                 style: context.theme.typography.xs.copyWith(
                   color: context.theme.colors.mutedForeground,
@@ -355,15 +595,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
             ],
             FButton(
               style: FButtonStyle.primary(),
-              onPress: enableXswd
-                  ? () {
-                      showAppDialog<void>(
-                        context: context,
-                        builder: (context, style, animation) =>
-                            XswdNewConnectionDialog(style, animation),
-                      );
-                    }
-                  : null,
+              onPress: isConnectionReady ? onNewConnection : null,
               prefix: const Icon(FIcons.qrCode, size: 18),
               child: const Text('New Connection'),
             ),
@@ -371,9 +603,5 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
         ),
       ),
     );
-  }
-
-  void _onXswdSwitch(bool enabled) {
-    ref.read(settingsProvider.notifier).setEnableXswd(enabled);
   }
 }

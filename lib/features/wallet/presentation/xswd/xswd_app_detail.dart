@@ -13,13 +13,21 @@ import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class XswdAppDetail extends ConsumerWidget {
+class XswdAppDetail extends ConsumerStatefulWidget {
   const XswdAppDetail({required this.appId, super.key});
 
   final String appId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<XswdAppDetail> createState() => _XswdAppDetailState();
+}
+
+class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
+  bool _isClosing = false;
+  AppInfo? _cachedApp;
+
+  @override
+  Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final appsAsync = ref.watch(xswdApplicationsProvider);
 
@@ -35,29 +43,27 @@ class XswdAppDetail extends ConsumerWidget {
       ),
       child: appsAsync.when(
         data: (apps) {
-          final app = apps.where((a) => a.id == appId).firstOrNull;
-          if (app == null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    loc.no_application_found,
-                    style: context.theme.typography.lg.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: Spaces.medium),
-                  FButton(
-                    style: FButtonStyle.primary(),
-                    onPress: () => context.pop(),
-                    child: Text(loc.ok_button),
-                  ),
-                ],
-              ),
-            );
+          final liveApp = apps.where((a) => a.id == widget.appId).firstOrNull;
+          if (liveApp != null) {
+            _cachedApp = liveApp;
           }
-          return _buildAppDetails(context, ref, loc, app);
+          final app = liveApp ?? _cachedApp;
+
+          if (app == null) {
+            if (_isClosing) {
+              return const Center(child: FCircularProgress());
+            }
+            return _XswdAppNotFound(loc: loc);
+          }
+          return _XswdAppDetailContent(
+            app: app,
+            loc: loc,
+            onOpenUrl: (url) => _launchAppUrl(ref, url),
+            onPermissionChange: (permissionName, policy) {
+              return _handlePermissionChange(ref, app, permissionName, policy);
+            },
+            onDisconnect: () => _handleDisconnectApp(context, loc, app),
+          );
         },
         loading: () => const Center(child: FCircularProgress()),
         error: (error, stack) =>
@@ -66,14 +72,147 @@ class XswdAppDetail extends ConsumerWidget {
     );
   }
 
-  Widget _buildAppDetails(
-    BuildContext context,
+  Future<void> _handlePermissionChange(
     WidgetRef ref,
+    AppInfo app,
+    String permissionName,
+    PermissionPolicy newPolicy,
+  ) async {
+    final walletState = ref.read(walletStateProvider);
+    if (walletState.nativeWalletRepository == null) return;
+
+    try {
+      final updatedPermissions = Map<String, PermissionPolicy>.from(
+        app.permissions,
+      );
+      updatedPermissions[permissionName] = newPolicy;
+
+      await walletState.nativeWalletRepository!.modifyXSWDAppPermissions(
+        app.id,
+        updatedPermissions,
+      );
+
+      ref.invalidate(xswdApplicationsProvider);
+    } catch (_) {
+      // Keep previous behavior: fail silently for now.
+    }
+  }
+
+  Future<void> _handleDisconnectApp(
+    BuildContext context,
     AppLocalizations loc,
     AppInfo app,
-  ) {
+  ) async {
+    final confirmed = await showAppDialog<bool>(
+      context: context,
+      builder: (dialogContext, style, animation) {
+        return _DisconnectDialog(
+          loc: loc,
+          appName: app.name,
+          style: style,
+          animation: animation,
+          onCancel: () => dialogContext.pop(false),
+          onConfirm: () => dialogContext.pop(true),
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+    if (context.mounted) {
+      setState(() {
+        _isClosing = true;
+        _cachedApp = app;
+      });
+      context.pop(true);
+    }
+  }
+
+  Future<void> _launchAppUrl(WidgetRef ref, String rawUrl) async {
+    final uri = Uri.tryParse(rawUrl);
+    final loc = ref.read(appLocalizationsProvider);
+
+    if (uri == null || !uri.hasScheme) {
+      ref
+          .read(toastProvider.notifier)
+          .showError(description: '${loc.launch_url_error} $rawUrl');
+      return;
+    }
+
+    if (!await launchUrl(uri)) {
+      ref
+          .read(toastProvider.notifier)
+          .showError(description: '${loc.launch_url_error} $rawUrl');
+    }
+  }
+}
+
+class _XswdAppNotFound extends StatelessWidget {
+  const _XswdAppNotFound({required this.loc});
+
+  final AppLocalizations loc;
+
+  @override
+  Widget build(BuildContext context) {
     final muted = context.theme.colors.mutedForeground;
 
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 360),
+        child: Padding(
+          padding: const EdgeInsets.all(Spaces.large),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(FIcons.triangleAlert, size: 28, color: muted),
+              const SizedBox(height: Spaces.small),
+              Text(
+                loc.no_application_found,
+                textAlign: TextAlign.center,
+                style: context.theme.typography.lg.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: Spaces.extraSmall),
+              Text(
+                'This app may already be disconnected.',
+                textAlign: TextAlign.center,
+                style: context.theme.typography.sm.copyWith(color: muted),
+              ),
+              const SizedBox(height: Spaces.medium),
+              SizedBox(
+                width: 180,
+                child: FButton(
+                  style: FButtonStyle.outline(),
+                  onPress: () => context.pop(),
+                  child: Text(loc.ok_button),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _XswdAppDetailContent extends StatelessWidget {
+  const _XswdAppDetailContent({
+    required this.app,
+    required this.loc,
+    required this.onOpenUrl,
+    required this.onPermissionChange,
+    required this.onDisconnect,
+  });
+
+  final AppInfo app;
+  final AppLocalizations loc;
+  final ValueChanged<String> onOpenUrl;
+  final Future<void> Function(String permission, PermissionPolicy policy)
+  onPermissionChange;
+  final VoidCallback onDisconnect;
+
+  @override
+  Widget build(BuildContext context) {
     return SafeArea(
       top: false,
       child: BodyLayoutBuilder(
@@ -82,128 +221,19 @@ class XswdAppDetail extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              FCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      app.name,
-                      style: context.theme.typography.xl.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    if (app.url != null && app.url!.isNotEmpty) ...[
-                      const SizedBox(height: Spaces.small),
-                      Row(
-                        children: [
-                          Icon(FIcons.link, size: 16, color: muted),
-                          const SizedBox(width: Spaces.extraSmall),
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () => _launchAppUrl(ref, app.url!),
-                              child: Text(
-                                app.url!,
-                                style: context.theme.typography.sm.copyWith(
-                                  color: context.theme.colors.primary,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: context.theme.colors.primary,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                    const SizedBox(height: Spaces.medium),
-                    Text(
-                      '${loc.applications} ${loc.id}',
-                      style: context.theme.typography.xs.copyWith(
-                        color: muted,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: Spaces.extraSmall),
-                    SelectableText(
-                      app.id,
-                      style: context.theme.typography.sm.copyWith(
-                        fontFamily: 'monospace',
-                      ),
-                    ),
-                    if (app.description.isNotEmpty) ...[
-                      const SizedBox(height: Spaces.small),
-                      FDivider(
-                        style: FDividerStyle(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: Spaces.extraSmall,
-                          ),
-                          color: context.theme.colors.primary,
-                          width: 1,
-                        ).call,
-                      ),
-                      const SizedBox(height: Spaces.small),
-                      Text(
-                        loc.description,
-                        style: context.theme.typography.xs.copyWith(
-                          color: muted,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: Spaces.extraSmall),
-                      Text(app.description, style: context.theme.typography.sm),
-                    ],
-                  ],
-                ),
-              ),
-
+              _XswdAppInfoCard(app: app, loc: loc, onOpenUrl: onOpenUrl),
               const SizedBox(height: Spaces.large),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      loc.permissions,
-                      style: context.theme.typography.lg.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
+              _XswdPermissionsSection(
+                app: app,
+                loc: loc,
+                onPermissionChange: onPermissionChange,
               ),
-              const SizedBox(height: Spaces.medium),
-
-              if (app.permissions.isEmpty)
-                FCard(
-                  child: Center(
-                    child: Text(
-                      loc.no_data,
-                      style: context.theme.typography.sm.copyWith(color: muted),
-                    ),
-                  ),
-                )
-              else
-                ...(app.permissions.entries.toList()
-                      ..sort((a, b) => a.key.compareTo(b.key)))
-                    .map((entry) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: Spaces.small),
-                        child: _buildPermissionChip(
-                          context,
-                          ref,
-                          app,
-                          entry.key,
-                          entry.value,
-                          loc,
-                        ),
-                      );
-                    }),
-
               const SizedBox(height: Spaces.large),
-
               SizedBox(
                 width: double.infinity,
                 child: FButton(
                   style: FButtonStyle.destructive(),
-                  onPress: () => _handleDisconnectApp(context, ref, loc, app),
+                  onPress: onDisconnect,
                   child: const Text('Disconnect'),
                 ),
               ),
@@ -213,15 +243,174 @@ class XswdAppDetail extends ConsumerWidget {
       ),
     );
   }
+}
 
-  Widget _buildPermissionChip(
-    BuildContext context,
-    WidgetRef ref,
-    AppInfo app,
-    String permissionName,
-    PermissionPolicy currentPolicy,
-    AppLocalizations loc,
-  ) {
+class _XswdAppInfoCard extends StatelessWidget {
+  const _XswdAppInfoCard({
+    required this.app,
+    required this.loc,
+    required this.onOpenUrl,
+  });
+
+  final AppInfo app;
+  final AppLocalizations loc;
+  final ValueChanged<String> onOpenUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = context.theme.colors.mutedForeground;
+
+    return FCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            app.name,
+            style: context.theme.typography.xl.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          if (app.url != null && app.url!.isNotEmpty) ...[
+            const SizedBox(height: Spaces.small),
+            Row(
+              children: [
+                Icon(FIcons.link, size: 16, color: muted),
+                const SizedBox(width: Spaces.extraSmall),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => onOpenUrl(app.url!),
+                    child: Text(
+                      app.url!,
+                      style: context.theme.typography.sm.copyWith(
+                        color: context.theme.colors.primary,
+                        decoration: TextDecoration.underline,
+                        decorationColor: context.theme.colors.primary,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: Spaces.medium),
+          Text(
+            '${loc.applications} ${loc.id}',
+            style: context.theme.typography.xs.copyWith(
+              color: muted,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: Spaces.extraSmall),
+          SelectableText(
+            app.id,
+            style: context.theme.typography.sm.copyWith(
+              fontFamily: 'monospace',
+            ),
+          ),
+          if (app.description.isNotEmpty) ...[
+            const SizedBox(height: Spaces.small),
+            FDivider(
+              style: FDividerStyle(
+                padding: const EdgeInsets.symmetric(
+                  vertical: Spaces.extraSmall,
+                ),
+                color: context.theme.colors.primary,
+                width: 1,
+              ).call,
+            ),
+            const SizedBox(height: Spaces.small),
+            Text(
+              loc.description,
+              style: context.theme.typography.xs.copyWith(
+                color: muted,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: Spaces.extraSmall),
+            Text(app.description, style: context.theme.typography.sm),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _XswdPermissionsSection extends StatelessWidget {
+  const _XswdPermissionsSection({
+    required this.app,
+    required this.loc,
+    required this.onPermissionChange,
+  });
+
+  final AppInfo app;
+  final AppLocalizations loc;
+  final Future<void> Function(String permission, PermissionPolicy policy)
+  onPermissionChange;
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = context.theme.colors.mutedForeground;
+    final sortedPermissions = app.permissions.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                loc.permissions,
+                style: context.theme.typography.lg.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: Spaces.medium),
+        if (sortedPermissions.isEmpty)
+          FCard(
+            child: Center(
+              child: Text(
+                loc.no_data,
+                style: context.theme.typography.sm.copyWith(color: muted),
+              ),
+            ),
+          )
+        else
+          ...sortedPermissions.map(
+            (entry) => Padding(
+              padding: const EdgeInsets.only(bottom: Spaces.small),
+              child: _XswdPermissionCard(
+                permissionName: entry.key,
+                currentPolicy: entry.value,
+                loc: loc,
+                onChange: onPermissionChange,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _XswdPermissionCard extends StatelessWidget {
+  const _XswdPermissionCard({
+    required this.permissionName,
+    required this.currentPolicy,
+    required this.loc,
+    required this.onChange,
+  });
+
+  final String permissionName;
+  final PermissionPolicy currentPolicy;
+  final AppLocalizations loc;
+  final Future<void> Function(String permission, PermissionPolicy policy)
+  onChange;
+
+  @override
+  Widget build(BuildContext context) {
     return FCard.raw(
       child: Container(
         width: double.infinity,
@@ -250,72 +439,74 @@ class XswdAppDetail extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: Spaces.small),
-            _buildPolicySelector(
-              context,
-              ref,
-              loc,
-              app,
-              permissionName,
-              currentPolicy,
+            _XswdPolicySelector(
+              loc: loc,
+              currentPolicy: currentPolicy,
+              onChange: (policy) => onChange(permissionName, policy),
             ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildPolicySelector(
-    BuildContext context,
-    WidgetRef ref,
-    AppLocalizations loc,
-    AppInfo app,
-    String permissionName,
-    PermissionPolicy currentPolicy,
-  ) {
+class _XswdPolicySelector extends StatelessWidget {
+  const _XswdPolicySelector({
+    required this.loc,
+    required this.currentPolicy,
+    required this.onChange,
+  });
+
+  final AppLocalizations loc;
+  final PermissionPolicy currentPolicy;
+  final ValueChanged<PermissionPolicy> onChange;
+
+  @override
+  Widget build(BuildContext context) {
     return Wrap(
       spacing: Spaces.extraSmall,
       runSpacing: Spaces.extraSmall,
       children: [
-        _buildPolicyButton(
-          context,
-          ref,
-          app,
-          permissionName,
-          PermissionPolicy.reject,
-          loc.deny,
-          currentPolicy == PermissionPolicy.reject,
+        _XswdPolicyButton(
+          policy: PermissionPolicy.reject,
+          currentPolicy: currentPolicy,
+          label: loc.deny,
+          onPress: onChange,
         ),
-        _buildPolicyButton(
-          context,
-          ref,
-          app,
-          permissionName,
-          PermissionPolicy.ask,
-          loc.ask,
-          currentPolicy == PermissionPolicy.ask,
+        _XswdPolicyButton(
+          policy: PermissionPolicy.ask,
+          currentPolicy: currentPolicy,
+          label: loc.ask,
+          onPress: onChange,
         ),
-        _buildPolicyButton(
-          context,
-          ref,
-          app,
-          permissionName,
-          PermissionPolicy.accept,
-          loc.allow,
-          currentPolicy == PermissionPolicy.accept,
+        _XswdPolicyButton(
+          policy: PermissionPolicy.accept,
+          currentPolicy: currentPolicy,
+          label: loc.allow,
+          onPress: onChange,
         ),
       ],
     );
   }
+}
 
-  Widget _buildPolicyButton(
-    BuildContext context,
-    WidgetRef ref,
-    AppInfo app,
-    String permissionName,
-    PermissionPolicy policy,
-    String label,
-    bool isSelected,
-  ) {
+class _XswdPolicyButton extends StatelessWidget {
+  const _XswdPolicyButton({
+    required this.policy,
+    required this.currentPolicy,
+    required this.label,
+    required this.onPress,
+  });
+
+  final PermissionPolicy policy;
+  final PermissionPolicy currentPolicy;
+  final String label;
+  final ValueChanged<PermissionPolicy> onPress;
+
+  @override
+  Widget build(BuildContext context) {
+    final isSelected = currentPolicy == policy;
     final style = switch (policy) {
       PermissionPolicy.reject =>
         isSelected ? FButtonStyle.destructive() : FButtonStyle.outline(),
@@ -327,169 +518,111 @@ class XswdAppDetail extends ConsumerWidget {
 
     return FButton(
       style: style,
-      onPress: isSelected
-          ? null
-          : () => _handlePermissionChange(ref, app, permissionName, policy),
+      onPress: isSelected ? null : () => onPress(policy),
       child: Text(label),
     );
   }
+}
 
-  Future<void> _handlePermissionChange(
-    WidgetRef ref,
-    AppInfo app,
-    String permissionName,
-    PermissionPolicy newPolicy,
-  ) async {
-    final walletState = ref.read(walletStateProvider);
-    if (walletState.nativeWalletRepository == null) return;
+class _DisconnectDialog extends StatelessWidget {
+  const _DisconnectDialog({
+    required this.loc,
+    required this.appName,
+    required this.style,
+    required this.animation,
+    required this.onCancel,
+    required this.onConfirm,
+  });
 
-    try {
-      final updatedPermissions = Map<String, PermissionPolicy>.from(
-        app.permissions,
-      );
-      updatedPermissions[permissionName] = newPolicy;
+  final AppLocalizations loc;
+  final String appName;
+  final FDialogStyle style;
+  final Animation<double> animation;
+  final VoidCallback onCancel;
+  final VoidCallback onConfirm;
 
-      await walletState.nativeWalletRepository!.modifyXSWDAppPermissions(
-        app.id,
-        updatedPermissions,
-      );
-
-      ref.invalidate(xswdApplicationsProvider);
-    } catch (e) {
-      // Error handling could show a toast here
-    }
-  }
-
-  Future<void> _handleDisconnectApp(
-    BuildContext context,
-    WidgetRef ref,
-    AppLocalizations loc,
-    AppInfo app,
-  ) async {
-    final confirmed = await showAppDialog<bool>(
-      context: context,
-      builder: (dialogContext, style, animation) {
-        return FDialog(
-          style: style.call,
-          animation: animation,
-          constraints: const BoxConstraints(maxWidth: 560),
-          title: Text(
-            'Disconnect ${app.name}?',
-            style: context.theme.typography.xl.copyWith(
-              fontWeight: FontWeight.w600,
+  @override
+  Widget build(BuildContext context) {
+    return FDialog(
+      style: style.call,
+      animation: animation,
+      constraints: const BoxConstraints(maxWidth: 560),
+      title: Text(
+        'Disconnect $appName?',
+        style: context.theme.typography.xl.copyWith(
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(vertical: Spaces.small),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'This will revoke all permissions and close this application connection.',
+              textAlign: TextAlign.center,
+              style: context.theme.typography.sm.copyWith(
+                color: context.theme.colors.mutedForeground,
+              ),
             ),
-          ),
-          body: Padding(
-            padding: const EdgeInsets.symmetric(vertical: Spaces.small),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'This will revoke all permissions and close this application connection.',
-                  textAlign: TextAlign.center,
-                  style: context.theme.typography.sm.copyWith(
+            const SizedBox(height: Spaces.medium),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(
+                horizontal: Spaces.medium,
+                vertical: Spaces.small,
+              ),
+              decoration: BoxDecoration(
+                color: context.theme.colors.secondary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: context.theme.colors.border.withValues(alpha: 0.6),
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    FIcons.triangleAlert,
+                    size: 18,
                     color: context.theme.colors.mutedForeground,
                   ),
-                ),
-                const SizedBox(height: Spaces.medium),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: Spaces.medium,
-                    vertical: Spaces.small,
-                  ),
-                  decoration: BoxDecoration(
-                    color: context.theme.colors.secondary.withValues(
-                      alpha: 0.12,
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: context.theme.colors.border.withValues(alpha: 0.6),
+                  const SizedBox(height: Spaces.small),
+                  Text(
+                    'The app will need to reconnect to request wallet access again.',
+                    textAlign: TextAlign.center,
+                    style: context.theme.typography.xs.copyWith(
+                      color: context.theme.colors.mutedForeground,
                     ),
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        FIcons.triangleAlert,
-                        size: 16,
-                        color: context.theme.colors.mutedForeground,
-                      ),
-                      const SizedBox(height: Spaces.extraSmall),
-                      Text(
-                        'The app will need to reconnect to request wallet access again.',
-                        textAlign: TextAlign.center,
-                        style: context.theme.typography.xs.copyWith(
-                          color: context.theme.colors.mutedForeground,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            Row(
-              children: [
-                Expanded(
-                  child: FButton(
-                    style: FButtonStyle.outline(),
-                    onPress: () => dialogContext.pop(false),
-                    child: Text(loc.cancel_button),
-                  ),
-                ),
-                const SizedBox(width: Spaces.small),
-                Expanded(
-                  child: FButton(
-                    style: FButtonStyle.destructive(),
-                    onPress: () => dialogContext.pop(true),
-                    child: Text(loc.confirm_button),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
-        );
-      },
+        ),
+      ),
+      actions: [
+        Row(
+          children: [
+            Expanded(
+              child: FButton(
+                style: FButtonStyle.outline(),
+                onPress: onCancel,
+                child: Text(loc.cancel_button),
+              ),
+            ),
+            const SizedBox(width: Spaces.small),
+            Expanded(
+              child: FButton(
+                style: FButtonStyle.destructive(),
+                onPress: onConfirm,
+                child: Text(loc.confirm_button),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
-
-    if (confirmed != true) return;
-
-    final walletState = ref.read(walletStateProvider);
-    if (walletState.nativeWalletRepository == null) return;
-
-    try {
-      await walletState.nativeWalletRepository!.removeXswdApp(app.id);
-      ref.invalidate(xswdApplicationsProvider);
-      if (context.mounted) {
-        context.pop();
-      }
-      // TODO: find a better way to refresh the app list after disconnecting because the app detail page is reloaded instantly after the app is removed, causing a brief flash of "app not found" before the list is refreshed.
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) => ref.invalidate(xswdApplicationsProvider),
-      );
-    } catch (e) {
-      // Error handling
-    }
-  }
-
-  Future<void> _launchAppUrl(WidgetRef ref, String rawUrl) async {
-    final uri = Uri.tryParse(rawUrl);
-    if (uri == null || (!uri.hasScheme)) {
-      final loc = ref.read(appLocalizationsProvider);
-      ref
-          .read(toastProvider.notifier)
-          .showError(description: '${loc.launch_url_error} $rawUrl');
-      return;
-    }
-
-    if (!await launchUrl(uri)) {
-      final loc = ref.read(appLocalizationsProvider);
-      ref
-          .read(toastProvider.notifier)
-          .showError(description: '${loc.launch_url_error} $rawUrl');
-    }
   }
 }
