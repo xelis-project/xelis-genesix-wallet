@@ -16,7 +16,7 @@ use parking_lot::{Mutex, RwLock};
 use serde_json::json;
 use xelis_common::api::wallet::BaseFeeMode;
 use xelis_common::api::{DataElement, DataValue};
-use xelis_common::asset::{AssetData, AssetOwner, MaxSupplyMode};
+use xelis_common::asset::AssetData;
 use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
 use xelis_common::crypto::{Address, Hash, Hashable, Signature};
 use xelis_common::network::Network;
@@ -49,37 +49,6 @@ pub struct XelisWallet {
             TransactionTypeBuilder,
         )>,
     >,
-}
-
-impl From<MaxSupplyMode> for XelisMaxSupplyMode {
-    fn from(v: MaxSupplyMode) -> Self {
-        match v {
-            MaxSupplyMode::None => Self::None,
-            MaxSupplyMode::Fixed(x) => Self::Fixed(x),
-            MaxSupplyMode::Mintable(x) => Self::Mintable(x),
-        }
-    }
-}
-
-impl From<&AssetOwner> for XelisAssetOwner {
-    fn from(value: &AssetOwner) -> Self {
-        match value {
-            AssetOwner::None => XelisAssetOwner::None,
-            AssetOwner::Creator { contract, id } => XelisAssetOwner::Creator {
-                contract: contract.to_hex(),
-                id: *id,
-            },
-            AssetOwner::Owner {
-                origin,
-                origin_id,
-                owner,
-            } => XelisAssetOwner::Owner {
-                origin: origin.to_hex(),
-                origin_id: *origin_id,
-                owner: owner.to_hex(),
-            },
-        }
-    }
 }
 
 static CACHED_TABLES: Mutex<Option<PrecomputedTablesShared>> = Mutex::new(None);

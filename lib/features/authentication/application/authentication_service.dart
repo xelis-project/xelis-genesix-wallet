@@ -407,6 +407,9 @@ class Authentication extends _$Authentication {
     try {
       switch (state) {
         case SignedIn(:final nativeWallet):
+          talker.info("Logging out: set wallet offline");
+          ref.read(walletStateProvider.notifier).disconnect();
+
           talker.info('Logging out: closing wallet to release locks');
           // Close the wallet first to release database and table locks
           await nativeWallet.close();
@@ -488,13 +491,15 @@ class Authentication extends _$Authentication {
     if (await isPrecomputedTablesExists(expectedTableType)) {
       return expectedTableType;
     } else {
-      return PrecomputedTableType.l1Medium();
+      return PrecomputedTableType.l1Low();
     }
   }
 
   PrecomputedTableType _getExpectedTableType() {
     if (isDesktopDevice) {
       return PrecomputedTableType.l1Full();
+    } else if (isMobileDevice) {
+      return PrecomputedTableType.custom(BigInt.from(24));
     } else {
       // For web, we can't use more than l1Medium tables due to browser storage & memory limitations,
       // so we use l1Medium as the expected type

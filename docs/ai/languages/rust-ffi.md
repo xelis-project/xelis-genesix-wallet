@@ -4,6 +4,9 @@
 - Keep Rust wallet/domain logic in `rust/src/api/**`.
 - Keep `rust/src/lib.rs` focused on public bridge-facing exports.
 - Prefer small, testable modules over large monolithic files.
+- Do not define functions inside other functions; use private module-level helpers for readability and testability.
+- Anonymous closures are allowed only for short callback/adapter usage (`map`, `filter`, etc.).
+- If closure logic becomes non-trivial or reused, extract a private helper function.
 
 ## Error and Logging
 - Return explicit error contexts; avoid opaque failures.
@@ -18,4 +21,3 @@
 - Any Rust API signature change must be mirrored through regenerated bridge code.
 - Do not manually patch generated bridge files in Dart or Rust outputs.
 - After FFI changes, run generation and verify Dart call sites compile.
-

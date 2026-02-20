@@ -22,10 +22,30 @@ import 'package:genesix/src/generated/rust_bridge/api/models/network.dart'
     as rust;
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 
-bool get isMobileDevice => !kIsWeb && (Platform.isIOS || Platform.isAndroid);
+bool get isWebDevice => kIsWeb;
 
-bool get isDesktopDevice =>
-    !kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux);
+bool get isMobileDevice {
+  if (kIsWeb) return false;
+  switch (defaultTargetPlatform) {
+    case TargetPlatform.android:
+    case TargetPlatform.iOS:
+      return true;
+    default:
+      return false;
+  }
+}
+
+bool get isDesktopDevice {
+  if (kIsWeb) return false;
+  switch (defaultTargetPlatform) {
+    case TargetPlatform.macOS:
+    case TargetPlatform.windows:
+    case TargetPlatform.linux:
+      return true;
+    default:
+      return false;
+  }
+}
 
 bool isXelis(String assetHash) {
   return assetHash == sdk.xelisAsset;

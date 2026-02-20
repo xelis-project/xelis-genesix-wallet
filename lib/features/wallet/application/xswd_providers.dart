@@ -14,6 +14,18 @@ import 'package:genesix/features/logger/logger.dart';
 part 'xswd_providers.g.dart';
 
 @riverpod
+class XswdDialogOpenSignal extends _$XswdDialogOpenSignal {
+  @override
+  int build() {
+    return 0;
+  }
+
+  void increment() {
+    state++;
+  }
+}
+
+@riverpod
 class XswdRequest extends _$XswdRequest {
   @override
   XswdRequestState build() {
@@ -103,6 +115,10 @@ class XswdRequest extends _$XswdRequest {
   void setSuppressXswdToast(bool value) {
     if (state.suppressXswdToast == value) return;
     state = state.copyWith(suppressXswdToast: value);
+  }
+
+  void requestOpenDialog() {
+    ref.read(xswdDialogOpenSignalProvider.notifier).increment();
   }
 
   void clearRequest() {

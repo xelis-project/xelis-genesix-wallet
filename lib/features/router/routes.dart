@@ -140,6 +140,7 @@ class WalletShellRoute extends ShellRouteData {
       AuthAppScreen.recoveryPhrase => 'Recovery Phrase',
       AuthAppScreen.signTransaction => 'Sign Transaction',
       AuthAppScreen.multisig => 'Multisig Management',
+      AuthAppScreen.xswd => 'Connected Apps',
       _ => null,
     };
 

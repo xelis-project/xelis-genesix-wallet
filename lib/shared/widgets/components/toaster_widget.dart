@@ -1,10 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
-import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_providers.dart';
-import 'package:genesix/features/wallet/presentation/xswd/xswd_widget.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 
@@ -23,12 +20,8 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
 
   bool _listenerSetup = false;
 
-  bool _isDesktopPlatform(BuildContext context) {
-    return kIsWeb ||
-        Theme.of(context).platform == TargetPlatform.macOS ||
-        Theme.of(context).platform == TargetPlatform.windows ||
-        Theme.of(context).platform == TargetPlatform.linux;
-  }
+  bool _showDismissForWideScreen(BuildContext context) =>
+      context.mediaWidth >= context.theme.breakpoints.md;
 
   void _setupToastListener() {
     if (_listenerSetup) return;
@@ -39,8 +32,6 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
 
       final toastCtx = _toastContext;
       if (toastCtx == null) return;
-
-      final loc = ref.read(appLocalizationsProvider);
 
       switch (next.type) {
         case ToastType.information:
@@ -53,7 +44,7 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
               constraints: const BoxConstraints(maxWidth: 600),
               child: Text(next.title),
             ),
-            suffixBuilder: _isDesktopPlatform(toastCtx)
+            suffixBuilder: _showDismissForWideScreen(toastCtx)
                 ? (context, entry) => FButton.icon(
                     style: FButtonStyle.ghost(),
                     onPress: entry.dismiss,
@@ -73,7 +64,7 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
               constraints: const BoxConstraints(maxWidth: 600),
               child: Text(next.title),
             ),
-            suffixBuilder: _isDesktopPlatform(toastCtx)
+            suffixBuilder: _showDismissForWideScreen(toastCtx)
                 ? (context, entry) => FButton.icon(
                     style: FButtonStyle.ghost(),
                     onPress: entry.dismiss,
@@ -102,47 +93,13 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
                     constraints: const BoxConstraints(maxWidth: 600),
                     child: Text(next.description!),
                   ),
-            suffixBuilder: (context, entry) => Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IntrinsicHeight(
-                  child: FButton(
-                    style: context.theme.buttonStyles.primary
-                        .copyWith(
-                          contentStyle: context
-                              .theme
-                              .buttonStyles
-                              .primary
-                              .contentStyle
-                              .copyWith(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 7.5,
-                                ),
-                                textStyle: FWidgetStateMap.all(
-                                  context.theme.typography.xs.copyWith(
-                                    color:
-                                        context.theme.colors.primaryForeground,
-                                  ),
-                                ),
-                              )
-                              .call,
-                        )
-                        .call,
-                    onPress: entry.dismiss,
-                    child: Text(loc.ok_button),
-                  ),
-                ),
-                if (_isDesktopPlatform(context)) ...[
-                  const SizedBox(width: 6),
-                  FButton.icon(
+            suffixBuilder: _showDismissForWideScreen(toastCtx)
+                ? (context, entry) => FButton.icon(
                     style: FButtonStyle.ghost(),
                     onPress: entry.dismiss,
                     child: const Icon(FIcons.x, size: 18),
-                  ),
-                ],
-              ],
-            ),
+                  )
+                : null,
           );
           break;
 
@@ -160,47 +117,13 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
                     constraints: const BoxConstraints(maxWidth: 600),
                     child: Text(next.description!),
                   ),
-            suffixBuilder: (context, entry) => Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IntrinsicHeight(
-                  child: FButton(
-                    style: context.theme.buttonStyles.primary
-                        .copyWith(
-                          contentStyle: context
-                              .theme
-                              .buttonStyles
-                              .primary
-                              .contentStyle
-                              .copyWith(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 7.5,
-                                ),
-                                textStyle: FWidgetStateMap.all(
-                                  context.theme.typography.xs.copyWith(
-                                    color:
-                                        context.theme.colors.primaryForeground,
-                                  ),
-                                ),
-                              )
-                              .call,
-                        )
-                        .call,
-                    onPress: entry.dismiss,
-                    child: Text(loc.ok_button),
-                  ),
-                ),
-                if (_isDesktopPlatform(context)) ...[
-                  const SizedBox(width: 6),
-                  FButton.icon(
+            suffixBuilder: _showDismissForWideScreen(toastCtx)
+                ? (context, entry) => FButton.icon(
                     style: FButtonStyle.ghost(),
                     onPress: entry.dismiss,
                     child: const Icon(FIcons.x, size: 18),
-                  ),
-                ],
-              ],
-            ),
+                  )
+                : null,
           );
           break;
 
@@ -223,37 +146,34 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
                     child: Text(next.description!),
                   ),
             suffixBuilder: (context, entry) {
-              void openXswdDialog() {
-                entry.dismiss();
-                XswdWidget.openDialog(ref: ref);
-              }
-
-              void dismissXswdToast() {
-                // Clear the XSWD request state when toast is dismissed without opening dialog
-                ref.read(xswdRequestProvider.notifier).clearRequest();
-                entry.dismiss();
-              }
-
-              return Row(
-                mainAxisSize: MainAxisSize.min,
+              return Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                alignment: WrapAlignment.end,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   ...next.actions.map(
-                    (a) => Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: FButton(
-                        style: a.isPrimary
-                            ? FButtonStyle.primary()
-                            : FButtonStyle.ghost(),
-                        onPress: openXswdDialog,
-                        child: Text(a.label),
-                      ),
+                    (a) => FButton(
+                      style: a.isPrimary
+                          ? FButtonStyle.primary()
+                          : FButtonStyle.ghost(),
+                      onPress: () {
+                        entry.dismiss();
+                        ref
+                            .read(xswdRequestProvider.notifier)
+                            .requestOpenDialog();
+                      },
+                      child: Text(a.label),
                     ),
                   ),
-                  if (next.dismissible && _isDesktopPlatform(context)) ...[
-                    const SizedBox(width: 6),
+                  if (next.dismissible) ...[
                     FButton.icon(
                       style: FButtonStyle.ghost(),
-                      onPress: dismissXswdToast,
+                      onPress: () {
+                        // Clear the XSWD request state when toast is dismissed without opening dialog
+                        ref.read(xswdRequestProvider.notifier).clearRequest();
+                        entry.dismiss();
+                      },
                       child: const Icon(FIcons.x, size: 18),
                     ),
                   ],

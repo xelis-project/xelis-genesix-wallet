@@ -11,27 +11,34 @@ class XswdWidget extends ConsumerStatefulWidget {
 
   final Widget child;
 
-  static BuildContext? dialogContext;
-  static WidgetRef? widgetRef;
+  @override
+  ConsumerState<XswdWidget> createState() => _XswdWidgetState();
+}
 
-  static void openDialog({required WidgetRef ref}) {
-    final ctx = dialogContext;
-    if (ctx == null || !ctx.mounted) return;
+class _XswdWidgetState extends ConsumerState<XswdWidget> {
+  bool _isDialogOpen = false;
+
+  void _openDialog() {
+    if (_isDialogOpen || !mounted) return;
 
     // Avoid "open while toast overlay is dismissing"
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!ctx.mounted) return;
+      if (!mounted || _isDialogOpen) return;
 
+      _isDialogOpen = true;
       showAppDialog<void>(
-        context: ctx,
+        context: context,
         builder: (context, style, animation) => XswdDialog(style, animation),
-      ).then((_) {
+      ).whenComplete(() {
+        _isDialogOpen = false;
+
         // Dialog closed - ensure decision is completed (handles barrier dismissal)
         final xswdState = ref.read(xswdRequestProvider);
         final decision = xswdState.decision;
         if (decision != null && !decision.isCompleted) {
           decision.complete(UserPermissionDecision.reject);
         }
+
         // Clear the request state to prevent stuck spinners
         ref.read(xswdRequestProvider.notifier).clearRequest();
       });
@@ -39,17 +46,14 @@ class XswdWidget extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<XswdWidget> createState() => _XswdWidgetState();
-}
-
-class _XswdWidgetState extends ConsumerState<XswdWidget> {
-  @override
   Widget build(BuildContext context) {
     // Keep provider alive by watching it (like the old widget did)
     ref.watch(xswdRequestProvider);
 
-    XswdWidget.dialogContext = context;
-    XswdWidget.widgetRef = ref;
+    ref.listen<int>(xswdDialogOpenSignalProvider, (previous, next) {
+      if (previous == next) return;
+      _openDialog();
+    });
 
     return widget.child;
   }

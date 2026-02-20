@@ -33,16 +33,11 @@ class _WalletScaffoldState extends ConsumerState<WalletScaffold> {
         widget.title != null && widget.title!.isNotEmpty && context.isMobile;
 
     return PopScope(
-      canPop: false,
+      canPop: context.goRouterState.fullPath == AuthAppScreen.home.toPath,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
 
-        // If already on home, do nothing (don't exit the app)
-        if (context.goRouterState.fullPath == AuthAppScreen.home.toPath) {
-          return;
-        }
-
-        // Otherwise, go back to home
+        // Go back to home from any other page
         context.go(AuthAppScreen.home.toPath);
       },
       child: FScaffold(

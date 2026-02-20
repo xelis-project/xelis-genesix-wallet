@@ -126,21 +126,6 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
                       },
                     ),
                     FTile(
-                      prefix: Icon(FIcons.cable),
-                      title: Text(loc.xswd_status),
-                      subtitle: Text(loc.xswd_setting_label),
-                      suffix: FSwitch(
-                        value: ref.watch(
-                          settingsProvider.select((state) => state.enableXswd),
-                        ),
-                        onChange: (value) {
-                          ref
-                              .read(settingsProvider.notifier)
-                              .setEnableXswd(value);
-                        },
-                      ),
-                    ),
-                    FTile(
                       prefix: Icon(FIcons.flame),
                       title: Text(loc.burn),
                       subtitle: Text(loc.unlock_burn_transfer),

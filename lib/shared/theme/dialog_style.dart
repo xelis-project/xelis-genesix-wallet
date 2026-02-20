@@ -85,7 +85,7 @@ Future<T?> showAppDialog<T>({
   return showFDialog<T>(
     context: context,
     useRootNavigator: useRootNavigator,
-    builder: (ctx, _style, animation) => builder(
+    builder: (ctx, style, animation) => builder(
       ctx,
       dialogStyle(
         style: theme.style,
