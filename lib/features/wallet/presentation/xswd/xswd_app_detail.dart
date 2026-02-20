@@ -566,39 +566,39 @@ class _DisconnectDialog extends StatelessWidget {
                 color: context.theme.colors.mutedForeground,
               ),
             ),
-            const SizedBox(height: Spaces.medium),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(
-                horizontal: Spaces.medium,
-                vertical: Spaces.small,
-              ),
-              decoration: BoxDecoration(
-                color: context.theme.colors.secondary.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: context.theme.colors.border.withValues(alpha: 0.6),
-                ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    FIcons.triangleAlert,
-                    size: 18,
-                    color: context.theme.colors.mutedForeground,
-                  ),
-                  const SizedBox(height: Spaces.small),
-                  Text(
-                    'The app will need to reconnect to request wallet access again.',
-                    textAlign: TextAlign.center,
-                    style: context.theme.typography.xs.copyWith(
-                      color: context.theme.colors.mutedForeground,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            // const SizedBox(height: Spaces.medium),
+            // Container(
+            //   width: double.infinity,
+            //   padding: const EdgeInsets.symmetric(
+            //     horizontal: Spaces.medium,
+            //     vertical: Spaces.small,
+            //   ),
+            //   decoration: BoxDecoration(
+            //     color: context.theme.colors.secondary.withValues(alpha: 0.12),
+            //     borderRadius: BorderRadius.circular(8),
+            //     border: Border.all(
+            //       color: context.theme.colors.border.withValues(alpha: 0.6),
+            //     ),
+            //   ),
+            //   child: Column(
+            //     mainAxisSize: MainAxisSize.min,
+            //     children: [
+            //       Icon(
+            //         FIcons.triangleAlert,
+            //         size: 20,
+            //         color: context.theme.colors.mutedForeground,
+            //       ),
+            //       const SizedBox(height: Spaces.small),
+            //       Text(
+            //         'The app will need to reconnect to request wallet access again.',
+            //         textAlign: TextAlign.center,
+            //         style: context.theme.typography.xs.copyWith(
+            //           color: context.theme.colors.mutedForeground,
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),
