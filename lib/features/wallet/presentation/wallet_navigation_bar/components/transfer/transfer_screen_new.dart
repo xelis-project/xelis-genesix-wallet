@@ -621,7 +621,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
           await showAppDialog<void>(
             context: context,
             builder: (dialogContext, _, animation) {
-              return TransactionReviewDialogNew( animation);
+              return TransactionReviewDialogNew(animation);
             },
           );
         }

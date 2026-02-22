@@ -118,8 +118,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
   void _openNewConnectionDialog(BuildContext context) {
     showAppDialog<void>(
       context: context,
-      builder: (context, _, animation) =>
-          XswdNewConnectionDialog(animation),
+      builder: (context, _, animation) => XswdNewConnectionDialog(animation),
     );
   }
 

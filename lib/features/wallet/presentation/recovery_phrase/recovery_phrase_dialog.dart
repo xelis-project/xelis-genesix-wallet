@@ -9,11 +9,7 @@ import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:go_router/go_router.dart';
 
 class RecoveryPhraseDialog extends ConsumerStatefulWidget {
-  const RecoveryPhraseDialog(
-    this.animation,
-    this.seed, {
-    super.key,
-  });
+  const RecoveryPhraseDialog(this.animation, this.seed, {super.key});
 
   final String seed;
   final Animation<double> animation;

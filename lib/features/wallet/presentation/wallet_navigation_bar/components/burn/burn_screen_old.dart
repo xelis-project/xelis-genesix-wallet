@@ -199,10 +199,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
                       },
                     ),
                     const SizedBox(height: Spaces.large),
-                    FButton(
-                      onPress: _reviewBurn,
-                      child: Text(loc.review_burn),
-                    ),
+                    FButton(onPress: _reviewBurn, child: Text(loc.review_burn)),
                   ],
                 ),
               ),

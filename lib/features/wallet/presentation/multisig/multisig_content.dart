@@ -166,10 +166,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      FBadge(
-                        variant: .outline,
-                        child: Text('#${index + 1}'),
-                      ),
+                      FBadge(variant: .outline, child: Text('#${index + 1}')),
                       FTooltip(
                         tipBuilder: (context, controller) => Text(loc.copy),
                         child: FButton.icon(
@@ -196,13 +193,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
 
             if (index == participants.length - 1) return tile;
 
-            return Column(
-              spacing: Spaces.medium,
-              children: [
-                tile,
-                FDivider(),
-              ],
-            );
+            return Column(spacing: Spaces.medium, children: [tile, FDivider()]);
           })
           .toList(growable: false);
     }
