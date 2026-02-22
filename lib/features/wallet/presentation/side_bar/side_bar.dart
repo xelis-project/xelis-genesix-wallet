@@ -219,8 +219,12 @@ class _SideBarState extends ConsumerState<SideBar> {
               icon: const Icon(FIcons.key),
               label: Text(loc.recovery_phrase),
               onPress: () {
-                // do not close sidebar outside auth dialog or the callback context will be disposed beforehand
-                // _closeSideBar(); closes the side bar only when if the width is small
+                // If the user is already on the recovery phrase screen, just close the sidebar
+                if (_selectedItem == AuthAppScreen.recoveryPhrase.toPath) {
+                  _closeSideBar();
+                  return;
+                }
+
                 startWithBiometricAuth(
                   ref,
                   callback: (ref) {
@@ -228,11 +232,10 @@ class _SideBarState extends ConsumerState<SideBar> {
                     setState(() {
                       _selectedItem = AuthAppScreen.recoveryPhrase.toPath;
                     });
-
-                    _closeSideBar();
                   },
                   reason: loc.please_authenticate_view_seed,
-                  popOnSubmit: false,
+                  closeCurrentDialog: true,
+                  popOnSubmit: true,
                 );
               },
             ),

@@ -12,6 +12,7 @@ class BiometricAuthRepository {
   Future<bool> canAuthenticate() async {
     try {
       if (!await auth.isDeviceSupported()) {
+        talker.warning('Local_Auth - Device not supported');
         return false;
       }
     } catch (e) {

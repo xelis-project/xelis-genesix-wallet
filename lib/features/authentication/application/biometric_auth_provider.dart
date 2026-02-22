@@ -21,8 +21,9 @@ Future<void> startWithBiometricAuth(
 }) async {
   var authenticated = false;
   if (!kIsWeb) {
-    authenticated = await ref
-        .read(biometricAuthenticationProvider(reason).future);
+    authenticated = await ref.read(
+      biometricAuthenticationProvider(reason).future,
+    );
   }
   if (authenticated) {
     callback(ref);
@@ -82,5 +83,6 @@ Future<bool> biometricAuthentication(Ref ref, String reason) async {
       ref.read(toastProvider.notifier).showError(description: e.toString());
     }
   }
+  talker.info('Biometric authentication not available');
   return false;
 }
