@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
 import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
+import 'package:genesix/features/wallet/domain/xswd_callbacks.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
@@ -29,108 +30,6 @@ import 'package:genesix/features/logger/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'wallet_provider.g.dart';
-
-typedef CancelCb = Future<void> Function(XswdRequestSummary request);
-typedef DecisionCb =
-    Future<UserPermissionDecision> Function(XswdRequestSummary request);
-
-class XswdCallbacks {
-  const XswdCallbacks({
-    required this.cancelRequestCallback,
-    required this.requestApplicationCallback,
-    required this.requestPermissionCallback,
-    required this.requestPrefetchPermissionsCallback,
-    required this.appDisconnectCallback,
-  });
-
-  final CancelCb cancelRequestCallback;
-  final DecisionCb requestApplicationCallback;
-  final DecisionCb requestPermissionCallback;
-  final DecisionCb requestPrefetchPermissionsCallback;
-  final CancelCb appDisconnectCallback;
-}
-
-extension XswdCallbacksBuilder on WalletState {
-  XswdCallbacks buildXswdCallbacks({required String channelTitle}) {
-    final loc = ref.read(appLocalizationsProvider);
-
-    bool suppressToast() => ref.read(xswdRequestProvider).suppressXswdToast;
-
-    void showXswdToast({required String title, required bool showOpen}) {
-      if (!suppressToast()) {
-        ref
-            .read(toastProvider.notifier)
-            .showXswd(title: title, description: null, showOpen: showOpen);
-      }
-    }
-
-    Future<UserPermissionDecision> askUser({
-      required XswdRequestSummary request,
-      required String message,
-      required bool showOpen,
-    }) async {
-      talker.info(message);
-
-      final completer = ref
-          .read(xswdRequestProvider.notifier)
-          .newRequest(xswdEventSummary: request, message: message);
-
-      showXswdToast(title: message, showOpen: showOpen);
-
-      final decision = await completer.future;
-
-      return decision;
-    }
-
-    return XswdCallbacks(
-      cancelRequestCallback: (request) async {
-        final appName = request.applicationInfo.name;
-        final message = '$channelTitle: ${loc.request_cancelled_from} $appName';
-
-        talker.info(message);
-        ref
-            .read(xswdRequestProvider.notifier)
-            .newRequest(xswdEventSummary: request, message: message);
-
-        showXswdToast(title: message, showOpen: false);
-      },
-
-      requestApplicationCallback: (request) {
-        final appName = request.applicationInfo.name;
-        final message =
-            '$channelTitle: ${loc.connection_request_from} $appName';
-        return askUser(request: request, message: message, showOpen: true);
-      },
-
-      requestPermissionCallback: (request) {
-        final appName = request.applicationInfo.name;
-        final message =
-            '$channelTitle: ${loc.permission_request_from} $appName';
-        return askUser(request: request, message: message, showOpen: true);
-      },
-
-      requestPrefetchPermissionsCallback: (request) async {
-        final appName = request.applicationInfo.name;
-        final message =
-            '$channelTitle: ${loc.prefetch_permissions_request_from} $appName';
-        return askUser(request: request, message: message, showOpen: true);
-      },
-
-      appDisconnectCallback: (request) async {
-        final appName = request.applicationInfo.name;
-        final message =
-            '$channelTitle: $appName ${loc.disconnected.toLowerCase()}';
-
-        talker.info(message);
-        ref
-            .read(xswdRequestProvider.notifier)
-            .newRequest(xswdEventSummary: request, message: message);
-
-        showXswdToast(title: message, showOpen: false);
-      },
-    );
-  }
-}
 
 @riverpod
 class WalletState extends _$WalletState {
@@ -1078,6 +977,85 @@ class WalletState extends _$WalletState {
             );
       }
     }
+  }
+
+  XswdCallbacks buildXswdCallbacks({required String channelTitle}) {
+    final loc = ref.read(appLocalizationsProvider);
+    final toastNotifier = ref.read(toastProvider.notifier);
+
+    bool suppressToast() => ref.read(xswdRequestProvider).suppressXswdToast;
+
+    Future<UserPermissionDecision> askUser({
+      required XswdRequestSummary request,
+      required String message,
+      required bool showOpen,
+    }) async {
+      talker.info(message);
+
+      final completer = ref
+          .read(xswdRequestProvider.notifier)
+          .newRequest(xswdEventSummary: request, message: message);
+
+      if (!suppressToast()) {
+        toastNotifier.showXswd(title: message, showOpen: showOpen);
+      }
+
+      final decision = await completer.future;
+
+      return decision;
+    }
+
+    return XswdCallbacks(
+      cancelRequestCallback: (request) async {
+        final appName = request.applicationInfo.name;
+        final message = '$channelTitle: ${loc.request_cancelled_from} $appName';
+
+        talker.info(message);
+        ref
+            .read(xswdRequestProvider.notifier)
+            .newRequest(xswdEventSummary: request, message: message);
+
+        if (!suppressToast()) {
+          toastNotifier.showXswd(title: message, showOpen: false);
+        }
+      },
+
+      requestApplicationCallback: (request) {
+        final appName = request.applicationInfo.name;
+        final message =
+            '$channelTitle: ${loc.connection_request_from} $appName';
+        return askUser(request: request, message: message, showOpen: true);
+      },
+
+      requestPermissionCallback: (request) {
+        final appName = request.applicationInfo.name;
+        final message =
+            '$channelTitle: ${loc.permission_request_from} $appName';
+        return askUser(request: request, message: message, showOpen: true);
+      },
+
+      requestPrefetchPermissionsCallback: (request) async {
+        final appName = request.applicationInfo.name;
+        final message =
+            '$channelTitle: ${loc.prefetch_permissions_request_from} $appName';
+        return askUser(request: request, message: message, showOpen: true);
+      },
+
+      appDisconnectCallback: (request) async {
+        final appName = request.applicationInfo.name;
+        final message =
+            '$channelTitle: $appName ${loc.disconnected.toLowerCase()}';
+
+        talker.info(message);
+        ref
+            .read(xswdRequestProvider.notifier)
+            .newRequest(xswdEventSummary: request, message: message);
+
+        if (!suppressToast()) {
+          toastNotifier.showXswd(title: message, showOpen: false);
+        }
+      },
+    );
   }
 
   Future<void> trackAsset(String assetHash) async {
