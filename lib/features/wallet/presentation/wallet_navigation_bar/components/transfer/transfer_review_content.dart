@@ -102,11 +102,11 @@ class TransferReviewContentWidget extends ConsumerWidget {
           ),
 
           FDivider(
-            style: FDividerStyle(
-              padding: const EdgeInsets.symmetric(vertical: Spaces.small),
+            style: .delta(
+              padding: .value(.symmetric(vertical: Spaces.small)),
               color: context.theme.colors.primary,
               width: 1,
-            ).call,
+            ),
           ),
 
           // Hash

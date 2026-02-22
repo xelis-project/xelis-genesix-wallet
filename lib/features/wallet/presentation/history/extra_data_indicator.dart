@@ -39,7 +39,7 @@ class ExtraDataIndicator extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           FButton.icon(
-            style: FButtonStyle.outline(),
+            variant: .outline,
             onPress: onOpen,
             child: const Icon(FIcons.fileText, size: 18),
           ),

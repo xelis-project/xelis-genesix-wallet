@@ -46,7 +46,7 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
             ),
             suffixBuilder: _showDismissForWideScreen(toastCtx)
                 ? (context, entry) => FButton.icon(
-                    style: FButtonStyle.ghost(),
+                    variant: .ghost,
                     onPress: entry.dismiss,
                     child: const Icon(FIcons.x, size: 18),
                   )
@@ -66,7 +66,7 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
             ),
             suffixBuilder: _showDismissForWideScreen(toastCtx)
                 ? (context, entry) => FButton.icon(
-                    style: FButtonStyle.ghost(),
+                    variant: .ghost,
                     onPress: entry.dismiss,
                     child: const Icon(FIcons.x, size: 18),
                   )
@@ -95,7 +95,7 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
                   ),
             suffixBuilder: _showDismissForWideScreen(toastCtx)
                 ? (context, entry) => FButton.icon(
-                    style: FButtonStyle.ghost(),
+                    variant: .ghost,
                     onPress: entry.dismiss,
                     child: const Icon(FIcons.x, size: 18),
                   )
@@ -119,7 +119,7 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
                   ),
             suffixBuilder: _showDismissForWideScreen(toastCtx)
                 ? (context, entry) => FButton.icon(
-                    style: FButtonStyle.ghost(),
+                    variant: .ghost,
                     onPress: entry.dismiss,
                     child: const Icon(FIcons.x, size: 18),
                   )
@@ -154,9 +154,7 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
                 children: [
                   ...next.actions.map(
                     (a) => FButton(
-                      style: a.isPrimary
-                          ? FButtonStyle.primary()
-                          : FButtonStyle.ghost(),
+                      variant: a.isPrimary ? null : .ghost,
                       onPress: () {
                         entry.dismiss();
                         ref
@@ -168,7 +166,7 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
                   ),
                   if (next.dismissible) ...[
                     FButton.icon(
-                      style: FButtonStyle.ghost(),
+                      variant: .ghost,
                       onPress: () {
                         // Clear the XSWD request state when toast is dismissed without opening dialog
                         ref.read(xswdRequestProvider.notifier).clearRequest();

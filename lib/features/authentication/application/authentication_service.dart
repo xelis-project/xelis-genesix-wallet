@@ -407,9 +407,6 @@ class Authentication extends _$Authentication {
     try {
       switch (state) {
         case SignedIn(:final nativeWallet):
-          talker.info("Logging out: set wallet offline");
-          ref.read(walletStateProvider.notifier).disconnect();
-
           talker.info('Logging out: closing wallet to release locks');
           // Close the wallet first to release database and table locks
           await nativeWallet.close();

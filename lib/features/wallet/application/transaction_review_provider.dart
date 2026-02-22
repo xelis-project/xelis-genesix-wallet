@@ -5,6 +5,7 @@ import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/shared/providers/provider_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'transaction_review_provider.g.dart';
 

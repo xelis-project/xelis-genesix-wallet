@@ -246,7 +246,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                         child: SizedBox(
                           height: inputHeight,
                           child: FButton(
-                            style: FButtonStyle.outline(),
+                            variant: .outline,
                             onPress: () {
                               final selectedAsset = _assetController.value;
                               if (selectedAsset != null) {
@@ -306,7 +306,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                                 );
                               },
                               child: FButton.icon(
-                                style: FButtonStyle.outline(),
+                                variant: .outline,
                                 onPress: _onAddressBookClicked,
                                 child: const Icon(FIcons.bookUser, size: 20),
                               ),
@@ -351,13 +351,11 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                           ],
                         ),
                         FDivider(
-                          style: FDividerStyle(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: Spaces.small,
-                            ),
-                            color: FTheme.of(context).colors.primary,
+                          style: .delta(
+                            padding: .value(.symmetric(vertical: Spaces.small)),
+                            color: context.theme.colors.primary,
                             width: 1,
-                          ).call,
+                          ),
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -422,7 +420,6 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
 
                   // Review Button
                   FButton(
-                    style: FButtonStyle.primary(),
                     onPress:
                         validAssets.isEmpty ||
                             _selectedAsset == null ||
@@ -444,8 +441,8 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
   Future<void> _onAddressBookClicked() async {
     final address = await showAppDialog<String>(
       context: context,
-      builder: (dialogContext, style, animation) {
-        return SelectAddressDialog(style, animation);
+      builder: (dialogContext, _, animation) {
+        return SelectAddressDialog(animation);
       },
     );
 
@@ -623,8 +620,8 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
         if (mounted) {
           await showAppDialog<void>(
             context: context,
-            builder: (dialogContext, style, animation) {
-              return TransactionReviewDialogNew(style, animation);
+            builder: (dialogContext, _, animation) {
+              return TransactionReviewDialogNew( animation);
             },
           );
         }

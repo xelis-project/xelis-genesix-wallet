@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
-import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -14,11 +13,9 @@ class PasswordDialog extends ConsumerStatefulWidget {
   final void Function(String password)? onEnter;
   final void Function()? onValid;
   final bool closeOnValid;
-  final FDialogStyle style;
   final Animation<double> animation;
 
   const PasswordDialog(
-    this.style,
     this.animation, {
     this.onEnter,
     this.onValid,
@@ -61,14 +58,6 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
       // call onValid callback
       widget.onValid!();
 
-      // unlock biometric auth if locked
-      if (ref.read(biometricAuthProvider) ==
-          BiometricAuthProviderStatus.locked) {
-        ref
-            .read(biometricAuthProvider.notifier)
-            .updateStatus(BiometricAuthProviderStatus.ready);
-      }
-
       if (widget.closeOnValid == true && context.mounted) {
         context.pop(); // hide the dialog
       }
@@ -86,7 +75,6 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
     final loc = ref.watch(appLocalizationsProvider);
 
     return FDialog(
-      style: widget.style.call,
       animation: widget.animation,
       direction: Axis.horizontal,
       title: Text(loc.authentication.capitalize()),
@@ -128,7 +116,7 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
       ),
       actions: [
         FButton(
-          style: FButtonStyle.outline(),
+          variant: .outline,
           onPress: () => context.pop(),
           child: Text(loc.cancel_button),
         ),

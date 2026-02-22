@@ -59,14 +59,14 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
           ),
           const SizedBox(height: Spaces.extraLarge),
           FButton(
-            style: FButtonStyle.secondary(),
+            variant: .secondary,
             prefix: Icon(FIcons.keyRound),
             onPress: _showChangePasswordDialog,
             child: Text(loc.change_password),
           ),
           const SizedBox(height: Spaces.small),
           FButton(
-            style: FButtonStyle.destructive(),
+            variant: .destructive,
             prefix: Icon(FIcons.trash),
             onPress: _showDeleteWalletDialog,
             child: Text(loc.delete_wallet.capitalizeAll()),

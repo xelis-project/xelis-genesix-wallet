@@ -102,7 +102,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
       ),
       actions: [
         FButton(
-          style: FButtonStyle.outline(),
+          variant: .outline,
           onPress: () {
             context.pop();
           },

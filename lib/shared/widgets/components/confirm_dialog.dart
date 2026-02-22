@@ -37,7 +37,7 @@ class _ConfirmDialogState extends ConsumerState<ConfirmDialog> {
       body: widget.description != null ? Text(widget.description!) : null,
       actions: [
         FButton(
-          style: FButtonStyle.outline(),
+          variant: .outline,
           onPress: () {
             context.pop();
             widget.onConfirm(false);

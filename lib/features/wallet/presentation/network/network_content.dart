@@ -10,7 +10,7 @@ class NetworkContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final info = ref.watch(nodeInfoProvider).valueOrNull;
+    final info = ref.watch(nodeInfoProvider).value;
 
     return Column(
       spacing: Spaces.extraLarge,

@@ -408,12 +408,10 @@ class _InvokeContractEntryContentState
               widget.invokeContractEntry.chunkId.toString(),
             ),
             FDivider(
-              style: context.theme.dividerStyles.horizontalStyle
-                  .copyWith(
-                    padding: EdgeInsets.zero,
-                    color: context.theme.colors.primary,
-                  )
-                  .call,
+              style: .delta(
+                padding: .add(.zero),
+                color: context.theme.colors.primary,
+              ),
             ),
             if (_isLoading)
               const Center(child: CircularProgressIndicator())

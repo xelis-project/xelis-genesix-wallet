@@ -26,6 +26,7 @@ import 'package:genesix/features/wallet/domain/event.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
 import 'package:genesix/features/wallet/domain/wallet_snapshot.dart';
 import 'package:genesix/features/logger/logger.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'wallet_provider.g.dart';
 
@@ -278,8 +279,8 @@ class WalletState extends _$WalletState {
     state = state.copyWith(isOnline: false);
 
     try {
-      await state.streamSubscription?.cancel();
       await state.nativeWalletRepository?.setOffline();
+      await state.streamSubscription?.cancel();
     } catch (e) {
       talker.warning('Something went wrong when disconnecting: $e');
     }

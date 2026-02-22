@@ -115,7 +115,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
             ),
             const SizedBox(height: Spaces.small),
             FButton(
-              style: FButtonStyle.ghost(),
+              variant: .ghost,
               onPress: () => context.go(AuthAppScreen.history.toPath),
               suffix: Icon(FIcons.arrowRight),
               child: Text(loc.view_all),

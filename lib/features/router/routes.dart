@@ -42,7 +42,7 @@ part 'routes.g.dart';
     TypedGoRoute<LightSettingsRoute>(path: 'light_settings'),
   ],
 )
-class OpenWalletRoute extends GoRouteData with _$OpenWalletRoute {
+class OpenWalletRoute extends GoRouteData with $OpenWalletRoute {
   const OpenWalletRoute();
 
   @override
@@ -57,7 +57,7 @@ class OpenWalletRoute extends GoRouteData with _$OpenWalletRoute {
   }
 }
 
-class CreateWalletRoute extends GoRouteData with _$CreateWalletRoute {
+class CreateWalletRoute extends GoRouteData with $CreateWalletRoute {
   const CreateWalletRoute();
 
   @override
@@ -72,7 +72,7 @@ class CreateWalletRoute extends GoRouteData with _$CreateWalletRoute {
   }
 }
 
-class ImportWalletRoute extends GoRouteData with _$ImportWalletRoute {
+class ImportWalletRoute extends GoRouteData with $ImportWalletRoute {
   const ImportWalletRoute();
 
   @override
@@ -87,7 +87,7 @@ class ImportWalletRoute extends GoRouteData with _$ImportWalletRoute {
   }
 }
 
-class LightSettingsRoute extends GoRouteData with _$LightSettingsRoute {
+class LightSettingsRoute extends GoRouteData with $LightSettingsRoute {
   const LightSettingsRoute();
 
   @override
@@ -154,70 +154,70 @@ class WalletShellRoute extends ShellRouteData {
   }
 }
 
-class HomeRoute extends GoRouteData with _$HomeRoute {
+class HomeRoute extends GoRouteData with $HomeRoute {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return NoTransitionPage(child: HomeWalletContent());
   }
 }
 
-class NetworkRoute extends GoRouteData with _$NetworkRoute {
+class NetworkRoute extends GoRouteData with $NetworkRoute {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return NoTransitionPage(child: NetworkContent());
   }
 }
 
-class SettingsContentRoute extends GoRouteData with _$SettingsContentRoute {
+class SettingsContentRoute extends GoRouteData with $SettingsContentRoute {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return NoTransitionPage(child: SettingsContent());
   }
 }
 
-class AddressBookRoute extends GoRouteData with _$AddressBookRoute {
+class AddressBookRoute extends GoRouteData with $AddressBookRoute {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return NoTransitionPage(child: AddressBookContent());
   }
 }
 
-class AssetsRoute extends GoRouteData with _$AssetsRoute {
+class AssetsRoute extends GoRouteData with $AssetsRoute {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return NoTransitionPage(child: AssetsContent());
   }
 }
 
-class HistoryRoute extends GoRouteData with _$HistoryRoute {
+class HistoryRoute extends GoRouteData with $HistoryRoute {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return NoTransitionPage(child: HistoryContent());
   }
 }
 
-class RecoveryPhraseRoute extends GoRouteData with _$RecoveryPhraseRoute {
+class RecoveryPhraseRoute extends GoRouteData with $RecoveryPhraseRoute {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return NoTransitionPage(child: RecoveryPhraseContent());
   }
 }
 
-class SignTransactionRoute extends GoRouteData with _$SignTransactionRoute {
+class SignTransactionRoute extends GoRouteData with $SignTransactionRoute {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return NoTransitionPage(child: SignTransactionContent());
   }
 }
 
-class MultisigRoute extends GoRouteData with _$MultisigRoute {
+class MultisigRoute extends GoRouteData with $MultisigRoute {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return NoTransitionPage(child: MultisigContent());
   }
 }
 
-class XSWDRoute extends GoRouteData with _$XSWDRoute {
+class XSWDRoute extends GoRouteData with $XSWDRoute {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return NoTransitionPage(child: XSWDContent());
@@ -228,7 +228,7 @@ class XSWDRoute extends GoRouteData with _$XSWDRoute {
   name: 'contact_details',
   path: '/contact_details',
 )
-class ContactDetailsRoute extends GoRouteData with _$ContactDetailsRoute {
+class ContactDetailsRoute extends GoRouteData with $ContactDetailsRoute {
   const ContactDetailsRoute({required this.$extra});
 
   final String $extra;
@@ -246,7 +246,7 @@ class ContactDetailsRoute extends GoRouteData with _$ContactDetailsRoute {
 }
 
 @TypedGoRoute<TransferRoute>(name: 'transfer', path: '/transfer')
-class TransferRoute extends GoRouteData with _$TransferRoute {
+class TransferRoute extends GoRouteData with $TransferRoute {
   const TransferRoute({this.$extra});
 
   final String? $extra;
@@ -264,7 +264,7 @@ class TransferRoute extends GoRouteData with _$TransferRoute {
 }
 
 @TypedGoRoute<BurnRoute>(name: 'burn', path: '/burn')
-class BurnRoute extends GoRouteData with _$BurnRoute {
+class BurnRoute extends GoRouteData with $BurnRoute {
   const BurnRoute();
 
   @override
@@ -283,7 +283,7 @@ class BurnRoute extends GoRouteData with _$BurnRoute {
   name: 'transaction_entry',
   path: '/transaction_entry',
 )
-class TransactionEntryRoute extends GoRouteData with _$TransactionEntryRoute {
+class TransactionEntryRoute extends GoRouteData with $TransactionEntryRoute {
   const TransactionEntryRoute();
 
   @override
@@ -302,7 +302,7 @@ class TransactionEntryRoute extends GoRouteData with _$TransactionEntryRoute {
   name: 'setup_multisig',
   path: '/setup_multisig',
 )
-class SetupMultisigRoute extends GoRouteData with _$SetupMultisigRoute {
+class SetupMultisigRoute extends GoRouteData with $SetupMultisigRoute {
   const SetupMultisigRoute();
 
   @override
@@ -321,7 +321,7 @@ class SetupMultisigRoute extends GoRouteData with _$SetupMultisigRoute {
   name: 'xswd_qr_scanner',
   path: '/xswd_qr_scanner',
 )
-class XswdQRScannerRoute extends GoRouteData with _$XswdQRScannerRoute {
+class XswdQRScannerRoute extends GoRouteData with $XswdQRScannerRoute {
   const XswdQRScannerRoute();
 
   @override
@@ -340,7 +340,7 @@ class XswdQRScannerRoute extends GoRouteData with _$XswdQRScannerRoute {
   name: 'xswd_app_detail',
   path: '/xswd_app_detail',
 )
-class XswdAppDetailRoute extends GoRouteData with _$XswdAppDetailRoute {
+class XswdAppDetailRoute extends GoRouteData with $XswdAppDetailRoute {
   const XswdAppDetailRoute({required this.$extra});
 
   final String $extra;

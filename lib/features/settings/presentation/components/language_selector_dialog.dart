@@ -20,7 +20,6 @@ class LanguageSelectorDialog extends ConsumerWidget {
     final loc = ref.watch(appLocalizationsProvider);
     final locale = ref.watch(settingsProvider.select((state) => state.locale));
     return FDialog(
-      style: style.call,
       animation: animation,
       direction: Axis.horizontal,
       body: Padding(

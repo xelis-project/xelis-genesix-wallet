@@ -167,7 +167,6 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
                                   ),
                                   const SizedBox(height: Spaces.large),
                                   FButton(
-                                    style: FButtonStyle.primary(),
                                     onPress: () =>
                                         _handleOpenWalletButtonPressed(context),
                                     child: Text(loc.open_wallet),
@@ -183,7 +182,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
                   ),
                   FDivider(),
                   FButton(
-                    style: FButtonStyle.outline(),
+                    variant: .outline,
                     onPress: () {
                       context.push(AppScreen.createWallet.toPath);
                     },
@@ -191,7 +190,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
                   ),
                   const SizedBox(height: Spaces.medium),
                   FButton(
-                    style: FButtonStyle.outline(),
+                    variant: .outline,
                     onPress: () {
                       context.push(AppScreen.importWallet.toPath);
                     },
@@ -220,9 +219,8 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
     // Fallback to password dialog
     showAppDialog<void>(
       context: context,
-      builder: (dialogContext, style, animation) {
+      builder: (dialogContext, _, animation) {
         return PasswordDialog(
-          style,
           animation,
           onEnter: (password) => _openWallet(walletName, password),
         );
@@ -234,11 +232,13 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
     if (kIsWeb) return false;
 
     final loc = ref.read(appLocalizationsProvider);
-    final biometrics = ref.read(biometricAuthProvider.notifier);
 
-    final authenticated = await biometrics.authenticate(
-      loc.please_authenticate_open_wallet,
+    final authenticated = await ref.read(
+      biometricAuthenticationProvider(
+        loc.please_authenticate_open_wallet,
+      ).future,
     );
+
     if (!authenticated) return false;
 
     final secureStorage = ref.read(secureStorageProvider);
@@ -260,15 +260,6 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
       await ref
           .read(authenticationProvider.notifier)
           .openWallet(name, password);
-
-      // unlock biometric auth if locked
-      if (!kIsWeb &&
-          ref.read(biometricAuthProvider) ==
-              BiometricAuthProviderStatus.locked) {
-        ref
-            .read(biometricAuthProvider.notifier)
-            .updateStatus(BiometricAuthProviderStatus.ready);
-      }
     } finally {
       if (mounted && context.loaderOverlay.visible) {
         context.loaderOverlay.hide();

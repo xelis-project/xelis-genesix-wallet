@@ -14,7 +14,7 @@ bool networkMismatch(Ref ref) {
     settingsProvider.select((state) => state.network),
   );
   final nodeNetwork = ref.watch(
-    nodeInfoProvider.select((state) => state.valueOrNull?.network),
+    nodeInfoProvider.select((state) => state.value?.network),
   );
 
   bool mismatch = false;

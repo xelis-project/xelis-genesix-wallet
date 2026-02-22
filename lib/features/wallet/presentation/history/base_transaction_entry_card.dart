@@ -60,14 +60,7 @@ class _BaseTransactionEntryCardState
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 FBadge(
-                  style: context.theme.badgeStyles.primary
-                      .copyWith(
-                        decoration: BoxDecoration(
-                          color: widget.color,
-                          borderRadius: FBadgeStyles.defaultRadius,
-                        ),
-                      )
-                      .call,
+                  style: .delta(decoration: .delta(color: widget.color)),
                   child: Text(widget.type.capitalize()),
                 ),
                 FTooltip(

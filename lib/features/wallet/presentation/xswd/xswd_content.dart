@@ -118,8 +118,8 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
   void _openNewConnectionDialog(BuildContext context) {
     showAppDialog<void>(
       context: context,
-      builder: (context, style, animation) =>
-          XswdNewConnectionDialog(style, animation),
+      builder: (context, _, animation) =>
+          XswdNewConnectionDialog(animation),
     );
   }
 
@@ -594,7 +594,6 @@ class _XswdFooter extends StatelessWidget {
               const SizedBox(height: Spaces.small),
             ],
             FButton(
-              style: FButtonStyle.primary(),
               onPress: isConnectionReady ? onNewConnection : null,
               prefix: const Icon(FIcons.qrCode, size: 18),
               child: const Text('New Connection'),

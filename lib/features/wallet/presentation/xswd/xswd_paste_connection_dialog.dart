@@ -14,14 +14,8 @@ import 'package:genesix/shared/theme/constants.dart';
 import 'xswd_relayer.dart';
 
 class XswdPasteConnectionDialog extends ConsumerStatefulWidget {
-  const XswdPasteConnectionDialog(
-    this.style,
-    this.animation,
-    this.close, {
-    super.key,
-  });
+  const XswdPasteConnectionDialog(this.animation, this.close, {super.key});
 
-  final FDialogStyle style;
   final Animation<double> animation;
   final VoidCallback close;
 
@@ -65,7 +59,6 @@ class _XswdPasteConnectionDialogState
     final loc = ref.watch(appLocalizationsProvider);
 
     return FDialog(
-      style: widget.style.call,
       animation: widget.animation,
       constraints: const BoxConstraints(maxWidth: 700),
       body: Column(
@@ -79,7 +72,7 @@ class _XswdPasteConnectionDialogState
               children: [
                 const Expanded(child: _DialogTitle()),
                 FButton.icon(
-                  style: FButtonStyle.ghost(),
+                  variant: .ghost,
                   onPress: _isProcessing ? null : () => widget.close(),
                   child: const Icon(FIcons.x, size: 22),
                 ),
@@ -114,13 +107,12 @@ class _XswdPasteConnectionDialogState
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             FButton(
-              style: FButtonStyle.outline(),
+              variant: .outline,
               onPress: _isProcessing ? null : () => widget.close(),
               child: Text(loc.cancel_button),
             ),
             const SizedBox(width: Spaces.small),
             FButton(
-              style: FButtonStyle.primary(),
               onPress: !_isProcessing && _hasInput ? _connectFromPaste : null,
               prefix: _isProcessing
                   ? FInheritedCircularProgressStyle(

@@ -6,8 +6,6 @@ analyzer:
     - "lib/src/generated/**"
     - "**/*.g.dart"
     - "**/*.freezed.dart"
-  plugins:
-    - custom_lint
   language:
     strict-casts: true
     strict-inference: true

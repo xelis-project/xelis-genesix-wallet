@@ -10,14 +10,12 @@ import 'package:go_router/go_router.dart';
 
 class RecoveryPhraseDialog extends ConsumerStatefulWidget {
   const RecoveryPhraseDialog(
-    this.style,
     this.animation,
     this.seed, {
     super.key,
   });
 
   final String seed;
-  final FDialogStyle style;
   final Animation<double> animation;
 
   @override
@@ -42,7 +40,6 @@ class _RecoveryPhraseDialogState extends ConsumerState<RecoveryPhraseDialog> {
     final words = widget.seed.split(' ');
 
     return FDialog(
-      style: widget.style.call,
       animation: widget.animation,
       title: Row(
         children: [
@@ -73,7 +70,7 @@ class _RecoveryPhraseDialogState extends ConsumerState<RecoveryPhraseDialog> {
                   children: List.generate(
                     words.length,
                     (i) => FBadge(
-                      style: FBadgeStyle.secondary(),
+                      variant: .secondary,
                       child: Row(
                         children: [
                           Text(

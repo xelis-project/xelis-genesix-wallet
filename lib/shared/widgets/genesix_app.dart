@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/logger/logger.dart';
+import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/shared/theme/theme.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:window_manager/window_manager.dart';
@@ -68,6 +69,7 @@ class _GenesixState extends ConsumerState<Genesix> with WindowListener {
 
   @override
   Future<void> onWindowClose() async {
+    await ref.read(walletStateProvider.notifier).disconnect();
     await ref.read(authenticationProvider.notifier).logout();
     await disposeRustLogging();
   }

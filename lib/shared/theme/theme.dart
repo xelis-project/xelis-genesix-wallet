@@ -35,6 +35,7 @@ FThemeData get greenLight {
     error: Color(0xFFEF4444),
     errorForeground: Color(0xFFF9FAFB),
     border: Color(0xFFE5E7EB),
+    card: Color(0xFFFFFFFF),
   );
 
   final typography = _typography(colors: colors);
@@ -77,6 +78,7 @@ FThemeData get greenDark {
     error: Color(0xFF7F1D1D),
     errorForeground: Color(0xFFF9FAFB),
     border: Color(0xFF1F2937),
+    card: Color(0xFF030712),
   );
 
   final typography = _typography(colors: colors);

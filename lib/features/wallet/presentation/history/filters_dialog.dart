@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -357,7 +356,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
       ),
       actions: [
         FButton(
-          style: FButtonStyle.outline(),
+          variant: .outline,
           onPress: _resetFilters,
           child: Text(loc.reset_all),
         ),

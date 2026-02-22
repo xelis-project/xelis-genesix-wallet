@@ -28,7 +28,7 @@ class _XswdWidgetState extends ConsumerState<XswdWidget> {
       _isDialogOpen = true;
       showAppDialog<void>(
         context: context,
-        builder: (context, style, animation) => XswdDialog(style, animation),
+        builder: (context, _, animation) => XswdDialog(animation),
       ).whenComplete(() {
         _isDialogOpen = false;
 

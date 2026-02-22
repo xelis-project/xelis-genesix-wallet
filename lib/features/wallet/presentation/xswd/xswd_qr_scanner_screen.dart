@@ -378,7 +378,7 @@ class _ScannerErrorView extends StatelessWidget {
                 SizedBox(
                   width: 180,
                   child: FButton(
-                    style: FButtonStyle.outline(),
+                    variant: .outline,
                     onPress: onRetry,
                     child: const Text('Try again'),
                   ),

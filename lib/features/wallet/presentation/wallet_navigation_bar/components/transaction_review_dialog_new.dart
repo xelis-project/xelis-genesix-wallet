@@ -28,9 +28,8 @@ import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown_old.dart';
 
 class TransactionReviewDialogNew extends ConsumerStatefulWidget {
-  const TransactionReviewDialogNew(this.style, this.animation, {super.key});
+  const TransactionReviewDialogNew(this.animation, {super.key});
 
-  final FDialogStyle style;
   final Animation<double> animation;
 
   @override
@@ -66,7 +65,6 @@ class _TransactionReviewDialogNewState
     };
 
     return FDialog(
-      style: widget.style.call,
       animation: widget.animation,
       constraints: const BoxConstraints(maxWidth: 600),
       body: Column(
@@ -97,7 +95,7 @@ class _TransactionReviewDialogNewState
                 ),
                 if (!transactionReview.isBroadcasted)
                   FButton.icon(
-                    style: FButtonStyle.ghost(),
+                    variant: .ghost,
                     onPress: () => context.pop(),
                     child: const Icon(FIcons.x, size: 22),
                   ),
@@ -297,7 +295,6 @@ class _TransactionReviewDialogNewState
     if (signaturePending) {
       return FButton(
         key: const ValueKey('next'),
-        style: FButtonStyle.primary(),
         onPress: _processSignatures,
         prefix: const Icon(FIcons.arrowRight, size: 18),
         child: Text(loc.next),
@@ -308,7 +305,6 @@ class _TransactionReviewDialogNewState
     if (transactionReview.isBroadcasted) {
       return FButton(
         key: const ValueKey('ok'),
-        style: FButtonStyle.primary(),
         onPress: () => context.pop(),
         child: Text(loc.ok_button),
       );
@@ -319,7 +315,6 @@ class _TransactionReviewDialogNewState
 
     return FButton(
       key: const ValueKey('broadcast'),
-      style: FButtonStyle.primary(),
       onPress: canBroadcast
           ? () => startWithBiometricAuth(
               ref,

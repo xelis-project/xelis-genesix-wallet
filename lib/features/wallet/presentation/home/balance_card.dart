@@ -27,8 +27,8 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
   void _showReceiveDialog() {
     showAppDialog<void>(
       context: context,
-      builder: (context, style, animation) {
-        return ReceiveAddressDialog(style, animation);
+      builder: (context, _, animation) {
+        return ReceiveAddressDialog(animation);
       },
     );
   }
@@ -107,14 +107,14 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
             Row(
               children: [
                 FButton(
-                  style: FButtonStyle.outline(),
+                  variant: .outline,
                   prefix: Icon(FIcons.arrowUpRight),
                   onPress: () => context.push(AuthAppScreen.transfer.toPath),
                   child: Text(loc.send),
                 ),
                 const SizedBox(width: Spaces.small),
                 FButton(
-                  style: FButtonStyle.outline(),
+                  variant: .outline,
                   prefix: Icon(FIcons.arrowDownLeft),
                   onPress: _showReceiveDialog,
                   child: Text(loc.receive),

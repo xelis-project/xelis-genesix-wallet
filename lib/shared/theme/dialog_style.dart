@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 
 FDialogStyle dialogStyle({
   required FStyle style,
@@ -19,7 +20,7 @@ FDialogStyle dialogStyle({
   final double contentV;
 
   if (context != null) {
-    final mq = MediaQuery.of(context);
+    final mq = context.mediaQueryData;
     final w = mq.size.width;
     final h = mq.size.height;
     final scale = mq.textScaler.scale(1.0);
@@ -49,17 +50,25 @@ FDialogStyle dialogStyle({
         ),
       ],
     ),
-    horizontalStyle: FDialogContentStyle(
-      titleTextStyle: title,
-      bodyTextStyle: body,
-      padding: EdgeInsets.symmetric(horizontal: contentH, vertical: contentV),
-      actionSpacing: 7,
-    ),
-    verticalStyle: FDialogContentStyle(
-      titleTextStyle: title,
-      bodyTextStyle: body,
-      padding: EdgeInsets.symmetric(horizontal: contentH, vertical: contentV),
-      actionSpacing: 8,
+    contentStyle: FVariants(
+      FDialogContentStyle(
+        titleTextStyle: title,
+        bodyTextStyle: body,
+        padding: .symmetric(horizontal: contentH, vertical: contentV),
+        titleSpacing: 8,
+        bodySpacing: 8,
+        actionSpacing: 10,
+      ),
+      variants: {
+        [.vertical]: FDialogContentStyle(
+          titleTextStyle: title,
+          bodyTextStyle: body,
+          padding: .symmetric(horizontal: contentH, vertical: contentV),
+          titleSpacing: 6,
+          bodySpacing: 6,
+          actionSpacing: 8,
+        ),
+      },
     ),
     motion: FDialogMotion(
       fadeInCurve: Curves.easeOutCubic,

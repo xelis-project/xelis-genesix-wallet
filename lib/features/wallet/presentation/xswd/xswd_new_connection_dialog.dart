@@ -11,9 +11,8 @@ import 'xswd_paste_connection_dialog.dart';
 import 'xswd_qr_scanner_screen.dart';
 
 class XswdNewConnectionDialog extends ConsumerWidget {
-  const XswdNewConnectionDialog(this.style, this.animation, {super.key});
+  const XswdNewConnectionDialog(this.animation, {super.key});
 
-  final FDialogStyle style;
   final Animation<double> animation;
 
   @override
@@ -22,7 +21,6 @@ class XswdNewConnectionDialog extends ConsumerWidget {
     final loc = ref.watch(appLocalizationsProvider);
 
     return FDialog(
-      style: style.call,
       animation: animation,
       constraints: const BoxConstraints(maxWidth: 600),
       body: LayoutBuilder(
@@ -55,7 +53,7 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                     FTooltip(
                       tipBuilder: (context, controller) => Text(loc.close),
                       child: FButton.icon(
-                        style: FButtonStyle.ghost(),
+                        variant: .ghost,
                         onPress: () => context.pop(),
                         child: const Icon(FIcons.x, size: 22),
                       ),
@@ -98,12 +96,10 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                     showAppDialog<void>(
                       context: navigator.context,
                       useRootNavigator: true,
-                      builder: (ctx, style, animation) =>
-                          XswdPasteConnectionDialog(
-                            style,
-                            animation,
-                            () => Navigator.of(ctx, rootNavigator: true).pop(),
-                          ),
+                      builder: (ctx, _, animation) => XswdPasteConnectionDialog(
+                        animation,
+                        () => Navigator.of(ctx, rootNavigator: true).pop(),
+                      ),
                     );
                   },
                 ),
@@ -150,9 +146,8 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                             showAppDialog<void>(
                               context: navigator.context,
                               useRootNavigator: true,
-                              builder: (ctx, style, animation) =>
+                              builder: (ctx, _, animation) =>
                                   XswdPasteConnectionDialog(
-                                    style,
                                     animation,
                                     () => Navigator.of(
                                       ctx,
@@ -226,7 +221,7 @@ class _ConnectionMethodButton extends StatelessWidget {
               width: double.infinity,
               height: buttonHeight,
               child: FButton.raw(
-                style: FButtonStyle.outline(),
+                variant: .outline,
                 onPress: onPressed,
                 child: SizedBox.expand(
                   child: Padding(

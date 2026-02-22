@@ -7,6 +7,7 @@ import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/settings/domain/settings_state.dart';
+import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/home/receive_address_dialog.dart';
 import 'package:genesix/features/wallet/presentation/side_bar/side_bar_footer.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
@@ -57,11 +58,7 @@ class _SideBarState extends ConsumerState<SideBar> {
               ),
             ),
             const SizedBox(height: Spaces.medium),
-            FDivider(
-              style: context.theme.dividerStyles.horizontalStyle
-                  .copyWith(padding: EdgeInsets.zero)
-                  .call,
-            ),
+            FDivider(style: .delta(padding: .value(.zero))),
           ],
         ),
       ),
@@ -104,8 +101,8 @@ class _SideBarState extends ConsumerState<SideBar> {
                     _closeSideBar();
                     showAppDialog<void>(
                       context: context,
-                      builder: (context, style, animation) {
-                        return ReceiveAddressDialog(style, animation);
+                      builder: (context, _, animation) {
+                        return ReceiveAddressDialog(animation);
                       },
                     );
                     setState(() {
@@ -254,7 +251,10 @@ class _SideBarState extends ConsumerState<SideBar> {
             FSidebarItem(
               icon: const Icon(FIcons.logOut),
               label: Text(loc.logout),
-              onPress: () => ref.read(authenticationProvider.notifier).logout(),
+              onPress: () {
+                ref.read(walletStateProvider.notifier).disconnect();
+                ref.read(authenticationProvider.notifier).logout();
+              },
             ),
           ],
         ),

@@ -162,7 +162,7 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
                             child: SizedBox(
                               height: inputHeight,
                               child: FButton(
-                                style: FButtonStyle.outline(),
+                                variant: .outline,
                                 onPress: () {
                                   final selected = _assetController.value;
                                   if (selected != null) {
@@ -239,7 +239,6 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
                     if (context.isWideScreen) const Spacer(),
                     Expanded(
                       child: FButton(
-                        style: FButtonStyle.primary(),
                         onPress: validAssets.isEmpty ? null : _reviewBurn,
                         child: Text(loc.review_burn),
                       ),
@@ -319,8 +318,8 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
     if (mounted) {
       await showAppDialog<void>(
         context: context,
-        builder: (dialogContext, style, animation) {
-          return TransactionReviewDialogNew(style, animation);
+        builder: (dialogContext, _, animation) {
+          return TransactionReviewDialogNew(animation);
         },
       );
     }

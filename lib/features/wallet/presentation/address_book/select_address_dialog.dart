@@ -9,9 +9,8 @@ import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:go_router/go_router.dart';
 
 class SelectAddressDialog extends ConsumerStatefulWidget {
-  const SelectAddressDialog(this.style, this.animation, {super.key});
+  const SelectAddressDialog(this.animation, {super.key});
 
-  final FDialogStyle style;
   final Animation<double> animation;
 
   @override
@@ -35,7 +34,6 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
     final addressBook = ref.watch(addressBookProvider);
 
     return FDialog(
-      style: widget.style.call,
       animation: widget.animation,
       constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
       body: Column(

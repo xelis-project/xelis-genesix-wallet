@@ -153,7 +153,7 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
                         children: List.generate(
                           _seedWords.length,
                           (i) => FBadge(
-                            style: FBadgeStyle.secondary(),
+                            variant: .secondary,
                             child: Row(
                               children: [
                                 Text(

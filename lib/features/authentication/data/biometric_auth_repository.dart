@@ -32,9 +32,7 @@ class BiometricAuthRepository {
   Future<bool> authenticate(String reason) async {
     final res = await auth.authenticate(
       localizedReason: reason,
-      options: AuthenticationOptions(
-        biometricOnly: Platform.isWindows ? false : true,
-      ),
+      biometricOnly: true,
     );
 
     // this is needed to fix issue with local_auth on Windows

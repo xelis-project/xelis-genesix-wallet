@@ -26,9 +26,8 @@ import 'package:go_router/go_router.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class XswdDialog extends ConsumerStatefulWidget {
-  const XswdDialog(this.style, this.animation, {super.key});
+  const XswdDialog(this.animation, {super.key});
 
-  final FDialogStyle style;
   final Animation<double> animation;
 
   @override
@@ -237,7 +236,6 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
       _syncTimerWithState(_ActionSet.okOnly);
 
       return FDialog(
-        style: widget.style.call,
         animation: widget.animation,
         body: Center(
           child: Text(
@@ -247,7 +245,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
         ),
         actions: [
           FButton(
-            style: FButtonStyle.ghost(),
+            variant: .ghost,
             onPress: () {
               final decision = xswdState.decision;
               if (decision != null && !decision.isCompleted) {
@@ -305,7 +303,6 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     }
 
     return FDialog(
-      style: widget.style.call,
       animation: widget.animation,
       constraints: const BoxConstraints(maxWidth: 700),
       body: LayoutBuilder(
@@ -348,7 +345,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                         FTooltip(
                           tipBuilder: (context, controller) => Text(loc.close),
                           child: FButton.icon(
-                            style: FButtonStyle.ghost(),
+                            variant: .ghost,
                             onPress: () {
                               _stopTimer();
                               _cancelRapidFireWait();
@@ -437,7 +434,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     showAppDialog<void>(
       context: context,
       builder: (context, style, animation) => FDialog(
-        style: style.call,
+        style: style,
         animation: animation,
         direction: Axis.horizontal,
         title: Row(
@@ -761,7 +758,7 @@ class _XswdMinimalBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FBadge(style: FBadgeStyle.outline(), child: Text(label));
+    return FBadge(variant: .outline, child: Text(label));
   }
 }
 
@@ -855,7 +852,6 @@ class _XswdActionFactory {
       case _ActionSet.okOnly:
         return [
           FButton(
-            style: FButtonStyle.primary(),
             onPress: busy ? null : () => context.pop(),
             child: Text(loc.ok_button),
           ),
@@ -916,16 +912,11 @@ class _XswdActionFactory {
           _XswdDecisionButton(
             busy: busy,
             label: denyLabel,
-            style: FButtonStyle.outline(),
+            variant: .outline,
             onPress: onDeny,
           ),
           const SizedBox(width: Spaces.small),
-          _XswdDecisionButton(
-            busy: busy,
-            label: allowLabel,
-            style: FButtonStyle.primary(),
-            onPress: onAllow,
-          ),
+          _XswdDecisionButton(busy: busy, label: allowLabel, onPress: onAllow),
         ],
       ),
     ];
@@ -936,20 +927,20 @@ class _XswdDecisionButton extends StatelessWidget {
   const _XswdDecisionButton({
     required this.busy,
     required this.label,
-    required this.style,
+    this.variant,
     required this.onPress,
   });
 
   final bool busy;
   final String label;
-  final FBaseButtonStyle Function(FButtonStyle style) style;
+  final FButtonVariant? variant;
   final VoidCallback onPress;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: FButton(
-        style: style,
+        variant: variant,
         onPress: busy ? null : onPress,
         child: Text(label),
       ),
@@ -1007,20 +998,16 @@ class _XswdCountdownIndicator extends StatelessWidget {
 }
 
 class _XswdIconBadge extends StatelessWidget {
-  const _XswdIconBadge({
-    required this.style,
-    required this.icon,
-    required this.child,
-  });
+  const _XswdIconBadge({this.variant, required this.icon, required this.child});
 
-  final FBaseBadgeStyle Function(FBadgeStyle style) style;
+  final FBadgeVariant? variant;
   final IconData icon;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     return FBadge(
-      style: style,
+      variant: variant,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -1053,7 +1040,7 @@ class _AssetPermissionBadge extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: _XswdIconBadge(
-        style: FBadgeStyle.outline(),
+        variant: .outline,
         icon: FIcons.coins,
         child: Row(
           mainAxisSize: MainAxisSize.min,

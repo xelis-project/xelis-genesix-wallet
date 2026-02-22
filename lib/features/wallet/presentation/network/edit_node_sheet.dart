@@ -102,7 +102,7 @@ class _EditNodeSheetState extends ConsumerState<EditNodeSheet> {
             ),
             const SizedBox(height: Spaces.medium),
             FButton(
-              style: FButtonStyle.destructive(),
+              variant: .destructive,
               child: Text(loc.delete_node),
               onPress: () {
                 _delete(

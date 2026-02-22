@@ -9,9 +9,8 @@ import 'package:go_router/go_router.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 class ReceiveAddressDialog extends ConsumerWidget {
-  const ReceiveAddressDialog(this.style, this.animation, {super.key});
+  const ReceiveAddressDialog(this.animation, {super.key});
 
-  final FDialogStyle style;
   final Animation<double> animation;
 
   @override
@@ -31,7 +30,6 @@ class ReceiveAddressDialog extends ConsumerWidget {
     final maxBodyHeight = screenHeight * 0.5;
 
     return FDialog(
-      style: style.call,
       animation: animation,
       direction: Axis.horizontal,
       title: Text(loc.receive),

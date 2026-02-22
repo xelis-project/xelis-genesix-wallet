@@ -112,7 +112,7 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
                       spacing: Spaces.small,
                       children: [
                         FButton(
-                          style: FButtonStyle.outline(),
+                          variant: .outline,
                           onPress: () {
                             setState(() {
                               _isEditingName = false;
@@ -128,7 +128,7 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
                       ],
                     )
                   : FButton(
-                      style: FButtonStyle.outline(),
+                      variant: .outline,
                       onPress: () => setState(() => _isEditingName = true),
                       prefix: const Icon(Icons.edit_rounded, size: 18),
                       child: Text(loc.edit_button),
@@ -289,7 +289,7 @@ class _ContactInfoCardState extends ConsumerState<_ContactInfoCard> {
                         .clamp(8.0, 12.0);
 
                 return FButton(
-                  style: FButtonStyle.outline(),
+                  variant: .outline,
                   onPress: () {
                     Clipboard.setData(
                       ClipboardData(text: widget.contact.address),
@@ -371,7 +371,7 @@ class _NotesCard extends StatelessWidget {
                 ),
                 if (!isEditing)
                   FButton(
-                    style: FButtonStyle.outline(),
+                    variant: .outline,
                     onPress: onEdit,
                     prefix: const Icon(Icons.edit_rounded, size: 16),
                     child: Text(localizations.edit_button),
@@ -393,7 +393,7 @@ class _NotesCard extends StatelessWidget {
                     spacing: Spaces.small,
                     children: [
                       FButton(
-                        style: FButtonStyle.outline(),
+                        variant: .outline,
                         onPress: onCancel,
                         child: Text(localizations.cancel_button),
                       ),

@@ -28,8 +28,8 @@ class SettingsNavigationBar extends ConsumerWidget {
     final loc = ref.watch(appLocalizationsProvider);
     final name = ref.watch(walletStateProvider.select((state) => state.name));
     final settings = ref.watch(settingsProvider);
-    final isBiometricAuthLocked =
-        ref.watch(biometricAuthProvider) == BiometricAuthProviderStatus.locked;
+    // final isBiometricAuthLocked =
+    //     ref.watch(biometricAuthProvider) == BiometricAuthProviderStatus.locked;
 
     return ListView(
       padding: const EdgeInsets.all(Spaces.large),
@@ -90,13 +90,11 @@ class SettingsNavigationBar extends ConsumerWidget {
               initialValue: settings.activateBiometricAuth,
               decoration: const InputDecoration(fillColor: Colors.transparent),
               title: Text(loc.enable_biometric_auth, style: context.bodyLarge),
-              onChanged: isBiometricAuthLocked
-                  ? null
-                  : (value) {
-                      ref
-                          .read(settingsProvider.notifier)
-                          .setActivateBiometricAuth(value!);
-                    },
+              onChanged: (value) {
+                ref
+                    .read(settingsProvider.notifier)
+                    .setActivateBiometricAuth(value!);
+              },
             ),
             if (settings.network == Network.mainnet)
               FormBuilderSwitch(

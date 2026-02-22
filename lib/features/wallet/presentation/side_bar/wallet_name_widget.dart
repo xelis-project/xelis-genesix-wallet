@@ -59,8 +59,7 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
       spacing: Spaces.medium,
       children: [
         FAvatar.raw(
-          style: (style) =>
-              style.copyWith(backgroundColor: context.theme.colors.background),
+          style: .delta(backgroundColor: context.theme.colors.background),
           child: HashiconWidget(hash: walletAddress, size: const Size(35, 35)),
         ),
         Expanded(
@@ -84,20 +83,14 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
                       autocorrect: false,
                       keyboardType: TextInputType.text,
                       maxLines: 1,
-                      style: context.theme.textFieldStyle
-                          .copyWith(
-                            contentTextStyle: FWidgetStateMap({
-                              WidgetState.disabled: context.theme.typography.lg
-                                  .copyWith(
-                                    color: context.theme.colors.foreground,
-                                  ),
-                              WidgetState.any: context.theme.typography.lg
-                                  .copyWith(
-                                    color: context.theme.colors.primary,
-                                  ),
-                            }),
-                          )
-                          .call,
+                      style: .delta(
+                        contentTextStyle: .delta([
+                          .base(.delta(color: context.theme.colors.primary)),
+                          .exact({
+                            .disabled,
+                          }, .delta(color: context.theme.colors.foreground)),
+                        ]),
+                      ),
                       validator: (value) {
                         if (value == null ||
                             value.isEmpty ||

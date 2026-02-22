@@ -167,13 +167,13 @@ class _ConfiguredMultisigView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       FBadge(
-                        style: FBadgeStyle.outline(),
+                        variant: .outline,
                         child: Text('#${index + 1}'),
                       ),
                       FTooltip(
                         tipBuilder: (context, controller) => Text(loc.copy),
                         child: FButton.icon(
-                          style: FButtonStyle.ghost(),
+                          variant: .ghost,
                           onPress: () => copyToClipboard(
                             participant.address,
                             ref,
@@ -200,9 +200,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
               spacing: Spaces.medium,
               children: [
                 tile,
-                FDivider(
-                  style: context.theme.dividerStyles.horizontalStyle.call,
-                ),
+                FDivider(),
               ],
             );
           })
@@ -308,7 +306,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: FButton(
-                  style: FButtonStyle.destructive(),
+                  variant: .destructive,
                   prefix: const Icon(FIcons.trash),
                   onPress: () {},
                   child: Text(loc.delete_wallet.capitalizeAll()),

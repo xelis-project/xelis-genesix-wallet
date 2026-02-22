@@ -35,8 +35,8 @@ class _HomeWalletContentState extends ConsumerState<HomeWalletContent> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showAppDialog<void>(
           context: context,
-          builder: (context, style, animation) {
-            return RecoveryPhraseDialog(style, animation, seed);
+          builder: (context, _, animation) {
+            return RecoveryPhraseDialog(animation, seed);
           },
         );
       });

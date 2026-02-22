@@ -216,8 +216,8 @@ class _XswdStatusScreenState extends ConsumerState<XswdStatusScreen> {
             onPressed: () async {
               showAppDialog<void>(
                 context: context,
-                builder: (context, style, animation) =>
-                    XswdNewConnectionDialog(style, animation),
+                builder: (context, _, animation) =>
+                    XswdNewConnectionDialog(animation),
               );
               return;
             },

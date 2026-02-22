@@ -9,6 +9,7 @@ import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:genesix/features/authentication/application/authentication_service.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'wallets_state_provider.g.dart';
 

@@ -20,16 +20,9 @@ class ColoredBadge extends StatelessWidget {
     final bg = color.withValues(alpha: 0.40);
 
     return FBadge(
-      style: (style) => style.copyWith(
-        decoration: BoxDecoration(
-          border: Border.all(color: bg),
-          borderRadius: style.decoration.borderRadius,
-        ),
-        contentStyle: FBadgeContentStyle(
-          labelTextStyle: style.contentStyle.labelTextStyle.copyWith(
-            color: color,
-          ),
-        ).call,
+      style: .delta(
+        decoration: .delta(color: bg),
+        contentStyle: .delta(labelTextStyle: .delta(color: color)),
       ),
       child: Text(text),
     );
