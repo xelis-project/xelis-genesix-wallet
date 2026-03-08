@@ -15,7 +15,8 @@ Use this file as the Copilot entrypoint and follow the shared AI rule set.
 - Treat `docs/ai/shared/core-rules.md` as the authoritative engineering rule set (`MUST`/`SHOULD`/`MAY`).
 - Treat `docs/ai/shared/workflow.md` as the authoritative validation and delivery checklist.
 - Apply Copilot-specific behavior from `docs/ai/tools/github-copilot.md`.
-- If Rust API or annotated Dart models/providers change, include required regeneration and validation steps from `docs/ai/shared/workflow.md`.
+- Before suggesting code that depends on a third-party package or crate, read the installed version from `pubspec.yaml` or `Cargo.toml` and use APIs compatible with that version.
+- If Rust API or annotated Dart models/providers change, include the required regeneration and validation steps from `docs/ai/shared/workflow.md`.
 - `just` tasks from `justfile` are optional developer shortcuts, not a required or preferred path for agents.
 
 ## Full Guide

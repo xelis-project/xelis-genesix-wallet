@@ -15,7 +15,8 @@ This file is the Codex entrypoint for this repository.
 - Treat `docs/ai/shared/core-rules.md` as the authoritative engineering rule set (`MUST`/`SHOULD`/`MAY`).
 - Treat `docs/ai/shared/workflow.md` as the authoritative validation and delivery checklist.
 - Apply Codex-specific behavior from `docs/ai/tools/codex.md`.
-- When Rust API surface changes, run required regeneration and validation steps from `docs/ai/shared/workflow.md`.
+- Before suggesting code that depends on a third-party package or crate, read the installed version from `pubspec.yaml` or `Cargo.toml` and use APIs compatible with that version.
+- If Rust API surface changes or annotated Dart code changes, run the required regeneration and validation steps from `docs/ai/shared/workflow.md`.
 - `just` tasks from `justfile` are optional shortcuts for developers, not a required or preferred path for agents.
 
 ## Full Guide

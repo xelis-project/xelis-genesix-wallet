@@ -6,14 +6,12 @@
 - Communicate assumptions when requirements are ambiguous.
 
 ## Command Strategy
-- Prefer fast repo search (`rg`); `justfile` aliases are optional shortcuts, not a preferred path for agents.
+- Prefer fast repo search such as `rg`.
 - Run only checks that match the changed surface area.
 - If a check cannot run, state it explicitly in delivery notes.
+- `justfile` aliases are optional shortcuts, not a preferred path for agents.
 
-## UI/UX Defaults
-- For Flutter UI/UX work, use Forui as the primary library by default.
-- Reuse existing components in `lib/shared` before creating new UI building blocks.
-
-## Collaboration Expectations
+## Output Expectations
 - Keep summaries concise and file-referenced.
-- Call out risks, regressions, and missing validation early.
+- Report what changed, what was validated, and what was not validated.
+- Call out risks, regressions, missing validation, or version assumptions early.

@@ -6,6 +6,7 @@ This folder defines one harmonized rule set for Codex and GitHub Copilot.
 - Keep one shared standard for architecture, quality, and conventions.
 - Keep tool-specific behavior minimal and explicit.
 - Reduce drift by referencing the same files from both entrypoints.
+- Prefer small, reviewed updates over frequent rewrites.
 
 ## File Layout
 - `docs/ai/project-context.md`: repository-specific context and integration points.
@@ -25,6 +26,6 @@ This folder defines one harmonized rule set for Codex and GitHub Copilot.
 
 ## Maintenance
 - Update shared files first, then keep both entrypoints aligned.
-- Keep examples command-oriented and repo-accurate.
-- Prefer additive, reviewed updates over large rewrites.
-
+- Shared files contain the engineering truth.
+- Tool-specific files should stay short and focus only on tool behavior, prompting style, and output expectations.
+- Keep examples repo-accurate and command-oriented.
