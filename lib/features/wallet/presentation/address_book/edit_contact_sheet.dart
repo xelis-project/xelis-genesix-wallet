@@ -69,7 +69,7 @@ class _EditContactSheetState extends ConsumerState<EditContactSheet> {
                   try {
                     ref
                         .read(addressBookProvider.notifier)
-                        .upsert(address, name, null);
+                        .upsert(address, name, widget.contactDetails.note);
 
                     ref
                         .read(toastProvider.notifier)
