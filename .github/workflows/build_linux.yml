@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FRB_CODEGEN_VERSION: 2.11.1
+  FRB_CODEGEN_VERSION: 2.12.0
 
 jobs:
   build:

@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 env:
-  FRB_CODEGEN_VERSION: 2.11.1
+  FRB_CODEGEN_VERSION: 2.12.0
 
 jobs:
   dart-analyze:
