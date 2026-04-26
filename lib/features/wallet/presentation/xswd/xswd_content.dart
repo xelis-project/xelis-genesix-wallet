@@ -594,7 +594,7 @@ class _XswdFooter extends StatelessWidget {
               const SizedBox(height: Spaces.small),
             ],
             FButton(
-              style: FButtonStyle.primary(),
+              variant: FButtonVariant.primary,
               onPress: isConnectionReady ? onNewConnection : null,
               prefix: const Icon(FIcons.qrCode, size: 18),
               child: const Text('New Connection'),

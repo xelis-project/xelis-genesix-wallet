@@ -120,7 +120,7 @@ class _NarrowList extends ConsumerWidget {
                   LabeledValue.child(
                     loc.asset,
                     FBadge(
-                      style: FBadgeStyle.outline(),
+                      variant: FBadgeVariant.outline,
                       child: Text(row.asset),
                     ),
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -137,7 +137,7 @@ class _NarrowList extends ConsumerWidget {
                   loc.extra_data.capitalizeAll(),
                   hideExtraData
                       ? FBadge(
-                          style: FBadgeStyle.secondary(),
+                          variant: FBadgeVariant.secondary,
                           child: Text(loc.hidden),
                         )
                       : ExtraDataIndicator(
@@ -200,7 +200,7 @@ class _WideTable extends ConsumerWidget {
                     DataCell(
                       Center(
                         child: FBadge(
-                          style: FBadgeStyle.outline(),
+                          variant: FBadgeVariant.outline,
                           child: Text(row.asset),
                         ),
                       ),
@@ -209,7 +209,7 @@ class _WideTable extends ConsumerWidget {
                       Center(
                         child: SelectableText(
                           row.amountText,
-                          style: context.theme.typography.base,
+                          style: context.theme.typography.sm,
                         ),
                       ),
                     ),
@@ -217,7 +217,7 @@ class _WideTable extends ConsumerWidget {
                       Center(
                         child: hideExtraData
                             ? FBadge(
-                                style: FBadgeStyle.secondary(),
+                                variant: FBadgeVariant.secondary,
                                 child: Text(loc.hidden),
                               )
                             : ExtraDataIndicator(
@@ -235,7 +235,7 @@ class _WideTable extends ConsumerWidget {
                     DataCell(
                       Center(
                         child: FBadge(
-                          style: FBadgeStyle.outline(),
+                          variant: FBadgeVariant.outline,
                           child: Text(row.asset),
                         ),
                       ),
@@ -252,7 +252,7 @@ class _WideTable extends ConsumerWidget {
                       Center(
                         child: hideExtraData
                             ? FBadge(
-                                style: FBadgeStyle.secondary(),
+                                variant: FBadgeVariant.secondary,
                                 child: Text(loc.hidden),
                               )
                             : ExtraDataIndicator(

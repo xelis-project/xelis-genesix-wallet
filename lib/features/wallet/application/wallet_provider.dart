@@ -49,7 +49,54 @@ class XswdCallbacks {
   final CancelCb appDisconnectCallback;
 }
 
-extension XswdCallbacksBuilder on WalletState {
+@riverpod
+class WalletState extends _$WalletState {
+  @override
+  WalletSnapshot build() {
+    final authenticationState = ref.watch(authenticationProvider);
+
+    // Listen to XSWD setting changes
+    if (!kIsWeb) {
+      ref.listen(settingsProvider, (previous, next) {
+        final previousEnable = previous?.enableXswd;
+        final nextEnable = next.enableXswd;
+        if (previousEnable != null &&
+            previousEnable != nextEnable &&
+            state.isOnline) {
+          // Setting changed while wallet is online - restart XSWD
+          if (nextEnable) {
+            talker.info('XSWD enabled - starting server');
+            startXSWD().catchError((Object error) {
+              talker.error('Unhandled XSWD start error: $error');
+            });
+          } else {
+            talker.info('XSWD disabled - stopping server');
+            stopXSWD().catchError((Object error) {
+              talker.error('Unhandled XSWD stop error: $error');
+            });
+          }
+        }
+      });
+    }
+
+    switch (authenticationState) {
+      case SignedIn(:final name, :final nativeWallet):
+        return WalletSnapshot(
+          name: name,
+          nativeWalletRepository: nativeWallet,
+          address: nativeWallet.address,
+          network: nativeWallet.network,
+          trackedBalances: LinkedHashMap.from({}),
+          knownAssets: LinkedHashMap.from({}),
+        );
+      case SignedOut():
+        return WalletSnapshot(
+          trackedBalances: LinkedHashMap.from({}),
+          knownAssets: LinkedHashMap.from({}),
+        );
+    }
+  }
+
   XswdCallbacks buildXswdCallbacks({required String channelTitle}) {
     final loc = ref.read(appLocalizationsProvider);
 
@@ -129,54 +176,6 @@ extension XswdCallbacksBuilder on WalletState {
       },
     );
   }
-}
-
-@riverpod
-class WalletState extends _$WalletState {
-  @override
-  WalletSnapshot build() {
-    final authenticationState = ref.watch(authenticationProvider);
-
-    // Listen to XSWD setting changes
-    if (!kIsWeb) {
-      ref.listen(settingsProvider.select((s) => s.enableXswd), (
-        previous,
-        next,
-      ) {
-        if (previous != null && previous != next && state.isOnline) {
-          // Setting changed while wallet is online - restart XSWD
-          if (next) {
-            talker.info('XSWD enabled - starting server');
-            startXSWD().catchError((Object error) {
-              talker.error('Unhandled XSWD start error: $error');
-            });
-          } else {
-            talker.info('XSWD disabled - stopping server');
-            stopXSWD().catchError((Object error) {
-              talker.error('Unhandled XSWD stop error: $error');
-            });
-          }
-        }
-      });
-    }
-
-    switch (authenticationState) {
-      case SignedIn(:final name, :final nativeWallet):
-        return WalletSnapshot(
-          name: name,
-          nativeWalletRepository: nativeWallet,
-          address: nativeWallet.address,
-          network: nativeWallet.network,
-          trackedBalances: LinkedHashMap.from({}),
-          knownAssets: LinkedHashMap.from({}),
-        );
-      case SignedOut():
-        return WalletSnapshot(
-          trackedBalances: LinkedHashMap.from({}),
-          knownAssets: LinkedHashMap.from({}),
-        );
-    }
-  }
 
   Future<void> connect() async {
     if (state.nativeWalletRepository != null) {
@@ -191,9 +190,7 @@ class WalletState extends _$WalletState {
 
       if (!kIsWeb) {
         // Web does not support XSWD protocol
-        final enableXswd = ref.read(
-          settingsProvider.select((s) => s.enableXswd),
-        );
+        final enableXswd = ref.read(settingsProvider).enableXswd;
         if (enableXswd) {
           startXSWD().catchError((Object error) {
             // Error already handled inside startXSWD, this prevents unhandled exception

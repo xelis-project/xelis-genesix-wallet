@@ -48,7 +48,7 @@ class _HistoryContentState extends ConsumerState<HistoryContent> {
                     children: [
                       Text(
                         loc.no_transactions_found,
-                        style: context.theme.typography.base.copyWith(
+                        style: context.theme.typography.sm.copyWith(
                           color: context.theme.colors.mutedForeground,
                         ),
                       ),
@@ -59,7 +59,7 @@ class _HistoryContentState extends ConsumerState<HistoryContent> {
                           if (snapshot.data != null && snapshot.data! > 0) {
                             return Text(
                               loc.try_changing_filter,
-                              style: context.theme.typography.base.copyWith(
+                              style: context.theme.typography.sm.copyWith(
                                 color: context.theme.colors.mutedForeground,
                               ),
                             );
@@ -82,7 +82,7 @@ class _HistoryContentState extends ConsumerState<HistoryContent> {
       AsyncError() => Center(
         child: Text(
           loc.oups,
-          style: context.theme.typography.base.copyWith(
+          style: context.theme.typography.sm.copyWith(
             color: context.theme.colors.error,
           ),
         ),

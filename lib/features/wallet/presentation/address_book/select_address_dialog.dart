@@ -62,12 +62,12 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
 
           // Search Field
           FTextField(
-            controller: _searchController,
+            control: FTextFieldControl.managed(controller: _searchController),
             hint: loc.filter_contacts_label_text,
             keyboardType: TextInputType.text,
             maxLines: 1,
             clearable: (v) => v.text.isNotEmpty,
-            onChange: (value) {
+            onSubmit: (value) {
               setState(() {
                 _searchQuery = value;
               });
@@ -156,7 +156,7 @@ class _CenteredMessage extends StatelessWidget {
         child: Text(
           message,
           textAlign: TextAlign.center,
-          style: context.theme.typography.base.copyWith(color: color),
+          style: context.theme.typography.sm.copyWith(color: color),
         ),
       ),
     );

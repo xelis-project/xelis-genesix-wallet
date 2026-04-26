@@ -65,7 +65,7 @@ class _XswdPasteConnectionDialogState
     final loc = ref.watch(appLocalizationsProvider);
 
     return FDialog(
-      style: widget.style.call,
+      style: widget.style,
       animation: widget.animation,
       constraints: const BoxConstraints(maxWidth: 700),
       body: Column(
@@ -79,7 +79,7 @@ class _XswdPasteConnectionDialogState
               children: [
                 const Expanded(child: _DialogTitle()),
                 FButton.icon(
-                  style: FButtonStyle.ghost(),
+                  variant: FButtonVariant.ghost,
                   onPress: _isProcessing ? null : () => widget.close(),
                   child: const Icon(FIcons.x, size: 22),
                 ),
@@ -87,7 +87,7 @@ class _XswdPasteConnectionDialogState
             ),
           ),
           FTextField(
-            controller: _controller,
+            control: FTextFieldControl.managed(controller: _controller),
             label: Text(loc.parameters),
             hint:
                 '{"relayer":"...","encryption_mode":{mode, key},"app_data":{...}}',
@@ -114,13 +114,13 @@ class _XswdPasteConnectionDialogState
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             FButton(
-              style: FButtonStyle.outline(),
+              variant: FButtonVariant.outline,
               onPress: _isProcessing ? null : () => widget.close(),
               child: Text(loc.cancel_button),
             ),
             const SizedBox(width: Spaces.small),
             FButton(
-              style: FButtonStyle.primary(),
+              variant: FButtonVariant.primary,
               onPress: !_isProcessing && _hasInput ? _connectFromPaste : null,
               prefix: _isProcessing
                   ? FInheritedCircularProgressStyle(

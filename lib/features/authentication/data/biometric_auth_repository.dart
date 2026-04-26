@@ -30,12 +30,7 @@ class BiometricAuthRepository {
   }
 
   Future<bool> authenticate(String reason) async {
-    final res = await auth.authenticate(
-      localizedReason: reason,
-      options: AuthenticationOptions(
-        biometricOnly: Platform.isWindows ? false : true,
-      ),
-    );
+    final res = await auth.authenticate(localizedReason: reason);
 
     // this is needed to fix issue with local_auth on Windows
     // see https://github.com/flutter/flutter/issues/122322

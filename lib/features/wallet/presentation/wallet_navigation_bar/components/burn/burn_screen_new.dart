@@ -30,7 +30,7 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
   final _amountController = TextEditingController();
 
   late final FSelectController<MapEntry<String, AssetData>> _assetController =
-      FSelectController<MapEntry<String, AssetData>>(vsync: this);
+      FSelectController<MapEntry<String, AssetData>>();
 
   String? _selectedAsset;
   String _selectedAssetBalance = AppResources.zeroBalance;
@@ -132,7 +132,9 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
                         children: [
                           Expanded(
                             child: FTextFormField(
-                              controller: _amountController,
+                              control: FTextFieldControl.managed(
+                                controller: _amountController,
+                              ),
                               label: Text(loc.amount.capitalize()),
                               hint: AppResources.zeroBalance,
                               keyboardType:
@@ -160,7 +162,7 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
                             child: SizedBox(
                               height: inputHeight,
                               child: FButton(
-                                style: FButtonStyle.outline(),
+                                variant: FButtonVariant.outline,
                                 onPress: () {
                                   final selected = _assetController.value;
                                   if (selected != null) {
@@ -190,7 +192,19 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
 
                       // Asset select
                       FSelect<MapEntry<String, AssetData>>.rich(
-                        controller: _assetController,
+                        control: FSelectControl.managed(
+                          controller: _assetController,
+                          onChange: (entry) {
+                            if (entry != null) {
+                              setState(() {
+                                _selectedAsset = entry.key;
+                                _selectedAssetBalance =
+                                    balances[_selectedAsset] ??
+                                    AppResources.zeroBalance;
+                              });
+                            }
+                          },
+                        ),
                         enabled: validAssets.isNotEmpty,
                         hint: validAssets.isEmpty
                             ? loc.no_balance_to_burn
@@ -206,16 +220,6 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
                             subtitle: Text('$balance ${assetData.ticker}'),
                           );
                         }).toList(),
-                        onChange: (entry) {
-                          if (entry != null) {
-                            setState(() {
-                              _selectedAsset = entry.key;
-                              _selectedAssetBalance =
-                                  balances[_selectedAsset] ??
-                                  AppResources.zeroBalance;
-                            });
-                          }
-                        },
                         validator: (value) {
                           if (value == null) {
                             return loc.field_required_error;
@@ -235,7 +239,7 @@ class _BurnScreenNewState extends ConsumerState<BurnScreenNew>
                     if (context.isWideScreen) const Spacer(),
                     Expanded(
                       child: FButton(
-                        style: FButtonStyle.primary(),
+                        variant: FButtonVariant.primary,
                         onPress: validAssets.isEmpty ? null : _reviewBurn,
                         child: Text(loc.review_burn),
                       ),

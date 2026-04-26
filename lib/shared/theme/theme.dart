@@ -34,13 +34,15 @@ FThemeData get greenLight {
     destructiveForeground: Color(0xFFF9FAFB),
     error: Color(0xFFEF4444),
     errorForeground: Color(0xFFF9FAFB),
+    card: Color(0xFFFFFFFF),
     border: Color(0xFFE5E7EB),
   );
 
   final typography = _typography(colors: colors);
-  final style = _style(colors: colors, typography: typography);
+  final style = _style(colors: colors, typography: typography, touch: false);
 
   return FThemeData(
+    touch: false,
     colors: colors,
     typography: typography,
     style: style,
@@ -48,11 +50,13 @@ FThemeData get greenLight {
       style: style,
       colors: colors,
       typography: typography,
+      touch: false,
     ),
-    textFieldStyle: textFieldStyle(
+    textFieldStyles: textFieldStyles(
       colors: colors,
       typography: typography,
       style: style,
+      touch: false,
     ),
   );
 }
@@ -76,13 +80,15 @@ FThemeData get greenDark {
     destructiveForeground: Color(0xFFF9FAFB),
     error: Color(0xFF7F1D1D),
     errorForeground: Color(0xFFF9FAFB),
+    card: Color(0xFF030712),
     border: Color(0xFF1F2937),
   );
 
   final typography = _typography(colors: colors);
-  final style = _style(colors: colors, typography: typography);
+  final style = _style(colors: colors, typography: typography, touch: false);
 
   return FThemeData(
+    touch: false,
     colors: colors,
     typography: typography,
     style: style,
@@ -90,11 +96,13 @@ FThemeData get greenDark {
       style: style,
       colors: colors,
       typography: typography,
+      touch: false,
     ),
-    textFieldStyle: textFieldStyle(
+    textFieldStyles: textFieldStyles(
       colors: colors,
       typography: typography,
       style: style,
+      touch: false,
     ),
   );
 }
@@ -103,100 +111,108 @@ FTypography _typography({
   required FColors colors,
   String defaultFontFamily = 'packages/forui/Inter',
 }) => FTypography(
-  xs: TextStyle(
+  fontFamily: defaultFontFamily,
+  xs2: TextStyle(
     color: colors.foreground,
     fontFamily: defaultFontFamily,
     fontSize: 12,
     height: 1,
   ),
-  sm: TextStyle(
+  xs: TextStyle(
     color: colors.foreground,
     fontFamily: defaultFontFamily,
     fontSize: 14,
     height: 1.25,
   ),
-  base: TextStyle(
+  sm: TextStyle(
     color: colors.foreground,
     fontFamily: defaultFontFamily,
     fontSize: 16,
     height: 1.5,
   ),
-  lg: TextStyle(
+  md: TextStyle(
     color: colors.foreground,
     fontFamily: defaultFontFamily,
     fontSize: 18,
     height: 1.75,
   ),
-  xl: TextStyle(
+  lg: TextStyle(
     color: colors.foreground,
     fontFamily: defaultFontFamily,
     fontSize: 20,
     height: 1.75,
   ),
-  xl2: TextStyle(
+  xl: TextStyle(
     color: colors.foreground,
     fontFamily: defaultFontFamily,
     fontSize: 22,
     height: 2,
   ),
-  xl3: TextStyle(
+  xl2: TextStyle(
     color: colors.foreground,
     fontFamily: defaultFontFamily,
     fontSize: 30,
     height: 2.25,
   ),
-  xl4: TextStyle(
+  xl3: TextStyle(
     color: colors.foreground,
     fontFamily: defaultFontFamily,
     fontSize: 36,
     height: 2.5,
   ),
-  xl5: TextStyle(
+  xl4: TextStyle(
     color: colors.foreground,
     fontFamily: defaultFontFamily,
     fontSize: 48,
     height: 1,
   ),
-  xl6: TextStyle(
+  xl5: TextStyle(
     color: colors.foreground,
     fontFamily: defaultFontFamily,
     fontSize: 60,
     height: 1,
   ),
-  xl7: TextStyle(
+  xl6: TextStyle(
     color: colors.foreground,
     fontFamily: defaultFontFamily,
     fontSize: 72,
     height: 1,
   ),
-  xl8: TextStyle(
+  xl7: TextStyle(
     color: colors.foreground,
     fontFamily: defaultFontFamily,
     fontSize: 96,
     height: 1,
   ),
+  xl8: TextStyle(
+    color: colors.foreground,
+    fontFamily: defaultFontFamily,
+    fontSize: 108,
+    height: 1,
+  ),
 );
 
-FStyle _style({required FColors colors, required FTypography typography}) =>
-    FStyle(
-      formFieldStyle: FFormFieldStyle.inherit(
-        colors: colors,
-        typography: typography,
-      ),
-      focusedOutlineStyle: FFocusedOutlineStyle(
-        color: colors.primary,
-        borderRadius: const BorderRadius.all(Radius.circular(8)),
-      ),
-      iconStyle: IconThemeData(color: colors.primary, size: 20),
-      tappableStyle: FTappableStyle(),
-      borderRadius: const FLerpBorderRadius.all(Radius.circular(8), min: 24),
-      borderWidth: 1,
-      pagePadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      shadow: const [
-        BoxShadow(
-          color: Color(0x0d000000),
-          offset: Offset(0, 1),
-          blurRadius: 2,
-        ),
-      ],
-    );
+FStyle _style({
+  required FColors colors,
+  required FTypography typography,
+  required bool touch,
+}) => FStyle(
+  formFieldStyle: FFormFieldStyle.inherit(
+    colors: colors,
+    typography: typography,
+    touch: touch,
+  ),
+  sizes: FSizes.inherit(touch: touch),
+  focusedOutlineStyle: FFocusedOutlineStyle(
+    color: colors.primary,
+    borderRadius: const BorderRadius.all(Radius.circular(8)),
+  ),
+  iconStyle: IconThemeData(color: colors.primary, size: 20),
+  tappableStyle: FTappableStyle(),
+  borderRadius: const FBorderRadius(sm: BorderRadius.all(Radius.circular(8))),
+  borderWidth: 1,
+  pagePadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+  shadow: const [
+    BoxShadow(color: Color(0x0d000000), offset: Offset(0, 1), blurRadius: 2),
+  ],
+);

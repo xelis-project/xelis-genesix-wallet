@@ -5,6 +5,7 @@ FDialogStyle dialogStyle({
   required FStyle style,
   required FColors colors,
   required FTypography typography,
+  required bool touch,
   BuildContext? context,
 }) {
   final title = typography.lg.copyWith(
@@ -38,7 +39,7 @@ FDialogStyle dialogStyle({
 
   return FDialogStyle(
     decoration: BoxDecoration(
-      borderRadius: style.borderRadius,
+      borderRadius: style.borderRadius.sm,
       border: Border.all(color: colors.primary.withValues(alpha: 0.2)),
       color: colors.background,
       boxShadow: [
@@ -49,18 +50,37 @@ FDialogStyle dialogStyle({
         ),
       ],
     ),
-    horizontalStyle: FDialogContentStyle(
-      titleTextStyle: title,
-      bodyTextStyle: body,
-      padding: EdgeInsets.symmetric(horizontal: contentH, vertical: contentV),
-      actionSpacing: 7,
+    contentStyle: FDialogContentStyles(
+      FVariants(
+        FDialogContentStyle(
+          titleTextStyle: title,
+          bodyTextStyle: body,
+          padding: EdgeInsets.symmetric(
+            horizontal: contentH,
+            vertical: contentV,
+          ),
+          actionSpacing: 7,
+        ),
+        variants: {
+          [FDialogAxisVariant.vertical]: FDialogContentStyle(
+            titleTextStyle: title,
+            bodyTextStyle: body,
+            padding: EdgeInsets.symmetric(
+              horizontal: contentH,
+              vertical: contentV,
+            ),
+            actionSpacing: 8,
+          ),
+        },
+      ),
     ),
-    verticalStyle: FDialogContentStyle(
-      titleTextStyle: title,
-      bodyTextStyle: body,
-      padding: EdgeInsets.symmetric(horizontal: contentH, vertical: contentV),
-      actionSpacing: 8,
+    slideableActions: FVariants(
+      false,
+      variants: {
+        [.touch]: touch,
+      },
     ),
+    slidePressHapticFeedback: style.hapticFeedback.selectionClick,
     motion: FDialogMotion(
       fadeInCurve: Curves.easeOutCubic,
       fadeOutCurve: Curves.easeInCubic,
@@ -91,6 +111,7 @@ Future<T?> showAppDialog<T>({
         style: theme.style,
         colors: theme.colors,
         typography: theme.typography,
+        touch: theme.style.sizes.item >= 44,
         context: ctx,
       ),
       animation,

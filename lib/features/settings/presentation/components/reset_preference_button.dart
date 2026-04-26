@@ -20,7 +20,7 @@ class _ResetPreferenceButtonState extends ConsumerState<ResetPreferenceButton> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     return FButton(
-      style: FButtonStyle.outline(),
+      variant: FButtonVariant.outline,
       onPress: _showResetPreferencesDialog,
       child: Text(loc.reset_preferences),
     );
@@ -46,7 +46,7 @@ class _ResetPreferenceButtonState extends ConsumerState<ResetPreferenceButton> {
       context: context,
       builder: (context, style, animation) {
         return FDialog(
-          style: style.call,
+          style: style,
           animation: animation,
           direction: Axis.horizontal,
           title: Text(loc.do_you_want_to_continue),
@@ -56,7 +56,7 @@ class _ResetPreferenceButtonState extends ConsumerState<ResetPreferenceButton> {
           ),
           actions: [
             FButton(
-              style: FButtonStyle.outline(),
+              variant: FButtonVariant.outline,
               onPress: () => context.pop(),
               child: Text(loc.cancel_button),
             ),

@@ -23,15 +23,12 @@ class TransactionReview extends _$TransactionReview {
   }
 
   void setSingleTransferTransaction(TransactionSummary transactionSummary) {
-    final network = ref.read(
-      walletStateProvider.select((state) => state.network),
-    );
+    final walletState = ref.read(walletStateProvider);
+    final network = walletState.network;
     final transfer = transactionSummary.getSingleTransfer();
     final asset = transfer.asset;
     final destination = transfer.destination;
-    final knownAssets = ref.read(
-      walletStateProvider.select((state) => state.knownAssets),
-    );
+    final knownAssets = walletState.knownAssets;
     final name = knownAssets[asset]?.name ?? '';
     final ticker = knownAssets[asset]?.ticker ?? '';
     final decimals = knownAssets[asset]?.decimals ?? 0;
@@ -51,14 +48,11 @@ class TransactionReview extends _$TransactionReview {
   }
 
   Future<void> setBurnTransaction(TransactionSummary transactionSummary) async {
-    final network = ref.read(
-      walletStateProvider.select((state) => state.network),
-    );
+    final walletState = ref.read(walletStateProvider);
+    final network = walletState.network;
     final burn = transactionSummary.getBurn();
     final asset = burn.asset;
-    final knownAssets = ref.read(
-      walletStateProvider.select((state) => state.knownAssets),
-    );
+    final knownAssets = walletState.knownAssets;
     final name = knownAssets[asset]?.name ?? '';
     final ticker = knownAssets[asset]?.ticker ?? '';
     final decimals = knownAssets[asset]?.decimals ?? 0;
@@ -75,9 +69,9 @@ class TransactionReview extends _$TransactionReview {
   }
 
   void setDeleteMultisigTransaction(TransactionSummary transactionSummary) {
-    final walletRepository = ref.read(
-      walletStateProvider.select((state) => state.nativeWalletRepository),
-    );
+    final walletRepository = ref
+        .read(walletStateProvider)
+        .nativeWalletRepository;
     if (walletRepository == null) {
       talker.warning('WalletRepository is not available');
       return;

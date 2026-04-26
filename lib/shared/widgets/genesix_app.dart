@@ -11,6 +11,7 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/settings/domain/settings_state.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/widgets/app_initializer.dart';
+import 'package:genesix/features/wallet/presentation/xswd/xswd_widget.dart';
 
 class Genesix extends ConsumerStatefulWidget {
   const Genesix({super.key});
@@ -60,7 +61,7 @@ class _GenesixState extends ConsumerState<Genesix> with WindowListener {
       builder: (context, child) {
         return FTheme(
           data: themeData,
-          child: AppInitializer(child: child!),
+          child: XswdWidget(AppInitializer(child: child!)),
         );
       },
     );

@@ -13,14 +13,22 @@ class NetworkSelectMenuTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final network = ref.watch(
-      settingsProvider.select((state) => state.network),
-    );
+    final network = ref.watch(settingsProvider).network;
     final loc = ref.watch(appLocalizationsProvider);
 
     return FSelectMenuTile(
       title: Text(loc.network),
-      initialValue: network,
+      selectControl: FMultiValueControl.managed(
+        initial: {network},
+        onChange: (values) {
+          if (values.isEmpty) {
+            return;
+          }
+          final selectedNetwork = values.first;
+          ref.read(settingsProvider.notifier).setNetwork(selectedNetwork);
+          onSelected?.call(selectedNetwork);
+        },
+      ),
       detailsBuilder: (_, values, _) =>
           Text(translateNetworkName(loc, values.first)),
       menu: [
@@ -29,11 +37,6 @@ class NetworkSelectMenuTile extends ConsumerWidget {
         FSelectTile(title: Text(loc.stagenet), value: Network.stagenet),
         FSelectTile(title: Text(loc.devnet), value: Network.devnet),
       ],
-      onSelect: (value) {
-        final selectedNetwork = value.$1;
-        ref.read(settingsProvider.notifier).setNetwork(selectedNetwork);
-        onSelected?.call(selectedNetwork);
-      },
     );
   }
 }

@@ -23,9 +23,7 @@ class ContactTransactions extends _$ContactTransactions {
   Future<List<TransactionEntry>> loadMore() async {
     if (!_hasMore) return _allTransactions;
 
-    final repository = ref.read(
-      walletStateProvider.select((value) => value.nativeWalletRepository),
-    );
+    final repository = ref.read(walletStateProvider).nativeWalletRepository;
 
     if (repository != null) {
       final filter = HistoryPageFilter(
@@ -39,7 +37,9 @@ class ContactTransactions extends _$ContactTransactions {
         address: contactAddress,
       );
 
-      final transactions = await repository.history(filter);
+      final List<TransactionEntry> transactions = await repository.history(
+        filter,
+      );
 
       if (transactions.length < pageSize) {
         _hasMore = false;

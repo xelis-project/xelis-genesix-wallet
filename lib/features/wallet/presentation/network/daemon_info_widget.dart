@@ -40,7 +40,7 @@ class _DaemonInfoWidgetState extends ConsumerState<DaemonInfoWidget> {
           ),
           Text(
             widget.info?.height ?? '...',
-            style: context.theme.typography.base,
+            style: context.theme.typography.sm,
             textAlign: TextAlign.center,
           ),
         ],
@@ -56,7 +56,7 @@ class _DaemonInfoWidgetState extends ConsumerState<DaemonInfoWidget> {
           ),
           Text(
             widget.info?.topoHeight ?? '...',
-            style: context.theme.typography.base,
+            style: context.theme.typography.sm,
             textAlign: TextAlign.center,
           ),
         ],
@@ -73,7 +73,7 @@ class _DaemonInfoWidgetState extends ConsumerState<DaemonInfoWidget> {
           Text(
             key: ValueKey(widget.info?.mempoolSize),
             widget.info?.mempoolSize.toString() ?? '...',
-            style: context.theme.typography.base,
+            style: context.theme.typography.sm,
             textAlign: TextAlign.center,
           ),
         ],
@@ -89,7 +89,7 @@ class _DaemonInfoWidgetState extends ConsumerState<DaemonInfoWidget> {
           ),
           Text(
             widget.info?.circulatingSupply ?? '...',
-            style: context.theme.typography.base,
+            style: context.theme.typography.sm,
             textAlign: TextAlign.center,
           ),
         ],
@@ -105,7 +105,7 @@ class _DaemonInfoWidgetState extends ConsumerState<DaemonInfoWidget> {
           ),
           Text(
             widget.info?.emittedSupply ?? '...',
-            style: context.theme.typography.base,
+            style: context.theme.typography.sm,
             textAlign: TextAlign.center,
           ),
         ],
@@ -121,7 +121,7 @@ class _DaemonInfoWidgetState extends ConsumerState<DaemonInfoWidget> {
           ),
           Text(
             widget.info?.burnSupply ?? '...',
-            style: context.theme.typography.base,
+            style: context.theme.typography.sm,
             textAlign: TextAlign.center,
           ),
         ],
@@ -137,7 +137,7 @@ class _DaemonInfoWidgetState extends ConsumerState<DaemonInfoWidget> {
           ),
           Text(
             widget.info?.hashRate ?? '...',
-            style: context.theme.typography.base,
+            style: context.theme.typography.sm,
             textAlign: TextAlign.center,
           ),
         ],
@@ -153,7 +153,7 @@ class _DaemonInfoWidgetState extends ConsumerState<DaemonInfoWidget> {
           ),
           Text(
             widget.info?.blockReward ?? '...',
-            style: context.theme.typography.base,
+            style: context.theme.typography.sm,
             textAlign: TextAlign.center,
           ),
         ],
@@ -169,7 +169,7 @@ class _DaemonInfoWidgetState extends ConsumerState<DaemonInfoWidget> {
           ),
           Text(
             '${widget.info?.averageBlockTime.inSeconds.toString() ?? '...'} ${loc.seconds}',
-            style: context.theme.typography.base,
+            style: context.theme.typography.sm,
             textAlign: TextAlign.center,
           ),
         ],

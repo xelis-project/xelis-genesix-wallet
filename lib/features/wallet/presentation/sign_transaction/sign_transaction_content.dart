@@ -39,7 +39,7 @@ class _SignTransactionContentState
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             FTextFormField(
-              controller: _transactionController,
+              control: FTextFieldControl.managed(controller: _transactionController),
               autovalidateMode: _submitted
                   ? AutovalidateMode.always
                   : AutovalidateMode.disabled,
@@ -53,7 +53,7 @@ class _SignTransactionContentState
                 }
                 return null;
               },
-              onChange: (_) {
+              onSubmit: (_) {
                 if (_submitted) {
                   setState(() => _submitted = false);
                   _formKey.currentState?.validate();
@@ -90,7 +90,7 @@ class _SignTransactionContentState
                             padding: const EdgeInsets.all(Spaces.medium),
                             child: Text(
                               loc.no_signature_generated_yet,
-                              style: context.theme.typography.base.copyWith(
+                              style: context.theme.typography.sm.copyWith(
                                 color: context.theme.colors.mutedForeground,
                               ),
                             ),

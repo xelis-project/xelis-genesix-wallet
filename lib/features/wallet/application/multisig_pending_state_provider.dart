@@ -7,7 +7,7 @@ part 'multisig_pending_state_provider.g.dart';
 class MultisigPendingState extends _$MultisigPendingState {
   @override
   bool build() {
-    ref.watch(walletStateProvider.select((value) => value.multisigState));
+    ref.watch(walletStateProvider).multisigState;
     return false;
   }
 

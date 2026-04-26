@@ -51,7 +51,9 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
           children: [
             FTextFormField(
               label: Text(loc.current_password),
-              controller: _currentPasswordController,
+              control: FTextFieldControl.managed(
+                controller: _currentPasswordController,
+              ),
               autovalidateMode: AutovalidateMode.onUnfocus,
               obscureText: true,
               validator: (value) {
@@ -64,7 +66,9 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
             const SizedBox(height: Spaces.medium),
             FTextFormField(
               label: Text(loc.new_password),
-              controller: _newPasswordController,
+              control: FTextFieldControl.managed(
+                controller: _newPasswordController,
+              ),
               autovalidateMode: AutovalidateMode.onUnfocus,
               obscureText: true,
               validator: (value) {
@@ -80,7 +84,9 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
             const SizedBox(height: Spaces.medium),
             FTextFormField(
               label: Text(loc.confirm_new_password),
-              controller: _confirmNewPasswordController,
+              control: FTextFieldControl.managed(
+                controller: _confirmNewPasswordController,
+              ),
               autovalidateMode: AutovalidateMode.onUnfocus,
               obscureText: true,
               validator: (value) {
@@ -99,7 +105,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
       ),
       actions: [
         FButton(
-          style: FButtonStyle.outline(),
+          variant: FButtonVariant.outline,
           onPress: () {
             context.pop();
           },

@@ -33,7 +33,7 @@ class _SideBarFooterState extends ConsumerState<SideBarFooter> {
                 spacing: 10,
                 children: [
                   FAvatar.raw(
-                    style: (style) => style.copyWith(
+                    style: FAvatarStyleDelta.delta(
                       backgroundColor: context.theme.colors.background,
                     ),
                     child: HashiconWidget(

@@ -43,7 +43,7 @@ class _EditNodeSheetState extends ConsumerState<EditNodeSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FTextFormField(
-              controller: _nameController,
+              control: FTextFieldControl.managed(controller: _nameController),
               label: Text(loc.node_name),
               keyboardType: TextInputType.text,
               maxLines: 1,
@@ -57,7 +57,7 @@ class _EditNodeSheetState extends ConsumerState<EditNodeSheet> {
             ),
             const SizedBox(height: Spaces.medium),
             FTextFormField(
-              controller: _urlController,
+              control: FTextFieldControl.managed(controller: _urlController),
               label: Text(loc.node_url),
               keyboardType: TextInputType.text,
               maxLines: 1,
@@ -89,7 +89,7 @@ class _EditNodeSheetState extends ConsumerState<EditNodeSheet> {
             ),
             const SizedBox(height: Spaces.medium),
             FButton(
-              style: FButtonStyle.destructive(),
+              variant: FButtonVariant.destructive,
               child: Text(loc.delete_node),
               onPress: () {
                 _delete(

@@ -38,14 +38,10 @@ class FiltersDialog extends ConsumerStatefulWidget {
 class _FiltersDialogState extends ConsumerState<FiltersDialog>
     with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  final _categoriesController =
-      FSelectTileGroupController<TransactionCategory>();
-  late final _assetController = FSelectController<MapEntry<String, AssetData>>(
-    vsync: this,
-  );
-  late final _contactController = FSelectController<ContactDetails>(
-    vsync: this,
-  );
+  final _categoriesController = FMultiValueNotifier<TransactionCategory>();
+  late final _assetController =
+      FSelectController<MapEntry<String, AssetData>>();
+  late final _contactController = FSelectController<ContactDetails>();
   final _scrollController = ScrollController();
   late bool _hideExtraData;
   late bool _hideZeroBalance;
@@ -126,7 +122,9 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                 children: [
                   // Categories selection
                   FSelectTileGroup(
-                    selectController: _categoriesController,
+                    control: FMultiValueControl.managed(
+                      controller: _categoriesController,
+                    ),
                     label: Text(loc.category),
                     validator: (values) => values?.isEmpty ?? true
                         ? loc.category_select_error
@@ -158,7 +156,9 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                   FSelect<MapEntry<String, AssetData>>.searchBuilder(
                     label: Text(loc.asset),
                     hint: loc.select_asset,
-                    controller: _assetController,
+                    control: FSelectControl.managed(
+                      controller: _assetController,
+                    ),
                     format: (assetEntry) => assetEntry.value.name,
                     clearable: true,
                     filter: (query) => query.isEmpty
@@ -186,7 +186,9 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                   FSelect<ContactDetails>.searchBuilder(
                     label: Text(loc.contact),
                     hint: loc.select_contract,
-                    controller: _contactController,
+                    control: FSelectControl.managed(
+                      controller: _contactController,
+                    ),
                     format: (contact) => contact.name,
                     clearable: true,
                     filter: (query) async {
@@ -219,7 +221,9 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                           readOnly: true,
                           showCursor: false,
                           enableInteractiveSelection: false,
-                          controller: _fromDateController,
+                          control: FTextFieldControl.managed(
+                            controller: _fromDateController,
+                          ),
                           onTap: () async {
                             final date = await showDatePicker(
                               context: context,
@@ -263,7 +267,9 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                           readOnly: true,
                           showCursor: false,
                           enableInteractiveSelection: false,
-                          controller: _toDateController,
+                          control: FTextFieldControl.managed(
+                            controller: _toDateController,
+                          ),
                           onTap: () async {
                             final date = await showDatePicker(
                               context: context,
@@ -348,7 +354,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
       ),
       actions: [
         FButton(
-          style: FButtonStyle.outline(),
+          variant: FButtonVariant.outline,
           onPress: _resetFilters,
           child: Text(loc.reset_all),
         ),

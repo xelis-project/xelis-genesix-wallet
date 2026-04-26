@@ -6,8 +6,8 @@ import 'package:genesix/features/wallet/application/xswd_providers.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/shared/widgets/components/generic_dialog_old.dart';
-import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown_old.dart';
+import 'package:genesix/shared/widgets/components/generic_dialog_legacy.dart';
+import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown_legacy.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 import 'package:go_router/go_router.dart';
 

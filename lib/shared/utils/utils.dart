@@ -301,7 +301,6 @@ String formatHashRate({
   return '${formatDifficulty(value)}H/s';
 }
 
-// TODO: Localize this function
 String timeAgo(AppLocalizations loc, DateTime dateTime, {DateTime? now}) {
   final current = now ?? DateTime.now();
   final diff = current.difference(dateTime);

@@ -36,7 +36,7 @@ class MultisigEntryContent extends ConsumerWidget {
           children: [
             Text(
               loc.participants,
-              style: context.theme.typography.base.copyWith(
+              style: context.theme.typography.sm.copyWith(
                 color: context.theme.colors.mutedForeground,
               ),
             ),

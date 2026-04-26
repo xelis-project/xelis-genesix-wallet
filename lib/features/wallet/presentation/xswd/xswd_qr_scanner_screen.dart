@@ -298,7 +298,7 @@ class _ScannerOverlay extends StatelessWidget {
               ),
               child: Text(
                 instruction,
-                style: context.theme.typography.base.copyWith(
+                style: context.theme.typography.sm.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
                 ),
@@ -335,7 +335,7 @@ class _ProcessingOverlay extends StatelessWidget {
               const SizedBox(height: Spaces.medium),
               Text(
                 label,
-                style: context.theme.typography.base.copyWith(
+                style: context.theme.typography.sm.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
                 ),
@@ -378,7 +378,7 @@ class _ScannerErrorView extends StatelessWidget {
                 SizedBox(
                   width: 180,
                   child: FButton(
-                    style: FButtonStyle.outline(),
+                    variant: FButtonVariant.outline,
                     onPress: onRetry,
                     child: const Text('Try again'),
                   ),

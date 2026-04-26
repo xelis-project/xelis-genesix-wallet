@@ -52,12 +52,12 @@ class _AddressWidgetState extends ConsumerState<AddressWidget> {
                                 Text(widget.address),
                             child: SelectableText(
                               value,
-                              style: context.theme.typography.base,
+                              style: context.theme.typography.sm,
                             ),
                           )
                         : SelectableText(
                             value,
-                            style: context.theme.typography.base,
+                            style: context.theme.typography.sm,
                           ),
                   ),
                   const SizedBox(width: Spaces.small),
@@ -66,7 +66,7 @@ class _AddressWidgetState extends ConsumerState<AddressWidget> {
                       tipBuilder: (context, controller) {
                         return Text(
                           loc.add_to_address_book_tooltip,
-                          style: context.theme.typography.base,
+                          style: context.theme.typography.sm,
                         );
                       },
                       child: FButton.icon(

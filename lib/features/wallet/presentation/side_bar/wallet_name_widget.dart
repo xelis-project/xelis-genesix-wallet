@@ -9,6 +9,7 @@ import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
+import 'package:genesix/shared/widgets/components/custom_skeletonizer.dart';
 
 class WalletNameWidget extends ConsumerStatefulWidget {
   const WalletNameWidget({super.key});
@@ -59,8 +60,9 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
       spacing: Spaces.medium,
       children: [
         FAvatar.raw(
-          style: (style) =>
-              style.copyWith(backgroundColor: context.theme.colors.background),
+          style: FAvatarStyleDelta.delta(
+            backgroundColor: context.theme.colors.background,
+          ),
           child: HashiconWidget(hash: walletAddress, size: const Size(35, 35)),
         ),
         Expanded(
@@ -78,26 +80,26 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
                   child: Form(
                     key: _formKey,
                     child: FTextFormField(
-                      controller: _nameController,
+                      control: FTextFieldControl.managed(
+                        controller: _nameController,
+                      ),
                       focusNode: _focusNode,
                       enabled: editing,
                       autocorrect: false,
                       keyboardType: TextInputType.text,
                       maxLines: 1,
-                      style: context.theme.textFieldStyle
-                          .copyWith(
-                            contentTextStyle: FWidgetStateMap({
-                              WidgetState.disabled: context.theme.typography.lg
-                                  .copyWith(
-                                    color: context.theme.colors.foreground,
-                                  ),
-                              WidgetState.any: context.theme.typography.lg
-                                  .copyWith(
-                                    color: context.theme.colors.primary,
-                                  ),
-                            }),
-                          )
-                          .call,
+                      style: context.theme.textFieldStyles.md.copyWith(
+                        contentTextStyle: FVariants.from(
+                          context.theme.typography.lg.copyWith(
+                            color: context.theme.colors.primary,
+                          ),
+                          variants: {
+                            [.disabled]: TextStyleDelta.delta(
+                              color: context.theme.colors.foreground,
+                            ),
+                          },
+                        ),
+                      ),
                       validator: (value) {
                         if (value == null ||
                             value.isEmpty ||
@@ -117,8 +119,12 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
                   ),
                 );
               }
-              // TODO: replace by shimmer
-              return SizedBox.shrink();
+              return CustomSkeletonizer(
+                child: SizedBox(
+                  width: 200,
+                  child: FCard(child: SizedBox(height: 38)),
+                ),
+              );
             },
           ),
         ),

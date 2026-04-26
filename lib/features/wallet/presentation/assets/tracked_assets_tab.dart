@@ -49,7 +49,7 @@ class _TrackedAssetsTabState extends ConsumerState<TrackedAssetsTab> {
         child: Center(
           child: Text(
             loc.no_tracked_assets,
-            style: context.theme.typography.base.copyWith(
+            style: context.theme.typography.sm.copyWith(
               color: context.theme.colors.mutedForeground,
             ),
           ),

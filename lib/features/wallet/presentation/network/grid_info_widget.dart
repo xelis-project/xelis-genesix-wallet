@@ -10,7 +10,7 @@ class GridInfoWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: context.theme.style.borderRadius,
+        borderRadius: context.theme.style.borderRadius.sm,
         border: Border.all(
           color: context.theme.colors.muted,
           width: context.theme.style.borderWidth,

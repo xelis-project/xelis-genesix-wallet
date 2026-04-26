@@ -19,14 +19,10 @@ class Wallets extends _$Wallets {
 
   @override
   Future<WalletsState> build() async {
-    final network = ref.watch(
-      settingsProvider.select((state) => state.network),
-    );
+    final network = ref.watch(settingsProvider).network;
     _network = network;
 
-    final lastWalletsUsed = ref.watch(
-      settingsProvider.select((state) => state.lastWalletsUsed),
-    );
+    final lastWalletsUsed = ref.watch(settingsProvider).lastWalletsUsed;
 
     final wallets = await _loadWallets();
 
@@ -131,7 +127,6 @@ class Wallets extends _$Wallets {
       // On Windows, we need to logout before renaming the wallet
       // because the wallet file is locked by the process.
       // Otherwise, we get an "Access is denied" error.
-      // TODO: test for web
       final auth = ref.read(authenticationProvider.notifier);
       await auth.logout();
     }

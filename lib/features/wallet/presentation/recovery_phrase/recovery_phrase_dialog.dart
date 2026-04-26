@@ -42,7 +42,7 @@ class _RecoveryPhraseDialogState extends ConsumerState<RecoveryPhraseDialog> {
     final words = widget.seed.split(' ');
 
     return FDialog(
-      style: widget.style.call,
+      style: widget.style,
       animation: widget.animation,
       title: Row(
         children: [
@@ -73,7 +73,7 @@ class _RecoveryPhraseDialogState extends ConsumerState<RecoveryPhraseDialog> {
                   children: List.generate(
                     words.length,
                     (i) => FBadge(
-                      style: FBadgeStyle.secondary(),
+                      variant: FBadgeVariant.secondary,
                       child: Row(
                         children: [
                           Text(

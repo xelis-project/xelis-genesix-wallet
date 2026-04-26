@@ -58,9 +58,11 @@ class _SideBarState extends ConsumerState<SideBar> {
             ),
             const SizedBox(height: Spaces.medium),
             FDivider(
-              style: context.theme.dividerStyles.horizontalStyle
-                  .copyWith(padding: EdgeInsets.zero)
-                  .call,
+              style: FDividerStyle(
+                color: context.theme.dividerStyles.horizontal.color,
+                width: context.theme.dividerStyles.horizontal.width,
+                padding: EdgeInsets.zero,
+              ),
             ),
           ],
         ),

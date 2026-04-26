@@ -27,13 +27,9 @@ class _NodeCardState extends ConsumerState<NodeCard> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final isOnline = ref.watch(
-      walletStateProvider.select((value) => value.isOnline),
-    );
+    final isOnline = ref.watch(walletStateProvider).isOnline;
     final networkNodes = ref.watch(networkNodesProvider);
-    final network = ref.watch(
-      settingsProvider.select((state) => state.network),
-    );
+    final network = ref.watch(settingsProvider).network;
 
     List<NodeAddress> nodes = networkNodes.nodesFor(network);
     NodeAddress nodeAddress = networkNodes.addressFor(network);
@@ -68,19 +64,25 @@ class _NodeCardState extends ConsumerState<NodeCard> {
               title: Text(loc.node),
               subtitle: Text(widget.info?.network?.name ?? loc.unknown_network),
               count: nodes.length,
-              initialValue: nodeAddress,
+              selectControl: FMultiValueControl.managed(
+                initial: {nodeAddress},
+                onChange: (values) {
+                  if (values.isEmpty) {
+                    return;
+                  }
+                  final selected = values.first;
+                  ref
+                      .read(networkNodesProvider.notifier)
+                      .setNodeAddress(network, selected);
+                  ref.read(walletStateProvider.notifier).reconnect(selected);
+                },
+              ),
               detailsBuilder: (_, values, _) => Text(values.first.name),
               menuBuilder: (context, index) => FSelectTile(
                 title: Text(nodes[index].name),
                 subtitle: Text(nodes[index].url),
                 value: nodes[index],
               ),
-              onSelect: (selection) {
-                ref
-                    .read(networkNodesProvider.notifier)
-                    .setNodeAddress(network, selection.$1);
-                ref.read(walletStateProvider.notifier).reconnect(selection.$1);
-              },
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

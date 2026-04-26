@@ -61,11 +61,11 @@ class ConnectionStatusCard extends ConsumerWidget {
             ],
           ),
           FDivider(
-            style: context.theme.dividerStyles.horizontalStyle
-                .copyWith(
-                  padding: EdgeInsets.symmetric(vertical: Spaces.medium),
-                )
-                .call,
+            style: FDividerStyle(
+              color: context.theme.dividerStyles.horizontal.color,
+              width: context.theme.dividerStyles.horizontal.width,
+              padding: EdgeInsets.symmetric(vertical: Spaces.medium),
+            ),
           ),
           mismatch
               ? NetworkMismatchWidget()
@@ -91,7 +91,7 @@ class ConnectionStatusCard extends ConsumerWidget {
                       ],
                     ),
                     FButton(
-                      style: FButtonStyle.outline(),
+                      variant: FButtonVariant.outline,
                       onPress: isRescanning
                           ? null
                           : () async {

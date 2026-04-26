@@ -182,7 +182,7 @@ class _XswdAppNotFound extends StatelessWidget {
               SizedBox(
                 width: 180,
                 child: FButton(
-                  style: FButtonStyle.outline(),
+                  variant: FButtonVariant.outline,
                   onPress: () => context.pop(),
                   child: Text(loc.ok_button),
                 ),
@@ -232,7 +232,7 @@ class _XswdAppDetailContent extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: FButton(
-                  style: FButtonStyle.destructive(),
+                  variant: FButtonVariant.destructive,
                   onPress: onDisconnect,
                   child: const Text('Disconnect'),
                 ),
@@ -316,7 +316,7 @@ class _XswdAppInfoCard extends StatelessWidget {
                 ),
                 color: context.theme.colors.primary,
                 width: 1,
-              ).call,
+              ),
             ),
             const SizedBox(height: Spaces.small),
             Text(
@@ -509,15 +509,15 @@ class _XswdPolicyButton extends StatelessWidget {
     final isSelected = currentPolicy == policy;
     final style = switch (policy) {
       PermissionPolicy.reject =>
-        isSelected ? FButtonStyle.destructive() : FButtonStyle.outline(),
+        isSelected ? FButtonVariant.destructive : FButtonVariant.outline,
       PermissionPolicy.ask =>
-        isSelected ? FButtonStyle.secondary() : FButtonStyle.outline(),
+        isSelected ? FButtonVariant.secondary : FButtonVariant.outline,
       PermissionPolicy.accept =>
-        isSelected ? FButtonStyle.primary() : FButtonStyle.outline(),
+        isSelected ? FButtonVariant.primary : FButtonVariant.outline,
     };
 
     return FButton(
-      style: style,
+      variant: style,
       onPress: isSelected ? null : () => onPress(policy),
       child: Text(label),
     );
@@ -544,7 +544,7 @@ class _DisconnectDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FDialog(
-      style: style.call,
+      style: style,
       animation: animation,
       constraints: const BoxConstraints(maxWidth: 560),
       title: Text(
@@ -607,7 +607,7 @@ class _DisconnectDialog extends StatelessWidget {
           children: [
             Expanded(
               child: FButton(
-                style: FButtonStyle.outline(),
+                variant: FButtonVariant.outline,
                 onPress: onCancel,
                 child: Text(loc.cancel_button),
               ),
@@ -615,7 +615,7 @@ class _DisconnectDialog extends StatelessWidget {
             const SizedBox(width: Spaces.small),
             Expanded(
               child: FButton(
-                style: FButtonStyle.destructive(),
+                variant: FButtonVariant.destructive,
                 onPress: onConfirm,
                 child: Text(loc.confirm_button),
               ),

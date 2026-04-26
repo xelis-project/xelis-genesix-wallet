@@ -22,7 +22,7 @@ class XswdNewConnectionDialog extends ConsumerWidget {
     final loc = ref.watch(appLocalizationsProvider);
 
     return FDialog(
-      style: style.call,
+      style: style,
       animation: animation,
       constraints: const BoxConstraints(maxWidth: 600),
       body: LayoutBuilder(
@@ -55,7 +55,7 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                     FTooltip(
                       tipBuilder: (context, controller) => Text(loc.close),
                       child: FButton.icon(
-                        style: FButtonStyle.ghost(),
+                        variant: FButtonVariant.ghost,
                         onPress: () => context.pop(),
                         child: const Icon(FIcons.x, size: 22),
                       ),
@@ -226,7 +226,7 @@ class _ConnectionMethodButton extends StatelessWidget {
               width: double.infinity,
               height: buttonHeight,
               child: FButton.raw(
-                style: FButtonStyle.outline(),
+                variant: FButtonVariant.outline,
                 onPress: onPressed,
                 child: SizedBox.expand(
                   child: Padding(
@@ -243,7 +243,7 @@ class _ConnectionMethodButton extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.center,
-                            style: theme.typography.base.copyWith(
+                            style: theme.typography.sm.copyWith(
                               fontWeight: FontWeight.w600,
                               height: 1.1,
                             ),

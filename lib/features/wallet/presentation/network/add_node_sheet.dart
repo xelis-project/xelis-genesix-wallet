@@ -34,7 +34,7 @@ class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FTextFormField(
-              controller: _nameController,
+              control: FTextFieldControl.managed(controller: _nameController),
               label: Text(loc.node_name),
               hint: loc.node_name_hint,
               keyboardType: TextInputType.text,
@@ -49,7 +49,7 @@ class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
             ),
             const SizedBox(height: Spaces.medium),
             FTextFormField(
-              controller: _urlController,
+              control: FTextFieldControl.managed(controller: _urlController),
               label: Text(loc.node_url),
               hint: loc.node_url_hint,
               keyboardType: TextInputType.text,

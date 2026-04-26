@@ -94,15 +94,13 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
                   ),
                   if (authState.isAuth)
                     FTile(
-                      prefix: Icon(FIcons.fingerprint),
+                      prefix: const Icon(Icons.fingerprint),
                       title: Text(loc.biometric_auth),
                       subtitle: Text(loc.enable_biometric_auth),
                       suffix: FSwitch(
-                        value: ref.watch(
-                          settingsProvider.select(
-                            (state) => state.activateBiometricAuth,
-                          ),
-                        ),
+                        value: ref
+                            .watch(settingsProvider)
+                            .activateBiometricAuth,
                         onChange: (value) {
                           ref
                               .read(settingsProvider.notifier)
@@ -130,9 +128,7 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
                       title: Text(loc.burn),
                       subtitle: Text(loc.unlock_burn_transfer),
                       suffix: FSwitch(
-                        value: ref.watch(
-                          settingsProvider.select((state) => state.unlockBurn),
-                        ),
+                        value: ref.watch(settingsProvider).unlockBurn,
                         onChange: (value) {
                           ref
                               .read(settingsProvider.notifier)
@@ -166,9 +162,7 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
 
   String _currencySubtitle(WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
-    final code = ref.watch(
-      settingsProvider.select((state) => state.displayCurrency),
-    );
+    final code = ref.watch(settingsProvider).displayCurrency;
     if (code == null) return loc.disabled;
     final currency = DisplayCurrency.fromCode(code);
     return currency?.label ?? loc.disabled;
@@ -183,7 +177,7 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
       context: context,
       builder: (context, style, animation) {
         return FDialog(
-          style: style.call,
+          style: style,
           animation: animation,
           direction: Axis.horizontal,
           body: Padding(
@@ -191,7 +185,14 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
             child: FSelect<DisplayCurrency?>.rich(
               label: Text(loc.conversion_rate),
               description: Text(loc.show_or_hide_conversion_rate),
-              initialValue: currentCurrency,
+              control: FSelectControl.managed(
+                initial: currentCurrency,
+                onChange: (value) {
+                  ref
+                      .read(settingsProvider.notifier)
+                      .setDisplayCurrency(value?.code);
+                },
+              ),
               format: (currency) =>
                   currency == null ? loc.disabled : currency.label,
               children: [
@@ -205,11 +206,6 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
                     value: currency,
                   ),
               ],
-              onChange: (value) {
-                ref
-                    .read(settingsProvider.notifier)
-                    .setDisplayCurrency(value?.code);
-              },
             ),
           ),
           actions: [

@@ -112,7 +112,7 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
                       spacing: Spaces.small,
                       children: [
                         FButton(
-                          style: FButtonStyle.outline(),
+                          variant: FButtonVariant.outline,
                           onPress: () {
                             setState(() {
                               _isEditingName = false;
@@ -128,7 +128,7 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
                       ],
                     )
                   : FButton(
-                      style: FButtonStyle.outline(),
+                      variant: FButtonVariant.outline,
                       onPress: () => setState(() => _isEditingName = true),
                       prefix: const Icon(Icons.edit_rounded, size: 18),
                       child: Text(loc.edit_button),
@@ -260,7 +260,7 @@ class _ContactInfoCardState extends ConsumerState<_ContactInfoCard> {
             ),
             if (widget.isEditingName)
               FTextField(
-                controller: widget.nameController,
+                control: FTextFieldControl.managed(controller: widget.nameController),
                 hint: 'Contact name',
               )
             else
@@ -287,7 +287,7 @@ class _ContactInfoCardState extends ConsumerState<_ContactInfoCard> {
                         .clamp(8.0, 12.0);
 
                 return FButton(
-                  style: FButtonStyle.outline(),
+                  variant: FButtonVariant.outline,
                   onPress: () {
                     Clipboard.setData(
                       ClipboardData(text: widget.contact.address),
@@ -369,7 +369,7 @@ class _NotesCard extends StatelessWidget {
                 ),
                 if (!isEditing)
                   FButton(
-                    style: FButtonStyle.outline(),
+                    variant: FButtonVariant.outline,
                     onPress: onEdit,
                     prefix: const Icon(Icons.edit_rounded, size: 16),
                     child: Text(localizations.edit_button),
@@ -382,7 +382,7 @@ class _NotesCard extends StatelessWidget {
                 spacing: Spaces.small,
                 children: [
                   FTextField(
-                    controller: controller,
+                    control: FTextFieldControl.managed(controller: controller),
                     maxLines: 5,
                     hint: localizations.enter_notes,
                   ),
@@ -391,7 +391,7 @@ class _NotesCard extends StatelessWidget {
                     spacing: Spaces.small,
                     children: [
                       FButton(
-                        style: FButtonStyle.outline(),
+                        variant: FButtonVariant.outline,
                         onPress: onCancel,
                         child: Text(localizations.cancel_button),
                       ),
@@ -469,7 +469,7 @@ class _ContactHistoryContentState
                             padding: const EdgeInsets.all(Spaces.large),
                             child: Text(
                               loc.no_transactions_with_contact,
-                              style: context.theme.typography.base.copyWith(
+                              style: context.theme.typography.sm.copyWith(
                                 color: context.theme.colors.mutedForeground,
                               ),
                             ),
@@ -483,7 +483,7 @@ class _ContactHistoryContentState
         return Center(
           child: Text(
             loc.oups,
-            style: context.theme.typography.base.copyWith(
+            style: context.theme.typography.sm.copyWith(
               color: context.theme.colors.error,
             ),
           ),

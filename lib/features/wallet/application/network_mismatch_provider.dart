@@ -10,11 +10,9 @@ part 'network_mismatch_provider.g.dart';
 
 @riverpod
 bool networkMismatch(Ref ref) {
-  final walletNetwork = ref.watch(
-    settingsProvider.select((state) => state.network),
-  );
+  final walletNetwork = ref.watch(settingsProvider).network;
   final nodeNetwork = ref.watch(
-    nodeInfoProvider.select((state) => state.valueOrNull?.network),
+    nodeInfoProvider.select((state) => state.asData?.value?.network),
   );
 
   bool mismatch = false;

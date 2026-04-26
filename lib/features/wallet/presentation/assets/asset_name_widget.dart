@@ -25,10 +25,10 @@ class AssetNameWidget extends StatelessWidget {
               const SizedBox(width: Spaces.small),
               Text(
                 AppResources.xelisName,
-                style: context.theme.typography.base,
+                style: context.theme.typography.sm,
               ),
             ],
           )
-        : SelectableText(assetName, style: context.theme.typography.base);
+        : SelectableText(assetName, style: context.theme.typography.sm);
   }
 }

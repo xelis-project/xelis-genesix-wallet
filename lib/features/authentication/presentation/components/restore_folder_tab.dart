@@ -109,7 +109,7 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
 
   void _importWalletFolder() async {
     final loc = ref.read(appLocalizationsProvider);
-    final path = await FilePicker.platform.getDirectoryPath();
+    final path = await FilePicker.getDirectoryPath();
     if (path != null) {
       if (await isWalletFolderValid(path)) {
         final walletName = path.split(p.separator).last;
@@ -124,7 +124,10 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
               .read(toastProvider.notifier)
               .showError(description: loc.wallet_already_exists);
         } else {
-          final record = (path: path, walletName: walletName);
+          final ({String path, String walletName}) record = (
+            path: path,
+            walletName: walletName,
+          );
           setState(() {
             _selectedWalletFolder = record;
           });

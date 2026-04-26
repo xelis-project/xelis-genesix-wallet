@@ -18,9 +18,9 @@ class LanguageSelectorDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
-    final locale = ref.watch(settingsProvider.select((state) => state.locale));
+    final locale = ref.watch(settingsProvider).locale;
     return FDialog(
-      style: style.call,
+      style: style,
       animation: animation,
       direction: Axis.horizontal,
       body: Padding(
@@ -28,7 +28,14 @@ class LanguageSelectorDialog extends ConsumerWidget {
         child: FSelect<Locale>.rich(
           label: Text(loc.language),
           description: Text(loc.select_language_config),
-          initialValue: locale,
+          control: FSelectControl.managed(
+            initial: locale,
+            onChange: (value) {
+              if (value != null) {
+                ref.read(settingsProvider.notifier).setLocale(value);
+              }
+            },
+          ),
           format: (l) => translateLocaleName(l),
           children: List<FSelectItemMixin>.generate(
             AppResources.countryFlags.length,
@@ -41,11 +48,6 @@ class LanguageSelectorDialog extends ConsumerWidget {
               );
             },
           ),
-          onChange: (value) {
-            if (value != null) {
-              ref.read(settingsProvider.notifier).setLocale(value);
-            }
-          },
         ),
       ),
       actions: [

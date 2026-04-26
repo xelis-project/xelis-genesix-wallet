@@ -297,11 +297,11 @@ class _SearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return FTextField(
       hint: localizations.search,
-      controller: controller,
+      control: FTextFieldControl.managed(controller: controller),
       keyboardType: TextInputType.text,
       maxLines: 1,
       clearable: (v) => v.text.isNotEmpty,
-      onChange: onChanged,
+      onSubmit: onChanged,
     );
   }
 }
@@ -319,7 +319,7 @@ class _CenteredInfo extends StatelessWidget {
         child: Text(
           message,
           textAlign: TextAlign.center,
-          style: context.theme.typography.base.copyWith(
+          style: context.theme.typography.sm.copyWith(
             color: context.theme.colors.mutedForeground,
           ),
         ),
@@ -380,7 +380,7 @@ class _EmptyStateCard extends StatelessWidget {
                   Text(
                     message!,
                     textAlign: TextAlign.center,
-                    style: context.theme.typography.base.copyWith(
+                    style: context.theme.typography.sm.copyWith(
                       color: context.theme.colors.mutedForeground,
                     ),
                   ),

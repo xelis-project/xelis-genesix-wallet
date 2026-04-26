@@ -5,7 +5,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_dialog_old.dart';
+import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_dialog_legacy.dart';
 import 'package:genesix/features/wallet/presentation/address_book/select_address_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_review_dialog_new.dart';
 import 'package:genesix/src/generated/rust_bridge/api/utils.dart';
@@ -36,10 +36,9 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
   final _scrollController = ScrollController();
   final _amountController = TextEditingController();
   final _addressController = TextEditingController();
-  late final _assetController = FSelectController<MapEntry<String, AssetData>>(
-    vsync: this,
-  );
-  late final _boostFeeController = FSelectController<double>(vsync: this);
+  late final _assetController =
+      FSelectController<MapEntry<String, AssetData>>();
+  late final _boostFeeController = FSelectController<double>();
 
   String? _selectedAsset;
   String _selectedAssetBalance = AppResources.zeroBalance;
@@ -145,7 +144,20 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                     hint: validAssets.isEmpty
                         ? loc.no_balance_to_transfer
                         : loc.select_asset,
-                    controller: _assetController,
+                    control: FSelectControl.managed(
+                      controller: _assetController,
+                      onChange: (assetEntry) {
+                        if (assetEntry != null) {
+                          setState(() {
+                            _selectedAsset = assetEntry.key;
+                            _selectedAssetBalance =
+                                balances[_selectedAsset] ??
+                                AppResources.zeroBalance;
+                          });
+                          _updateEstimatedFee();
+                        }
+                      },
+                    ),
                     enabled: validAssets.isNotEmpty,
                     format: (assetEntry) {
                       final balance =
@@ -190,17 +202,6 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                         );
                       }).toList();
                     },
-                    onChange: (assetEntry) {
-                      if (assetEntry != null) {
-                        setState(() {
-                          _selectedAsset = assetEntry.key;
-                          _selectedAssetBalance =
-                              balances[_selectedAsset] ??
-                              AppResources.zeroBalance;
-                        });
-                        _updateEstimatedFee();
-                      }
-                    },
                     validator: (value) =>
                         value == null ? loc.field_required_error : null,
                   ),
@@ -212,13 +213,15 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                     children: [
                       Expanded(
                         child: FTextFormField(
-                          controller: _amountController,
+                          control: FTextFieldControl.managed(
+                            controller: _amountController,
+                          ),
                           label: Text(loc.amount.titleCase),
                           hint: AppResources.zeroBalance,
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
                           ),
-                          onChange: (value) => {_updateEstimatedFee()},
+                          onSubmit: (value) => {_updateEstimatedFee()},
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return loc.field_required_error;
@@ -239,7 +242,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                         child: SizedBox(
                           height: inputHeight,
                           child: FButton(
-                            style: FButtonStyle.outline(),
+                            variant: FButtonVariant.outline,
                             onPress: () {
                               final selectedAsset = _assetController.value;
                               if (selectedAsset != null) {
@@ -268,10 +271,12 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                         children: [
                           Expanded(
                             child: FTextFormField(
-                              controller: _addressController,
+                              control: FTextFieldControl.managed(
+                                controller: _addressController,
+                              ),
                               label: Text(loc.destination.titleCase),
                               hint: loc.receiver_address,
-                              onChange: (value) => {_updateEstimatedFee()},
+                              onSubmit: (value) => {_updateEstimatedFee()},
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return loc.field_required_error;
@@ -293,11 +298,11 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                               tipBuilder: (context, controller) {
                                 return Text(
                                   loc.address_book,
-                                  style: context.theme.typography.base,
+                                  style: context.theme.typography.sm,
                                 );
                               },
                               child: FButton.icon(
-                                style: FButtonStyle.outline(),
+                                variant: FButtonVariant.outline,
                                 onPress: _onAddressBookClicked,
                                 child: const Icon(FIcons.bookUser, size: 20),
                               ),
@@ -333,7 +338,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                                   _boostMultiplier != 1.0
                                       ? '$_baseFee × ${_boostMultiplier}x = $_estimatedFee ${getXelisTicker(network)}'
                                       : '$_estimatedFee ${getXelisTicker(network)}',
-                                  style: context.theme.typography.base.copyWith(
+                                  style: context.theme.typography.sm.copyWith(
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -348,7 +353,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                             ),
                             color: FTheme.of(context).colors.primary,
                             width: 1,
-                          ).call,
+                          ),
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -368,7 +373,17 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                             ),
                             const SizedBox(height: Spaces.extraSmall),
                             FSelect<double>.rich(
-                              controller: _boostFeeController,
+                              control: FSelectControl.managed(
+                                controller: _boostFeeController,
+                                onChange: (value) {
+                                  if (value != null) {
+                                    setState(() {
+                                      _boostMultiplier = value;
+                                    });
+                                    _updateEstimatedFee();
+                                  }
+                                },
+                              ),
                               format: (value) {
                                 if (value == 1.0) return 'Normal (1x)';
                                 if (value == 1.5) return 'Fast (1.5x)';
@@ -392,14 +407,6 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                                   subtitle: Text('2x fee'),
                                 ),
                               ],
-                              onChange: (value) {
-                                if (value != null) {
-                                  setState(() {
-                                    _boostMultiplier = value;
-                                  });
-                                  _updateEstimatedFee();
-                                }
-                              },
                             ),
                           ],
                         ),
@@ -411,7 +418,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
 
                   // Review Button
                   FButton(
-                    style: FButtonStyle.primary(),
+                    variant: FButtonVariant.primary,
                     onPress:
                         validAssets.isEmpty ||
                             _selectedAsset == null ||

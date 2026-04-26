@@ -35,7 +35,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
     with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   late final FSelectController<String> _selectController =
-      FSelectController<String>(vsync: this);
+      FSelectController<String>();
 
   @override
   void dispose() {
@@ -134,7 +134,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
                                 children: [
                                   const SizedBox(height: Spaces.medium),
                                   FSelect<String>.rich(
-                                    controller: _selectController,
+                                    control: FSelectControl.managed(controller: _selectController),
                                     hint: loc.select_wallet,
                                     contentScrollHandles: true,
                                     // autovalidateMode: AutovalidateMode.disabled,
@@ -165,7 +165,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
                                   ),
                                   const SizedBox(height: Spaces.large),
                                   FButton(
-                                    style: FButtonStyle.primary(),
+                                    variant: FButtonVariant.primary,
                                     onPress: () =>
                                         _handleOpenWalletButtonPressed(context),
                                     child: Text(loc.open_wallet),
@@ -181,7 +181,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
                   ),
                   FDivider(),
                   FButton(
-                    style: FButtonStyle.outline(),
+                    variant: FButtonVariant.outline,
                     onPress: () {
                       context.push(AppScreen.createWallet.toPath);
                     },
@@ -189,7 +189,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
                   ),
                   const SizedBox(height: Spaces.medium),
                   FButton(
-                    style: FButtonStyle.outline(),
+                    variant: FButtonVariant.outline,
                     onPress: () {
                       context.push(AppScreen.importWallet.toPath);
                     },

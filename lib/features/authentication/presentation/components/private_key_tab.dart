@@ -46,7 +46,9 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
             const NetworkSelectMenuTile(),
             const SizedBox(height: Spaces.large),
             FTextFormField.multiline(
-              controller: _privateKeyController,
+              control: FTextFieldControl.managed(
+                controller: _privateKeyController,
+              ),
               label: Text(loc.private_key),
               keyboardType: TextInputType.text,
               validator: (value) {
@@ -65,7 +67,7 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
             ),
             const SizedBox(height: Spaces.medium),
             FTextFormField(
-              controller: _nameController,
+              control: FTextFieldControl.managed(controller: _nameController),
               label: Text(loc.wallet_name),
               keyboardType: TextInputType.text,
               validator: (value) {
@@ -77,7 +79,9 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
             ),
             const SizedBox(height: Spaces.medium),
             FTextFormField(
-              controller: _passwordController,
+              control: FTextFieldControl.managed(
+                controller: _passwordController,
+              ),
               label: Text(loc.password.capitalize()),
               obscureText: true,
               keyboardType: TextInputType.visiblePassword,
@@ -90,7 +94,9 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
             ),
             const SizedBox(height: Spaces.medium),
             FTextFormField(
-              controller: _confirmPasswordController,
+              control: FTextFieldControl.managed(
+                controller: _confirmPasswordController,
+              ),
               label: Text(loc.confirm_password.capitalizeAll()),
               obscureText: true,
               keyboardType: TextInputType.visiblePassword,

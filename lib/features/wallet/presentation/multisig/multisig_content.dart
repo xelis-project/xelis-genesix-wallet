@@ -88,7 +88,7 @@ class _PendingChangesCard extends StatelessWidget {
                 Text(
                   message,
                   textAlign: TextAlign.center,
-                  style: context.theme.typography.base,
+                  style: context.theme.typography.sm,
                 ),
               ],
             ),
@@ -137,7 +137,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
             ),
             child: Text(
               loc.no_multisig_configuration_found,
-              style: context.theme.typography.base.copyWith(
+              style: context.theme.typography.sm.copyWith(
                 color: context.theme.colors.mutedForeground,
               ),
             ),
@@ -167,13 +167,13 @@ class _ConfiguredMultisigView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       FBadge(
-                        style: FBadgeStyle.outline(),
+                        variant: FBadgeVariant.outline,
                         child: Text('#${index + 1}'),
                       ),
                       FTooltip(
                         tipBuilder: (context, controller) => Text(loc.copy),
                         child: FButton.icon(
-                          style: FButtonStyle.ghost(),
+                          variant: FButtonVariant.ghost,
                           onPress: () => copyToClipboard(
                             participant.address,
                             ref,
@@ -201,7 +201,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
               children: [
                 tile,
                 FDivider(
-                  style: context.theme.dividerStyles.horizontalStyle.call,
+                  style: context.theme.dividerStyles.horizontal,
                 ),
               ],
             );
@@ -289,7 +289,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
                       children: [
                         Text(
                           loc.participants,
-                          style: context.theme.typography.base.copyWith(
+                          style: context.theme.typography.sm.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -308,7 +308,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: FButton(
-                  style: FButtonStyle.destructive(),
+                  variant: FButtonVariant.destructive,
                   prefix: const Icon(FIcons.trash),
                   onPress: () {},
                   child: Text(loc.delete_wallet.capitalizeAll()),
@@ -407,7 +407,7 @@ class _EmptyMultisigCallToAction extends StatelessWidget {
       fontWeight: FontWeight.w600,
     );
 
-    final bodyStyle = context.theme.typography.base.copyWith(
+    final bodyStyle = context.theme.typography.sm.copyWith(
       color: colors.mutedForeground,
     );
 

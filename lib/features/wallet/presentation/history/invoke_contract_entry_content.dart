@@ -127,13 +127,13 @@ class _InvokeContractEntryContentState
                 ),
                 SelectableText(
                   formattedData.$2,
-                  style: context.theme.typography.base,
+                  style: context.theme.typography.sm,
                 ),
               ],
             ),
             Text(
               'To: ${truncateText(destination, maxLength: 20)}',
-              style: context.theme.typography.base.copyWith(
+              style: context.theme.typography.sm.copyWith(
                 color: context.theme.colors.mutedForeground,
               ),
             ),
@@ -168,13 +168,13 @@ class _InvokeContractEntryContentState
                 ),
                 SelectableText(
                   formattedData.$2,
-                  style: context.theme.typography.base,
+                  style: context.theme.typography.sm,
                 ),
               ],
             ),
             Text(
               'To Contract: ${truncateText(destination, maxLength: 16)}',
-              style: context.theme.typography.base.copyWith(
+              style: context.theme.typography.sm.copyWith(
                 color: context.theme.colors.mutedForeground,
               ),
             ),
@@ -204,7 +204,7 @@ class _InvokeContractEntryContentState
             ),
             SelectableText(
               formattedData.$2,
-              style: context.theme.typography.base,
+              style: context.theme.typography.sm,
             ),
           ],
         );
@@ -232,7 +232,7 @@ class _InvokeContractEntryContentState
             ),
             SelectableText(
               formattedData.$2,
-              style: context.theme.typography.base,
+              style: context.theme.typography.sm,
             ),
           ],
         );
@@ -245,7 +245,7 @@ class _InvokeContractEntryContentState
 
         details = SelectableText(
           formatXelis(amount, network),
-          style: context.theme.typography.base,
+          style: context.theme.typography.sm,
         );
         break;
 
@@ -254,7 +254,7 @@ class _InvokeContractEntryContentState
         final exitCodeValue = value as int?;
         details = SelectableText(
           exitCodeValue?.toString() ?? 'Failed',
-          style: context.theme.typography.base.copyWith(
+          style: context.theme.typography.sm.copyWith(
             fontWeight: FontWeight.bold,
           ),
         );
@@ -341,7 +341,7 @@ class _InvokeContractEntryContentState
         header = type.capitalize();
         details = Text(
           value?.toString() ?? 'N/A',
-          style: context.theme.typography.base,
+          style: context.theme.typography.sm,
         );
     }
 
@@ -367,7 +367,7 @@ class _InvokeContractEntryContentState
             ),
           ),
           DefaultTextStyle.merge(
-            style: context.theme.typography.base,
+            style: context.theme.typography.sm,
             child: details,
           ),
         ],
@@ -408,12 +408,11 @@ class _InvokeContractEntryContentState
               widget.invokeContractEntry.chunkId.toString(),
             ),
             FDivider(
-              style: context.theme.dividerStyles.horizontalStyle
-                  .copyWith(
-                    padding: EdgeInsets.zero,
-                    color: context.theme.colors.primary,
-                  )
-                  .call,
+              style: FDividerStyle(
+                color: context.theme.colors.primary,
+                width: context.theme.dividerStyles.horizontal.width,
+                padding: EdgeInsets.zero,
+              ),
             ),
             if (_isLoading)
               const Center(child: CircularProgressIndicator())

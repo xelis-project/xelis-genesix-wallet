@@ -50,24 +50,14 @@ class _BaseTransactionEntryCardState
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    '#${widget.nonce}',
-                    style: context.theme.typography.base,
-                  ),
+                  Text('#${widget.nonce}', style: context.theme.typography.sm),
                 ],
               ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 FBadge(
-                  style: context.theme.badgeStyles.primary
-                      .copyWith(
-                        decoration: BoxDecoration(
-                          color: widget.color,
-                          borderRadius: FBadgeStyles.defaultRadius,
-                        ),
-                      )
-                      .call,
+                  variant: FBadgeVariant.primary,
                   child: Text(widget.type.capitalize()),
                 ),
                 FTooltip(

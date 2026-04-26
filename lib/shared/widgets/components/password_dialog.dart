@@ -86,7 +86,7 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
     final loc = ref.watch(appLocalizationsProvider);
 
     return FDialog(
-      style: widget.style.call,
+      style: widget.style,
       animation: widget.animation,
       direction: Axis.horizontal,
       title: Text(loc.authentication.capitalize()),
@@ -99,7 +99,9 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
           Form(
             key: _formKey,
             child: FTextFormField(
-              controller: _passwordController,
+              control: FTextFieldControl.managed(
+                controller: _passwordController,
+              ),
               focusNode: _focusNode,
               obscureText: true,
               // obscureText: isPasswordVisible,
@@ -138,7 +140,7 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
       ),
       actions: [
         FButton(
-          style: FButtonStyle.outline(),
+          variant: FButtonVariant.outline,
           onPress: () => context.pop(),
           child: Text(loc.cancel_button),
         ),

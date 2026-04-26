@@ -31,7 +31,7 @@ class ReceiveAddressDialog extends ConsumerWidget {
     final maxBodyHeight = screenHeight * 0.5;
 
     return FDialog(
-      style: style.call,
+      style: style,
       animation: animation,
       direction: Axis.horizontal,
       title: Text(loc.receive),
@@ -60,7 +60,7 @@ class ReceiveAddressDialog extends ConsumerWidget {
                     color: context.theme.colors.secondaryForeground.withValues(
                       alpha: 0.1,
                     ),
-                    borderRadius: context.theme.style.borderRadius,
+                    borderRadius: context.theme.style.borderRadius.sm,
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -92,7 +92,7 @@ class ReceiveAddressDialog extends ConsumerWidget {
                 padding: EdgeInsets.all(Spaces.small),
                 decoration: BoxDecoration(
                   color: context.theme.colors.background,
-                  borderRadius: context.theme.style.borderRadius,
+                  borderRadius: context.theme.style.borderRadius.sm,
                 ),
                 child: SizedBox(
                   width: qrSize,

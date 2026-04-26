@@ -95,29 +95,31 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
                     child: FSelectMenuTile.builder(
                       title: Text(loc.language),
                       count: MnemonicLanguage.values.length,
-                      initialValue: MnemonicLanguage.english,
+                      selectControl: FMultiValueControl.managed(
+                        initial: {MnemonicLanguage.english},
+                        onChange: (values) {
+                          final language = values.first;
+                          ref
+                              .read(walletStateProvider.notifier)
+                              .getSeed(language)
+                              .then(
+                                (words) {
+                                  setState(() {
+                                    _seedWords = words;
+                                  });
+                                },
+                                onError: (_, _) => ref
+                                    .read(toastProvider.notifier)
+                                    .showError(description: loc.oups),
+                              );
+                        },
+                      ),
                       detailsBuilder: (context, values, _) =>
                           Text(values.first.displayName),
                       menuBuilder: (context, index) => FSelectTile(
                         title: Text(MnemonicLanguage.values[index].displayName),
                         value: MnemonicLanguage.values[index],
                       ),
-                      onChange: (values) {
-                        final language = values.first;
-                        ref
-                            .read(walletStateProvider.notifier)
-                            .getSeed(language)
-                            .then(
-                              (words) {
-                                setState(() {
-                                  _seedWords = words;
-                                });
-                              },
-                              onError: (_, _) => ref
-                                  .read(toastProvider.notifier)
-                                  .showError(description: loc.oups),
-                            );
-                      },
                     ),
                   ),
                   Spacer(),
@@ -150,7 +152,7 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
                         children: List.generate(
                           _seedWords.length,
                           (i) => FBadge(
-                            style: FBadgeStyle.secondary(),
+                            variant: FBadgeVariant.secondary,
                             child: Row(
                               children: [
                                 Text(

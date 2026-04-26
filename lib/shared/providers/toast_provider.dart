@@ -45,6 +45,8 @@ class Toast extends _$Toast {
     bool sticky = false,
     bool dismissible = true,
   }) {
+    // Emit null first so identical consecutive toasts still notify listeners.
+    state = null;
     state = ToastContent(
       type: type,
       title: title,
