@@ -46,6 +46,11 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
   String _baseFee = AppResources.zeroBalance;
   double _boostMultiplier = 1.0;
 
+  void _onFormInputChanged() {
+    if (!mounted) return;
+    setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
@@ -83,10 +88,15 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
     if (widget.recipientAddress != null) {
       _addressController.text = widget.recipientAddress!;
     }
+
+    _amountController.addListener(_onFormInputChanged);
+    _addressController.addListener(_onFormInputChanged);
   }
 
   @override
   void dispose() {
+    _amountController.removeListener(_onFormInputChanged);
+    _addressController.removeListener(_onFormInputChanged);
     _scrollController.dispose();
     _amountController.dispose();
     _addressController.dispose();
@@ -98,7 +108,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final inputHeight = 40.0;
+    const inputHeight = 40.0;
 
     final Map<String, String> balances = ref.watch(
       walletRuntimeProvider.select((value) => value.trackedBalances),
