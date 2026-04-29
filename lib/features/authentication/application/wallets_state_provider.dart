@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:genesix/features/authentication/domain/wallets_state.dart';
+import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
+import 'package:genesix/features/authentication/domain/biometric_wallet_key.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:path/path.dart' as p;
@@ -137,6 +139,23 @@ class Wallets extends _$Wallets {
       localStorage.removeItem(walletPath);
     } else {
       await Directory(walletPath).rename(newWalletPath);
+
+      final secureStorage = ref.read(secureStorageProvider);
+      final oldBiometricKey = biometricWalletKey(
+        network: _network,
+        walletName: name,
+      );
+      final newBiometricKey = biometricWalletKey(
+        network: _network,
+        walletName: newName,
+      );
+      final biometricEnabled = await secureStorage.containsKey(
+        key: oldBiometricKey,
+      );
+      if (biometricEnabled) {
+        await secureStorage.write(key: newBiometricKey, value: '1');
+        await secureStorage.delete(key: oldBiometricKey);
+      }
     }
 
     final settingsNotifier = ref.read(settingsProvider.notifier);
@@ -179,6 +198,13 @@ class Wallets extends _$Wallets {
       localStorage.removeItem(walletPath);
     } else {
       await Directory(walletPath).delete(recursive: true);
+
+      final secureStorage = ref.read(secureStorageProvider);
+      final biometricKey = biometricWalletKey(
+        network: _network,
+        walletName: name,
+      );
+      await secureStorage.delete(key: biometricKey);
     }
   }
 }

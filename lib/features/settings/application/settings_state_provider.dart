@@ -1,5 +1,12 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'dart:ui';
 
+import 'package:genesix/features/authentication/application/authentication_service.dart';
+import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
+import 'package:genesix/features/authentication/domain/authentication_state.dart';
+import 'package:genesix/features/authentication/domain/biometric_wallet_key.dart';
 import 'package:genesix/features/wallet/domain/history_filter_state.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -59,9 +66,36 @@ class Settings extends _$Settings {
     _setState(state);
   }
 
-  void setActivateBiometricAuth(bool activateBiometricAuth) {
+  void setActivateBiometricAuth(
+    bool activateBiometricAuth, {
+    bool syncWalletStorage = true,
+  }) {
     state = state.copyWith(activateBiometricAuth: activateBiometricAuth);
     _setState(state);
+
+    if (!syncWalletStorage || kIsWeb) {
+      return;
+    }
+
+    final authState = ref.read(authenticationProvider);
+    if (authState is! SignedIn) {
+      return;
+    }
+
+    final secureStorage = ref.read(secureStorageProvider);
+    final key = biometricWalletKey(
+      network: state.network,
+      walletName: authState.name,
+    );
+
+    unawaited(
+      activateBiometricAuth
+          ? secureStorage.write(key: key, value: '1')
+          : Future.wait<void>([
+              secureStorage.delete(key: key),
+              secureStorage.delete(key: authState.name),
+            ]),
+    );
   }
 
   void setEnableXswd(bool enableXswd) {

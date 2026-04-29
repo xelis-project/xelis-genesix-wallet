@@ -14,6 +14,7 @@ import 'package:genesix/features/authentication/application/wallets_state_provid
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/router/router.dart';
 import 'package:genesix/features/authentication/domain/authentication_state.dart';
+import 'package:genesix/features/authentication/domain/biometric_wallet_key.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
@@ -161,8 +162,11 @@ class Authentication extends _$Authentication {
           .setWalletAddress(name, walletRepository.address);
 
       talker.info('Wallet created with address: ${walletRepository.address}');
-      // save password in secure storage on all platforms except web
-      if (!kIsWeb) {
+      // Save password only if biometric auth is enabled for this wallet.
+      if (await _shouldPersistPassword(
+        walletName: name,
+        network: settings.network,
+      )) {
         await _secureStorage.write(key: name, value: password);
       }
 
@@ -187,6 +191,8 @@ class Authentication extends _$Authentication {
         case Network.stagenet:
           ref.read(settingsProvider.notifier).setLastStagenetWalletUsed(name);
       }
+
+      await _syncWalletBiometricSetting(name: name, network: settings.network);
 
       talker.info('Navigating to home screen for wallet: $name');
       if (seed == null) {
@@ -268,8 +274,12 @@ class Authentication extends _$Authentication {
         return;
       }
 
-      // save password in secure storage on all platforms except web
-      if (!kIsWeb && !await _secureStorage.containsKey(key: name)) {
+      // Save password only if biometric auth is enabled for this wallet.
+      if (await _shouldPersistPassword(
+            walletName: name,
+            network: settings.network,
+          ) &&
+          !await _secureStorage.containsKey(key: name)) {
         await _secureStorage.write(key: name, value: password);
       }
 
@@ -296,6 +306,8 @@ class Authentication extends _$Authentication {
           ref.read(settingsProvider.notifier).setLastStagenetWalletUsed(name);
       }
 
+      await _syncWalletBiometricSetting(name: name, network: settings.network);
+
       // final seed = await walletRepository.getSeed();
       // ref.read(routerProvider).go(AuthAppScreen.wallet.toPath, extra: seed);
       ref.read(routerProvider).go(AuthAppScreen.home.toPath);
@@ -306,6 +318,36 @@ class Authentication extends _$Authentication {
     } else {
       throw Exception('This wallet does not exist: $name');
     }
+  }
+
+  Future<void> _syncWalletBiometricSetting({
+    required String name,
+    required Network network,
+  }) async {
+    if (kIsWeb) {
+      ref
+          .read(settingsProvider.notifier)
+          .setActivateBiometricAuth(false, syncWalletStorage: false);
+      return;
+    }
+
+    final key = biometricWalletKey(network: network, walletName: name);
+    final enabled = await _secureStorage.containsKey(key: key);
+    ref
+        .read(settingsProvider.notifier)
+        .setActivateBiometricAuth(enabled, syncWalletStorage: false);
+  }
+
+  Future<bool> _shouldPersistPassword({
+    required String walletName,
+    required Network network,
+  }) async {
+    if (kIsWeb) {
+      return false;
+    }
+
+    final key = biometricWalletKey(network: network, walletName: walletName);
+    return _secureStorage.containsKey(key: key);
   }
 
   // only used for desktop wallet import
@@ -353,8 +395,12 @@ class Authentication extends _$Authentication {
       return;
     }
 
-    // save password in secure storage on all platforms except web
-    if (!kIsWeb && !await _secureStorage.containsKey(key: walletName)) {
+    // Save password only if biometric auth is enabled for this wallet.
+    if (await _shouldPersistPassword(
+          walletName: walletName,
+          network: network,
+        ) &&
+        !await _secureStorage.containsKey(key: walletName)) {
       await _secureStorage.write(key: walletName, value: password);
     }
 
