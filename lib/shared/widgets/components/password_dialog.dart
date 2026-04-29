@@ -140,11 +140,6 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
       ),
       actions: [
         FButton(
-          variant: FButtonVariant.outline,
-          onPress: () => context.pop(),
-          child: Text(loc.cancel_button),
-        ),
-        FButton(
           onPress: () {
             if (_formKey.currentState?.validate() ?? false) {
               if (widget.onEnter != null) {
@@ -159,6 +154,11 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
             }
           },
           child: Text(loc.continue_button),
+        ),
+        FButton(
+          variant: FButtonVariant.outline,
+          onPress: () => context.pop(),
+          child: Text(loc.cancel_button),
         ),
       ],
     );

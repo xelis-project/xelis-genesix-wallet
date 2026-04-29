@@ -57,7 +57,9 @@ class _AddContactSheetState extends ConsumerState<AddContactSheet> {
             ),
             const SizedBox(height: Spaces.medium),
             FTextFormField(
-              control: FTextFieldControl.managed(controller: _addressController),
+              control: FTextFieldControl.managed(
+                controller: _addressController,
+              ),
               label: Text(loc.address),
               hint: 'xel:0x1234567890abcdef1234567890abcdef12345678',
               enabled: widget.address == null,

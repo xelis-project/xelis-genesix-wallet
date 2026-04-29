@@ -27,15 +27,15 @@ impl AddressBookData {
                 if let DataElement::Fields(fields) = value {
                     let name = fields
                         .get(&DataValue::String("name".to_string()))
-                        .and_then(|v| v.as_value().ok())
-                        .and_then(|v| v.as_string().ok())
+                        .map(|v| v.as_value().and_then(|v| v.as_string()))
+                        .transpose()?
                         .cloned()
                         .ok_or(DataConversionError::ExpectedValue)?;
 
                     let note = fields
                         .get(&DataValue::String("note".to_string()))
-                        .and_then(|v| v.as_value().ok())
-                        .and_then(|v| v.as_string().ok())
+                        .map(|v| v.as_value().and_then(|v| v.as_string()))
+                        .transpose()?
                         .cloned();
 
                     let contact_details = ContactDetails::new(name, address.clone(), note);
@@ -78,22 +78,22 @@ impl ContactDetails {
     pub fn from(fields: IndexMap<DataValue, DataElement>) -> Result<Self, DataConversionError> {
         let name = fields
             .get(&DataValue::String("name".to_string()))
-            .and_then(|v| v.as_value().ok())
-            .and_then(|v| v.as_string().ok())
-            .cloned()
-            .ok_or(DataConversionError::ExpectedValue)?;
+            .map(|v| v.as_value().and_then(|v| v.as_string()))
+            .transpose()?
+            .ok_or(DataConversionError::ExpectedValue)?
+            .clone();
 
         let address = fields
             .get(&DataValue::String("address".to_string()))
-            .and_then(|v| v.as_value().ok())
-            .and_then(|v| v.as_string().ok())
-            .cloned()
-            .ok_or(DataConversionError::ExpectedValue)?;
+            .map(|v| v.as_value().and_then(|v| v.as_string()))
+            .transpose()?
+            .ok_or(DataConversionError::ExpectedValue)?
+            .clone();
 
         let note = fields
             .get(&DataValue::String("note".to_string()))
-            .and_then(|v| v.as_value().ok())
-            .and_then(|v| v.as_string().ok())
+            .map(|v| v.as_value().and_then(|v| v.as_string()))
+            .transpose()?
             .cloned();
 
         Ok(ContactDetails {
