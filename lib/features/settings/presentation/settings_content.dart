@@ -2,13 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/authentication/application/authentication_provider.dart';
+import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
+import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
+import 'package:genesix/features/authentication/domain/authentication_state.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/settings/domain/display_currency.dart';
 import 'package:genesix/features/settings/presentation/components/reset_preference_button.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -103,11 +108,8 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
                             (state) => state.activateBiometricAuth,
                           ),
                         ),
-                        onChange: (value) {
-                          ref
-                              .read(settingsProvider.notifier)
-                              .setActivateBiometricAuth(value);
-                        },
+                        onChange: (value) =>
+                            _handleBiometricToggle(context, value),
                       ),
                     ),
                 ],
@@ -217,6 +219,56 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
           actions: [
             FButton(onPress: () => context.pop(), child: Text(loc.ok_button)),
           ],
+        );
+      },
+    );
+  }
+
+  Future<void> _handleBiometricToggle(
+    BuildContext context,
+    bool enabled,
+  ) async {
+    if (!enabled) {
+      ref.read(settingsProvider.notifier).setActivateBiometricAuth(false);
+      return;
+    }
+
+    showAppDialog<void>(
+      context: context,
+      builder: (dialogContext, style, animation) {
+        return PasswordDialog(
+          animation,
+          onEnter: (password) async {
+            final authState = ref.read(authenticationProvider);
+            if (authState is! SignedIn) {
+              return;
+            }
+
+            final wallet = ref.read(activeWalletRepositoryProvider);
+            if (wallet == null) {
+              return;
+            }
+
+            try {
+              await wallet.isValidPassword(password);
+
+              await ref
+                  .read(secureStorageProvider)
+                  .write(key: authState.name, value: password);
+
+              ref
+                  .read(settingsProvider.notifier)
+                  .setActivateBiometricAuth(true);
+
+              if (dialogContext.mounted) {
+                dialogContext.pop();
+              }
+            } catch (e) {
+              ref
+                  .read(toastProvider.notifier)
+                  .showError(description: e.toString());
+            }
+          },
         );
       },
     );

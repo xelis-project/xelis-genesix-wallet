@@ -5,6 +5,7 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
 import 'package:genesix/features/authentication/application/wallet_session_commands_provider.dart';
+import 'package:genesix/features/authentication/domain/biometric_wallet_key.dart';
 import 'package:genesix/features/authentication/domain/wallet_session_command_result.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/settings/domain/settings_state.dart';
@@ -233,6 +234,14 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
     if (kIsWeb) return false;
 
     final loc = ref.read(appLocalizationsProvider);
+    final network = ref.read(settingsProvider).network;
+    final secureStorage = ref.read(secureStorageProvider);
+    final isEnabledForWallet = await secureStorage.containsKey(
+      key: biometricWalletKey(network: network, walletName: name),
+    );
+    if (!isEnabledForWallet) {
+      return false;
+    }
 
     final authenticated = await ref.read(
       biometricAuthenticationProvider(
@@ -242,7 +251,6 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
 
     if (!authenticated) return false;
 
-    final secureStorage = ref.read(secureStorageProvider);
     final password = await secureStorage.read(key: name);
     if (password == null) {
       ref

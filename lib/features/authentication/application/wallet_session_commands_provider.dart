@@ -6,6 +6,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
 import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/authentication/application/wallets_provider.dart';
+import 'package:genesix/features/authentication/domain/biometric_wallet_key.dart';
 import 'package:genesix/features/authentication/domain/wallet_session.dart';
 import 'package:genesix/features/authentication/domain/wallet_session_command_result.dart';
 import 'package:genesix/features/logger/logger.dart';
@@ -345,7 +346,7 @@ class WalletSessionCommands extends _$WalletSessionCommands {
         .read(walletsProvider.notifier)
         .setWalletAddress(name, repository.address);
 
-    if (!kIsWeb) {
+    if (await _shouldPersistPassword(walletName: name, network: network)) {
       final secureStorage = ref.read(secureStorageProvider);
       final shouldWritePassword =
           !writePasswordIfMissingOnly ||
@@ -356,6 +357,37 @@ class WalletSessionCommands extends _$WalletSessionCommands {
     }
 
     _setLastWalletUsed(network, name);
+    await _syncWalletBiometricSetting(name: name, network: network);
+  }
+
+  Future<void> _syncWalletBiometricSetting({
+    required String name,
+    required Network network,
+  }) async {
+    if (kIsWeb) {
+      ref
+          .read(settingsProvider.notifier)
+          .setActivateBiometricAuth(false, syncWalletStorage: false);
+      return;
+    }
+
+    final key = biometricWalletKey(network: network, walletName: name);
+    final enabled = await ref.read(secureStorageProvider).containsKey(key: key);
+    ref
+        .read(settingsProvider.notifier)
+        .setActivateBiometricAuth(enabled, syncWalletStorage: false);
+  }
+
+  Future<bool> _shouldPersistPassword({
+    required String walletName,
+    required Network network,
+  }) async {
+    if (kIsWeb) {
+      return false;
+    }
+
+    final key = biometricWalletKey(network: network, walletName: walletName);
+    return ref.read(secureStorageProvider).containsKey(key: key);
   }
 
   void _setLastWalletUsed(Network network, String name) {
