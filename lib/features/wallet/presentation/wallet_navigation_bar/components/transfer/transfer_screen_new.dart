@@ -239,7 +239,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                         child: SizedBox(
                           height: inputHeight,
                           child: FButton(
-                            style: FButtonStyle.outline(),
+                            style: FButtonStyle.primary(),
                             onPress: () {
                               final selectedAsset = _assetController.value;
                               if (selectedAsset != null) {
