@@ -94,7 +94,7 @@ class _ExportButtonState extends ConsumerState<ExportButton> {
           toast.showError(description: loc.error_exporting_csv);
         }
       } else {
-        var path = await FilePicker.platform.getDirectoryPath();
+        var path = await FilePicker.getDirectoryPath();
         if (path != null) {
           await walletCommands.exportCsv(path, historyPageFilter);
           toast.showInformation(title: loc.csv_exported_successfully);

@@ -111,7 +111,7 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
 
   void _importWalletFolder() async {
     final loc = ref.read(appLocalizationsProvider);
-    final path = await FilePicker.platform.getDirectoryPath();
+    final path = await FilePicker.getDirectoryPath();
     if (path != null) {
       if (await isWalletFolderValid(path)) {
         final walletName = path.split(p.separator).last;
