@@ -1,23 +1,15 @@
 # GitHub Copilot Instructions - Genesix
 
-Use this file as the Copilot entrypoint and follow the shared AI rule set.
+Use `AGENTS.md` at the repository root as the canonical project guidance.
 
-## Priority Order
-1. `.github/copilot-instructions.md`
-2. `docs/ai/tools/github-copilot.md`
-3. `docs/ai/shared/core-rules.md`
-4. `docs/ai/shared/workflow.md`
-5. `docs/ai/languages/dart-flutter.md`
-6. `docs/ai/languages/rust-ffi.md`
-7. `docs/ai/project-context.md`
+## Copilot Notes
 
-## Critical Rules
-- Treat `docs/ai/shared/core-rules.md` as the authoritative engineering rule set (`MUST`/`SHOULD`/`MAY`).
-- Treat `docs/ai/shared/workflow.md` as the authoritative validation and delivery checklist.
-- Apply Copilot-specific behavior from `docs/ai/tools/github-copilot.md`.
-- Before suggesting code that depends on a third-party package or crate, read the installed version from `pubspec.yaml` or `Cargo.toml` and use APIs compatible with that version.
-- If Rust API or annotated Dart models/providers change, include the required regeneration and validation steps from `docs/ai/shared/workflow.md`.
-- `just` tasks from `justfile` are optional developer shortcuts, not a required or preferred path for agents.
-
-## Full Guide
-- Shared source of truth: `docs/ai/README.md`
+- Follow `AGENTS.md` for architecture, coding rules, generated files, validation, skills, and subagent workflows.
+- Keep Copilot-specific behavior short and non-conflicting with `AGENTS.md`.
+- Copilot may also use:
+  - `AGENTS.md` for agent instructions.
+  - `.github/skills/**/SKILL.md` for project skills.
+  - `.agents/skills/**/SKILL.md` for cross-tool project skills.
+  - `.github/agents/*.agent.md` for custom Copilot agents.
+- For complex prompts, ask Copilot to read `AGENTS.md` first and select the relevant skill or custom agent.
+- Do not edit generated files directly; follow the validation matrix in `AGENTS.md`.
