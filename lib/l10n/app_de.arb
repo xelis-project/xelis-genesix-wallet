@@ -466,5 +466,19 @@
   "apply": "Anwenden",
   "delete_wallet_warning_message": "Sind Sie sicher, dass Sie diese Wallet dauerhaft löschen möchten?",
   "error_while_syncing": "Fehler bei der Synchronisierung:",
-  "new_asset_detected": "Neuer Vermögenswert erkannt:"
+  "new_asset_detected": "Neuer Vermögenswert erkannt:",
+  "tx_contract_transfer": "Contract-Transfer",
+  "contract_logs": "Contract-Logs",
+  "chunk_id": "Chunk-ID",
+  "log_transfer": "Transfer",
+  "log_transfer_to_contract": "Transfer an Contract",
+  "log_mint": "Mint",
+  "log_gas_refund": "Gas-Rückerstattung",
+  "log_exit_code": "Exit-Code",
+  "log_new_asset": "Neuer Vermögenswert",
+  "log_failed": "Fehlgeschlagen",
+  "received": "Empfangen",
+  "constructor": "Konstruktor",
+  "to_address": "An: {address}",
+  "to_contract_address": "An Contract: {address}"
 }

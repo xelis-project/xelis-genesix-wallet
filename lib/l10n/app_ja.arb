@@ -466,5 +466,19 @@
   "apply": "適用",
   "delete_wallet_warning_message": "このウォレットを完全に削除してもよろしいですか？",
   "error_while_syncing": "同期中にエラーが発生しました:",
-  "new_asset_detected": "新しい資産が検出されました:"
+  "new_asset_detected": "新しい資産が検出されました:",
+  "tx_contract_transfer": "コントラクト転送",
+  "contract_logs": "コントラクトログ",
+  "chunk_id": "チャンクID",
+  "log_transfer": "転送",
+  "log_transfer_to_contract": "コントラクトへ転送",
+  "log_mint": "ミント",
+  "log_gas_refund": "ガス返金",
+  "log_exit_code": "終了コード",
+  "log_new_asset": "新しい資産",
+  "log_failed": "失敗",
+  "received": "受信済み",
+  "constructor": "コンストラクター",
+  "to_address": "宛先: {address}",
+  "to_contract_address": "コントラクト宛先: {address}"
 }

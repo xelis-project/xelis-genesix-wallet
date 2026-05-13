@@ -466,5 +466,19 @@
   "apply": "تطبيق",
   "delete_wallet_warning_message": "هل أنت متأكد أنك تريد حذف هذه المحفظة نهائيًا؟",
   "error_while_syncing": "حدث خطأ أثناء المزامنة:",
-  "new_asset_detected": "تم اكتشاف أصل جديد:"
+  "new_asset_detected": "تم اكتشاف أصل جديد:",
+  "tx_contract_transfer": "تحويل عقد",
+  "contract_logs": "سجلات العقد",
+  "chunk_id": "معرف القطعة",
+  "log_transfer": "تحويل",
+  "log_transfer_to_contract": "تحويل إلى عقد",
+  "log_mint": "سك",
+  "log_gas_refund": "استرداد الغاز",
+  "log_exit_code": "رمز الخروج",
+  "log_new_asset": "أصل جديد",
+  "log_failed": "فشل",
+  "received": "تم الاستلام",
+  "constructor": "المُنشئ",
+  "to_address": "إلى: {address}",
+  "to_contract_address": "إلى العقد: {address}"
 }

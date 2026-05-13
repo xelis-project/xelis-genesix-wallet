@@ -466,5 +466,19 @@
   "apply": "Застосувати",
   "delete_wallet_warning_message": "Ви впевнені, що хочете остаточно видалити цей гаманець?",
   "error_while_syncing": "Помилка під час синхронізації:",
-  "new_asset_detected": "Виявлено новий актив:"
+  "new_asset_detected": "Виявлено новий актив:",
+  "tx_contract_transfer": "Переказ контракту",
+  "contract_logs": "Логи контракту",
+  "chunk_id": "ID фрагмента",
+  "log_transfer": "Переказ",
+  "log_transfer_to_contract": "Переказ до контракту",
+  "log_mint": "Випуск",
+  "log_gas_refund": "Повернення gas",
+  "log_exit_code": "Код виходу",
+  "log_new_asset": "Новий актив",
+  "log_failed": "Помилка",
+  "received": "Отримано",
+  "constructor": "Конструктор",
+  "to_address": "Кому: {address}",
+  "to_contract_address": "До контракту: {address}"
 }

@@ -466,5 +466,19 @@
   "apply": "Aplicar",
   "delete_wallet_warning_message": "¿Estás seguro de que deseas eliminar esta billetera de forma permanente?",
   "error_while_syncing": "Error al sincronizar:",
-  "new_asset_detected": "Nuevo activo detectado:"
+  "new_asset_detected": "Nuevo activo detectado:",
+  "tx_contract_transfer": "Transferencia de contrato",
+  "contract_logs": "Registros del contrato",
+  "chunk_id": "ID de fragmento",
+  "log_transfer": "Transferencia",
+  "log_transfer_to_contract": "Transferencia a contrato",
+  "log_mint": "Acuñación",
+  "log_gas_refund": "Reembolso de gas",
+  "log_exit_code": "Código de salida",
+  "log_new_asset": "Nuevo activo",
+  "log_failed": "Error",
+  "received": "Recibido",
+  "constructor": "Constructor",
+  "to_address": "A: {address}",
+  "to_contract_address": "A contrato: {address}"
 }

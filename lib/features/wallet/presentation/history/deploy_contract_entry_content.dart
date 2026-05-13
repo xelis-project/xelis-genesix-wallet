@@ -36,7 +36,7 @@ class DeployContractEntryContent extends ConsumerWidget {
             ),
             if (deployContractEntry.invoke != null)
               LabeledValue.text(
-                'Constructor ${loc.max_gas}',
+                '${loc.constructor} ${loc.max_gas}',
                 formatXelis(deployContractEntry.invoke!.maxGas, network),
               ),
           ],

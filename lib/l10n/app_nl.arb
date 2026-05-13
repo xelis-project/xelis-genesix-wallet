@@ -466,5 +466,19 @@
   "apply": "Toepassen",
   "delete_wallet_warning_message": "Weet je zeker dat je deze wallet permanent wilt verwijderen?",
   "error_while_syncing": "Fout tijdens synchronisatie:",
-  "new_asset_detected": "Nieuw activum gedetecteerd:"
+  "new_asset_detected": "Nieuw activum gedetecteerd:",
+  "tx_contract_transfer": "Contractoverdracht",
+  "contract_logs": "Contractlogs",
+  "chunk_id": "Chunk-ID",
+  "log_transfer": "Overdracht",
+  "log_transfer_to_contract": "Overdracht naar contract",
+  "log_mint": "Mint",
+  "log_gas_refund": "Gas-terugbetaling",
+  "log_exit_code": "Afsluitcode",
+  "log_new_asset": "Nieuw activum",
+  "log_failed": "Mislukt",
+  "received": "Ontvangen",
+  "constructor": "Constructor",
+  "to_address": "Naar: {address}",
+  "to_contract_address": "Naar contract: {address}"
 }

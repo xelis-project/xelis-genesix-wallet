@@ -466,5 +466,19 @@
   "apply": "Применить",
   "delete_wallet_warning_message": "Вы уверены, что хотите навсегда удалить этот кошелёк?",
   "error_while_syncing": "Ошибка при синхронизации:",
-  "new_asset_detected": "Обнаружен новый актив:"
+  "new_asset_detected": "Обнаружен новый актив:",
+  "tx_contract_transfer": "Перевод контракта",
+  "contract_logs": "Логи контракта",
+  "chunk_id": "ID фрагмента",
+  "log_transfer": "Перевод",
+  "log_transfer_to_contract": "Перевод в контракт",
+  "log_mint": "Выпуск",
+  "log_gas_refund": "Возврат gas",
+  "log_exit_code": "Код выхода",
+  "log_new_asset": "Новый актив",
+  "log_failed": "Сбой",
+  "received": "Получено",
+  "constructor": "Конструктор",
+  "to_address": "Кому: {address}",
+  "to_contract_address": "К контракту: {address}"
 }

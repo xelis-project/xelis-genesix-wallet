@@ -466,5 +466,19 @@
   "apply": "적용",
   "delete_wallet_warning_message": "이 지갑을 영구적으로 삭제하시겠습니까?",
   "error_while_syncing": "동기화 중 오류 발생:",
-  "new_asset_detected": "새로운 자산이 감지되었습니다:"
+  "new_asset_detected": "새로운 자산이 감지되었습니다:",
+  "tx_contract_transfer": "컨트랙트 전송",
+  "contract_logs": "컨트랙트 로그",
+  "chunk_id": "청크 ID",
+  "log_transfer": "전송",
+  "log_transfer_to_contract": "컨트랙트로 전송",
+  "log_mint": "민트",
+  "log_gas_refund": "가스 환불",
+  "log_exit_code": "종료 코드",
+  "log_new_asset": "새 자산",
+  "log_failed": "실패",
+  "received": "받음",
+  "constructor": "생성자",
+  "to_address": "받는 주소: {address}",
+  "to_contract_address": "받는 컨트랙트: {address}"
 }

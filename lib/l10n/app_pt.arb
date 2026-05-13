@@ -466,5 +466,19 @@
   "apply": "Aplicar",
   "delete_wallet_warning_message": "Tem certeza de que deseja excluir permanentemente esta carteira?",
   "error_while_syncing": "Erro ao sincronizar:",
-  "new_asset_detected": "Novo ativo detectado:"
+  "new_asset_detected": "Novo ativo detectado:",
+  "tx_contract_transfer": "Transferência de contrato",
+  "contract_logs": "Logs do contrato",
+  "chunk_id": "ID do chunk",
+  "log_transfer": "Transferência",
+  "log_transfer_to_contract": "Transferência para contrato",
+  "log_mint": "Criação",
+  "log_gas_refund": "Reembolso de gas",
+  "log_exit_code": "Código de saída",
+  "log_new_asset": "Novo ativo",
+  "log_failed": "Falhou",
+  "received": "Recebido",
+  "constructor": "Construtor",
+  "to_address": "Para: {address}",
+  "to_contract_address": "Para contrato: {address}"
 }

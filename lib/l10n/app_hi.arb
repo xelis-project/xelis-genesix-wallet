@@ -466,5 +466,19 @@
   "apply": "लागू करें",
   "delete_wallet_warning_message": "क्या आप वाकई इस वॉलेट को स्थायी रूप से हटाना चाहते हैं?",
   "error_while_syncing": "समन्वयन में त्रुटि:",
-  "new_asset_detected": "नई संपत्ति का पता चला:"
+  "new_asset_detected": "नई संपत्ति का पता चला:",
+  "tx_contract_transfer": "कॉन्ट्रैक्ट ट्रांसफर",
+  "contract_logs": "कॉन्ट्रैक्ट लॉग",
+  "chunk_id": "चंक ID",
+  "log_transfer": "ट्रांसफर",
+  "log_transfer_to_contract": "कॉन्ट्रैक्ट को ट्रांसफर",
+  "log_mint": "मिंट",
+  "log_gas_refund": "गैस रिफंड",
+  "log_exit_code": "एग्जिट कोड",
+  "log_new_asset": "नई संपत्ति",
+  "log_failed": "विफल",
+  "received": "प्राप्त",
+  "constructor": "कंस्ट्रक्टर",
+  "to_address": "प्रति: {address}",
+  "to_contract_address": "कॉन्ट्रैक्ट को: {address}"
 }

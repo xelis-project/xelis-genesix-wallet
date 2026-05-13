@@ -36,11 +36,12 @@ class MultisigEntryContent extends ConsumerWidget {
           children: [
             Text(
               loc.participants,
-              style: context.theme.typography.base.copyWith(
+              style: context.theme.typography.sm.copyWith(
                 color: context.theme.colors.mutedForeground,
               ),
             ),
             FItemGroup.builder(
+              count: multisigEntry.participants.length,
               itemBuilder: (context, index) {
                 final participant = multisigEntry.participants[index];
                 return FItem(title: AddressWidget(participant));
@@ -51,10 +52,15 @@ class MultisigEntryContent extends ConsumerWidget {
       ];
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: Spaces.medium,
-      children: content,
+    return FCard.raw(
+      child: Padding(
+        padding: const EdgeInsets.all(Spaces.medium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: Spaces.medium,
+          children: content,
+        ),
+      ),
     );
   }
 }

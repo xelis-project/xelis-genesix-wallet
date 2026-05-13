@@ -466,5 +466,19 @@
   "apply": "Uygula",
   "delete_wallet_warning_message": "Bu cüzdanı kalıcı olarak silmek istediğinizden emin misiniz?",
   "error_while_syncing": "Eşitleme sırasında hata oluştu:",
-  "new_asset_detected": "Yeni varlık tespit edildi:"
+  "new_asset_detected": "Yeni varlık tespit edildi:",
+  "tx_contract_transfer": "Kontrat transferi",
+  "contract_logs": "Kontrat logları",
+  "chunk_id": "Chunk ID",
+  "log_transfer": "Transfer",
+  "log_transfer_to_contract": "Kontrata transfer",
+  "log_mint": "Mint",
+  "log_gas_refund": "Gas iadesi",
+  "log_exit_code": "Çıkış kodu",
+  "log_new_asset": "Yeni varlık",
+  "log_failed": "Başarısız",
+  "received": "Alındı",
+  "constructor": "Constructor",
+  "to_address": "Alıcı: {address}",
+  "to_contract_address": "Kontrat alıcısı: {address}"
 }

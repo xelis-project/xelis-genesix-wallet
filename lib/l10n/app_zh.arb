@@ -466,5 +466,19 @@
   "apply": "应用",
   "delete_wallet_warning_message": "您确定要永久删除此钱包吗？",
   "error_while_syncing": "同步时出错：",
-  "new_asset_detected": "检测到新资产："
+  "new_asset_detected": "检测到新资产：",
+  "tx_contract_transfer": "合约转账",
+  "contract_logs": "合约日志",
+  "chunk_id": "分块 ID",
+  "log_transfer": "转账",
+  "log_transfer_to_contract": "转账到合约",
+  "log_mint": "铸造",
+  "log_gas_refund": "Gas 退款",
+  "log_exit_code": "退出代码",
+  "log_new_asset": "新资产",
+  "log_failed": "失败",
+  "received": "已接收",
+  "constructor": "构造函数",
+  "to_address": "至：{address}",
+  "to_contract_address": "至合约：{address}"
 }

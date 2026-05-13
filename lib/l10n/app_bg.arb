@@ -466,5 +466,19 @@
   "apply": "Приложи",
   "delete_wallet_warning_message": "Сигурни ли сте, че искате да изтриете този портфейл завинаги?",
   "error_while_syncing": "Грешка при синхронизиране:",
-  "new_asset_detected": "Нов актив открит:"
+  "new_asset_detected": "Нов актив открит:",
+  "tx_contract_transfer": "Трансфер на договор",
+  "contract_logs": "Логове на договора",
+  "chunk_id": "ID на chunk",
+  "log_transfer": "Трансфер",
+  "log_transfer_to_contract": "Трансфер към договор",
+  "log_mint": "Създаване",
+  "log_gas_refund": "Възстановяване на gas",
+  "log_exit_code": "Код за изход",
+  "log_new_asset": "Нов актив",
+  "log_failed": "Неуспешно",
+  "received": "Получено",
+  "constructor": "Конструктор",
+  "to_address": "Към: {address}",
+  "to_contract_address": "Към договор: {address}"
 }

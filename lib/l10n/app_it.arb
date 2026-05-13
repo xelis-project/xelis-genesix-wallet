@@ -466,5 +466,19 @@
   "apply": "Applica",
   "delete_wallet_warning_message": "Sei sicuro di voler eliminare definitivamente questo portafoglio?",
   "error_while_syncing": "Errore durante la sincronizzazione:",
-  "new_asset_detected": "Nuovo asset rilevato:"
+  "new_asset_detected": "Nuovo asset rilevato:",
+  "tx_contract_transfer": "Trasferimento contratto",
+  "contract_logs": "Log del contratto",
+  "chunk_id": "ID chunk",
+  "log_transfer": "Trasferimento",
+  "log_transfer_to_contract": "Trasferimento a contratto",
+  "log_mint": "Creazione",
+  "log_gas_refund": "Rimborso gas",
+  "log_exit_code": "Codice di uscita",
+  "log_new_asset": "Nuovo asset",
+  "log_failed": "Non riuscito",
+  "received": "Ricevuto",
+  "constructor": "Costruttore",
+  "to_address": "A: {address}",
+  "to_contract_address": "A contratto: {address}"
 }

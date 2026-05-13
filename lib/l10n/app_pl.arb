@@ -466,5 +466,19 @@
   "apply": "Zastosuj",
   "delete_wallet_warning_message": "Czy na pewno chcesz trwale usunąć ten portfel?",
   "error_while_syncing": "Błąd podczas synchronizacji:",
-  "new_asset_detected": "Wykryto nowy zasób:"
+  "new_asset_detected": "Wykryto nowy zasób:",
+  "tx_contract_transfer": "Transfer kontraktu",
+  "contract_logs": "Logi kontraktu",
+  "chunk_id": "ID fragmentu",
+  "log_transfer": "Transfer",
+  "log_transfer_to_contract": "Transfer do kontraktu",
+  "log_mint": "Mint",
+  "log_gas_refund": "Zwrot gas",
+  "log_exit_code": "Kod wyjścia",
+  "log_new_asset": "Nowy zasób",
+  "log_failed": "Niepowodzenie",
+  "received": "Otrzymano",
+  "constructor": "Konstruktor",
+  "to_address": "Do: {address}",
+  "to_contract_address": "Do kontraktu: {address}"
 }

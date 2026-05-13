@@ -466,5 +466,19 @@
   "apply": "Appliquer",
   "delete_wallet_warning_message": "Êtes-vous sûr de vouloir supprimer définitivement ce portefeuille ?",
   "error_while_syncing": "Erreur lors de la synchronisation :",
-  "new_asset_detected": "Nouvel actif détecté :"
+  "new_asset_detected": "Nouvel actif détecté :",
+  "tx_contract_transfer": "Transfert de contrat",
+  "contract_logs": "Logs du contrat",
+  "chunk_id": "Chunk ID",
+  "log_transfer": "Transfert",
+  "log_transfer_to_contract": "Transfert vers contrat",
+  "log_mint": "Création",
+  "log_gas_refund": "Remboursement de gas",
+  "log_exit_code": "Code de sortie",
+  "log_new_asset": "Nouvel actif",
+  "log_failed": "Échec",
+  "received": "Reçu",
+  "constructor": "Constructeur",
+  "to_address": "Vers : {address}",
+  "to_contract_address": "Vers contrat : {address}"
 }

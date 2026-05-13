@@ -167,7 +167,7 @@ TransactionDisplayInfo parseTxInfo(
       return TransactionDisplayInfo(
         icon: FIcons.arrowDownToLine,
         color: Colors.purple.shade300,
-        label: 'Contract Transfer',
+        label: loc.tx_contract_transfer,
       );
   }
 }
