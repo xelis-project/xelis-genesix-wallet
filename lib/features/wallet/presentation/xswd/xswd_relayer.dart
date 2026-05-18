@@ -8,7 +8,7 @@
 ///   "encryption_key": "<base64 32 bytes>" | null,
 ///   "app_data": { ... } | null
 /// }
-library xswd_relayer;
+library;
 
 import 'dart:convert' show base64Decode;
 import 'dart:typed_data' show Uint8List;
