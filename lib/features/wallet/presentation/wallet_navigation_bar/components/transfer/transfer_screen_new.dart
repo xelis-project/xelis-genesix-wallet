@@ -303,7 +303,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                               tipBuilder: (context, controller) {
                                 return Text(
                                   loc.address_book,
-                                  style: context.theme.typography.base,
+                                  style: context.theme.typography.md,
                                 );
                               },
                               child: FButton.icon(
@@ -343,7 +343,7 @@ class _TransferScreenNewState extends ConsumerState<TransferScreenNew>
                                   _boostMultiplier != 1.0
                                       ? '$_baseFee × ${_boostMultiplier}x = $_estimatedFee ${getXelisTicker(network)}'
                                       : '$_estimatedFee ${getXelisTicker(network)}',
-                                  style: context.theme.typography.base.copyWith(
+                                  style: context.theme.typography.md.copyWith(
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),

@@ -323,7 +323,7 @@ class _CenteredInfo extends StatelessWidget {
         child: Text(
           message,
           textAlign: TextAlign.center,
-          style: context.theme.typography.base.copyWith(
+          style: context.theme.typography.md.copyWith(
             color: context.theme.colors.mutedForeground,
           ),
         ),
@@ -384,7 +384,7 @@ class _EmptyStateCard extends StatelessWidget {
                   Text(
                     message!,
                     textAlign: TextAlign.center,
-                    style: context.theme.typography.base.copyWith(
+                    style: context.theme.typography.md.copyWith(
                       color: context.theme.colors.mutedForeground,
                     ),
                   ),

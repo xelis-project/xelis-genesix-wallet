@@ -39,7 +39,7 @@ FDialogStyle dialogStyle({
 
   return FDialogStyle(
     decoration: BoxDecoration(
-      borderRadius: style.borderRadius,
+      borderRadius: style.borderRadius.md,
       border: Border.all(color: colors.primary.withValues(alpha: 0.2)),
       color: colors.background,
       boxShadow: [
@@ -50,26 +50,29 @@ FDialogStyle dialogStyle({
         ),
       ],
     ),
-    contentStyle: FVariants(
-      FDialogContentStyle(
-        titleTextStyle: title,
-        bodyTextStyle: body,
-        padding: .symmetric(horizontal: contentH, vertical: contentV),
-        titleSpacing: 8,
-        bodySpacing: 8,
-        actionSpacing: 10,
-      ),
-      variants: {
-        [.vertical]: FDialogContentStyle(
+    contentStyle: FDialogContentStyles(
+      FVariants(
+        FDialogContentStyle(
           titleTextStyle: title,
           bodyTextStyle: body,
           padding: .symmetric(horizontal: contentH, vertical: contentV),
-          titleSpacing: 6,
-          bodySpacing: 6,
-          actionSpacing: 8,
+          titleSpacing: 8,
+          contentSpacing: 8,
+          actionSpacing: 10,
         ),
-      },
+        variants: {
+          [FDialogAxisVariant.vertical]: FDialogContentStyle(
+            titleTextStyle: title,
+            bodyTextStyle: body,
+            padding: .symmetric(horizontal: contentH, vertical: contentV),
+            titleSpacing: 6,
+            contentSpacing: 6,
+            actionSpacing: 8,
+          ),
+        },
+      ),
     ),
+    slidePressHapticFeedback: style.hapticFeedback.selectionClick,
     motion: FDialogMotion(
       fadeInCurve: Curves.easeOutCubic,
       fadeOutCurve: Curves.easeInCubic,

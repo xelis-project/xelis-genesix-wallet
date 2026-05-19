@@ -21,7 +21,7 @@ class ColoredBadge extends StatelessWidget {
 
     return FBadge(
       style: .delta(
-        decoration: .delta(color: bg),
+        decoration: .boxDelta(color: bg),
         contentStyle: .delta(labelTextStyle: .delta(color: color)),
       ),
       child: Text(text),

@@ -65,7 +65,7 @@ class _GridInfoWidgetState extends State<GridInfoWidget>
               color: context.theme.colors.primary.withValues(
                 alpha: 0.08 * _highlightOpacity.value,
               ),
-              borderRadius: context.theme.style.borderRadius,
+              borderRadius: context.theme.style.borderRadius.md,
             ),
             child: child,
           );

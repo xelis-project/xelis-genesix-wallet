@@ -2,7 +2,30 @@ import 'package:flutter/material.dart';
 
 import 'package:forui/forui.dart';
 
-FTextFieldStyle textFieldStyle({
+FTextFieldSizeStyles textFieldStyles({
+  required FColors colors,
+  required FTypography typography,
+  required FStyle style,
+}) {
+  final field = _textFieldStyle(
+    colors: colors,
+    typography: typography,
+    style: style,
+  );
+
+  return FTextFieldSizeStyles(
+    FVariants(
+      field,
+      variants: {
+        [.sm]: field,
+        [.md]: field,
+        [.lg]: field,
+      },
+    ),
+  );
+}
+
+FTextFieldStyle _textFieldStyle({
   required FColors colors,
   required FTypography typography,
   required FStyle style,
@@ -13,9 +36,7 @@ FTextFieldStyle textFieldStyle({
     typography: typography,
     style: style,
   ).ghost.sm;
-  final textStyle = typography.sm.copyWith(
-    fontFamily: typography.defaultFontFamily,
-  );
+  final textStyle = typography.sm.copyWith(fontFamily: typography.fontFamily);
   final iconStyle =
       FVariants<
         FTextFieldVariantConstraint,
@@ -70,7 +91,7 @@ FTextFieldStyle textFieldStyle({
     border: FVariants(
       OutlineInputBorder(
         borderSide: BorderSide(color: colors.border, width: style.borderWidth),
-        borderRadius: style.borderRadius,
+        borderRadius: style.borderRadius.md,
       ),
       variants: {
         [.focused]: OutlineInputBorder(
@@ -78,25 +99,25 @@ FTextFieldStyle textFieldStyle({
             color: colors.primary,
             width: style.borderWidth,
           ),
-          borderRadius: style.borderRadius,
+          borderRadius: style.borderRadius.md,
         ),
         [.disabled]: OutlineInputBorder(
           borderSide: BorderSide(
             color: colors.disable(colors.border),
             width: style.borderWidth,
           ),
-          borderRadius: style.borderRadius,
+          borderRadius: style.borderRadius.md,
         ),
         [.error]: OutlineInputBorder(
           borderSide: BorderSide(color: colors.error, width: style.borderWidth),
-          borderRadius: style.borderRadius,
+          borderRadius: style.borderRadius.md,
         ),
         [.error.and(.disabled)]: OutlineInputBorder(
           borderSide: BorderSide(
             color: colors.disable(colors.error),
             width: style.borderWidth,
           ),
-          borderRadius: style.borderRadius,
+          borderRadius: style.borderRadius.md,
         ),
       },
     ),
@@ -111,7 +132,13 @@ FTextFieldStyle textFieldStyle({
 }
 
 FLabelStyles _labelStyles({required FStyle style}) => FLabelStyles(
-  horizontalStyle: .inherit(
+  horizontalLeadingStyle: .inherit(
+    style: style,
+    descriptionPadding: const .only(top: 2),
+    errorPadding: const .only(top: 2),
+    childPadding: const .symmetric(horizontal: 8),
+  ),
+  horizontalTrailingStyle: .inherit(
     style: style,
     descriptionPadding: const .only(top: 2),
     errorPadding: const .only(top: 2),
@@ -135,12 +162,15 @@ FButtonStyles _buttonStyles({
       typography: typography,
       style: style,
       decoration: .from(
-        BoxDecoration(borderRadius: style.borderRadius, color: colors.primary),
+        BoxDecoration(
+          borderRadius: style.borderRadius.md,
+          color: colors.primary,
+        ),
         variants: {
-          [.hovered, .pressed]: .delta(color: colors.hover(colors.primary)),
-          [.disabled]: .delta(color: colors.disable(colors.primary)),
-          [.selected]: .delta(color: colors.hover(colors.primary)),
-          [.selected.and(.disabled)]: .delta(
+          [.hovered, .pressed]: .boxDelta(color: colors.hover(colors.primary)),
+          [.disabled]: .boxDelta(color: colors.disable(colors.primary)),
+          [.selected]: .boxDelta(color: colors.hover(colors.primary)),
+          [.selected.and(.disabled)]: .boxDelta(
             color: colors.disable(colors.hover(colors.primary)),
           ),
         },
@@ -154,14 +184,16 @@ FButtonStyles _buttonStyles({
         style: style,
         decoration: .from(
           BoxDecoration(
-            borderRadius: style.borderRadius,
+            borderRadius: style.borderRadius.md,
             color: colors.secondary,
           ),
           variants: {
-            [.hovered, .pressed]: .delta(color: colors.hover(colors.secondary)),
-            [.disabled]: .delta(color: colors.disable(colors.secondary)),
-            [.selected]: .delta(color: colors.hover(colors.secondary)),
-            [.selected.and(.disabled)]: .delta(
+            [.hovered, .pressed]: .boxDelta(
+              color: colors.hover(colors.secondary),
+            ),
+            [.disabled]: .boxDelta(color: colors.disable(colors.secondary)),
+            [.selected]: .boxDelta(color: colors.hover(colors.secondary)),
+            [.selected.and(.disabled)]: .boxDelta(
               color: colors.disable(colors.hover(colors.secondary)),
             ),
           },
@@ -174,28 +206,28 @@ FButtonStyles _buttonStyles({
         style: style,
         decoration: .from(
           BoxDecoration(
-            borderRadius: style.borderRadius,
+            borderRadius: style.borderRadius.md,
             color: colors.destructive.withValues(
               alpha: colors.brightness == .light ? 0.1 : 0.2,
             ),
           ),
           variants: {
-            [.hovered, .pressed]: .delta(
+            [.hovered, .pressed]: .boxDelta(
               color: colors.destructive.withValues(
                 alpha: colors.brightness == .light ? 0.2 : 0.3,
               ),
             ),
-            [.disabled]: .delta(
+            [.disabled]: .boxDelta(
               color: colors.destructive.withValues(
                 alpha: colors.brightness == .light ? 0.05 : 0.1,
               ),
             ),
-            [.selected]: .delta(
+            [.selected]: .boxDelta(
               color: colors.destructive.withValues(
                 alpha: colors.brightness == .light ? 0.2 : 0.3,
               ),
             ),
-            [.selected.and(.disabled)]: .delta(
+            [.selected.and(.disabled)]: .boxDelta(
               color: colors.disable(
                 colors.destructive.withValues(
                   alpha: colors.brightness == .light ? 0.2 : 0.3,
@@ -213,14 +245,14 @@ FButtonStyles _buttonStyles({
         decoration: .from(
           BoxDecoration(
             border: .all(color: colors.border),
-            borderRadius: style.borderRadius,
+            borderRadius: style.borderRadius.md,
             color: colors.card,
           ),
           variants: {
-            [.hovered, .pressed]: .delta(color: colors.secondary),
-            [.disabled]: .delta(color: colors.disable(colors.card)),
-            [.selected]: .delta(color: colors.secondary),
-            [.selected.and(.disabled)]: .delta(
+            [.hovered, .pressed]: .boxDelta(color: colors.secondary),
+            [.disabled]: .boxDelta(color: colors.disable(colors.card)),
+            [.selected]: .boxDelta(color: colors.secondary),
+            [.selected.and(.disabled)]: .boxDelta(
               color: colors.disable(colors.secondary),
             ),
           },
@@ -232,12 +264,12 @@ FButtonStyles _buttonStyles({
         typography: typography,
         style: style,
         decoration: .from(
-          BoxDecoration(borderRadius: style.borderRadius),
+          BoxDecoration(borderRadius: style.borderRadius.md),
           variants: {
-            [.hovered, .pressed]: .delta(color: colors.secondary),
-            [.disabled]: const .delta(),
-            [.selected]: .delta(color: colors.secondary),
-            [.selected.and(.disabled)]: .delta(
+            [.hovered, .pressed]: .boxDelta(color: colors.secondary),
+            [.disabled]: const .boxDelta(),
+            [.selected]: .boxDelta(color: colors.secondary),
+            [.selected.and(.disabled)]: .boxDelta(
               color: colors.disable(colors.secondary),
             ),
           },
@@ -255,8 +287,8 @@ FButtonSizeStyles _buttonSizeStyles({
   required FVariants<
     FTappableVariantConstraint,
     FTappableVariant,
-    BoxDecoration,
-    BoxDecorationDelta
+    Decoration,
+    DecorationDelta
   >
   decoration,
   required Color foregroundColor,
@@ -316,10 +348,10 @@ FButtonSizeStyles _buttonSizeStyles({
   return FButtonSizeStyles(
     FVariants(
       button(
-        textStyle: typography.base,
+        textStyle: typography.md,
         contentPadding: const .symmetric(horizontal: 16, vertical: 11),
         contentSpacing: 10,
-        iconSize: typography.base.fontSize ?? 16,
+        iconSize: typography.md.fontSize ?? 16,
         iconPadding: const .all(11),
       ),
       variants: {
@@ -338,10 +370,10 @@ FButtonSizeStyles _buttonSizeStyles({
           iconPadding: const .all(9),
         ),
         [.lg]: button(
-          textStyle: typography.base,
+          textStyle: typography.md,
           contentPadding: const .symmetric(horizontal: 32, vertical: 14),
           contentSpacing: 10,
-          iconSize: typography.base.fontSize ?? 16,
+          iconSize: typography.md.fontSize ?? 16,
           iconPadding: const .all(14),
         ),
       },

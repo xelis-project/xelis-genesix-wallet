@@ -256,14 +256,14 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
 
   FToastStyle _standardToastStyle(BuildContext context, _ToastVisualSpec spec) {
     final colors = context.theme.colors;
-    final base = context.theme.toasterStyle.toastStyle;
+    final base = context.theme.toasterStyle.toastStyles.primary;
     final borderTint = spec.accent.withValues(
       alpha: colors.brightness == Brightness.light ? 0.18 : 0.34,
     );
 
     return FToastStyle(
       constraints: base.constraints,
-      decoration: base.decoration.copyWith(
+      decoration: _baseToastDecoration(base).copyWith(
         color: colors.toastSurface,
         border: Border.all(color: borderTint),
       ),
@@ -283,14 +283,14 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
 
   FToastStyle _xswdToastStyle(BuildContext context, _ToastVisualSpec spec) {
     final colors = context.theme.colors;
-    final base = context.theme.toasterStyle.toastStyle;
+    final base = context.theme.toasterStyle.toastStyles.primary;
     final borderTint = spec.accent.withValues(
       alpha: colors.brightness == Brightness.light ? 0.14 : 0.24,
     );
 
     return FToastStyle(
       constraints: const BoxConstraints(maxWidth: 396, maxHeight: 116),
-      decoration: base.decoration.copyWith(
+      decoration: _baseToastDecoration(base).copyWith(
         color: colors.toastSurface,
         border: Border.all(color: borderTint),
         boxShadow: [
@@ -312,6 +312,11 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
       motion: base.motion,
     );
   }
+
+  BoxDecoration _baseToastDecoration(FToastStyle style) =>
+      style.decoration is BoxDecoration
+      ? style.decoration as BoxDecoration
+      : BoxDecoration(color: _appContext.theme.colors.toastSurface);
 
   @override
   void dispose() {

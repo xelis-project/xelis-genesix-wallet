@@ -88,7 +88,7 @@ class _PendingChangesCard extends StatelessWidget {
                 Text(
                   message,
                   textAlign: TextAlign.center,
-                  style: context.theme.typography.base,
+                  style: context.theme.typography.md,
                 ),
               ],
             ),
@@ -137,7 +137,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
             ),
             child: Text(
               loc.no_multisig_configuration_found,
-              style: context.theme.typography.base.copyWith(
+              style: context.theme.typography.md.copyWith(
                 color: context.theme.colors.mutedForeground,
               ),
             ),
@@ -278,7 +278,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
                       children: [
                         Text(
                           loc.participants,
-                          style: context.theme.typography.base.copyWith(
+                          style: context.theme.typography.md.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -396,7 +396,7 @@ class _EmptyMultisigCallToAction extends StatelessWidget {
       fontWeight: FontWeight.w600,
     );
 
-    final bodyStyle = context.theme.typography.base.copyWith(
+    final bodyStyle = context.theme.typography.md.copyWith(
       color: colors.mutedForeground,
     );
 

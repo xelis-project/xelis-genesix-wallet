@@ -975,13 +975,13 @@ class _XswdDecisionButton extends StatelessWidget {
   const _XswdDecisionButton({
     required this.busy,
     required this.label,
-    this.variant,
+    this.variant = FButtonVariant.primary,
     required this.onPress,
   });
 
   final bool busy;
   final String label;
-  final FButtonVariant? variant;
+  final FButtonVariant variant;
   final VoidCallback onPress;
 
   @override
@@ -1046,9 +1046,13 @@ class _XswdCountdownIndicator extends StatelessWidget {
 }
 
 class _XswdIconBadge extends StatelessWidget {
-  const _XswdIconBadge({this.variant, required this.icon, required this.child});
+  const _XswdIconBadge({
+    this.variant = FBadgeVariant.primary,
+    required this.icon,
+    required this.child,
+  });
 
-  final FBadgeVariant? variant;
+  final FBadgeVariant variant;
   final IconData icon;
   final Widget child;
 

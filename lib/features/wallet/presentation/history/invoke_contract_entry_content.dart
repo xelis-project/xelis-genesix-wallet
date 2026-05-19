@@ -134,7 +134,7 @@ class _InvokeContractEntryContentState
                 ),
                 SelectableText(
                   formattedData.$2,
-                  style: context.theme.typography.base,
+                  style: context.theme.typography.md,
                 ),
               ],
             ),
@@ -175,7 +175,7 @@ class _InvokeContractEntryContentState
                 ),
                 SelectableText(
                   formattedData.$2,
-                  style: context.theme.typography.base,
+                  style: context.theme.typography.md,
                 ),
               ],
             ),
@@ -211,7 +211,7 @@ class _InvokeContractEntryContentState
             ),
             SelectableText(
               formattedData.$2,
-              style: context.theme.typography.base,
+              style: context.theme.typography.md,
             ),
           ],
         );
@@ -239,7 +239,7 @@ class _InvokeContractEntryContentState
             ),
             SelectableText(
               formattedData.$2,
-              style: context.theme.typography.base,
+              style: context.theme.typography.md,
             ),
           ],
         );
@@ -252,7 +252,7 @@ class _InvokeContractEntryContentState
 
         details = SelectableText(
           formatXelis(amount, network),
-          style: context.theme.typography.base,
+          style: context.theme.typography.md,
         );
         break;
 
@@ -261,7 +261,7 @@ class _InvokeContractEntryContentState
         final exitCodeValue = value as int?;
         details = SelectableText(
           exitCodeValue?.toString() ?? loc.log_failed,
-          style: context.theme.typography.base.copyWith(
+          style: context.theme.typography.md.copyWith(
             fontWeight: FontWeight.bold,
           ),
         );
@@ -296,7 +296,7 @@ class _InvokeContractEntryContentState
         header = type.capitalize();
         details = Text(
           value?.toString() ?? 'N/A',
-          style: context.theme.typography.base,
+          style: context.theme.typography.md,
         );
     }
 
@@ -324,7 +324,7 @@ class _InvokeContractEntryContentState
             ),
           ),
           DefaultTextStyle.merge(
-            style: context.theme.typography.base,
+            style: context.theme.typography.md,
             child: details,
           ),
         ],
@@ -365,7 +365,7 @@ class _InvokeContractEntryContentState
                           widget.invokeContractEntry.contract,
                           maxLength: 20,
                         ),
-                        style: context.theme.typography.base,
+                        style: context.theme.typography.md,
                       ),
                     ),
                   ),

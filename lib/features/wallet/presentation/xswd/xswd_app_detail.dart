@@ -504,7 +504,8 @@ class _XswdPolicyButton extends StatelessWidget {
         isSelected ? FButtonVariant.destructive : FButtonVariant.outline,
       PermissionPolicy.ask =>
         isSelected ? FButtonVariant.secondary : FButtonVariant.outline,
-      PermissionPolicy.accept => isSelected ? null : FButtonVariant.outline,
+      PermissionPolicy.accept =>
+        isSelected ? FButtonVariant.primary : FButtonVariant.outline,
     };
 
     return FButton(

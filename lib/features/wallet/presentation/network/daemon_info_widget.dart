@@ -75,7 +75,7 @@ class _DaemonInfoWidgetState extends ConsumerState<DaemonInfoWidget> {
     final labelStyle = context.theme.typography.sm.copyWith(
       color: context.theme.colors.mutedForeground,
     );
-    final valueStyle = context.theme.typography.base;
+    final valueStyle = context.theme.typography.md;
 
     return [
       _InfoCell(

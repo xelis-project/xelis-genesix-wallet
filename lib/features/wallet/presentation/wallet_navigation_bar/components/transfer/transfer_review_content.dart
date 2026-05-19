@@ -40,7 +40,7 @@ class TransferReviewContentWidget extends ConsumerWidget {
                     children: [
                       Text(
                         loc.asset,
-                        style: context.theme.typography.base.copyWith(
+                        style: context.theme.typography.md.copyWith(
                           color: muted,
                         ),
                       ),
@@ -55,7 +55,7 @@ class TransferReviewContentWidget extends ConsumerWidget {
                                 const SizedBox(width: Spaces.extraSmall),
                                 Text(
                                   transaction.name,
-                                  style: context.theme.typography.base,
+                                  style: context.theme.typography.md,
                                 ),
                               ],
                             )
@@ -69,7 +69,7 @@ class TransferReviewContentWidget extends ConsumerWidget {
                     children: [
                       Text(
                         loc.amount.capitalize(),
-                        style: context.theme.typography.base.copyWith(
+                        style: context.theme.typography.md.copyWith(
                           color: muted,
                         ),
                       ),
@@ -151,7 +151,7 @@ class TransferReviewContentWidget extends ConsumerWidget {
           // Receiver
           Text(
             loc.receiver,
-            style: context.theme.typography.base.copyWith(color: muted),
+            style: context.theme.typography.md.copyWith(color: muted),
           ),
           const SizedBox(height: Spaces.extraSmall),
           AddressWidget(transaction.destinationAddress.address),
@@ -160,7 +160,7 @@ class TransferReviewContentWidget extends ConsumerWidget {
             const SizedBox(height: Spaces.small),
             Text(
               loc.payment_id,
-              style: context.theme.typography.base.copyWith(
+              style: context.theme.typography.md.copyWith(
                 // FIXED
                 color: muted,
               ),

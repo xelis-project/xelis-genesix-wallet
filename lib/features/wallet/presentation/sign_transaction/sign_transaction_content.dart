@@ -92,7 +92,7 @@ class _SignTransactionContentState
                             padding: const EdgeInsets.all(Spaces.medium),
                             child: Text(
                               loc.no_signature_generated_yet,
-                              style: context.theme.typography.base.copyWith(
+                              style: context.theme.typography.md.copyWith(
                                 color: context.theme.colors.mutedForeground,
                               ),
                             ),

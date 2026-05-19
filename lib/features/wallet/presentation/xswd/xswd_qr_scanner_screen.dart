@@ -298,7 +298,7 @@ class _ScannerOverlay extends StatelessWidget {
               ),
               child: Text(
                 instruction,
-                style: context.theme.typography.base.copyWith(
+                style: context.theme.typography.md.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
                 ),
@@ -335,7 +335,7 @@ class _ProcessingOverlay extends StatelessWidget {
               const SizedBox(height: Spaces.medium),
               Text(
                 label,
-                style: context.theme.typography.base.copyWith(
+                style: context.theme.typography.md.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
                 ),

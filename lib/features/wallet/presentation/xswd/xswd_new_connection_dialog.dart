@@ -238,7 +238,7 @@ class _ConnectionMethodButton extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.center,
-                            style: theme.typography.base.copyWith(
+                            style: theme.typography.md.copyWith(
                               fontWeight: FontWeight.w600,
                               height: 1.1,
                             ),

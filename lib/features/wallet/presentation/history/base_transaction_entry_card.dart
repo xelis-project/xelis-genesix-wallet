@@ -45,7 +45,7 @@ class _BaseTransactionEntryCardState
 
     return FCard.raw(
       child: ClipRRect(
-        borderRadius: theme.style.borderRadius,
+        borderRadius: theme.style.borderRadius.md,
         child: DecoratedBox(
           decoration: BoxDecoration(
             border: Border(top: BorderSide(color: widget.color, width: 3)),
@@ -68,7 +68,7 @@ class _BaseTransactionEntryCardState
                           Flexible(
                             child: FBadge(
                               style: .delta(
-                                decoration: .delta(color: widget.color),
+                                decoration: .boxDelta(color: widget.color),
                               ),
                               child: Text(
                                 widget.type.capitalize(),
@@ -128,7 +128,7 @@ class _BaseTransactionEntryCardState
                               widget.transactionEntry.hash,
                               maxLength: 20,
                             ),
-                            style: theme.typography.base,
+                            style: theme.typography.md,
                           ),
                         ),
                       ),

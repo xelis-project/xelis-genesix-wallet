@@ -60,7 +60,7 @@ class LabeledValue extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final contentStyle = style ?? context.theme.typography.base;
+    final contentStyle = style ?? context.theme.typography.md;
 
     final Widget content =
         child ??

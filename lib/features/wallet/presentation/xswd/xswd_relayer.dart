@@ -5,7 +5,7 @@
 ///   "channel_id": "...",
 ///   "relayer": "https://relay.xelis.io",
 ///   "encryption_mode": "aes" | "chacha20poly1305" | ...,
-///   "encryption_key": "<base64 32 bytes>" | null,
+///   "encryption_key": "`<base64 32 bytes>`" | null,
 ///   "app_data": { ... } | null
 /// }
 library;
@@ -115,7 +115,7 @@ class RelaySessionData {
   }
 
   /// Builds the relayer WebSocket URL used by the wallet to connect.
-  /// Example: https://relay.xelis.io/ws/<channelId>
+  /// Example: `https://relay.xelis.io/ws/<channelId>`
   String buildRelayerWsUrl() => '$relayerNormalized/ws/$channelId';
 
   /// Decode and validate the optional encryption key + mode from the session.

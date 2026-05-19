@@ -22,35 +22,40 @@ FToasterStyle toasterStyle({
       collapseDuration: Duration(milliseconds: 220),
     ),
     toastAlignment: FToastAlignment.topRight,
-    toastStyle: FToastStyle(
-      constraints: const BoxConstraints(maxWidth: 408, maxHeight: 220),
-      decoration: BoxDecoration(
-        color: colors.toastSurface,
-        border: Border.all(color: colors.toastBorderColor),
-        borderRadius: baseRadius,
-        boxShadow: [
-          BoxShadow(
-            color: colors.toastShadowColor,
-            blurRadius: 24,
-            offset: const Offset(0, 10),
+    toastStyles: FToastStyles(
+      FVariants(
+        FToastStyle(
+          constraints: const BoxConstraints(maxWidth: 408, maxHeight: 220),
+          decoration: BoxDecoration(
+            color: colors.toastSurface,
+            border: Border.all(color: colors.toastBorderColor),
+            borderRadius: baseRadius,
+            boxShadow: [
+              BoxShadow(
+                color: colors.toastShadowColor,
+                blurRadius: 24,
+                offset: const Offset(0, 10),
+              ),
+            ],
           ),
-        ],
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+          iconStyle: IconThemeData(color: colors.foreground, size: 18),
+          iconSpacing: 12,
+          titleTextStyle: typography.sm.copyWith(
+            color: colors.foreground,
+            fontWeight: FontWeight.w600,
+            height: 1.15,
+          ),
+          titleSpacing: 4,
+          descriptionTextStyle: typography.xs.copyWith(
+            color: colors.mutedForeground,
+            height: 1.35,
+            overflow: TextOverflow.ellipsis,
+          ),
+          suffixSpacing: 10,
+        ),
+        variants: {},
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-      iconStyle: IconThemeData(color: colors.foreground, size: 18),
-      iconSpacing: 12,
-      titleTextStyle: typography.sm.copyWith(
-        color: colors.foreground,
-        fontWeight: FontWeight.w600,
-        height: 1.15,
-      ),
-      titleSpacing: 4,
-      descriptionTextStyle: typography.xs.copyWith(
-        color: colors.mutedForeground,
-        height: 1.35,
-        overflow: TextOverflow.ellipsis,
-      ),
-      suffixSpacing: 10,
     ),
   );
 }

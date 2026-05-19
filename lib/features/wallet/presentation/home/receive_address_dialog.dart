@@ -58,7 +58,7 @@ class ReceiveAddressDialog extends ConsumerWidget {
                     color: context.theme.colors.secondaryForeground.withValues(
                       alpha: 0.1,
                     ),
-                    borderRadius: context.theme.style.borderRadius,
+                    borderRadius: context.theme.style.borderRadius.md,
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -90,7 +90,7 @@ class ReceiveAddressDialog extends ConsumerWidget {
                 padding: EdgeInsets.all(Spaces.small),
                 decoration: BoxDecoration(
                   color: context.theme.colors.background,
-                  borderRadius: context.theme.style.borderRadius,
+                  borderRadius: context.theme.style.borderRadius.md,
                 ),
                 child: SizedBox(
                   width: qrSize,

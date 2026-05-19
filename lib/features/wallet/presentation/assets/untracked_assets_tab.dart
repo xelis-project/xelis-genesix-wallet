@@ -48,7 +48,7 @@ class _UntrackedAssetsTabState extends ConsumerState<UntrackedAssetsTab> {
         child: Center(
           child: Text(
             loc.no_untracked_assets,
-            style: context.theme.typography.base.copyWith(
+            style: context.theme.typography.md.copyWith(
               color: context.theme.colors.mutedForeground,
             ),
           ),

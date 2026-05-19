@@ -41,7 +41,7 @@ class BurnReviewContent extends ConsumerWidget {
                     children: [
                       Text(
                         loc.asset,
-                        style: context.theme.typography.base.copyWith(
+                        style: context.theme.typography.md.copyWith(
                           color: context.theme.colors.mutedForeground,
                         ),
                       ),
@@ -66,7 +66,7 @@ class BurnReviewContent extends ConsumerWidget {
                     children: [
                       Text(
                         loc.amount.capitalize(),
-                        style: context.theme.typography.base.copyWith(
+                        style: context.theme.typography.md.copyWith(
                           color: context.theme.colors.mutedForeground,
                         ),
                       ),
@@ -89,7 +89,7 @@ class BurnReviewContent extends ConsumerWidget {
             children: [
               Text(
                 loc.fee,
-                style: context.theme.typography.base.copyWith(
+                style: context.theme.typography.md.copyWith(
                   color: context.theme.colors.mutedForeground,
                 ),
               ),
@@ -109,7 +109,7 @@ class BurnReviewContent extends ConsumerWidget {
           // Hash
           Text(
             loc.hash,
-            style: context.theme.typography.base.copyWith(
+            style: context.theme.typography.md.copyWith(
               color: context.theme.colors.mutedForeground,
             ),
           ),

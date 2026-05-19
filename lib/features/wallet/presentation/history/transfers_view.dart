@@ -203,7 +203,7 @@ class _WideTable extends ConsumerWidget {
                       Center(
                         child: SelectableText(
                           row.amountText,
-                          style: context.theme.typography.base,
+                          style: context.theme.typography.md,
                         ),
                       ),
                     ),

@@ -156,7 +156,7 @@ class _CenteredMessage extends StatelessWidget {
         child: Text(
           message,
           textAlign: TextAlign.center,
-          style: context.theme.typography.base.copyWith(color: color),
+          style: context.theme.typography.md.copyWith(color: color),
         ),
       ),
     );

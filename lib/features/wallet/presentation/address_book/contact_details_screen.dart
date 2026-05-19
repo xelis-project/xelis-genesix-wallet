@@ -471,7 +471,7 @@ class _ContactHistoryContentState
                             padding: const EdgeInsets.all(Spaces.large),
                             child: Text(
                               loc.no_transactions_with_contact,
-                              style: context.theme.typography.base.copyWith(
+                              style: context.theme.typography.md.copyWith(
                                 color: context.theme.colors.mutedForeground,
                               ),
                             ),
@@ -485,7 +485,7 @@ class _ContactHistoryContentState
         return Center(
           child: Text(
             loc.oups,
-            style: context.theme.typography.base.copyWith(
+            style: context.theme.typography.md.copyWith(
               color: context.theme.colors.error,
             ),
           ),

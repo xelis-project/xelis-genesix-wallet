@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/logger/logger.dart';
@@ -40,13 +41,20 @@ class _GenesixState extends ConsumerState<Genesix> with WindowListener {
     );
 
     FThemeData themeData;
+    final touch = switch (defaultTargetPlatform) {
+      TargetPlatform.android ||
+      TargetPlatform.iOS ||
+      TargetPlatform.fuchsia => true,
+      _ => false,
+    };
+
     switch (appTheme) {
       case AppTheme.light:
-        themeData = greenLight;
+        themeData = greenLight(touch: touch);
       case AppTheme.dark:
-        themeData = greenDark;
+        themeData = greenDark(touch: touch);
       case AppTheme.xelis:
-        themeData = greenDark;
+        themeData = greenDark(touch: touch);
     }
 
     return MaterialApp.router(
