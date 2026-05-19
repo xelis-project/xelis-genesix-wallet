@@ -16,6 +16,13 @@ Use this skill before designing, reviewing, or materially changing Flutter UI.
 5. Prefer Forui components when they fit the interaction.
 6. Keep business decisions outside widgets; pair this skill with `flutter-riverpod-change` when state or providers are involved.
 
+## Forui Documentation
+
+- Use `.agents/references/forui/llms.txt` as the local Forui documentation index.
+- Use `.agents/references/forui/llms-full.txt` for current component APIs, examples, and migration context.
+- Refresh the snapshots with `dart run tool/sync_forui_docs.dart` before Forui migrations or when API behavior is unclear.
+- Check `https://pub.dev/packages/forui/changelog` for breaking changes when upgrading Forui.
+
 ## Design Rules
 
 - Build dense, scannable wallet UI for repeated operational use.

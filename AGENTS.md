@@ -65,6 +65,7 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 - Use typed GoRouter patterns already defined under `lib/features/router/**`.
 - Keep route extras and codecs consistent when adding transfer objects.
 - Prefer Forui for Flutter UI when it fits the existing feature.
+- For Forui API details and migration work, consult `.agents/references/forui/llms.txt` and `.agents/references/forui/llms-full.txt`; refresh them with `dart run tool/sync_forui_docs.dart` when the API may have changed.
 - Reuse `lib/shared` components and utilities before creating variants.
 - Preserve responsive behavior across desktop, mobile, web, and native targets.
 - Use modern Dart and Flutter idioms when they improve clarity and are supported by the installed SDK and package versions.
