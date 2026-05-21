@@ -4316,8 +4316,3 @@ dependencies = [
  "cc",
  "pkg-config",
 ]
-
-[[patch.unused]]
-name = "tokio-tungstenite-wasm"
-version = "0.8.0"
-source = "git+https://github.com/Slixe/tokio-tungstenite-wasm?branch=main#738c896bafc96ed36b69e622532a0b353d834fdb"
