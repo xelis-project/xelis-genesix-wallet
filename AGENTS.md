@@ -29,6 +29,9 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
   - `**/*.g.dart`
   - `**/*.freezed.dart`
   - `lib/src/generated/**`
+- Durable project notes for agents live in `.agents/knowledge/PROJECT_NOTES.md`.
+  Read them during onboarding and before dependency, storage, security,
+  platform, or migration work.
 
 ## Engineering Rules
 

@@ -10,10 +10,11 @@ Use this skill to build accurate local context before planning or editing.
 ## Workflow
 
 1. Read `AGENTS.md` first.
-2. Inspect task-relevant files instead of relying on memory.
-3. Check dependency versions in `pubspec.yaml` or `Cargo.toml` before using third-party APIs.
-4. Identify generated-file impact before proposing edits.
-5. Map the likely validation surface from the matrix in `AGENTS.md`.
+2. Read `.agents/knowledge/PROJECT_NOTES.md` when present, especially before dependency, storage, security, platform, or migration work.
+3. Inspect task-relevant files instead of relying on memory.
+4. Check dependency versions in `pubspec.yaml` or `Cargo.toml` before using third-party APIs.
+5. Identify generated-file impact before proposing edits.
+6. Map the likely validation surface from the matrix in `AGENTS.md`.
 
 ## Repository Map
 
