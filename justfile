@@ -23,7 +23,7 @@ gen_flutter:
 
 format:
     cd rust && cargo fmt
-    dart format .
+    dart format lib test integration_test tool
 
 clean:
     flutter clean
