@@ -9,7 +9,6 @@ import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:genesix/features/authentication/presentation/components/network_select_menu_tile.dart';
 
 class RecoveryPhraseTab extends ConsumerStatefulWidget {
   const RecoveryPhraseTab({super.key});
@@ -46,8 +45,6 @@ class _RecoveryPhraseTabState extends ConsumerState<RecoveryPhraseTab> {
         child: Column(
           children: [
             const SizedBox(height: Spaces.medium),
-            const NetworkSelectMenuTile(),
-            const SizedBox(height: Spaces.large),
             FTextFormField.multiline(
               control: .managed(controller: _recoveryPhraseController),
               label: Text(loc.recovery_phrase),

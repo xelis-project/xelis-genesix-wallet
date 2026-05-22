@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/authentication/application/wallet_session_commands_provider.dart';
 import 'package:genesix/features/authentication/domain/wallet_session_command_result.dart';
+import 'package:genesix/features/authentication/presentation/components/current_network_indicator.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
@@ -44,10 +45,21 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
             child: FHeaderAction.back(onPress: context.pop),
           ),
         ],
+        suffixes: [
+          Padding(
+            padding: const EdgeInsets.all(Spaces.small),
+            child: FHeaderAction(
+              icon: Icon(FIcons.settings),
+              onPress: () => context.push(AppScreen.lightSettings.toPath),
+            ),
+          ),
+        ],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          const CurrentNetworkIndicator(),
+          const SizedBox(height: Spaces.medium),
           Container(
             width: context.mediaWidth * 0.9,
             constraints: BoxConstraints(maxWidth: context.theme.breakpoints.sm),

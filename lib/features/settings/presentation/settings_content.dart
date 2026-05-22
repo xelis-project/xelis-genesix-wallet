@@ -8,6 +8,7 @@ import 'package:genesix/features/authentication/domain/authentication_state.dart
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/settings/domain/display_currency.dart';
+import 'package:genesix/features/settings/presentation/components/network_select_menu_tile.dart';
 import 'package:genesix/features/settings/presentation/components/reset_preference_button.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -39,18 +40,21 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
     super.initState();
 
     getAppCacheDirPath().then((path) {
+      if (!mounted) return;
       setState(() {
         _cachePath = path;
       });
     });
 
     getAppWalletsDirPath().then((path) {
+      if (!mounted) return;
       setState(() {
         _walletsPath = path;
       });
     });
 
     PackageInfo.fromPlatform().then((packageInfo) {
+      if (!mounted) return;
       setState(() {
         _version = packageInfo.version;
       });
@@ -114,6 +118,7 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
                     ),
                 ],
               ),
+              if (!authState.isAuth) const NetworkSelectMenuTile(),
               if (authState.isAuth)
                 FTileGroup(
                   label: Text(loc.wallet),
