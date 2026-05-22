@@ -97,7 +97,7 @@ class ConnectionStatusCard extends ConsumerWidget {
                             },
                       prefix: isRescanning
                           ? const FCircularProgress.loader()
-                          : Icon(FIcons.rotateCcw),
+                          : Icon(FLucideIcons.rotateCcw),
                       child: isRescanning ? Text(loc.wait) : Text(loc.rescan),
                     ),
                   ],

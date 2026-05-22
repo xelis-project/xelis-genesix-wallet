@@ -77,7 +77,7 @@ class ReceiveAddressDialog extends ConsumerWidget {
                         ),
                       ),
                       Icon(
-                        FIcons.copy,
+                        FLucideIcons.copy,
                         size: 14,
                         color: context.theme.colors.mutedForeground,
                       ),

@@ -84,7 +84,7 @@ class _UntrackedAssetsTabState extends ConsumerState<UntrackedAssetsTab> {
                       onTap: () => _trackAssetDirect(hash),
                       child: const Padding(
                         padding: EdgeInsets.all(8),
-                        child: Icon(FIcons.plus),
+                        child: Icon(FLucideIcons.plus),
                       ),
                     ),
             );

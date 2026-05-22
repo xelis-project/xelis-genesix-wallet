@@ -32,7 +32,7 @@ class _ExportButtonState extends ConsumerState<ExportButton> {
         tipBuilder: (context, controller) => Text(loc.export_csv_tooltip),
         child: FHeaderAction(
           onPress: _showExportFiltersDialog,
-          icon: Icon(FIcons.download),
+          icon: Icon(FLucideIcons.download),
         ),
       ),
     );

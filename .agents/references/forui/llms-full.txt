@@ -143,7 +143,7 @@ class _ExampleState extends State<Example> {
         Text('Count: $_count'),
         FButton(
           onPress: () => setState(() => _count++),
-          suffix: const Icon(FIcons.chevronsUp),
+          suffix: const Icon(FLucideIcons.chevronsUp),
           child: const Text('Increase'),
         ),
       ],
@@ -573,8 +573,19 @@ class FTypography {
     +FTypography.inherit(colors)
 }
 
+class FIcons {
+    +FIcons(...)
+    +FIcons.lucide()
+}
+
+
 class FStyle {
     +FStyle(...)
+}
+
+class FHapticFeedback {
+    +FHapticFeedback(...)
+    +FHapticFeedback.none()
 }
 
 class FAccordionStyle {
@@ -600,19 +611,23 @@ note for FVariants "Maps variant constraints, e.g. hovered and pressed, to value
 FTheme --> FThemeData
 FThemeData --> FColors
 FThemeData --> FTypography
+FThemeData --> FIcons
 FThemeData --> FStyle
+FThemeData --> FHapticFeedback
 FThemeData --> FAccordionStyle
 FThemeData --> FVariants
 FAccordionStyle --> FAccordionMotion
 ```
 
-There are **7** core components in Forui's theming system.
+The main components in Forui's theming system:
 
 - **[`FTheme`](https://pub.dev/documentation/forui/latest/forui.theme/FTheme-class.html)**: The root widget that provides the theme data to all widgets in the subtree.
 - **[`FThemeData`](https://pub.dev/documentation/forui/latest/forui.theme/FThemeData-class.html)**: Main class that holds:
   - **[`FColors`](https://pub.dev/documentation/forui/latest/forui.theme/FColors-class.html)**: Color scheme including primary, foreground, and background colors.
   - **[`FTypography`](https://pub.dev/documentation/forui/latest/forui.theme/FTypography-class.html)**: Typography settings including font family and text styles.
+  - **[`FIcons`](https://pub.dev/documentation/forui/latest/forui.theme/FIcons-class.html)**: Icons used by Forui widgets.
   - **[`FStyle`](https://pub.dev/documentation/forui/latest/forui.theme/FStyle-class.html)**: Misc. options such as border radius and icon size.
+  - **[`FHapticFeedback`](https://pub.dev/documentation/forui/latest/forui.theme/FHapticFeedback-class.html)**: Haptic feedback callbacks shared across widgets.
   - **[`FVariants`](https://pub.dev/documentation/forui/latest/forui.theme/FVariants-class.html)**: Maps variant constraints, e.g. hovered and pressed, to
     values.
   - Individual widget styles.
@@ -627,6 +642,7 @@ Widget build(BuildContext context) {
   final FColors colors = context.theme.colors;
   final FTypography typography = context.theme.typography;
   final FStyle style = context.theme.style;
+  final FIcons icons = context.theme.icons;
 
   return const Placeholder();
 }
@@ -710,6 +726,15 @@ Widget build(BuildContext context) => FTheme(
 
 ```
 
+### Icons
+
+The `FIcons` class contains the icon that Forui widgets use. It defaults to [Lucide](https://lucide.dev/) icons.
+
+Pass a custom `FIcons` to[`FThemeData`](https://pub.dev/documentation/forui/latest/forui.theme/FThemeData-class.html) to
+swap icons across all Forui widgets.
+
+See the [customizing icons](/docs/guides/customizing-icons) guide for more information.
+
 ### Style
 
 The `FStyle` class defines the theme's miscellaneous styling options such as the default border radius and icon size.
@@ -731,6 +756,12 @@ Widget build(BuildContext context) {
 }
 
 ```
+
+### Haptic Feedback
+
+The `FHapticFeedback` class holds the haptic callbacks (e.g. `selectionClick`, `mediumImpact`) that widgets such as
+`FPicker`, `FSlider`, and `FTooltip` invoke on interaction. Override it on `FThemeData` to customize or disable haptics
+across the entire theme; pass `const FHapticFeedback.none()` to disable them.
 
 ### Variants
 
@@ -850,258 +881,6 @@ dart run forui snippet create material-mapping
 This is preferred when you want to fine-tune the mapping between Forui and Material themes, as it allows you to modify
 the generated mapping directly to fit your design needs.
 
-# Alert
-
-Displays a callout for user attention.
-
-```dart
-@override
-Widget build(BuildContext _) => const FAlert(
-  variant: .primary,
-  title: Text('Heads Up!'),
-  subtitle: Text('You can add components to your app using the cli.'),
-);
-
-```
-
-## CLI
-
-To generate a specific style for customization:
-
-**Alerts**
-
-```shell copy
-dart run forui style create alerts
-```
-
-## Usage
-
-### `FAlert(...)`
-
-```dart
-FAlert({
-  required Widget title,
-  Widget icon = const Icon(FIcons.circleAlert),
-  Widget? subtitle,
-  FAlertVariant variant = .primary,
-  FAlertStyleDelta style = const .context(),
-  Key? key,
-})
-
-```
-
-## Examples
-
-### Primary
-
-```dart
-@override
-Widget build(BuildContext _) => const FAlert(
-  variant: .primary,
-  title: Text('Heads Up!'),
-  subtitle: Text('You can add components to your app using the cli.'),
-);
-
-```
-
-### Destructive
-
-```dart
-@override
-Widget build(BuildContext _) => const FAlert(
-  variant: .destructive,
-  title: Text('Heads Up!'),
-  subtitle: Text('You can add components to your app using the cli.'),
-);
-
-```
-
-# Circular Progress
-
-Displays an indeterminate circular indicator showing the completion progress of a task.
-
-```dart
-@override
-Widget build(BuildContext _) => const Row(
-  mainAxisAlignment: .center,
-  spacing: 25,
-  children: [
-    FCircularProgress(),
-    FCircularProgress.loader(),
-    FCircularProgress.pinwheel(),
-  ],
-);
-
-```
-
-## CLI
-
-To generate a specific style for customization:
-
-**Circular Progress Sizes**
-
-```shell copy
-dart run forui style create circular-progress-sizes
-```
-
-**Circular Progress**
-
-```shell copy
-dart run forui style create circular-progress
-```
-
-## Usage
-
-### `FCircularProgress(...)`
-
-```dart
-FCircularProgress({
-  FCircularProgressSizeVariant size = .md,
-  FCircularProgressStyleDelta style = const .context(),
-  String? semanticsLabel,
-  IconData icon = FIcons.loaderCircle,
-  Key? key,
-})
-
-```
-
-### `FCircularProgress.loader(...)`
-
-```dart
-FCircularProgress.loader({
-  FCircularProgressSizeVariant size = .md,
-  FCircularProgressStyleDelta style = const .context(),
-  String? semanticsLabel,
-  Key? key,
-})
-
-```
-
-### `FCircularProgress.pinwheel(...)`
-
-```dart
-FCircularProgress.pinwheel({
-  FCircularProgressSizeVariant size = .md,
-  FCircularProgressStyleDelta style = const .context(),
-  String? semanticsLabel,
-  Key? key,
-})
-
-```
-
-# Determinate Progress
-
-Displays a determinate linear indicator showing the completion progress of a task.
-
-```dart
-class DeterminateProgressExample extends StatefulWidget {
-  @override
-  State<DeterminateProgressExample> createState() =>
-      _DeterminateProgressExampleState();
-}
-
-class _DeterminateProgressExampleState
-    extends State<DeterminateProgressExample> {
-  late Timer _timer = Timer(
-    const Duration(seconds: 1),
-    () => setState(() => _value = 0.7),
-  );
-  double _value = 0.2;
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext _) => Column(
-    mainAxisAlignment: .center,
-    spacing: 20,
-    children: [
-      FDeterminateProgress(value: _value),
-      Row(
-        mainAxisAlignment: .end,
-        children: [
-          FButton(
-            variant: .outline,
-            size: .sm,
-            mainAxisSize: .min,
-            child: const Text('Reset'),
-            onPress: () => setState(() {
-              _value = 0.2;
-              _timer.cancel();
-              _timer = Timer(
-                const Duration(seconds: 1),
-                () => setState(() => _value = 0.7),
-              );
-            }),
-          ),
-        ],
-      ),
-    ],
-  );
-}
-
-```
-
-## CLI
-
-To generate a specific style for customization:
-
-**Determinate Progress**
-
-```shell copy
-dart run forui style create determinate-progress
-```
-
-## Usage
-
-### `FDeterminateProgress(...)`
-
-```dart
-FDeterminateProgress({
-  required double value,
-  FDeterminateProgressStyleDelta style = const .context(),
-  String? semanticsLabel,
-  Key? key,
-})
-
-```
-
-# Progress
-
-Displays an indeterminate linear indicator showing the completion progress of a task.
-
-```dart
-@override
-Widget build(BuildContext _) => const FProgress();
-
-```
-
-## CLI
-
-To generate a specific style for customization:
-
-**Progress**
-
-```shell copy
-dart run forui style create progress
-```
-
-## Usage
-
-### `FProgress(...)`
-
-```dart
-FProgress({
-  FProgressStyleDelta style = const .context(),
-  String? semanticsLabel,
-  Key? key,
-})
-
-```
-
 # Accordion
 
 A vertically stacked set of interactive headings that reveal associated content sections when clicked. Each section can be expanded or collapsed independently.
@@ -1177,7 +956,7 @@ FAccordionItem({
   required Widget title,
   required Widget child,
   FAccordionStyleDelta style = const .context(),
-  Widget icon = const Icon(FIcons.chevronDown),
+  Widget? icon,
   bool? initiallyExpanded,
   bool autofocus = false,
   FocusNode? focusNode,
@@ -1303,7 +1082,10 @@ Widget build(BuildContext context) => Row(
   children: [
     FAvatar.raw(),
     FAvatar.raw(
-      child: Icon(FIcons.baby, color: context.theme.colors.mutedForeground),
+      child: Icon(
+        FLucideIcons.baby,
+        color: context.theme.colors.mutedForeground,
+      ),
     ),
     FAvatar.raw(child: const Text('MN')),
   ],
@@ -1602,6 +1384,7 @@ FCard({
   Widget? child,
   MainAxisSize mainAxisSize = .min,
   FCardStyleDelta style = const .context(),
+  Clip clipBehavior = .none,
   Key? key,
 })
 
@@ -1613,6 +1396,7 @@ FCard({
 FCard.raw({
   required Widget child,
   FCardStyleDelta style = const .context(),
+  Clip clipBehavior = .none,
   Key? key,
 })
 
@@ -1629,16 +1413,16 @@ An item group that typically groups related information together.
 Widget build(BuildContext _) => FItemGroup(
   children: [
     FItem(
-      prefix: const Icon(FIcons.user),
+      prefix: const Icon(FLucideIcons.user),
       title: const Text('Personalization'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
     FItem(
-      prefix: const Icon(FIcons.wifi),
+      prefix: const Icon(FLucideIcons.wifi),
       title: const Text('WiFi'),
       details: const Text('Duobase (5G)'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
   ],
@@ -1683,7 +1467,7 @@ FItemGroup({
   required List<FItemMixin> children,
   FItemGroupStyleDelta style = const .context(),
   ScrollController? scrollController,
-  double? cacheExtent,
+  ScrollCacheExtent? scrollCacheExtent,
   double maxHeight = .infinity,
   DragStartBehavior dragStartBehavior = .start,
   ScrollPhysics physics = const ClampingScrollPhysics(),
@@ -1704,7 +1488,7 @@ FItemGroup.builder({
   int? count,
   FItemGroupStyleDelta style = const .context(),
   ScrollController? scrollController,
-  double? cacheExtent,
+  ScrollCacheExtent? scrollCacheExtent,
   double maxHeight = .infinity,
   DragStartBehavior dragStartBehavior = .start,
   ScrollPhysics physics = const ClampingScrollPhysics(),
@@ -1723,7 +1507,7 @@ FItemGroup.merge({
   required List<FItemGroupMixin> children,
   FItemGroupStyleDelta style = const .context(),
   ScrollController? scrollController,
-  double? cacheExtent,
+  ScrollCacheExtent? scrollCacheExtent,
   double maxHeight = .infinity,
   DragStartBehavior dragStartBehavior = .start,
   ScrollPhysics physics = const ClampingScrollPhysics(),
@@ -1748,34 +1532,34 @@ Widget build(BuildContext _) => FItemGroup(
   maxHeight: 150,
   children: [
     .item(
-      prefix: const Icon(FIcons.user),
+      prefix: const Icon(FLucideIcons.user),
       title: const Text('Personalization'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
     .item(
-      prefix: const Icon(FIcons.mail),
+      prefix: const Icon(FLucideIcons.mail),
       title: const Text('Mail'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
     .item(
-      prefix: const Icon(FIcons.wifi),
+      prefix: const Icon(FLucideIcons.wifi),
       title: const Text('WiFi'),
       details: const Text('Duobase (5G)'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
     .item(
-      prefix: const Icon(FIcons.alarmClock),
+      prefix: const Icon(FLucideIcons.alarmClock),
       title: const Text('Alarm Clock'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
     .item(
-      prefix: const Icon(FIcons.qrCode),
+      prefix: const Icon(FLucideIcons.qrCode),
       title: const Text('QR code'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
   ],
@@ -1792,7 +1576,7 @@ Widget build(BuildContext _) => FItemGroup.builder(
   count: 200,
   itemBuilder: (context, index) => FItem(
     title: Text('Item $index'),
-    suffix: const Icon(FIcons.chevronRight),
+    suffix: const Icon(FLucideIcons.chevronRight),
     onPress: () {},
   ),
 );
@@ -1811,16 +1595,16 @@ Widget build(BuildContext _) => FItemGroup.merge(
     .group(
       children: [
         .item(
-          prefix: const Icon(FIcons.user),
+          prefix: const Icon(FLucideIcons.user),
           title: const Text('Personalization'),
-          suffix: const Icon(FIcons.chevronRight),
+          suffix: const Icon(FLucideIcons.chevronRight),
           onPress: () {},
         ),
         .item(
-          prefix: const Icon(FIcons.wifi),
+          prefix: const Icon(FLucideIcons.wifi),
           title: const Text('WiFi'),
           details: const Text('Duobase (5G)'),
-          suffix: const Icon(FIcons.chevronRight),
+          suffix: const Icon(FLucideIcons.chevronRight),
           onPress: () {},
         ),
       ],
@@ -1828,15 +1612,15 @@ Widget build(BuildContext _) => FItemGroup.merge(
     .group(
       children: [
         .item(
-          prefix: const Icon(FIcons.list),
+          prefix: const Icon(FLucideIcons.list),
           title: const Text('List View'),
-          suffix: const Icon(FIcons.chevronRight),
+          suffix: const Icon(FLucideIcons.chevronRight),
           onPress: () {},
         ),
         .item(
-          prefix: const Icon(FIcons.grid2x2),
+          prefix: const Icon(FLucideIcons.grid2x2),
           title: const Text('Grid View'),
-          suffix: const Icon(FIcons.chevronRight),
+          suffix: const Icon(FLucideIcons.chevronRight),
           onPress: () {},
         ),
       ],
@@ -1856,16 +1640,16 @@ Widget build(BuildContext _) => FItemGroup(
   divider: .full,
   children: [
     FItem(
-      prefix: const Icon(FIcons.user),
+      prefix: const Icon(FLucideIcons.user),
       title: const Text('Personalization'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
     FItem(
-      prefix: const Icon(FIcons.wifi),
+      prefix: const Icon(FLucideIcons.wifi),
       title: const Text('WiFi'),
       details: const Text('Duobase (5G)'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
   ],
@@ -1881,16 +1665,16 @@ Widget build(BuildContext _) => FItemGroup(
   divider: .indented,
   children: [
     FItem(
-      prefix: const Icon(FIcons.user),
+      prefix: const Icon(FLucideIcons.user),
       title: const Text('Personalization'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
     FItem(
-      prefix: const Icon(FIcons.wifi),
+      prefix: const Icon(FLucideIcons.wifi),
       title: const Text('WiFi'),
       details: const Text('Duobase (5G)'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
   ],
@@ -1907,9 +1691,9 @@ An item is typically used to group related information together.
 ```dart
 @override
 Widget build(BuildContext _) => FItem(
-  prefix: const Icon(FIcons.user),
+  prefix: const Icon(FLucideIcons.user),
   title: const Text('Personalization'),
-  suffix: const Icon(FIcons.chevronRight),
+  suffix: const Icon(FLucideIcons.chevronRight),
   onPress: () {},
 );
 
@@ -2008,9 +1792,9 @@ FItem.raw({
 @override
 Widget build(BuildContext _) => FItem(
   variant: .destructive,
-  prefix: const Icon(FIcons.trash),
+  prefix: const Icon(FLucideIcons.trash),
   title: const Text('Delete Account'),
-  suffix: const Icon(FIcons.chevronRight),
+  suffix: const Icon(FLucideIcons.chevronRight),
   onPress: () {},
 );
 
@@ -2021,9 +1805,9 @@ Widget build(BuildContext _) => FItem(
 ```dart
 @override
 Widget build(BuildContext _) => FItem(
-  prefix: const Icon(FIcons.user),
+  prefix: const Icon(FLucideIcons.user),
   title: const Text('Personalization'),
-  suffix: const Icon(FIcons.chevronRight),
+  suffix: const Icon(FLucideIcons.chevronRight),
 );
 
 ```
@@ -2034,9 +1818,9 @@ Widget build(BuildContext _) => FItem(
 @override
 Widget build(BuildContext _) => FItem(
   enabled: false,
-  prefix: const Icon(FIcons.user),
+  prefix: const Icon(FLucideIcons.user),
   title: const Text('Personalization'),
-  suffix: const Icon(FIcons.chevronRight),
+  suffix: const Icon(FLucideIcons.chevronRight),
   onPress: () {},
 );
 
@@ -2047,10 +1831,10 @@ Widget build(BuildContext _) => FItem(
 ```dart
 @override
 Widget build(BuildContext _) => FItem(
-  prefix: const Icon(FIcons.bell),
+  prefix: const Icon(FLucideIcons.bell),
   title: const Text('Notifications'),
   subtitle: const Text('Banners, Sounds, Badges'),
-  suffix: const Icon(FIcons.chevronRight),
+  suffix: const Icon(FLucideIcons.chevronRight),
   onPress: () {},
 );
 
@@ -2061,10 +1845,10 @@ Widget build(BuildContext _) => FItem(
 ```dart
 @override
 Widget build(BuildContext _) => FItem(
-  prefix: const Icon(FIcons.wifi),
+  prefix: const Icon(FLucideIcons.wifi),
   title: const Text('WiFi'),
   details: const Text('Duobase (5G)'),
-  suffix: const Icon(FIcons.chevronRight),
+  suffix: const Icon(FLucideIcons.chevronRight),
   onPress: () {},
 );
 
@@ -2101,10 +1885,10 @@ dart run forui style create line-calendar
 ```dart
 FLineCalendar({
   FLineCalendarControl control = const .managed(),
+  FLineCalendarScrollControl scrollControl = const .managed(),
   FLineCalendarStyleDelta style = const .context(),
-  AlignmentDirectional initialScrollAlignment = .center,
   ScrollPhysics? physics,
-  double? cacheExtent,
+  ScrollCacheExtent? scrollCacheExtent,
   ScrollViewKeyboardDismissBehavior keyboardDismissBehavior = .manual,
   Widget Function(
         BuildContext,
@@ -2117,10 +1901,260 @@ FLineCalendar({
       )
       builder =
       defaultBuilder,
-  DateTime? start,
-  DateTime? end,
-  DateTime? initialScroll,
-  DateTime? today,
+  Key? key,
+})
+
+```
+
+# Alert
+
+Displays a callout for user attention.
+
+```dart
+@override
+Widget build(BuildContext _) => const FAlert(
+  variant: .primary,
+  title: Text('Heads Up!'),
+  subtitle: Text('You can add components to your app using the cli.'),
+);
+
+```
+
+## CLI
+
+To generate a specific style for customization:
+
+**Alerts**
+
+```shell copy
+dart run forui style create alerts
+```
+
+## Usage
+
+### `FAlert(...)`
+
+```dart
+FAlert({
+  required Widget title,
+  Clip clipBehavior = .none,
+  Widget? icon,
+  Widget? subtitle,
+  FAlertVariant variant = .primary,
+  FAlertStyleDelta style = const .context(),
+  Key? key,
+})
+
+```
+
+## Examples
+
+### Primary
+
+```dart
+@override
+Widget build(BuildContext _) => const FAlert(
+  variant: .primary,
+  title: Text('Heads Up!'),
+  subtitle: Text('You can add components to your app using the cli.'),
+);
+
+```
+
+### Destructive
+
+```dart
+@override
+Widget build(BuildContext _) => const FAlert(
+  variant: .destructive,
+  title: Text('Heads Up!'),
+  subtitle: Text('You can add components to your app using the cli.'),
+);
+
+```
+
+# Circular Progress
+
+Displays an indeterminate circular indicator showing the completion progress of a task.
+
+```dart
+@override
+Widget build(BuildContext _) => const Row(
+  mainAxisAlignment: .center,
+  spacing: 25,
+  children: [
+    FCircularProgress(),
+    FCircularProgress.loader(),
+    FCircularProgress.pinwheel(),
+  ],
+);
+
+```
+
+## CLI
+
+To generate a specific style for customization:
+
+**Circular Progress Sizes**
+
+```shell copy
+dart run forui style create circular-progress-sizes
+```
+
+**Circular Progress**
+
+```shell copy
+dart run forui style create circular-progress
+```
+
+## Usage
+
+### `FCircularProgress(...)`
+
+```dart
+FCircularProgress({
+  FCircularProgressSizeVariant size = .md,
+  FCircularProgressStyleDelta style = const .context(),
+  String? semanticsLabel,
+  Widget Function(BuildContext, {String? semanticsLabel}) icon =
+      _loaderCircle,
+  Key? key,
+})
+
+```
+
+### `FCircularProgress.loader(...)`
+
+```dart
+FCircularProgress.loader({
+  FCircularProgressSizeVariant size = .md,
+  FCircularProgressStyleDelta style = const .context(),
+  String? semanticsLabel,
+  Key? key,
+})
+
+```
+
+### `FCircularProgress.pinwheel(...)`
+
+```dart
+FCircularProgress.pinwheel({
+  FCircularProgressSizeVariant size = .md,
+  FCircularProgressStyleDelta style = const .context(),
+  String? semanticsLabel,
+  Key? key,
+})
+
+```
+
+# Determinate Progress
+
+Displays a determinate linear indicator showing the completion progress of a task.
+
+```dart
+class DeterminateProgressExample extends StatefulWidget {
+  @override
+  State<DeterminateProgressExample> createState() =>
+      _DeterminateProgressExampleState();
+}
+
+class _DeterminateProgressExampleState
+    extends State<DeterminateProgressExample> {
+  late Timer _timer = Timer(
+    const Duration(seconds: 1),
+    () => setState(() => _value = 0.7),
+  );
+  double _value = 0.2;
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext _) => Column(
+    mainAxisAlignment: .center,
+    spacing: 20,
+    children: [
+      FDeterminateProgress(value: _value),
+      Row(
+        mainAxisAlignment: .end,
+        children: [
+          FButton(
+            variant: .outline,
+            size: .sm,
+            mainAxisSize: .min,
+            child: const Text('Reset'),
+            onPress: () => setState(() {
+              _value = 0.2;
+              _timer.cancel();
+              _timer = Timer(
+                const Duration(seconds: 1),
+                () => setState(() => _value = 0.7),
+              );
+            }),
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
+```
+
+## CLI
+
+To generate a specific style for customization:
+
+**Determinate Progress**
+
+```shell copy
+dart run forui style create determinate-progress
+```
+
+## Usage
+
+### `FDeterminateProgress(...)`
+
+```dart
+FDeterminateProgress({
+  required double value,
+  FDeterminateProgressStyleDelta style = const .context(),
+  String? semanticsLabel,
+  Key? key,
+})
+
+```
+
+# Progress
+
+Displays an indeterminate linear indicator showing the completion progress of a task.
+
+```dart
+@override
+Widget build(BuildContext _) => const FProgress();
+
+```
+
+## CLI
+
+To generate a specific style for customization:
+
+**Progress**
+
+```shell copy
+dart run forui style create progress
+```
+
+## Usage
+
+### `FProgress(...)`
+
+```dart
+FProgress({
+  FProgressStyleDelta style = const .context(),
+  String? semanticsLabel,
   Key? key,
 })
 
@@ -2136,12 +2170,35 @@ An autocomplete provides a list of suggestions based on the user's input and sho
 > or [a searchable multi select](/docs/form/multi-select#searchable)
 
 ```dart
-@override
-Widget build(BuildContext _) => FAutocomplete(
-  label: const Text('Autocomplete'),
-  hint: 'What can it do?',
-  items: features,
-);
+class Feature {
+  final String name;
+  final String description;
+  const Feature(this.name, this.description);
+}
+
+const features = [
+  Feature(
+    'Keyboard navigation',
+    'Use arrow keys to walk the popover suggestions',
+  ),
+  Feature(
+    'Typeahead suggestions',
+    'See the rest of a suggestion inline as you type',
+  ),
+  Feature(
+    'Tab to complete',
+    'Press Tab to accept the current inline suggestion',
+  ),
+];
+
+class AutocompleteExample extends StatelessWidget {
+  @override
+  Widget build(BuildContext _) => FAutocomplete<Feature>(
+    label: const Text('Autocomplete'),
+    hint: 'What can it do?',
+    items: {for (final feature in features) feature.name: feature},
+  );
+}
 
 ```
 
@@ -2185,7 +2242,9 @@ dart run forui style create autocomplete-section
 
 ```dart
 FAutocomplete({
-  required List<String> items,
+  required Map<String, String> items,
+  String Function(String)? format,
+  String? Function(String?)? parse,
   FAutocompleteControl control = const .managed(),
   FPopoverControl popoverControl = const .managed(),
   FTextFieldSizeVariant size = .md,
@@ -2236,7 +2295,8 @@ FAutocomplete({
   bool stylusHandwritingEnabled = true,
   bool enableIMEPersonalizedLearning = true,
   ContentInsertionConfiguration? contentInsertionConfiguration,
-  Widget Function(BuildContext, EditableTextState)? contextMenuBuilder,
+  Widget Function(BuildContext, EditableTextState)? contextMenuBuilder =
+      FTextField.defaultContextMenuBuilder,
   bool canRequestFocus = true,
   UndoHistoryController? undoController,
   SpellCheckConfiguration? spellCheckConfiguration,
@@ -2287,7 +2347,7 @@ FAutocomplete({
       FTextField.defaultBuilder,
   bool rightArrowToComplete = false,
   FutureOr<Iterable<String>> Function(String)? filter,
-  List<FAutocompleteItemMixin> Function(
+  List<FAutocompleteItemMixin<String>> Function(
     BuildContext,
     String,
     Iterable<String>,
@@ -2296,13 +2356,20 @@ FAutocomplete({
   ScrollController? contentScrollController,
   ScrollPhysics contentPhysics = const ClampingScrollPhysics(),
   FItemDivider contentDivider = .none,
-  Widget Function(BuildContext, FAutocompleteContentStyle)
+  Widget Function(BuildContext, FAutocompleteContentStyle)?
       contentEmptyBuilder =
       defaultContentEmptyBuilder,
-  Widget Function(BuildContext, FAutocompleteContentStyle)
+  Widget Function(BuildContext, FAutocompleteContentStyle)?
       contentLoadingBuilder =
       defaultContentLoadingBuilder,
-  Widget Function(BuildContext, Object?, StackTrace)? contentErrorBuilder,
+  Widget Function(
+        BuildContext,
+        FAutocompleteContentStyle,
+        Object?,
+        StackTrace,
+      )?
+      contentErrorBuilder =
+      defaultContentErrorBuilder,
   Key? key,
 })
 
@@ -2313,7 +2380,9 @@ FAutocomplete({
 ```dart
 FAutocomplete.builder({
   required FutureOr<Iterable<String>> Function(String) filter,
-  required List<FAutocompleteItemMixin> Function(
+  required String Function(String) format,
+  required String? Function(String?) parse,
+  required List<FAutocompleteItemMixin<String>> Function(
     BuildContext,
     String,
     Iterable<String>,
@@ -2369,7 +2438,8 @@ FAutocomplete.builder({
   bool stylusHandwritingEnabled = true,
   bool enableIMEPersonalizedLearning = true,
   ContentInsertionConfiguration? contentInsertionConfiguration,
-  Widget Function(BuildContext, EditableTextState)? contextMenuBuilder,
+  Widget Function(BuildContext, EditableTextState)? contextMenuBuilder =
+      FTextField.defaultContextMenuBuilder,
   bool canRequestFocus = true,
   UndoHistoryController? undoController,
   SpellCheckConfiguration? spellCheckConfiguration,
@@ -2422,16 +2492,280 @@ FAutocomplete.builder({
   ScrollController? contentScrollController,
   ScrollPhysics contentPhysics = const ClampingScrollPhysics(),
   FItemDivider contentDivider = .none,
-  Widget Function(BuildContext, FAutocompleteContentStyle)
+  Widget Function(BuildContext, FAutocompleteContentStyle)?
       contentEmptyBuilder =
       defaultContentEmptyBuilder,
-  Widget Function(BuildContext, FAutocompleteContentStyle)
+  Widget Function(BuildContext, FAutocompleteContentStyle)?
       contentLoadingBuilder =
       defaultContentLoadingBuilder,
-  Widget Function(BuildContext, Object?, StackTrace)? contentErrorBuilder,
+  Widget Function(
+        BuildContext,
+        FAutocompleteContentStyle,
+        Object?,
+        StackTrace,
+      )?
+      contentErrorBuilder =
+      defaultContentErrorBuilder,
   Key? key,
 })
 
+```
+
+### `FAutocomplete.text(...)`
+
+```dart
+FAutocomplete<String> text({
+  required List<String> items,
+  FAutocompleteControl control = const .managed(),
+  FPopoverControl popoverControl = const .managed(),
+  FTextFieldSizeVariant size = .md,
+  FAutocompleteStyleDelta style = const .context(),
+  Widget? label,
+  String? hint,
+  Widget? description,
+  TextMagnifierConfiguration? magnifierConfiguration,
+  Object groupId = EditableText,
+  FocusNode? focusNode,
+  TextInputType? keyboardType,
+  TextInputAction? textInputAction,
+  TextCapitalization textCapitalization = .none,
+  TextAlign textAlign = .start,
+  TextAlignVertical? textAlignVertical,
+  TextDirection? textDirection,
+  void Function()? contentOnTapHide,
+  bool autofocus = false,
+  String obscuringCharacter = '•',
+  bool obscureText = false,
+  bool autocorrect = true,
+  SmartDashesType? smartDashesType,
+  SmartQuotesType? smartQuotesType,
+  bool enableSuggestions = true,
+  int? minLines,
+  int? maxLines = 1,
+  bool expands = false,
+  bool readOnly = false,
+  bool? showCursor,
+  int? maxLength,
+  MaxLengthEnforcement? maxLengthEnforcement,
+  bool onTapAlwaysCalled = false,
+  void Function()? onEditingComplete,
+  void Function(String)? onSubmit,
+  void Function(String, Map<String, dynamic>)? onAppPrivateCommand,
+  List<TextInputFormatter>? inputFormatters,
+  bool enabled = true,
+  bool? ignorePointers,
+  bool enableInteractiveSelection = true,
+  TextSelectionControls? selectionControls,
+  DragStartBehavior dragStartBehavior = .start,
+  MouseCursor? mouseCursor,
+  Widget? Function(BuildContext, int, int?, bool)? counterBuilder,
+  ScrollPhysics? scrollPhysics,
+  ScrollController? scrollController,
+  Iterable<String>? autofillHints,
+  String? restorationId,
+  bool stylusHandwritingEnabled = true,
+  bool enableIMEPersonalizedLearning = true,
+  ContentInsertionConfiguration? contentInsertionConfiguration,
+  Widget Function(BuildContext, EditableTextState)? contextMenuBuilder =
+      FTextField.defaultContextMenuBuilder,
+  bool canRequestFocus = true,
+  UndoHistoryController? undoController,
+  SpellCheckConfiguration? spellCheckConfiguration,
+  Widget Function(BuildContext, FAutocompleteStyle, Set<FTextFieldVariant>)?
+  prefixBuilder,
+  Widget Function(BuildContext, FAutocompleteStyle, Set<FTextFieldVariant>)?
+  suffixBuilder,
+  bool Function(TextEditingValue) clearable = FTextField.defaultClearable,
+  Widget Function(
+        BuildContext,
+        FAutocompleteController,
+        FPopoverController,
+        Widget,
+      )
+      popoverBuilder =
+      FPopover.defaultPopoverBuilder,
+  void Function(String?)? onSaved,
+  void Function()? onReset,
+  String? Function(String?)? validator,
+  AutovalidateMode autovalidateMode = .disabled,
+  String? forceErrorText,
+  Widget Function(BuildContext, String) errorBuilder =
+      FFormFieldProperties.defaultErrorBuilder,
+  AlignmentGeometry contentAnchor = .topStart,
+  AlignmentGeometry fieldAnchor = .bottomStart,
+  FPortalConstraints contentConstraints = const FAutoWidthPortalConstraints(
+    maxHeight: 300,
+  ),
+  FPortalSpacing contentSpacing = const .spacing(4),
+  FPortalOverflow contentOverflow = .flip,
+  Offset contentOffset = .zero,
+  bool contentUseViewPadding = true,
+  bool contentUseViewInsets = true,
+  FPopoverHideRegion contentHideRegion = .excludeChild,
+  Object? contentGroupId,
+  bool contentCutout = true,
+  void Function(Path, Rect) contentCutoutBuilder =
+      FModalBarrier.defaultCutoutBuilder,
+  bool autoHide = true,
+  bool? retainFocus,
+  Widget Function(
+        BuildContext,
+        FAutocompleteStyle,
+        Set<FTextFieldVariant>,
+        Widget,
+      )
+      builder =
+      FTextField.defaultBuilder,
+  bool rightArrowToComplete = false,
+  FutureOr<Iterable<String>> Function(String)? filter,
+  List<FAutocompleteItemMixin<String>> Function(
+    BuildContext,
+    String,
+    Iterable<String>,
+  )?
+  contentBuilder,
+  ScrollController? contentScrollController,
+  ScrollPhysics contentPhysics = const ClampingScrollPhysics(),
+  FItemDivider contentDivider = .none,
+  Widget Function(BuildContext, FAutocompleteContentStyle)?
+      contentEmptyBuilder =
+      defaultContentEmptyBuilder,
+  Widget Function(BuildContext, FAutocompleteContentStyle)?
+      contentLoadingBuilder =
+      defaultContentLoadingBuilder,
+  Widget Function(BuildContext, FAutocompleteContentStyle, Object?, StackTrace)?
+      contentErrorBuilder =
+      defaultContentErrorBuilder,
+  Key? key,
+})
+```
+
+### `FAutocomplete.textBuilder(...)`
+
+```dart
+FAutocomplete<String> textBuilder({
+  required FutureOr<Iterable<String>> Function(String) filter,
+  required List<FAutocompleteItemMixin<String>> Function(
+    BuildContext,
+    String,
+    Iterable<String>,
+  )
+  contentBuilder,
+  FAutocompleteControl control = const .managed(),
+  FPopoverControl popoverControl = const .managed(),
+  FTextFieldSizeVariant size = .md,
+  FAutocompleteStyleDelta style = const .context(),
+  Widget? label,
+  String? hint,
+  Widget? description,
+  TextMagnifierConfiguration? magnifierConfiguration,
+  Object groupId = EditableText,
+  FocusNode? focusNode,
+  TextInputType? keyboardType,
+  TextInputAction? textInputAction,
+  TextCapitalization textCapitalization = .none,
+  TextAlign textAlign = .start,
+  TextAlignVertical? textAlignVertical,
+  TextDirection? textDirection,
+  void Function()? contentOnTapHide,
+  bool autofocus = false,
+  String obscuringCharacter = '•',
+  bool obscureText = false,
+  bool autocorrect = true,
+  SmartDashesType? smartDashesType,
+  SmartQuotesType? smartQuotesType,
+  bool enableSuggestions = true,
+  int? minLines,
+  int? maxLines = 1,
+  bool expands = false,
+  bool readOnly = false,
+  bool? showCursor,
+  int? maxLength,
+  MaxLengthEnforcement? maxLengthEnforcement,
+  bool onTapAlwaysCalled = false,
+  void Function()? onEditingComplete,
+  void Function(String)? onSubmit,
+  void Function(String, Map<String, dynamic>)? onAppPrivateCommand,
+  List<TextInputFormatter>? inputFormatters,
+  bool enabled = true,
+  bool? ignorePointers,
+  bool enableInteractiveSelection = true,
+  TextSelectionControls? selectionControls,
+  DragStartBehavior dragStartBehavior = .start,
+  MouseCursor? mouseCursor,
+  Widget? Function(BuildContext, int, int?, bool)? counterBuilder,
+  ScrollPhysics? scrollPhysics,
+  ScrollController? scrollController,
+  Iterable<String>? autofillHints,
+  String? restorationId,
+  bool stylusHandwritingEnabled = true,
+  bool enableIMEPersonalizedLearning = true,
+  ContentInsertionConfiguration? contentInsertionConfiguration,
+  Widget Function(BuildContext, EditableTextState)? contextMenuBuilder =
+      FTextField.defaultContextMenuBuilder,
+  bool canRequestFocus = true,
+  UndoHistoryController? undoController,
+  SpellCheckConfiguration? spellCheckConfiguration,
+  Widget Function(BuildContext, FAutocompleteStyle, Set<FTextFieldVariant>)?
+  prefixBuilder,
+  Widget Function(BuildContext, FAutocompleteStyle, Set<FTextFieldVariant>)?
+  suffixBuilder,
+  bool Function(TextEditingValue) clearable = FTextField.defaultClearable,
+  Widget Function(
+        BuildContext,
+        FAutocompleteController,
+        FPopoverController,
+        Widget,
+      )
+      popoverBuilder =
+      FPopover.defaultPopoverBuilder,
+  void Function(String?)? onSaved,
+  void Function()? onReset,
+  String? Function(String?)? validator,
+  AutovalidateMode autovalidateMode = .disabled,
+  String? forceErrorText,
+  Widget Function(BuildContext, String) errorBuilder =
+      FFormFieldProperties.defaultErrorBuilder,
+  AlignmentGeometry contentAnchor = .topStart,
+  AlignmentGeometry fieldAnchor = .bottomStart,
+  FPortalConstraints contentConstraints = const FAutoWidthPortalConstraints(
+    maxHeight: 300,
+  ),
+  FPortalSpacing contentSpacing = const .spacing(4),
+  FPortalOverflow contentOverflow = .flip,
+  Offset contentOffset = .zero,
+  bool contentUseViewPadding = true,
+  bool contentUseViewInsets = true,
+  FPopoverHideRegion contentHideRegion = .excludeChild,
+  Object? contentGroupId,
+  bool contentCutout = true,
+  void Function(Path, Rect) contentCutoutBuilder =
+      FModalBarrier.defaultCutoutBuilder,
+  bool autoHide = true,
+  bool? retainFocus,
+  Widget Function(
+        BuildContext,
+        FAutocompleteStyle,
+        Set<FTextFieldVariant>,
+        Widget,
+      )
+      builder =
+      FTextField.defaultBuilder,
+  bool rightArrowToComplete = false,
+  ScrollController? contentScrollController,
+  ScrollPhysics contentPhysics = const ClampingScrollPhysics(),
+  FItemDivider contentDivider = .none,
+  Widget Function(BuildContext, FAutocompleteContentStyle)?
+      contentEmptyBuilder =
+      defaultContentEmptyBuilder,
+  Widget Function(BuildContext, FAutocompleteContentStyle)?
+      contentLoadingBuilder =
+      defaultContentLoadingBuilder,
+  Widget Function(BuildContext, FAutocompleteContentStyle, Object?, StackTrace)?
+      contentErrorBuilder =
+      defaultContentErrorBuilder,
+  Key? key,
+})
 ```
 
 ## Examples
@@ -2440,7 +2774,7 @@ FAutocomplete.builder({
 
 ```dart
 @override
-Widget build(BuildContext _) => FAutocomplete.builder(
+Widget build(BuildContext _) => FAutocomplete.textBuilder(
   hint: 'Type to search',
   filter: (query) => const [
     'Bug',
@@ -2452,19 +2786,19 @@ Widget build(BuildContext _) => FAutocomplete.builder(
       switch (suggestion) {
         'Bug' => .item(
           value: 'Bug',
-          prefix: const Icon(FIcons.bug),
+          prefix: const Icon(FLucideIcons.bug),
           title: const Text('Bug'),
           subtitle: const Text('An unexpected problem or behavior'),
         ),
         'Feature' => .item(
           value: 'Feature',
-          prefix: const Icon(FIcons.filePlusCorner),
+          prefix: const Icon(FLucideIcons.filePlusCorner),
           title: const Text('Feature'),
           subtitle: const Text('A new feature or enhancement'),
         ),
         'Question' => .item(
           value: 'Question',
-          prefix: const Icon(FIcons.messageCircleQuestionMark),
+          prefix: const Icon(FLucideIcons.messageCircleQuestionMark),
           title: const Text('Question'),
           subtitle: const Text('A question or clarification'),
         ),
@@ -2520,7 +2854,7 @@ const timezones = {
 
 class SectionAutocompleteExample extends StatelessWidget {
   @override
-  Widget build(BuildContext _) => FAutocomplete.builder(
+  Widget build(BuildContext _) => FAutocomplete.textBuilder(
     hint: 'Type to search timezones',
     filter: (query) => timezones.values
         .expand((list) => list)
@@ -2542,7 +2876,7 @@ class SectionAutocompleteExample extends StatelessWidget {
 
 ```dart
 @override
-Widget build(BuildContext _) => FAutocomplete.builder(
+Widget build(BuildContext _) => FAutocomplete.textBuilder(
   hint: 'Type to search levels',
   filter: (query) => const [
     '1A',
@@ -2553,7 +2887,7 @@ Widget build(BuildContext _) => FAutocomplete.builder(
     '4',
   ].where((i) => i.toLowerCase().contains(query.toLowerCase())),
   contentBuilder: (context, query, suggestions) =>
-      <FAutocompleteItemMixin>[
+      <FAutocompleteItemMixin<String>>[
             .richSection(
               label: const Text('Level 1'),
               divider: .indented,
@@ -2570,7 +2904,9 @@ Widget build(BuildContext _) => FAutocomplete.builder(
             if (suggestions.contains('4')) .item(value: '4'),
           ]
           .where(
-            (item) => item is! FAutocompleteSection || item.children.isNotEmpty,
+            (item) =>
+                item is! FAutocompleteSection<String> ||
+                item.children.isNotEmpty,
           )
           .toList(),
 );
@@ -2593,7 +2929,7 @@ const fruits = [
 
 class AsyncAutocompleteExample extends StatelessWidget {
   @override
-  Widget build(BuildContext _) => FAutocomplete.builder(
+  Widget build(BuildContext _) => FAutocomplete.textBuilder(
     hint: 'Type to search fruits',
     filter: (query) async {
       await Future.delayed(const Duration(seconds: 3));
@@ -2625,7 +2961,7 @@ const fruits = [
 
 class AsyncLoadingAutocompleteExample extends StatelessWidget {
   @override
-  Widget build(BuildContext _) => FAutocomplete.builder(
+  Widget build(BuildContext _) => FAutocomplete.textBuilder(
     hint: 'Type to search fruits',
     filter: (query) async {
       await Future.delayed(const Duration(seconds: 3));
@@ -2661,7 +2997,7 @@ const fruits = [
 
 class AsyncErrorAutocompleteExample extends StatelessWidget {
   @override
-  Widget build(BuildContext _) => FAutocomplete.builder(
+  Widget build(BuildContext _) => FAutocomplete.textBuilder(
     hint: 'Type to search fruits',
     filter: (query) async {
       await Future.delayed(const Duration(seconds: 3));
@@ -2670,10 +3006,10 @@ class AsyncErrorAutocompleteExample extends StatelessWidget {
     contentBuilder: (context, query, values) => [
       for (final fruit in values) .item(value: fruit),
     ],
-    contentErrorBuilder: (context, error, trace) => Padding(
+    contentErrorBuilder: (context, style, error, trace) => Padding(
       padding: const .all(14.0),
       child: Icon(
-        FIcons.circleX,
+        FLucideIcons.circleX,
         size: 15,
         color: context.theme.colors.primary,
       ),
@@ -2697,7 +3033,7 @@ const fruits = [
 
 class ClearableAutocompleteExample extends StatelessWidget {
   @override
-  Widget build(BuildContext _) => FAutocomplete(
+  Widget build(BuildContext _) => FAutocomplete.text(
     hint: 'Type to search fruits',
     clearable: (value) => value.text.isNotEmpty,
     items: fruits,
@@ -2720,7 +3056,7 @@ const fruits = [
 
 class PopoverBuilderAutocompleteExample extends StatelessWidget {
   @override
-  Widget build(BuildContext _) => FAutocomplete(
+  Widget build(BuildContext _) => FAutocomplete.text(
     hint: 'Type to search fruits',
     items: fruits,
     popoverBuilder: (context, controller, popoverController, content) =>
@@ -2732,7 +3068,7 @@ class PopoverBuilderAutocompleteExample extends StatelessWidget {
               const FDivider(style: .delta(padding: .value(.zero))),
               FButton(
                 variant: .ghost,
-                prefix: const Icon(FIcons.list),
+                prefix: const Icon(FLucideIcons.list),
                 child: const Text('Browse All'),
                 onPress: () {},
               ),
@@ -2763,7 +3099,7 @@ class _FormAutocompleteExampleState extends State<FormAutocompleteExample> {
       crossAxisAlignment: .start,
       spacing: 16,
       children: [
-        FAutocomplete(
+        FAutocomplete.text(
           label: const Text('Department'),
           description: const Text('Type to search your dream department'),
           hint: 'Search departments',
@@ -2847,6 +3183,7 @@ FButton({
   void Function()? onDoubleTap,
   void Function()? onSecondaryPress,
   void Function()? onSecondaryLongPress,
+  String? semanticsLabel,
   bool autofocus = false,
   FocusNode? focusNode,
   void Function(bool)? onFocusChange,
@@ -2908,6 +3245,7 @@ FButton.icon({
   void Function()? onDoubleTap,
   void Function()? onSecondaryPress,
   void Function()? onSecondaryLongPress,
+  String? semanticsLabel,
   bool autofocus = false,
   FocusNode? focusNode,
   void Function(bool)? onFocusChange,
@@ -2939,6 +3277,7 @@ FButton.raw({
   void Function()? onDoubleTap,
   void Function()? onSecondaryPress,
   void Function()? onSecondaryLongPress,
+  String? semanticsLabel,
   bool autofocus = false,
   FocusNode? focusNode,
   void Function(bool)? onFocusChange,
@@ -3066,18 +3405,21 @@ Widget build(BuildContext _) => Column(
         FButton.icon(
           size: .xs,
           onPress: () {},
-          child: const Icon(FIcons.chevronRight),
+          child: const Icon(FLucideIcons.chevronRight),
         ),
         FButton.icon(
           size: .sm,
           onPress: () {},
-          child: const Icon(FIcons.chevronRight),
+          child: const Icon(FLucideIcons.chevronRight),
         ),
-        FButton.icon(onPress: () {}, child: const Icon(FIcons.chevronRight)),
+        FButton.icon(
+          onPress: () {},
+          child: const Icon(FLucideIcons.chevronRight),
+        ),
         FButton.icon(
           size: .lg,
           onPress: () {},
-          child: const Icon(FIcons.chevronRight),
+          child: const Icon(FLucideIcons.chevronRight),
         ),
       ],
     ),
@@ -3104,7 +3446,7 @@ class _ButtonToggleExampleState extends State<ButtonToggleExample> {
     mainAxisSize: .min,
     selected: _italic,
     onPress: () => setState(() => _italic = !_italic),
-    prefix: const Icon(FIcons.italic),
+    prefix: const Icon(FLucideIcons.italic),
     child: Text(
       'Italic',
       style: TextStyle(decoration: _italic ? .underline : null),
@@ -3122,7 +3464,7 @@ class _ButtonToggleExampleState extends State<ButtonToggleExample> {
 @override
 Widget build(BuildContext _) => FButton(
   mainAxisSize: .min,
-  prefix: const Icon(FIcons.mail),
+  prefix: const Icon(FLucideIcons.mail),
   onPress: () {},
   child: const Text('Login with Email'),
 );
@@ -3134,7 +3476,7 @@ Widget build(BuildContext _) => FButton(
 ```dart
 @override
 Widget build(BuildContext _) =>
-    FButton.icon(child: const Icon(FIcons.chevronRight), onPress: () {});
+    FButton.icon(child: const Icon(FLucideIcons.chevronRight), onPress: () {});
 
 ```
 
@@ -4392,19 +4734,19 @@ Widget build(BuildContext _) => FMultiSelect<String>.rich(
   format: Text.new,
   children: [
     .item(
-      prefix: const Icon(FIcons.bug),
+      prefix: const Icon(FLucideIcons.bug),
       title: const Text('Bug'),
       subtitle: const Text('An unexpected problem or behavior'),
       value: 'Bug',
     ),
     .item(
-      prefix: const Icon(FIcons.filePlusCorner),
+      prefix: const Icon(FLucideIcons.filePlusCorner),
       title: const Text('Feature'),
       subtitle: const Text('A new feature or enhancement'),
       value: 'Feature',
     ),
     .item(
-      prefix: const Icon(FIcons.messageCircleQuestionMark),
+      prefix: const Icon(FLucideIcons.messageCircleQuestionMark),
       title: const Text('Question'),
       subtitle: const Text('A question or clarification'),
       value: 'Question',
@@ -4691,7 +5033,7 @@ class AsyncErrorMultiSelectExample extends StatelessWidget {
       return Padding(
         padding: const .all(8.0),
         child: Icon(
-          FIcons.messageCircleX,
+          FLucideIcons.messageCircleX,
           size: style.size,
           color: style.color,
         ),
@@ -4860,7 +5202,7 @@ class PopoverBuilderMultiSelectExample extends StatelessWidget {
               const FDivider(style: .delta(padding: .value(.zero))),
               FButton(
                 variant: .ghost,
-                prefix: const Icon(FIcons.plus),
+                prefix: const Icon(FLucideIcons.plus),
                 child: const Text('Create New'),
                 onPress: () {},
               ),
@@ -5680,6 +6022,7 @@ FSelect({
   void Function(Path, Rect) contentCutoutBuilder =
       FModalBarrier.defaultCutoutBuilder,
   bool autoHide = true,
+  bool? retainFocus,
   Widget Function(BuildContext, FSelectStyle) contentEmptyBuilder =
       defaultContentEmptyBuilder,
   ScrollController? contentScrollController,
@@ -5747,6 +6090,7 @@ FSelect.rich({
   bool contentCutout,
   void Function(Path, Rect) contentCutoutBuilder,
   bool autoHide,
+  bool? retainFocus,
   Widget Function(BuildContext, FSelectStyle) contentEmptyBuilder,
   ScrollController? contentScrollController,
   bool contentScrollHandles,
@@ -5825,6 +6169,7 @@ FSelect.search({
   void Function(Path, Rect) contentCutoutBuilder =
       FModalBarrier.defaultCutoutBuilder,
   bool autoHide = true,
+  bool? retainFocus,
   Widget Function(BuildContext, FSelectStyle) contentEmptyBuilder =
       defaultContentEmptyBuilder,
   ScrollController? contentScrollController,
@@ -5901,6 +6246,7 @@ FSelect.searchBuilder({
   bool contentCutout,
   void Function(Path, Rect) contentCutoutBuilder,
   bool autoHide,
+  bool? retainFocus,
   Widget Function(BuildContext, FSelectStyle) contentEmptyBuilder,
   ScrollController? contentScrollController,
   bool contentScrollHandles,
@@ -5923,19 +6269,19 @@ Widget build(BuildContext context) => FSelect<String>.rich(
   format: (s) => s,
   children: [
     .item(
-      prefix: const Icon(FIcons.bug),
+      prefix: const Icon(FLucideIcons.bug),
       title: const Text('Bug'),
       subtitle: const Text('An unexpected problem or behavior'),
       value: 'Bug',
     ),
     .item(
-      prefix: const Icon(FIcons.filePlusCorner),
+      prefix: const Icon(FLucideIcons.filePlusCorner),
       title: const Text('Feature'),
       subtitle: const Text('A new feature or enhancement'),
       value: 'Feature',
     ),
     .item(
-      prefix: const Icon(FIcons.messageCircleQuestionMark),
+      prefix: const Icon(FLucideIcons.messageCircleQuestionMark),
       title: const Text('Question'),
       subtitle: const Text('A question or clarification'),
       value: 'Question',
@@ -6222,7 +6568,7 @@ class AsyncErrorSelectExample extends StatelessWidget {
       return Padding(
         padding: const .all(8.0),
         child: Icon(
-          FIcons.messageCircleX,
+          FLucideIcons.messageCircleX,
           size: style.size,
           color: style.color,
         ),
@@ -6340,7 +6686,7 @@ class PopoverBuilderSelectExample extends StatelessWidget {
               const FDivider(style: .delta(padding: .value(.zero))),
               FButton(
                 variant: .ghost,
-                prefix: const Icon(FIcons.plus),
+                prefix: const Icon(FLucideIcons.plus),
                 child: const Text('Create New'),
                 onPress: () {},
               ),
@@ -8104,7 +8450,7 @@ Widget build(BuildContext _) => FTimeField.picker(
       const FDivider(style: .delta(padding: .value(.zero))),
       FButton(
         variant: .ghost,
-        prefix: const Icon(FIcons.list),
+        prefix: const Icon(FLucideIcons.list),
         child: const Text('Browse All'),
         onPress: () {},
       ),
@@ -8635,10 +8981,29 @@ FTappable({
   onVariantChange,
   bool selected,
   HitTestBehavior behavior,
+  void Function(TapDownDetails)? onPressDown,
+  void Function()? onPressCancel,
+  void Function(TapMoveDetails)? onPressMove,
+  void Function(TapUpDetails)? onPressUp,
   void Function()? onPress,
+  void Function(LongPressDownDetails)? onLongPressDown,
+  void Function()? onLongPressCancel,
+  void Function(LongPressStartDetails)? onLongPressStart,
+  void Function(LongPressMoveUpdateDetails)? onLongPressMove,
+  void Function(LongPressEndDetails)? onLongPressEnd,
   void Function()? onLongPress,
+  void Function(TapDownDetails)? onDoubleTapDown,
+  void Function()? onDoubleTapCancel,
   void Function()? onDoubleTap,
+  void Function(TapDownDetails)? onSecondaryPressDown,
+  void Function()? onSecondaryPressCancel,
+  void Function(TapUpDetails)? onSecondaryPressUp,
   void Function()? onSecondaryPress,
+  void Function(LongPressDownDetails)? onSecondaryLongPressDown,
+  void Function()? onSecondaryLongPressCancel,
+  void Function(LongPressStartDetails)? onSecondaryLongPressStart,
+  void Function(LongPressMoveUpdateDetails)? onSecondaryLongPressMove,
+  void Function(LongPressEndDetails)? onSecondaryLongPressEnd,
   void Function()? onSecondaryLongPress,
   Map<ShortcutActivator, Intent>? shortcuts,
   Map<Type, Action<Intent>>? actions,
@@ -8667,10 +9032,29 @@ FTappable.static({
   onVariantChange,
   bool selected = false,
   HitTestBehavior behavior = .translucent,
+  void Function(TapDownDetails)? onPressDown,
+  void Function()? onPressCancel,
+  void Function(TapMoveDetails)? onPressMove,
+  void Function(TapUpDetails)? onPressUp,
   void Function()? onPress,
+  void Function(LongPressDownDetails)? onLongPressDown,
+  void Function()? onLongPressCancel,
+  void Function(LongPressStartDetails)? onLongPressStart,
+  void Function(LongPressMoveUpdateDetails)? onLongPressMove,
+  void Function(LongPressEndDetails)? onLongPressEnd,
   void Function()? onLongPress,
+  void Function(TapDownDetails)? onDoubleTapDown,
+  void Function()? onDoubleTapCancel,
   void Function()? onDoubleTap,
+  void Function(TapDownDetails)? onSecondaryPressDown,
+  void Function()? onSecondaryPressCancel,
+  void Function(TapUpDetails)? onSecondaryPressUp,
   void Function()? onSecondaryPress,
+  void Function(LongPressDownDetails)? onSecondaryLongPressDown,
+  void Function()? onSecondaryLongPressCancel,
+  void Function(LongPressStartDetails)? onSecondaryLongPressStart,
+  void Function(LongPressMoveUpdateDetails)? onSecondaryLongPressMove,
+  void Function(LongPressEndDetails)? onSecondaryLongPressEnd,
   void Function()? onSecondaryLongPress,
   Map<Type, Action<Intent>>? actions,
   Widget Function(BuildContext, Set<FTappableVariant>, Widget?) builder =
@@ -8760,44 +9144,72 @@ Widget build(BuildContext context) => FTappableGroup(
 
 Extend Forui themes with application-specific properties using Flutter's ThemeExtension system.
 
-Forui themes can be extended with your own application-specific properties using Flutter's [`ThemeExtension`](https://api.flutter.dev/flutter/material/ThemeExtension-class.html)
-system.
-
 ## Create a Theme Extension
 
-Theme extensions must extend `ThemeExtension` and implement `copyWith()` and `lerp()`.
+Theme extensions must extend [`ThemeExtension`](https://api.flutter.dev/flutter/material/ThemeExtension-class.html) and
+implement `copyWith()` and `lerp()`. Extensions to `FTypography` must instead extend
+[`FTypographyExtension`](https://pub.dev/documentation/forui/latest/forui.theme/FTypographyExtension-class.html) which
+has an additional `scale(...)` method.
+
+To add brand colors to your theme, create a `BrandColors` extension:
 
 ```dart
 import 'package:flutter/material.dart';
 
-class BrandColor extends ThemeExtension<BrandColor> {
-  final Color color;
+class BrandColors extends ThemeExtension<BrandColors> {
+  final Color accent;
+  final Color accentForeground;
 
-  const BrandColor({required this.color});
-
-  @override
-  BrandColor copyWith({Color? color}) => BrandColor(color: color ?? this.color);
+  const BrandColors({required this.accent, required this.accentForeground});
 
   @override
-  BrandColor lerp(BrandColor? other, double t) {
-    if (other is! BrandColor) {
+  BrandColors copyWith({Color? accent, Color? accentForeground}) => BrandColors(
+    accent: accent ?? this.accent,
+    accentForeground: accentForeground ?? this.accentForeground,
+  );
+
+  @override
+  BrandColors lerp(BrandColors? other, double t) {
+    if (other is! BrandColors) {
       return this;
     }
 
-    return BrandColor(color: Color.lerp(color, other.color, t)!);
+    return BrandColors(
+      accent: .lerp(accent, other.accent, t)!,
+      accentForeground: .lerp(accentForeground, other.accentForeground, t)!,
+    );
   }
 }
 
 ```
 
-Add the extension to `FThemeData(...)` via its `extensions` parameter:
+Then add it to `FColors` via its `extensions` parameter:
 
 ```dart
-FThemeData(
-  colors: FThemes.neutral.light.touch.colors,
-  // ... other theme properties
-  touch: true,
-  extensions: [const BrandColor(color: Color(0xFF6366F1))],
+FColors(
+  brightness: .light,
+  systemOverlayStyle: .dark,
+  barrier: const Color(0x33000000),
+  background: const Color(0xFFFFFFFF),
+  foreground: const Color(0xFF0A0A0A),
+  primary: const Color(0xFF171717),
+  primaryForeground: const Color(0xFFFAFAFA),
+  secondary: const Color(0xFFF5F5F5),
+  secondaryForeground: const Color(0xFF171717),
+  muted: const Color(0xFFF5F5F5),
+  mutedForeground: const Color(0xFF737373),
+  destructive: const Color(0xFFE7000B),
+  destructiveForeground: const Color(0xFFFAFAFA),
+  error: const Color(0xFFE7000B),
+  errorForeground: const Color(0xFFFAFAFA),
+  card: const Color(0xFFFFFFFF),
+  border: const Color(0xFFE5E5E5),
+  extensions: [
+    const BrandColors(
+      accent: Color(0xFF6366F1),
+      accentForeground: Color(0xFFFFFFFF),
+    ),
+  ],
 );
 
 ```
@@ -8805,30 +9217,46 @@ FThemeData(
 You can also add extensions to existing themes using `copyWith(...)`:
 
 ```dart
-final theme = FThemes.neutral.light.touch.copyWith(
-  extensions: [const BrandColor(color: Color(0xFF6366F1))],
+final colors = FThemes.neutral.light.touch.colors.copyWith(
+  extensions: [
+    const BrandColors(
+      accent: Color(0xFF6366F1),
+      accentForeground: Color(0xFFFFFFFF),
+    ),
+  ],
 );
 
 ```
 
+Both patterns also work on `FThemeData`, `FTypography`, and `FStyle`.
+
 ## Accessing the Properties
 
-Retrieve your custom theme extension via [`extension<T>()`](https://pub.dev/documentation/forui/latest/forui.theme/FThemeData/extension.html):
+Retrieve your custom theme extension via [`extension<T>()`](https://pub.dev/documentation/forui/latest/forui.theme/FColors/extension.html)
+on the container it was added to:
 
 ```dart
 @override
 Widget build(BuildContext context) {
-  final brand = context.theme.extension<BrandColor>();
-  return ColoredBox(color: brand.color);
+  final brand = context.theme.colors.extension<BrandColors>();
+  return DecoratedBox(
+    decoration: BoxDecoration(
+      color: brand.accent,
+      border: .all(color: brand.accentForeground),
+    ),
+  );
 }
 
 ```
 
-Optionally, we recommend creating a getter on `FThemeData`:
+We recommend creating a getter on that container:
 
 ```dart
-extension BrandColorExtension on FThemeData {
-  BrandColor get brand => extension<BrandColor>();
+extension BrandColorsExtension on FColors {
+  BrandColors get brand => extension<BrandColors>();
+
+  // Alternatively, you can create a getter to access extension fields directly.
+  Color get accent => extension<BrandColors>().accent;
 }
 
 ```
@@ -8962,6 +9390,95 @@ FTooltip(
 
 The same pattern works for any delta class. Implement it and override call.
 
+# Customizing Icons
+
+Swap the icons used by Forui widgets with your own icons.
+
+Forui widgets use the icons defined in [`FIcons`](https://pub.dev/documentation/forui/latest/forui.theme/FIcons-class.html).
+They default to [Lucide](https://lucide.dev/) icons which may not fit your application's custom design system.
+
+To change the icons used across all Forui widgets, pass a custom `FIcons` to your [`FThemeData`](https://pub.dev/documentation/forui/latest/forui.theme/FThemeData-class.html).
+
+Icons in `FIcons` should inherit their properties from the ambient [`IconTheme`](https://api.flutter.dev/flutter/widgets/IconTheme-class.html)
+created by Forui widgets.
+
+## `IconData`
+
+Packages that represent icons as `IconData`s inherit automatically. You can also use [`FIcons.iconData`](https://pub.dev/documentation/forui/latest/forui.theme/FIcons/iconData.html)
+to simplify customization.
+
+For example, to use Flutter's built-in Material icons:
+
+```dart
+final theme = FThemeData(
+  colors: FColors.zincLight,
+  touch: false,
+  icons: FIcons(
+    arrowLeft: FIcons.iconData(Icons.arrow_left),
+    calendar: FIcons.iconData(Icons.calendar_month),
+    check: FIcons.iconData(Icons.check),
+    chevronDown: FIcons.iconData(Icons.keyboard_arrow_down),
+    chevronLeft: FIcons.iconData(Icons.chevron_left),
+    chevronRight: FIcons.iconData(Icons.chevron_right),
+    chevronUp: FIcons.iconData(Icons.keyboard_arrow_up),
+    chevronsUpDown: FIcons.iconData(Icons.unfold_more),
+    circleAlert: FIcons.iconData(Icons.error_outline),
+    clock4: FIcons.iconData(Icons.access_time),
+    ellipsis: FIcons.iconData(Icons.more_horiz),
+    eye: FIcons.iconData(Icons.visibility),
+    eyeClosed: FIcons.iconData(Icons.visibility_off),
+    gripHorizontal: FIcons.iconData(Icons.drag_handle),
+    gripVertical: FIcons.iconData(Icons.drag_indicator),
+    loader: FIcons.iconData(Icons.sync),
+    loaderCircle: FIcons.iconData(Icons.refresh),
+    loaderPinwheel: FIcons.iconData(Icons.autorenew),
+    search: FIcons.iconData(Icons.search),
+    userRound: FIcons.iconData(Icons.person),
+    x: FIcons.iconData(Icons.close),
+  ),
+);
+
+```
+
+## Custom Icon Widgets and SVG Icons
+
+Some packages, especially those with duotone icons, use a custom icon widget to work around the default `Icon` widget's
+limitations. Whether such a widget honors the ambient `IconTheme` depends on the package.
+
+Packages with custom icon widgets that inherit from the ambient `IconTheme` can be passed directly:
+
+- [`font_awesome_flutter`](https://pub.dev/packages/font_awesome_flutter)
+- [`hugeicons`](https://pub.dev/packages/hugeicons)
+
+Packages whose widgets do not inherit, and SVG icon sets, require additional work to retrieve and apply the inherited `IconThemeData`.
+Wrap the callback in a [`Builder`](https://api.flutter.dev/flutter/widgets/Builder-class.html) so [`IconTheme.of`](https://api.flutter.dev/flutter/widgets/IconTheme/of.html)
+is evaluated inside the caller's wrap:
+
+```dart
+final theme = FThemeData(
+  colors: FColors.zincLight,
+  touch: false,
+  icons: FIcons(
+    arrowLeft: (_, {semanticsLabel}) => Builder(
+      builder: (context) {
+        final data = IconTheme.of(context);
+        return SvgPicture.asset(
+          'assets/icons/arrow_left.svg',
+          width: data.size,
+          height: data.size,
+          colorFilter: data.color == null
+              ? null
+              : ColorFilter.mode(data.color!, BlendMode.srcIn),
+          semanticsLabel: semanticsLabel,
+        );
+      },
+    ),
+    // ... apply the same pattern to the rest of the icons.
+  ),
+);
+
+```
+
 # Customizing Themes
 
 Generate and customize themes and widget styles using the CLI.
@@ -9036,25 +9553,28 @@ FAccordionStyle accordionStyle({
   required FColors colors,
   required FTypography typography,
   required FStyle style,
+  required bool touch,
 }) => FAccordionStyle(
   titleTextStyle: FVariants.from(
     // This text style is applied when the accordion is NOT hovered OR pressed.
-    typography.md.copyWith(fontWeight: .w500, color: colors.foreground),
+    typography.sm.copyWith(fontWeight: .w500, color: colors.foreground),
     variants: {
       // This text style is applied when the accordion is hovered OR pressed.
       [.hovered, .pressed]: .delta(decoration: () => .underline),
-      // {@endhiglight}
     },
   ),
   childTextStyle: typography.sm.copyWith(color: colors.foreground),
-  iconStyle: .all(IconThemeData(color: colors.mutedForeground, size: 20)),
+  iconStyle: .all(
+    IconThemeData(
+      color: colors.mutedForeground,
+      size: touch ? typography.lg.fontSize : typography.md.fontSize,
+    ),
+  ),
   focusedOutlineStyle: style.focusedOutlineStyle,
   dividerStyle: FDividerStyle(color: colors.border, padding: .zero),
-  tappableStyle: style.tappableStyle.copyWith(
-    motion: const .delta(bounceTween: FTappableMotion.noBounceTween),
-  ),
-  titlePadding: const .symmetric(vertical: 15),
-  childPadding: const .only(bottom: 15),
+  tappableStyle: style.tappableStyle.copyWith(motion: FTappableMotion.none),
+  titlePadding: const .symmetric(vertical: 16),
+  childPadding: const .only(bottom: 16),
   motion: const FAccordionMotion(),
 );
 
@@ -9073,59 +9593,231 @@ Generate a theme based on [neutral](/docs/concepts/themes#getting-started)'s lig
 dart run forui theme create neutral-light
 ```
 
-This generates a theme file which you can:
+This generates a theme directory with a `theme.dart` and three part files (`colors.dart`, `typography.dart`, `style.dart`)
+Each part file already includes a starter `App<Section>` extension you can fill in with your custom tokens.
 
-- add to your generated `main.dart`.
-- add the generated styles to.
+### Theme
 
-```dart
+````dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:forui/forui.dart';
 
-import 'accordion_style.dart';
+part 'colors.dart';
+part 'typography.dart';
+part 'style.dart';
 
-
+/// Generated by Forui CLI.
+///
+/// Modify the generated function bodies to create your own custom style.
+/// Then, call the modified function and pass it to [FTheme].
+///
+/// You can also generate styles to be used in the generated [FThemeData] using:
+/// ```shell
+/// dart forui style create [styles]
+/// ```
+///
+/// See:
+/// * https://forui.dev/docs/guides/customizing-themes for customizing themes.
+/// * https://forui.dev/docs/guides/customizing-widget-styles for customizing individual widget styles.
 FThemeData get neutralLight {
-  // Change this to false to generate a desktop variant of the theme.
+  // Change this to false to use the desktop variant of this theme.
   const touch = true;
 
-  const colors = FColors(
-    brightness: .light,
-    systemOverlayStyle: .dark,
-    barrier: Color(0x33000000),
-    background: Color(0xFFFFFFFF),
-    foreground: Color(0xFF0A0A0A),
-    primary: Color(0xFF171717),
-    primaryForeground: Color(0xFFFAFAFA),
-    secondary: Color(0xFFF5F5F5),
-    secondaryForeground: Color(0xFF171717),
-    muted: Color(0xFFF5F5F5),
-    mutedForeground: Color(0xFF737373),
-    destructive: Color(0xFFE7000B),
-    destructiveForeground: Color(0xFFFAFAFA),
-    error: Color(0xFFE7000B),
-    errorForeground: Color(0xFFFAFAFA),
-    card: Color(0xFFFFFFFF),
-    border: Color(0xFFE5E5E5),
-  );
+  final colors = lightColors;
 
   final typography = _typography(colors: colors, touch: touch);
+
+  final icons = FIcons(
+    arrowLeft: FIcons.iconData(FLucideIcons.arrowLeft),
+    calendar: FIcons.iconData(FLucideIcons.calendar),
+    check: FIcons.iconData(FLucideIcons.check),
+    chevronDown: FIcons.iconData(FLucideIcons.chevronDown),
+    chevronLeft: FIcons.iconData(FLucideIcons.chevronLeft),
+    chevronRight: FIcons.iconData(FLucideIcons.chevronRight),
+    chevronUp: FIcons.iconData(FLucideIcons.chevronUp),
+    chevronsUpDown: FIcons.iconData(FLucideIcons.chevronsUpDown),
+    circleAlert: FIcons.iconData(FLucideIcons.circleAlert),
+    clock4: FIcons.iconData(FLucideIcons.clock4),
+    ellipsis: FIcons.iconData(FLucideIcons.ellipsis),
+    eye: FIcons.iconData(FLucideIcons.eye),
+    eyeClosed: FIcons.iconData(FLucideIcons.eyeClosed),
+    gripHorizontal: FIcons.iconData(FLucideIcons.gripHorizontal),
+    gripVertical: FIcons.iconData(FLucideIcons.gripVertical),
+    loader: FIcons.iconData(FLucideIcons.loader),
+    loaderCircle: FIcons.iconData(FLucideIcons.loaderCircle),
+    loaderPinwheel: FIcons.iconData(FLucideIcons.loaderPinwheel),
+    search: FIcons.iconData(FLucideIcons.search),
+    userRound: FIcons.iconData(FLucideIcons.userRound),
+    x: FIcons.iconData(FLucideIcons.x),
+  );
+
   final style = _style(colors: colors, typography: typography, touch: touch);
 
   return FThemeData(
     colors: colors,
     typography: typography,
+    icons: icons,
     style: style,
     touch: touch,
   );
 }
 
+FThemeData get neutralDark {
+  // Change this to false to use the desktop variant of this theme.
+  const touch = true;
+
+  final colors = darkColors;
+
+  final typography = _typography(colors: colors, touch: touch);
+
+  final icons = FIcons(
+    arrowLeft: FIcons.iconData(FLucideIcons.arrowLeft),
+    calendar: FIcons.iconData(FLucideIcons.calendar),
+    check: FIcons.iconData(FLucideIcons.check),
+    chevronDown: FIcons.iconData(FLucideIcons.chevronDown),
+    chevronLeft: FIcons.iconData(FLucideIcons.chevronLeft),
+    chevronRight: FIcons.iconData(FLucideIcons.chevronRight),
+    chevronUp: FIcons.iconData(FLucideIcons.chevronUp),
+    chevronsUpDown: FIcons.iconData(FLucideIcons.chevronsUpDown),
+    circleAlert: FIcons.iconData(FLucideIcons.circleAlert),
+    clock4: FIcons.iconData(FLucideIcons.clock4),
+    ellipsis: FIcons.iconData(FLucideIcons.ellipsis),
+    eye: FIcons.iconData(FLucideIcons.eye),
+    eyeClosed: FIcons.iconData(FLucideIcons.eyeClosed),
+    gripHorizontal: FIcons.iconData(FLucideIcons.gripHorizontal),
+    gripVertical: FIcons.iconData(FLucideIcons.gripVertical),
+    loader: FIcons.iconData(FLucideIcons.loader),
+    loaderCircle: FIcons.iconData(FLucideIcons.loaderCircle),
+    loaderPinwheel: FIcons.iconData(FLucideIcons.loaderPinwheel),
+    search: FIcons.iconData(FLucideIcons.search),
+    userRound: FIcons.iconData(FLucideIcons.userRound),
+    x: FIcons.iconData(FLucideIcons.x),
+  );
+
+  final style = _style(colors: colors, typography: typography, touch: touch);
+
+  return FThemeData(
+    colors: colors,
+    typography: typography,
+    icons: icons,
+    style: style,
+    touch: touch,
+  );
+}
+
+````
+
+### Colors
+
+````dart
+part of 'theme.dart';
+
+/// Generated by Forui CLI.
+///
+/// Color tokens and theme extensions for the generated theme.
+final FColors lightColors = FColors(
+  brightness: .light,
+  systemOverlayStyle: .dark,
+  barrier: Color(0x33000000),
+  background: Color(0xFFFFFFFF),
+  foreground: Color(0xFF0A0A0A),
+  primary: Color(0xFF171717),
+  primaryForeground: Color(0xFFFAFAFA),
+  secondary: Color(0xFFF5F5F5),
+  secondaryForeground: Color(0xFF171717),
+  muted: Color(0xFFF5F5F5),
+  mutedForeground: Color(0xFF737373),
+  destructive: Color(0xFFE7000B),
+  destructiveForeground: Color(0xFFFAFAFA),
+  error: Color(0xFFE7000B),
+  errorForeground: Color(0xFFFAFAFA),
+  card: Color(0xFFFFFFFF),
+  border: Color(0xFFE5E5E5),
+  extensions: const [AppColors()],
+);
+
+final FColors darkColors = FColors(
+  brightness: .dark,
+  systemOverlayStyle: .light,
+  barrier: Color(0x7A000000),
+  background: Color(0xFF0A0A0A),
+  foreground: Color(0xFFFAFAFA),
+  primary: Color(0xFFE5E5E5),
+  primaryForeground: Color(0xFF171717),
+  secondary: Color(0xFF262626),
+  secondaryForeground: Color(0xFFFAFAFA),
+  muted: Color(0xFF262626),
+  mutedForeground: Color(0xFFA1A1A1),
+  destructive: Color(0xFFFF6467),
+  destructiveForeground: Color(0xFFFAFAFA),
+  error: Color(0xFFFF6467),
+  errorForeground: Color(0xFFFAFAFA),
+  card: Color(0xFF171717),
+  border: Color(0x1AFFFFFF),
+  extensions: const [AppColors()],
+);
+
+/// Provides convenient access to theme extensions on [FColors].
+///
+/// ```dart
+/// final accent = context.theme.colors.app.accent; ✅
+///
+/// // Alternatively, you can create a getter to access extension fields directly.
+/// final accent = context.theme.colors.accent; ✅
+///
+/// final accent = context.theme.colors.extension<AppColors>().accent; ❌
+/// ```
+extension FColorsExtensions on FColors {
+  AppColors get app => extension<AppColors>();
+}
+
+/// Custom color tokens unique to your app.
+///
+/// Add your fields below, then implement [copyWith], [lerp], [==], and [hashCode].
+/// See https://api.flutter.dev/flutter/material/ThemeExtension-class.html.
+class AppColors extends ThemeExtension<AppColors> {
+  // TODO: add your color fields here:
+  // final Color accent;
+
+  const AppColors();
+
+  @override
+  AppColors copyWith() => const AppColors();
+
+  @override
+  AppColors lerp(covariant AppColors? other, double t) {
+    if (other == null) {
+      return this;
+    }
+    return const AppColors();
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AppColors && runtimeType == other.runtimeType;
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+}
+
+````
+
+### Typography
+
+````dart
+part of 'theme.dart';
+
+/// Generated by Forui CLI.
+///
+/// Typography tokens and theme extensions for the generated theme.
 FTypography _typography({
   required FColors colors,
   required bool touch,
-  String fontFamily = 'packages/forui/Inter',
+  String fontFamily = FTypography.defaultFontFamily,
 }) {
   assert(
     fontFamily.isNotEmpty,
@@ -9234,6 +9926,7 @@ FTypography _typography({
         height: 1,
         leadingDistribution: .even,
       ),
+      extensions: const [AppTypography()],
     );
   } else {
     return FTypography(
@@ -9336,10 +10029,68 @@ FTypography _typography({
         height: 1,
         leadingDistribution: .even,
       ),
+      extensions: const [AppTypography()],
     );
   }
 }
 
+/// Provides convenient access to theme extensions on [FTypography].
+///
+/// ```dart
+/// final display = context.theme.typography.app.display; ✅
+///
+/// // Alternatively, you can create a getter to access extension fields directly.
+/// final display = context.theme.typography.display; ✅
+///
+/// final display = context.theme.typography.extension<AppTypography>().display; ❌
+/// ```
+extension FTypographyExtensions on FTypography {
+  AppTypography get app => extension<AppTypography>();
+}
+
+/// Custom typography tokens unique to your app.
+///
+/// Add your fields below, then implement [copyWith], [lerp], [scale], [==], and [hashCode].
+/// See [FTypographyExtension].
+class AppTypography extends FTypographyExtension<AppTypography> {
+  // TODO: add your typography fields here:
+  // final TextStyle display;
+
+  const AppTypography();
+
+  @override
+  AppTypography copyWith() => const AppTypography();
+
+  @override
+  AppTypography lerp(covariant AppTypography? other, double t) {
+    if (other == null) {
+      return this;
+    }
+    return const AppTypography();
+  }
+
+  @override
+  AppTypography scale({double sizeScalar = 1.0}) => this;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AppTypography && runtimeType == other.runtimeType;
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+}
+
+````
+
+### Style
+
+````dart
+part of 'theme.dart';
+
+/// Generated by Forui CLI.
+///
+/// Style tokens and theme extensions for the generated theme.
 FStyle _style({
   required FColors colors,
   required FTypography typography,
@@ -9356,11 +10107,11 @@ FStyle _style({
       color: colors.primary,
       borderRadius: borderRadius.md,
     ),
+    sizes: FSizes.inherit(touch: touch),
     iconStyle: IconThemeData(
       color: colors.foreground,
       size: typography.lg.fontSize,
     ),
-    sizes: FSizes.inherit(touch: touch),
     tappableStyle: FTappableStyle(),
     borderRadius: const FBorderRadius(),
     borderWidth: 1,
@@ -9368,10 +10119,55 @@ FStyle _style({
     shadow: const [
       BoxShadow(color: Color(0x0d000000), offset: Offset(0, 1), blurRadius: 2),
     ],
+    extensions: const [AppStyle()],
   );
 }
 
-```
+/// Provides convenient access to theme extensions on [FStyle].
+///
+/// ```dart
+/// final cardRadius = context.theme.style.app.cardRadius; ✅
+///
+/// // Alternatively, you can create a getter to access extension fields directly.
+/// final cardRadius = context.theme.style.cardRadius; ✅
+///
+/// final cardRadius = context.theme.style.extension<AppStyle>().cardRadius; ❌
+/// ```
+extension FStyleExtensions on FStyle {
+  AppStyle get app => extension<AppStyle>();
+}
+
+/// Custom style tokens unique to your app.
+///
+/// Add your fields below, then implement [copyWith], [lerp], [==], and [hashCode].
+/// See https://api.flutter.dev/flutter/material/ThemeExtension-class.html.
+class AppStyle extends ThemeExtension<AppStyle> {
+  // TODO: add your style fields here:
+  // final double cardRadius;
+
+  const AppStyle();
+
+  @override
+  AppStyle copyWith() => const AppStyle();
+
+  @override
+  AppStyle lerp(covariant AppStyle? other, double t) {
+    if (other == null) {
+      return this;
+    }
+    return const AppStyle();
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AppStyle && runtimeType == other.runtimeType;
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+}
+
+````
 
 # Customizing Widget Styles
 
@@ -9517,10 +10313,11 @@ FAccordionStyle accordionStyle({
   required FColors colors,
   required FTypography typography,
   required FStyle style,
+  required bool touch,
 }) => FAccordionStyle(
   titleTextStyle: FVariants.from(
     // This text style is applied when the accordion is NOT hovered OR pressed.
-    typography.md.copyWith(fontWeight: .w500, color: colors.foreground),
+    typography.sm.copyWith(fontWeight: .w500, color: colors.foreground),
     variants: {
       // This text style is applied when the accordion is hovered OR pressed OR focused (new).
       [.hovered, .pressed, .focused]: .delta(
@@ -9543,6 +10340,7 @@ Widget build(BuildContext context) => FAccordion(
     colors: context.theme.colors,
     typography: context.theme.typography,
     style: context.theme.style,
+    touch: true,
   ),
   children: const [
     FAccordionItem(
@@ -9676,19 +10474,19 @@ class ResizableExample extends StatelessWidget {
           initialExtent: 250,
           minExtent: 100,
           builder: (_, data, _) =>
-              Label(data: data, icon: FIcons.sunrise, label: 'Morning'),
+              Label(data: data, icon: FLucideIcons.sunrise, label: 'Morning'),
         ),
         .region(
           initialExtent: 100,
           minExtent: 100,
           builder: (_, data, _) =>
-              Label(data: data, icon: FIcons.sun, label: 'Afternoon'),
+              Label(data: data, icon: FLucideIcons.sun, label: 'Afternoon'),
         ),
         .region(
           initialExtent: 250,
           minExtent: 100,
           builder: (_, data, _) =>
-              Label(data: data, icon: FIcons.sunset, label: 'Evening'),
+              Label(data: data, icon: FLucideIcons.sunset, label: 'Evening'),
         ),
       ],
     ),
@@ -9813,19 +10611,19 @@ class NoCascadingResizableExample extends StatelessWidget {
           initialExtent: 200,
           minExtent: 100,
           builder: (_, data, _) =>
-              Label(data: data, icon: FIcons.sunrise, label: 'Morning'),
+              Label(data: data, icon: FLucideIcons.sunrise, label: 'Morning'),
         ),
         .region(
           initialExtent: 200,
           minExtent: 100,
           builder: (_, data, _) =>
-              Label(data: data, icon: FIcons.sun, label: 'Afternoon'),
+              Label(data: data, icon: FLucideIcons.sun, label: 'Afternoon'),
         ),
         .region(
           initialExtent: 200,
           minExtent: 100,
           builder: (_, data, _) =>
-              Label(data: data, icon: FIcons.sunset, label: 'Evening'),
+              Label(data: data, icon: FLucideIcons.sunset, label: 'Evening'),
         ),
       ],
     ),
@@ -9996,7 +10794,7 @@ class _ScaffoldExampleState extends State<ScaffoldExample> {
     FHeader(
       title: const Text('Settings'),
       suffixes: [
-        FHeaderAction(icon: const Icon(FIcons.ellipsis), onPress: () {}),
+        FHeaderAction(icon: const Icon(FLucideIcons.ellipsis), onPress: () {}),
       ],
     ),
   ];
@@ -10048,19 +10846,19 @@ class _ScaffoldExampleState extends State<ScaffoldExample> {
         onChange: (index) => setState(() => _index = index),
         children: const [
           FBottomNavigationBarItem(
-            icon: Icon(FIcons.house),
+            icon: Icon(FLucideIcons.house),
             label: Text('Home'),
           ),
           FBottomNavigationBarItem(
-            icon: Icon(FIcons.layoutGrid),
+            icon: Icon(FLucideIcons.layoutGrid),
             label: Text('Categories'),
           ),
           FBottomNavigationBarItem(
-            icon: Icon(FIcons.search),
+            icon: Icon(FLucideIcons.search),
             label: Text('Search'),
           ),
           FBottomNavigationBarItem(
-            icon: Icon(FIcons.settings),
+            icon: Icon(FLucideIcons.settings),
             label: Text('Settings'),
           ),
         ],
@@ -10122,18 +10920,24 @@ class _BottomNavigationBarExampleState
     index: _index,
     onChange: (index) => setState(() => _index = index),
     children: const [
-      FBottomNavigationBarItem(icon: Icon(FIcons.house), label: Text('Home')),
       FBottomNavigationBarItem(
-        icon: Icon(FIcons.layoutGrid),
+        icon: Icon(FLucideIcons.house),
+        label: Text('Home'),
+      ),
+      FBottomNavigationBarItem(
+        icon: Icon(FLucideIcons.layoutGrid),
         label: Text('Browse'),
       ),
-      FBottomNavigationBarItem(icon: Icon(FIcons.radio), label: Text('Radio')),
       FBottomNavigationBarItem(
-        icon: Icon(FIcons.libraryBig),
+        icon: Icon(FLucideIcons.radio),
+        label: Text('Radio'),
+      ),
+      FBottomNavigationBarItem(
+        icon: Icon(FLucideIcons.libraryBig),
         label: Text('Library'),
       ),
       FBottomNavigationBarItem(
-        icon: Icon(FIcons.search),
+        icon: Icon(FLucideIcons.search),
         label: Text('Search'),
       ),
     ],
@@ -10273,10 +11077,11 @@ FBreadcrumbItem({
 ```dart
 FBreadcrumbItem.collapsed({
   required List<FItemGroup> menu,
+  Widget? icon,
   FPopoverMenuStyleDelta popoverMenuStyle,
   FPopoverControl popoverControl,
   ScrollController? scrollController,
-  double? cacheExtent,
+  ScrollCacheExtent? scrollCacheExtent,
   double maxHeight,
   bool intrinsicWidth,
   DragStartBehavior dragStartBehavior,
@@ -10308,10 +11113,11 @@ FBreadcrumbItem.collapsed({
 ```dart
 FBreadcrumbItem.collapsedTiles({
   required List<FTileGroup> menu,
+  Widget? icon,
   FPopoverMenuStyleDelta popoverMenuStyle,
   FPopoverControl popoverControl,
   ScrollController? scrollController,
-  double? cacheExtent,
+  ScrollCacheExtent? scrollCacheExtent,
   double maxHeight,
   bool intrinsicWidth,
   DragStartBehavior dragStartBehavior,
@@ -10378,7 +11184,7 @@ Widget build(BuildContext _) => Row(
     FBreadcrumb(
       divider: Transform.rotate(
         angle: -60,
-        child: const Icon(FIcons.slash, size: 14),
+        child: const Icon(FLucideIcons.slash, size: 14),
       ),
       children: [
         FBreadcrumbItem(onPress: () {}, child: const Text('Forui')),
@@ -10410,8 +11216,8 @@ A header contains the page's title and navigation actions. It is typically used 
 Widget build(BuildContext _) => FHeader(
   title: const Text('Edit Alarm'),
   suffixes: [
-    FHeaderAction(icon: const Icon(FIcons.alarmClock), onPress: () {}),
-    FHeaderAction(icon: const Icon(FIcons.plus), onPress: () {}),
+    FHeaderAction(icon: const Icon(FLucideIcons.alarmClock), onPress: () {}),
+    FHeaderAction(icon: const Icon(FLucideIcons.plus), onPress: () {}),
   ],
 );
 
@@ -10427,8 +11233,8 @@ Widget build(BuildContext _) => FHeader.nested(
   title: const Text('Appointment'),
   prefixes: [FHeaderAction.back(onPress: () {})],
   suffixes: [
-    FHeaderAction(icon: const Icon(FIcons.info), onPress: () {}),
-    FHeaderAction(icon: const Icon(FIcons.plus), onPress: () {}),
+    FHeaderAction(icon: const Icon(FLucideIcons.info), onPress: () {}),
+    FHeaderAction(icon: const Icon(FLucideIcons.plus), onPress: () {}),
   ],
 );
 
@@ -10489,8 +11295,8 @@ FHeader.nested({
 Widget build(BuildContext _) => FHeader(
   title: const Text('Edit Alarm'),
   suffixes: [
-    FHeaderAction(icon: const Icon(FIcons.alarmClock), onPress: () {}),
-    FHeaderAction(icon: const Icon(FIcons.plus), onPress: () {}),
+    FHeaderAction(icon: const Icon(FLucideIcons.alarmClock), onPress: () {}),
+    FHeaderAction(icon: const Icon(FLucideIcons.plus), onPress: () {}),
   ],
 );
 
@@ -10504,8 +11310,8 @@ Widget build(BuildContext _) => FHeader.nested(
   title: const Text('Appointment'),
   prefixes: [FHeaderAction.back(onPress: () {})],
   suffixes: [
-    FHeaderAction(icon: const Icon(FIcons.info), onPress: () {}),
-    FHeaderAction(icon: const Icon(FIcons.plus), onPress: () {}),
+    FHeaderAction(icon: const Icon(FLucideIcons.info), onPress: () {}),
+    FHeaderAction(icon: const Icon(FLucideIcons.plus), onPress: () {}),
   ],
 );
 
@@ -10518,8 +11324,8 @@ Widget build(BuildContext _) => FHeader.nested(
 Widget build(BuildContext _) => FHeader.nested(
   title: const Text('Climate'),
   prefixes: [
-    FHeaderAction(icon: const Icon(FIcons.thermometer), onPress: () {}),
-    const FHeaderAction(icon: Icon(FIcons.wind), onPress: null),
+    FHeaderAction(icon: const Icon(FLucideIcons.thermometer), onPress: () {}),
+    const FHeaderAction(icon: Icon(FLucideIcons.wind), onPress: null),
   ],
   suffixes: [FHeaderAction.x(onPress: () {})],
 );
@@ -10624,7 +11430,7 @@ class _PaginationCustomIconExampleState
             onPress: _controller.next,
             child: IconTheme(
               data: style.itemIconStyle.base,
-              child: const Icon(FIcons.bird),
+              child: const Icon(FLucideIcons.bird),
             ),
           ),
         ),
@@ -10638,7 +11444,7 @@ class _PaginationCustomIconExampleState
             onPress: _controller.previous,
             child: IconTheme(
               data: style.itemIconStyle.base,
-              child: const Icon(FIcons.anchor),
+              child: const Icon(FLucideIcons.anchor),
             ),
           ),
         ),
@@ -10790,7 +11596,7 @@ Widget build(BuildContext context) => FScaffold(
             children: [
               FAvatar.raw(
                 child: Icon(
-                  FIcons.userRound,
+                  FLucideIcons.userRound,
                   size: 18,
                   color: context.theme.colors.mutedForeground,
                 ),
@@ -10828,7 +11634,7 @@ Widget build(BuildContext context) => FScaffold(
         label: const Text('Overview'),
         children: [
           FSidebarItem(
-            icon: const Icon(FIcons.school),
+            icon: const Icon(FLucideIcons.school),
             label: const Text('Getting Started'),
             initiallyExpanded: true,
             onPress: () {},
@@ -10843,34 +11649,34 @@ Widget build(BuildContext context) => FScaffold(
             ],
           ),
           FSidebarItem(
-            icon: const Icon(FIcons.code),
+            icon: const Icon(FLucideIcons.code),
             label: const Text('API Reference'),
             onPress: () {},
           ),
           FSidebarItem(
-            icon: const Icon(FIcons.box),
+            icon: const Icon(FLucideIcons.box),
             label: const Text('Pub Dev'),
             onPress: () {},
           ),
         ],
       ),
       FSidebarGroup(
-        action: const Icon(FIcons.plus),
+        action: const Icon(FLucideIcons.plus),
         onActionPress: () {},
         label: const Text('Widgets'),
         children: [
           FSidebarItem(
-            icon: const Icon(FIcons.circleSlash),
+            icon: const Icon(FLucideIcons.circleSlash),
             label: const Text('Divider'),
             onPress: () {},
           ),
           FSidebarItem(
-            icon: const Icon(FIcons.scaling),
+            icon: const Icon(FLucideIcons.scaling),
             label: const Text('Resizable'),
             onPress: () {},
           ),
           FSidebarItem(
-            icon: const Icon(FIcons.layoutDashboard),
+            icon: const Icon(FLucideIcons.layoutDashboard),
             label: const Text('Scaffold'),
             onPress: () {},
           ),
@@ -11115,7 +11921,7 @@ Widget build(BuildContext context) => Center(
                   children: [
                     FAvatar.raw(
                       child: Icon(
-                        FIcons.userRound,
+                        FLucideIcons.userRound,
                         size: 18,
                         color: context.theme.colors.mutedForeground,
                       ),
@@ -11153,7 +11959,7 @@ Widget build(BuildContext context) => Center(
               label: const Text('Overview'),
               children: [
                 FSidebarItem(
-                  icon: const Icon(FIcons.school),
+                  icon: const Icon(FLucideIcons.school),
                   label: const Text('Getting Started'),
                   initiallyExpanded: true,
                   onPress: () {},
@@ -11171,34 +11977,34 @@ Widget build(BuildContext context) => Center(
                   ],
                 ),
                 FSidebarItem(
-                  icon: const Icon(FIcons.code),
+                  icon: const Icon(FLucideIcons.code),
                   label: const Text('API Reference'),
                   onPress: () {},
                 ),
                 FSidebarItem(
-                  icon: const Icon(FIcons.box),
+                  icon: const Icon(FLucideIcons.box),
                   label: const Text('Pub Dev'),
                   onPress: () {},
                 ),
               ],
             ),
             FSidebarGroup(
-              action: const Icon(FIcons.plus),
+              action: const Icon(FLucideIcons.plus),
               onActionPress: () {},
               label: const Text('Widgets'),
               children: [
                 FSidebarItem(
-                  icon: const Icon(FIcons.circleSlash),
+                  icon: const Icon(FLucideIcons.circleSlash),
                   label: const Text('Divider'),
                   onPress: () {},
                 ),
                 FSidebarItem(
-                  icon: const Icon(FIcons.scaling),
+                  icon: const Icon(FLucideIcons.scaling),
                   label: const Text('Resizable'),
                   onPress: () {},
                 ),
                 FSidebarItem(
-                  icon: const Icon(FIcons.layoutDashboard),
+                  icon: const Icon(FLucideIcons.layoutDashboard),
                   label: const Text('Scaffold'),
                   onPress: () {},
                 ),
@@ -11225,18 +12031,18 @@ Widget build(BuildContext _) => FSidebar(
     FSidebarGroup(
       children: [
         FSidebarItem(
-          icon: const Icon(FIcons.layoutDashboard),
+          icon: const Icon(FLucideIcons.layoutDashboard),
           label: const Text('Dashboard'),
           selected: true,
           onPress: () {},
         ),
         FSidebarItem(
-          icon: const Icon(FIcons.chartLine),
+          icon: const Icon(FLucideIcons.chartLine),
           label: const Text('Analytics'),
           onPress: () {},
         ),
         FSidebarItem(
-          icon: const Icon(FIcons.chartBar),
+          icon: const Icon(FLucideIcons.chartBar),
           label: const Text('Reports'),
           initiallyExpanded: true,
           children: [
@@ -11264,7 +12070,7 @@ Widget build(BuildContext _) => FSidebar(
     FSidebarGroup(
       children: [
         FSidebarItem(
-          icon: const Icon(FIcons.userRound),
+          icon: const Icon(FLucideIcons.userRound),
           label: const Text('Account'),
           initiallyExpanded: true,
           children: [
@@ -11310,12 +12116,12 @@ Widget build(BuildContext _) => FSidebar(
           ],
         ),
         FSidebarItem(
-          icon: const Icon(FIcons.palette),
+          icon: const Icon(FLucideIcons.palette),
           label: const Text('Appearance'),
           onPress: () {},
         ),
         FSidebarItem(
-          icon: const Icon(FIcons.settings),
+          icon: const Icon(FLucideIcons.settings),
           label: const Text('System'),
           onPress: () {},
         ),
@@ -11433,7 +12239,9 @@ Widget build(BuildContext _) => Padding(
   child: SizedBox(
     height: 350,
     child: FTabs(
+      // Swiping between tabs requires expands to be true and contentPhysics to not be NeverScrollableScrollPhysics.
       expands: true,
+      contentPhysics: const BouncingScrollPhysics(),
       children: [
         .entry(
           label: const Text('Account'),
@@ -11565,12 +12373,14 @@ Future<T?> showFDialog<T>({
 FDialog({
   required List<Widget> actions,
   FDialogStyleDelta style = const .context(),
+  Clip clipBehavior = .none,
   Animation<double>? animation,
   String? semanticsLabel,
   BoxConstraints constraints = const BoxConstraints(
     minWidth: 280,
     maxWidth: 560,
   ),
+  bool resizeToAvoidInsets = true,
   Widget? image,
   Widget? title,
   Widget? body,
@@ -11586,12 +12396,14 @@ FDialog({
 FDialog.adaptive({
   required List<Widget> actions,
   FDialogStyleDelta style = const .context(),
+  Clip clipBehavior = .none,
   Animation<double>? animation,
   String? semanticsLabel,
   BoxConstraints constraints = const BoxConstraints(
     minWidth: 280,
     maxWidth: 560,
   ),
+  bool resizeToAvoidInsets = true,
   Widget? image,
   Widget? title,
   Widget? body,
@@ -11606,12 +12418,14 @@ FDialog.adaptive({
 FDialog.raw({
   required Widget Function(BuildContext, FDialogStyle) builder,
   FDialogStyleDelta style = const .context(),
+  Clip clipBehavior = .none,
   Animation<double>? animation,
   String? semanticsLabel,
   BoxConstraints constraints = const BoxConstraints(
     minWidth: 280,
     maxWidth: 560,
   ),
+  bool resizeToAvoidInsets = true,
   Key? key,
 })
 
@@ -12168,17 +12982,17 @@ Widget build(BuildContext _) => FHeader(
         .group(
           children: [
             .item(
-              prefix: const Icon(FIcons.user),
+              prefix: const Icon(FLucideIcons.user),
               title: const Text('Personalization'),
               onPress: () {},
             ),
             .item(
-              prefix: const Icon(FIcons.paperclip),
+              prefix: const Icon(FLucideIcons.paperclip),
               title: const Text('Add attachments'),
               onPress: () {},
             ),
             .item(
-              prefix: const Icon(FIcons.qrCode),
+              prefix: const Icon(FLucideIcons.qrCode),
               title: const Text('Scan Document'),
               onPress: () {},
             ),
@@ -12187,12 +13001,12 @@ Widget build(BuildContext _) => FHeader(
         .group(
           children: [
             .item(
-              prefix: const Icon(FIcons.list),
+              prefix: const Icon(FLucideIcons.list),
               title: const Text('List View'),
               onPress: () {},
             ),
             .item(
-              prefix: const Icon(FIcons.layoutGrid),
+              prefix: const Icon(FLucideIcons.layoutGrid),
               title: const Text('Grid View'),
               onPress: () {},
             ),
@@ -12200,7 +13014,7 @@ Widget build(BuildContext _) => FHeader(
         ),
       ],
       builder: (_, controller, _) => FHeaderAction(
-        icon: const Icon(FIcons.ellipsis),
+        icon: const Icon(FLucideIcons.ellipsis),
         onPress: controller.toggle,
       ),
     ),
@@ -12228,7 +13042,7 @@ FPopoverMenu({
   FPopoverControl control = const .managed(),
   ScrollController? scrollController,
   FPopoverMenuStyleDelta style = const .context(),
-  double? cacheExtent,
+  ScrollCacheExtent? scrollCacheExtent,
   double maxHeight = .infinity,
   bool intrinsicWidth = true,
   DragStartBehavior dragStartBehavior = .start,
@@ -12277,7 +13091,7 @@ FPopoverMenu.tiles({
   FPopoverControl control = const .managed(),
   ScrollController? scrollController,
   FPopoverMenuStyleDelta style = const .context(),
-  double? cacheExtent,
+  ScrollCacheExtent? scrollCacheExtent,
   double maxHeight = .infinity,
   bool intrinsicWidth = true,
   DragStartBehavior dragStartBehavior = .start,
@@ -12336,33 +13150,33 @@ Widget build(BuildContext _) => FHeader(
         .group(
           children: [
             .item(
-              prefix: const Icon(FIcons.user),
+              prefix: const Icon(FLucideIcons.user),
               title: const Text('Personalization'),
               onPress: () {},
             ),
             .item(
-              prefix: const Icon(FIcons.paperclip),
+              prefix: const Icon(FLucideIcons.paperclip),
               title: const Text('Add attachments'),
               onPress: () {},
             ),
             .submenu(
               title: const Text('Share'),
-              prefix: const Icon(FIcons.share2),
+              prefix: const Icon(FLucideIcons.share2),
               submenu: [
                 .group(
                   children: [
                     .item(
-                      prefix: const Icon(FIcons.mail),
+                      prefix: const Icon(FLucideIcons.mail),
                       title: const Text('Email'),
                       onPress: () {},
                     ),
                     .item(
-                      prefix: const Icon(FIcons.messageSquare),
+                      prefix: const Icon(FLucideIcons.messageSquare),
                       title: const Text('Message'),
                       onPress: () {},
                     ),
                     .item(
-                      prefix: const Icon(FIcons.link),
+                      prefix: const Icon(FLucideIcons.link),
                       title: const Text('Copy Link'),
                       onPress: () {},
                     ),
@@ -12375,12 +13189,12 @@ Widget build(BuildContext _) => FHeader(
         .group(
           children: [
             .item(
-              prefix: const Icon(FIcons.list),
+              prefix: const Icon(FLucideIcons.list),
               title: const Text('List View'),
               onPress: () {},
             ),
             .item(
-              prefix: const Icon(FIcons.layoutGrid),
+              prefix: const Icon(FLucideIcons.layoutGrid),
               title: const Text('Grid View'),
               onPress: () {},
             ),
@@ -12388,7 +13202,7 @@ Widget build(BuildContext _) => FHeader(
         ),
       ],
       builder: (_, controller, _) => FHeaderAction(
-        icon: const Icon(FIcons.ellipsis),
+        icon: const Icon(FLucideIcons.ellipsis),
         onPress: controller.toggle,
       ),
     ),
@@ -12412,17 +13226,17 @@ Widget build(BuildContext _) => FHeader(
         .group(
           children: [
             .tile(
-              prefix: const Icon(FIcons.user),
+              prefix: const Icon(FLucideIcons.user),
               title: const Text('Personalization'),
               onPress: () {},
             ),
             .tile(
-              prefix: const Icon(FIcons.paperclip),
+              prefix: const Icon(FLucideIcons.paperclip),
               title: const Text('Add attachments'),
               onPress: () {},
             ),
             .tile(
-              prefix: const Icon(FIcons.qrCode),
+              prefix: const Icon(FLucideIcons.qrCode),
               title: const Text('Scan Document'),
               onPress: () {},
             ),
@@ -12431,12 +13245,12 @@ Widget build(BuildContext _) => FHeader(
         .group(
           children: [
             .tile(
-              prefix: const Icon(FIcons.list),
+              prefix: const Icon(FLucideIcons.list),
               title: const Text('List View'),
               onPress: () {},
             ),
             .tile(
-              prefix: const Icon(FIcons.layoutGrid),
+              prefix: const Icon(FLucideIcons.layoutGrid),
               title: const Text('Grid View'),
               onPress: () {},
             ),
@@ -12444,7 +13258,7 @@ Widget build(BuildContext _) => FHeader(
         ),
       ],
       builder: (_, controller, _) => FHeaderAction(
-        icon: const Icon(FIcons.ellipsis),
+        icon: const Icon(FLucideIcons.ellipsis),
         onPress: controller.toggle,
       ),
     ),
@@ -12508,17 +13322,17 @@ Widget build(BuildContext context) => Column(
         .group(
           children: [
             .item(
-              prefix: const Icon(FIcons.user),
+              prefix: const Icon(FLucideIcons.user),
               title: const Text('Personalization'),
               onPress: () {},
             ),
             .item(
-              prefix: const Icon(FIcons.paperclip),
+              prefix: const Icon(FLucideIcons.paperclip),
               title: const Text('Add attachments'),
               onPress: () {},
             ),
             .item(
-              prefix: const Icon(FIcons.qrCode),
+              prefix: const Icon(FLucideIcons.qrCode),
               title: const Text('Scan Document'),
               onPress: () {},
             ),
@@ -12527,12 +13341,12 @@ Widget build(BuildContext context) => Column(
         .group(
           children: [
             .item(
-              prefix: const Icon(FIcons.list),
+              prefix: const Icon(FLucideIcons.list),
               title: const Text('List View'),
               onPress: () {},
             ),
             .item(
-              prefix: const Icon(FIcons.layoutGrid),
+              prefix: const Icon(FLucideIcons.layoutGrid),
               title: const Text('Grid View'),
               onPress: () {},
             ),
@@ -12660,6 +13474,7 @@ FPopover({
   Widget? child,
   AlignmentGeometry? popoverAnchor,
   AlignmentGeometry? childAnchor,
+  Clip popoverClipBehavior = .none,
   Key? key,
 })
 
@@ -13659,6 +14474,7 @@ FToast({
   required Widget title,
   FToastVariant variant = .primary,
   FToastStyleDelta style = const .context(),
+  Clip clipBehavior = .none,
   Widget? icon,
   Widget? description,
   Widget? suffix,
@@ -13693,7 +14509,7 @@ Widget build(BuildContext context) => FButton(
   onPress: () => showFToast(
     context: context,
     variant: .destructive,
-    icon: const Icon(FIcons.circleX),
+    icon: const Icon(FLucideIcons.circleX),
     title: const Text('Something went wrong'),
     description: const Text('There was a problem with your request.'),
   ),
@@ -13713,7 +14529,7 @@ Widget build(BuildContext context) => FButton(
   onPress: () => showFToast(
     context: context,
     alignment: FToastAlignment(const Alignment(-0.5, 1), 1),
-    icon: const Icon(FIcons.info),
+    icon: const Icon(FLucideIcons.info),
     title: const Text('Event has been created'),
     description: const Text('Friday, May 23, 2025 at 9:00 AM'),
   ),
@@ -13733,7 +14549,7 @@ Widget build(BuildContext context) => FButton(
   onPress: () => showFToast(
     context: context,
     duration: null,
-    icon: const Icon(FIcons.triangleAlert),
+    icon: const Icon(FLucideIcons.triangleAlert),
     title: const Text('Event start time cannot be earlier than 8am'),
   ),
   child: const Text('Show Toast'),
@@ -13806,7 +14622,7 @@ Widget build(BuildContext context) => FTheme(
                 mainAxisSize: .min,
                 onPress: () => showFToast(
                   context: context,
-                  icon: const Icon(FIcons.info),
+                  icon: const Icon(FLucideIcons.info),
                   title: const Text('Event has been created'),
                 ),
                 child: const Text('Show Toast'),
@@ -13841,7 +14657,7 @@ Widget build(BuildContext context) => FTheme(
                 mainAxisSize: .min,
                 onPress: () => showFToast(
                   context: context,
-                  icon: const Icon(FIcons.info),
+                  icon: const Icon(FLucideIcons.info),
                   title: const Text('Event has been created'),
                 ),
                 child: const Text('Show Toast'),
@@ -13879,7 +14695,7 @@ Widget build(BuildContext _) => FTheme(
                 mainAxisSize: .min,
                 onPress: () => showFToast(
                   context: context,
-                  icon: const Icon(FIcons.info),
+                  icon: const Icon(FLucideIcons.info),
                   title: const Text('Event has been created'),
                 ),
                 child: const Text('Show Toast'),
@@ -13914,7 +14730,7 @@ Widget build(BuildContext _) => FTheme(
                 onPress: () => showFToast(
                   context: context,
                   swipeToDismiss: [.down],
-                  icon: const Icon(FIcons.info),
+                  icon: const Icon(FLucideIcons.info),
                   title: const Text('Event has been created'),
                 ),
                 child: const Text('Show Toast'),
@@ -13949,7 +14765,7 @@ Widget build(BuildContext _) => FTheme(
                 onPress: () => showFToast(
                   context: context,
                   swipeToDismiss: [],
-                  icon: const Icon(FIcons.info),
+                  icon: const Icon(FLucideIcons.info),
                   title: const Text('Event has been created'),
                 ),
                 child: const Text('Show Toast'),
@@ -14056,7 +14872,7 @@ Widget build(BuildContext context) =>
               variant: .ghost,
               size: .sm,
               onPress: () {},
-              child: const Icon(FIcons.bold),
+              child: const Icon(FLucideIcons.bold),
             ),
           ),
           FTooltip(
@@ -14065,7 +14881,7 @@ Widget build(BuildContext context) =>
               variant: .ghost,
               size: .sm,
               onPress: () {},
-              child: const Icon(FIcons.italic),
+              child: const Icon(FLucideIcons.italic),
             ),
           ),
           FTooltip(
@@ -14074,7 +14890,7 @@ Widget build(BuildContext context) =>
               variant: .ghost,
               size: .sm,
               onPress: () {},
-              child: const Icon(FIcons.underline),
+              child: const Icon(FLucideIcons.underline),
             ),
           ),
           FTooltip(
@@ -14083,7 +14899,7 @@ Widget build(BuildContext context) =>
               variant: .ghost,
               size: .sm,
               onPress: () {},
-              child: const Icon(FIcons.strikethrough),
+              child: const Icon(FLucideIcons.strikethrough),
             ),
           ),
         ],
@@ -14226,7 +15042,7 @@ Usage: forui snippet ls
 
 ### create
 
-Use the `style create` command to generate a style in your project. The styles are generated in `lib/theme` by default.
+Use the `style create` command to generate a style in your project. The styles are generated in `lib/theme/styles` by default.
 
 > **Info:** See the [docs](/docs/guides/customizing-widget-styles) on how to use the generated styles.
 
@@ -14240,7 +15056,7 @@ Usage: forui style create [styles]
 -a, --all       Create all styles.
 -f, --force     Overwrite existing files if they exist.
 -o, --output    The output directory or file, relative to the project directory.
-                (defaults to "lib/theme")
+                (defaults to "lib/theme/styles")
 ```
 
 ### ls
@@ -14260,8 +15076,8 @@ Usage: forui style ls
 
 ### create
 
-Use the `theme create` command to generate a theme in your project. The theme is generated in `lib/theme/theme.dart` by
-default.
+Use the `theme create` command to generate a theme in your project. The theme is generated across multiple files in
+`lib/theme/` by default.
 
 > **Info:** See the [docs](/docs/guides/customizing-themes) on how to use the generated theme.
 
@@ -14369,6 +15185,8 @@ High-quality Lucide icons bundled with Forui.
 
 Forui Assets is flutter library that provides a set of high-quality icons from [Lucide](https://lucide.dev/).
 
+> **Info:** To swap the bundled Lucide icons for a different icon set, see the [customizing icons](/docs/guides/customizing-icons) guide.
+
 ## Installation
 
 > **Info:** Forui Assets is bundled with forui package. You don't need to install it separately if you installed `forui`.
@@ -14393,10 +15211,14 @@ import 'package:forui_assets/forui_assets.dart';
 
 // alternatively; if you've only installed forui_assets.
 
-const dogIconWidget = Icon(FIcons.dog);
+const dogIconWidget = Icon(FLucideIcons.dog);
 
 // White cat icon with a size of 24x24.
-const catIconWidget = Icon(FIcons.cat, size: 24, color: Color(0xFFFFFFFF));
+const catIconWidget = Icon(
+  FLucideIcons.cat,
+  size: 24,
+  color: Color(0xFFFFFFFF),
+);
 
 ```
 
@@ -14445,7 +15267,7 @@ class SelectMenuTileExample extends StatelessWidget {
     const {'All': .all, 'Direct Messages': .direct, 'None': .nothing},
     selectControl: const .managed(initial: {.all}),
     validator: (value) => value == null ? 'Select an item' : null,
-    prefix: const Icon(FIcons.bell),
+    prefix: const Icon(FLucideIcons.bell),
     title: const Text('Notifications'),
     detailsBuilder: (_, values, _) => Text(switch (values.firstOrNull) {
       .all => 'All',
@@ -14479,7 +15301,7 @@ FSelectMenuTile({
   FPopoverControl popoverControl = const .managed(),
   ScrollController? scrollController,
   FSelectMenuTileStyleDelta style = const .context(),
-  double? cacheExtent,
+  ScrollCacheExtent? scrollCacheExtent,
   double maxHeight = .infinity,
   bool menuIntrinsicWidth = false,
   DragStartBehavior dragStartBehavior = .start,
@@ -14541,7 +15363,7 @@ FSelectMenuTile.builder({
   FPopoverControl popoverControl = const .managed(),
   ScrollController? scrollController,
   FSelectMenuTileStyleDelta style = const .context(),
-  double? cacheExtent,
+  ScrollCacheExtent? scrollCacheExtent,
   double maxHeight = .infinity,
   bool menuIntrinsicWidth = false,
   DragStartBehavior dragStartBehavior = .start,
@@ -14613,7 +15435,7 @@ class NoAutoHideSelectMenuTileExample extends StatelessWidget {
     selectControl: const .managed(initial: {.all}),
     autoHide: false,
     validator: (value) => value == null ? 'Select an item' : null,
-    prefix: const Icon(FIcons.bell),
+    prefix: const Icon(FLucideIcons.bell),
     title: const Text('Notifications'),
     detailsBuilder: (_, values, _) => Text(switch (values.firstOrNull) {
       .all => 'All',
@@ -14643,7 +15465,7 @@ class ScrollableSelectMenuTileExample extends StatelessWidget {
     selectControl: const .managed(initial: {.all}),
     maxHeight: 150,
     validator: (value) => value == null ? 'Select an item' : null,
-    prefix: const Icon(FIcons.bell),
+    prefix: const Icon(FLucideIcons.bell),
     title: const Text('Notifications'),
     detailsBuilder: (_, values, _) => Text(switch (values.firstOrNull) {
       .all => 'All',
@@ -14672,7 +15494,7 @@ class ScrollableSelectMenuTileExample extends StatelessWidget {
 @override
 Widget build(BuildContext _) => FSelectMenuTile.builder(
   selectControl: const .managed(initial: {1}),
-  prefix: const Icon(FIcons.variable),
+  prefix: const Icon(FLucideIcons.variable),
   title: const Text('Applicable values'),
   maxHeight: 200,
   menuBuilder: (context, index) =>
@@ -14712,7 +15534,7 @@ class _SelectMenuTileFormExampleState extends State<SelectMenuTileFormExample> {
         FSelectMenuTile<Notification>(
           selectControl: const .managed(initial: {.all}),
           validator: (value) => value == null ? 'Select an item' : null,
-          prefix: const Icon(FIcons.bell),
+          prefix: const Icon(FLucideIcons.bell),
           title: const Text('Notifications'),
           detailsBuilder: (_, values, _) => Text(switch (values.firstOrNull) {
             .all => 'All',
@@ -14762,13 +15584,17 @@ class SelectTileGroupExample extends StatelessWidget {
     children: const [
       .tile(
         title: Text('Recents'),
-        suffix: Icon(FIcons.timer),
+        suffix: Icon(FLucideIcons.timer),
         value: .recents,
       ),
-      .tile(title: Text('Home'), suffix: Icon(FIcons.house), value: .home),
+      .tile(
+        title: Text('Home'),
+        suffix: Icon(FLucideIcons.house),
+        value: .home,
+      ),
       .tile(
         title: Text('Applications'),
-        suffix: Icon(FIcons.appWindowMac),
+        suffix: Icon(FLucideIcons.appWindowMac),
         value: .applications,
       ),
     ],
@@ -14797,7 +15623,7 @@ FSelectTileGroup({
   FMultiValueControl<String>? control,
   ScrollController? scrollController,
   FTileGroupStyleDelta style = const .context(),
-  double? cacheExtent,
+  ScrollCacheExtent? scrollCacheExtent,
   double maxHeight = .infinity,
   bool? intrinsicWidth,
   DragStartBehavior dragStartBehavior = .start,
@@ -14829,7 +15655,7 @@ FSelectTileGroup.builder({
   FMultiValueControl<String>? control,
   ScrollController? scrollController,
   FTileGroupStyleDelta style = const .context(),
-  double? cacheExtent,
+  ScrollCacheExtent? scrollCacheExtent,
   double maxHeight = .infinity,
   DragStartBehavior dragStartBehavior = .start,
   ScrollPhysics physics = const ClampingScrollPhysics(),
@@ -14858,8 +15684,8 @@ FSelectTile({
   required Widget title,
   required String value,
   FItemStyleDelta style = const .context(),
-  Widget? checkedIcon = const Icon(FIcons.check),
-  Widget? uncheckedIcon = const Icon(FIcons.check, color: Colors.transparent),
+  Widget? checkedIcon,
+  Widget? uncheckedIcon,
   Widget? subtitle,
   Widget? details,
   String? semanticsLabel,
@@ -14885,8 +15711,8 @@ FSelectTile.suffix({
   required Widget title,
   required String value,
   FItemStyleDelta style = const .context(),
-  Widget? checkedIcon = const Icon(FIcons.check),
-  Widget? uncheckedIcon = const Icon(FIcons.check, color: Colors.transparent),
+  Widget? checkedIcon,
+  Widget? uncheckedIcon,
   Widget? subtitle,
   Widget? details,
   String? semanticsLabel,
@@ -14924,13 +15750,17 @@ class ScrollableSelectTileGroupExample extends StatelessWidget {
     children: const [
       .tile(
         title: Text('Recents'),
-        suffix: Icon(FIcons.timer),
+        suffix: Icon(FLucideIcons.timer),
         value: .recents,
       ),
-      .tile(title: Text('Home'), suffix: Icon(FIcons.house), value: .home),
+      .tile(
+        title: Text('Home'),
+        suffix: Icon(FLucideIcons.house),
+        value: .home,
+      ),
       .tile(
         title: Text('Applications'),
-        suffix: Icon(FIcons.appWindowMac),
+        suffix: Icon(FLucideIcons.appWindowMac),
         value: .applications,
       ),
     ],
@@ -15081,12 +15911,12 @@ class _SelectTileGroupSuffixExampleState
     label: const Text('Settings'),
     children: const [
       FSelectTile.suffix(
-        prefix: Icon(FIcons.list),
+        prefix: Icon(FLucideIcons.list),
         title: Text('List View'),
         value: 'List',
       ),
       FSelectTile.suffix(
-        prefix: Icon(FIcons.layoutGrid),
+        prefix: Icon(FLucideIcons.layoutGrid),
         title: Text('Grid View'),
         value: 'Grid',
       ),
@@ -15111,13 +15941,17 @@ class FullDividerSelectTileGroupExample extends StatelessWidget {
     children: const [
       .tile(
         title: Text('Recents'),
-        suffix: Icon(FIcons.timer),
+        suffix: Icon(FLucideIcons.timer),
         value: .recents,
       ),
-      .tile(title: Text('Home'), suffix: Icon(FIcons.house), value: .home),
+      .tile(
+        title: Text('Home'),
+        suffix: Icon(FLucideIcons.house),
+        value: .home,
+      ),
       .tile(
         title: Text('Applications'),
-        suffix: Icon(FIcons.appWindowMac),
+        suffix: Icon(FLucideIcons.appWindowMac),
         value: .applications,
       ),
     ],
@@ -15141,13 +15975,17 @@ class NoDividerSelectTileGroupExample extends StatelessWidget {
     children: const [
       .tile(
         title: Text('Recents'),
-        suffix: Icon(FIcons.timer),
+        suffix: Icon(FLucideIcons.timer),
         value: .recents,
       ),
-      .tile(title: Text('Home'), suffix: Icon(FIcons.house), value: .home),
+      .tile(
+        title: Text('Home'),
+        suffix: Icon(FLucideIcons.house),
+        value: .home,
+      ),
       .tile(
         title: Text('Applications'),
-        suffix: Icon(FIcons.appWindowMac),
+        suffix: Icon(FLucideIcons.appWindowMac),
         value: .applications,
       ),
     ],
@@ -15167,16 +16005,16 @@ Widget build(BuildContext _) => FTileGroup(
   description: const Text('Personalize your experience'),
   children: [
     .tile(
-      prefix: const Icon(FIcons.user),
+      prefix: const Icon(FLucideIcons.user),
       title: const Text('Personalization'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
     .tile(
-      prefix: const Icon(FIcons.wifi),
+      prefix: const Icon(FLucideIcons.wifi),
       title: const Text('WiFi'),
       details: const Text('Duobase (5G)'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
   ],
@@ -15221,7 +16059,7 @@ FTileGroup({
   required List<FTileMixin> children,
   FTileGroupStyleDelta style = const .context(),
   ScrollController? scrollController,
-  double? cacheExtent,
+  ScrollCacheExtent? scrollCacheExtent,
   double maxHeight = .infinity,
   DragStartBehavior dragStartBehavior = .start,
   ScrollPhysics physics = const ClampingScrollPhysics(),
@@ -15245,7 +16083,7 @@ FTileGroup.builder({
   int? count,
   FTileGroupStyleDelta style = const .context(),
   ScrollController? scrollController,
-  double? cacheExtent,
+  ScrollCacheExtent? scrollCacheExtent,
   double maxHeight = .infinity,
   DragStartBehavior dragStartBehavior = .start,
   ScrollPhysics physics = const ClampingScrollPhysics(),
@@ -15267,7 +16105,7 @@ FTileGroup.merge({
   required List<FTileGroupMixin> children,
   FTileGroupStyleDelta style = const .context(),
   ScrollController? scrollController,
-  double? cacheExtent,
+  ScrollCacheExtent? scrollCacheExtent,
   double maxHeight = .infinity,
   DragStartBehavior dragStartBehavior = .start,
   ScrollPhysics physics = const ClampingScrollPhysics(),
@@ -15297,34 +16135,34 @@ Widget build(BuildContext _) => FTileGroup(
   maxHeight: 200,
   children: [
     .tile(
-      prefix: const Icon(FIcons.user),
+      prefix: const Icon(FLucideIcons.user),
       title: const Text('Personalization'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
     .tile(
-      prefix: const Icon(FIcons.mail),
+      prefix: const Icon(FLucideIcons.mail),
       title: const Text('Mail'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
     .tile(
-      prefix: const Icon(FIcons.wifi),
+      prefix: const Icon(FLucideIcons.wifi),
       title: const Text('WiFi'),
       details: const Text('Duobase (5G)'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
     .tile(
-      prefix: const Icon(FIcons.alarmClock),
+      prefix: const Icon(FLucideIcons.alarmClock),
       title: const Text('Alarm Clock'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
     .tile(
-      prefix: const Icon(FIcons.qrCode),
+      prefix: const Icon(FLucideIcons.qrCode),
       title: const Text('QR code'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
   ],
@@ -15343,7 +16181,7 @@ Widget build(BuildContext _) => FTileGroup.builder(
   count: 200,
   tileBuilder: (context, index) => FTile(
     title: Text('Tile $index'),
-    suffix: const Icon(FIcons.chevronRight),
+    suffix: const Icon(FLucideIcons.chevronRight),
     onPress: () {},
   ),
 );
@@ -15369,16 +16207,16 @@ class _MergeTileGroupExampleState extends State<MergeTileGroupExample> {
       .group(
         children: [
           .tile(
-            prefix: const Icon(FIcons.user),
+            prefix: const Icon(FLucideIcons.user),
             title: const Text('Personalization'),
-            suffix: const Icon(FIcons.chevronRight),
+            suffix: const Icon(FLucideIcons.chevronRight),
             onPress: () {},
           ),
           .tile(
-            prefix: const Icon(FIcons.wifi),
+            prefix: const Icon(FLucideIcons.wifi),
             title: const Text('WiFi'),
             details: const Text('Duobase (5G)'),
-            suffix: const Icon(FIcons.chevronRight),
+            suffix: const Icon(FLucideIcons.chevronRight),
             onPress: () {},
           ),
         ],
@@ -15408,16 +16246,16 @@ Widget build(BuildContext _) => FTileGroup(
   divider: .full,
   children: [
     .tile(
-      prefix: const Icon(FIcons.user),
+      prefix: const Icon(FLucideIcons.user),
       title: const Text('Personalization'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
     .tile(
-      prefix: const Icon(FIcons.wifi),
+      prefix: const Icon(FLucideIcons.wifi),
       title: const Text('WiFi'),
       details: const Text('Duobase (5G)'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
   ],
@@ -15435,16 +16273,16 @@ Widget build(BuildContext _) => FTileGroup(
   divider: .none,
   children: [
     .tile(
-      prefix: const Icon(FIcons.user),
+      prefix: const Icon(FLucideIcons.user),
       title: const Text('Personalization'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
     .tile(
-      prefix: const Icon(FIcons.wifi),
+      prefix: const Icon(FLucideIcons.wifi),
       title: const Text('WiFi'),
       details: const Text('Duobase (5G)'),
-      suffix: const Icon(FIcons.chevronRight),
+      suffix: const Icon(FLucideIcons.chevronRight),
       onPress: () {},
     ),
   ],
@@ -15461,9 +16299,9 @@ A specialized Item for touch devices, typically used to group related informatio
 ```dart
 @override
 Widget build(BuildContext _) => FTile(
-  prefix: const Icon(FIcons.user),
+  prefix: const Icon(FLucideIcons.user),
   title: const Text('Personalization'),
-  suffix: const Icon(FIcons.chevronRight),
+  suffix: const Icon(FLucideIcons.chevronRight),
   onPress: () {},
 );
 
@@ -15562,9 +16400,9 @@ FTile.raw({
 @override
 Widget build(BuildContext _) => FTile(
   variant: .destructive,
-  prefix: const Icon(FIcons.trash),
+  prefix: const Icon(FLucideIcons.trash),
   title: const Text('Delete Account'),
-  suffix: const Icon(FIcons.chevronRight),
+  suffix: const Icon(FLucideIcons.chevronRight),
   onPress: () {},
 );
 
@@ -15575,9 +16413,9 @@ Widget build(BuildContext _) => FTile(
 ```dart
 @override
 Widget build(BuildContext _) => FTile(
-  prefix: const Icon(FIcons.user),
+  prefix: const Icon(FLucideIcons.user),
   title: const Text('Personalization'),
-  suffix: const Icon(FIcons.chevronRight),
+  suffix: const Icon(FLucideIcons.chevronRight),
 );
 
 ```
@@ -15587,9 +16425,9 @@ Widget build(BuildContext _) => FTile(
 ```dart
 @override
 Widget build(BuildContext _) => FTile(
-  prefix: const Icon(FIcons.user),
+  prefix: const Icon(FLucideIcons.user),
   title: const Text('Personalization'),
-  suffix: const Icon(FIcons.chevronRight),
+  suffix: const Icon(FLucideIcons.chevronRight),
   onPress: () {},
   enabled: false,
 );
@@ -15601,10 +16439,10 @@ Widget build(BuildContext _) => FTile(
 ```dart
 @override
 Widget build(BuildContext _) => FTile(
-  prefix: const Icon(FIcons.bell),
+  prefix: const Icon(FLucideIcons.bell),
   title: const Text('Notifications'),
   subtitle: const Text('Banners, Sounds, Badges'),
-  suffix: const Icon(FIcons.chevronRight),
+  suffix: const Icon(FLucideIcons.chevronRight),
   onPress: () {},
 );
 
@@ -15615,10 +16453,10 @@ Widget build(BuildContext _) => FTile(
 ```dart
 @override
 Widget build(BuildContext _) => FTile(
-  prefix: const Icon(FIcons.wifi),
+  prefix: const Icon(FLucideIcons.wifi),
   title: const Text('WiFi'),
   details: const Text('Duobase (5G)'),
-  suffix: const Icon(FIcons.chevronRight),
+  suffix: const Icon(FLucideIcons.chevronRight),
   onPress: () {},
 );
 

@@ -139,7 +139,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
               if (apps.isEmpty) {
                 return _XswdStatePanel(
                   key: const ValueKey<String>('xswd-enabled-empty'),
-                  icon: FIcons.link,
+                  icon: FLucideIcons.link,
                   title: loc.no_application_connected,
                   description: 'Use New Connection to add a trusted app.',
                 );
@@ -161,7 +161,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
           )
         : _XswdStatePanel(
             key: const ValueKey<String>('xswd-disabled'),
-            icon: FIcons.cable,
+            icon: FLucideIcons.cable,
             title: 'Connected Apps is off',
             description: 'Turn it on to approve requests from trusted apps.',
           );
@@ -441,7 +441,7 @@ class _XswdAppsListState extends ConsumerState<_XswdAppsList> {
                         ? null
                         : () => _openAppDetails(context, app),
                     prefix: Icon(
-                      FIcons.cable,
+                      FLucideIcons.cable,
                       size: 18,
                       color: context.theme.colors.primary,
                     ),
@@ -457,7 +457,7 @@ class _XswdAppsListState extends ConsumerState<_XswdAppsList> {
                       permissionText,
                       style: context.theme.typography.xs.copyWith(color: muted),
                     ),
-                    suffix: Icon(FIcons.chevronRight, color: muted),
+                    suffix: Icon(FLucideIcons.chevronRight, color: muted),
                   );
                 },
               ),
@@ -579,7 +579,7 @@ class _XswdFooter extends StatelessWidget {
             ],
             FButton(
               onPress: isConnectionReady ? onNewConnection : null,
-              prefix: const Icon(FIcons.qrCode, size: 18),
+              prefix: const Icon(FLucideIcons.qrCode, size: 18),
               child: const Text('New Connection'),
             ),
           ],

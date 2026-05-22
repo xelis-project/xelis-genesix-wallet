@@ -498,18 +498,18 @@ packages:
     dependency: "direct main"
     description:
       name: forui
-      sha256: "099deb57d345aaafd73b4ee3dc150bfe032e1d583a898461183586cbb0153778"
+      sha256: "7d9f6e7fe92d2fff0775e0158a05fd7936760f21ff1f30e7d8bca9bd10c596a7"
       url: "https://pub.dev"
     source: hosted
-    version: "0.21.3"
+    version: "0.22.0"
   forui_assets:
     dependency: transitive
     description:
       name: forui_assets
-      sha256: f83517074a11f6458986dbb5d0a0b364cebf6861a4e143acb2d51e6626ecf813
+      sha256: "5d81724c7d6b1bb538a0220fabcbeb5ceb0491ba3e80d5a19d694688e8fd1fbe"
       url: "https://pub.dev"
     source: hosted
-    version: "0.21.0"
+    version: "0.22.0"
   freezed:
     dependency: "direct dev"
     description:
@@ -902,14 +902,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.17.6"
-  nitrogen_types:
-    dependency: transitive
-    description:
-      name: nitrogen_types
-      sha256: "5d4ec453aea14e34607bc6021ff1381192e8fcd8541bf103638baa4d013e668f"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.4.0+1"
   node_preamble:
     dependency: transitive
     description:

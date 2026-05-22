@@ -377,7 +377,7 @@ class _InvokeContractEntryContentState
                         ref,
                         loc.copied,
                       ),
-                      child: const Icon(FIcons.copy, size: 16),
+                      child: const Icon(FLucideIcons.copy, size: 16),
                     ),
                   ),
                 ],

@@ -17,6 +17,7 @@
 - [Adding Theme Properties](https://forui.dev/docs/guides/adding-theme-properties.md): Extend Forui themes with application-specific properties using Flutter's ThemeExtension system.
 - [Customizing Themes](https://forui.dev/docs/guides/customizing-themes.md): Generate and customize themes and widget styles using the CLI.
 - [Customizing Widget Styles](https://forui.dev/docs/guides/customizing-widget-styles.md): Customize individual widget styles using deltas and the CLI.
+- [Customizing Icons](https://forui.dev/docs/guides/customizing-icons.md): Swap the icons used by Forui widgets with your own icons.
 - [Creating Custom Deltas](https://forui.dev/docs/guides/creating-custom-deltas.md): Create custom delta classes for transformations not provided out of the box.
 - [Creating Custom Controllers](https://forui.dev/docs/guides/creating-custom-controllers.md): Extend Forui controllers with custom logic and pass them to widgets.
 - [Using Forui À La Shadcn/ui](https://forui.dev/docs/guides/using-forui-a-la-shadcn-ui.md): Take full ownership of Forui's behavior and layout by editing widget source directly.

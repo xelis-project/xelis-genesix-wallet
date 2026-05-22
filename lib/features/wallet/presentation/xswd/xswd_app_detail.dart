@@ -157,7 +157,7 @@ class _XswdAppNotFound extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(FIcons.triangleAlert, size: 28, color: muted),
+              Icon(FLucideIcons.triangleAlert, size: 28, color: muted),
               const SizedBox(height: Spaces.small),
               Text(
                 loc.no_application_found,
@@ -268,7 +268,7 @@ class _XswdAppInfoCard extends StatelessWidget {
             const SizedBox(height: Spaces.small),
             Row(
               children: [
-                Icon(FIcons.link, size: 16, color: muted),
+                Icon(FLucideIcons.link, size: 16, color: muted),
                 const SizedBox(width: Spaces.extraSmall),
                 Expanded(
                   child: GestureDetector(
@@ -575,7 +575,7 @@ class _DisconnectDialog extends StatelessWidget {
             //     mainAxisSize: MainAxisSize.min,
             //     children: [
             //       Icon(
-            //         FIcons.triangleAlert,
+            //         FLucideIcons.triangleAlert,
             //         size: 20,
             //         color: context.theme.colors.mutedForeground,
             //       ),

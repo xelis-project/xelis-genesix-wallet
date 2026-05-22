@@ -88,10 +88,10 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
                 label: Text(loc.general),
                 children: [
                   FTile(
-                    prefix: Icon(FIcons.languages),
+                    prefix: Icon(FLucideIcons.languages),
                     title: Text(loc.language),
                     subtitle: Text(translateLocaleName(locale)),
-                    suffix: Icon(FIcons.chevronRight),
+                    suffix: Icon(FLucideIcons.chevronRight),
                     onPress: () {
                       showAppDialog<void>(
                         context: context,
@@ -103,7 +103,7 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
                   ),
                   if (authState.isAuth)
                     FTile(
-                      prefix: Icon(FIcons.fingerprintPattern),
+                      prefix: Icon(FLucideIcons.fingerprintPattern),
                       title: Text(loc.biometric_auth),
                       subtitle: Text(loc.enable_biometric_auth),
                       suffix: FSwitch(
@@ -124,16 +124,16 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
                   label: Text(loc.wallet),
                   children: [
                     FTile(
-                      prefix: Icon(FIcons.dollarSign),
+                      prefix: Icon(FLucideIcons.dollarSign),
                       title: Text(loc.conversion_rate),
                       subtitle: Text(_currencySubtitle(ref)),
-                      suffix: Icon(FIcons.chevronRight),
+                      suffix: Icon(FLucideIcons.chevronRight),
                       onPress: () {
                         _showCurrencySelector(context, ref);
                       },
                     ),
                     FTile(
-                      prefix: Icon(FIcons.flame),
+                      prefix: Icon(FLucideIcons.flame),
                       title: Text(loc.burn),
                       subtitle: Text(loc.unlock_burn_transfer),
                       suffix: FSwitch(

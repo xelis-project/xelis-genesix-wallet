@@ -1,17 +1,17 @@
 {
   "source": "https://forui.dev/docs/reference/llms",
-  "retrievedAt": "2026-05-19T16:10:27.206126Z",
-  "foruiVersion": "0.21.3",
+  "retrievedAt": "2026-05-22T13:33:52.398727Z",
+  "foruiVersion": "0.22.0",
   "documents": {
     "llms.txt": {
       "url": "https://forui.dev/docs/llms.txt",
-      "sha256": "0dfa394363b082a2394ebbe6383d6796cdbe59e55e093e9d285ef1d8d3228908",
-      "bytes": 11343
+      "sha256": "e373692e9ad67cf61e2de9f3d5bb5a43c6a3e7d04fa46e09b7f8b68f485091c6",
+      "bytes": 11476
     },
     "llms-full.txt": {
       "url": "https://forui.dev/docs/llms-full.txt",
-      "sha256": "d50d2d4f45538f606070e45e02c5d60fa50c2afd679a1bae02fbb5085c53ff58",
-      "bytes": 394077
+      "sha256": "0b5cc6d3a7e026cad28a52a1922491262a20085201e1748ad26ff9bd7a32be28",
+      "bytes": 423411
     }
   }
 }

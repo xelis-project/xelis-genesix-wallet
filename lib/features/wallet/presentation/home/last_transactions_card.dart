@@ -107,7 +107,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
                         color: context.theme.colors.mutedForeground,
                       ),
                     ),
-                    suffix: Icon(FIcons.chevronRight),
+                    suffix: Icon(FLucideIcons.chevronRight),
                     onPress: () => _showTransactionEntry(tx),
                   ),
                 );
@@ -117,7 +117,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
             FButton(
               variant: .ghost,
               onPress: () => context.go(AuthAppScreen.history.toPath),
-              suffix: Icon(FIcons.arrowRight),
+              suffix: Icon(FLucideIcons.arrowRight),
               child: Text(loc.view_all),
             ),
           ],
@@ -139,7 +139,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
             ),
             FButton.icon(
               onPress: () => ref.invalidate(lastTransactionsProvider),
-              child: const Icon(FIcons.refreshCcw),
+              child: const Icon(FLucideIcons.refreshCcw),
             ),
           ],
         ),
@@ -163,7 +163,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
               FTooltip(
                 tipBuilder: (context, controller) => Text('refresh'),
                 child: FButton.icon(
-                  child: const Icon(FIcons.refreshCcw),
+                  child: const Icon(FLucideIcons.refreshCcw),
                   onPress: () => ref.invalidate(lastTransactionsProvider),
                 ),
               ),

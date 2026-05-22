@@ -67,7 +67,7 @@ class _SideBarState extends ConsumerState<SideBar> {
           children: [
             FSidebarItem(
               selected: _selectedItem == AuthAppScreen.home.toPath,
-              icon: const Icon(FIcons.house),
+              icon: const Icon(FLucideIcons.house),
               label: Text(loc.home),
               onPress: () {
                 _closeSideBar();
@@ -78,7 +78,7 @@ class _SideBarState extends ConsumerState<SideBar> {
               },
             ),
             FSidebarItem(
-              icon: const Icon(FIcons.wallet),
+              icon: const Icon(FLucideIcons.wallet),
               label: Text(loc.wallet),
               initiallyExpanded: false,
               children: [
@@ -151,7 +151,7 @@ class _SideBarState extends ConsumerState<SideBar> {
             FSidebarItem(
               selected: _selectedItem == AuthAppScreen.network.toPath,
               label: Text(loc.network),
-              icon: const Icon(FIcons.waypoints),
+              icon: const Icon(FLucideIcons.waypoints),
               onPress: () {
                 _closeSideBar();
                 context.go(AuthAppScreen.network.toPath);
@@ -163,7 +163,7 @@ class _SideBarState extends ConsumerState<SideBar> {
             FSidebarItem(
               selected: _selectedItem == AuthAppScreen.addressBook.toPath,
               label: Text(loc.address_book.capitalizeAll()),
-              icon: const Icon(FIcons.bookUser),
+              icon: const Icon(FLucideIcons.bookUser),
               onPress: () {
                 _closeSideBar();
                 context.go(AuthAppScreen.addressBook.toPath);
@@ -175,7 +175,7 @@ class _SideBarState extends ConsumerState<SideBar> {
             FSidebarItem(
               selected: _selectedItem == AuthAppScreen.history.toPath,
               label: Text(loc.history),
-              icon: const Icon(FIcons.history),
+              icon: const Icon(FLucideIcons.history),
               onPress: () {
                 _closeSideBar();
                 context.go(AuthAppScreen.history.toPath);
@@ -187,7 +187,7 @@ class _SideBarState extends ConsumerState<SideBar> {
             FSidebarItem(
               selected: _selectedItem == AuthAppScreen.assets.toPath,
               label: Text(loc.assets),
-              icon: const Icon(FIcons.landmark),
+              icon: const Icon(FLucideIcons.landmark),
               onPress: () {
                 _closeSideBar();
                 context.go(AuthAppScreen.assets.toPath);
@@ -197,7 +197,7 @@ class _SideBarState extends ConsumerState<SideBar> {
               },
             ),
             FSidebarItem(
-              icon: Icon(FIcons.cable),
+              icon: Icon(FLucideIcons.cable),
               selected: _selectedItem == AuthAppScreen.xswd.toPath,
               label: Text("Connected Apps"),
               onPress: () {
@@ -215,7 +215,7 @@ class _SideBarState extends ConsumerState<SideBar> {
           children: [
             FSidebarItem(
               selected: _selectedItem == AuthAppScreen.recoveryPhrase.toPath,
-              icon: const Icon(FIcons.key),
+              icon: const Icon(FLucideIcons.key),
               label: Text(loc.recovery_phrase),
               onPress: () {
                 // If the user is already on the recovery phrase screen, just close the sidebar
@@ -240,7 +240,7 @@ class _SideBarState extends ConsumerState<SideBar> {
             ),
             FSidebarItem(
               selected: _selectedItem == AuthAppScreen.settings.toPath,
-              icon: const Icon(FIcons.settings),
+              icon: const Icon(FLucideIcons.settings),
               label: Text(loc.settings),
               onPress: () {
                 _closeSideBar();
@@ -251,7 +251,7 @@ class _SideBarState extends ConsumerState<SideBar> {
               },
             ),
             FSidebarItem(
-              icon: const Icon(FIcons.logOut),
+              icon: const Icon(FLucideIcons.logOut),
               label: Text(loc.logout),
               onPress: () {
                 ref.read(walletSessionCommandsProvider.notifier).logout();

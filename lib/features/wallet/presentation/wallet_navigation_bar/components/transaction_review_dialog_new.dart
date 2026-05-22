@@ -98,7 +98,7 @@ class _TransactionReviewDialogNewState
                   FButton.icon(
                     variant: .ghost,
                     onPress: () => context.pop(),
-                    child: const Icon(FIcons.x, size: 22),
+                    child: const Icon(FLucideIcons.x, size: 22),
                   ),
               ],
             ),
@@ -297,7 +297,7 @@ class _TransactionReviewDialogNewState
       return FButton(
         key: const ValueKey('next'),
         onPress: _processSignatures,
-        prefix: const Icon(FIcons.arrowRight, size: 18),
+        prefix: const Icon(FLucideIcons.arrowRight, size: 18),
         child: Text(loc.next),
       );
     }
@@ -323,7 +323,7 @@ class _TransactionReviewDialogNewState
               reason: loc.please_authenticate_tx,
             )
           : null,
-      prefix: const Icon(FIcons.send, size: 18),
+      prefix: const Icon(FLucideIcons.send, size: 18),
       child: Text(loc.broadcast),
     );
   }

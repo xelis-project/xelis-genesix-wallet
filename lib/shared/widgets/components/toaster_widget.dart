@@ -93,7 +93,7 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
           ? (context, entry) => FButton.icon(
               variant: .ghost,
               onPress: entry.dismiss,
-              child: const Icon(FIcons.x, size: 16),
+              child: const Icon(FLucideIcons.x, size: 16),
             )
           : null,
     );
@@ -217,31 +217,31 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
     switch (toast) {
       case InformationToastContent():
         return _ToastVisualSpec(
-          icon: FIcons.info,
+          icon: FLucideIcons.info,
           accent: colors.primary,
           titleColor: _tintedTitleColor(colors.foreground, colors.primary),
         );
       case WarningToastContent():
         return _ToastVisualSpec(
-          icon: FIcons.triangleAlert,
+          icon: FLucideIcons.triangleAlert,
           accent: colors.warningColor,
           titleColor: _tintedTitleColor(colors.foreground, colors.warningColor),
         );
       case ErrorToastContent():
         return _ToastVisualSpec(
-          icon: FIcons.circleAlert,
+          icon: FLucideIcons.circleAlert,
           accent: colors.destructive,
           titleColor: _tintedTitleColor(colors.foreground, colors.destructive),
         );
       case EventToastContent():
         return _ToastVisualSpec(
-          icon: FIcons.sparkles,
+          icon: FLucideIcons.sparkles,
           accent: colors.primary,
           titleColor: colors.foreground,
         );
       case XswdToastContent():
         return _ToastVisualSpec(
-          icon: FIcons.badgeCheck,
+          icon: FLucideIcons.badgeCheck,
           accent: colors.primary,
           titleColor: colors.foreground,
         );
@@ -490,7 +490,7 @@ class _XswdToastCard extends StatelessWidget {
                 variant: .ghost,
                 size: .sm,
                 onPress: onDismiss,
-                child: const Icon(FIcons.x, size: 16),
+                child: const Icon(FLucideIcons.x, size: 16),
               ),
             ],
           ],

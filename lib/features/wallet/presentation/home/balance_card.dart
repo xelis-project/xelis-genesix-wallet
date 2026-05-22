@@ -67,8 +67,8 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                       .read(settingsProvider.notifier)
                       .setHideBalance(!settings.hideBalance),
                   child: settings.hideBalance
-                      ? const Icon(FIcons.eye)
-                      : const Icon(FIcons.eyeOff),
+                      ? const Icon(FLucideIcons.eye)
+                      : const Icon(FLucideIcons.eyeOff),
                 ),
               ],
             ),
@@ -108,14 +108,14 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
               children: [
                 FButton(
                   variant: .outline,
-                  prefix: Icon(FIcons.arrowUpRight),
+                  prefix: Icon(FLucideIcons.arrowUpRight),
                   onPress: () => context.push(AuthAppScreen.transfer.toPath),
                   child: Text(loc.send),
                 ),
                 const SizedBox(width: Spaces.small),
                 FButton(
                   variant: .outline,
-                  prefix: Icon(FIcons.arrowDownLeft),
+                  prefix: Icon(FLucideIcons.arrowDownLeft),
                   onPress: _showReceiveDialog,
                   child: Text(loc.receive),
                 ),

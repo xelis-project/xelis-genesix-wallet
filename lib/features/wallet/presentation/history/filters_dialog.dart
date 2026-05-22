@@ -256,7 +256,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                                       horizontal: 8,
                                     ),
                                     child: Icon(
-                                      FIcons.x,
+                                      FLucideIcons.x,
                                       size: 14,
                                       color:
                                           context.theme.colors.mutedForeground,
@@ -308,7 +308,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                                       horizontal: 8,
                                     ),
                                     child: Icon(
-                                      FIcons.x,
+                                      FLucideIcons.x,
                                       size: 14,
                                       color:
                                           context.theme.colors.mutedForeground,

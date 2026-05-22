@@ -122,7 +122,7 @@ class _TransactionGroupedWidgetState
                         ),
                       )
                     : null,
-                suffix: Icon(FIcons.chevronRight),
+                suffix: Icon(FLucideIcons.chevronRight),
                 onPress: () => _showTransactionEntry(tx),
               ),
             );

@@ -108,14 +108,14 @@ class _NodeCardState extends ConsumerState<NodeCard> {
                       tipBuilder: (context, controller) => Text(loc.add_node),
                       child: FButton.icon(
                         onPress: () => showAddNodeSheet(context),
-                        child: Icon(FIcons.plus),
+                        child: Icon(FLucideIcons.plus),
                       ),
                     ),
                     FTooltip(
                       tipBuilder: (context, controller) => Text(loc.edit_node),
                       child: FButton.icon(
                         onPress: () => showEditNodeSheet(context, nodeAddress),
-                        child: Icon(FIcons.pencil),
+                        child: Icon(FLucideIcons.pencil),
                       ),
                     ),
                     FTooltip(
@@ -129,7 +129,7 @@ class _NodeCardState extends ConsumerState<NodeCard> {
                                     .reconnect(nodeAddress),
                               )
                             : null,
-                        child: Icon(FIcons.play),
+                        child: Icon(FLucideIcons.play),
                       ),
                     ),
                   ],

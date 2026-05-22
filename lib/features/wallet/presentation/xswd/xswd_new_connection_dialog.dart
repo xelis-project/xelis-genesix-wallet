@@ -55,7 +55,7 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                       child: FButton.icon(
                         variant: .ghost,
                         onPress: () => context.pop(),
-                        child: const Icon(FIcons.x, size: 22),
+                        child: const Icon(FLucideIcons.x, size: 22),
                       ),
                     ),
                   ],
@@ -67,7 +67,7 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                   compact: true,
                   title: loc.scan_qr_code,
                   description: loc.point_camera_at_qr,
-                  icon: FIcons.qrCode,
+                  icon: FLucideIcons.qrCode,
                   onPressed: () async {
                     final navigator = Navigator.of(
                       context,
@@ -86,7 +86,7 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                   compact: true,
                   title: 'Paste JSON',
                   description: 'Paste dApp connection data',
-                  icon: FIcons.clipboard,
+                  icon: FLucideIcons.clipboard,
                   onPressed: () {
                     final navigator = Navigator.of(
                       context,
@@ -112,7 +112,7 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                         child: _ConnectionMethodButton(
                           title: loc.scan_qr_code,
                           description: loc.point_camera_at_qr,
-                          icon: FIcons.qrCode,
+                          icon: FLucideIcons.qrCode,
                           onPressed: () async {
                             final navigator = Navigator.of(
                               context,
@@ -136,7 +136,7 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                         child: _ConnectionMethodButton(
                           title: 'Paste JSON',
                           description: 'Paste dApp connection data',
-                          icon: FIcons.clipboard,
+                          icon: FLucideIcons.clipboard,
                           onPressed: () {
                             final navigator = Navigator.of(
                               context,

@@ -176,7 +176,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
                             ref,
                             loc.copied,
                           ),
-                          child: const Icon(FIcons.copy, size: 18),
+                          child: const Icon(FLucideIcons.copy, size: 18),
                         ),
                       ),
                     ],
@@ -298,7 +298,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: FButton(
                   variant: .destructive,
-                  prefix: const Icon(FIcons.trash),
+                  prefix: const Icon(FLucideIcons.trash),
                   onPress: () {},
                   child: Text(loc.delete_wallet.capitalizeAll()),
                 ),
@@ -379,7 +379,7 @@ class _EmptyMultisigCallToAction extends StatelessWidget {
         ),
       ),
       child: Icon(
-        FIcons.shieldCheck,
+        FLucideIcons.shieldCheck,
         size: useHorizontalLayout ? 68 : 52,
         color: colors.primary,
       ),
@@ -436,9 +436,9 @@ class _EmptyMultisigCallToAction extends StatelessWidget {
               ? WrapAlignment.start
               : WrapAlignment.center,
           children: [
-            featurePill(FIcons.users, 'Shared custodians'),
-            featurePill(FIcons.lock, 'Approval workflow'),
-            featurePill(FIcons.history, 'Audit trail'),
+            featurePill(FLucideIcons.users, 'Shared custodians'),
+            featurePill(FLucideIcons.lock, 'Approval workflow'),
+            featurePill(FLucideIcons.history, 'Audit trail'),
           ],
         ),
         Align(

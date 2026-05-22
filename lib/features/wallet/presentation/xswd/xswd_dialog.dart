@@ -371,7 +371,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
 
                               context.pop();
                             },
-                            child: const Icon(FIcons.x, size: 22),
+                            child: const Icon(FLucideIcons.x, size: 22),
                           ),
                         ),
                       ],
@@ -449,7 +449,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
         direction: Axis.horizontal,
         title: Row(
           children: [
-            const Icon(FIcons.coins),
+            const Icon(FLucideIcons.coins),
             const SizedBox(width: Spaces.small),
             Expanded(child: Text(loc.details.capitalize())),
           ],
@@ -1093,7 +1093,7 @@ class _AssetPermissionBadge extends StatelessWidget {
       onTap: onTap,
       child: _XswdIconBadge(
         variant: .outline,
-        icon: FIcons.coins,
+        icon: FLucideIcons.coins,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -1114,7 +1114,7 @@ class _AssetPermissionBadge extends StatelessWidget {
             if (asset.length > 16) ...[
               const SizedBox(width: Spaces.extraSmall),
               Icon(
-                FIcons.circleQuestionMark,
+                FLucideIcons.circleQuestionMark,
                 size: 14,
                 color: context.theme.colors.mutedForeground,
               ),

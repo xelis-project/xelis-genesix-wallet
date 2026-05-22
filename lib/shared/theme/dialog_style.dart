@@ -6,6 +6,7 @@ FDialogStyle dialogStyle({
   required FStyle style,
   required FColors colors,
   required FTypography typography,
+  required FHapticFeedback hapticFeedback,
   BuildContext? context,
 }) {
   final title = typography.lg.copyWith(
@@ -72,7 +73,7 @@ FDialogStyle dialogStyle({
         },
       ),
     ),
-    slidePressHapticFeedback: style.hapticFeedback.selectionClick,
+    slidePressHapticFeedback: hapticFeedback.selectionClick,
     motion: FDialogMotion(
       fadeInCurve: Curves.easeOutCubic,
       fadeOutCurve: Curves.easeInCubic,
@@ -103,6 +104,7 @@ Future<T?> showAppDialog<T>({
         style: theme.style,
         colors: theme.colors,
         typography: theme.typography,
+        hapticFeedback: theme.hapticFeedback,
         context: ctx,
       ),
       animation,

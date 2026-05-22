@@ -73,7 +73,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
           Padding(
             padding: const EdgeInsets.all(Spaces.small),
             child: FHeaderAction(
-              icon: Icon(FIcons.settings),
+              icon: Icon(FLucideIcons.settings),
               onPress: () => context.push(AppScreen.lightSettings.toPath),
             ),
           ),
@@ -294,7 +294,7 @@ class _NoWalletsContent extends StatelessWidget {
         spacing: Spaces.small,
         children: [
           Icon(
-            FIcons.wallet,
+            FLucideIcons.wallet,
             size: 28,
             color: context.theme.colors.mutedForeground,
           ),

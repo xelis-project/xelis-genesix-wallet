@@ -126,13 +126,13 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
                               ? _EmptyStateCard(
                                   key: const ValueKey('empty-search'),
                                   title: loc.no_contact_found,
-                                  icon: FIcons.search,
+                                  icon: FLucideIcons.search,
                                 )
                               : _EmptyStateCard(
                                   key: const ValueKey('empty-all'),
                                   title: loc.address_book,
                                   message: loc.address_book_empty,
-                                  icon: FIcons.users,
+                                  icon: FLucideIcons.users,
                                   actionLabel: loc.add_contact,
                                   onAction: _onAddContact,
                                 ),
@@ -395,7 +395,7 @@ class _EmptyStateCard extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       spacing: Spaces.small,
                       children: [
-                        const Icon(FIcons.plus, size: 16),
+                        const Icon(FLucideIcons.plus, size: 16),
                         Text(actionLabel!),
                       ],
                     ),
@@ -438,7 +438,7 @@ class _ContactActions extends StatelessWidget {
           child: FButton.icon(
             onPress: onSend,
             child: Icon(
-              FIcons.send,
+              FLucideIcons.send,
               color: context.theme.colors.primary,
               size: 18,
             ),
@@ -448,7 +448,7 @@ class _ContactActions extends StatelessWidget {
           tipBuilder: (_, _) => Text(localizations.edit_contact),
           child: FButton.icon(
             onPress: onEdit,
-            child: const Icon(FIcons.pencil, size: 18),
+            child: const Icon(FLucideIcons.pencil, size: 18),
           ),
         ),
         FTooltip(
@@ -457,7 +457,7 @@ class _ContactActions extends StatelessWidget {
           child: FButton.icon(
             onPress: onDelete,
             child: Icon(
-              FIcons.trash,
+              FLucideIcons.trash,
               color: context.theme.colors.destructive,
               size: 18,
             ),

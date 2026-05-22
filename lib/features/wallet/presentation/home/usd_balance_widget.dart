@@ -88,7 +88,9 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
             child: Row(
               children: [
                 Icon(
-                  isPositiveChange ? FIcons.chevronUp : FIcons.chevronDown,
+                  isPositiveChange
+                      ? FLucideIcons.chevronUp
+                      : FLucideIcons.chevronDown,
                   color: isPositiveChange
                       ? context.theme.colors.upColor
                       : context.theme.colors.downColor,

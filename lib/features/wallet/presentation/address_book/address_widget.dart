@@ -71,7 +71,7 @@ class _AddressWidgetState extends ConsumerState<AddressWidget> {
                       },
                       child: FButton.icon(
                         onPress: _onAddAddress,
-                        child: const Icon(FIcons.plus, size: 18),
+                        child: const Icon(FLucideIcons.plus, size: 18),
                       ),
                     ),
                 ],

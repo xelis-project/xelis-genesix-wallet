@@ -41,7 +41,7 @@ class ExtraDataIndicator extends StatelessWidget {
           FButton.icon(
             variant: .outline,
             onPress: onOpen,
-            child: const Icon(FIcons.fileText, size: 18),
+            child: const Icon(FLucideIcons.fileText, size: 18),
           ),
           Positioned(
             right: 3,

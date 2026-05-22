@@ -62,7 +62,7 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          FIcons.triangleAlert,
+                          FLucideIcons.triangleAlert,
                           color: context.theme.colors.primary,
                           size: 30,
                         ),
@@ -131,7 +131,7 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
                         ref,
                         loc.copied,
                       ),
-                      child: const Icon(FIcons.copy, size: 24),
+                      child: const Icon(FLucideIcons.copy, size: 24),
                     ),
                   ),
                 ],

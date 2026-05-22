@@ -125,7 +125,7 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
                     onPress: () {
                       _onSave(_nameController.text.trim());
                     },
-                    child: const Icon(FIcons.check),
+                    child: const Icon(FLucideIcons.check),
                   ),
                 )
               : FTooltip(
@@ -133,7 +133,7 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
                       Text(loc.edit_wallet_name),
                   child: FButton.icon(
                     onPress: _onEdit,
-                    child: const Icon(FIcons.pencil),
+                    child: const Icon(FLucideIcons.pencil),
                   ),
                 ),
         ),

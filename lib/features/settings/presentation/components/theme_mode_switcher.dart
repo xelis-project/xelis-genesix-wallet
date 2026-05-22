@@ -26,7 +26,7 @@ class ThemeModeSwitcher extends ConsumerWidget {
           icon: AnimatedSwitcher(
             duration: Duration(milliseconds: AppDurations.animFast),
             key: ValueKey(isDarkMode),
-            child: Icon(isDarkMode ? FIcons.sun : FIcons.moon),
+            child: Icon(isDarkMode ? FLucideIcons.sun : FLucideIcons.moon),
           ),
           onPress: () {
             ref.read(settingsProvider.notifier).setTheme(futureAppTheme);

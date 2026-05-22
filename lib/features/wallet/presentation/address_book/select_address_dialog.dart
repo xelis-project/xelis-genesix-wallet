@@ -52,7 +52,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
               ),
               FButton.icon(
                 onPress: () => context.pop(),
-                child: const Icon(FIcons.x, size: 20),
+                child: const Icon(FLucideIcons.x, size: 20),
               ),
             ],
           ),

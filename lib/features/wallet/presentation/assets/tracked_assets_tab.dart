@@ -73,7 +73,7 @@ class _TrackedAssetsTabState extends ConsumerState<TrackedAssetsTab> {
                 isXelis: isXelis(hash),
               ),
               details: Text('$balance ${asset.ticker}'),
-              suffix: Icon(FIcons.chevronRight),
+              suffix: Icon(FLucideIcons.chevronRight),
               onPress: () => _showDetails(hash, asset, balance),
             );
           },

@@ -93,7 +93,7 @@ class _BaseTransactionEntryCardState
                       },
                       child: FButton.icon(
                         onPress: () => _launchUrl(widget.url),
-                        child: const Icon(FIcons.externalLink),
+                        child: const Icon(FLucideIcons.externalLink),
                       ),
                     ),
                   ],
@@ -140,7 +140,7 @@ class _BaseTransactionEntryCardState
                             ref,
                             loc.copied,
                           ),
-                          child: const Icon(FIcons.copy, size: 16),
+                          child: const Icon(FLucideIcons.copy, size: 16),
                         ),
                       ),
                     ],

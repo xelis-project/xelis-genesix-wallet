@@ -63,7 +63,7 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
                   height: 200,
                   child: Container(
                     color: Colors.transparent,
-                    child: Icon(FIcons.download, size: 30),
+                    child: Icon(FLucideIcons.download, size: 30),
                   ),
                 ),
               ),
@@ -88,7 +88,7 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
                       const SizedBox(height: Spaces.large),
                       Row(
                         children: [
-                          Icon(FIcons.folder),
+                          Icon(FLucideIcons.folder),
                           const SizedBox(width: Spaces.small),
                           Expanded(
                             child: Text(' ${_selectedWalletFolder!.path}'),

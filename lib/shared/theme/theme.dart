@@ -19,7 +19,7 @@ import 'package:genesix/shared/theme/toaster_style.dart';
 ///
 /// See https://forui.dev/docs/themes#customize-themes for more information.
 FThemeData greenLight({required bool touch}) {
-  const colors = FColors(
+  final colors = FColors(
     brightness: Brightness.light,
     systemOverlayStyle: SystemUiOverlayStyle.dark,
     barrier: Color(0x33000000),
@@ -41,16 +41,19 @@ FThemeData greenLight({required bool touch}) {
 
   final typography = _typography(colors: colors);
   final style = _style(colors: colors, typography: typography, touch: touch);
+  const hapticFeedback = FHapticFeedback();
 
   return FThemeData(
     colors: colors,
     touch: touch,
     typography: typography,
     style: style,
+    hapticFeedback: hapticFeedback,
     dialogStyle: dialogStyle(
       style: style,
       colors: colors,
       typography: typography,
+      hapticFeedback: hapticFeedback,
     ),
     toasterStyle: toasterStyle(
       colors: colors,
@@ -66,7 +69,7 @@ FThemeData greenLight({required bool touch}) {
 }
 
 FThemeData greenDark({required bool touch}) {
-  const colors = FColors(
+  final colors = FColors(
     brightness: Brightness.dark,
     systemOverlayStyle: SystemUiOverlayStyle.light,
     barrier: Color(0x7A000000),
@@ -90,16 +93,19 @@ FThemeData greenDark({required bool touch}) {
 
   final typography = _typography(colors: colors);
   final style = _style(colors: colors, typography: typography, touch: touch);
+  const hapticFeedback = FHapticFeedback();
 
   return FThemeData(
     colors: colors,
     touch: touch,
     typography: typography,
     style: style,
+    hapticFeedback: hapticFeedback,
     dialogStyle: dialogStyle(
       style: style,
       colors: colors,
       typography: typography,
+      hapticFeedback: hapticFeedback,
     ),
     toasterStyle: toasterStyle(
       colors: colors,

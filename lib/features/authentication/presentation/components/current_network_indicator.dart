@@ -34,7 +34,7 @@ class CurrentNetworkIndicator extends ConsumerWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(FIcons.waypoints, color: colors.primary, size: 16),
+              Icon(FLucideIcons.waypoints, color: colors.primary, size: 16),
               const SizedBox(width: Spaces.extraSmall),
               Text(
                 '${loc.network}: ',

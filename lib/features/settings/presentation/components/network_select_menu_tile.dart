@@ -48,7 +48,7 @@ class _NetworkSelectMenuTileState extends ConsumerState<NetworkSelectMenuTile> {
     }
 
     return FSelectMenuTile(
-      prefix: Icon(FIcons.waypoints),
+      prefix: Icon(FLucideIcons.waypoints),
       title: Text(loc.network),
       selectControl: .managedRadio(
         controller: _controller,

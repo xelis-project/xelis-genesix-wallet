@@ -52,7 +52,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
                 child: FButton.icon(
                   onPress: () =>
                       copyToClipboard(walletAddress, ref, loc.copied),
-                  child: const Icon(FIcons.copy),
+                  child: const Icon(FLucideIcons.copy),
                 ),
               ),
             ],
@@ -60,14 +60,14 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
           const SizedBox(height: Spaces.extraLarge),
           FButton(
             variant: .secondary,
-            prefix: Icon(FIcons.keyRound),
+            prefix: Icon(FLucideIcons.keyRound),
             onPress: _showChangePasswordDialog,
             child: Text(loc.change_password),
           ),
           const SizedBox(height: Spaces.small),
           FButton(
             variant: .destructive,
-            prefix: Icon(FIcons.trash),
+            prefix: Icon(FLucideIcons.trash),
             onPress: _showDeleteWalletDialog,
             child: Text(loc.delete_wallet.capitalizeAll()),
           ),

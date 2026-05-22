@@ -49,7 +49,7 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
           Padding(
             padding: const EdgeInsets.all(Spaces.small),
             child: FHeaderAction(
-              icon: Icon(FIcons.settings),
+              icon: Icon(FLucideIcons.settings),
               onPress: () => context.push(AppScreen.lightSettings.toPath),
             ),
           ),

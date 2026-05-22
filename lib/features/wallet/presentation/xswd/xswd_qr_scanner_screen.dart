@@ -240,7 +240,9 @@ class _TorchAction extends StatelessWidget {
           tipBuilder: (context, controller) =>
               Text(torchOn ? 'Turn flashlight off' : 'Turn flashlight on'),
           child: FHeaderAction(
-            icon: Icon(torchOn ? FIcons.flashlightOff : FIcons.flashlight),
+            icon: Icon(
+              torchOn ? FLucideIcons.flashlightOff : FLucideIcons.flashlight,
+            ),
             onPress: disabled ? null : onToggle,
           ),
         );
@@ -367,7 +369,7 @@ class _ScannerErrorView extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(FIcons.triangleAlert, size: 22, color: muted),
+                Icon(FLucideIcons.triangleAlert, size: 22, color: muted),
                 const SizedBox(height: Spaces.small),
                 Text(
                   message,

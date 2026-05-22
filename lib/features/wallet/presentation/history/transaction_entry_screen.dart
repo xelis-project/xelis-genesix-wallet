@@ -161,7 +161,7 @@ class _TransactionEntryScreenState extends ConsumerState<TransactionEntryScreen>
           Padding(
             padding: const EdgeInsets.all(Spaces.small),
             child: FHeaderAction(
-              icon: const Icon(FIcons.arrowLeft),
+              icon: const Icon(FLucideIcons.arrowLeft),
               onPress: () => context.pop(),
             ),
           ),
