@@ -41,7 +41,7 @@ class GenericAppBar extends StatelessWidget implements PreferredSizeWidget {
                   )
                 : null,
             actions: [
-              if (actions != null) ...actions!,
+              ...?actions,
               Padding(
                 padding: const EdgeInsets.only(right: Spaces.small),
                 child: Center(
