@@ -24,7 +24,7 @@ import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
-import 'package:genesix/features/authentication/presentation/components/network_select_menu_tile.dart';
+import 'package:genesix/features/authentication/presentation/components/current_network_indicator.dart';
 
 class OpenWalletScreen extends ConsumerStatefulWidget {
   const OpenWalletScreen({super.key});
@@ -51,6 +51,15 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
     final network = ref.watch(
       settingsProvider.select((state) => state.network),
     );
+    ref.listen(settingsProvider.select((state) => state.network), (
+      previous,
+      next,
+    ) {
+      if (previous != next) {
+        _selectController.value = null;
+        _formKey.currentState?.reset();
+      }
+    });
     final wallets = ref.watch(walletsProvider.future);
     final appTheme = ref.watch(
       settingsProvider.select((state) => state.appTheme),
@@ -81,112 +90,107 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
             ),
           ),
           Spacer(),
+          const CurrentNetworkIndicator(),
+          const SizedBox(height: Spaces.medium),
           Container(
             width: context.mediaWidth * 0.9,
             constraints: BoxConstraints(maxWidth: context.theme.breakpoints.sm),
             child: FCard(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Form(
-                    key: _formKey,
-                    child: Column(
+              child: FutureBuilder(
+                future: wallets,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && snapshot.data!.wallets.isNotEmpty) {
+                    final initialWallet = switch (network) {
+                      Network.mainnet => snapshot.data!.lastWalletsUsed.mainnet,
+                      Network.testnet => snapshot.data!.lastWalletsUsed.testnet,
+                      Network.devnet => snapshot.data!.lastWalletsUsed.devnet,
+                      Network.stagenet =>
+                        snapshot.data!.lastWalletsUsed.stagenet,
+                    };
+
+                    final initialWalletExists =
+                        initialWallet != null &&
+                        snapshot.data!.wallets.containsKey(initialWallet);
+
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (!mounted) return;
+                      if (_selectController.value == null) {
+                        _selectController.value = initialWalletExists
+                            ? initialWallet
+                            : null;
+                      }
+                    });
+
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        NetworkSelectMenuTile(
-                          onSelected: (_) {
-                            setState(() {
-                              _selectController.value = null;
-                            });
-                          },
-                        ),
-                        FutureBuilder(
-                          future: wallets,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData &&
-                                snapshot.data!.wallets.isNotEmpty) {
-                              final initialWallet = switch (network) {
-                                Network.mainnet =>
-                                  snapshot.data!.lastWalletsUsed.mainnet,
-                                Network.testnet =>
-                                  snapshot.data!.lastWalletsUsed.testnet,
-                                Network.devnet =>
-                                  snapshot.data!.lastWalletsUsed.devnet,
-                                Network.stagenet =>
-                                  snapshot.data!.lastWalletsUsed.stagenet,
-                              };
-
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                _selectController.value = initialWallet;
-                              });
-
-                              return Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const SizedBox(height: Spaces.medium),
-                                  FSelect<String>.rich(
-                                    control: .managed(
-                                      controller: _selectController,
+                        Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              const SizedBox(height: Spaces.medium),
+                              FSelect<String>.rich(
+                                control: .managed(
+                                  controller: _selectController,
+                                  onChange: _handleWalletSelected,
+                                ),
+                                hint: loc.select_wallet,
+                                // contentScrollHandles: true,
+                                // autovalidateMode: AutovalidateMode.disabled,
+                                format: (s) => s,
+                                validator: (value) {
+                                  if (value == null) {
+                                    return loc.please_select_wallet;
+                                  }
+                                  return null;
+                                },
+                                children: snapshot.data!.wallets.entries.map((
+                                  entry,
+                                ) {
+                                  return FSelectItem(
+                                    value: entry.key,
+                                    prefix: FAvatar.raw(
+                                      child: HashiconWidget(
+                                        hash: entry.value,
+                                        size: const Size(25, 25),
+                                      ),
                                     ),
-                                    hint: loc.select_wallet,
-                                    // contentScrollHandles: true,
-                                    // autovalidateMode: AutovalidateMode.disabled,
-                                    format: (s) => s,
-                                    validator: (value) {
-                                      if (value == null) {
-                                        return loc.please_select_wallet;
-                                      }
-                                      return null;
-                                    },
-                                    children: snapshot.data!.wallets.entries
-                                        .map((entry) {
-                                          return FSelectItem(
-                                            value: entry.key,
-                                            prefix: FAvatar.raw(
-                                              child: HashiconWidget(
-                                                hash: entry.value,
-                                                size: const Size(25, 25),
-                                              ),
-                                            ),
-                                            title: Text(entry.key),
-                                            subtitle: Text(
-                                              truncateText(entry.value),
-                                            ),
-                                          );
-                                        })
-                                        .toList(),
-                                  ),
-                                  const SizedBox(height: Spaces.large),
-                                  FButton(
-                                    onPress: () =>
-                                        _handleOpenWalletButtonPressed(context),
-                                    child: Text(loc.open_wallet),
-                                  ),
-                                ],
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
+                                    title: Text(entry.key),
+                                    subtitle: Text(truncateText(entry.value)),
+                                  );
+                                }).toList(),
+                              ),
+                              const SizedBox(height: Spaces.large),
+                              FButton(
+                                onPress: () =>
+                                    _handleOpenWalletButtonPressed(context),
+                                child: Text(loc.open_wallet),
+                              ),
+                            ],
+                          ),
                         ),
+                        FDivider(),
+                        _OpenWalletActions(),
                       ],
-                    ),
-                  ),
-                  FDivider(),
-                  FButton(
-                    variant: .outline,
-                    onPress: () {
-                      context.push(AppScreen.createWallet.toPath);
-                    },
-                    child: Text(loc.create_wallet),
-                  ),
-                  const SizedBox(height: Spaces.medium),
-                  FButton(
-                    variant: .outline,
-                    onPress: () {
-                      context.push(AppScreen.importWallet.toPath);
-                    },
-                    child: Text(loc.import_wallet),
-                  ),
-                ],
+                    );
+                  }
+
+                  if (snapshot.hasData) {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _NoWalletsContent(message: loc.no_wallet_available),
+                        const SizedBox(height: Spaces.large),
+                        _OpenWalletActions(),
+                      ],
+                    );
+                  }
+
+                  return const SizedBox(
+                    height: 120,
+                    child: Center(child: FCircularProgress()),
+                  );
+                },
               ),
             ),
           ),
@@ -194,6 +198,13 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
         ],
       ),
     );
+  }
+
+  void _handleWalletSelected(String? _) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _formKey.currentState?.validate();
+    });
   }
 
   Future<void> _handleOpenWalletButtonPressed(BuildContext context) async {
@@ -266,5 +277,66 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
         context.loaderOverlay.hide();
       }
     }
+  }
+}
+
+class _NoWalletsContent extends StatelessWidget {
+  const _NoWalletsContent({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: Spaces.medium),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: Spaces.small,
+        children: [
+          Icon(
+            FIcons.wallet,
+            size: 28,
+            color: context.theme.colors.mutedForeground,
+          ),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: context.theme.typography.sm.copyWith(
+              color: context.theme.colors.mutedForeground,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OpenWalletActions extends ConsumerWidget {
+  const _OpenWalletActions();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = ref.watch(appLocalizationsProvider);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FButton(
+          variant: .outline,
+          onPress: () {
+            context.push(AppScreen.createWallet.toPath);
+          },
+          child: Text(loc.create_wallet),
+        ),
+        const SizedBox(height: Spaces.medium),
+        FButton(
+          variant: .outline,
+          onPress: () {
+            context.push(AppScreen.importWallet.toPath);
+          },
+          child: Text(loc.import_wallet),
+        ),
+      ],
+    );
   }
 }

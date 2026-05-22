@@ -17,7 +17,6 @@ import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:path/path.dart' as p;
-import 'package:genesix/features/authentication/presentation/components/network_select_menu_tile.dart';
 
 class RestoreFolderTab extends ConsumerStatefulWidget {
   const RestoreFolderTab({super.key});
@@ -32,6 +31,17 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
+    ref.listen(settingsProvider.select((state) => state.network), (
+      previous,
+      next,
+    ) {
+      if (previous != next && _selectedWalletFolder != null) {
+        setState(() {
+          _selectedWalletFolder = null;
+        });
+      }
+    });
+
     bool showOpenButton =
         _selectedWalletFolder != null && _selectedWalletFolder!.path.isNotEmpty;
 
@@ -39,14 +49,6 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
       subtitle: Text(loc.restore_wallet_from_folder),
       child: Column(
         children: [
-          const SizedBox(height: Spaces.medium),
-          NetworkSelectMenuTile(
-            onSelected: (_) {
-              setState(() {
-                _selectedWalletFolder = null;
-              });
-            },
-          ),
           const SizedBox(height: Spaces.medium),
           FTooltip(
             tipBuilder: (context, controller) =>
@@ -111,32 +113,46 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
 
   void _importWalletFolder() async {
     final loc = ref.read(appLocalizationsProvider);
-    final path = await FilePicker.getDirectoryPath();
-    if (path != null) {
-      if (await isWalletFolderValid(path)) {
-        final walletName = path.split(p.separator).last;
-        final walletsDir = await getAppWalletsDirPath();
-        final network = ref.read(settingsProvider).network;
+    final network = ref.read(settingsProvider).network;
+    final result = await _pickRestorableWalletFolder(network.name);
+    if (!mounted) return;
 
-        final walletExists = await Directory(
-          p.join(walletsDir, network.name, walletName),
-        ).exists();
-        if (walletExists) {
-          ref
-              .read(toastProvider.notifier)
-              .showError(description: loc.wallet_already_exists);
-        } else {
-          final record = (path: path, walletName: walletName);
-          setState(() {
-            _selectedWalletFolder = record;
-          });
-        }
-      } else {
+    switch (result) {
+      case _RestoreFolderCancelled():
+        return;
+      case _RestoreFolderInvalid():
         ref
             .read(toastProvider.notifier)
             .showError(description: loc.invalid_wallet_folder);
-      }
+      case _RestoreFolderAlreadyExists():
+        ref
+            .read(toastProvider.notifier)
+            .showError(description: loc.wallet_already_exists);
+      case _RestoreFolderSelected(:final path, :final walletName):
+        setState(() {
+          _selectedWalletFolder = (path: path, walletName: walletName);
+        });
     }
+  }
+
+  Future<_RestoreFolderSelectionResult> _pickRestorableWalletFolder(
+    String networkName,
+  ) async {
+    final path = await FilePicker.getDirectoryPath();
+    if (path == null) return const _RestoreFolderCancelled();
+
+    if (!await isWalletFolderValid(path)) {
+      return const _RestoreFolderInvalid();
+    }
+
+    final walletName = path.split(p.separator).last;
+    final walletsDir = await getAppWalletsDirPath();
+    final walletExists = await Directory(
+      p.join(walletsDir, networkName, walletName),
+    ).exists();
+
+    if (walletExists) return const _RestoreFolderAlreadyExists();
+    return _RestoreFolderSelected(path: path, walletName: walletName);
   }
 
   Future<void> _openImportedWallet() async {
@@ -176,4 +192,27 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
       },
     );
   }
+}
+
+sealed class _RestoreFolderSelectionResult {
+  const _RestoreFolderSelectionResult();
+}
+
+class _RestoreFolderCancelled extends _RestoreFolderSelectionResult {
+  const _RestoreFolderCancelled();
+}
+
+class _RestoreFolderInvalid extends _RestoreFolderSelectionResult {
+  const _RestoreFolderInvalid();
+}
+
+class _RestoreFolderAlreadyExists extends _RestoreFolderSelectionResult {
+  const _RestoreFolderAlreadyExists();
+}
+
+class _RestoreFolderSelected extends _RestoreFolderSelectionResult {
+  const _RestoreFolderSelected({required this.path, required this.walletName});
+
+  final String path;
+  final String walletName;
 }
