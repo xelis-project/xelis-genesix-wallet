@@ -36,6 +36,8 @@ class FiltersDialog extends ConsumerStatefulWidget {
 
 class _FiltersDialogState extends ConsumerState<FiltersDialog>
     with TickerProviderStateMixin {
+  static final DateTime _earliestHistoryFilterDate = DateTime.utc(2024);
+
   final _formKey = GlobalKey<FormState>();
   late Set<TransactionCategory> _categoriesSelected;
   late final FSelectController<MapEntry<String, AssetData>> _assetController;
@@ -45,8 +47,6 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
   late bool _hideZeroBalance;
   DateTime? _minTimestamp;
   DateTime? _maxTimestamp;
-  final _fromDateController = TextEditingController();
-  final _toDateController = TextEditingController();
 
   @override
   void initState() {
@@ -84,8 +84,6 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
     _hideZeroBalance = filterState.hideZeroTransfer;
     _minTimestamp = filterState.minTimestamp;
     _maxTimestamp = filterState.maxTimestamp;
-    _fromDateController.text = _formatDate(filterState.minTimestamp);
-    _toDateController.text = _formatDate(filterState.maxTimestamp);
   }
 
   @override
@@ -93,8 +91,6 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
     _assetController.dispose();
     _contactController.dispose();
     _scrollController.dispose();
-    _fromDateController.dispose();
-    _toDateController.dispose();
     super.dispose();
   }
 
@@ -114,6 +110,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
 
     final titleText = widget.title ?? loc.filters;
     final applyText = widget.applyLabel ?? loc.apply;
+    final today = _calendarDate(DateTime.now())!;
 
     return FDialog(
       direction: Axis.horizontal,
@@ -221,101 +218,35 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                     child: Column(
                       spacing: Spaces.medium,
                       children: [
-                        FTextField(
+                        FDateField.calendar(
                           label: Text(loc.from_date),
                           hint: loc.select_start_date,
-                          readOnly: true,
-                          showCursor: false,
-                          enableInteractiveSelection: false,
-                          control: .managed(controller: _fromDateController),
-                          onTap: () async {
-                            final date = await showDatePicker(
-                              context: context,
-                              initialDate: _minTimestamp ?? DateTime.now(),
-                              firstDate: DateTime(2024),
-                              lastDate: DateTime.now(),
-                            );
-                            if (date != null) {
-                              setState(() {
-                                _minTimestamp = date;
-                                _fromDateController.text = _formatDate(date);
-                              });
-                            }
-                          },
-                          suffixBuilder: _minTimestamp != null
-                              ? (_, _, _) => GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onTap: () {
-                                    setState(() {
-                                      _minTimestamp = null;
-                                      _fromDateController.text = '';
-                                    });
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                    ),
-                                    child: Icon(
-                                      FLucideIcons.x,
-                                      size: 14,
-                                      color:
-                                          context.theme.colors.mutedForeground,
-                                    ),
-                                  ),
-                                )
-                              : null,
+                          clearable: true,
+                          start: _earliestHistoryFilterDate,
+                          end: _exclusiveCalendarEnd(
+                            _calendarDate(_maxTimestamp) ?? today,
+                          ),
+                          today: today,
+                          format: _formatCalendarDate,
+                          control: .lifted(
+                            date: _calendarDate(_minTimestamp),
+                            onChange: _setMinTimestamp,
+                          ),
                         ),
-                        FTextField(
+                        FDateField.calendar(
                           label: Text(loc.to_date),
                           hint: loc.select_end_date,
-                          readOnly: true,
-                          showCursor: false,
-                          enableInteractiveSelection: false,
-                          control: .managed(controller: _toDateController),
-                          onTap: () async {
-                            final date = await showDatePicker(
-                              context: context,
-                              initialDate: _maxTimestamp ?? DateTime.now(),
-                              firstDate: _minTimestamp ?? DateTime(2024),
-                              lastDate: DateTime.now(),
-                            );
-                            if (date != null) {
-                              setState(() {
-                                _maxTimestamp = DateTime(
-                                  date.year,
-                                  date.month,
-                                  date.day,
-                                  23,
-                                  59,
-                                  59,
-                                  999,
-                                );
-                                _toDateController.text = _formatDate(date);
-                              });
-                            }
-                          },
-                          suffixBuilder: _maxTimestamp != null
-                              ? (_, _, _) => GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onTap: () {
-                                    setState(() {
-                                      _maxTimestamp = null;
-                                      _toDateController.text = '';
-                                    });
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                    ),
-                                    child: Icon(
-                                      FLucideIcons.x,
-                                      size: 14,
-                                      color:
-                                          context.theme.colors.mutedForeground,
-                                    ),
-                                  ),
-                                )
-                              : null,
+                          clearable: true,
+                          start:
+                              _calendarDate(_minTimestamp) ??
+                              _earliestHistoryFilterDate,
+                          end: _exclusiveCalendarEnd(today),
+                          today: today,
+                          format: _formatCalendarDate,
+                          control: .lifted(
+                            date: _calendarDate(_maxTimestamp),
+                            onChange: _setMaxTimestamp,
+                          ),
                         ),
                       ],
                     ),
@@ -390,8 +321,6 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
       _hideZeroBalance = false;
       _minTimestamp = null;
       _maxTimestamp = null;
-      _fromDateController.text = '';
-      _toDateController.text = '';
     });
     ref.read(searchQueryProvider.notifier).clear();
   }
@@ -428,8 +357,48 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
     }
   }
 
-  String _formatDate(DateTime? value) {
-    if (value == null) return '';
-    return DateFormat.yMd().format(value);
+  void _setMinTimestamp(DateTime? value) {
+    setState(() {
+      _minTimestamp = _localStartOfDay(value);
+      if (_minTimestamp != null &&
+          _maxTimestamp != null &&
+          _calendarDate(
+            _maxTimestamp,
+          )!.isBefore(_calendarDate(_minTimestamp)!)) {
+        _maxTimestamp = null;
+      }
+    });
+  }
+
+  void _setMaxTimestamp(DateTime? value) {
+    setState(() => _maxTimestamp = _localEndOfDay(value));
+  }
+
+  String _formatCalendarDate(
+    BuildContext context,
+    DateTime value,
+    DateFormat _,
+  ) {
+    final localeName = FLocalizations.of(context)?.localeName;
+    return DateFormat.yMd(localeName).format(value);
+  }
+
+  DateTime? _calendarDate(DateTime? value) {
+    if (value == null) return null;
+    return DateTime.utc(value.year, value.month, value.day);
+  }
+
+  DateTime _exclusiveCalendarEnd(DateTime inclusiveEnd) {
+    return inclusiveEnd.add(const Duration(days: 1));
+  }
+
+  DateTime? _localStartOfDay(DateTime? value) {
+    if (value == null) return null;
+    return DateTime(value.year, value.month, value.day);
+  }
+
+  DateTime? _localEndOfDay(DateTime? value) {
+    if (value == null) return null;
+    return DateTime(value.year, value.month, value.day, 23, 59, 59, 999);
   }
 }
