@@ -273,6 +273,7 @@ class _XswdModeCard extends StatelessWidget {
         : onSwitchChange;
 
     return FCard(
+      clipBehavior: Clip.antiAlias,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

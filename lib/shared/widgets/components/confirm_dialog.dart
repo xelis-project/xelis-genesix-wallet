@@ -32,6 +32,7 @@ class _ConfirmDialogState extends ConsumerState<ConfirmDialog> {
     var title = widget.title ?? loc.are_you_sure;
 
     return FDialog(
+      clipBehavior: Clip.antiAlias,
       direction: Axis.horizontal,
       title: Text(title),
       body: widget.description != null ? Text(widget.description!) : null,

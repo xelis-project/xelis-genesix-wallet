@@ -66,6 +66,7 @@ class _TransactionReviewDialogNewState
     };
 
     return FDialog(
+      clipBehavior: Clip.antiAlias,
       animation: widget.animation,
       constraints: const BoxConstraints(maxWidth: 600),
       body: Column(

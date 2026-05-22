@@ -36,6 +36,7 @@ class _TrackedAssetDetailsState extends ConsumerState<TrackedAssetDetails> {
     final loc = ref.watch(appLocalizationsProvider);
 
     return FDialog(
+      clipBehavior: Clip.antiAlias,
       title: Text(loc.details.capitalize()),
       body: FadedScroll(
         controller: _controller,

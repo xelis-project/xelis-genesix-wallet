@@ -30,6 +30,7 @@ class ReceiveAddressDialog extends ConsumerWidget {
     final maxBodyHeight = screenHeight * 0.5;
 
     return FDialog(
+      clipBehavior: Clip.antiAlias,
       animation: animation,
       direction: Axis.horizontal,
       title: Text(loc.receive),

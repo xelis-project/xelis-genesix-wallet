@@ -96,6 +96,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
             width: context.mediaWidth * 0.9,
             constraints: BoxConstraints(maxWidth: context.theme.breakpoints.sm),
             child: FCard(
+              clipBehavior: Clip.antiAlias,
               child: FutureBuilder(
                 future: wallets,
                 builder: (context, snapshot) {

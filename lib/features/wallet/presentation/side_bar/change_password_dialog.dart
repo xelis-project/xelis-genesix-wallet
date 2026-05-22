@@ -41,6 +41,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     return FDialog(
+      clipBehavior: Clip.antiAlias,
       direction: Axis.horizontal,
       // title: Text(loc.change_password),
       body: Form(

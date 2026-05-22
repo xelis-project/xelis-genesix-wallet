@@ -190,6 +190,7 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
       context: context,
       builder: (context, style, animation) {
         return FDialog(
+          clipBehavior: Clip.antiAlias,
           animation: animation,
           direction: Axis.horizontal,
           body: Padding(

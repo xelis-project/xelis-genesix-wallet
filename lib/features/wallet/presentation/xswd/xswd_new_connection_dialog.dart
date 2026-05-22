@@ -21,6 +21,7 @@ class XswdNewConnectionDialog extends ConsumerWidget {
     final loc = ref.watch(appLocalizationsProvider);
 
     return FDialog(
+      clipBehavior: Clip.antiAlias,
       animation: animation,
       constraints: const BoxConstraints(maxWidth: 600),
       body: LayoutBuilder(

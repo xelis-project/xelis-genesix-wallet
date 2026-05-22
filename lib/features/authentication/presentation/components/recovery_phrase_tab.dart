@@ -39,6 +39,7 @@ class _RecoveryPhraseTabState extends ConsumerState<RecoveryPhraseTab> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     return FCard(
+      clipBehavior: Clip.antiAlias,
       subtitle: Text(loc.recover_from_recovery_phrase),
       child: Form(
         key: _formKey,

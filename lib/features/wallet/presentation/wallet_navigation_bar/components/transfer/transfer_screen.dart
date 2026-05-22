@@ -334,6 +334,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
 
                   // Fee Information Section
                   FCard(
+                    clipBehavior: Clip.antiAlias,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: Spaces.small,

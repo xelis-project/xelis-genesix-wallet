@@ -48,6 +48,7 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Spaces.medium),
       child: FCard.raw(
+        clipBehavior: Clip.antiAlias,
         child: Padding(
           padding: const EdgeInsets.all(Spaces.medium),
           child: Column(

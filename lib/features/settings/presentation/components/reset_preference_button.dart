@@ -46,6 +46,7 @@ class _ResetPreferenceButtonState extends ConsumerState<ResetPreferenceButton> {
       context: context,
       builder: (context, style, animation) {
         return FDialog(
+          clipBehavior: Clip.antiAlias,
           animation: animation,
           direction: Axis.horizontal,
           title: Text(loc.do_you_want_to_continue),

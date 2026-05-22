@@ -39,6 +39,7 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
     final loc = ref.watch(appLocalizationsProvider);
 
     return FCard(
+      clipBehavior: Clip.antiAlias,
       subtitle: Text(loc.recover_from_private_key),
       child: Form(
         key: _formKey,

@@ -46,6 +46,7 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
         _selectedWalletFolder != null && _selectedWalletFolder!.path.isNotEmpty;
 
     return FCard(
+      clipBehavior: Clip.antiAlias,
       subtitle: Text(loc.restore_wallet_from_folder),
       child: Column(
         children: [

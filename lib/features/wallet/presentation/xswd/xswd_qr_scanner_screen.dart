@@ -366,6 +366,7 @@ class _ScannerErrorView extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(Spaces.large),
           child: FCard(
+            clipBehavior: Clip.antiAlias,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [

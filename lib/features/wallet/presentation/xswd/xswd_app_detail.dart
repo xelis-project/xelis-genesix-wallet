@@ -255,6 +255,7 @@ class _XswdAppInfoCard extends StatelessWidget {
     final muted = context.theme.colors.mutedForeground;
 
     return FCard(
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -363,6 +364,7 @@ class _XswdPermissionsSection extends StatelessWidget {
         const SizedBox(height: Spaces.medium),
         if (sortedPermissions.isEmpty)
           FCard(
+            clipBehavior: Clip.antiAlias,
             child: Center(
               child: Text(
                 loc.no_data,
@@ -404,6 +406,7 @@ class _XswdPermissionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FCard.raw(
+      clipBehavior: Clip.antiAlias,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(Spaces.small),
@@ -536,6 +539,7 @@ class _DisconnectDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FDialog(
+      clipBehavior: Clip.antiAlias,
       animation: animation,
       constraints: const BoxConstraints(maxWidth: 560),
       title: Text(

@@ -113,6 +113,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
     final today = _calendarDate(DateTime.now())!;
 
     return FDialog(
+      clipBehavior: Clip.antiAlias,
       direction: Axis.horizontal,
       title: Text(titleText),
       body: ConstrainedBox(
@@ -215,6 +216,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                     },
                   ),
                   FCard(
+                    clipBehavior: Clip.antiAlias,
                     child: Column(
                       spacing: Spaces.medium,
                       children: [
@@ -253,6 +255,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                   ),
                   // Other options
                   FCard(
+                    clipBehavior: Clip.antiAlias,
                     child: Column(
                       spacing: Spaces.medium,
                       children: [

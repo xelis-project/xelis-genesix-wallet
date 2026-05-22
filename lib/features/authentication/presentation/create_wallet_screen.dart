@@ -64,6 +64,7 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
             width: context.mediaWidth * 0.9,
             constraints: BoxConstraints(maxWidth: context.theme.breakpoints.sm),
             child: FCard(
+              clipBehavior: Clip.antiAlias,
               title: Text(loc.create_new_wallet),
               subtitle: Text(loc.create_new_wallet_subtitle),
               child: Form(

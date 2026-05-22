@@ -354,6 +354,7 @@ class _EmptyStateCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: Spaces.medium),
         child: FCard(
+          clipBehavior: Clip.antiAlias,
           child: Padding(
             padding: const EdgeInsets.all(Spaces.large),
             child: Column(

@@ -27,6 +27,7 @@ class _SideBarFooterState extends ConsumerState<SideBarFooter> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: Spaces.medium),
           child: FCard.raw(
+            clipBehavior: Clip.antiAlias,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               child: Row(

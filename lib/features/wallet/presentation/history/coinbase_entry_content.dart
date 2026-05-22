@@ -21,6 +21,7 @@ class CoinbaseEntryContent extends ConsumerWidget {
     );
 
     return FCard.raw(
+      clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(Spaces.medium),
         child: LabeledValue.text(

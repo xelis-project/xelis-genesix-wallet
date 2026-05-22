@@ -249,6 +249,7 @@ class _ContactInfoCardState extends ConsumerState<_ContactInfoCard> {
   @override
   Widget build(BuildContext context) {
     return FCard(
+      clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(Spaces.medium),
         child: Column(
@@ -353,6 +354,7 @@ class _NotesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FCard(
+      clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(Spaces.medium),
         child: Column(

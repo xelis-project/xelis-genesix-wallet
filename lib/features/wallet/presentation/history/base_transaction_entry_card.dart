@@ -44,6 +44,7 @@ class _BaseTransactionEntryCardState
     final theme = context.theme;
 
     return FCard.raw(
+      clipBehavior: Clip.antiAlias,
       child: ClipRRect(
         borderRadius: theme.style.borderRadius.md,
         child: DecoratedBox(

@@ -73,29 +73,66 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
 
   void _showStandardToast(BuildContext toastCtx, ToastContent toast) {
     final spec = _visualSpec(toastCtx, toast);
+    final style = _standardToastStyle(toastCtx, spec);
 
-    showFToast(
+    showRawFToast(
       context: toastCtx,
-      style: _standardToastStyle(toastCtx, spec),
+      style: style,
       alignment: _standardAlignment(toastCtx),
       duration: _durationFor(toast),
       swipeToDismiss: const [AxisDirection.left, AxisDirection.right],
-      icon: _ToastIconBadge(spec: spec),
-      title: Text(toast.title, maxLines: 2, overflow: TextOverflow.ellipsis),
-      description: toast.description == null
-          ? null
-          : Text(
-              toast.description!,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-      suffixBuilder: _showStandardDismiss(toast)
-          ? (context, entry) => FButton.icon(
-              variant: .ghost,
-              onPress: entry.dismiss,
-              child: const Icon(FLucideIcons.x, size: 16),
-            )
-          : null,
+      builder: (context, entry) => FToast(
+        style: style,
+        clipBehavior: Clip.antiAlias,
+        icon: _ToastIconBadge(spec: spec),
+        title: Text(toast.title, maxLines: 2, overflow: TextOverflow.ellipsis),
+        description: toast.description == null
+            ? null
+            : Text(
+                toast.description!,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+        suffix: _showStandardDismiss(toast)
+            ? FButton.icon(
+                variant: .ghost,
+                onPress: entry.dismiss,
+                child: const Icon(FLucideIcons.x, size: 16),
+              )
+            : null,
+      ),
+    );
+  }
+
+  Widget _clippedToastContent(FToastStyle style, Widget child) {
+    final decoration = _baseToastDecoration(style);
+    final borderRadius = decoration.borderRadius;
+    if (borderRadius == null) return child;
+
+    return ClipRRect(
+      clipBehavior: Clip.antiAlias,
+      borderRadius: borderRadius,
+      child: child,
+    );
+  }
+
+  Widget _decoratedRawToast({
+    required BuildContext context,
+    required FToastStyle style,
+    required Widget child,
+  }) {
+    return ConstrainedBox(
+      constraints: style.constraints,
+      child: DecoratedBox(
+        decoration: style.decoration,
+        child: _clippedToastContent(
+          style,
+          Padding(
+            padding: style.padding.resolve(Directionality.of(context)),
+            child: child,
+          ),
+        ),
+      ),
     );
   }
 
@@ -110,31 +147,24 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
       alignment: FToastAlignment.topCenter,
       duration: null,
       swipeToDismiss: const [],
-      builder: (context, entry) => ConstrainedBox(
-        constraints: style.constraints,
-        child: DecoratedBox(
-          decoration: style.decoration,
-          child: Padding(
-            padding: style.padding.resolve(Directionality.of(context)),
-            child: _XswdToastCard(
-              payload: payload,
-              spec: spec,
-              onOpen: toast.actions.isEmpty
-                  ? null
-                  : () {
-                      entry.dismiss();
-                      ref
-                          .read(xswdRequestProvider.notifier)
-                          .requestOpenDialog();
-                    },
-              onDismiss: toast.dismissible
-                  ? () {
-                      ref.read(xswdRequestProvider.notifier).clearRequest();
-                      entry.dismiss();
-                    }
-                  : null,
-            ),
-          ),
+      builder: (context, entry) => _decoratedRawToast(
+        context: context,
+        style: style,
+        child: _XswdToastCard(
+          payload: payload,
+          spec: spec,
+          onOpen: toast.actions.isEmpty
+              ? null
+              : () {
+                  entry.dismiss();
+                  ref.read(xswdRequestProvider.notifier).requestOpenDialog();
+                },
+          onDismiss: toast.dismissible
+              ? () {
+                  ref.read(xswdRequestProvider.notifier).clearRequest();
+                  entry.dismiss();
+                }
+              : null,
         ),
       ),
     );

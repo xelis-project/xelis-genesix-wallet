@@ -239,6 +239,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
       _detailsExpanded = false;
 
       return FDialog(
+        clipBehavior: Clip.antiAlias,
         animation: widget.animation,
         body: Center(
           child: Text(
@@ -307,6 +308,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     }
 
     return FDialog(
+      clipBehavior: Clip.antiAlias,
       animation: widget.animation,
       constraints: const BoxConstraints(maxWidth: 700),
       body: LayoutBuilder(
@@ -444,6 +446,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     showAppDialog<void>(
       context: context,
       builder: (context, style, animation) => FDialog(
+        clipBehavior: Clip.antiAlias,
         style: style,
         animation: animation,
         direction: Axis.horizontal,

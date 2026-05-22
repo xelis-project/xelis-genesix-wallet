@@ -71,6 +71,7 @@ class _PendingChangesCard extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 360),
           child: FCard(
+            clipBehavior: Clip.antiAlias,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               spacing: Spaces.medium,
@@ -227,6 +228,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
                 ],
               ),
               FCard(
+                clipBehavior: Clip.antiAlias,
                 child: Column(
                   spacing: Spaces.large,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -268,6 +270,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
                 ),
               ),
               FCard(
+                clipBehavior: Clip.antiAlias,
                 child: Column(
                   spacing: Spaces.large,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -481,6 +484,7 @@ class _EmptyMultisigCallToAction extends StatelessWidget {
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: maxWidth),
           child: FCard(
+            clipBehavior: Clip.antiAlias,
             child: Padding(
               padding: EdgeInsets.all(
                 useHorizontalLayout ? Spaces.extraLarge : Spaces.large,

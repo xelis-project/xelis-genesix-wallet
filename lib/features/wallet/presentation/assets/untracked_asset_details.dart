@@ -42,6 +42,7 @@ class _UntrackedAssetDetailsState extends ConsumerState<UntrackedAssetDetails> {
     final loc = ref.watch(appLocalizationsProvider);
 
     return FDialog(
+      clipBehavior: Clip.antiAlias,
       title: Text(loc.details.capitalize()),
       body: FadedScroll(
         controller: _controller,

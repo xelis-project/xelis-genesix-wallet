@@ -34,6 +34,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
     final addressBook = ref.watch(addressBookProvider);
 
     return FDialog(
+      clipBehavior: Clip.antiAlias,
       animation: widget.animation,
       constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
       body: Column(

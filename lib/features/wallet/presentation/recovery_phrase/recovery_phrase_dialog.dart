@@ -36,6 +36,7 @@ class _RecoveryPhraseDialogState extends ConsumerState<RecoveryPhraseDialog> {
     final words = widget.seed.split(' ');
 
     return FDialog(
+      clipBehavior: Clip.antiAlias,
       animation: widget.animation,
       title: Row(
         children: [

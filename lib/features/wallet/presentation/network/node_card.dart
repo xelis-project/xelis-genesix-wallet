@@ -47,6 +47,7 @@ class _NodeCardState extends ConsumerState<NodeCard> {
     NodeAddress nodeAddress = networkNodes.addressFor(network);
 
     return FCard.raw(
+      clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(Spaces.medium),
         child: Column(

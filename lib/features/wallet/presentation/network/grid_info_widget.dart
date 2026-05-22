@@ -57,6 +57,7 @@ class _GridInfoWidgetState extends State<GridInfoWidget>
   @override
   Widget build(BuildContext context) {
     return FCard.raw(
+      clipBehavior: Clip.antiAlias,
       child: AnimatedBuilder(
         animation: _highlightOpacity,
         builder: (context, child) {

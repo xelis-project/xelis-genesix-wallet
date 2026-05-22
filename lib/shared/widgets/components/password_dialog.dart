@@ -80,6 +80,7 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
     final loc = ref.watch(appLocalizationsProvider);
 
     return FDialog(
+      clipBehavior: Clip.antiAlias,
       animation: widget.animation,
       direction: Axis.horizontal,
       title: Text(loc.authentication.capitalize()),

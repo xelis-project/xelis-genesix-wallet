@@ -38,6 +38,7 @@ class ConnectionStatusCard extends ConsumerWidget {
     var displayedTopoheight = NumberFormat().format(topoheight);
 
     return FCard(
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

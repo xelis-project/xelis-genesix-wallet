@@ -69,6 +69,7 @@ class _ExtraDataSheetState extends ConsumerState<ExtraDataSheet> {
               ],
             ),
             FCard(
+              clipBehavior: Clip.antiAlias,
               child: Center(
                 child: SelectableText(
                   widget.parsed.pretty,

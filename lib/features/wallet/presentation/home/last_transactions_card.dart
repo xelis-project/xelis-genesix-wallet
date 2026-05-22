@@ -147,6 +147,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
     );
 
     return FCard(
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

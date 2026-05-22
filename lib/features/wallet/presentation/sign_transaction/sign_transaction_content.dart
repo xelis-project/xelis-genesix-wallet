@@ -66,6 +66,7 @@ class _SignTransactionContentState
               duration: const Duration(milliseconds: AppDurations.animFast),
               curve: Curves.easeOut,
               child: FCard(
+                clipBehavior: Clip.antiAlias,
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(minHeight: 160),
                   child: Center(
