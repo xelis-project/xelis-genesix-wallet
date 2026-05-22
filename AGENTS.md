@@ -120,6 +120,12 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 - Call out skipped checks and why.
 - Mention dependency/version assumptions when they materially affect the solution.
 
+### Commit Messages
+
+- When creating commits, use Conventional Commits (`type(scope): summary`).
+- Prefer a single-line summary that reads like a concise sentence; it should be short, specific, and focused on the essential change without becoming cryptic.
+- Use a commit body only when the motivation, tradeoff, or follow-up risk is not obvious from the diff.
+
 ## Agent Workflows
 
 ### Feature Or Change
