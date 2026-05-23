@@ -81,6 +81,7 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
                       focusNode: _focusNode,
                       enabled: editing,
                       autocorrect: false,
+                      selectAllOnFocus: true,
                       keyboardType: TextInputType.text,
                       maxLines: 1,
                       style: .delta(

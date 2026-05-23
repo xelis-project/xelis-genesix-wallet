@@ -264,6 +264,7 @@ class _ContactInfoCardState extends ConsumerState<_ContactInfoCard> {
                 control: FTextFieldControl.managed(
                   controller: widget.nameController,
                 ),
+                selectAllOnFocus: true,
                 hint: 'Contact name',
               )
             else

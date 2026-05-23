@@ -45,6 +45,7 @@ class _EditNodeSheetState extends ConsumerState<EditNodeSheet> {
               keyboardType: TextInputType.text,
               maxLines: 1,
               autocorrect: false,
+              selectAllOnFocus: true,
               onSaved: (value) => _name = value?.trim() ?? '',
               validator: (value) {
                 if (value == null || value.isEmpty || value.trim().isEmpty) {
@@ -62,6 +63,7 @@ class _EditNodeSheetState extends ConsumerState<EditNodeSheet> {
               keyboardType: TextInputType.url,
               maxLines: 1,
               autocorrect: false,
+              selectAllOnFocus: true,
               onSaved: (value) => _url = value?.trim() ?? '',
               validator: (value) {
                 if (value == null || value.isEmpty || value.trim().isEmpty) {

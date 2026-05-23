@@ -45,6 +45,7 @@ class _EditContactSheetState extends ConsumerState<EditContactSheet> {
               keyboardType: TextInputType.text,
               maxLines: 1,
               autocorrect: false,
+              selectAllOnFocus: true,
               validator: (value) {
                 if (value == null || value.isEmpty || value.trim().isEmpty) {
                   return loc.field_required_error;
