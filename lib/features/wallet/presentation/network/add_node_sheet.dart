@@ -21,15 +21,8 @@ class AddNodeSheet extends ConsumerStatefulWidget {
 
 class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _urlController = TextEditingController();
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _urlController.dispose();
-    super.dispose();
-  }
+  String _name = '';
+  String _url = '';
 
   @override
   Widget build(BuildContext context) {
@@ -43,12 +36,12 @@ class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FTextFormField(
-              control: .managed(controller: _nameController),
               label: Text(loc.node_name),
               hint: loc.node_name_hint,
               keyboardType: TextInputType.text,
               maxLines: 1,
               autocorrect: false,
+              onSaved: (value) => _name = value?.trim() ?? '',
               validator: (value) {
                 if (value == null || value.isEmpty || value.trim().isEmpty) {
                   return loc.field_required_error;
@@ -58,17 +51,18 @@ class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
             ),
             const SizedBox(height: Spaces.medium),
             FTextFormField(
-              control: .managed(controller: _urlController),
               label: Text(loc.node_url),
               hint: loc.node_url_hint,
-              keyboardType: TextInputType.text,
+              keyboardType: TextInputType.url,
               maxLines: 1,
               autocorrect: false,
+              onSaved: (value) => _url = value?.trim() ?? '',
               validator: (value) {
                 if (value == null || value.isEmpty || value.trim().isEmpty) {
                   return loc.field_required_error;
                 }
-                if (!Uri.tryParse(value)!.hasScheme) {
+                final uri = Uri.tryParse(value.trim());
+                if (uri == null || !uri.hasScheme) {
                   return loc.node_url_error;
                 }
                 return null;
@@ -86,14 +80,13 @@ class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
   }
 
   void _addNodeAndReconnect(BuildContext context) {
-    if (!(_formKey.currentState?.validate() ?? false)) {
+    final form = _formKey.currentState;
+    if (form == null || !form.validate()) {
       return;
     }
 
-    final node = NodeAddress(
-      name: _nameController.text,
-      url: _urlController.text,
-    );
+    form.save();
+    final node = NodeAddress(name: _name, url: _url);
     final network = ref.read(settingsProvider).network;
     ref.read(networkNodesProvider.notifier).addNode(network, node);
     unawaited(ref.read(walletRuntimeProvider.notifier).reconnect(node));
