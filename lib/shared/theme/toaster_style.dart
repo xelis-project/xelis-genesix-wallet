@@ -21,7 +21,7 @@ FToasterStyle toasterStyle({
       expandDuration: Duration(milliseconds: 260),
       collapseDuration: Duration(milliseconds: 220),
     ),
-    toastAlignment: FToastAlignment.topRight,
+    toastAlignment: FToastAlignment.topCenter,
     toastStyles: FToastStyles(
       FVariants(
         FToastStyle(

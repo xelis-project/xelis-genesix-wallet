@@ -7,7 +7,6 @@ import 'package:genesix/features/wallet/domain/permission_rpc_request.dart';
 import 'package:genesix/features/wallet/domain/prefetch_permissions_rpc_request.dart';
 import 'package:genesix/shared/models/toast_content.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
-import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/more_colors.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
@@ -32,12 +31,6 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
         ErrorToastContent() => true,
         _ => toast.sticky,
       };
-
-  bool _isWide(BuildContext context) =>
-      context.mediaWidth >= context.theme.breakpoints.md;
-
-  FToastAlignment _standardAlignment(BuildContext context) =>
-      _isWide(context) ? FToastAlignment.topRight : FToastAlignment.topCenter;
 
   @override
   void initState() {
@@ -78,9 +71,7 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
     showRawFToast(
       context: toastCtx,
       style: style,
-      alignment: _standardAlignment(toastCtx),
       duration: _durationFor(toast),
-      swipeToDismiss: const [AxisDirection.left, AxisDirection.right],
       builder: (context, entry) => FToast(
         style: style,
         clipBehavior: Clip.antiAlias,
@@ -144,7 +135,6 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
     showRawFToast(
       context: toastCtx,
       style: style,
-      alignment: FToastAlignment.topCenter,
       duration: null,
       swipeToDismiss: const [],
       builder: (context, entry) => _decoratedRawToast(
@@ -359,9 +349,6 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
     _appContext = context;
 
     return FToaster(
-      style: FToasterStyleDelta.delta(
-        toastAlignment: _standardAlignment(context),
-      ),
       child: Builder(
         builder: (toastContext) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
