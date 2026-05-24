@@ -60,6 +60,7 @@ FDialogStyle dialogStyle({
           titleSpacing: 8,
           contentSpacing: 8,
           actionSpacing: 10,
+          expandActions: false,
         ),
         variants: {
           [FDialogAxisVariant.vertical]: FDialogContentStyle(
@@ -69,6 +70,7 @@ FDialogStyle dialogStyle({
             titleSpacing: 6,
             contentSpacing: 6,
             actionSpacing: 8,
+            expandActions: true,
           ),
         },
       ),
