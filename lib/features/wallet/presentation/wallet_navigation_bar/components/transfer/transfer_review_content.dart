@@ -133,11 +133,7 @@ class TransferReviewContentWidget extends ConsumerWidget {
                   textStyle: context.bodyMedium?.copyWith(
                     color: context.colors.primary,
                   ),
-                  child: Icon(
-                    Icons.info_outline_rounded,
-                    size: 18,
-                    color: muted,
-                  ),
+                  child: Icon(FLucideIcons.info, size: 18, color: muted),
                 ),
               ],
             ),

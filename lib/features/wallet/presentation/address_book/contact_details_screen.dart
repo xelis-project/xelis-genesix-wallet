@@ -130,7 +130,7 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
                   : FButton(
                       variant: .outline,
                       onPress: () => setState(() => _isEditingName = true),
-                      prefix: const Icon(Icons.edit_rounded, size: 18),
+                      prefix: const Icon(FLucideIcons.pencil, size: 18),
                       child: Text(loc.edit_button),
                     );
             },
@@ -141,7 +141,7 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
             onPress: () => TransferRoute(
               $extra: widget.contactAddress,
             ).push<void>(context),
-            prefix: const Icon(Icons.send_rounded, size: 18),
+            prefix: const Icon(FLucideIcons.send, size: 18),
             child: Text(loc.send),
           ),
           const SizedBox(width: Spaces.small),
@@ -319,7 +319,7 @@ class _ContactInfoCardState extends ConsumerState<_ContactInfoCard> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const Icon(Icons.copy_rounded, size: 16),
+                        const Icon(FLucideIcons.copy, size: 16),
                       ],
                     ),
                   ),
@@ -376,7 +376,7 @@ class _NotesCard extends StatelessWidget {
                   FButton(
                     variant: .outline,
                     onPress: onEdit,
-                    prefix: const Icon(Icons.edit_rounded, size: 16),
+                    prefix: const Icon(FLucideIcons.pencil, size: 16),
                     child: Text(localizations.edit_button),
                   ),
               ],

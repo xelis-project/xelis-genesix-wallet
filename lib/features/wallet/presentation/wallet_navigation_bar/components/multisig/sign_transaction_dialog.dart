@@ -3,6 +3,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
@@ -61,7 +62,7 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
                 onPressed: () {
                   context.pop();
                 },
-                icon: const Icon(Icons.close_rounded),
+                icon: const Icon(FLucideIcons.x),
               ),
             ),
           ],
@@ -101,7 +102,7 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
                       });
                     },
                     icon: Icon(
-                      Icons.clear,
+                      FLucideIcons.x,
                       size: 18,
                       color: context.moreColors.mutedColor,
                     ),
@@ -162,7 +163,7 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
                                 ref,
                                 loc.copied,
                               ),
-                              icon: const Icon(Icons.copy_rounded, size: 18),
+                              icon: const Icon(FLucideIcons.copy, size: 18),
                               tooltip: loc.copy_signature,
                             ),
                           ],

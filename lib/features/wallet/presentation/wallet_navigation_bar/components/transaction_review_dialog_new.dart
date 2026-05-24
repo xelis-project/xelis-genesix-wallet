@@ -169,7 +169,7 @@ class _TransactionReviewDialogNewState
                 ref,
                 loc.copied,
               ),
-              icon: const Icon(Icons.copy_rounded, size: 18),
+              icon: const Icon(FLucideIcons.copy, size: 18),
               tooltip: loc.copy_hash_transaction,
             ),
           ],

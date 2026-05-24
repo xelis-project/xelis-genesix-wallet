@@ -130,7 +130,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
           borderRadius: BorderRadius.circular(8),
           child: Chip(
             label: Text(displayText, style: context.bodySmall),
-            avatar: const Icon(Icons.currency_exchange, size: 16),
+            avatar: const Icon(FLucideIcons.coins, size: 16),
           ),
         );
       }).toList(),
@@ -150,7 +150,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            const Icon(Icons.currency_exchange),
+            const Icon(FLucideIcons.coins),
             const SizedBox(width: Spaces.small),
             Expanded(child: Text('${loc.deposits} - $ticker')),
           ],
@@ -236,14 +236,14 @@ class _InvokeState extends ConsumerState<InvokeWidget>
                 if (isTruncated) ...[
                   const SizedBox(width: Spaces.extraSmall),
                   Icon(
-                    Icons.info_outline,
+                    FLucideIcons.info,
                     size: 14,
                     color: context.theme.colors.mutedForeground,
                   ),
                 ],
               ],
             ),
-            avatar: const Icon(Icons.data_object, size: 16),
+            avatar: const Icon(FLucideIcons.squareCode, size: 16),
           ),
         );
       }).toList(),
@@ -370,7 +370,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            const Icon(Icons.data_object),
+            const Icon(FLucideIcons.squareCode),
             const SizedBox(width: Spaces.small),
             Text('Parameter #${index + 1}'),
           ],

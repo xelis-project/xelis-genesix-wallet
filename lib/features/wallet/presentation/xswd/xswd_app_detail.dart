@@ -420,7 +420,7 @@ class _XswdPermissionCard extends StatelessWidget {
         child: Row(
           children: [
             Icon(
-              Icons.code,
+              FLucideIcons.squareCode,
               size: 16,
               color: context.theme.colors.mutedForeground,
             ),

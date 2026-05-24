@@ -3,6 +3,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:forui/forui.dart';
 import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -92,7 +93,7 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
                   onPressed: () {
                     context.pop();
                   },
-                  icon: const Icon(Icons.close_rounded),
+                  icon: const Icon(FLucideIcons.x),
                 ),
               ),
           ],
@@ -119,7 +120,7 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
                           ref,
                           loc.copied,
                         ),
-                        icon: const Icon(Icons.copy_rounded, size: 18),
+                        icon: const Icon(FLucideIcons.copy, size: 18),
                         tooltip: loc.copy_hash_transaction,
                       ),
                     ],
@@ -243,7 +244,7 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
               ? TextButton.icon(
                   onPressed: _processSignatures,
                   label: Text(loc.next),
-                  icon: Icon(Icons.arrow_forward_rounded, size: 18),
+                  icon: Icon(FLucideIcons.arrowRight, size: 18),
                 )
               : transactionReview.isBroadcasted
               ? TextButton(
@@ -260,7 +261,7 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
                           reason: loc.please_authenticate_tx,
                         )
                       : null,
-                  icon: const Icon(Icons.send, size: 18),
+                  icon: const Icon(FLucideIcons.send, size: 18),
                   label: Text(loc.broadcast),
                 ),
         ),

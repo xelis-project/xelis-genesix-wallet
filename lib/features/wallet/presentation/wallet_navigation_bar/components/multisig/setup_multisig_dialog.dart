@@ -3,6 +3,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:forui/forui.dart';
 import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -99,7 +100,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                   onPressed: () {
                     context.pop();
                   },
-                  icon: const Icon(Icons.close_rounded),
+                  icon: const Icon(FLucideIcons.x),
                 ),
               ),
           ],
@@ -193,11 +194,11 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                                 children: [
                                   IconButton(
                                     onPressed: _addParticipant,
-                                    icon: Icon(Icons.add, size: 18),
+                                    icon: Icon(FLucideIcons.plus, size: 18),
                                   ),
                                   IconButton(
                                     onPressed: _removeParticipant,
-                                    icon: Icon(Icons.remove, size: 18),
+                                    icon: Icon(FLucideIcons.minus, size: 18),
                                   ),
                                 ],
                               ),
@@ -440,13 +441,13 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                               reason: loc.please_authenticate_tx,
                             )
                           : null,
-                      icon: const Icon(Icons.send, size: 18),
+                      icon: const Icon(FLucideIcons.send, size: 18),
                       label: Text(loc.broadcast),
                     )
             : TextButton.icon(
                 onPressed: _confirmMultisigSetup,
                 label: Text(loc.next),
-                icon: Icon(Icons.arrow_forward_rounded, size: 18),
+                icon: Icon(FLucideIcons.arrowRight, size: 18),
               ),
       ],
     );
@@ -472,7 +473,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                     ?.fields[participantFieldId]
                     ?.reset(),
                 icon: Icon(
-                  Icons.clear,
+                  FLucideIcons.x,
                   size: 18,
                   color: context.moreColors.mutedColor,
                 ),
