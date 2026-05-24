@@ -1,20 +1,19 @@
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class GridInfoWidget extends StatefulWidget {
   const GridInfoWidget({
     super.key,
     required this.label,
-    required this.value,
-    this.highlight = false,
+    this.value,
+    this.isLoading = false,
   });
 
-  final Widget label;
-  final Widget value;
-
-  /// When set to `true`, briefly flashes the card background.
-  final bool highlight;
+  final String label;
+  final String? value;
+  final bool isLoading;
 
   @override
   State<GridInfoWidget> createState() => _GridInfoWidgetState();
@@ -41,10 +40,10 @@ class _GridInfoWidgetState extends State<GridInfoWidget>
   @override
   void didUpdateWidget(GridInfoWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.highlight && !oldWidget.highlight) {
-      _highlightController.forward(from: 0).then((_) {
-        if (mounted) _highlightController.reverse();
-      });
+    if (oldWidget.value != null &&
+        widget.value != null &&
+        widget.value != oldWidget.value) {
+      _runHighlight();
     }
   }
 
@@ -54,8 +53,19 @@ class _GridInfoWidgetState extends State<GridInfoWidget>
     super.dispose();
   }
 
+  void _runHighlight() {
+    _highlightController.forward(from: 0).then((_) {
+      if (mounted) _highlightController.reverse();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final labelStyle = context.theme.typography.sm.copyWith(
+      color: context.theme.colors.mutedForeground,
+    );
+    final valueStyle = context.theme.typography.md;
+
     return FCard.raw(
       clipBehavior: Clip.antiAlias,
       child: AnimatedBuilder(
@@ -74,10 +84,52 @@ class _GridInfoWidgetState extends State<GridInfoWidget>
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [widget.label, widget.value],
+            children: [
+              Text(
+                widget.label,
+                style: labelStyle,
+                textAlign: TextAlign.center,
+              ),
+              _GridInfoValueText(
+                value: widget.value,
+                style: valueStyle,
+                isLoading: widget.isLoading,
+              ),
+            ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _GridInfoValueText extends StatelessWidget {
+  const _GridInfoValueText({
+    required this.value,
+    required this.style,
+    required this.isLoading,
+  });
+
+  final String? value;
+  final TextStyle style;
+  final bool isLoading;
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      return Bone.text(width: 96, style: style, textAlign: TextAlign.center);
+    }
+
+    final value = this.value ?? '-';
+    return Text(
+      value,
+      style: style.copyWith(
+        fontFeatures: [
+          ...?style.fontFeatures,
+          const FontFeature.tabularFigures(),
+        ],
+      ),
+      textAlign: TextAlign.center,
     );
   }
 }
