@@ -9,7 +9,9 @@ import 'package:go_router/go_router.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 
 class ChangePasswordDialog extends ConsumerStatefulWidget {
-  const ChangePasswordDialog({super.key});
+  final Animation<double> animation;
+
+  const ChangePasswordDialog(this.animation, {super.key});
 
   @override
   ConsumerState createState() => _ChangePasswordDialogState();
@@ -41,80 +43,81 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    return FDialog(
+    return FDialog.adaptive(
       clipBehavior: Clip.antiAlias,
-      direction: Axis.horizontal,
-      // title: Text(loc.change_password),
-      body: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            FTextFormField.password(
-              enabled: !_isSaving,
-              label: Text(loc.current_password),
-              control: FTextFieldControl.managed(
-                controller: _currentPasswordController,
+      animation: widget.animation,
+      title: Text(loc.change_password),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(vertical: Spaces.medium),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: Spaces.medium,
+            children: [
+              FTextFormField.password(
+                enabled: !_isSaving,
+                label: Text(loc.current_password),
+                control: FTextFieldControl.managed(
+                  controller: _currentPasswordController,
+                ),
+                autovalidateMode: AutovalidateMode.onUnfocus,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return loc.cannot_be_empty;
+                  }
+                  return null;
+                },
               ),
-              autovalidateMode: AutovalidateMode.onUnfocus,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return loc.cannot_be_empty;
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: Spaces.medium),
-            FTextFormField.password(
-              enabled: !_isSaving,
-              label: Text(loc.new_password),
-              control: FTextFieldControl.managed(
-                controller: _newPasswordController,
+              FTextFormField.password(
+                enabled: !_isSaving,
+                label: Text(loc.new_password),
+                control: FTextFieldControl.managed(
+                  controller: _newPasswordController,
+                ),
+                autovalidateMode: AutovalidateMode.onUnfocus,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return loc.cannot_be_empty;
+                  }
+                  if (value.trim() == _currentPasswordController.text) {
+                    return loc.same_old_new_password_error;
+                  }
+                  return null;
+                },
               ),
-              autovalidateMode: AutovalidateMode.onUnfocus,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return loc.cannot_be_empty;
-                }
-                if (value.trim() == _currentPasswordController.text) {
-                  return loc.same_old_new_password_error;
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: Spaces.medium),
-            FTextFormField.password(
-              enabled: !_isSaving,
-              label: Text(loc.confirm_new_password),
-              control: FTextFieldControl.managed(
-                controller: _confirmNewPasswordController,
+              FTextFormField.password(
+                enabled: !_isSaving,
+                label: Text(loc.confirm_new_password),
+                control: FTextFieldControl.managed(
+                  controller: _confirmNewPasswordController,
+                ),
+                autovalidateMode: AutovalidateMode.onUnfocus,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return loc.cannot_be_empty;
+                  }
+                  if (value.trim() != _newPasswordController.text) {
+                    return loc.not_match_new_password_error;
+                  }
+                  return null;
+                },
               ),
-              autovalidateMode: AutovalidateMode.onUnfocus,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return loc.cannot_be_empty;
-                }
-                if (value.trim() != _newPasswordController.text) {
-                  return loc.not_match_new_password_error;
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: Spaces.medium),
-          ],
+            ],
+          ),
         ),
       ),
       actions: [
-        FButton(
-          variant: .outline,
-          onPress: _isSaving ? null : () => context.pop(),
-          child: Text(loc.cancel_button),
-        ),
         AsyncFButton(
           isLoading: _isSaving,
           onPress: _onSave,
           child: Text(loc.save),
+        ),
+        FButton(
+          variant: .outline,
+          onPress: _isSaving ? null : () => context.pop(),
+          child: Text(loc.cancel_button),
         ),
       ],
     );

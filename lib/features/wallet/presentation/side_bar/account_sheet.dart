@@ -80,7 +80,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
     showAppDialog<void>(
       context: context,
       builder: (context, style, animation) {
-        return ChangePasswordDialog();
+        return ChangePasswordDialog(animation);
       },
     );
   }
