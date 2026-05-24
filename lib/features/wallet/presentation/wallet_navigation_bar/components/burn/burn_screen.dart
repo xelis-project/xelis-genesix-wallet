@@ -12,8 +12,8 @@ import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/async_f_button.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 // import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
@@ -34,6 +34,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
 
   String? _selectedAsset;
   String _selectedAssetBalance = AppResources.zeroBalance;
+  var _isReviewing = false;
 
   @override
   void initState() {
@@ -239,7 +240,8 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
                   children: [
                     if (context.isWideScreen) const Spacer(),
                     Expanded(
-                      child: FButton(
+                      child: AsyncFButton(
+                        isLoading: _isReviewing,
                         onPress: validAssets.isEmpty ? null : _reviewBurn,
                         child: Text(loc.review_burn),
                       ),
@@ -256,6 +258,8 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
   }
 
   Future<void> _reviewBurn() async {
+    if (_isReviewing) return;
+
     final loc = ref.read(appLocalizationsProvider);
 
     // Ensure asset is in sync with controller
@@ -283,20 +287,24 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
     final amountText = _amountController.text.trim();
     final asset = _selectedAsset!;
 
-    context.loaderOverlay.show();
+    setState(() => _isReviewing = true);
 
-    (TransactionSummary?, String?) record;
-    if (amountText == _selectedAssetBalance) {
-      record = await ref.read(walletCommandsProvider).burnAll(asset: asset);
-    } else {
-      record = await ref
-          .read(walletCommandsProvider)
-          .burn(amount: double.parse(amountText), asset: asset);
+    late (TransactionSummary?, String?) record;
+    try {
+      if (amountText == _selectedAssetBalance) {
+        record = await ref.read(walletCommandsProvider).burnAll(asset: asset);
+      } else {
+        record = await ref
+            .read(walletCommandsProvider)
+            .burn(amount: double.parse(amountText), asset: asset);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isReviewing = false);
+      }
     }
 
-    if (mounted && context.loaderOverlay.visible) {
-      context.loaderOverlay.hide();
-    }
+    if (!mounted) return;
 
     // MULTISIG: hash to sign
     if (record.$2 != null) {
@@ -308,9 +316,6 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
           .read(transactionReviewProvider.notifier)
           .setBurnTransaction(record.$1!);
     } else {
-      if (mounted && context.loaderOverlay.visible) {
-        context.loaderOverlay.hide();
-      }
       return;
     }
 

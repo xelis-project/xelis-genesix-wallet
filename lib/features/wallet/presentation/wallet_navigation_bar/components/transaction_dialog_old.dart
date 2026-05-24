@@ -21,7 +21,6 @@ import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/generic_dialog_old.dart';
 import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown_old.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 
 class TransactionDialog extends ConsumerStatefulWidget {
@@ -35,6 +34,8 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
   final _signaturesFormKey = GlobalKey<FormBuilderState>(
     debugLabel: '_signaturesFormKey',
   );
+  var _isProcessingSignatures = false;
+  var _isBroadcasting = false;
 
   @override
   Widget build(BuildContext context) {
@@ -242,9 +243,13 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
           duration: const Duration(milliseconds: AppDurations.animFast),
           child: signaturePending
               ? TextButton.icon(
-                  onPressed: _processSignatures,
+                  onPressed: _isProcessingSignatures
+                      ? null
+                      : _processSignatures,
                   label: Text(loc.next),
-                  icon: Icon(FLucideIcons.arrowRight, size: 18),
+                  icon: _isProcessingSignatures
+                      ? const FCircularProgress.loader()
+                      : Icon(FLucideIcons.arrowRight, size: 18),
                 )
               : transactionReview.isBroadcasted
               ? TextButton(
@@ -254,14 +259,16 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
                   child: Text(loc.ok_button),
                 )
               : TextButton.icon(
-                  onPressed: transactionReview.isConfirmed
+                  onPressed: transactionReview.isConfirmed && !_isBroadcasting
                       ? () => startWithBiometricAuth(
                           ref,
                           callback: _broadcastTransfer,
                           reason: loc.please_authenticate_tx,
                         )
                       : null,
-                  icon: const Icon(FLucideIcons.send, size: 18),
+                  icon: _isBroadcasting
+                      ? const FCircularProgress.loader()
+                      : const Icon(FLucideIcons.send, size: 18),
                   label: Text(loc.broadcast),
                 ),
         ),
@@ -270,9 +277,15 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
   }
 
   Future<void> _processSignatures() async {
-    context.loaderOverlay.show();
+    if (_isProcessingSignatures) return;
 
-    if (_signaturesFormKey.currentState?.saveAndValidate() ?? false) {
+    if (!(_signaturesFormKey.currentState?.saveAndValidate() ?? false)) {
+      return;
+    }
+
+    setState(() => _isProcessingSignatures = true);
+
+    try {
       List<SignatureMultisig> signatures = List.generate(
         ref.read(walletRuntimeProvider).multisigState.threshold,
         (index) {
@@ -308,18 +321,20 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
           talker.error('Unknown transaction type');
         }
       }
-    }
-
-    if (mounted && context.loaderOverlay.visible) {
-      context.loaderOverlay.hide();
+    } finally {
+      if (mounted) {
+        setState(() => _isProcessingSignatures = false);
+      }
     }
   }
 
   Future<void> _broadcastTransfer(WidgetRef ref) async {
-    final loc = ref.read(appLocalizationsProvider);
-    try {
-      ref.context.loaderOverlay.show();
+    if (_isBroadcasting) return;
 
+    final loc = ref.read(appLocalizationsProvider);
+    setState(() => _isBroadcasting = true);
+
+    try {
       final transactionReview = ref.read(transactionReviewProvider);
 
       switch (transactionReview) {
@@ -347,10 +362,10 @@ class _TransactionDialogState extends ConsumerState<TransactionDialog> {
     } catch (e) {
       talker.error('Cannot broadcast transaction: $e');
       ref.read(toastProvider.notifier).showError(description: e.toString());
-    }
-
-    if (ref.context.mounted) {
-      ref.context.loaderOverlay.hide();
+    } finally {
+      if (mounted) {
+        setState(() => _isBroadcasting = false);
+      }
     }
   }
 }

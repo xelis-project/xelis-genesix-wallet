@@ -19,7 +19,6 @@ import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/generic_dialog_old.dart';
 import 'package:genesix/shared/widgets/components/warning_widget_old.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 
@@ -40,6 +39,8 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
 
   bool _isBroadcast = false;
   bool _isConfirmed = false;
+  bool _isPreparing = false;
+  bool _isBroadcasting = false;
   TransactionSummary? _transactionSummary;
 
   @override
@@ -434,20 +435,24 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                       child: Text(loc.ok_button),
                     )
                   : TextButton.icon(
-                      onPressed: _isConfirmed
+                      onPressed: _isConfirmed && !_isBroadcasting
                           ? () => startWithBiometricAuth(
                               ref,
                               callback: _broadcastTransfer,
                               reason: loc.please_authenticate_tx,
                             )
                           : null,
-                      icon: const Icon(FLucideIcons.send, size: 18),
+                      icon: _isBroadcasting
+                          ? const FCircularProgress.loader()
+                          : const Icon(FLucideIcons.send, size: 18),
                       label: Text(loc.broadcast),
                     )
             : TextButton.icon(
-                onPressed: _confirmMultisigSetup,
+                onPressed: _isPreparing ? null : _confirmMultisigSetup,
                 label: Text(loc.next),
-                icon: Icon(FLucideIcons.arrowRight, size: 18),
+                icon: _isPreparing
+                    ? const FCircularProgress.loader()
+                    : Icon(FLucideIcons.arrowRight, size: 18),
               ),
       ],
     );
@@ -563,6 +568,8 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
   }
 
   Future<void> _confirmMultisigSetup() async {
+    if (_isPreparing) return;
+
     if (_multisigFormKey.currentState?.saveAndValidate() ?? false) {
       final loc = ref.read(appLocalizationsProvider);
 
@@ -581,11 +588,20 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                   .toList()
               as List<String>;
 
-      context.loaderOverlay.show();
+      setState(() => _isPreparing = true);
 
-      final transactionSummary = await ref
-          .read(walletCommandsProvider)
-          .setupMultisig(participants: participants, threshold: threshold);
+      final TransactionSummary? transactionSummary;
+      try {
+        transactionSummary = await ref
+            .read(walletCommandsProvider)
+            .setupMultisig(participants: participants, threshold: threshold);
+      } finally {
+        if (mounted) {
+          setState(() => _isPreparing = false);
+        }
+      }
+
+      if (!mounted) return;
 
       if (transactionSummary != null) {
         if (transactionSummary.isMultiSig) {
@@ -596,18 +612,16 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
           ref.read(toastProvider.notifier).showError(description: loc.oups);
         }
       }
-
-      if (mounted && context.loaderOverlay.visible) {
-        context.loaderOverlay.hide();
-      }
     }
   }
 
   Future<void> _broadcastTransfer(WidgetRef ref) async {
-    final loc = ref.read(appLocalizationsProvider);
-    try {
-      ref.context.loaderOverlay.show();
+    if (_isBroadcasting) return;
 
+    final loc = ref.read(appLocalizationsProvider);
+    setState(() => _isBroadcasting = true);
+
+    try {
       await ref
           .read(walletCommandsProvider)
           .broadcastTx(hash: _transactionSummary!.hash);
@@ -628,10 +642,10 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
     } catch (e) {
       talker.error('Cannot broadcast transaction: $e');
       ref.read(toastProvider.notifier).showError(description: e.toString());
-    }
-
-    if (ref.context.mounted) {
-      ref.context.loaderOverlay.hide();
+    } finally {
+      if (mounted) {
+        setState(() => _isBroadcasting = false);
+      }
     }
   }
 }

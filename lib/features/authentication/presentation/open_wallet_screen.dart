@@ -16,13 +16,13 @@ import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jovial_svg/jovial_svg.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 import 'package:genesix/features/authentication/application/wallets_provider.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/async_f_button.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:genesix/features/authentication/presentation/components/current_network_indicator.dart';
 
@@ -38,6 +38,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
   final _formKey = GlobalKey<FormState>();
   late final FSelectController<String> _selectController =
       FSelectController<String>();
+  var _isOpening = false;
 
   @override
   void dispose() {
@@ -74,7 +75,9 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
             padding: const EdgeInsets.all(Spaces.small),
             child: FHeaderAction(
               icon: Icon(FLucideIcons.settings),
-              onPress: () => context.push(AppScreen.lightSettings.toPath),
+              onPress: _isOpening
+                  ? null
+                  : () => context.push(AppScreen.lightSettings.toPath),
             ),
           ),
         ],
@@ -131,6 +134,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
                             children: [
                               const SizedBox(height: Spaces.medium),
                               FSelect<String>.rich(
+                                enabled: !_isOpening,
                                 control: .managed(
                                   controller: _selectController,
                                   onChange: _handleWalletSelected,
@@ -162,16 +166,20 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
                                 }).toList(),
                               ),
                               const SizedBox(height: Spaces.large),
-                              FButton(
-                                onPress: () =>
-                                    _handleOpenWalletButtonPressed(context),
+                              AsyncFButton(
+                                isLoading: _isOpening,
+                                onPress: _isOpening
+                                    ? null
+                                    : () => _handleOpenWalletButtonPressed(
+                                        context,
+                                      ),
                                 child: Text(loc.open_wallet),
                               ),
                             ],
                           ),
                         ),
                         FDivider(),
-                        _OpenWalletActions(),
+                        _OpenWalletActions(enabled: !_isOpening),
                       ],
                     );
                   }
@@ -182,7 +190,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
                       children: [
                         _NoWalletsContent(message: loc.no_wallet_available),
                         const SizedBox(height: Spaces.large),
-                        _OpenWalletActions(),
+                        const _OpenWalletActions(enabled: true),
                       ],
                     );
                   }
@@ -214,20 +222,21 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
     final walletName = _selectController.value;
     if (walletName == null) return;
 
-    // Try biometrics
     final opened = await _openWalletWithBiometrics(walletName);
     if (opened || !context.mounted) return;
 
-    // Fallback to password dialog
-    showAppDialog<void>(
+    final password = await showAppDialog<String>(
       context: context,
       builder: (dialogContext, _, animation) {
         return PasswordDialog(
           animation,
-          onEnter: (password) => _openWallet(walletName, password),
+          onEnter: (password) => dialogContext.pop(password),
         );
       },
     );
+    if (password == null || !mounted) return;
+
+    await _openWallet(walletName, password);
   }
 
   Future<bool> _openWalletWithBiometrics(String name) async {
@@ -263,19 +272,24 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
   }
 
   Future<bool> _openWallet(String name, String password) async {
-    context.loaderOverlay.show();
+    if (_isOpening) return false;
+
+    setState(() => _isOpening = true);
+
+    var keepOpening = false;
     try {
       final result = await ref
           .read(walletSessionCommandsProvider.notifier)
           .openWallet(name, password);
       if (result is WalletSessionCommandSuccess && mounted) {
+        keepOpening = true;
         context.go(AuthAppScreen.home.toPath, extra: result.seedToReveal);
         return true;
       }
       return false;
     } finally {
-      if (mounted && context.loaderOverlay.visible) {
-        context.loaderOverlay.hide();
+      if (!keepOpening && mounted) {
+        setState(() => _isOpening = false);
       }
     }
   }
@@ -313,7 +327,9 @@ class _NoWalletsContent extends StatelessWidget {
 }
 
 class _OpenWalletActions extends ConsumerWidget {
-  const _OpenWalletActions();
+  const _OpenWalletActions({required this.enabled});
+
+  final bool enabled;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -324,17 +340,21 @@ class _OpenWalletActions extends ConsumerWidget {
       children: [
         FButton(
           variant: .outline,
-          onPress: () {
-            context.push(AppScreen.createWallet.toPath);
-          },
+          onPress: enabled
+              ? () {
+                  context.push(AppScreen.createWallet.toPath);
+                }
+              : null,
           child: Text(loc.create_wallet),
         ),
         const SizedBox(height: Spaces.medium),
         FButton(
           variant: .outline,
-          onPress: () {
-            context.push(AppScreen.importWallet.toPath);
-          },
+          onPress: enabled
+              ? () {
+                  context.push(AppScreen.importWallet.toPath);
+                }
+              : null,
           child: Text(loc.import_wallet),
         ),
       ],

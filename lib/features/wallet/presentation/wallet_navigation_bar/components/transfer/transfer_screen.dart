@@ -14,8 +14,8 @@ import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/async_f_button.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:recase/recase.dart';
 import 'package:go_router/go_router.dart';
@@ -45,6 +45,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
   String _estimatedFee = AppResources.zeroBalance;
   String _baseFee = AppResources.zeroBalance;
   double _boostMultiplier = 1.0;
+  var _isReviewing = false;
 
   void _onFormInputChanged() {
     if (!mounted) return;
@@ -434,7 +435,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
                   const SizedBox(height: Spaces.large),
 
                   // Review Button
-                  FButton(
+                  AsyncFButton(
+                    isLoading: _isReviewing,
                     onPress:
                         validAssets.isEmpty ||
                             _selectedAsset == null ||
@@ -521,41 +523,9 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
     }
   }
 
-  // Future<void> _broadcastTransfer() async {
-  //   final loc = ref.read(appLocalizationsProvider);
-  //
-  //   try {
-  //     context.loaderOverlay.show();
-  //
-  //     final transactionReview = ref.read(transactionReviewProvider);
-  //
-  //     if (transactionReview is SingleTransferTransaction) {
-  //       await ref
-  //           .read(walletRuntimeProvider.notifier)
-  //           .broadcastTx(hash: transactionReview.txHash);
-  //
-  //       ref.read(transactionReviewProvider.notifier).broadcast();
-  //
-  //       ref
-  //           .read(toastProvider.notifier)
-  //           .showEvent(description: loc.transaction_broadcast_message);
-  //     } else {
-  //       ref
-  //           .read(toastProvider.notifier)
-  //           .showError(
-  //             description: 'Unexpected transaction type for broadcast.',
-  //           );
-  //     }
-  //   } catch (e) {
-  //     ref.read(toastProvider.notifier).showError(description: e.toString());
-  //   } finally {
-  //     if (context.mounted && context.loaderOverlay.visible) {
-  //       context.loaderOverlay.hide();
-  //     }
-  //   }
-  // }
-
   void _reviewTransfer() async {
+    if (_isReviewing) return;
+
     // Update selected asset from controller
     final selectedAsset = _assetController.value;
     if (selectedAsset != null) {
@@ -588,26 +558,30 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
       final amount = _amountController.text.trim();
       final address = _addressController.text.trim();
 
-      context.loaderOverlay.show();
+      setState(() => _isReviewing = true);
 
-      (TransactionSummary?, String?) record;
-      if (amount == _selectedAssetBalance) {
-        record = await ref
-            .read(walletCommandsProvider)
-            .sendAll(destination: address, asset: _selectedAsset!);
-      } else {
-        record = await ref
-            .read(walletCommandsProvider)
-            .send(
-              amount: double.parse(amount),
-              destination: address,
-              asset: _selectedAsset!,
-            );
+      late (TransactionSummary?, String?) record;
+      try {
+        if (amount == _selectedAssetBalance) {
+          record = await ref
+              .read(walletCommandsProvider)
+              .sendAll(destination: address, asset: _selectedAsset!);
+        } else {
+          record = await ref
+              .read(walletCommandsProvider)
+              .send(
+                amount: double.parse(amount),
+                destination: address,
+                asset: _selectedAsset!,
+              );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isReviewing = false);
+        }
       }
 
-      if (mounted && context.loaderOverlay.visible) {
-        context.loaderOverlay.hide();
-      }
+      if (!mounted) return;
 
       if (record.$2 != null) {
         // MULTISIG: hash to sign → legacy dialog

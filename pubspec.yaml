@@ -26,7 +26,6 @@ dependencies:
   riverpod_annotation: ^4.0.2
   shared_preferences: ^2.5.5
   xelis_dart_sdk: ^0.30.12
-  loader_overlay: ^5.0.0
   pretty_qr_code: ^3.6.0
   mobile_scanner: ^7.2.0
   flutter_native_splash: ^2.4.7

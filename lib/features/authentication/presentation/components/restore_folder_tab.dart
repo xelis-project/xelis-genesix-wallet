@@ -13,9 +13,9 @@ import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/async_f_button.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 import 'package:path/path.dart' as p;
 
 class RestoreFolderTab extends ConsumerStatefulWidget {
@@ -27,6 +27,7 @@ class RestoreFolderTab extends ConsumerStatefulWidget {
 
 class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
   ({String path, String walletName})? _selectedWalletFolder;
+  var _isOpening = false;
 
   @override
   Widget build(BuildContext context) {
@@ -56,9 +57,11 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
                 Text(loc.select_wallet_folder_restore),
             childAnchor: Alignment.bottomCenter,
             child: MouseRegion(
-              cursor: SystemMouseCursors.click,
+              cursor: _isOpening
+                  ? SystemMouseCursors.basic
+                  : SystemMouseCursors.click,
               child: GestureDetector(
-                onTap: _importWalletFolder,
+                onTap: _isOpening ? null : _importWalletFolder,
                 child: SizedBox(
                   width: double.infinity,
                   height: 200,
@@ -97,10 +100,9 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
                         ],
                       ),
                       const SizedBox(height: Spaces.large),
-                      FButton(
-                        onPress: () {
-                          _openImportedWallet();
-                        },
+                      AsyncFButton(
+                        isLoading: _isOpening,
+                        onPress: _openImportedWallet,
                         child: Text(loc.open_button),
                       ),
                     ],
@@ -157,25 +159,32 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
   }
 
   Future<void> _openImportedWallet() async {
+    if (_isOpening) return;
+
     final password = await _getPassword();
     if (password != null) {
       if (!mounted) return;
-      context.loaderOverlay.show();
 
-      final result = await ref
-          .read(walletSessionCommandsProvider.notifier)
-          .openImportedWallet(
-            _selectedWalletFolder!.path,
-            _selectedWalletFolder!.walletName,
-            password,
-          );
+      setState(() => _isOpening = true);
 
-      if (result is WalletSessionCommandSuccess && mounted) {
-        context.go(AuthAppScreen.home.toPath, extra: result.seedToReveal);
-      }
+      var keepOpening = false;
+      try {
+        final result = await ref
+            .read(walletSessionCommandsProvider.notifier)
+            .openImportedWallet(
+              _selectedWalletFolder!.path,
+              _selectedWalletFolder!.walletName,
+              password,
+            );
 
-      if (mounted && context.loaderOverlay.visible) {
-        context.loaderOverlay.hide();
+        if (result is WalletSessionCommandSuccess && mounted) {
+          keepOpening = true;
+          context.go(AuthAppScreen.home.toPath, extra: result.seedToReveal);
+        }
+      } finally {
+        if (!keepOpening && mounted) {
+          setState(() => _isOpening = false);
+        }
       }
     }
   }

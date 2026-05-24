@@ -15,7 +15,6 @@ import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget_old.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 
 class MultisigScreen extends ConsumerStatefulWidget {
@@ -26,6 +25,8 @@ class MultisigScreen extends ConsumerStatefulWidget {
 }
 
 class _MultisigScreenState extends ConsumerState<MultisigScreen> {
+  var _isDeletingMultisig = false;
+
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
@@ -177,7 +178,12 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                             width: 1,
                           ),
                         ),
-                        onPressed: _showDeleteMultisigDialog,
+                        onPressed: _isDeletingMultisig
+                            ? null
+                            : _showDeleteMultisigDialog,
+                        icon: _isDeletingMultisig
+                            ? const FCircularProgress.loader()
+                            : Icon(FLucideIcons.trash2),
                         label: Text(
                           loc.delete_multisig_configuration,
                           style: context.titleSmall!.copyWith(
@@ -243,17 +249,20 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
   }
 
   void _showDeleteMultisigDialog() async {
-    context.loaderOverlay.show();
+    if (_isDeletingMultisig) return;
 
-    final unsignedTx = await ref
-        .read(walletCommandsProvider)
-        .startDeleteMultisig();
+    setState(() => _isDeletingMultisig = true);
+
+    final String? unsignedTx;
+    try {
+      unsignedTx = await ref.read(walletCommandsProvider).startDeleteMultisig();
+    } finally {
+      if (mounted) {
+        setState(() => _isDeletingMultisig = false);
+      }
+    }
 
     if (mounted) {
-      if (context.loaderOverlay.visible) {
-        context.loaderOverlay.hide();
-      }
-
       if (unsignedTx != null) {
         ref
             .read(transactionReviewProvider.notifier)

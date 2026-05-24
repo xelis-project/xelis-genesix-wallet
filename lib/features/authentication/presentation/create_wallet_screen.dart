@@ -9,8 +9,8 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/async_f_button.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 
 class CreateWalletScreen extends ConsumerStatefulWidget {
   const CreateWalletScreen({super.key});
@@ -25,6 +25,7 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  var _isCreating = false;
 
   @override
   dispose() {
@@ -50,7 +51,9 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
             padding: const EdgeInsets.all(Spaces.small),
             child: FHeaderAction(
               icon: Icon(FLucideIcons.settings),
-              onPress: () => context.push(AppScreen.lightSettings.toPath),
+              onPress: _isCreating
+                  ? null
+                  : () => context.push(AppScreen.lightSettings.toPath),
             ),
           ),
         ],
@@ -74,6 +77,7 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
                   children: [
                     const SizedBox(height: Spaces.medium),
                     FTextFormField(
+                      enabled: !_isCreating,
                       control: .managed(controller: _nameController),
                       label: Text(loc.wallet_name),
                       keyboardType: TextInputType.text,
@@ -88,6 +92,7 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
                     ),
                     const SizedBox(height: Spaces.medium),
                     FTextFormField(
+                      enabled: !_isCreating,
                       control: .managed(controller: _passwordController),
                       label: Text(loc.password.capitalize()),
                       obscureText: true,
@@ -103,6 +108,7 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
                     ),
                     const SizedBox(height: Spaces.medium),
                     FTextFormField(
+                      enabled: !_isCreating,
                       control: .managed(controller: _confirmPasswordController),
                       label: Text(loc.confirm_your_password),
                       obscureText: true,
@@ -120,7 +126,8 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
                       },
                     ),
                     const SizedBox(height: Spaces.large),
-                    FButton(
+                    AsyncFButton(
+                      isLoading: _isCreating,
                       onPress: _createWallet,
                       child: Text(loc.create_button),
                     ),
@@ -135,9 +142,14 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
   }
 
   void _createWallet() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      context.loaderOverlay.show();
+    if (_isCreating || !(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
 
+    setState(() => _isCreating = true);
+
+    var keepCreating = false;
+    try {
       final result = await ref
           .read(walletSessionCommandsProvider.notifier)
           .createWallet(
@@ -146,11 +158,12 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
           );
 
       if (result is WalletSessionCommandSuccess && mounted) {
+        keepCreating = true;
         context.go(AuthAppScreen.home.toPath, extra: result.seedToReveal);
       }
-
-      if (mounted && context.loaderOverlay.visible) {
-        context.loaderOverlay.hide();
+    } finally {
+      if (!keepCreating && mounted) {
+        setState(() => _isCreating = false);
       }
     }
   }

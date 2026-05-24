@@ -6,7 +6,6 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -25,6 +24,7 @@ import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/input_decoration_old.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/async_f_button.dart';
 import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown_old.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 
@@ -43,6 +43,8 @@ class _TransactionReviewDialogNewState
   final _signaturesFormKey = GlobalKey<FormBuilderState>(
     debugLabel: '_signaturesFormKey',
   );
+  var _isProcessingSignatures = false;
+  var _isBroadcasting = false;
 
   @override
   Widget build(BuildContext context) {
@@ -295,8 +297,9 @@ class _TransactionReviewDialogNewState
 
     // 1) Multisig, signatures not finalized yet → Next
     if (signaturePending) {
-      return FButton(
+      return AsyncFButton(
         key: const ValueKey('next'),
+        isLoading: _isProcessingSignatures,
         onPress: _processSignatures,
         prefix: const Icon(FLucideIcons.arrowRight, size: 18),
         child: Text(loc.next),
@@ -315,8 +318,9 @@ class _TransactionReviewDialogNewState
     // 3) Ready to broadcast → Broadcast (gated by confirmation)
     final canBroadcast = transactionReview.isConfirmed;
 
-    return FButton(
+    return AsyncFButton(
       key: const ValueKey('broadcast'),
+      isLoading: _isBroadcasting,
       onPress: canBroadcast
           ? () => startWithBiometricAuth(
               ref,
@@ -332,11 +336,16 @@ class _TransactionReviewDialogNewState
   /// --- Logic: finalize multisig signatures ---
 
   Future<void> _processSignatures() async {
-    context.loaderOverlay.show();
+    if (_isProcessingSignatures) return;
 
-    if (_signaturesFormKey.currentState?.saveAndValidate() ?? false) {
+    if (!(_signaturesFormKey.currentState?.saveAndValidate() ?? false)) {
+      return;
+    }
+
+    setState(() => _isProcessingSignatures = true);
+
+    try {
       final threshold = ref.read(walletRuntimeProvider).multisigState.threshold;
-
       final signatures = List<SignatureMultisig>.generate(threshold, (index) {
         final multisigParticipant =
             _signaturesFormKey.currentState?.fields['id_$index']?.value
@@ -349,7 +358,6 @@ class _TransactionReviewDialogNewState
           signature: signature,
         );
       });
-
       final tx = await ref
           .read(walletCommandsProvider)
           .finalizeMultisigTransaction(signatures: signatures);
@@ -369,20 +377,22 @@ class _TransactionReviewDialogNewState
           talker.error('Unknown transaction type');
         }
       }
-    }
-
-    if (mounted && context.loaderOverlay.visible) {
-      context.loaderOverlay.hide();
+    } finally {
+      if (mounted) {
+        setState(() => _isProcessingSignatures = false);
+      }
     }
   }
 
   /// --- Logic: broadcast any reviewed transaction ---
 
   Future<void> _broadcastTransfer(WidgetRef ref) async {
-    final loc = ref.read(appLocalizationsProvider);
-    try {
-      context.loaderOverlay.show();
+    if (_isBroadcasting) return;
 
+    final loc = ref.read(appLocalizationsProvider);
+    setState(() => _isBroadcasting = true);
+
+    try {
       final transactionReview = ref.read(transactionReviewProvider);
 
       switch (transactionReview) {
@@ -410,10 +420,10 @@ class _TransactionReviewDialogNewState
     } catch (e) {
       talker.error('Cannot broadcast transaction: $e');
       ref.read(toastProvider.notifier).showError(description: e.toString());
-    }
-
-    if (mounted && context.loaderOverlay.visible) {
-      context.loaderOverlay.hide();
+    } finally {
+      if (mounted) {
+        setState(() => _isBroadcasting = false);
+      }
     }
   }
 }

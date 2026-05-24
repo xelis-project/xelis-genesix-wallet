@@ -7,8 +7,8 @@ import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/async_f_button.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 
 class RecoveryPhraseTab extends ConsumerStatefulWidget {
   const RecoveryPhraseTab({super.key});
@@ -25,6 +25,7 @@ class _RecoveryPhraseTabState extends ConsumerState<RecoveryPhraseTab> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  var _isRecovering = false;
 
   @override
   void dispose() {
@@ -47,6 +48,7 @@ class _RecoveryPhraseTabState extends ConsumerState<RecoveryPhraseTab> {
           children: [
             const SizedBox(height: Spaces.medium),
             FTextFormField.multiline(
+              enabled: !_isRecovering,
               control: .managed(controller: _recoveryPhraseController),
               label: Text(loc.recovery_phrase),
               validator: (value) {
@@ -64,6 +66,7 @@ class _RecoveryPhraseTabState extends ConsumerState<RecoveryPhraseTab> {
             ),
             const SizedBox(height: Spaces.medium),
             FTextFormField(
+              enabled: !_isRecovering,
               control: .managed(controller: _nameController),
               label: Text(loc.wallet_name),
               keyboardType: TextInputType.text,
@@ -76,6 +79,7 @@ class _RecoveryPhraseTabState extends ConsumerState<RecoveryPhraseTab> {
             ),
             const SizedBox(height: Spaces.medium),
             FTextFormField(
+              enabled: !_isRecovering,
               control: .managed(controller: _passwordController),
               label: Text(loc.password.capitalize()),
               obscureText: true,
@@ -89,6 +93,7 @@ class _RecoveryPhraseTabState extends ConsumerState<RecoveryPhraseTab> {
             ),
             const SizedBox(height: Spaces.medium),
             FTextFormField(
+              enabled: !_isRecovering,
               control: .managed(controller: _confirmPasswordController),
               label: Text(loc.confirm_password.capitalizeAll()),
               obscureText: true,
@@ -104,7 +109,11 @@ class _RecoveryPhraseTabState extends ConsumerState<RecoveryPhraseTab> {
               },
             ),
             const SizedBox(height: Spaces.large),
-            FButton(onPress: _createWallet, child: Text(loc.recover_button)),
+            AsyncFButton(
+              isLoading: _isRecovering,
+              onPress: _createWallet,
+              child: Text(loc.recover_button),
+            ),
           ],
         ),
       ),
@@ -112,9 +121,14 @@ class _RecoveryPhraseTabState extends ConsumerState<RecoveryPhraseTab> {
   }
 
   void _createWallet() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      context.loaderOverlay.show();
+    if (_isRecovering || !(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
 
+    setState(() => _isRecovering = true);
+
+    var keepRecovering = false;
+    try {
       final result = await ref
           .read(walletSessionCommandsProvider.notifier)
           .createWallet(
@@ -124,11 +138,12 @@ class _RecoveryPhraseTabState extends ConsumerState<RecoveryPhraseTab> {
           );
 
       if (result is WalletSessionCommandSuccess && mounted) {
+        keepRecovering = true;
         context.go(AuthAppScreen.home.toPath, extra: result.seedToReveal);
       }
-
-      if (mounted && context.loaderOverlay.visible) {
-        context.loaderOverlay.hide();
+    } finally {
+      if (!keepRecovering && mounted) {
+        setState(() => _isRecovering = false);
       }
     }
   }

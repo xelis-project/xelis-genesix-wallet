@@ -8,8 +8,8 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/async_f_button.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 
 class PasswordDialog extends ConsumerStatefulWidget {
   final FutureOr<void> Function(String password)? onEnter;
@@ -35,18 +35,27 @@ class PasswordDialog extends ConsumerStatefulWidget {
 class _PasswordDialogState extends ConsumerState<PasswordDialog> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   var _password = '';
+  var _isSubmitting = false;
 
   Future<void> _submit(String password) async {
-    if (!(_formKey.currentState?.validate() ?? false)) {
+    if (_isSubmitting || !(_formKey.currentState?.validate() ?? false)) {
       return;
     }
 
     FocusScope.of(context).unfocus();
 
-    await widget.onEnter?.call(password);
+    setState(() => _isSubmitting = true);
 
-    if (widget.onValid != null && mounted) {
-      await _checkWalletPassword(password);
+    try {
+      await widget.onEnter?.call(password);
+
+      if (widget.onValid != null && mounted) {
+        await _checkWalletPassword(password);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
     }
   }
 
@@ -55,8 +64,6 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
     final loc = ref.read(appLocalizationsProvider);
 
     try {
-      context.loaderOverlay.show();
-
       if (wallet == null) {
         throw Exception(loc.oups);
       }
@@ -69,10 +76,6 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
       }
     } catch (e) {
       ref.read(toastProvider.notifier).showError(description: e.toString());
-    } finally {
-      if (mounted && context.loaderOverlay.visible) {
-        context.loaderOverlay.hide();
-      }
     }
   }
 
@@ -94,6 +97,7 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
             child: Form(
               key: _formKey,
               child: FTextFormField.password(
+                enabled: !_isSubmitting,
                 control: .managed(onChange: (value) => _password = value.text),
                 autofocus: true,
                 label: Text(loc.password.capitalize()),
@@ -112,13 +116,14 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
         ],
       ),
       actions: [
-        FButton(
+        AsyncFButton(
+          isLoading: _isSubmitting,
           onPress: () => _submit(_password),
           child: Text(loc.continue_button),
         ),
         FButton(
           variant: .outline,
-          onPress: () => context.pop(),
+          onPress: _isSubmitting ? null : () => context.pop(),
           child: Text(loc.cancel_button),
         ),
       ],
