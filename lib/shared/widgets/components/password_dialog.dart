@@ -1,17 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 
 class PasswordDialog extends ConsumerStatefulWidget {
-  final void Function(String password)? onEnter;
-  final void Function()? onValid;
+  final FutureOr<void> Function(String password)? onEnter;
+  final FutureOr<void> Function()? onValid;
   final bool closeOnValid;
   final Animation<double> animation;
 
@@ -21,35 +23,37 @@ class PasswordDialog extends ConsumerStatefulWidget {
     this.onValid,
     this.closeOnValid = true,
     super.key,
-  });
+  }) : assert(
+         onEnter != null || onValid != null,
+         'PasswordDialog requires either onEnter or onValid.',
+       );
 
   @override
   ConsumerState<PasswordDialog> createState() => _PasswordDialogState();
 }
 
 class _PasswordDialogState extends ConsumerState<PasswordDialog> {
-  late FocusNode _focusNode;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _passwordController = TextEditingController();
-  bool isPasswordVisible = false;
+  var _password = '';
 
-  @override
-  void initState() {
-    super.initState();
-    _focusNode = FocusNode();
-    _focusNode.requestFocus(); // Automatically focus the password field
+  Future<void> _submit(String password) async {
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+
+    FocusScope.of(context).unfocus();
+
+    await widget.onEnter?.call(password);
+
+    if (widget.onValid != null && mounted) {
+      await _checkWalletPassword(password);
+    }
   }
 
-  @override
-  void dispose() {
-    _focusNode.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  void _checkWalletPassword(BuildContext context, String password) async {
+  Future<void> _checkWalletPassword(String password) async {
     final wallet = ref.read(activeWalletRepositoryProvider);
     final loc = ref.read(appLocalizationsProvider);
+
     try {
       context.loaderOverlay.show();
 
@@ -57,21 +61,18 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
         throw Exception(loc.oups);
       }
 
-      // check if password is valid
       await wallet.isValidPassword(password);
+      await widget.onValid?.call();
 
-      // call onValid callback
-      widget.onValid!();
-
-      if (widget.closeOnValid == true && context.mounted) {
-        context.pop(); // hide the dialog
+      if (widget.closeOnValid && mounted) {
+        context.pop();
       }
     } catch (e) {
       ref.read(toastProvider.notifier).showError(description: e.toString());
-    }
-
-    if (context.mounted && context.loaderOverlay.visible) {
-      context.loaderOverlay.hide();
+    } finally {
+      if (mounted && context.loaderOverlay.visible) {
+        context.loaderOverlay.hide();
+      }
     }
   }
 
@@ -79,62 +80,40 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
 
-    return FDialog(
+    return FDialog.adaptive(
       clipBehavior: Clip.antiAlias,
       animation: widget.animation,
-      direction: Axis.horizontal,
       title: Text(loc.authentication.capitalize()),
       body: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(loc.authentication_message),
-          const SizedBox(height: Spaces.large),
-          Form(
-            key: _formKey,
-            child: FTextFormField.password(
-              control: .managed(controller: _passwordController),
-              focusNode: _focusNode,
-              label: Text(loc.password.capitalize()),
-              keyboardType: TextInputType.visiblePassword,
-              validator: (value) {
-                if (value == null || value.isEmpty || value.trim().isEmpty) {
-                  return loc.field_required_error;
-                }
-                return null;
-              },
-              onSubmit: (value) {
-                if (_formKey.currentState?.validate() ?? false) {
-                  if (widget.onEnter != null) {
-                    widget.onEnter!(value);
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: Spaces.medium),
+            child: Form(
+              key: _formKey,
+              child: FTextFormField.password(
+                control: .managed(onChange: (value) => _password = value.text),
+                autofocus: true,
+                label: Text(loc.password.capitalize()),
+                keyboardType: TextInputType.visiblePassword,
+                textInputAction: TextInputAction.done,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return loc.field_required_error;
                   }
-
-                  if (widget.onValid != null) {
-                    _checkWalletPassword(context, value);
-                  }
-
-                  _focusNode.unfocus();
-                }
-              },
+                  return null;
+                },
+                onSubmit: _submit,
+              ),
             ),
           ),
         ],
       ),
       actions: [
         FButton(
-          onPress: () {
-            if (_formKey.currentState?.validate() ?? false) {
-              if (widget.onEnter != null) {
-                widget.onEnter!(_passwordController.text);
-              }
-
-              if (widget.onValid != null) {
-                _checkWalletPassword(context, _passwordController.text);
-              }
-
-              _focusNode.unfocus();
-            }
-          },
+          onPress: () => _submit(_password),
           child: Text(loc.continue_button),
         ),
         FButton(
