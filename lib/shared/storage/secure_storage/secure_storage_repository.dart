@@ -15,6 +15,8 @@ class SecureStorageRepository {
   IOSOptions _getIOSOptions() => IOSOptions(accountName: _namespace);
 
   AndroidOptions _getAndroidOptions() => AndroidOptions(
+    // Keep the legacy Android namespace readable; see .agents/knowledge/PROJECT_NOTES.md.
+    // ignore: deprecated_member_use
     sharedPreferencesName: _namespace,
     preferencesKeyPrefix: 'genesix',
   );
