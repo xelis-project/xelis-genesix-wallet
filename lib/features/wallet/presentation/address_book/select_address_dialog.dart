@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
+import 'package:genesix/features/wallet/presentation/address_book/address_book_empty_state.dart';
+import 'package:genesix/features/wallet/presentation/address_book/contact_list_tile.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:go_router/go_router.dart';
 
 class SelectAddressDialog extends ConsumerStatefulWidget {
@@ -19,14 +19,7 @@ class SelectAddressDialog extends ConsumerStatefulWidget {
 }
 
 class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
-  final _searchController = TextEditingController();
   String _searchQuery = '';
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,8 +54,14 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
 
           // Search Field
           FTextField(
+            prefixBuilder: (context, style, states) =>
+                FTextField.prefixIconBuilder(
+                  context,
+                  style,
+                  states,
+                  const Icon(FLucideIcons.search),
+                ),
             control: .managed(
-              controller: _searchController,
               onChange: (value) {
                 setState(() {
                   _searchQuery = value.text;
@@ -81,7 +80,10 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
             child: addressBook.when(
               data: (book) {
                 if (book.isEmpty) {
-                  return _CenteredMessage(loc.no_contact_found, muted: true);
+                  return AddressBookEmptyState.noContacts(
+                    localizations: loc,
+                    compact: true,
+                  );
                 }
 
                 final filteredContacts = book.entries.where((entry) {
@@ -92,25 +94,23 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
                 }).toList();
 
                 if (filteredContacts.isEmpty) {
-                  return _CenteredMessage(loc.no_contact_found, muted: true);
+                  return AddressBookEmptyState.noSearchResults(
+                    localizations: loc,
+                    compact: true,
+                  );
                 }
 
-                return ListView.separated(
+                return ListView.builder(
                   shrinkWrap: true,
                   itemCount: filteredContacts.length,
-                  separatorBuilder: (context, index) => const FDivider(),
                   itemBuilder: (context, index) {
                     final entry = filteredContacts[index];
                     final address = entry.key;
                     final details = entry.value;
-                    return FItem(
-                      onPress: () => context.pop(address),
-                      prefix: HashiconWidget(
-                        hash: address,
-                        size: const Size(40, 40),
-                      ),
-                      title: Text(details.name),
-                      subtitle: Text(truncateText(address)),
+                    return ContactListTile(
+                      contact: details,
+                      localizations: loc,
+                      onOpen: () => context.pop(address),
                     );
                   },
                 );
@@ -130,15 +130,10 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
 }
 
 class _CenteredMessage extends StatelessWidget {
-  const _CenteredMessage(
-    this.message, {
-    this.destructive = false,
-    this.muted = false,
-  });
+  const _CenteredMessage(this.message, {this.destructive = false});
 
   final String message;
   final bool destructive;
-  final bool muted;
 
   @override
   Widget build(BuildContext context) {
@@ -147,8 +142,6 @@ class _CenteredMessage extends StatelessWidget {
     Color color = colors.foreground;
     if (destructive) {
       color = colors.destructiveForeground;
-    } else if (muted) {
-      color = colors.mutedForeground;
     }
 
     return Center(

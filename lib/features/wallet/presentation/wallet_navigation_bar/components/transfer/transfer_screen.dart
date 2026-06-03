@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
@@ -132,7 +133,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
           prefixes: [
             Padding(
               padding: const EdgeInsets.all(Spaces.small),
-              child: FHeaderAction.back(onPress: () => context.pop()),
+              child: FHeaderAction.back(onPress: _onBackPressed),
             ),
           ],
           title: Text(loc.transfer),
@@ -469,6 +470,14 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
       });
       _updateEstimatedFee();
     }
+  }
+
+  void _onBackPressed() {
+    if (context.canPop()) {
+      context.pop();
+      return;
+    }
+    context.go(AuthAppScreen.home.toPath);
   }
 
   void _updateEstimatedFee() {

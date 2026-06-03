@@ -21,15 +21,14 @@ class AddContactSheet extends ConsumerStatefulWidget {
 
 class _AddContactSheetState extends ConsumerState<AddContactSheet> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
+  late String _name;
+  late String _address;
 
   @override
   void initState() {
     super.initState();
-    if (widget.address != null) {
-      _addressController.text = widget.address!;
-    }
+    _name = '';
+    _address = widget.address ?? '';
   }
 
   @override
@@ -42,10 +41,11 @@ class _AddContactSheetState extends ConsumerState<AddContactSheet> {
         child: Column(
           children: [
             FTextFormField(
-              control: .managed(controller: _nameController),
+              control: .managed(onChange: (value) => _name = value.text),
               label: Text(loc.contact_name),
               hint: loc.contact_name_hint,
               keyboardType: TextInputType.text,
+              autofocus: true,
               maxLines: 1,
               autocorrect: false,
               validator: (value) {
@@ -57,7 +57,10 @@ class _AddContactSheetState extends ConsumerState<AddContactSheet> {
             ),
             const SizedBox(height: Spaces.medium),
             FTextFormField(
-              control: .managed(controller: _addressController),
+              control: .managed(
+                initial: TextEditingValue(text: _address),
+                onChange: (value) => _address = value.text,
+              ),
               label: Text(loc.address),
               hint: 'xel:0x1234567890abcdef1234567890abcdef12345678',
               enabled: widget.address == null,
@@ -68,11 +71,10 @@ class _AddContactSheetState extends ConsumerState<AddContactSheet> {
             ),
             const SizedBox(height: Spaces.large),
             FButton(
-              child: Text(loc.add_contact),
               onPress: () {
                 if (_formKey.currentState?.validate() ?? false) {
-                  final name = _nameController.text.trim();
-                  final address = _addressController.text.trim();
+                  final name = _name.trim();
+                  final address = _address.trim();
                   try {
                     ref
                         .read(addressBookProvider.notifier)
@@ -95,6 +97,7 @@ class _AddContactSheetState extends ConsumerState<AddContactSheet> {
                   }
                 }
               },
+              child: Text(loc.add_contact),
             ),
           ],
         ),
