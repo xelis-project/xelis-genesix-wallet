@@ -62,17 +62,7 @@ extension DisplayUtils on BuildContext {
   }
 }
 
-enum ScreenSize { small, normal, large, extraLarge, extraExtraLarge }
-
 extension FormFactorUtils on BuildContext {
-  ScreenSize get formFactor {
-    double deviceWidth = MediaQuery.of(this).size.width;
-    if (deviceWidth > 1600) return ScreenSize.extraExtraLarge;
-    if (deviceWidth > 900) return ScreenSize.extraLarge;
-    if (deviceWidth > 600) return ScreenSize.large;
-    if (deviceWidth > 300) return ScreenSize.normal;
-    return ScreenSize.small;
-  }
 
   bool get isWideScreen => mediaWidth >= theme.breakpoints.sm;
   bool get isMobile => !isWideScreen;
