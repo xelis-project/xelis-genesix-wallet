@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/shared/theme/more_colors_old.dart';
@@ -63,9 +65,44 @@ extension DisplayUtils on BuildContext {
 }
 
 extension FormFactorUtils on BuildContext {
-
   bool get isWideScreen => mediaWidth >= theme.breakpoints.sm;
   bool get isMobile => !isWideScreen;
+
+  double responsiveDialogMaxWidth({
+    double compact = 420,
+    double medium = 600,
+    double expanded = 720,
+  }) {
+    final breakpoints = theme.breakpoints;
+    final width = mediaWidth;
+
+    if (width < breakpoints.sm) return compact;
+    if (width < breakpoints.lg) return medium;
+    return expanded;
+  }
+
+  double responsiveDialogWidth({
+    double min = 280,
+    double compact = 420,
+    double medium = 600,
+    double expanded = 720,
+    double viewportRatio = 0.9,
+  }) {
+    final maxWidth = responsiveDialogMaxWidth(
+      compact: compact,
+      medium: medium,
+      expanded: expanded,
+    );
+
+    return math.min(maxWidth, math.max(min, mediaWidth * viewportRatio));
+  }
+
+  double responsiveDialogMaxHeight({
+    double max = 560,
+    double viewportRatio = 0.72,
+  }) {
+    return math.min(max, mediaHeight * viewportRatio);
+  }
 
   double get getFSheetRatio {
     final breakpoints = theme.breakpoints;
