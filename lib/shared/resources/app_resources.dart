@@ -27,26 +27,6 @@ class AppResources {
       name: 'Seed Node France #1',
       url: 'https://fr-node.xelis.io/',
     ),
-    const NodeAddress(
-      name: 'Seed Node Germany #1',
-      url: 'https://de-node.xelis.io/',
-    ),
-    const NodeAddress(
-      name: 'Seed Node Poland #1',
-      url: 'https://pl-node.xelis.io/',
-    ),
-    const NodeAddress(
-      name: 'Seed Node Singapore #1',
-      url: 'https://sg-node.xelis.io/',
-    ),
-    const NodeAddress(
-      name: 'Seed Node United Kingdom #1',
-      url: 'https://uk-node.xelis.io/',
-    ),
-    const NodeAddress(
-      name: 'Seed Node Canada #1',
-      url: 'https://ca-node.xelis.io/',
-    ),
     if (kDebugMode)
       const NodeAddress(
         name: 'Android simulator localhost',
