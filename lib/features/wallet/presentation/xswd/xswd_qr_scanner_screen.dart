@@ -9,12 +9,12 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
-import 'package:genesix/features/wallet/application/xswd_providers.dart';
+import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 
 import 'xswd_relayer.dart';
+import 'package:genesix/features/wallet/application/xswd_controller_provider.dart';
 
 class XswdQRScannerScreen extends ConsumerStatefulWidget {
   const XswdQRScannerScreen({super.key});
@@ -183,7 +183,7 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
 
       final relayerData = session.toApplicationDataRelayer();
 
-      await ref.read(walletStateProvider.notifier).addXswdRelayer(relayerData);
+      await ref.read(xswdControllerProvider).addXswdRelayer(relayerData);
 
       // Wait for all XSWD permission dialogs to fully complete.
       final waitDeadline = DateTime.now().add(const Duration(seconds: 12));
@@ -240,7 +240,9 @@ class _TorchAction extends StatelessWidget {
           tipBuilder: (context, controller) =>
               Text(torchOn ? 'Turn flashlight off' : 'Turn flashlight on'),
           child: FHeaderAction(
-            icon: Icon(torchOn ? FIcons.flashlightOff : FIcons.flashlight),
+            icon: Icon(
+              torchOn ? FLucideIcons.flashlightOff : FLucideIcons.flashlight,
+            ),
             onPress: disabled ? null : onToggle,
           ),
         );
@@ -298,7 +300,7 @@ class _ScannerOverlay extends StatelessWidget {
               ),
               child: Text(
                 instruction,
-                style: context.theme.typography.base.copyWith(
+                style: context.theme.typography.md.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
                 ),
@@ -335,7 +337,7 @@ class _ProcessingOverlay extends StatelessWidget {
               const SizedBox(height: Spaces.medium),
               Text(
                 label,
-                style: context.theme.typography.base.copyWith(
+                style: context.theme.typography.md.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
                 ),
@@ -364,10 +366,11 @@ class _ScannerErrorView extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(Spaces.large),
           child: FCard(
+            clipBehavior: Clip.antiAlias,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(FIcons.triangleAlert, size: 22, color: muted),
+                Icon(FLucideIcons.triangleAlert, size: 22, color: muted),
                 const SizedBox(height: Spaces.small),
                 Text(
                   message,
@@ -378,7 +381,7 @@ class _ScannerErrorView extends StatelessWidget {
                 SizedBox(
                   width: 180,
                   child: FButton(
-                    style: FButtonStyle.outline(),
+                    variant: .outline,
                     onPress: onRetry,
                     child: const Text('Try again'),
                   ),

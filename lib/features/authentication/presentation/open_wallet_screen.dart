@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
+import 'package:genesix/features/authentication/application/wallet_session_commands_provider.dart';
+import 'package:genesix/features/authentication/domain/biometric_wallet_key.dart';
+import 'package:genesix/features/authentication/domain/wallet_session_command_result.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/settings/domain/settings_state.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
@@ -13,16 +16,15 @@ import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jovial_svg/jovial_svg.dart';
-import 'package:loader_overlay/loader_overlay.dart';
-import 'package:genesix/features/authentication/application/authentication_service.dart';
-import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
+import 'package:genesix/features/authentication/application/wallets_provider.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/async_f_button.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
-import 'package:genesix/features/authentication/presentation/components/network_select_menu_tile.dart';
+import 'package:genesix/features/authentication/presentation/components/current_network_indicator.dart';
 
 class OpenWalletScreen extends ConsumerStatefulWidget {
   const OpenWalletScreen({super.key});
@@ -35,7 +37,8 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
     with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   late final FSelectController<String> _selectController =
-      FSelectController<String>(vsync: this);
+      FSelectController<String>();
+  var _isOpening = false;
 
   @override
   void dispose() {
@@ -49,6 +52,15 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
     final network = ref.watch(
       settingsProvider.select((state) => state.network),
     );
+    ref.listen(settingsProvider.select((state) => state.network), (
+      previous,
+      next,
+    ) {
+      if (previous != next) {
+        _selectController.value = null;
+        _formKey.currentState?.reset();
+      }
+    });
     final wallets = ref.watch(walletsProvider.future);
     final appTheme = ref.watch(
       settingsProvider.select((state) => state.appTheme),
@@ -62,26 +74,16 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
           Padding(
             padding: const EdgeInsets.all(Spaces.small),
             child: FHeaderAction(
-              icon: Icon(FIcons.settings),
-              onPress: () => context.push(AppScreen.lightSettings.toPath),
+              icon: Icon(FLucideIcons.settings),
+              onPress: _isOpening
+                  ? null
+                  : () => context.push(AppScreen.lightSettings.toPath),
             ),
           ),
         ],
       ),
       child: Column(
         children: [
-          // Container(
-          //   width: context.mediaWidth * 0.9,
-          //   constraints: BoxConstraints(maxWidth: context.theme.breakpoints.sm),
-          //   child: FAlert(
-          //     title: Text("IMPORTANT"),
-          //     subtitle: Text(
-          //       "This is an alpha pre-release build. Not all features are implemented yet, and some that are present may be unstable or disabled.",
-          //     ),
-          //     style: FAlertStyle.destructive(),
-          //   ),
-          // ),
-          // Spacer(flex: 2),
           Hero(
             tag: 'genesix-logo',
             child: ScalableImageWidget(
@@ -91,111 +93,113 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
             ),
           ),
           Spacer(),
+          const CurrentNetworkIndicator(),
+          const SizedBox(height: Spaces.medium),
           Container(
             width: context.mediaWidth * 0.9,
             constraints: BoxConstraints(maxWidth: context.theme.breakpoints.sm),
             child: FCard(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Form(
-                    key: _formKey,
-                    child: Column(
+              clipBehavior: Clip.antiAlias,
+              child: FutureBuilder(
+                future: wallets,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && snapshot.data!.wallets.isNotEmpty) {
+                    final initialWallet = switch (network) {
+                      Network.mainnet => snapshot.data!.lastWalletsUsed.mainnet,
+                      Network.testnet => snapshot.data!.lastWalletsUsed.testnet,
+                      Network.devnet => snapshot.data!.lastWalletsUsed.devnet,
+                      Network.stagenet =>
+                        snapshot.data!.lastWalletsUsed.stagenet,
+                    };
+
+                    final initialWalletExists =
+                        initialWallet != null &&
+                        snapshot.data!.wallets.containsKey(initialWallet);
+
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (!mounted) return;
+                      if (_selectController.value == null) {
+                        _selectController.value = initialWalletExists
+                            ? initialWallet
+                            : null;
+                      }
+                    });
+
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        NetworkSelectMenuTile(
-                          onSelected: (_) {
-                            setState(() {
-                              _selectController.value = null;
-                            });
-                          },
+                        Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              const SizedBox(height: Spaces.medium),
+                              FSelect<String>.rich(
+                                enabled: !_isOpening,
+                                control: .managed(
+                                  controller: _selectController,
+                                  onChange: _handleWalletSelected,
+                                ),
+                                hint: loc.select_wallet,
+                                // contentScrollHandles: true,
+                                // autovalidateMode: AutovalidateMode.disabled,
+                                format: (s) => s,
+                                validator: (value) {
+                                  if (value == null) {
+                                    return loc.please_select_wallet;
+                                  }
+                                  return null;
+                                },
+                                children: snapshot.data!.wallets.entries.map((
+                                  entry,
+                                ) {
+                                  return FSelectItem(
+                                    value: entry.key,
+                                    prefix: FAvatar.raw(
+                                      child: HashiconWidget(
+                                        hash: entry.value,
+                                        size: const Size(25, 25),
+                                      ),
+                                    ),
+                                    title: Text(entry.key),
+                                    subtitle: Text(truncateText(entry.value)),
+                                  );
+                                }).toList(),
+                              ),
+                              const SizedBox(height: Spaces.large),
+                              AsyncFButton(
+                                isLoading: _isOpening,
+                                onPress: _isOpening
+                                    ? null
+                                    : () => _handleOpenWalletButtonPressed(
+                                        context,
+                                      ),
+                                child: Text(loc.open_wallet),
+                              ),
+                            ],
+                          ),
                         ),
-                        FutureBuilder(
-                          future: wallets,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData &&
-                                snapshot.data!.wallets.isNotEmpty) {
-                              final initialWallet = switch (network) {
-                                Network.mainnet =>
-                                  snapshot.data!.lastWalletsUsed.mainnet,
-                                Network.testnet =>
-                                  snapshot.data!.lastWalletsUsed.testnet,
-                                Network.devnet =>
-                                  snapshot.data!.lastWalletsUsed.devnet,
-                                Network.stagenet =>
-                                  snapshot.data!.lastWalletsUsed.stagenet,
-                              };
-
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                _selectController.value = initialWallet;
-                              });
-
-                              return Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const SizedBox(height: Spaces.medium),
-                                  FSelect<String>.rich(
-                                    controller: _selectController,
-                                    hint: loc.select_wallet,
-                                    contentScrollHandles: true,
-                                    // autovalidateMode: AutovalidateMode.disabled,
-                                    format: (s) => s,
-                                    validator: (value) {
-                                      if (value == null) {
-                                        return loc.please_select_wallet;
-                                      }
-                                      return null;
-                                    },
-                                    children: snapshot.data!.wallets.entries
-                                        .map((entry) {
-                                          return FSelectItem(
-                                            value: entry.key,
-                                            prefix: FAvatar.raw(
-                                              child: HashiconWidget(
-                                                hash: entry.value,
-                                                size: const Size(25, 25),
-                                              ),
-                                            ),
-                                            title: Text(entry.key),
-                                            subtitle: Text(
-                                              truncateText(entry.value),
-                                            ),
-                                          );
-                                        })
-                                        .toList(),
-                                  ),
-                                  const SizedBox(height: Spaces.large),
-                                  FButton(
-                                    style: FButtonStyle.primary(),
-                                    onPress: () =>
-                                        _handleOpenWalletButtonPressed(context),
-                                    child: Text(loc.open_wallet),
-                                  ),
-                                ],
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
-                        ),
+                        FDivider(),
+                        _OpenWalletActions(enabled: !_isOpening),
                       ],
-                    ),
-                  ),
-                  FDivider(),
-                  FButton(
-                    style: FButtonStyle.outline(),
-                    onPress: () {
-                      context.push(AppScreen.createWallet.toPath);
-                    },
-                    child: Text(loc.create_wallet),
-                  ),
-                  const SizedBox(height: Spaces.medium),
-                  FButton(
-                    style: FButtonStyle.outline(),
-                    onPress: () {
-                      context.push(AppScreen.importWallet.toPath);
-                    },
-                    child: Text(loc.import_wallet),
-                  ),
-                ],
+                    );
+                  }
+
+                  if (snapshot.hasData) {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _NoWalletsContent(message: loc.no_wallet_available),
+                        const SizedBox(height: Spaces.large),
+                        const _OpenWalletActions(enabled: true),
+                      ],
+                    );
+                  }
+
+                  return const SizedBox(
+                    height: 120,
+                    child: Center(child: FCircularProgress()),
+                  );
+                },
               ),
             ),
           ),
@@ -205,41 +209,57 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
     );
   }
 
+  void _handleWalletSelected(String? _) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _formKey.currentState?.validate();
+    });
+  }
+
   Future<void> _handleOpenWalletButtonPressed(BuildContext context) async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     final walletName = _selectController.value;
     if (walletName == null) return;
 
-    // Try biometrics
     final opened = await _openWalletWithBiometrics(walletName);
     if (opened || !context.mounted) return;
 
-    // Fallback to password dialog
-    showAppDialog<void>(
+    final password = await showAppDialog<String>(
       context: context,
-      builder: (dialogContext, style, animation) {
+      builder: (dialogContext, _, animation) {
         return PasswordDialog(
-          style,
           animation,
-          onEnter: (password) => _openWallet(walletName, password),
+          onEnter: (password) => dialogContext.pop(password),
         );
       },
     );
+    if (password == null || !mounted) return;
+
+    await _openWallet(walletName, password);
   }
 
   Future<bool> _openWalletWithBiometrics(String name) async {
     if (kIsWeb) return false;
 
     final loc = ref.read(appLocalizationsProvider);
-    final biometrics = ref.read(biometricAuthProvider.notifier);
-
-    final authenticated = await biometrics.authenticate(
-      loc.please_authenticate_open_wallet,
+    final network = ref.read(settingsProvider).network;
+    final secureStorage = ref.read(secureStorageProvider);
+    final isEnabledForWallet = await secureStorage.containsKey(
+      key: biometricWalletKey(network: network, walletName: name),
     );
+    if (!isEnabledForWallet) {
+      return false;
+    }
+
+    final authenticated = await ref.read(
+      biometricAuthenticationProvider(
+        loc.please_authenticate_open_wallet,
+      ).future,
+    );
+
     if (!authenticated) return false;
 
-    final secureStorage = ref.read(secureStorageProvider);
     final password = await secureStorage.read(key: name);
     if (password == null) {
       ref
@@ -248,29 +268,96 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
       return false;
     }
 
-    await _openWallet(name, password);
-    return true;
+    return _openWallet(name, password);
   }
 
-  Future<void> _openWallet(String name, String password) async {
-    context.loaderOverlay.show();
-    try {
-      await ref
-          .read(authenticationProvider.notifier)
-          .openWallet(name, password);
+  Future<bool> _openWallet(String name, String password) async {
+    if (_isOpening) return false;
 
-      // unlock biometric auth if locked
-      if (!kIsWeb &&
-          ref.read(biometricAuthProvider) ==
-              BiometricAuthProviderStatus.locked) {
-        ref
-            .read(biometricAuthProvider.notifier)
-            .updateStatus(BiometricAuthProviderStatus.ready);
+    setState(() => _isOpening = true);
+
+    var keepOpening = false;
+    try {
+      final result = await ref
+          .read(walletSessionCommandsProvider.notifier)
+          .openWallet(name, password);
+      if (result is WalletSessionCommandSuccess && mounted) {
+        keepOpening = true;
+        context.go(AuthAppScreen.home.toPath, extra: result.seedToReveal);
+        return true;
       }
+      return false;
     } finally {
-      if (mounted && context.loaderOverlay.visible) {
-        context.loaderOverlay.hide();
+      if (!keepOpening && mounted) {
+        setState(() => _isOpening = false);
       }
     }
+  }
+}
+
+class _NoWalletsContent extends StatelessWidget {
+  const _NoWalletsContent({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: Spaces.medium),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: Spaces.small,
+        children: [
+          Icon(
+            FLucideIcons.wallet,
+            size: 28,
+            color: context.theme.colors.mutedForeground,
+          ),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: context.theme.typography.sm.copyWith(
+              color: context.theme.colors.mutedForeground,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OpenWalletActions extends ConsumerWidget {
+  const _OpenWalletActions({required this.enabled});
+
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = ref.watch(appLocalizationsProvider);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FButton(
+          variant: .outline,
+          onPress: enabled
+              ? () {
+                  context.push(AppScreen.createWallet.toPath);
+                }
+              : null,
+          child: Text(loc.create_wallet),
+        ),
+        const SizedBox(height: Spaces.medium),
+        FButton(
+          variant: .outline,
+          onPress: enabled
+              ? () {
+                  context.push(AppScreen.importWallet.toPath);
+                }
+              : null,
+          child: Text(loc.import_wallet),
+        ),
+      ],
+    );
   }
 }

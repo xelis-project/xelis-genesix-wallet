@@ -14,7 +14,11 @@ class NetworkMismatchWidget extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(FIcons.triangleAlert, color: context.theme.colors.error, size: 24),
+        Icon(
+          FLucideIcons.triangleAlert,
+          color: context.theme.colors.error,
+          size: 24,
+        ),
         const SizedBox(width: Spaces.small),
         Flexible(
           child: Text(

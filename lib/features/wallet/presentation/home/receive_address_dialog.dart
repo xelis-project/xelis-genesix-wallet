@@ -1,107 +1,167 @@
-import 'package:flutter/widgets.dart';
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/settings/domain/network_translate_name.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 class ReceiveAddressDialog extends ConsumerWidget {
-  const ReceiveAddressDialog(this.style, this.animation, {super.key});
+  const ReceiveAddressDialog(this.animation, {super.key});
 
-  final FDialogStyle style;
   final Animation<double> animation;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
     final walletAddress = ref.watch(
-      walletStateProvider.select((state) => state.address),
+      walletRuntimeProvider.select((state) => state.address),
+    );
+    final network = ref.watch(
+      walletRuntimeProvider.select((state) => state.network),
     );
 
-    final mediaQuery = MediaQuery.of(context);
-    final screenHeight = mediaQuery.size.height;
-    final screenWidth = mediaQuery.size.width;
-
-    // Calculate QR code size based on screen size, with constraints
-    final qrSize = (screenWidth * 0.4).clamp(150.0, 250.0);
-    // Ensure the dialog fits within 70% of screen height
-    final maxBodyHeight = screenHeight * 0.5;
+    final isWideScreen = context.isWideScreen;
+    final maxDialogWidth = context.responsiveDialogMaxWidth(medium: 600);
+    final maxBodyHeight = context.responsiveDialogMaxHeight();
+    final dialogWidth = context.responsiveDialogWidth(medium: 600);
+    final qrSize = math
+        .min(dialogWidth - (Spaces.medium * 4), maxBodyHeight * 0.5)
+        .clamp(168.0, 280.0)
+        .toDouble();
+    final isDarkTheme =
+        context.theme.colors.background.computeLuminance() < 0.5;
+    final qrForegroundColor = isDarkTheme
+        ? const Color(0xFFFFFFFF)
+        : const Color(0xFF111111);
 
     return FDialog(
-      style: style.call,
+      clipBehavior: Clip.antiAlias,
       animation: animation,
-      direction: Axis.horizontal,
-      title: Text(loc.receive),
+      constraints: BoxConstraints(minWidth: 280, maxWidth: maxDialogWidth),
       body: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: maxBodyHeight,
-          maxWidth: screenWidth * 0.9,
-        ),
+        constraints: BoxConstraints(maxHeight: maxBodyHeight),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                loc.wallet_address_capitalize,
-                style: context.theme.typography.sm.copyWith(
-                  color: context.theme.colors.mutedForeground,
+              Padding(
+                padding: const EdgeInsets.all(Spaces.extraSmall),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        loc.receive,
+                        style: context.headlineSmall,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                        maxLines: 1,
+                      ),
+                    ),
+                    FButton.icon(
+                      variant: .ghost,
+                      onPress: () => context.pop(),
+                      child: const Icon(FLucideIcons.x, size: 22),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: Spaces.extraSmall),
-              GestureDetector(
-                onTap: () => copyToClipboard(walletAddress, ref, loc.copied),
-                child: Container(
-                  padding: EdgeInsets.all(Spaces.small),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: context.theme.colors.secondaryForeground.withValues(
-                      alpha: 0.1,
+                      alpha: 0.08,
                     ),
-                    borderRadius: context.theme.style.borderRadius,
+                    borderRadius: context.theme.style.borderRadius.md,
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: Spaces.small,
+                      vertical: Spaces.extraSmall,
+                    ),
+                    child: Text(
+                      translateNetworkName(loc, network),
+                      style: context.theme.typography.xs.copyWith(
+                        color: context.theme.colors.mutedForeground,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: Spaces.medium),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: context.theme.colors.secondaryForeground.withValues(
+                    alpha: 0.08,
+                  ),
+                  borderRadius: context.theme.style.borderRadius.md,
+                  border: Border.all(color: context.theme.colors.border),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(Spaces.small),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     spacing: Spaces.small,
                     children: [
-                      Flexible(
-                        child: Text(
-                          walletAddress,
-                          style: context.theme.typography.xs.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: context.theme.colors.foreground,
-                          ),
-                          textAlign: TextAlign.center,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
+                      Text(
+                        loc.wallet_address_capitalize,
+                        style: context.theme.typography.sm.copyWith(
+                          color: context.theme.colors.mutedForeground,
                         ),
                       ),
-                      Icon(
-                        FIcons.copy,
-                        size: 14,
-                        color: context.theme.colors.mutedForeground,
+                      SelectableText(
+                        walletAddress,
+                        maxLines: isWideScreen ? 1 : null,
+                        style: context.theme.typography.xs.copyWith(
+                          color: context.theme.colors.foreground,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                          fontWeight: FontWeight.w500,
+                          height: 1.35,
+                        ),
+                        textAlign: TextAlign.left,
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: FButton(
+                          variant: .outline,
+                          prefix: const Icon(FLucideIcons.copy, size: 16),
+                          onPress: walletAddress.isEmpty
+                              ? null
+                              : () => copyToClipboard(
+                                  walletAddress,
+                                  ref,
+                                  loc.copied_to_clipboard,
+                                ),
+                          child: Text(loc.copy),
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: Spaces.medium),
-              Container(
-                padding: EdgeInsets.all(Spaces.small),
-                decoration: BoxDecoration(
-                  color: context.theme.colors.background,
-                  borderRadius: context.theme.style.borderRadius,
-                ),
-                child: SizedBox(
-                  width: qrSize,
-                  height: qrSize,
-                  child: PrettyQrView.data(
-                    data: walletAddress,
-                    decoration: PrettyQrDecoration(
-                      shape: PrettyQrSmoothSymbol(
-                        color: context.theme.colors.foreground,
+              Padding(
+                padding: const EdgeInsets.all(Spaces.small),
+                child: Center(
+                  child: SizedBox(
+                    width: qrSize,
+                    height: qrSize,
+                    child: PrettyQrView.data(
+                      data: walletAddress,
+                      decoration: PrettyQrDecoration(
+                        shape: PrettyQrSmoothSymbol(color: qrForegroundColor),
                       ),
                     ),
                   ),
@@ -111,7 +171,7 @@ class ReceiveAddressDialog extends ConsumerWidget {
           ),
         ),
       ),
-      actions: [FButton(onPress: () => context.pop(), child: Text(loc.close))],
+      actions: const [],
     );
   }
 }

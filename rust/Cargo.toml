@@ -7,7 +7,7 @@ edition = "2021"
 crate-type = ["lib", "cdylib", "staticlib"]
 
 [dependencies]
-flutter_rust_bridge = { version = "=2.11.1", features = ["log"] }
+flutter_rust_bridge = { version = "=2.12.0", features = ["log"] }
 anyhow = "1"
 indexmap = { version = "2.0.0", features = ["serde"] }
 log = "0.4"
@@ -36,6 +36,3 @@ xswd = ["xelis_wallet/xswd"]
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
-
-[patch.crates-io]
-tokio-tungstenite-wasm = { git = "https://github.com/Slixe/tokio-tungstenite-wasm", branch = "main" }

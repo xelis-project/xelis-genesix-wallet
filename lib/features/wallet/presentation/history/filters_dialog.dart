@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -7,7 +6,7 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/application/history_providers.dart';
 import 'package:genesix/features/wallet/application/search_query_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/domain/history_filter_state.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
@@ -37,22 +36,17 @@ class FiltersDialog extends ConsumerStatefulWidget {
 
 class _FiltersDialogState extends ConsumerState<FiltersDialog>
     with TickerProviderStateMixin {
+  static final DateTime _earliestHistoryFilterDate = DateTime.utc(2024);
+
   final _formKey = GlobalKey<FormState>();
-  final _categoriesController =
-      FSelectTileGroupController<TransactionCategory>();
-  late final _assetController = FSelectController<MapEntry<String, AssetData>>(
-    vsync: this,
-  );
-  late final _contactController = FSelectController<ContactDetails>(
-    vsync: this,
-  );
+  late Set<TransactionCategory> _categoriesSelected;
+  late final FSelectController<MapEntry<String, AssetData>> _assetController;
+  late final FSelectController<ContactDetails> _contactController;
   final _scrollController = ScrollController();
   late bool _hideExtraData;
   late bool _hideZeroBalance;
   DateTime? _minTimestamp;
   DateTime? _maxTimestamp;
-  final _fromDateController = TextEditingController();
-  final _toDateController = TextEditingController();
 
   @override
   void initState() {
@@ -60,35 +54,43 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
     final filterState = ref.read(
       settingsProvider.select((state) => state.historyFilterState),
     );
-    _categoriesController.value = _getSelectedCategories(filterState);
-    _assetController.value = filterState.asset != null
-        ? ref
-              .read(walletStateProvider)
-              .knownAssets
-              .entries
-              .firstWhere((entry) => entry.key == filterState.asset)
-        : null;
-    _contactController.value = filterState.address != null
-        ? widget.addressBook.values.firstWhere(
-            (contact) => contact.address == filterState.address,
-          )
-        : null;
+    _categoriesSelected = _getSelectedCategories(filterState);
+
+    final knownAssets = ref.read(walletRuntimeProvider).knownAssets;
+
+    MapEntry<String, AssetData>? initialAssetEntry;
+    if (filterState.asset != null) {
+      final matches = knownAssets.entries.where(
+        (e) => e.key == filterState.asset,
+      );
+      if (matches.isNotEmpty) initialAssetEntry = matches.first;
+    }
+
+    ContactDetails? initialContact;
+    if (filterState.address != null) {
+      final matches = widget.addressBook.values.where(
+        (c) => c.address == filterState.address,
+      );
+      if (matches.isNotEmpty) initialContact = matches.first;
+    }
+
+    _assetController = FSelectController<MapEntry<String, AssetData>>(
+      value: initialAssetEntry,
+    );
+    _contactController = FSelectController<ContactDetails>(
+      value: initialContact,
+    );
     _hideExtraData = filterState.hideExtraData;
     _hideZeroBalance = filterState.hideZeroTransfer;
     _minTimestamp = filterState.minTimestamp;
     _maxTimestamp = filterState.maxTimestamp;
-    _fromDateController.text = _formatDate(filterState.minTimestamp);
-    _toDateController.text = _formatDate(filterState.maxTimestamp);
   }
 
   @override
   void dispose() {
-    _categoriesController.dispose();
     _assetController.dispose();
     _contactController.dispose();
     _scrollController.dispose();
-    _fromDateController.dispose();
-    _toDateController.dispose();
     super.dispose();
   }
 
@@ -96,10 +98,10 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final balances = ref.watch(
-      walletStateProvider.select((state) => state.trackedBalances),
+      walletRuntimeProvider.select((state) => state.trackedBalances),
     );
     final Map<String, AssetData> assets = ref.watch(
-      walletStateProvider.select((value) => value.knownAssets),
+      walletRuntimeProvider.select((value) => value.knownAssets),
     );
 
     final trackedAssets = assets.entries
@@ -108,8 +110,10 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
 
     final titleText = widget.title ?? loc.filters;
     final applyText = widget.applyLabel ?? loc.apply;
+    final today = _calendarDate(DateTime.now())!;
 
     return FDialog(
+      clipBehavior: Clip.antiAlias,
       direction: Axis.horizontal,
       title: Text(titleText),
       body: ConstrainedBox(
@@ -126,7 +130,11 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                 children: [
                   // Categories selection
                   FSelectTileGroup(
-                    selectController: _categoriesController,
+                    control: .lifted(
+                      value: _categoriesSelected,
+                      onChange: (values) =>
+                          setState(() => _categoriesSelected = values),
+                    ),
                     label: Text(loc.category),
                     validator: (values) => values?.isEmpty ?? true
                         ? loc.category_select_error
@@ -158,20 +166,18 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                   FSelect<MapEntry<String, AssetData>>.searchBuilder(
                     label: Text(loc.asset),
                     hint: loc.select_asset,
-                    controller: _assetController,
+                    control: .managed(controller: _assetController),
                     format: (assetEntry) => assetEntry.value.name,
                     clearable: true,
-                    filter: (query) => query.isEmpty
-                        ? trackedAssets
-                        : trackedAssets
-                              .where(
-                                (assetEntry) => assetEntry.value.name
-                                    .toLowerCase()
-                                    .contains(query.toLowerCase()),
-                              )
-                              .toList(),
-                    contentBuilder: (context, style, data) {
-                      return data
+                    filter: (query) {
+                      if (query.isEmpty) return trackedAssets;
+                      final q = query.toLowerCase();
+                      return trackedAssets.where(
+                        (e) => e.value.name.toLowerCase().contains(q),
+                      );
+                    },
+                    contentBuilder: (context, query, values) {
+                      return values
                           .map(
                             (assetEntry) =>
                                 FSelectItem<MapEntry<String, AssetData>>(
@@ -186,7 +192,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                   FSelect<ContactDetails>.searchBuilder(
                     label: Text(loc.contact),
                     hint: loc.select_contract,
-                    controller: _contactController,
+                    control: .managed(controller: _contactController),
                     format: (contact) => contact.name,
                     clearable: true,
                     filter: (query) async {
@@ -210,110 +216,46 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                     },
                   ),
                   FCard(
+                    clipBehavior: Clip.antiAlias,
                     child: Column(
                       spacing: Spaces.medium,
                       children: [
-                        FTextField(
+                        FDateField.calendar(
                           label: Text(loc.from_date),
                           hint: loc.select_start_date,
-                          readOnly: true,
-                          showCursor: false,
-                          enableInteractiveSelection: false,
-                          controller: _fromDateController,
-                          onTap: () async {
-                            final date = await showDatePicker(
-                              context: context,
-                              initialDate: _minTimestamp ?? DateTime.now(),
-                              firstDate: DateTime(2024),
-                              lastDate: DateTime.now(),
-                            );
-                            if (date != null) {
-                              setState(() {
-                                _minTimestamp = date;
-                                _fromDateController.text = _formatDate(date);
-                              });
-                            }
-                          },
-                          suffixBuilder: _minTimestamp != null
-                              ? (_, _, _) => GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onTap: () {
-                                    setState(() {
-                                      _minTimestamp = null;
-                                      _fromDateController.text = '';
-                                    });
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                    ),
-                                    child: Icon(
-                                      FIcons.x,
-                                      size: 14,
-                                      color:
-                                          context.theme.colors.mutedForeground,
-                                    ),
-                                  ),
-                                )
-                              : null,
+                          clearable: true,
+                          start: _earliestHistoryFilterDate,
+                          end: _exclusiveCalendarEnd(
+                            _calendarDate(_maxTimestamp) ?? today,
+                          ),
+                          today: today,
+                          format: _formatCalendarDate,
+                          control: .lifted(
+                            date: _calendarDate(_minTimestamp),
+                            onChange: _setMinTimestamp,
+                          ),
                         ),
-                        FTextField(
+                        FDateField.calendar(
                           label: Text(loc.to_date),
                           hint: loc.select_end_date,
-                          readOnly: true,
-                          showCursor: false,
-                          enableInteractiveSelection: false,
-                          controller: _toDateController,
-                          onTap: () async {
-                            final date = await showDatePicker(
-                              context: context,
-                              initialDate: _maxTimestamp ?? DateTime.now(),
-                              firstDate: _minTimestamp ?? DateTime(2024),
-                              lastDate: DateTime.now(),
-                            );
-                            if (date != null) {
-                              setState(() {
-                                _maxTimestamp = DateTime(
-                                  date.year,
-                                  date.month,
-                                  date.day,
-                                  23,
-                                  59,
-                                  59,
-                                  999,
-                                );
-                                _toDateController.text = _formatDate(date);
-                              });
-                            }
-                          },
-                          suffixBuilder: _maxTimestamp != null
-                              ? (_, _, _) => GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onTap: () {
-                                    setState(() {
-                                      _maxTimestamp = null;
-                                      _toDateController.text = '';
-                                    });
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                    ),
-                                    child: Icon(
-                                      FIcons.x,
-                                      size: 14,
-                                      color:
-                                          context.theme.colors.mutedForeground,
-                                    ),
-                                  ),
-                                )
-                              : null,
+                          clearable: true,
+                          start:
+                              _calendarDate(_minTimestamp) ??
+                              _earliestHistoryFilterDate,
+                          end: _exclusiveCalendarEnd(today),
+                          today: today,
+                          format: _formatCalendarDate,
+                          control: .lifted(
+                            date: _calendarDate(_maxTimestamp),
+                            onChange: _setMaxTimestamp,
+                          ),
                         ),
                       ],
                     ),
                   ),
                   // Other options
                   FCard(
+                    clipBehavior: Clip.antiAlias,
                     child: Column(
                       spacing: Spaces.medium,
                       children: [
@@ -348,7 +290,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
       ),
       actions: [
         FButton(
-          style: FButtonStyle.outline(),
+          variant: .outline,
           onPress: _resetFilters,
           child: Text(loc.reset_all),
         ),
@@ -370,7 +312,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
 
   void _resetFilters() {
     setState(() {
-      _categoriesController.value = {
+      _categoriesSelected = {
         TransactionCategory.incoming,
         TransactionCategory.outgoing,
         TransactionCategory.coinbase,
@@ -382,25 +324,28 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
       _hideZeroBalance = false;
       _minTimestamp = null;
       _maxTimestamp = null;
-      _fromDateController.text = '';
-      _toDateController.text = '';
     });
     ref.read(searchQueryProvider.notifier).clear();
   }
 
   void _applyFilters() {
     if (_formKey.currentState?.validate() ?? false) {
-      final selectedCategories = _categoriesController.value;
       final assetEntry = _assetController.value;
       final contact = _contactController.value;
 
       final newFilterState = HistoryFilterState(
         hideExtraData: _hideExtraData,
         hideZeroTransfer: _hideZeroBalance,
-        showIncoming: selectedCategories.contains(TransactionCategory.incoming),
-        showOutgoing: selectedCategories.contains(TransactionCategory.outgoing),
-        showCoinbase: selectedCategories.contains(TransactionCategory.coinbase),
-        showBurn: selectedCategories.contains(TransactionCategory.burn),
+        showIncoming: _categoriesSelected.contains(
+          TransactionCategory.incoming,
+        ),
+        showOutgoing: _categoriesSelected.contains(
+          TransactionCategory.outgoing,
+        ),
+        showCoinbase: _categoriesSelected.contains(
+          TransactionCategory.coinbase,
+        ),
+        showBurn: _categoriesSelected.contains(TransactionCategory.burn),
         asset: assetEntry?.key,
         address: contact?.address,
         minTimestamp: _minTimestamp,
@@ -415,8 +360,48 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
     }
   }
 
-  String _formatDate(DateTime? value) {
-    if (value == null) return '';
-    return DateFormat.yMd().format(value);
+  void _setMinTimestamp(DateTime? value) {
+    setState(() {
+      _minTimestamp = _localStartOfDay(value);
+      if (_minTimestamp != null &&
+          _maxTimestamp != null &&
+          _calendarDate(
+            _maxTimestamp,
+          )!.isBefore(_calendarDate(_minTimestamp)!)) {
+        _maxTimestamp = null;
+      }
+    });
+  }
+
+  void _setMaxTimestamp(DateTime? value) {
+    setState(() => _maxTimestamp = _localEndOfDay(value));
+  }
+
+  String _formatCalendarDate(
+    BuildContext context,
+    DateTime value,
+    DateFormat _,
+  ) {
+    final localeName = FLocalizations.of(context)?.localeName;
+    return DateFormat.yMd(localeName).format(value);
+  }
+
+  DateTime? _calendarDate(DateTime? value) {
+    if (value == null) return null;
+    return DateTime.utc(value.year, value.month, value.day);
+  }
+
+  DateTime _exclusiveCalendarEnd(DateTime inclusiveEnd) {
+    return inclusiveEnd.add(const Duration(days: 1));
+  }
+
+  DateTime? _localStartOfDay(DateTime? value) {
+    if (value == null) return null;
+    return DateTime(value.year, value.month, value.day);
+  }
+
+  DateTime? _localEndOfDay(DateTime? value) {
+    if (value == null) return null;
+    return DateTime(value.year, value.month, value.day, 23, 59, 59, 999);
   }
 }

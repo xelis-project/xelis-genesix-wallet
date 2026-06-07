@@ -4,7 +4,7 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/presentation/components/transaction_view_utils.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -50,10 +50,10 @@ class _TransactionGroupedWidgetState
     final loc = ref.watch(appLocalizationsProvider);
     final locale = ref.watch(settingsProvider.select((state) => state.locale));
     final network = ref.watch(
-      walletStateProvider.select((state) => state.network),
+      walletRuntimeProvider.select((state) => state.network),
     );
     final knownAssets = ref.watch(
-      walletStateProvider.select((value) => value.knownAssets),
+      walletRuntimeProvider.select((value) => value.knownAssets),
     );
 
     final transactions = widget.transactionGroup.value;
@@ -122,7 +122,7 @@ class _TransactionGroupedWidgetState
                         ),
                       )
                     : null,
-                suffix: Icon(FIcons.chevronRight),
+                suffix: Icon(FLucideIcons.chevronRight),
                 onPress: () => _showTransactionEntry(tx),
               ),
             );

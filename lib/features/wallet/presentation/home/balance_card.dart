@@ -5,7 +5,7 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/presentation/home/receive_address_dialog.dart';
 import 'package:genesix/features/wallet/presentation/home/usd_balance_widget.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
@@ -27,8 +27,8 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
   void _showReceiveDialog() {
     showAppDialog<void>(
       context: context,
-      builder: (context, style, animation) {
-        return ReceiveAddressDialog(style, animation);
+      builder: (context, _, animation) {
+        return ReceiveAddressDialog(animation);
       },
     );
   }
@@ -37,7 +37,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final settings = ref.watch(settingsProvider);
-    final walletState = ref.watch(walletStateProvider);
+    final walletState = ref.watch(walletRuntimeProvider);
 
     var displayedBalance = walletState.xelisBalance;
 
@@ -48,6 +48,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
     final isMainnet = settings.network == Network.mainnet;
 
     return FCard.raw(
+      clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: EdgeInsets.all(Spaces.medium),
         child: Column(
@@ -67,8 +68,8 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                       .read(settingsProvider.notifier)
                       .setHideBalance(!settings.hideBalance),
                   child: settings.hideBalance
-                      ? const Icon(FIcons.eye)
-                      : const Icon(FIcons.eyeOff),
+                      ? const Icon(FLucideIcons.eye)
+                      : const Icon(FLucideIcons.eyeOff),
                 ),
               ],
             ),
@@ -107,15 +108,15 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
             Row(
               children: [
                 FButton(
-                  style: FButtonStyle.outline(),
-                  prefix: Icon(FIcons.arrowUpRight),
+                  variant: .outline,
+                  prefix: Icon(FLucideIcons.arrowUpRight),
                   onPress: () => context.push(AuthAppScreen.transfer.toPath),
                   child: Text(loc.send),
                 ),
                 const SizedBox(width: Spaces.small),
                 FButton(
-                  style: FButtonStyle.outline(),
-                  prefix: Icon(FIcons.arrowDownLeft),
+                  variant: .outline,
+                  prefix: Icon(FLucideIcons.arrowDownLeft),
                   onPress: _showReceiveDialog,
                   child: Text(loc.receive),
                 ),

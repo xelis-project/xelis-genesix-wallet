@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
-import 'package:genesix/features/authentication/application/authentication_service.dart';
 import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
+import 'package:genesix/features/authentication/application/wallet_session_commands_provider.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
@@ -57,11 +57,7 @@ class _SideBarState extends ConsumerState<SideBar> {
               ),
             ),
             const SizedBox(height: Spaces.medium),
-            FDivider(
-              style: context.theme.dividerStyles.horizontalStyle
-                  .copyWith(padding: EdgeInsets.zero)
-                  .call,
-            ),
+            FDivider(style: .delta(padding: .value(.zero))),
           ],
         ),
       ),
@@ -71,7 +67,7 @@ class _SideBarState extends ConsumerState<SideBar> {
           children: [
             FSidebarItem(
               selected: _selectedItem == AuthAppScreen.home.toPath,
-              icon: const Icon(FIcons.house),
+              icon: const Icon(FLucideIcons.house),
               label: Text(loc.home),
               onPress: () {
                 _closeSideBar();
@@ -82,7 +78,7 @@ class _SideBarState extends ConsumerState<SideBar> {
               },
             ),
             FSidebarItem(
-              icon: const Icon(FIcons.wallet),
+              icon: const Icon(FLucideIcons.wallet),
               label: Text(loc.wallet),
               initiallyExpanded: false,
               children: [
@@ -104,8 +100,8 @@ class _SideBarState extends ConsumerState<SideBar> {
                     _closeSideBar();
                     showAppDialog<void>(
                       context: context,
-                      builder: (context, style, animation) {
-                        return ReceiveAddressDialog(style, animation);
+                      builder: (context, _, animation) {
+                        return ReceiveAddressDialog(animation);
                       },
                     );
                     setState(() {
@@ -155,7 +151,7 @@ class _SideBarState extends ConsumerState<SideBar> {
             FSidebarItem(
               selected: _selectedItem == AuthAppScreen.network.toPath,
               label: Text(loc.network),
-              icon: const Icon(FIcons.waypoints),
+              icon: const Icon(FLucideIcons.waypoints),
               onPress: () {
                 _closeSideBar();
                 context.go(AuthAppScreen.network.toPath);
@@ -167,7 +163,7 @@ class _SideBarState extends ConsumerState<SideBar> {
             FSidebarItem(
               selected: _selectedItem == AuthAppScreen.addressBook.toPath,
               label: Text(loc.address_book.capitalizeAll()),
-              icon: const Icon(FIcons.bookUser),
+              icon: const Icon(FLucideIcons.bookUser),
               onPress: () {
                 _closeSideBar();
                 context.go(AuthAppScreen.addressBook.toPath);
@@ -179,7 +175,7 @@ class _SideBarState extends ConsumerState<SideBar> {
             FSidebarItem(
               selected: _selectedItem == AuthAppScreen.history.toPath,
               label: Text(loc.history),
-              icon: const Icon(FIcons.history),
+              icon: const Icon(FLucideIcons.history),
               onPress: () {
                 _closeSideBar();
                 context.go(AuthAppScreen.history.toPath);
@@ -191,7 +187,7 @@ class _SideBarState extends ConsumerState<SideBar> {
             FSidebarItem(
               selected: _selectedItem == AuthAppScreen.assets.toPath,
               label: Text(loc.assets),
-              icon: const Icon(FIcons.landmark),
+              icon: const Icon(FLucideIcons.landmark),
               onPress: () {
                 _closeSideBar();
                 context.go(AuthAppScreen.assets.toPath);
@@ -201,7 +197,7 @@ class _SideBarState extends ConsumerState<SideBar> {
               },
             ),
             FSidebarItem(
-              icon: Icon(FIcons.cable),
+              icon: Icon(FLucideIcons.cable),
               selected: _selectedItem == AuthAppScreen.xswd.toPath,
               label: Text("Connected Apps"),
               onPress: () {
@@ -219,11 +215,15 @@ class _SideBarState extends ConsumerState<SideBar> {
           children: [
             FSidebarItem(
               selected: _selectedItem == AuthAppScreen.recoveryPhrase.toPath,
-              icon: const Icon(FIcons.key),
+              icon: const Icon(FLucideIcons.key),
               label: Text(loc.recovery_phrase),
               onPress: () {
-                // do not close sidebar outside auth dialog or the callback context will be disposed beforehand
-                // _closeSideBar(); closes the side bar only when if the width is small
+                // If the user is already on the recovery phrase screen, just close the sidebar
+                if (_selectedItem == AuthAppScreen.recoveryPhrase.toPath) {
+                  _closeSideBar();
+                  return;
+                }
+
                 startWithBiometricAuth(
                   ref,
                   callback: (ref) {
@@ -231,17 +231,16 @@ class _SideBarState extends ConsumerState<SideBar> {
                     setState(() {
                       _selectedItem = AuthAppScreen.recoveryPhrase.toPath;
                     });
-
-                    _closeSideBar();
                   },
                   reason: loc.please_authenticate_view_seed,
-                  popOnSubmit: false,
+                  closeCurrentDialog: true,
+                  popOnSubmit: true,
                 );
               },
             ),
             FSidebarItem(
               selected: _selectedItem == AuthAppScreen.settings.toPath,
-              icon: const Icon(FIcons.settings),
+              icon: const Icon(FLucideIcons.settings),
               label: Text(loc.settings),
               onPress: () {
                 _closeSideBar();
@@ -252,9 +251,11 @@ class _SideBarState extends ConsumerState<SideBar> {
               },
             ),
             FSidebarItem(
-              icon: const Icon(FIcons.logOut),
+              icon: const Icon(FLucideIcons.logOut),
               label: Text(loc.logout),
-              onPress: () => ref.read(authenticationProvider.notifier).logout(),
+              onPress: () {
+                ref.read(walletSessionCommandsProvider.notifier).logout();
+              },
             ),
           ],
         ),

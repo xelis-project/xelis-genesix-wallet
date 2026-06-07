@@ -28,7 +28,7 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
     final hideBalance = ref.watch(
       settingsProvider.select((state) => state.hideBalance),
     );
-    final xelisCoingeckoResponse = ref.watch(xelisPriceProvider).valueOrNull;
+    final xelisCoingeckoResponse = ref.watch(xelisPriceProvider).value;
 
     if (hideBalance) {
       return Row(
@@ -88,7 +88,9 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
             child: Row(
               children: [
                 Icon(
-                  isPositiveChange ? FIcons.chevronUp : FIcons.chevronDown,
+                  isPositiveChange
+                      ? FLucideIcons.chevronUp
+                      : FLucideIcons.chevronDown,
                   color: isPositiveChange
                       ? context.theme.colors.upColor
                       : context.theme.colors.downColor,

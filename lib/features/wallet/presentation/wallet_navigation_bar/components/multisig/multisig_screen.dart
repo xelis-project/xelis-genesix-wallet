@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/multisig_pending_state_provider.dart';
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/multisig/setup_multisig_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/multisig/sign_transaction_dialog.dart';
@@ -14,7 +15,7 @@ import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/shared/widgets/components/generic_app_bar_widget_old.dart';
-import 'package:loader_overlay/loader_overlay.dart';
+import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 
 class MultisigScreen extends ConsumerStatefulWidget {
   const MultisigScreen({super.key});
@@ -24,11 +25,13 @@ class MultisigScreen extends ConsumerStatefulWidget {
 }
 
 class _MultisigScreenState extends ConsumerState<MultisigScreen> {
+  var _isDeletingMultisig = false;
+
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final multisigState = ref.watch(
-      walletStateProvider.select((value) => value.multisigState),
+      walletRuntimeProvider.select((value) => value.multisigState),
     );
     final pendingState = ref.watch(multisigPendingStateProvider);
     return CustomScaffold(
@@ -175,7 +178,12 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                             width: 1,
                           ),
                         ),
-                        onPressed: _showDeleteMultisigDialog,
+                        onPressed: _isDeletingMultisig
+                            ? null
+                            : _showDeleteMultisigDialog,
+                        icon: _isDeletingMultisig
+                            ? const FCircularProgress.loader()
+                            : Icon(FLucideIcons.trash2),
                         label: Text(
                           loc.delete_multisig_configuration,
                           style: context.titleSmall!.copyWith(
@@ -226,7 +234,7 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: _showSignTransactionDialog,
         tooltip: loc.sign_transaction,
-        child: const Icon(Icons.key),
+        child: const Icon(FLucideIcons.key),
       ),
     );
   }
@@ -241,17 +249,20 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
   }
 
   void _showDeleteMultisigDialog() async {
-    context.loaderOverlay.show();
+    if (_isDeletingMultisig) return;
 
-    final unsignedTx = await ref
-        .read(walletStateProvider.notifier)
-        .startDeleteMultisig();
+    setState(() => _isDeletingMultisig = true);
+
+    final String? unsignedTx;
+    try {
+      unsignedTx = await ref.read(walletCommandsProvider).startDeleteMultisig();
+    } finally {
+      if (mounted) {
+        setState(() => _isDeletingMultisig = false);
+      }
+    }
 
     if (mounted) {
-      if (context.loaderOverlay.visible) {
-        context.loaderOverlay.hide();
-      }
-
       if (unsignedTx != null) {
         ref
             .read(transactionReviewProvider.notifier)

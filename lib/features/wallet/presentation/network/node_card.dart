@@ -1,13 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/network_nodes_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/domain/daemon_info_snapshot.dart';
 import 'package:genesix/features/wallet/domain/network_nodes_state.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
+import 'package:genesix/features/wallet/domain/wallet_runtime_state.dart';
 import 'package:genesix/features/wallet/presentation/network/add_node_sheet.dart';
 import 'package:genesix/features/wallet/presentation/network/edit_node_sheet.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -27,9 +30,14 @@ class _NodeCardState extends ConsumerState<NodeCard> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final isOnline = ref.watch(
-      walletStateProvider.select((value) => value.isOnline),
+    final (connectionPhase, isOnline) = ref.watch(
+      walletRuntimeProvider.select(
+        (value) => (value.connectionPhase, value.isOnline),
+      ),
     );
+    final isConnecting =
+        connectionPhase == WalletConnectionPhase.connecting ||
+        connectionPhase == WalletConnectionPhase.reconnecting;
     final networkNodes = ref.watch(networkNodesProvider);
     final network = ref.watch(
       settingsProvider.select((state) => state.network),
@@ -39,6 +47,7 @@ class _NodeCardState extends ConsumerState<NodeCard> {
     NodeAddress nodeAddress = networkNodes.addressFor(network);
 
     return FCard.raw(
+      clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(Spaces.medium),
         child: Column(
@@ -68,19 +77,26 @@ class _NodeCardState extends ConsumerState<NodeCard> {
               title: Text(loc.node),
               subtitle: Text(widget.info?.network?.name ?? loc.unknown_network),
               count: nodes.length,
-              initialValue: nodeAddress,
+              selectControl: .managedRadio(
+                initial: nodeAddress,
+                onChange: (values) {
+                  final selected = values.isEmpty ? null : values.first;
+                  if (selected == null) {
+                    return;
+                  }
+                  unawaited(
+                    ref
+                        .read(walletRuntimeProvider.notifier)
+                        .reconnect(selected),
+                  );
+                },
+              ),
               detailsBuilder: (_, values, _) => Text(values.first.name),
               menuBuilder: (context, index) => FSelectTile(
                 title: Text(nodes[index].name),
                 subtitle: Text(nodes[index].url),
                 value: nodes[index],
               ),
-              onSelect: (selection) {
-                ref
-                    .read(networkNodesProvider.notifier)
-                    .setNodeAddress(network, selection.$1);
-                ref.read(walletStateProvider.notifier).reconnect(selection.$1);
-              },
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -93,26 +109,28 @@ class _NodeCardState extends ConsumerState<NodeCard> {
                       tipBuilder: (context, controller) => Text(loc.add_node),
                       child: FButton.icon(
                         onPress: () => showAddNodeSheet(context),
-                        child: Icon(FIcons.plus),
+                        child: Icon(FLucideIcons.plus),
                       ),
                     ),
                     FTooltip(
                       tipBuilder: (context, controller) => Text(loc.edit_node),
                       child: FButton.icon(
                         onPress: () => showEditNodeSheet(context, nodeAddress),
-                        child: Icon(FIcons.pencil),
+                        child: Icon(FLucideIcons.pencil),
                       ),
                     ),
                     FTooltip(
                       tipBuilder: (context, controller) =>
                           Text(loc.connect_node),
                       child: FButton.icon(
-                        onPress: !isOnline
-                            ? () => ref
-                                  .read(walletStateProvider.notifier)
-                                  .reconnect(nodeAddress)
+                        onPress: !isOnline && !isConnecting
+                            ? () => unawaited(
+                                ref
+                                    .read(walletRuntimeProvider.notifier)
+                                    .reconnect(nodeAddress),
+                              )
                             : null,
-                        child: Icon(FIcons.play),
+                        child: Icon(FLucideIcons.play),
                       ),
                     ),
                   ],

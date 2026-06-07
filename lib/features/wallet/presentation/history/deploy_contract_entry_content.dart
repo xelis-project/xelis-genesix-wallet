@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/shared/widgets/components/labeled_value.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -17,13 +17,14 @@ class DeployContractEntryContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
     final network = ref.watch(
-      walletStateProvider.select((state) => state.network),
+      walletRuntimeProvider.select((state) => state.network),
     );
     // final knownAssets = ref.watch(
-    //   walletStateProvider.select((state) => state.knownAssets),
+    //   walletRuntimeProvider.select((state) => state.knownAssets),
     // );
 
     return FCard.raw(
+      clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(Spaces.medium),
         child: Column(
@@ -36,7 +37,7 @@ class DeployContractEntryContent extends ConsumerWidget {
             ),
             if (deployContractEntry.invoke != null)
               LabeledValue.text(
-                'Constructor ${loc.max_gas}',
+                '${loc.constructor} ${loc.max_gas}',
                 formatXelis(deployContractEntry.invoke!.maxGas, network),
               ),
           ],

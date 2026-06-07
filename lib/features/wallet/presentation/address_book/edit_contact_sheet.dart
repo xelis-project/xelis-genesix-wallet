@@ -21,14 +21,16 @@ class EditContactSheet extends ConsumerStatefulWidget {
 
 class _EditContactSheetState extends ConsumerState<EditContactSheet> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
+  late String _name;
+  late String _address;
+  late String _note;
 
   @override
   void initState() {
     super.initState();
-    _nameController.text = widget.contactDetails.name;
-    _addressController.text = widget.contactDetails.address;
+    _name = widget.contactDetails.name;
+    _address = widget.contactDetails.address;
+    _note = widget.contactDetails.note ?? '';
   }
 
   @override
@@ -40,11 +42,15 @@ class _EditContactSheetState extends ConsumerState<EditContactSheet> {
         child: Column(
           children: [
             FTextFormField(
-              controller: _nameController,
+              control: .managed(
+                initial: TextEditingValue(text: _name),
+                onChange: (value) => _name = value.text,
+              ),
               label: Text(loc.contact_name),
               keyboardType: TextInputType.text,
               maxLines: 1,
               autocorrect: false,
+              selectAllOnFocus: true,
               validator: (value) {
                 if (value == null || value.isEmpty || value.trim().isEmpty) {
                   return loc.field_required_error;
@@ -54,42 +60,57 @@ class _EditContactSheetState extends ConsumerState<EditContactSheet> {
             ),
             const SizedBox(height: Spaces.medium),
             FTextFormField(
-              controller: _addressController,
+              control: .managed(initial: TextEditingValue(text: _address)),
               label: Text(loc.address),
               enabled: false,
               maxLines: 1,
             ),
-            const SizedBox(height: Spaces.large),
-            FButton(
-              child: Text(loc.save),
-              onPress: () {
-                if (_formKey.currentState?.validate() ?? false) {
-                  final name = _nameController.text.trim();
-                  final address = _addressController.text.trim();
-                  try {
-                    ref
-                        .read(addressBookProvider.notifier)
-                        .upsert(address, name, null);
-
-                    ref
-                        .read(toastProvider.notifier)
-                        .showInformation(title: loc.contact_updated);
-
-                    context.pop(); // Close the sheet after adding the contact
-                  } catch (e) {
-                    ref
-                        .read(toastProvider.notifier)
-                        .showError(
-                          title: loc.failed_to_update_contact,
-                          description: e.toString(),
-                        );
-                  }
-                }
-              },
+            const SizedBox(height: Spaces.medium),
+            FTextFormField(
+              control: .managed(
+                initial: TextEditingValue(text: _note),
+                onChange: (value) => _note = value.text,
+              ),
+              label: Text(loc.notes),
+              hint: loc.enter_notes,
+              keyboardType: TextInputType.multiline,
+              maxLines: 4,
             ),
+            const SizedBox(height: Spaces.large),
+            FButton(onPress: _saveContact, child: Text(loc.save)),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _saveContact() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    final loc = ref.read(appLocalizationsProvider);
+    final name = _name.trim();
+    final address = _address.trim();
+    final note = _note.trim();
+
+    try {
+      await ref
+          .read(addressBookProvider.notifier)
+          .upsert(address, name, note.isEmpty ? null : note);
+
+      ref
+          .read(toastProvider.notifier)
+          .showInformation(title: loc.contact_updated);
+
+      if (mounted) {
+        context.pop();
+      }
+    } catch (e) {
+      ref
+          .read(toastProvider.notifier)
+          .showError(
+            title: loc.failed_to_update_contact,
+            description: e.toString(),
+          );
+    }
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 
-import 'package:genesix/features/wallet/application/xswd_providers.dart';
+import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_dialog.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 
@@ -28,7 +28,7 @@ class _XswdWidgetState extends ConsumerState<XswdWidget> {
       _isDialogOpen = true;
       showAppDialog<void>(
         context: context,
-        builder: (context, style, animation) => XswdDialog(style, animation),
+        builder: (context, _, animation) => XswdDialog(animation),
       ).whenComplete(() {
         _isDialogOpen = false;
 

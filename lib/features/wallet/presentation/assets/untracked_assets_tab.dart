@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/presentation/assets/untracked_asset_details.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
+import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 
 class UntrackedAssetsTab extends ConsumerStatefulWidget {
   const UntrackedAssetsTab(this.maxHeight, {super.key});
@@ -31,10 +32,10 @@ class _UntrackedAssetsTabState extends ConsumerState<UntrackedAssetsTab> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final knownAssets = ref.watch(
-      walletStateProvider.select((state) => state.knownAssets),
+      walletRuntimeProvider.select((state) => state.knownAssets),
     );
     final balances = ref.watch(
-      walletStateProvider.select((state) => state.trackedBalances),
+      walletRuntimeProvider.select((state) => state.trackedBalances),
     );
 
     final untrackedAssets = knownAssets.keys
@@ -47,7 +48,7 @@ class _UntrackedAssetsTabState extends ConsumerState<UntrackedAssetsTab> {
         child: Center(
           child: Text(
             loc.no_untracked_assets,
-            style: context.theme.typography.base.copyWith(
+            style: context.theme.typography.md.copyWith(
               color: context.theme.colors.mutedForeground,
             ),
           ),
@@ -83,7 +84,7 @@ class _UntrackedAssetsTabState extends ConsumerState<UntrackedAssetsTab> {
                       onTap: () => _trackAssetDirect(hash),
                       child: const Padding(
                         padding: EdgeInsets.all(8),
-                        child: Icon(FIcons.plus),
+                        child: Icon(FLucideIcons.plus),
                       ),
                     ),
             );
@@ -95,7 +96,7 @@ class _UntrackedAssetsTabState extends ConsumerState<UntrackedAssetsTab> {
 
   Future<void> _trackAssetDirect(String hash) async {
     setState(() => _trackingAssets.add(hash));
-    await ref.read(walletStateProvider.notifier).trackAsset(hash);
+    await ref.read(walletCommandsProvider).trackAsset(hash);
     // Asset will be removed from untracked list automatically once tracked
     // but clean up the set just in case
     if (mounted) {

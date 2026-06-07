@@ -74,7 +74,7 @@ TransactionDisplayInfo parseTxInfo(
   switch (type) {
     case CoinbaseEntry():
       return TransactionDisplayInfo(
-        icon: FIcons.star,
+        icon: FLucideIcons.star,
         color: Colors.amber,
         label: loc.coinbase,
         details: '+${formatXelis(type.reward, network)}',
@@ -82,7 +82,7 @@ TransactionDisplayInfo parseTxInfo(
     case BurnEntry():
       final asset = knownAssets[type.asset];
       return TransactionDisplayInfo(
-        icon: FIcons.flame,
+        icon: FLucideIcons.flame,
         color: Colors.orange,
         label: loc.burn,
         subtitle: truncateText(type.asset, maxLength: 16),
@@ -109,7 +109,7 @@ TransactionDisplayInfo parseTxInfo(
         }
       }
       return TransactionDisplayInfo(
-        icon: FIcons.arrowDownLeft,
+        icon: FLucideIcons.arrowDownLeft,
         color: Colors.greenAccent.shade400,
         label: loc.transfer_received,
         subtitle: subtitle,
@@ -137,7 +137,7 @@ TransactionDisplayInfo parseTxInfo(
       }
 
       return TransactionDisplayInfo(
-        icon: FIcons.arrowUpRight,
+        icon: FLucideIcons.arrowUpRight,
         color: Colors.redAccent.shade200,
         label: loc.transfer_sent,
         subtitle: subtitle,
@@ -145,29 +145,29 @@ TransactionDisplayInfo parseTxInfo(
       );
     case MultisigEntry():
       return TransactionDisplayInfo(
-        icon: FIcons.users,
+        icon: FLucideIcons.users,
         color: Colors.blueAccent.shade200,
         label: loc.multisig,
         subtitle: type.participants.isEmpty ? loc.disabled : loc.enabled,
       );
     case InvokeContractEntry():
       return TransactionDisplayInfo(
-        icon: FIcons.squareCode,
+        icon: FLucideIcons.squareCode,
         color: Colors.deepPurple,
         label: loc.tx_contract_invocation,
         subtitle: truncateText(type.contract, maxLength: 16),
       );
     case DeployContractEntry():
       return TransactionDisplayInfo(
-        icon: FIcons.scrollText,
+        icon: FLucideIcons.scrollText,
         color: Colors.teal,
         label: loc.tx_contract_deployment,
       );
     case IncomingContractEntry():
       return TransactionDisplayInfo(
-        icon: FIcons.arrowDownToLine,
+        icon: FLucideIcons.arrowDownToLine,
         color: Colors.purple.shade300,
-        label: 'Contract Transfer',
+        label: loc.tx_contract_transfer,
       );
   }
 }

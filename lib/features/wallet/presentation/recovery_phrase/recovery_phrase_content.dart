@@ -2,12 +2,12 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
+import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 
 class RecoveryPhraseContent extends ConsumerStatefulWidget {
   const RecoveryPhraseContent({super.key});
@@ -25,18 +25,15 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
     super.initState();
     final loc = ref.read(appLocalizationsProvider);
 
-    ref
-        .read(walletStateProvider.notifier)
-        .getSeed(MnemonicLanguage.english)
-        .then(
-          (words) {
-            setState(() {
-              _seedWords = words;
-            });
-          },
-          onError: (_, _) =>
-              ref.read(toastProvider.notifier).showError(description: loc.oups),
-        );
+    ref.read(walletCommandsProvider).getSeed(MnemonicLanguage.english).then(
+      (words) {
+        setState(() {
+          _seedWords = words;
+        });
+      },
+      onError: (_, _) =>
+          ref.read(toastProvider.notifier).showError(description: loc.oups),
+    );
   }
 
   @override
@@ -51,6 +48,7 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Spaces.medium),
       child: FCard.raw(
+        clipBehavior: Clip.antiAlias,
         child: Padding(
           padding: const EdgeInsets.all(Spaces.medium),
           child: Column(
@@ -65,7 +63,7 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          FIcons.triangleAlert,
+                          FLucideIcons.triangleAlert,
                           color: context.theme.colors.primary,
                           size: 30,
                         ),
@@ -92,32 +90,35 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
                 children: [
                   Expanded(
                     flex: 2,
-                    child: FSelectMenuTile.builder(
+                    child: FSelectMenuTile<MnemonicLanguage>.builder(
                       title: Text(loc.language),
                       count: MnemonicLanguage.values.length,
-                      initialValue: MnemonicLanguage.english,
+                      selectControl: .managedRadio(
+                        initial: MnemonicLanguage.english,
+                        onChange: (values) {
+                          final selected = values.isEmpty ? null : values.first;
+                          if (selected == null) return;
+                          ref
+                              .read(walletCommandsProvider)
+                              .getSeed(selected)
+                              .then(
+                                (words) {
+                                  setState(() {
+                                    _seedWords = words;
+                                  });
+                                },
+                                onError: (_, _) => ref
+                                    .read(toastProvider.notifier)
+                                    .showError(description: loc.oups),
+                              );
+                        },
+                      ),
                       detailsBuilder: (context, values, _) =>
                           Text(values.first.displayName),
                       menuBuilder: (context, index) => FSelectTile(
                         title: Text(MnemonicLanguage.values[index].displayName),
                         value: MnemonicLanguage.values[index],
                       ),
-                      onChange: (values) {
-                        final language = values.first;
-                        ref
-                            .read(walletStateProvider.notifier)
-                            .getSeed(language)
-                            .then(
-                              (words) {
-                                setState(() {
-                                  _seedWords = words;
-                                });
-                              },
-                              onError: (_, _) => ref
-                                  .read(toastProvider.notifier)
-                                  .showError(description: loc.oups),
-                            );
-                      },
                     ),
                   ),
                   Spacer(),
@@ -131,7 +132,7 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
                         ref,
                         loc.copied,
                       ),
-                      child: const Icon(FIcons.copy, size: 24),
+                      child: const Icon(FLucideIcons.copy, size: 24),
                     ),
                   ),
                 ],
@@ -150,7 +151,7 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
                         children: List.generate(
                           _seedWords.length,
                           (i) => FBadge(
-                            style: FBadgeStyle.secondary(),
+                            variant: .secondary,
                             child: Row(
                               children: [
                                 Text(

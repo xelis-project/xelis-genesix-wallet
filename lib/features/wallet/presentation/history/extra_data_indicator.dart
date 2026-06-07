@@ -21,7 +21,7 @@ class ExtraDataIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (extra == null) {
-      return Text('-', style: context.theme.typography.base);
+      return Text('-', style: context.theme.typography.md);
     }
 
     final loc = AppLocalizations.of(context);
@@ -39,9 +39,9 @@ class ExtraDataIndicator extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           FButton.icon(
-            style: FButtonStyle.outline(),
+            variant: .outline,
             onPress: onOpen,
-            child: const Icon(FIcons.fileText, size: 18),
+            child: const Icon(FLucideIcons.fileText, size: 18),
           ),
           Positioned(
             right: 3,

@@ -200,7 +200,9 @@ class NativeWalletRepository {
   }
 
   Future<void> close() async {
+    talker.info('Closing Rust wallet');
     await _xelisWallet.close();
+    talker.info('Rust wallet closed');
   }
 
   void dispose() {

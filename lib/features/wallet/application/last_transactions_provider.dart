@@ -1,6 +1,6 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/wallet/application/history_providers.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_history_refresh_signal_provider.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
@@ -9,11 +9,9 @@ part 'last_transactions_provider.g.dart';
 
 @riverpod
 Future<List<TransactionEntry>> lastTransactions(Ref ref) async {
-  ref.watch(historyPagingStateProvider);
+  ref.watch(walletHistoryRefreshSignalProvider);
 
-  final repository = ref.watch(
-    walletStateProvider.select((value) => value.nativeWalletRepository),
-  );
+  final repository = ref.watch(activeWalletRepositoryProvider);
 
   if (repository != null) {
     final txs = await repository.history(
@@ -42,7 +40,7 @@ Future<List<TransactionEntry>> lastTransactions(Ref ref) async {
       return b.topoheight.compareTo(a.topoheight);
     });
 
-    return txs.take(4).toList();
+    return txs.take(5).toList();
   }
   return [];
 }

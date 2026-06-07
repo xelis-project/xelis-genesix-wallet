@@ -53,7 +53,7 @@ class _WalletScaffoldState extends ConsumerState<WalletScaffold> {
                   Padding(
                     padding: const EdgeInsets.all(Spaces.small),
                     child: FHeaderAction(
-                      icon: const Icon(FIcons.menu),
+                      icon: const Icon(FLucideIcons.menu),
                       onPress: () => showFSheet<void>(
                         context: context,
                         side: FLayout.ltr,

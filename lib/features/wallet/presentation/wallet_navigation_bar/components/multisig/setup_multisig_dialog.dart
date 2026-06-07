@@ -3,11 +3,12 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:forui/forui.dart';
 import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/multisig_pending_state_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
@@ -18,8 +19,8 @@ import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/generic_dialog_old.dart';
 import 'package:genesix/shared/widgets/components/warning_widget_old.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
+import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 
 class SetupMultisigDialog extends ConsumerStatefulWidget {
   const SetupMultisigDialog({super.key});
@@ -38,6 +39,8 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
 
   bool _isBroadcast = false;
   bool _isConfirmed = false;
+  bool _isPreparing = false;
+  bool _isBroadcasting = false;
   TransactionSummary? _transactionSummary;
 
   @override
@@ -56,7 +59,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final network = ref.watch(
-      walletStateProvider.select((state) => state.network),
+      walletRuntimeProvider.select((state) => state.network),
     );
     bool transactionReadyToBroadcast = _transactionSummary != null;
     return GenericDialog(
@@ -98,7 +101,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                   onPressed: () {
                     context.pop();
                   },
-                  icon: const Icon(Icons.close_rounded),
+                  icon: const Icon(FLucideIcons.x),
                 ),
               ),
           ],
@@ -192,11 +195,11 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                                 children: [
                                   IconButton(
                                     onPressed: _addParticipant,
-                                    icon: Icon(Icons.add, size: 18),
+                                    icon: Icon(FLucideIcons.plus, size: 18),
                                   ),
                                   IconButton(
                                     onPressed: _removeParticipant,
-                                    icon: Icon(Icons.remove, size: 18),
+                                    icon: Icon(FLucideIcons.minus, size: 18),
                                   ),
                                 ],
                               ),
@@ -432,20 +435,24 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                       child: Text(loc.ok_button),
                     )
                   : TextButton.icon(
-                      onPressed: _isConfirmed
+                      onPressed: _isConfirmed && !_isBroadcasting
                           ? () => startWithBiometricAuth(
                               ref,
                               callback: _broadcastTransfer,
                               reason: loc.please_authenticate_tx,
                             )
                           : null,
-                      icon: const Icon(Icons.send, size: 18),
+                      icon: _isBroadcasting
+                          ? const FCircularProgress.loader()
+                          : const Icon(FLucideIcons.send, size: 18),
                       label: Text(loc.broadcast),
                     )
             : TextButton.icon(
-                onPressed: _confirmMultisigSetup,
+                onPressed: _isPreparing ? null : _confirmMultisigSetup,
                 label: Text(loc.next),
-                icon: Icon(Icons.arrow_forward_rounded, size: 18),
+                icon: _isPreparing
+                    ? const FCircularProgress.loader()
+                    : Icon(FLucideIcons.arrowRight, size: 18),
               ),
       ],
     );
@@ -471,7 +478,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                     ?.fields[participantFieldId]
                     ?.reset(),
                 icon: Icon(
-                  Icons.clear,
+                  FLucideIcons.x,
                   size: 18,
                   color: context.moreColors.mutedColor,
                 ),
@@ -497,7 +504,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
               (value) {
                 if (value != null &&
                     !ref
-                        .read(walletStateProvider.notifier)
+                        .read(walletCommandsProvider)
                         .isAddressValidForMultisig(value.trim())) {
                   return loc.multisig_address_validation_error;
                 }
@@ -561,6 +568,8 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
   }
 
   Future<void> _confirmMultisigSetup() async {
+    if (_isPreparing) return;
+
     if (_multisigFormKey.currentState?.saveAndValidate() ?? false) {
       final loc = ref.read(appLocalizationsProvider);
 
@@ -579,11 +588,20 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                   .toList()
               as List<String>;
 
-      context.loaderOverlay.show();
+      setState(() => _isPreparing = true);
 
-      final transactionSummary = await ref
-          .read(walletStateProvider.notifier)
-          .setupMultisig(participants: participants, threshold: threshold);
+      final TransactionSummary? transactionSummary;
+      try {
+        transactionSummary = await ref
+            .read(walletCommandsProvider)
+            .setupMultisig(participants: participants, threshold: threshold);
+      } finally {
+        if (mounted) {
+          setState(() => _isPreparing = false);
+        }
+      }
+
+      if (!mounted) return;
 
       if (transactionSummary != null) {
         if (transactionSummary.isMultiSig) {
@@ -594,20 +612,18 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
           ref.read(toastProvider.notifier).showError(description: loc.oups);
         }
       }
-
-      if (mounted && context.loaderOverlay.visible) {
-        context.loaderOverlay.hide();
-      }
     }
   }
 
   Future<void> _broadcastTransfer(WidgetRef ref) async {
-    final loc = ref.read(appLocalizationsProvider);
-    try {
-      ref.context.loaderOverlay.show();
+    if (_isBroadcasting) return;
 
+    final loc = ref.read(appLocalizationsProvider);
+    setState(() => _isBroadcasting = true);
+
+    try {
       await ref
-          .read(walletStateProvider.notifier)
+          .read(walletCommandsProvider)
           .broadcastTx(hash: _transactionSummary!.hash);
 
       setState(() {
@@ -626,10 +642,10 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
     } catch (e) {
       talker.error('Cannot broadcast transaction: $e');
       ref.read(toastProvider.notifier).showError(description: e.toString());
-    }
-
-    if (ref.context.mounted) {
-      ref.context.loaderOverlay.hide();
+    } finally {
+      if (mounted) {
+        setState(() => _isBroadcasting = false);
+      }
     }
   }
 }

@@ -1,9 +1,9 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
+import 'package:genesix/features/wallet/application/wallet_history_refresh_signal_provider.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
 
 part 'contact_history_providers.g.dart';
 
@@ -15,10 +15,8 @@ Future<List<TransactionEntry>> contactHistory(
   String contactAddress,
   int page,
 ) async {
-  ref.watch(walletStateProvider.select((value) => value.trackedBalances));
-  final repository = ref.watch(
-    walletStateProvider.select((value) => value.nativeWalletRepository),
-  );
+  ref.watch(walletHistoryRefreshSignalProvider);
+  final repository = ref.watch(activeWalletRepositoryProvider);
 
   if (repository != null) {
     final filter = HistoryPageFilter(
@@ -42,6 +40,8 @@ class ContactHistoryPagingState extends _$ContactHistoryPagingState {
   PagingState<int, MapEntry<DateTime, List<TransactionEntry>>> build(
     String contactAddress,
   ) {
+    ref.watch(activeWalletSessionProvider);
+    ref.watch(walletHistoryRefreshSignalProvider);
     return PagingState();
   }
 

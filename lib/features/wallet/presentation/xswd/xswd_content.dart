@@ -4,12 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/router/routes.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
-import 'package:genesix/features/wallet/application/xswd_providers.dart';
-import 'package:genesix/shared/providers/toast_provider.dart';
+import 'package:genesix/features/wallet/application/xswd_controller_provider.dart';
+import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
@@ -55,11 +55,10 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
   }
 
   Future<void> _checkXswdStatus() async {
-    final walletState = ref.read(walletStateProvider);
-    if (walletState.nativeWalletRepository != null) {
+    final repository = ref.read(activeWalletRepositoryProvider);
+    if (repository != null) {
       try {
-        final isRunning = await walletState.nativeWalletRepository!
-            .isXswdRunning();
+        final isRunning = await repository.isXswdRunning();
         if (mounted) {
           if (isRunning) {
             _xswdEnableRequestedAt = null;
@@ -118,8 +117,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
   void _openNewConnectionDialog(BuildContext context) {
     showAppDialog<void>(
       context: context,
-      builder: (context, style, animation) =>
-          XswdNewConnectionDialog(style, animation),
+      builder: (context, _, animation) => XswdNewConnectionDialog(animation),
     );
   }
 
@@ -141,7 +139,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
               if (apps.isEmpty) {
                 return _XswdStatePanel(
                   key: const ValueKey<String>('xswd-enabled-empty'),
-                  icon: FIcons.link,
+                  icon: FLucideIcons.link,
                   title: loc.no_application_connected,
                   description: 'Use New Connection to add a trusted app.',
                 );
@@ -163,7 +161,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
           )
         : _XswdStatePanel(
             key: const ValueKey<String>('xswd-disabled'),
-            icon: FIcons.cable,
+            icon: FLucideIcons.cable,
             title: 'Connected Apps is off',
             description: 'Turn it on to approve requests from trusted apps.',
           );
@@ -275,6 +273,7 @@ class _XswdModeCard extends StatelessWidget {
         : onSwitchChange;
 
     return FCard(
+      clipBehavior: Clip.antiAlias,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -382,41 +381,27 @@ class _XswdAppsListState extends ConsumerState<_XswdAppsList> {
 
   bool get _isDisconnecting => _disconnectingAppId != null;
 
-  Future<void> _handleAppDisconnection(String appId) async {
-    final walletState = ref.read(walletStateProvider);
-    if (walletState.nativeWalletRepository == null) {
-      ref
-          .read(toastProvider.notifier)
-          .showError(description: widget.loc.disconnecting_toast_error);
-      return;
-    }
-
+  Future<void> _handleAppDisconnection(AppInfo app) async {
     try {
-      await walletState.nativeWalletRepository!.removeXswdApp(appId);
-      ref.invalidate(xswdApplicationsProvider);
-      ref
-          .read(toastProvider.notifier)
-          .showInformation(title: widget.loc.app_disconnected.capitalize());
+      await ref.read(xswdControllerProvider).closeXswdAppConnection(app);
     } catch (_) {
-      ref
-          .read(toastProvider.notifier)
-          .showError(description: widget.loc.disconnecting_toast_error);
+      // Errors are surfaced through wallet effects.
     }
   }
 
-  Future<void> _openAppDetails(BuildContext context, String appId) async {
+  Future<void> _openAppDetails(BuildContext context, AppInfo app) async {
     if (_isDisconnecting) return;
 
     final hasDisconnected = await XswdAppDetailRoute(
-      $extra: appId,
+      $extra: app.id,
     ).push<bool>(context);
 
     if (hasDisconnected == true) {
       if (!mounted) return;
       setState(() {
-        _disconnectingAppId = appId;
+        _disconnectingAppId = app.id;
       });
-      await _handleAppDisconnection(appId);
+      await _handleAppDisconnection(app);
       if (mounted) {
         setState(() {
           _disconnectingAppId = null;
@@ -455,9 +440,9 @@ class _XswdAppsListState extends ConsumerState<_XswdAppsList> {
                   return FItem(
                     onPress: _isDisconnecting
                         ? null
-                        : () => _openAppDetails(context, app.id),
+                        : () => _openAppDetails(context, app),
                     prefix: Icon(
-                      FIcons.cable,
+                      FLucideIcons.cable,
                       size: 18,
                       color: context.theme.colors.primary,
                     ),
@@ -473,7 +458,7 @@ class _XswdAppsListState extends ConsumerState<_XswdAppsList> {
                       permissionText,
                       style: context.theme.typography.xs.copyWith(color: muted),
                     ),
-                    suffix: Icon(FIcons.chevronRight, color: muted),
+                    suffix: Icon(FLucideIcons.chevronRight, color: muted),
                   );
                 },
               ),
@@ -594,9 +579,8 @@ class _XswdFooter extends StatelessWidget {
               const SizedBox(height: Spaces.small),
             ],
             FButton(
-              style: FButtonStyle.primary(),
               onPress: isConnectionReady ? onNewConnection : null,
-              prefix: const Icon(FIcons.qrCode, size: 18),
+              prefix: const Icon(FLucideIcons.qrCode, size: 18),
               child: const Text('New Connection'),
             ),
           ],

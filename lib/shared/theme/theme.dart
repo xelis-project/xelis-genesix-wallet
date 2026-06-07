@@ -3,6 +3,7 @@ import 'package:forui/forui.dart';
 import 'package:flutter/material.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/theme/text_field_style.dart';
+import 'package:genesix/shared/theme/toaster_style.dart';
 
 // ignore_for_file: avoid_redundant_argument_values
 
@@ -17,8 +18,8 @@ import 'package:genesix/shared/theme/text_field_style.dart';
 /// ```
 ///
 /// See https://forui.dev/docs/themes#customize-themes for more information.
-FThemeData get greenLight {
-  const colors = FColors(
+FThemeData greenLight({required bool touch}) {
+  final colors = FColors(
     brightness: Brightness.light,
     systemOverlayStyle: SystemUiOverlayStyle.dark,
     barrier: Color(0x33000000),
@@ -35,21 +36,31 @@ FThemeData get greenLight {
     error: Color(0xFFEF4444),
     errorForeground: Color(0xFFF9FAFB),
     border: Color(0xFFE5E7EB),
+    card: Color(0xFFFFFFFF),
   );
 
   final typography = _typography(colors: colors);
-  final style = _style(colors: colors, typography: typography);
+  final style = _style(colors: colors, typography: typography, touch: touch);
+  const hapticFeedback = FHapticFeedback();
 
   return FThemeData(
     colors: colors,
+    touch: touch,
     typography: typography,
     style: style,
+    hapticFeedback: hapticFeedback,
     dialogStyle: dialogStyle(
       style: style,
       colors: colors,
       typography: typography,
+      hapticFeedback: hapticFeedback,
     ),
-    textFieldStyle: textFieldStyle(
+    toasterStyle: toasterStyle(
+      colors: colors,
+      typography: typography,
+      style: style,
+    ),
+    textFieldStyles: textFieldStyles(
       colors: colors,
       typography: typography,
       style: style,
@@ -57,8 +68,8 @@ FThemeData get greenLight {
   );
 }
 
-FThemeData get greenDark {
-  const colors = FColors(
+FThemeData greenDark({required bool touch}) {
+  final colors = FColors(
     brightness: Brightness.dark,
     systemOverlayStyle: SystemUiOverlayStyle.light,
     barrier: Color(0x7A000000),
@@ -77,21 +88,31 @@ FThemeData get greenDark {
     error: Color(0xFF7F1D1D),
     errorForeground: Color(0xFFF9FAFB),
     border: Color(0xFF1F2937),
+    card: Color(0xFF030712),
   );
 
   final typography = _typography(colors: colors);
-  final style = _style(colors: colors, typography: typography);
+  final style = _style(colors: colors, typography: typography, touch: touch);
+  const hapticFeedback = FHapticFeedback();
 
   return FThemeData(
     colors: colors,
+    touch: touch,
     typography: typography,
     style: style,
+    hapticFeedback: hapticFeedback,
     dialogStyle: dialogStyle(
       style: style,
       colors: colors,
       typography: typography,
+      hapticFeedback: hapticFeedback,
     ),
-    textFieldStyle: textFieldStyle(
+    toasterStyle: toasterStyle(
+      colors: colors,
+      typography: typography,
+      style: style,
+    ),
+    textFieldStyles: textFieldStyles(
       colors: colors,
       typography: typography,
       style: style,
@@ -103,6 +124,7 @@ FTypography _typography({
   required FColors colors,
   String defaultFontFamily = 'packages/forui/Inter',
 }) => FTypography(
+  fontFamily: defaultFontFamily,
   xs: TextStyle(
     color: colors.foreground,
     fontFamily: defaultFontFamily,
@@ -115,7 +137,7 @@ FTypography _typography({
     fontSize: 14,
     height: 1.25,
   ),
-  base: TextStyle(
+  md: TextStyle(
     color: colors.foreground,
     fontFamily: defaultFontFamily,
     fontSize: 16,
@@ -177,26 +199,37 @@ FTypography _typography({
   ),
 );
 
-FStyle _style({required FColors colors, required FTypography typography}) =>
-    FStyle(
-      formFieldStyle: FFormFieldStyle.inherit(
-        colors: colors,
-        typography: typography,
-      ),
-      focusedOutlineStyle: FFocusedOutlineStyle(
-        color: colors.primary,
-        borderRadius: const BorderRadius.all(Radius.circular(8)),
-      ),
-      iconStyle: IconThemeData(color: colors.primary, size: 20),
-      tappableStyle: FTappableStyle(),
-      borderRadius: const FLerpBorderRadius.all(Radius.circular(8), min: 24),
-      borderWidth: 1,
-      pagePadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      shadow: const [
-        BoxShadow(
-          color: Color(0x0d000000),
-          offset: Offset(0, 1),
-          blurRadius: 2,
-        ),
-      ],
-    );
+FStyle _style({
+  required FColors colors,
+  required FTypography typography,
+  required bool touch,
+}) => FStyle(
+  formFieldStyle: FFormFieldStyle.inherit(
+    colors: colors,
+    typography: typography,
+    touch: touch,
+  ),
+  focusedOutlineStyle: FFocusedOutlineStyle(
+    color: colors.primary,
+    borderRadius: const BorderRadius.all(Radius.circular(8)),
+  ),
+  iconStyle: IconThemeData(color: colors.primary, size: 20),
+  sizes: FSizes.inherit(touch: touch),
+  tappableStyle: FTappableStyle(),
+  borderRadius: const FBorderRadius(
+    xs2: BorderRadius.all(Radius.circular(4)),
+    xs: BorderRadius.all(Radius.circular(6)),
+    sm: BorderRadius.all(Radius.circular(8)),
+    md: BorderRadius.all(Radius.circular(8)),
+    lg: BorderRadius.all(Radius.circular(12)),
+    xl: BorderRadius.all(Radius.circular(16)),
+    xl2: BorderRadius.all(Radius.circular(20)),
+    xl3: BorderRadius.all(Radius.circular(24)),
+    pill: BorderRadius.all(Radius.circular(999)),
+  ),
+  borderWidth: 1,
+  pagePadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+  shadow: const [
+    BoxShadow(color: Color(0x0d000000), offset: Offset(0, 1), blurRadius: 2),
+  ],
+);

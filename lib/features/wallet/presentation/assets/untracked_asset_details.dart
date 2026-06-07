@@ -42,6 +42,7 @@ class _UntrackedAssetDetailsState extends ConsumerState<UntrackedAssetDetails> {
     final loc = ref.watch(appLocalizationsProvider);
 
     return FDialog(
+      clipBehavior: Clip.antiAlias,
       title: Text(loc.details.capitalize()),
       body: FadedScroll(
         controller: _controller,
@@ -78,7 +79,7 @@ class _UntrackedAssetDetailsState extends ConsumerState<UntrackedAssetDetails> {
                   InkWell(
                     child: Text(
                       widget.hash,
-                      style: context.theme.typography.base,
+                      style: context.theme.typography.md,
                     ),
                     onTap: () => copyToClipboard(widget.hash, ref, loc.copied),
                   ),
@@ -98,7 +99,7 @@ class _UntrackedAssetDetailsState extends ConsumerState<UntrackedAssetDetails> {
                         widget.asset.decimals,
                         widget.asset.ticker,
                       ),
-                      style: context.theme.typography.base,
+                      style: context.theme.typography.md,
                     ),
                   ),
                 if (!widget.asset.owner.isNone)

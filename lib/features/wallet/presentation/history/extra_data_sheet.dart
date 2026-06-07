@@ -63,12 +63,13 @@ class _ExtraDataSheetState extends ConsumerState<ExtraDataSheet> {
                       ref,
                       loc.copied,
                     ),
-                    child: const Icon(FIcons.copy),
+                    child: const Icon(FLucideIcons.copy),
                   ),
                 ),
               ],
             ),
             FCard(
+              clipBehavior: Clip.antiAlias,
               child: Center(
                 child: SelectableText(
                   widget.parsed.pretty,

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
-import 'package:genesix/features/wallet/application/xswd_providers.dart';
+import 'package:genesix/features/wallet/application/xswd_controller_provider.dart';
+import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
@@ -78,21 +78,15 @@ class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
     String permissionName,
     PermissionPolicy newPolicy,
   ) async {
-    final walletState = ref.read(walletStateProvider);
-    if (walletState.nativeWalletRepository == null) return;
-
     try {
       final updatedPermissions = Map<String, PermissionPolicy>.from(
         app.permissions,
       );
       updatedPermissions[permissionName] = newPolicy;
 
-      await walletState.nativeWalletRepository!.modifyXSWDAppPermissions(
-        app.id,
-        updatedPermissions,
-      );
-
-      ref.invalidate(xswdApplicationsProvider);
+      await ref
+          .read(xswdControllerProvider)
+          .editXswdAppPermission(app.id, updatedPermissions);
     } catch (_) {
       // Keep previous behavior: fail silently for now.
     }
@@ -163,7 +157,7 @@ class _XswdAppNotFound extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(FIcons.triangleAlert, size: 28, color: muted),
+              Icon(FLucideIcons.triangleAlert, size: 28, color: muted),
               const SizedBox(height: Spaces.small),
               Text(
                 loc.no_application_found,
@@ -182,7 +176,7 @@ class _XswdAppNotFound extends StatelessWidget {
               SizedBox(
                 width: 180,
                 child: FButton(
-                  style: FButtonStyle.outline(),
+                  variant: .outline,
                   onPress: () => context.pop(),
                   child: Text(loc.ok_button),
                 ),
@@ -232,7 +226,7 @@ class _XswdAppDetailContent extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: FButton(
-                  style: FButtonStyle.destructive(),
+                  variant: .destructive,
                   onPress: onDisconnect,
                   child: const Text('Disconnect'),
                 ),
@@ -261,6 +255,7 @@ class _XswdAppInfoCard extends StatelessWidget {
     final muted = context.theme.colors.mutedForeground;
 
     return FCard(
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -274,7 +269,7 @@ class _XswdAppInfoCard extends StatelessWidget {
             const SizedBox(height: Spaces.small),
             Row(
               children: [
-                Icon(FIcons.link, size: 16, color: muted),
+                Icon(FLucideIcons.link, size: 16, color: muted),
                 const SizedBox(width: Spaces.extraSmall),
                 Expanded(
                   child: GestureDetector(
@@ -310,13 +305,11 @@ class _XswdAppInfoCard extends StatelessWidget {
           if (app.description.isNotEmpty) ...[
             const SizedBox(height: Spaces.small),
             FDivider(
-              style: FDividerStyle(
-                padding: const EdgeInsets.symmetric(
-                  vertical: Spaces.extraSmall,
-                ),
+              style: .delta(
+                padding: .value(.symmetric(vertical: Spaces.extraSmall)),
                 color: context.theme.colors.primary,
                 width: 1,
-              ).call,
+              ),
             ),
             const SizedBox(height: Spaces.small),
             Text(
@@ -371,6 +364,7 @@ class _XswdPermissionsSection extends StatelessWidget {
         const SizedBox(height: Spaces.medium),
         if (sortedPermissions.isEmpty)
           FCard(
+            clipBehavior: Clip.antiAlias,
             child: Center(
               child: Text(
                 loc.no_data,
@@ -412,6 +406,7 @@ class _XswdPermissionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FCard.raw(
+      clipBehavior: Clip.antiAlias,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(Spaces.small),
@@ -425,7 +420,7 @@ class _XswdPermissionCard extends StatelessWidget {
         child: Row(
           children: [
             Icon(
-              Icons.code,
+              FLucideIcons.squareCode,
               size: 16,
               color: context.theme.colors.mutedForeground,
             ),
@@ -507,17 +502,17 @@ class _XswdPolicyButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSelected = currentPolicy == policy;
-    final style = switch (policy) {
+    final styleVariant = switch (policy) {
       PermissionPolicy.reject =>
-        isSelected ? FButtonStyle.destructive() : FButtonStyle.outline(),
+        isSelected ? FButtonVariant.destructive : FButtonVariant.outline,
       PermissionPolicy.ask =>
-        isSelected ? FButtonStyle.secondary() : FButtonStyle.outline(),
+        isSelected ? FButtonVariant.secondary : FButtonVariant.outline,
       PermissionPolicy.accept =>
-        isSelected ? FButtonStyle.primary() : FButtonStyle.outline(),
+        isSelected ? FButtonVariant.primary : FButtonVariant.outline,
     };
 
     return FButton(
-      style: style,
+      variant: styleVariant,
       onPress: isSelected ? null : () => onPress(policy),
       child: Text(label),
     );
@@ -544,7 +539,7 @@ class _DisconnectDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FDialog(
-      style: style.call,
+      clipBehavior: Clip.antiAlias,
       animation: animation,
       constraints: const BoxConstraints(maxWidth: 560),
       title: Text(
@@ -584,7 +579,7 @@ class _DisconnectDialog extends StatelessWidget {
             //     mainAxisSize: MainAxisSize.min,
             //     children: [
             //       Icon(
-            //         FIcons.triangleAlert,
+            //         FLucideIcons.triangleAlert,
             //         size: 20,
             //         color: context.theme.colors.mutedForeground,
             //       ),
@@ -607,7 +602,7 @@ class _DisconnectDialog extends StatelessWidget {
           children: [
             Expanded(
               child: FButton(
-                style: FButtonStyle.outline(),
+                variant: .outline,
                 onPress: onCancel,
                 child: Text(loc.cancel_button),
               ),
@@ -615,7 +610,7 @@ class _DisconnectDialog extends StatelessWidget {
             const SizedBox(width: Spaces.small),
             Expanded(
               child: FButton(
-                style: FButtonStyle.destructive(),
+                variant: .destructive,
                 onPress: onConfirm,
                 child: Text(loc.confirm_button),
               ),

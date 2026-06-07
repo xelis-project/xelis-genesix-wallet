@@ -7,7 +7,7 @@
 ///   "encryption_mode": { "mode": "aes", "key": "<hex 32 bytes>" },
 ///   "app_data": { ... }
 /// }
-library xswd_relayer;
+library;
 
 import 'dart:convert' show base64Decode;
 import 'dart:typed_data' show Uint8List;

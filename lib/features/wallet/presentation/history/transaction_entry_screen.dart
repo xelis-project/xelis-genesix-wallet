@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
+import 'package:genesix/features/wallet/presentation/components/transaction_view_utils.dart';
 import 'package:genesix/features/wallet/presentation/history/base_transaction_entry_card.dart';
 import 'package:genesix/features/wallet/presentation/history/burn_entry_content.dart';
 import 'package:genesix/features/wallet/presentation/history/deploy_contract_entry_content.dart';
@@ -17,6 +18,7 @@ import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/body_layout_builder.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
@@ -31,18 +33,47 @@ class TransactionEntryScreen extends ConsumerStatefulWidget {
   ConsumerState createState() => _TransactionEntryScreenState();
 }
 
-class _TransactionEntryScreenState
-    extends ConsumerState<TransactionEntryScreen> {
+class _TransactionEntryScreenState extends ConsumerState<TransactionEntryScreen>
+    with TickerProviderStateMixin {
   final _controller = ScrollController();
+  late final AnimationController _animController;
+  late final Animation<double> _fadeBase;
+  late final Animation<Offset> _slideBase;
+  late final Animation<double> _fadeContent;
+  late final Animation<Offset> _slideContent;
 
-  late String entryTypeName;
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
 
-  late Color color;
+    _fadeBase = CurvedAnimation(
+      parent: _animController,
+      curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+    );
+    _slideBase = Tween<Offset>(
+      begin: const Offset(0, 0.08),
+      end: Offset.zero,
+    ).animate(_fadeBase);
 
-  late Widget transactionTypeContent;
+    _fadeContent = CurvedAnimation(
+      parent: _animController,
+      curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
+    );
+    _slideContent = Tween<Offset>(
+      begin: const Offset(0, 0.08),
+      end: Offset.zero,
+    ).animate(_fadeContent);
+
+    _animController.forward();
+  }
 
   @override
   void dispose() {
+    _animController.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -52,56 +83,54 @@ class _TransactionEntryScreenState
     final loc = ref.watch(appLocalizationsProvider);
     final locale = ref.watch(settingsProvider.select((state) => state.locale));
     final network = ref.watch(
-      walletStateProvider.select((state) => state.network),
+      walletRuntimeProvider.select((state) => state.network),
+    );
+    final knownAssets = ref.watch(
+      walletRuntimeProvider.select((state) => state.knownAssets),
     );
 
     final transactionEntry =
         context.goRouterState.extra as sdk.TransactionEntry;
     final entryType = transactionEntry.txEntryType;
 
+    // Use parseTxInfo to get icon, color, label (avoids duplication)
+    final txInfo = parseTxInfo(
+      loc,
+      network,
+      entryType,
+      knownAssets,
+      const <String, ContactDetails>{},
+    );
+
+    // Entry-specific data that parseTxInfo doesn't handle
     int? nonce;
     String hashPath = 'tx/';
+    late Widget transactionTypeContent;
     switch (entryType) {
       case sdk.CoinbaseEntry():
-        entryTypeName = loc.coinbase;
-        color = Colors.amber;
         hashPath = 'block/';
         transactionTypeContent = CoinbaseEntryContent(entryType);
       case sdk.BurnEntry():
-        entryTypeName = loc.burn;
-        color = Colors.orange;
         nonce = entryType.nonce;
         transactionTypeContent = BurnEntryContent(entryType);
       case sdk.IncomingEntry():
-        entryTypeName = loc.incoming;
-        color = Colors.greenAccent.shade400;
         transactionTypeContent = IncomingEntryContent(entryType);
       case sdk.OutgoingEntry():
-        entryTypeName = loc.outgoing;
-        color = Colors.redAccent.shade200;
         nonce = entryType.nonce;
         transactionTypeContent = OutgoingEntryContent(entryType);
       case sdk.MultisigEntry():
-        entryTypeName = loc.multisig;
-        color = Colors.blueAccent.shade200;
         nonce = entryType.nonce;
         transactionTypeContent = MultisigEntryContent(entryType);
       case sdk.InvokeContractEntry():
-        entryTypeName = 'Contract Invocation';
-        color = Colors.deepPurple;
         nonce = entryType.nonce;
         transactionTypeContent = InvokeContractEntryContent(
           entryType,
           transactionEntry,
         );
       case sdk.DeployContractEntry():
-        entryTypeName = 'Contract Deployment';
-        color = Colors.teal;
         nonce = entryType.nonce;
         transactionTypeContent = DeployContractEntryContent(entryType);
       case sdk.IncomingContractEntry():
-        entryTypeName = 'Contract Transfer';
-        color = Colors.purple.shade300;
         transactionTypeContent = IncomingContractEntryContent(entryType);
     }
 
@@ -132,7 +161,7 @@ class _TransactionEntryScreenState
           Padding(
             padding: const EdgeInsets.all(Spaces.small),
             child: FHeaderAction(
-              icon: const Icon(FIcons.arrowLeft),
+              icon: const Icon(FLucideIcons.arrowLeft),
               onPress: () => context.pop(),
             ),
           ),
@@ -149,18 +178,32 @@ class _TransactionEntryScreenState
               child: SingleChildScrollView(
                 controller: _controller,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   spacing: Spaces.medium,
                   children: [
-                    BaseTransactionEntryCard(
-                      transactionEntry: transactionEntry,
-                      type: entryTypeName,
-                      color: color,
-                      timestamp: displayTimestamp,
-                      topoheight: displayTopoheight,
-                      url: url,
-                      nonce: nonce,
+                    SlideTransition(
+                      position: _slideBase,
+                      child: FadeTransition(
+                        opacity: _fadeBase,
+                        child: BaseTransactionEntryCard(
+                          transactionEntry: transactionEntry,
+                          type: txInfo.label,
+                          color: txInfo.color,
+                          icon: txInfo.icon,
+                          timestamp: displayTimestamp,
+                          topoheight: displayTopoheight,
+                          url: url,
+                          nonce: nonce,
+                        ),
+                      ),
                     ),
-                    transactionTypeContent,
+                    SlideTransition(
+                      position: _slideContent,
+                      child: FadeTransition(
+                        opacity: _fadeContent,
+                        child: transactionTypeContent,
+                      ),
+                    ),
                   ],
                 ),
               ),

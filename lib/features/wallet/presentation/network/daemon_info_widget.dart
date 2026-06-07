@@ -1,15 +1,17 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/domain/daemon_info_snapshot.dart';
 import 'package:genesix/features/wallet/presentation/network/grid_info_widget.dart';
+import 'package:genesix/src/generated/l10n/app_localizations.dart';
+import 'package:genesix/shared/widgets/components/custom_skeletonizer.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 
 class DaemonInfoWidget extends ConsumerStatefulWidget {
-  const DaemonInfoWidget(this.info, {super.key});
+  const DaemonInfoWidget(this.info, {super.key, required this.isLoading});
 
   final DaemonInfoSnapshot? info;
+  final bool isLoading;
 
   @override
   ConsumerState createState() => _DaemonInfoWidgetState();
@@ -27,156 +29,12 @@ class _DaemonInfoWidgetState extends ConsumerState<DaemonInfoWidget> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
+    final info = widget.info;
+    final isLoading = widget.isLoading;
 
-    List<Widget> items = [
-      GridInfoWidget(
-        items: [
-          Text(
-            'Height',
-            style: context.theme.typography.sm.copyWith(
-              color: context.theme.colors.mutedForeground,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          Text(
-            widget.info?.height ?? '...',
-            style: context.theme.typography.base,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-      GridInfoWidget(
-        items: [
-          Text(
-            loc.topoheight,
-            style: context.theme.typography.sm.copyWith(
-              color: context.theme.colors.mutedForeground,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          Text(
-            widget.info?.topoHeight ?? '...',
-            style: context.theme.typography.base,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-      GridInfoWidget(
-        items: [
-          Text(
-            loc.mempool,
-            style: context.theme.typography.sm.copyWith(
-              color: context.theme.colors.mutedForeground,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          Text(
-            key: ValueKey(widget.info?.mempoolSize),
-            widget.info?.mempoolSize.toString() ?? '...',
-            style: context.theme.typography.base,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-      GridInfoWidget(
-        items: [
-          Text(
-            loc.circulating_supply,
-            style: context.theme.typography.sm.copyWith(
-              color: context.theme.colors.mutedForeground,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          Text(
-            widget.info?.circulatingSupply ?? '...',
-            style: context.theme.typography.base,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-      GridInfoWidget(
-        items: [
-          Text(
-            'Emitted Supply',
-            style: context.theme.typography.sm.copyWith(
-              color: context.theme.colors.mutedForeground,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          Text(
-            widget.info?.emittedSupply ?? '...',
-            style: context.theme.typography.base,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-      GridInfoWidget(
-        items: [
-          Text(
-            'Burned Supply',
-            style: context.theme.typography.sm.copyWith(
-              color: context.theme.colors.mutedForeground,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          Text(
-            widget.info?.burnSupply ?? '...',
-            style: context.theme.typography.base,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-      GridInfoWidget(
-        items: [
-          Text(
-            'Hashrate',
-            style: context.theme.typography.sm.copyWith(
-              color: context.theme.colors.mutedForeground,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          Text(
-            widget.info?.hashRate ?? '...',
-            style: context.theme.typography.base,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-      GridInfoWidget(
-        items: [
-          Text(
-            loc.block_reward,
-            style: context.theme.typography.sm.copyWith(
-              color: context.theme.colors.mutedForeground,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          Text(
-            widget.info?.blockReward ?? '...',
-            style: context.theme.typography.base,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-      GridInfoWidget(
-        items: [
-          Text(
-            loc.average_block_time,
-            style: context.theme.typography.sm.copyWith(
-              color: context.theme.colors.mutedForeground,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          Text(
-            '${widget.info?.averageBlockTime.inSeconds.toString() ?? '...'} ${loc.seconds}',
-            style: context.theme.typography.base,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    ];
+    final items = _buildItems(loc, info, isLoading);
 
-    return FadedScroll(
+    Widget grid = FadedScroll(
       controller: _controller,
       fadeFraction: 0.08,
       child: GridView.builder(
@@ -188,10 +46,79 @@ class _DaemonInfoWidgetState extends ConsumerState<DaemonInfoWidget> {
           childAspectRatio: 1.7,
         ),
         itemCount: items.length,
-        itemBuilder: (context, index) {
-          return items[index];
-        },
+        itemBuilder: (context, index) => items[index],
       ),
     );
+
+    if (isLoading) {
+      return CustomSkeletonizer(child: grid);
+    }
+
+    return grid;
+  }
+
+  List<Widget> _buildItems(
+    AppLocalizations loc,
+    DaemonInfoSnapshot? info,
+    bool isLoading,
+  ) {
+    return [
+      GridInfoWidget(
+        key: const ValueKey('height'),
+        label: 'Height',
+        value: info?.height,
+        isLoading: isLoading,
+      ),
+      GridInfoWidget(
+        key: const ValueKey('topoHeight'),
+        label: loc.topoheight,
+        value: info?.topoHeight,
+        isLoading: isLoading,
+      ),
+      GridInfoWidget(
+        key: const ValueKey('mempool'),
+        label: loc.mempool,
+        value: info?.mempoolSize.toString(),
+        isLoading: isLoading,
+      ),
+      GridInfoWidget(
+        key: const ValueKey('circulatingSupply'),
+        label: loc.circulating_supply,
+        value: info?.circulatingSupply,
+        isLoading: isLoading,
+      ),
+      GridInfoWidget(
+        key: const ValueKey('emittedSupply'),
+        label: 'Emitted Supply',
+        value: info?.emittedSupply,
+        isLoading: isLoading,
+      ),
+      GridInfoWidget(
+        key: const ValueKey('burnSupply'),
+        label: 'Burned Supply',
+        value: info?.burnSupply,
+        isLoading: isLoading,
+      ),
+      GridInfoWidget(
+        key: const ValueKey('hashRate'),
+        label: 'Hashrate',
+        value: info?.hashRate,
+        isLoading: isLoading,
+      ),
+      GridInfoWidget(
+        key: const ValueKey('blockReward'),
+        label: loc.block_reward,
+        value: info?.blockReward,
+        isLoading: isLoading,
+      ),
+      GridInfoWidget(
+        key: const ValueKey('avgBlockTime'),
+        label: loc.average_block_time,
+        value: info != null
+            ? '${info.averageBlockTime.inSeconds} ${loc.seconds}'
+            : null,
+        isLoading: isLoading,
+      ),
+    ];
   }
 }

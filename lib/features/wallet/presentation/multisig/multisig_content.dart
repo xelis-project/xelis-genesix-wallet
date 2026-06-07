@@ -4,7 +4,7 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/multisig_pending_state_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
@@ -37,7 +37,7 @@ class _MultisigContentState extends ConsumerState<MultisigContent> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final multisigState = ref.watch(
-      walletStateProvider.select((value) => value.multisigState),
+      walletRuntimeProvider.select((value) => value.multisigState),
     );
     final pendingState = ref.watch(multisigPendingStateProvider);
 
@@ -71,6 +71,7 @@ class _PendingChangesCard extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 360),
           child: FCard(
+            clipBehavior: Clip.antiAlias,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               spacing: Spaces.medium,
@@ -88,7 +89,7 @@ class _PendingChangesCard extends StatelessWidget {
                 Text(
                   message,
                   textAlign: TextAlign.center,
-                  style: context.theme.typography.base,
+                  style: context.theme.typography.md,
                 ),
               ],
             ),
@@ -137,7 +138,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
             ),
             child: Text(
               loc.no_multisig_configuration_found,
-              style: context.theme.typography.base.copyWith(
+              style: context.theme.typography.md.copyWith(
                 color: context.theme.colors.mutedForeground,
               ),
             ),
@@ -166,20 +167,17 @@ class _ConfiguredMultisigView extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      FBadge(
-                        style: FBadgeStyle.outline(),
-                        child: Text('#${index + 1}'),
-                      ),
+                      FBadge(variant: .outline, child: Text('#${index + 1}')),
                       FTooltip(
                         tipBuilder: (context, controller) => Text(loc.copy),
                         child: FButton.icon(
-                          style: FButtonStyle.ghost(),
+                          variant: .ghost,
                           onPress: () => copyToClipboard(
                             participant.address,
                             ref,
                             loc.copied,
                           ),
-                          child: const Icon(FIcons.copy, size: 18),
+                          child: const Icon(FLucideIcons.copy, size: 18),
                         ),
                       ),
                     ],
@@ -196,15 +194,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
 
             if (index == participants.length - 1) return tile;
 
-            return Column(
-              spacing: Spaces.medium,
-              children: [
-                tile,
-                FDivider(
-                  style: context.theme.dividerStyles.horizontalStyle.call,
-                ),
-              ],
-            );
+            return Column(spacing: Spaces.medium, children: [tile, FDivider()]);
           })
           .toList(growable: false);
     }
@@ -238,6 +228,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
                 ],
               ),
               FCard(
+                clipBehavior: Clip.antiAlias,
                 child: Column(
                   spacing: Spaces.large,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -279,6 +270,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
                 ),
               ),
               FCard(
+                clipBehavior: Clip.antiAlias,
                 child: Column(
                   spacing: Spaces.large,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -289,7 +281,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
                       children: [
                         Text(
                           loc.participants,
-                          style: context.theme.typography.base.copyWith(
+                          style: context.theme.typography.md.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -308,8 +300,8 @@ class _ConfiguredMultisigView extends StatelessWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: FButton(
-                  style: FButtonStyle.destructive(),
-                  prefix: const Icon(FIcons.trash),
+                  variant: .destructive,
+                  prefix: const Icon(FLucideIcons.trash),
                   onPress: () {},
                   child: Text(loc.delete_wallet.capitalizeAll()),
                 ),
@@ -390,7 +382,7 @@ class _EmptyMultisigCallToAction extends StatelessWidget {
         ),
       ),
       child: Icon(
-        FIcons.shieldCheck,
+        FLucideIcons.shieldCheck,
         size: useHorizontalLayout ? 68 : 52,
         color: colors.primary,
       ),
@@ -407,7 +399,7 @@ class _EmptyMultisigCallToAction extends StatelessWidget {
       fontWeight: FontWeight.w600,
     );
 
-    final bodyStyle = context.theme.typography.base.copyWith(
+    final bodyStyle = context.theme.typography.md.copyWith(
       color: colors.mutedForeground,
     );
 
@@ -447,9 +439,9 @@ class _EmptyMultisigCallToAction extends StatelessWidget {
               ? WrapAlignment.start
               : WrapAlignment.center,
           children: [
-            featurePill(FIcons.users, 'Shared custodians'),
-            featurePill(FIcons.lock, 'Approval workflow'),
-            featurePill(FIcons.history, 'Audit trail'),
+            featurePill(FLucideIcons.users, 'Shared custodians'),
+            featurePill(FLucideIcons.lock, 'Approval workflow'),
+            featurePill(FLucideIcons.history, 'Audit trail'),
           ],
         ),
         Align(
@@ -492,6 +484,7 @@ class _EmptyMultisigCallToAction extends StatelessWidget {
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: maxWidth),
           child: FCard(
+            clipBehavior: Clip.antiAlias,
             child: Padding(
               padding: EdgeInsets.all(
                 useHorizontalLayout ? Spaces.extraLarge : Spaces.large,

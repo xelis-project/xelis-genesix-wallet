@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
+import 'package:genesix/features/wallet/domain/wallet_runtime_state.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/utils/utils.dart';
 
 class ConnectionIndicator extends ConsumerStatefulWidget {
   const ConnectionIndicator({super.key});
@@ -39,11 +41,29 @@ class _ConnectionIndicatorState extends ConsumerState<ConnectionIndicator>
   }
 
   void _updateAnimation() {
-    final isOnline = ref.read(walletStateProvider).isOnline;
-    if (isOnline) {
-      _controller.repeat(reverse: true);
-    } else {
+    _syncAnimation(ref.read(walletRuntimeProvider).connectionPhase);
+  }
+
+  void _syncAnimation(WalletConnectionPhase phase) {
+    final shouldAnimate = switch (phase) {
+      WalletConnectionPhase.connected => true,
+      WalletConnectionPhase.connecting => true,
+      WalletConnectionPhase.reconnecting => true,
+      WalletConnectionPhase.disconnected => false,
+      WalletConnectionPhase.failed => false,
+    };
+
+    if (shouldAnimate) {
+      if (!_controller.isAnimating) {
+        _controller.repeat(reverse: true);
+      }
+      return;
+    }
+
+    if (_controller.isAnimating) {
       _controller.stop();
+    }
+    if (_controller.value != 0.0) {
       _controller.value = 0.0;
     }
   }
@@ -57,20 +77,41 @@ class _ConnectionIndicatorState extends ConsumerState<ConnectionIndicator>
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final (isOnline, isSyncing) = ref.watch(
-      walletStateProvider.select((value) => (value.isOnline, value.isSyncing)),
+    final (phase, isOnline, isSyncing) = ref.watch(
+      walletRuntimeProvider.select(
+        (value) => (value.connectionPhase, value.isOnline, value.isSyncing),
+      ),
     );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      _syncAnimation(phase);
+    });
 
-    final color = isOnline
-        ? isSyncing
-              ? Colors.orangeAccent
-              : context.theme.colors.primary
-        : context.theme.colors.error;
-    final text = isOnline
-        ? isSyncing
-              ? 'Syncing'
-              : loc.connected
-        : loc.disconnected;
+    final color = switch (phase) {
+      WalletConnectionPhase.connected =>
+        isSyncing ? Colors.orangeAccent : context.theme.colors.primary,
+      WalletConnectionPhase.connecting => context.theme.colors.primary,
+      WalletConnectionPhase.reconnecting => context.theme.colors.primary,
+      WalletConnectionPhase.disconnected => context.theme.colors.error,
+      WalletConnectionPhase.failed => context.theme.colors.error,
+    };
+    final text = switch (phase) {
+      WalletConnectionPhase.connected => isSyncing ? 'Syncing' : loc.connected,
+      WalletConnectionPhase.connecting =>
+        '${loc.connect_node.capitalizeAll()}...',
+      WalletConnectionPhase.reconnecting => '${loc.reconnect.capitalize()}...',
+      WalletConnectionPhase.disconnected => loc.disconnected,
+      WalletConnectionPhase.failed => loc.disconnected,
+    };
+    final shouldPulse = switch (phase) {
+      WalletConnectionPhase.connected => true,
+      WalletConnectionPhase.connecting => true,
+      WalletConnectionPhase.reconnecting => true,
+      WalletConnectionPhase.disconnected => false,
+      WalletConnectionPhase.failed => false,
+    };
 
     return Padding(
       padding: const EdgeInsets.all(Spaces.small),
@@ -88,7 +129,7 @@ class _ConnectionIndicatorState extends ConsumerState<ConnectionIndicator>
                   Opacity(
                     opacity: 0.5,
                     child: Transform.scale(
-                      scale: isOnline ? _pulse.value : 1.0,
+                      scale: shouldPulse ? _pulse.value : 1.0,
                       child: Container(
                         width: 18,
                         height: 18,
@@ -119,18 +160,10 @@ class _ConnectionIndicatorState extends ConsumerState<ConnectionIndicator>
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: AppDurations.animNormal),
               transitionBuilder: (child, animation) {
-                // Slide from the bottom to the top if we connect
-                // and from the top to the bottom if we disconnect
-                final isNextConnected =
-                    (child.key as ValueKey).value == loc.connected;
-                final offsetBegin = isNextConnected
-                    ? const Offset(0, 1)
-                    : const Offset(0, -1);
-                final offsetEnd = Offset.zero;
                 return SlideTransition(
                   position: Tween<Offset>(
-                    begin: offsetBegin,
-                    end: offsetEnd,
+                    begin: const Offset(0, 0.2),
+                    end: Offset.zero,
                   ).animate(animation),
                   child: FadeTransition(opacity: animation, child: child),
                 );

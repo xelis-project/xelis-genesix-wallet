@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 
 FDialogStyle dialogStyle({
   required FStyle style,
   required FColors colors,
   required FTypography typography,
+  required FHapticFeedback hapticFeedback,
   BuildContext? context,
 }) {
   final title = typography.lg.copyWith(
@@ -19,7 +21,7 @@ FDialogStyle dialogStyle({
   final double contentV;
 
   if (context != null) {
-    final mq = MediaQuery.of(context);
+    final mq = context.mediaQueryData;
     final w = mq.size.width;
     final h = mq.size.height;
     final scale = mq.textScaler.scale(1.0);
@@ -38,7 +40,7 @@ FDialogStyle dialogStyle({
 
   return FDialogStyle(
     decoration: BoxDecoration(
-      borderRadius: style.borderRadius,
+      borderRadius: style.borderRadius.md,
       border: Border.all(color: colors.primary.withValues(alpha: 0.2)),
       color: colors.background,
       boxShadow: [
@@ -49,18 +51,31 @@ FDialogStyle dialogStyle({
         ),
       ],
     ),
-    horizontalStyle: FDialogContentStyle(
-      titleTextStyle: title,
-      bodyTextStyle: body,
-      padding: EdgeInsets.symmetric(horizontal: contentH, vertical: contentV),
-      actionSpacing: 7,
+    contentStyle: FDialogContentStyles(
+      FVariants(
+        FDialogContentStyle(
+          titleTextStyle: title,
+          bodyTextStyle: body,
+          padding: .symmetric(horizontal: contentH, vertical: contentV),
+          titleSpacing: 8,
+          contentSpacing: 8,
+          actionSpacing: 10,
+          expandActions: false,
+        ),
+        variants: {
+          [FDialogAxisVariant.vertical]: FDialogContentStyle(
+            titleTextStyle: title,
+            bodyTextStyle: body,
+            padding: .symmetric(horizontal: contentH, vertical: contentV),
+            titleSpacing: 6,
+            contentSpacing: 6,
+            actionSpacing: 8,
+            expandActions: true,
+          ),
+        },
+      ),
     ),
-    verticalStyle: FDialogContentStyle(
-      titleTextStyle: title,
-      bodyTextStyle: body,
-      padding: EdgeInsets.symmetric(horizontal: contentH, vertical: contentV),
-      actionSpacing: 8,
-    ),
+    slidePressHapticFeedback: hapticFeedback.selectionClick,
     motion: FDialogMotion(
       fadeInCurve: Curves.easeOutCubic,
       fadeOutCurve: Curves.easeInCubic,
@@ -91,6 +106,7 @@ Future<T?> showAppDialog<T>({
         style: theme.style,
         colors: theme.colors,
         typography: theme.typography,
+        hapticFeedback: theme.hapticFeedback,
         context: ctx,
       ),
       animation,

@@ -1208,15 +1208,15 @@ impl XelisWallet {
             match result {
                 Ok(event) => {
                     let json_event = json!({"event": event.kind(), "data": event}).to_string();
-                    sink.add(json_event)
-                        .expect("Unable to send event data through stream");
+                    if sink.add(json_event).is_err() {
+                        break;
+                    }
                 }
                 Err(RecvError::Lagged(skipped)) => {
                     warn!("Events stream lagged; skipped {} messages", skipped);
                     continue;
                 }
                 Err(RecvError::Closed) => {
-                    error!("Events stream closed; stopping listener");
                     break;
                 }
             }

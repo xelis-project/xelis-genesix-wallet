@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -18,7 +18,7 @@ class MultisigEntryContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
     final network = ref.watch(
-      walletStateProvider.select((state) => state.network),
+      walletRuntimeProvider.select((state) => state.network),
     );
 
     List<Widget> content;
@@ -36,11 +36,12 @@ class MultisigEntryContent extends ConsumerWidget {
           children: [
             Text(
               loc.participants,
-              style: context.theme.typography.base.copyWith(
+              style: context.theme.typography.sm.copyWith(
                 color: context.theme.colors.mutedForeground,
               ),
             ),
             FItemGroup.builder(
+              count: multisigEntry.participants.length,
               itemBuilder: (context, index) {
                 final participant = multisigEntry.participants[index];
                 return FItem(title: AddressWidget(participant));
@@ -51,10 +52,16 @@ class MultisigEntryContent extends ConsumerWidget {
       ];
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: Spaces.medium,
-      children: content,
+    return FCard.raw(
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.all(Spaces.medium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: Spaces.medium,
+          children: content,
+        ),
+      ),
     );
   }
 }

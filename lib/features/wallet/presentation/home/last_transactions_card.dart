@@ -4,7 +4,7 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/last_transactions_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/presentation/components/transaction_view_utils.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -26,10 +26,10 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final network = ref.watch(
-      walletStateProvider.select((value) => value.network),
+      walletRuntimeProvider.select((value) => value.network),
     );
     final knownAssets = ref.watch(
-      walletStateProvider.select((value) => value.knownAssets),
+      walletRuntimeProvider.select((value) => value.knownAssets),
     );
 
     final lastTransactionsAsync = ref.watch(lastTransactionsProvider);
@@ -107,7 +107,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
                         color: context.theme.colors.mutedForeground,
                       ),
                     ),
-                    suffix: Icon(FIcons.chevronRight),
+                    suffix: Icon(FLucideIcons.chevronRight),
                     onPress: () => _showTransactionEntry(tx),
                   ),
                 );
@@ -115,9 +115,9 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
             ),
             const SizedBox(height: Spaces.small),
             FButton(
-              style: FButtonStyle.ghost(),
+              variant: .ghost,
               onPress: () => context.go(AuthAppScreen.history.toPath),
-              suffix: Icon(FIcons.arrowRight),
+              suffix: Icon(FLucideIcons.arrowRight),
               child: Text(loc.view_all),
             ),
           ],
@@ -139,7 +139,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
             ),
             FButton.icon(
               onPress: () => ref.invalidate(lastTransactionsProvider),
-              child: const Icon(FIcons.refreshCcw),
+              child: const Icon(FLucideIcons.refreshCcw),
             ),
           ],
         ),
@@ -147,6 +147,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
     );
 
     return FCard(
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -163,7 +164,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
               FTooltip(
                 tipBuilder: (context, controller) => Text('refresh'),
                 child: FButton.icon(
-                  child: const Icon(FIcons.refreshCcw),
+                  child: const Icon(FLucideIcons.refreshCcw),
                   onPress: () => ref.invalidate(lastTransactionsProvider),
                 ),
               ),

@@ -3,15 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
+import 'package:genesix/features/wallet/presentation/address_book/address_book_empty_state.dart';
+import 'package:genesix/features/wallet/presentation/address_book/contact_list_tile.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:go_router/go_router.dart';
 
 class SelectAddressDialog extends ConsumerStatefulWidget {
-  const SelectAddressDialog(this.style, this.animation, {super.key});
+  const SelectAddressDialog(this.animation, {super.key});
 
-  final FDialogStyle style;
   final Animation<double> animation;
 
   @override
@@ -20,14 +19,7 @@ class SelectAddressDialog extends ConsumerStatefulWidget {
 }
 
 class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
-  final _searchController = TextEditingController();
   String _searchQuery = '';
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +27,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
     final addressBook = ref.watch(addressBookProvider);
 
     return FDialog(
-      style: widget.style,
+      clipBehavior: Clip.antiAlias,
       animation: widget.animation,
       constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
       body: Column(
@@ -54,7 +46,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
               ),
               FButton.icon(
                 onPress: () => context.pop(),
-                child: const Icon(FIcons.x, size: 20),
+                child: const Icon(FLucideIcons.x, size: 20),
               ),
             ],
           ),
@@ -62,16 +54,24 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
 
           // Search Field
           FTextField(
-            controller: _searchController,
+            prefixBuilder: (context, style, states) =>
+                FTextField.prefixIconBuilder(
+                  context,
+                  style,
+                  states,
+                  const Icon(FLucideIcons.search),
+                ),
+            control: .managed(
+              onChange: (value) {
+                setState(() {
+                  _searchQuery = value.text;
+                });
+              },
+            ),
             hint: loc.filter_contacts_label_text,
             keyboardType: TextInputType.text,
             maxLines: 1,
             clearable: (v) => v.text.isNotEmpty,
-            onChange: (value) {
-              setState(() {
-                _searchQuery = value;
-              });
-            },
           ),
           const SizedBox(height: Spaces.large),
 
@@ -80,7 +80,10 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
             child: addressBook.when(
               data: (book) {
                 if (book.isEmpty) {
-                  return _CenteredMessage(loc.no_contact_found, muted: true);
+                  return AddressBookEmptyState.noContacts(
+                    localizations: loc,
+                    compact: true,
+                  );
                 }
 
                 final filteredContacts = book.entries.where((entry) {
@@ -91,25 +94,23 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
                 }).toList();
 
                 if (filteredContacts.isEmpty) {
-                  return _CenteredMessage(loc.no_contact_found, muted: true);
+                  return AddressBookEmptyState.noSearchResults(
+                    localizations: loc,
+                    compact: true,
+                  );
                 }
 
-                return ListView.separated(
+                return ListView.builder(
                   shrinkWrap: true,
                   itemCount: filteredContacts.length,
-                  separatorBuilder: (context, index) => const FDivider(),
                   itemBuilder: (context, index) {
                     final entry = filteredContacts[index];
                     final address = entry.key;
                     final details = entry.value;
-                    return FItem(
-                      onPress: () => context.pop(address),
-                      prefix: HashiconWidget(
-                        hash: address,
-                        size: const Size(40, 40),
-                      ),
-                      title: Text(details.name),
-                      subtitle: Text(truncateText(address)),
+                    return ContactListTile(
+                      contact: details,
+                      localizations: loc,
+                      onOpen: () => context.pop(address),
                     );
                   },
                 );
@@ -129,15 +130,10 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
 }
 
 class _CenteredMessage extends StatelessWidget {
-  const _CenteredMessage(
-    this.message, {
-    this.destructive = false,
-    this.muted = false,
-  });
+  const _CenteredMessage(this.message, {this.destructive = false});
 
   final String message;
   final bool destructive;
-  final bool muted;
 
   @override
   Widget build(BuildContext context) {
@@ -146,8 +142,6 @@ class _CenteredMessage extends StatelessWidget {
     Color color = colors.foreground;
     if (destructive) {
       color = colors.destructiveForeground;
-    } else if (muted) {
-      color = colors.mutedForeground;
     }
 
     return Center(
@@ -156,7 +150,7 @@ class _CenteredMessage extends StatelessWidget {
         child: Text(
           message,
           textAlign: TextAlign.center,
-          style: context.theme.typography.base.copyWith(color: color),
+          style: context.theme.typography.md.copyWith(color: color),
         ),
       ),
     );
