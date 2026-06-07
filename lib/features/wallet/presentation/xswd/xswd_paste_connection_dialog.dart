@@ -84,7 +84,7 @@ class _XswdPasteConnectionDialogState
             control: .managed(controller: _controller),
             label: Text(loc.parameters),
             hint:
-                '{"channel_id":"...","relayer":"...","encryption_mode":"aes","encryption_key":"...","app_data":{...}}',
+                '{"relayer":"...","encryption_mode":{mode, key},"app_data":{...}}',
             readOnly: _isProcessing,
             maxLines: 10,
             keyboardType: TextInputType.multiline,

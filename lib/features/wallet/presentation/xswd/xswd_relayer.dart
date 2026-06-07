@@ -2,11 +2,10 @@
 ///
 /// Expected JSON shape:
 /// {
-///   "channel_id": "...",
-///   "relayer": "https://relay.xelis.io",
-///   "encryption_mode": "aes" | "chacha20poly1305" | ...,
-///   "encryption_key": "`<base64 32 bytes>`" | null,
-///   "app_data": { ... } | null
+///   "relayer": "wss://relay.xelis.io/ws/abc123",  // full URL, ready to connect
+///   "endpoint": "wss://relay.xelis.io",           // base, informational
+///   "encryption_mode": { "mode": "aes", "key": "<hex 32 bytes>" },
+///   "app_data": { ... }
 /// }
 library;
 
@@ -16,44 +15,51 @@ import 'dart:typed_data' show Uint8List;
 import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 
 class RelaySessionData {
-  final String channelId;
   final String relayer;
-  final String encryptionMode;
-  final String? encryptionKey;
+  final String? endpoint;
+  final Map<String, dynamic> encryptionMode;
   final Map<String, dynamic>? appData;
 
   const RelaySessionData({
-    required this.channelId,
     required this.relayer,
+    this.endpoint,
     required this.encryptionMode,
-    this.encryptionKey,
     this.appData,
   });
 
-  /// Parse from JSON (throws [FormatException] for wrong types).
+  // ---- Shim: destructure the nested encryption_mode object ----
+
+  /// Mode string ("aes", "chacha20poly1305", ...) from encryption_mode.mode
+  String? get _modeString {
+    final m = encryptionMode['mode'];
+    return (m is String) ? m : null;
+  }
+
+  /// Hex key string from encryption_mode.key (null/empty → null)
+  String? get _keyString {
+    final k = encryptionMode['key'];
+    return (k is String && k.isNotEmpty) ? k : null;
+  }
+
+  // -------------------------------------------------------------
+
   factory RelaySessionData.fromJson(Map<String, dynamic> json) {
-    final channelId = json['channel_id'];
     final relayer = json['relayer'];
+    final endpoint = json['endpoint'];
     final encryptionMode = json['encryption_mode'];
-    final encryptionKey = json['encryption_key'];
     final appData = json['app_data'];
 
-    if (channelId is! String) {
-      throw const FormatException(
-        'RelaySessionData: channel_id must be a string',
-      );
-    }
     if (relayer is! String) {
       throw const FormatException('RelaySessionData: relayer must be a string');
     }
-    if (encryptionMode is! String) {
+    if (endpoint != null && endpoint is! String) {
       throw const FormatException(
-        'RelaySessionData: encryption_mode must be a string',
+        'RelaySessionData: endpoint must be a string or null',
       );
     }
-    if (encryptionKey != null && encryptionKey is! String) {
+    if (encryptionMode is! Map<String, dynamic>) {
       throw const FormatException(
-        'RelaySessionData: encryption_key must be a string or null',
+        'RelaySessionData: encryption_mode must be an object { mode, key }',
       );
     }
     if (appData != null && appData is! Map<String, dynamic>) {
@@ -63,50 +69,41 @@ class RelaySessionData {
     }
 
     return RelaySessionData(
-      channelId: channelId,
       relayer: relayer,
+      endpoint: endpoint as String?,
       encryptionMode: encryptionMode,
-      encryptionKey: encryptionKey as String?,
       appData: appData as Map<String, dynamic>?,
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'channel_id': channelId,
     'relayer': relayer,
+    if (endpoint != null) 'endpoint': endpoint,
     'encryption_mode': encryptionMode,
-    'encryption_key': encryptionKey,
     'app_data': appData,
   };
 
-  /// Basic structural validation: required fields + app_data present.
-  ///
-  /// Note: This does NOT validate base64 or key length. Keep that in the
-  /// connection logic where you decode keys.
   bool get isValid =>
-      channelId.trim().isNotEmpty &&
       relayer.trim().isNotEmpty &&
-      encryptionMode.trim().isNotEmpty &&
+      (_modeString?.trim().isNotEmpty ?? false) &&
       appData != null;
 
-  /// Returns a human-readable reason if invalid; otherwise returns null.
   String? validateReason() {
-    if (channelId.trim().isEmpty) return 'Missing channel_id';
     if (relayer.trim().isEmpty) return 'Missing relayer';
-    if (encryptionMode.trim().isEmpty) return 'Missing encryption_mode';
+    final mode = _modeString;
+    if (mode == null || mode.trim().isEmpty) {
+      return 'Missing encryption_mode.mode';
+    }
     if (appData == null) return 'Missing app_data';
     return null;
   }
 
-  /// Convenience: normalize relayer string (no trailing slash).
-  /// This can help when constructing ws URLs like: `$relayer/ws/$channelId`.
   String get relayerNormalized {
     final r = relayer.trim();
     if (r.endsWith('/')) return r.substring(0, r.length - 1);
     return r;
   }
 
-  /// Throw a friendly error if the session payload is structurally invalid.
   void throwIfInvalid() {
     final reason = validateReason();
     if (reason != null) {
@@ -114,43 +111,55 @@ class RelaySessionData {
     }
   }
 
-  /// Builds the relayer WebSocket URL used by the wallet to connect.
-  /// Example: `https://relay.xelis.io/ws/<channelId>`
-  String buildRelayerWsUrl() => '$relayerNormalized/ws/$channelId';
+  Uint8List _decodeHexKey(String hex) {
+    final normalized = hex.trim().replaceAll(RegExp(r'^0x'), '');
 
-  /// Decode and validate the optional encryption key + mode from the session.
-  ///
-  /// - If encryptionKey is null/empty -> returns null (unencrypted session)
-  /// - If provided -> must be base64 for 32 bytes and supported mode
-  EncryptionMode? decodeEncryptionMode() {
-    final keyB64 = encryptionKey;
-    if (keyB64 == null || keyB64.trim().isEmpty) return null;
-
-    late final Uint8List keyBytes;
-    try {
-      keyBytes = Uint8List.fromList(base64Decode(keyB64.trim()));
-    } catch (_) {
-      throw Exception('Invalid encryption_key: not valid base64');
+    if (normalized.length % 2 != 0) {
+      throw Exception(
+        'Invalid encryption_mode.key: hex string must have even length',
+      );
     }
 
-    if (keyBytes.length != 32) {
-      throw Exception('Invalid encryption_key length: expected 32 bytes');
+    final bytes = <int>[];
+    for (var i = 0; i < normalized.length; i += 2) {
+      final byteStr = normalized.substring(i, i + 2);
+      final value = int.tryParse(byteStr, radix: 16);
+      if (value == null) {
+        throw Exception('Invalid encryption_mode.key: not valid hex');
+      }
+      bytes.add(value);
     }
 
-    final mode = encryptionMode.trim();
-    if (mode == 'aes') {
-      return EncryptionMode.aes(key: keyBytes);
-    }
-    if (mode == 'chacha20poly1305') {
-      return EncryptionMode.chacha20Poly1305(key: keyBytes);
-    }
-
-    throw Exception('Unsupported encryption mode: $mode');
+    return Uint8List.fromList(bytes);
   }
 
-  /// Extract required app_data fields with safe errors.
+  String buildRelayerWsUrl() => relayerNormalized;
+
+  /// Decode and validate the encryption key + mode.
   ///
-  /// Returns a record for convenience (Dart 3).
+  /// - If key is absent/empty → returns null (unencrypted session)
+  /// - Otherwise → must be valid hex of 64 chars, with a supported mode
+  EncryptionMode? decodeEncryptionMode() {
+    final keyHex = _keyString;
+    if (keyHex == null) return null;
+
+    final keyBytes = _decodeHexKey(keyHex);
+
+    if (keyBytes.length != 32) {
+      throw Exception('Invalid encryption_mode.key length: expected 32 bytes');
+    }
+
+    final mode = _modeString?.trim();
+    switch (mode) {
+      case 'aes':
+        return EncryptionMode.aes(key: keyBytes);
+      case 'chacha20poly1305':
+        return EncryptionMode.chacha20Poly1305(key: keyBytes);
+      default:
+        throw Exception('Unsupported encryption mode: $mode');
+    }
+  }
+
   ({
     String id,
     String name,
@@ -193,12 +202,6 @@ class RelaySessionData {
     );
   }
 
-  /// Convert this session payload into ApplicationDataRelayer expected by your wallet layer.
-  ///
-  /// This calls:
-  /// - throwIfInvalid()
-  /// - decodeEncryptionMode()
-  /// - parseAppData()
   ApplicationDataRelayer toApplicationDataRelayer() {
     throwIfInvalid();
 
