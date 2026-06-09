@@ -162,6 +162,7 @@
   "outgoing": "Sortant",
   "coinbase": "Minage",
   "burn": "Brûler",
+  "blob": "Blob",
   "no_data": "Pas de données",
   "details": "Détails",
   "fee": "Frais",

@@ -6,6 +6,7 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/presentation/components/transaction_view_utils.dart';
 import 'package:genesix/features/wallet/presentation/history/base_transaction_entry_card.dart';
+import 'package:genesix/features/wallet/presentation/history/blob_entry_content.dart';
 import 'package:genesix/features/wallet/presentation/history/burn_entry_content.dart';
 import 'package:genesix/features/wallet/presentation/history/deploy_contract_entry_content.dart';
 import 'package:genesix/features/wallet/presentation/history/invoke_contract_entry_content.dart';
@@ -132,6 +133,8 @@ class _TransactionEntryScreenState extends ConsumerState<TransactionEntryScreen>
         transactionTypeContent = DeployContractEntryContent(entryType);
       case sdk.IncomingContractEntry():
         transactionTypeContent = IncomingContractEntryContent(entryType);
+      case sdk.BlobEntry():
+        transactionTypeContent = BlobEntryContent(entryType);
     }
 
     Uri url;

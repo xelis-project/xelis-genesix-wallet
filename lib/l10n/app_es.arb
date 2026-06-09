@@ -162,6 +162,7 @@
   "outgoing": "Saliente",
   "coinbase": "Coinbase",
   "burn": "Quemar",
+  "blob": "Blob",
   "no_data": "Sin datos",
   "details": "Detalles",
   "fee": "Tarifa",

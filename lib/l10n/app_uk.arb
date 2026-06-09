@@ -162,6 +162,7 @@
   "outgoing": "Вихідна",
   "coinbase": "Coinbase",
   "burn": "Спалити",
+  "blob": "Blob",
   "no_data": "Немає даних",
   "details": "Деталі",
   "fee": "Комісія",

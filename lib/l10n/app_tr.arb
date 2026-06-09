@@ -162,6 +162,7 @@
   "outgoing": "Giden",
   "coinbase": "Coinbase",
   "burn": "Yakma",
+  "blob": "Blob",
   "no_data": "Veri Yok",
   "details": "Detaylar",
   "fee": "Ücret",

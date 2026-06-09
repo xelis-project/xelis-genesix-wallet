@@ -162,6 +162,7 @@
   "outgoing": "Uitgaand",
   "coinbase": "Coinbase",
   "burn": "Verbranden",
+  "blob": "Blob",
   "no_data": "Geen gegevens",
   "details": "Details",
   "fee": "Vergoeding",

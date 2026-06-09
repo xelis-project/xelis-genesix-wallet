@@ -162,6 +162,7 @@
   "outgoing": "Wychodzące",
   "coinbase": "Coinbase",
   "burn": "Spal",
+  "blob": "Blob",
   "no_data": "Brak danych",
   "details": "Szczegóły",
   "fee": "Opłata",

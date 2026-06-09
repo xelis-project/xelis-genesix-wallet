@@ -162,6 +162,7 @@
   "outgoing": "De saída",
   "coinbase": "Exploração mineira",
   "burn": "Queimadura",
+  "blob": "Blob",
   "no_data": "Sem dados",
   "details": "Detalhes",
   "fee": "Taxa",

@@ -310,6 +310,13 @@ class WalletRuntime extends _$WalletRuntime {
 
           case sdk.IncomingContractEntry():
             _emitInfo(title: 'Contract Transfer Received');
+
+          case sdk.BlobEntry():
+            _emitEvent(
+              title: loc.blob.capitalize(),
+              description:
+                  '${loc.topoheight}: ${event.transactionEntry.topoheight}',
+            );
         }
       // }
 

@@ -162,6 +162,7 @@
   "outgoing": "支出",
   "coinbase": "Coinbase",
   "burn": "销毁",
+  "blob": "Blob",
   "no_data": "无数据",
   "details": "详情",
   "fee": "费用",

@@ -162,6 +162,7 @@
   "outgoing": "Outgoing",
   "coinbase": "Mining",
   "burn": "Burn",
+  "blob": "Blob",
   "no_data": "No data",
   "details": "Details",
   "fee": "Fee",

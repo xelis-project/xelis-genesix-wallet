@@ -162,6 +162,7 @@
   "outgoing": "発信",
   "coinbase": "コインベース",
   "burn": "バーン",
+  "blob": "Blob",
   "no_data": "データなし",
   "details": "詳細",
   "fee": "手数料",

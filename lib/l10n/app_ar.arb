@@ -162,6 +162,7 @@
   "outgoing": "المخرجة",
   "coinbase": "تعدين",
   "burn": "حرق",
+  "blob": "Blob",
   "no_data": "لا يوجد بيانات",
   "details": "التفاصيل",
   "fee": "رسم",

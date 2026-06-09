@@ -162,6 +162,7 @@
   "outgoing": "발신",
   "coinbase": "마이닝",
   "burn": "소각",
+  "blob": "Blob",
   "no_data": "데이터 없음",
   "details": "세부 정보",
   "fee": "수수료",

@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:forui/assets.dart';
+import 'package:genesix/features/wallet/domain/parsed_extra_data.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
@@ -168,6 +169,16 @@ TransactionDisplayInfo parseTxInfo(
         icon: FLucideIcons.arrowDownToLine,
         color: Colors.purple.shade300,
         label: loc.tx_contract_transfer,
+      );
+    case BlobEntry():
+      final parsed = ParsedExtraData.parse(loc, type.data);
+      return TransactionDisplayInfo(
+        icon: FLucideIcons.fileText,
+        color: Colors.cyan.shade400,
+        label: loc.blob,
+        subtitle: loc.extra_data,
+        details:
+            '${parsed.flag.name.capitalize()} • ${parsed.label} • ${parsed.fmtSize}',
       );
   }
 }

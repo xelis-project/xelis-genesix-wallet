@@ -162,6 +162,7 @@
   "outgoing": "जावक",
   "coinbase": "खुदाई",
   "burn": "जलाना",
+  "blob": "Blob",
   "no_data": "कोई डेटा नहीं",
   "details": "विवरण",
   "fee": "शुल्क",

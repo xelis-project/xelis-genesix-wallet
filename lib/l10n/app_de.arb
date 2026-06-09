@@ -162,6 +162,7 @@
   "outgoing": "Ausgehend",
   "coinbase": "Coinbase",
   "burn": "Verbrennen",
+  "blob": "Blob",
   "no_data": "Keine Daten",
   "details": "Details",
   "fee": "Gebühr",
