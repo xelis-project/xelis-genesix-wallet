@@ -1141,7 +1141,7 @@ impl XelisWallet {
             } else {
                 info!("Transaction submitted successfully!");
                 state
-                    .apply_changes(&mut storage)
+                    .apply_changes(&mut storage, self.wallet.as_ref(), &tx)
                     .await
                     .context("Error while applying changes")?;
                 info!("Transaction applied to storage");
@@ -1479,7 +1479,7 @@ impl XelisWallet {
             }
         }
 
-        let (mut unsigned, mut state, transaction_type_builder) = self
+        let (mut unsigned, state, transaction_type_builder) = self
             .pending_unsigned
             .write()
             .take()
@@ -1488,8 +1488,6 @@ impl XelisWallet {
         unsigned.set_multisig(multisig);
 
         let tx = unsigned.finalize(self.wallet.get_keypair());
-
-        state.set_tx_hash_built(tx.hash());
 
         self.pending_transactions
             .write()
