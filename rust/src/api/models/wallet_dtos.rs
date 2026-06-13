@@ -103,6 +103,9 @@ impl HistoryPageFilter {
                 Some(_) => false,
                 None => self.accept_coinbase,
             },
+            accept_blob: self.accept_outgoing
+                && self.address.is_none()
+                && self.asset_hash.is_none(),
             accept_burn: match self.address {
                 Some(_) => false,
                 None => self.accept_burn,
