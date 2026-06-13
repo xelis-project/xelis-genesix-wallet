@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/authentication/data/biometric_auth_repository.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
@@ -19,22 +22,33 @@ Future<void> startWithBiometricAuth(
   bool closeCurrentDialog = false,
   bool popOnSubmit = true,
 }) async {
+  final originContext = ref.context;
   var authenticated = false;
-  if (!kIsWeb) {
+  final biometricAuthEnabled = ref.read(
+    settingsProvider.select((state) => state.activateBiometricAuth),
+  );
+
+  if (!kIsWeb && biometricAuthEnabled) {
     authenticated = await ref.read(
       biometricAuthenticationProvider(reason).future,
     );
   }
+  if (!originContext.mounted) return;
+
   if (authenticated) {
     callback(ref);
   } else {
-    if (ref.context.mounted) {
+    if (originContext.mounted) {
       await showAppDialog<void>(
-        context: ref.context,
-        builder: (context, _, animation) {
+        context: originContext,
+        builder: (dialogContext, _, animation) {
           return PasswordDialog(
             animation,
-            onValid: () => callback(ref),
+            onValid: () {
+              if (originContext.mounted && dialogContext.mounted) {
+                callback(ref);
+              }
+            },
             closeOnValid: popOnSubmit,
           );
         },
@@ -42,20 +56,45 @@ Future<void> startWithBiometricAuth(
     }
   }
 
-  if (ref.context.mounted && closeCurrentDialog) {
-    ref.context.pop();
+  if (originContext.mounted && closeCurrentDialog && originContext.canPop()) {
+    originContext.pop();
   }
 }
 
 @riverpod
 Future<bool> biometricAuthentication(Ref ref, String reason) async {
+  final biometricAuthEnabled = ref.read(
+    settingsProvider.select((state) => state.activateBiometricAuth),
+  );
+  if (kIsWeb || !biometricAuthEnabled) {
+    return false;
+  }
+
+  final keepAliveLink = ref.keepAlive();
   final loc = ref.read(appLocalizationsProvider);
   final biometricAuthRepository = BiometricAuthRepository();
+  ref.onDispose(() {
+    unawaited(
+      biometricAuthRepository.stopAuthentication().catchError((Object error) {
+        talker.warning('Failed to stop biometric authentication: $error');
+      }),
+    );
+  });
 
-  if (await biometricAuthRepository.canAuthenticate()) {
+  try {
+    final canAuthenticate = await biometricAuthRepository.canAuthenticate();
+    if (!ref.mounted) return false;
+
+    if (!canAuthenticate) {
+      talker.info('Biometric authentication not available');
+      return false;
+    }
+
     try {
       return await biometricAuthRepository.authenticate(reason);
     } on LocalAuthException catch (e) {
+      if (!ref.mounted) return false;
+
       if (e.code == LocalAuthExceptionCode.noBiometricHardware) {
         talker.warning('BiometricAuthentication', e);
         ref
@@ -79,10 +118,15 @@ Future<bool> biometricAuthentication(Ref ref, String reason) async {
             );
       }
     } catch (e) {
+      if (!ref.mounted) return false;
+
       talker.error('BiometricAuthentication', e);
       ref.read(toastProvider.notifier).showError(description: e.toString());
     }
+  } finally {
+    keepAliveLink.close();
   }
+
   talker.info('Biometric authentication not available');
   return false;
 }

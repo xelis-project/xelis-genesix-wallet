@@ -242,6 +242,13 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
   Future<bool> _openWalletWithBiometrics(String name) async {
     if (kIsWeb) return false;
 
+    final biometricAuthEnabled = ref.read(
+      settingsProvider.select((state) => state.activateBiometricAuth),
+    );
+    if (!biometricAuthEnabled) {
+      return false;
+    }
+
     final loc = ref.read(appLocalizationsProvider);
     final network = ref.read(settingsProvider).network;
     final secureStorage = ref.read(secureStorageProvider);
