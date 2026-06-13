@@ -126,22 +126,11 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
       loading: () => Center(child: FCircularProgress()),
       error: (err, stack) => Padding(
         padding: const EdgeInsets.only(top: Spaces.small),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                loc.oups,
-                style: context.theme.typography.sm.copyWith(
-                  color: context.theme.colors.destructive,
-                ),
-              ),
-            ),
-            FButton.icon(
-              onPress: () => ref.invalidate(lastTransactionsProvider),
-              child: const Icon(FLucideIcons.refreshCcw),
-            ),
-          ],
+        child: Text(
+          loc.oups,
+          style: context.theme.typography.sm.copyWith(
+            color: context.theme.colors.destructive,
+          ),
         ),
       ),
     );
