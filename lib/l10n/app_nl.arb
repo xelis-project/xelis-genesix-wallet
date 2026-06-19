@@ -24,6 +24,7 @@
   "category_coinbase_subtitle": "Transacties waarbij u beloningen hebt ontvangen.",
   "category_outgoing_subtitle": "Transacties die door u zijn gestart.",
   "category_incoming_subtitle": "Transacties waarbij u assets hebt ontvangen.",
+  "category_blob_subtitle": "Privécommunicatie zonder vertrouwen.",
   "category_select_error": "Selecteer ten minste één categorie.",
   "datetime_format": "dd-MM-yyyy",
   "time_ago_days": "{days} dagen geleden",

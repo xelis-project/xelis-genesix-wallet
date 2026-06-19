@@ -25,6 +25,7 @@ Future<List<TransactionEntry>> contactHistory(
       acceptOutgoing: true,
       acceptCoinbase: true,
       acceptBurn: true,
+      acceptBlob: false,
       limit: BigInt.from(pageSize),
       address: contactAddress,
     );

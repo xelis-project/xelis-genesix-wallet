@@ -13,7 +13,7 @@ part 'history_providers.g.dart';
 
 const pageSize = 30;
 
-enum TransactionCategory { incoming, outgoing, coinbase, burn }
+enum TransactionCategory { incoming, outgoing, coinbase, burn, blob }
 
 @riverpod
 Future<List<TransactionEntry>> history(Ref ref, int page) async {
@@ -30,6 +30,7 @@ Future<List<TransactionEntry>> history(Ref ref, int page) async {
       acceptOutgoing: historyFilterState.showOutgoing,
       acceptCoinbase: historyFilterState.showCoinbase,
       acceptBurn: historyFilterState.showBurn,
+      acceptBlob: historyFilterState.showBlob,
       limit: BigInt.from(pageSize),
       assetHash: historyFilterState.asset,
       address: historyFilterState.address,

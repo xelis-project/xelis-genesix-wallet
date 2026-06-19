@@ -24,6 +24,7 @@
   "category_coinbase_subtitle": "Транзакции, в которых вы получили награды.",
   "category_outgoing_subtitle": "Транзакции, инициированные вами.",
   "category_incoming_subtitle": "Транзакции, в которых вы получили активы.",
+  "category_blob_subtitle": "Приватная коммуникация без доверия.",
   "category_select_error": "Выберите хотя бы одну категорию.",
   "datetime_format": "dd.MM.yyyy",
   "time_ago_days": "{days} дн. назад",

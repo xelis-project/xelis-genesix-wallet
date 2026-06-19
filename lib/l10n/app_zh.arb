@@ -24,6 +24,7 @@
   "category_coinbase_subtitle": "您收到奖励的交易。",
   "category_outgoing_subtitle": "由您发起的交易。",
   "category_incoming_subtitle": "您收到资产的交易。",
+  "category_blob_subtitle": "无需信任的私密通信。",
   "category_select_error": "请至少选择一个类别。",
   "datetime_format": "yyyy/MM/dd",
   "time_ago_days": "{days} 天前",

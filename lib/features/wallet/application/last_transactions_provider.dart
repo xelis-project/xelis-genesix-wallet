@@ -21,6 +21,7 @@ Future<List<TransactionEntry>> lastTransactions(Ref ref) async {
         acceptOutgoing: true,
         acceptCoinbase: true,
         acceptBurn: true,
+        acceptBlob: true,
         limit: BigInt.from(pageSize),
       ),
     );

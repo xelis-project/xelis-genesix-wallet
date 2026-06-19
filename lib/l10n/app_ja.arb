@@ -24,6 +24,7 @@
   "category_coinbase_subtitle": "報酬を受け取ったトランザクション。",
   "category_outgoing_subtitle": "あなたが開始したトランザクション。",
   "category_incoming_subtitle": "アセットを受け取ったトランザクション。",
+  "category_blob_subtitle": "トラストレスなプライベート通信。",
   "category_select_error": "少なくとも1つのカテゴリを選択してください。",
   "datetime_format": "yyyy/MM/dd",
   "time_ago_days": "{days}日前",

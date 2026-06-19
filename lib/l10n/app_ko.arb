@@ -24,6 +24,7 @@
   "category_coinbase_subtitle": "보상을 받은 트랜잭션입니다.",
   "category_outgoing_subtitle": "사용자가 시작한 트랜잭션입니다.",
   "category_incoming_subtitle": "자산을 받은 트랜잭션입니다.",
+  "category_blob_subtitle": "신뢰가 필요 없는 비공개 통신입니다.",
   "category_select_error": "하나 이상의 카테고리를 선택하세요.",
   "datetime_format": "yyyy.MM.dd",
   "time_ago_days": "{days}일 전",

@@ -24,6 +24,7 @@
   "category_coinbase_subtitle": "Transakcje, w których otrzymano nagrody.",
   "category_outgoing_subtitle": "Transakcje zainicjowane przez Ciebie.",
   "category_incoming_subtitle": "Transakcje, w których otrzymano aktywa.",
+  "category_blob_subtitle": "Prywatna komunikacja bez zaufania.",
   "category_select_error": "Wybierz co najmniej jedną kategorię.",
   "datetime_format": "dd.MM.yyyy",
   "time_ago_days": "{days} dni temu",

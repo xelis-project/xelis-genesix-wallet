@@ -24,6 +24,7 @@
   "category_coinbase_subtitle": "वे लेन-देन जिनमें आपको रिवार्ड मिले।",
   "category_outgoing_subtitle": "आपके द्वारा शुरू किए गए लेन-देन।",
   "category_incoming_subtitle": "वे लेन-देन जिनमें आपको एसेट मिले।",
+  "category_blob_subtitle": "विश्वास-रहित निजी संचार।",
   "category_select_error": "कृपया कम से कम एक श्रेणी चुनें।",
   "datetime_format": "dd/MM/yyyy",
   "time_ago_days": "{days} दिन पहले",

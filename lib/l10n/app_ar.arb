@@ -24,6 +24,7 @@
   "category_coinbase_subtitle": "المعاملات التي تلقيت فيها مكافآت.",
   "category_outgoing_subtitle": "المعاملات التي بدأتها أنت.",
   "category_incoming_subtitle": "المعاملات التي تلقيت فيها أصولًا.",
+  "category_blob_subtitle": "تواصل خاص دون الحاجة إلى الثقة.",
   "category_select_error": "يرجى اختيار فئة واحدة على الأقل.",
   "datetime_format": "dd/MM/yyyy",
   "time_ago_days": "منذ {days} أيام",

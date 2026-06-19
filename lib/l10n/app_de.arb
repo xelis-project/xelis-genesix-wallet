@@ -24,6 +24,7 @@
   "category_coinbase_subtitle": "Transaktionen, bei denen Sie Belohnungen erhalten haben.",
   "category_outgoing_subtitle": "Von Ihnen initiierte Transaktionen.",
   "category_incoming_subtitle": "Transaktionen, bei denen Sie Assets erhalten haben.",
+  "category_blob_subtitle": "Private Kommunikation ohne Vertrauensannahmen.",
   "category_select_error": "Bitte wählen Sie mindestens eine Kategorie aus.",
   "datetime_format": "dd.MM.yyyy",
   "time_ago_days": "vor {days} Tagen",

@@ -24,6 +24,7 @@
   "category_coinbase_subtitle": "Transaksi tempat anda menerima ganjaran.",
   "category_outgoing_subtitle": "Transaksi yang dimulakan oleh anda.",
   "category_incoming_subtitle": "Transaksi tempat anda menerima aset.",
+  "category_blob_subtitle": "Komunikasi peribadi tanpa perlu kepercayaan.",
   "category_select_error": "Sila pilih sekurang-kurangnya satu kategori.",
   "datetime_format": "dd/MM/yyyy",
   "time_ago_days": "{days} hari lalu",

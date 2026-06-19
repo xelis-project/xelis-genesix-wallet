@@ -24,6 +24,7 @@
   "category_coinbase_subtitle": "Транзакции, при които сте получили награди.",
   "category_outgoing_subtitle": "Транзакции, инициирани от вас.",
   "category_incoming_subtitle": "Транзакции, при които сте получили активи.",
+  "category_blob_subtitle": "Поверителна комуникация без нужда от доверие.",
   "category_select_error": "Изберете поне една категория.",
   "datetime_format": "dd.MM.yyyy",
   "time_ago_days": "преди {days} дни",

@@ -32,6 +32,7 @@ class ContactTransactions extends _$ContactTransactions {
         acceptOutgoing: true,
         acceptCoinbase: true,
         acceptBurn: true,
+        acceptBlob: false,
         limit: BigInt.from(pageSize),
         assetHash: null,
         address: contactAddress,

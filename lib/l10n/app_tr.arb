@@ -24,6 +24,7 @@
   "category_coinbase_subtitle": "Ödül aldığınız işlemler.",
   "category_outgoing_subtitle": "Sizin başlattığınız işlemler.",
   "category_incoming_subtitle": "Varlık aldığınız işlemler.",
+  "category_blob_subtitle": "Güven gerektirmeyen özel iletişim.",
   "category_select_error": "Lütfen en az bir kategori seçin.",
   "datetime_format": "dd.MM.yyyy",
   "time_ago_days": "{days} gün önce",

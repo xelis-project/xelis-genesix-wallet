@@ -160,6 +160,11 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                         value: TransactionCategory.burn,
                         subtitle: Text(loc.category_burn_subtitle),
                       ),
+                      FSelectTile(
+                        title: Text(loc.blob),
+                        value: TransactionCategory.blob,
+                        subtitle: Text(loc.category_blob_subtitle),
+                      ),
                     ],
                   ),
                   // Asset selection
@@ -307,6 +312,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
       if (filterState.showOutgoing) TransactionCategory.outgoing,
       if (filterState.showCoinbase) TransactionCategory.coinbase,
       if (filterState.showBurn) TransactionCategory.burn,
+      if (filterState.showBlob) TransactionCategory.blob,
     };
   }
 
@@ -317,6 +323,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
         TransactionCategory.outgoing,
         TransactionCategory.coinbase,
         TransactionCategory.burn,
+        TransactionCategory.blob,
       };
       _assetController.value = null;
       _contactController.value = null;
@@ -346,6 +353,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
           TransactionCategory.coinbase,
         ),
         showBurn: _categoriesSelected.contains(TransactionCategory.burn),
+        showBlob: _categoriesSelected.contains(TransactionCategory.blob),
         asset: assetEntry?.key,
         address: contact?.address,
         minTimestamp: _minTimestamp,

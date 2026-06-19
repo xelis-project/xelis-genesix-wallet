@@ -24,6 +24,7 @@
   "category_coinbase_subtitle": "Transações em que você recebeu recompensas.",
   "category_outgoing_subtitle": "Transações iniciadas por você.",
   "category_incoming_subtitle": "Transações em que você recebeu ativos.",
+  "category_blob_subtitle": "Comunicação privada sem necessidade de confiança.",
   "category_select_error": "Selecione pelo menos uma categoria.",
   "datetime_format": "dd/MM/yyyy",
   "time_ago_days": "há {days} dias",

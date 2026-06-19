@@ -24,6 +24,7 @@
   "category_coinbase_subtitle": "Транзакції, у яких ви отримали винагороди.",
   "category_outgoing_subtitle": "Транзакції, ініційовані вами.",
   "category_incoming_subtitle": "Транзакції, у яких ви отримали активи.",
+  "category_blob_subtitle": "Приватна комунікація без довіри.",
   "category_select_error": "Виберіть принаймні одну категорію.",
   "datetime_format": "dd.MM.yyyy",
   "time_ago_days": "{days} дн. тому",

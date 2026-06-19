@@ -24,6 +24,7 @@
   "category_coinbase_subtitle": "Transactions where you received rewards.",
   "category_outgoing_subtitle": "Transactions initiated by you.",
   "category_incoming_subtitle": "Transactions where you received assets.",
+  "category_blob_subtitle": "Trustless private communication.",
   "category_select_error": "Please select at least one category.",
   "datetime_format": "MM/dd/yyyy",
   "time_ago_days": "{days} days ago",

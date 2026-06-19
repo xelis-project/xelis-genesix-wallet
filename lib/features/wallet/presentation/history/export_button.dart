@@ -77,6 +77,7 @@ class _ExportButtonState extends ConsumerState<ExportButton> {
         acceptOutgoing: filterState.showOutgoing,
         acceptCoinbase: filterState.showCoinbase,
         acceptBurn: filterState.showBurn,
+        acceptBlob: filterState.showBlob,
         minTimestamp: filterState.minTimestamp != null
             ? BigInt.from(filterState.minTimestamp!.millisecondsSinceEpoch)
             : null,

@@ -15,6 +15,7 @@ abstract class HistoryFilterState with _$HistoryFilterState {
     @JsonKey(name: 'show_outgoing') @Default(true) bool showOutgoing,
     @JsonKey(name: 'show_coinbase') @Default(true) bool showCoinbase,
     @JsonKey(name: 'show_burn') @Default(true) bool showBurn,
+    @JsonKey(name: 'show_blob') @Default(true) bool showBlob,
     @JsonKey(name: 'asset') String? asset,
     @JsonKey(name: 'address') String? address,
     @JsonKey(name: 'min_timestamp') DateTime? minTimestamp,
