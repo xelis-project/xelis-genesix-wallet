@@ -162,9 +162,7 @@ class _XswdAppNotFound extends StatelessWidget {
               Text(
                 loc.no_application_found,
                 textAlign: TextAlign.center,
-                style: context.theme.typography.body.lg.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: context.theme.typography.display.lg,
               ),
               const SizedBox(height: Spaces.extraSmall),
               Text(
@@ -259,12 +257,7 @@ class _XswdAppInfoCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            app.name,
-            style: context.theme.typography.body.xl.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          Text(app.name, style: context.theme.typography.display.xl),
           if (app.url != null && app.url!.isNotEmpty) ...[
             const SizedBox(height: Spaces.small),
             Row(
@@ -354,9 +347,7 @@ class _XswdPermissionsSection extends StatelessWidget {
             Expanded(
               child: Text(
                 loc.permissions,
-                style: context.theme.typography.body.lg.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: context.theme.typography.display.lg,
               ),
             ),
           ],
@@ -544,9 +535,7 @@ class _DisconnectDialog extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 560),
       title: Text(
         'Disconnect $appName?',
-        style: context.theme.typography.body.xl.copyWith(
-          fontWeight: FontWeight.w600,
-        ),
+        style: context.theme.typography.display.xl,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: Spaces.small),

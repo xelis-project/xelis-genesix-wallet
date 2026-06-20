@@ -123,7 +123,9 @@ class _ConfiguredMultisigView extends StatelessWidget {
     Widget buildMetric(String title, String value) => LabeledValue.text(
       title,
       value,
-      style: context.theme.typography.body.lg.copyWith(fontWeight: FontWeight.w600),
+      style: context.theme.typography.body.lg.copyWith(
+        fontWeight: FontWeight.w600,
+      ),
     );
 
     List<Widget> buildParticipantTiles() {
@@ -215,9 +217,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
                 children: [
                   Text(
                     loc.multisig,
-                    style: context.theme.typography.body.xl3.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: context.theme.typography.display.xl3,
                   ),
                   Text(
                     'Review the current multisig configuration and participants.',
@@ -395,9 +395,7 @@ class _EmptyMultisigCallToAction extends StatelessWidget {
         ? CrossAxisAlignment.start
         : CrossAxisAlignment.center;
 
-    final titleStyle = context.theme.typography.body.lg.copyWith(
-      fontWeight: FontWeight.w600,
-    );
+    final titleStyle = context.theme.typography.display.lg;
 
     final bodyStyle = context.theme.typography.body.md.copyWith(
       color: colors.mutedForeground,

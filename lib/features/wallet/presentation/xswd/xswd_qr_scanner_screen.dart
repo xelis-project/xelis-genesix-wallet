@@ -375,7 +375,9 @@ class _ScannerErrorView extends StatelessWidget {
                 Text(
                   message,
                   textAlign: TextAlign.center,
-                  style: context.theme.typography.body.sm.copyWith(color: muted),
+                  style: context.theme.typography.body.sm.copyWith(
+                    color: muted,
+                  ),
                 ),
                 const SizedBox(height: Spaces.medium),
                 SizedBox(

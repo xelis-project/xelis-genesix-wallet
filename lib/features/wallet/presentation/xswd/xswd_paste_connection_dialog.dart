@@ -201,7 +201,7 @@ class _DialogTitle extends ConsumerWidget {
     final loc = ref.watch(appLocalizationsProvider);
     return Text(
       loc.connection_request,
-      style: context.theme.typography.body.xl2.copyWith(fontWeight: FontWeight.w600),
+      style: context.theme.typography.display.xl2,
       overflow: TextOverflow.ellipsis,
       maxLines: 1,
     );

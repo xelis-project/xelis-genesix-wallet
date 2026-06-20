@@ -49,7 +49,10 @@ class ConnectionStatusCard extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: Spaces.extraSmall,
                 children: [
-                  Text(nodeAddress.name, style: context.theme.typography.body.sm),
+                  Text(
+                    nodeAddress.name,
+                    style: context.theme.typography.body.sm,
+                  ),
                   Text(
                     nodeAddress.url,
                     style: context.theme.typography.body.xs.copyWith(

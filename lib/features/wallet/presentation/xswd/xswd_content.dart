@@ -283,9 +283,7 @@ class _XswdModeCard extends StatelessWidget {
               children: [
                 Text(
                   'Connected Apps',
-                  style: context.theme.typography.body.lg.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: context.theme.typography.display.lg,
                 ),
                 const SizedBox(height: Spaces.extraSmall),
                 Text(
@@ -345,7 +343,7 @@ class _XswdStatePanel extends StatelessWidget {
                 Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: context.theme.typography.body.xl.copyWith(
+                  style: context.theme.typography.display.xl.copyWith(
                     color: context.theme.colors.foreground,
                   ),
                 ),
@@ -423,9 +421,7 @@ class _XswdAppsListState extends ConsumerState<_XswdAppsList> {
             children: [
               Text(
                 'Connected Apps',
-                style: context.theme.typography.body.xl.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: context.theme.typography.display.xl,
               ),
               const SizedBox(height: Spaces.medium),
               FItemGroup.builder(
@@ -456,7 +452,9 @@ class _XswdAppsListState extends ConsumerState<_XswdAppsList> {
                         : null,
                     details: Text(
                       permissionText,
-                      style: context.theme.typography.body.xs.copyWith(color: muted),
+                      style: context.theme.typography.body.xs.copyWith(
+                        color: muted,
+                      ),
                     ),
                     suffix: Icon(FLucideIcons.chevronRight, color: muted),
                   );

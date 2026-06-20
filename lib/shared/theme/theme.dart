@@ -200,8 +200,20 @@ FTypography _typography({
     ),
   );
 
-  return FTypography(display: typeface, body: typeface);
+  return FTypography(display: _displayTypeface(typeface), body: typeface);
 }
+
+FTypeface _displayTypeface(FTypeface body) => body.copyWith(
+  lg: body.lg.copyWith(fontWeight: FontWeight.w600, height: 1.45),
+  xl: body.xl.copyWith(fontWeight: FontWeight.w600, height: 1.45),
+  xl2: body.xl2.copyWith(fontWeight: FontWeight.w600, height: 1.35),
+  xl3: body.xl3.copyWith(fontWeight: FontWeight.w600, height: 1.25),
+  xl4: body.xl4.copyWith(fontWeight: FontWeight.w600, height: 1.15),
+  xl5: body.xl5.copyWith(fontWeight: FontWeight.w600, height: 1.1),
+  xl6: body.xl6.copyWith(fontWeight: FontWeight.w600, height: 1.05),
+  xl7: body.xl7.copyWith(fontWeight: FontWeight.w600, height: 1),
+  xl8: body.xl8.copyWith(fontWeight: FontWeight.w600, height: 1),
+);
 
 FStyle _style({
   required FColors colors,

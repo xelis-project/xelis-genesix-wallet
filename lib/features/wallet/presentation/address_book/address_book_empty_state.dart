@@ -126,11 +126,11 @@ class _EmptyStateContent extends StatelessWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style:
-                (compact
-                        ? context.theme.typography.body.md
-                        : context.theme.typography.body.lg)
-                    .copyWith(fontWeight: FontWeight.w600),
+            style: compact
+                ? context.theme.typography.body.md.copyWith(
+                    fontWeight: FontWeight.w600,
+                  )
+                : context.theme.typography.display.lg,
           ),
           Text(
             message,

@@ -40,9 +40,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
             children: [
               Text(
                 loc.address_book,
-                style: context.theme.typography.body.xl2.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: context.theme.typography.display.xl2,
               ),
               FButton.icon(
                 onPress: () => context.pop(),

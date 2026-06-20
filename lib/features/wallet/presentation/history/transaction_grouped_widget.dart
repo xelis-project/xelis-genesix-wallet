@@ -105,7 +105,10 @@ class _TransactionGroupedWidgetState
                   Opacity(opacity: opacity, child: child),
               child: FItem(
                 prefix: Icon(info.icon, color: info.color, size: 18),
-                title: Text(info.label, style: context.theme.typography.body.sm),
+                title: Text(
+                  info.label,
+                  style: context.theme.typography.body.sm,
+                ),
                 subtitle: info.subtitle != null
                     ? Text(
                         info.subtitle!,

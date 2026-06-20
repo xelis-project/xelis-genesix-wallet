@@ -44,9 +44,7 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         'New Connection',
-                        style: theme.typography.body.xl2.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: theme.typography.display.xl2,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),

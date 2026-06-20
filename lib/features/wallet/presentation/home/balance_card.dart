@@ -59,7 +59,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
               children: [
                 Text(
                   loc.balance,
-                  style: context.theme.typography.body.xl.copyWith(
+                  style: context.theme.typography.display.xl.copyWith(
                     color: context.theme.colors.primary,
                   ),
                 ),

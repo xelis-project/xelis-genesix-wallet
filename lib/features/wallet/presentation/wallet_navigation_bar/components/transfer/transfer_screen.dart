@@ -359,9 +359,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
                                   _boostMultiplier != 1.0
                                       ? '$_baseFee × ${_boostMultiplier}x = $_estimatedFee ${getXelisTicker(network)}'
                                       : '$_estimatedFee ${getXelisTicker(network)}',
-                                  style: context.theme.typography.body.md.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  style: context.theme.typography.body.md
+                                      .copyWith(fontWeight: FontWeight.w600),
                                 ),
                               ),
                             ),

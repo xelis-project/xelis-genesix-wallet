@@ -153,9 +153,7 @@ class _ContactNotFound extends StatelessWidget {
             Text(
               localizations.contact_not_found,
               textAlign: TextAlign.center,
-              style: context.theme.typography.body.lg.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: context.theme.typography.display.lg,
             ),
           ],
         ),
@@ -210,8 +208,8 @@ class _ContactProfileCard extends ConsumerWidget {
                             overflow: TextOverflow.ellipsis,
                             style:
                                 (compact
-                                        ? context.theme.typography.body.lg
-                                        : context.theme.typography.body.xl)
+                                        ? context.theme.typography.display.lg
+                                        : context.theme.typography.display.xl)
                                     .copyWith(fontWeight: FontWeight.w700),
                           ),
                           Text(
@@ -330,9 +328,7 @@ class _ContactNotesCard extends StatelessWidget {
           children: [
             Text(
               localizations.notes,
-              style: context.theme.typography.body.lg.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: context.theme.typography.display.lg,
             ),
             Text(
               hasNotes ? contact.note! : localizations.no_notes,
@@ -358,12 +354,7 @@ class _TransactionsSectionHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          title,
-          style: context.theme.typography.body.lg.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        Text(title, style: context.theme.typography.display.lg),
         FDivider(),
       ],
     );

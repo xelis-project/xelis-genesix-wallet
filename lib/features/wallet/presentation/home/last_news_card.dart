@@ -20,7 +20,7 @@ class LastNewsCard extends ConsumerWidget {
               Expanded(
                 child: Text(
                   loc.last_news,
-                  style: context.theme.typography.body.xl.copyWith(
+                  style: context.theme.typography.display.xl.copyWith(
                     color: context.theme.colors.primary,
                   ),
                 ),

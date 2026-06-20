@@ -92,7 +92,10 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
                       Opacity(opacity: opacity, child: child),
                   child: FItem(
                     prefix: Icon(info.icon, color: info.color),
-                    title: Text(info.label, style: context.theme.typography.body.sm),
+                    title: Text(
+                      info.label,
+                      style: context.theme.typography.body.sm,
+                    ),
                     subtitle: info.details != null
                         ? Text(
                             info.details!,
@@ -148,7 +151,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
               Expanded(
                 child: Text(
                   loc.last_transactions,
-                  style: context.theme.typography.body.xl.copyWith(
+                  style: context.theme.typography.display.xl.copyWith(
                     color: context.theme.colors.primary,
                   ),
                 ),
