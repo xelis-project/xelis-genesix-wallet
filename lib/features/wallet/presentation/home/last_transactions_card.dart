@@ -96,6 +96,9 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
                     subtitle: info.details != null
                         ? Text(
                             info.details!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: false,
                             style: context.theme.typography.xs.copyWith(
                               color: context.theme.colors.mutedForeground,
                             ),
@@ -107,7 +110,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
                         color: context.theme.colors.mutedForeground,
                       ),
                     ),
-                    suffix: Icon(FLucideIcons.chevronRight),
+                    suffix: TransactionInfoSuffix(info: info),
                     onPress: () => _showTransactionEntry(tx),
                   ),
                 );

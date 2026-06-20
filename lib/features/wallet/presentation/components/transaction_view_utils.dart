@@ -1,7 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:forui/assets.dart';
+import 'package:forui/forui.dart';
 import 'package:genesix/features/wallet/domain/parsed_extra_data.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
@@ -94,20 +94,28 @@ TransactionDisplayInfo parseTxInfo(
     case IncomingEntry():
       String? subtitle;
       String? detailsMessage;
-      if (type.transfers.length > 1) {
-        detailsMessage = loc.multiple_transfers_received;
-      } else if (type.transfers.isEmpty) {
+      String? badgeLabel;
+      String? badgeSemanticLabel;
+      if (type.transfers.isEmpty) {
         detailsMessage = loc.no_transfers_found;
       } else {
-        final transfer = type.transfers.first;
-        final asset = knownAssets[transfer.asset];
         subtitle = loc.transfer_from(getAddressLabel(type.from, addressBook));
-        if (asset != null) {
-          detailsMessage =
-              '+${formatCoin(transfer.amount, asset.decimals, asset.ticker)}';
-        } else {
-          detailsMessage = loc.unknown_asset;
-        }
+        final summary = _summarizeTransfers(
+          knownAssets,
+          type.transfers.map(
+            (transfer) => _TransferAmount(
+              assetHash: transfer.asset,
+              amount: transfer.amount,
+            ),
+          ),
+          sign: '+',
+        );
+        detailsMessage = summary.details;
+        badgeLabel = summary.badgeLabel;
+        badgeSemanticLabel = _additionalAssetsSemanticLabel(
+          loc,
+          summary.additionalAssetCount,
+        );
       }
       return TransactionDisplayInfo(
         icon: FLucideIcons.arrowDownLeft,
@@ -115,26 +123,41 @@ TransactionDisplayInfo parseTxInfo(
         label: loc.transfer_received,
         subtitle: subtitle,
         details: detailsMessage,
+        badgeLabel: badgeLabel,
+        badgeSemanticLabel: badgeSemanticLabel,
       );
     case OutgoingEntry():
       String? subtitle;
       String? detailsMessage;
-      if (type.transfers.length > 1) {
-        subtitle = loc.multiple_transfers_sent;
-      } else if (type.transfers.isEmpty) {
+      String? badgeLabel;
+      String? badgeSemanticLabel;
+      if (type.transfers.isEmpty) {
         subtitle = loc.no_transfers_found;
       } else {
-        final transfer = type.transfers.first;
-        final asset = knownAssets[transfer.asset];
-        subtitle = loc.transfer_to(
-          getAddressLabel(transfer.destination, addressBook),
-        );
-        if (asset != null) {
-          detailsMessage =
-              '-${formatCoin(transfer.amount, asset.decimals, asset.ticker)}';
+        if (type.transfers.length > 1) {
+          subtitle = loc.multiple_transfers_sent;
         } else {
-          detailsMessage = loc.unknown_asset;
+          final transfer = type.transfers.first;
+          subtitle = loc.transfer_to(
+            getAddressLabel(transfer.destination, addressBook),
+          );
         }
+        final summary = _summarizeTransfers(
+          knownAssets,
+          type.transfers.map(
+            (transfer) => _TransferAmount(
+              assetHash: transfer.asset,
+              amount: transfer.amount,
+            ),
+          ),
+          sign: '-',
+        );
+        detailsMessage = summary.details;
+        badgeLabel = summary.badgeLabel;
+        badgeSemanticLabel = _additionalAssetsSemanticLabel(
+          loc,
+          summary.additionalAssetCount,
+        );
       }
 
       return TransactionDisplayInfo(
@@ -143,6 +166,8 @@ TransactionDisplayInfo parseTxInfo(
         label: loc.transfer_sent,
         subtitle: subtitle,
         details: detailsMessage,
+        badgeLabel: badgeLabel,
+        badgeSemanticLabel: badgeSemanticLabel,
       );
     case MultisigEntry():
       return TransactionDisplayInfo(
@@ -183,6 +208,43 @@ TransactionDisplayInfo parseTxInfo(
   }
 }
 
+_TransferSummary _summarizeTransfers(
+  Map<String, AssetData> knownAssets,
+  Iterable<_TransferAmount> transfers, {
+  required String sign,
+}) {
+  final amountsByAsset = <String, int>{};
+  for (final transfer in transfers) {
+    amountsByAsset.update(
+      transfer.assetHash,
+      (amount) => amount + transfer.amount,
+      ifAbsent: () => transfer.amount,
+    );
+  }
+
+  final firstTransfer = amountsByAsset.entries.first;
+  final formattedData = getFormattedAssetNameAndAmount(
+    knownAssets,
+    firstTransfer.key,
+    firstTransfer.value,
+  );
+  final additionalAssetCount = amountsByAsset.length - 1;
+
+  return _TransferSummary(
+    details: '$sign${formattedData.$2}',
+    additionalAssetCount: additionalAssetCount,
+  );
+}
+
+String? _additionalAssetsSemanticLabel(AppLocalizations loc, int count) {
+  if (count <= 0) {
+    return null;
+  }
+
+  final assetLabel = count == 1 ? loc.asset : loc.assets;
+  return '$count $assetLabel';
+}
+
 String getAddressLabel(
   String address,
   Map<String, ContactDetails> addressBook,
@@ -201,6 +263,8 @@ class TransactionDisplayInfo {
   final String label;
   final String? subtitle;
   final String? details;
+  final String? badgeLabel;
+  final String? badgeSemanticLabel;
 
   TransactionDisplayInfo({
     required this.icon,
@@ -208,5 +272,53 @@ class TransactionDisplayInfo {
     required this.label,
     this.subtitle,
     this.details,
+    this.badgeLabel,
+    this.badgeSemanticLabel,
   });
+}
+
+class TransactionInfoSuffix extends StatelessWidget {
+  const TransactionInfoSuffix({required this.info, super.key});
+
+  final TransactionDisplayInfo info;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 8,
+      children: [
+        if (info.badgeLabel != null)
+          FTooltip(
+            tipBuilder: (context, controller) =>
+                Text(info.badgeSemanticLabel ?? info.badgeLabel!),
+            child: Semantics(
+              label: info.badgeSemanticLabel,
+              child: FBadge(variant: .secondary, child: Text(info.badgeLabel!)),
+            ),
+          ),
+        const Icon(FLucideIcons.chevronRight),
+      ],
+    );
+  }
+}
+
+class _TransferAmount {
+  const _TransferAmount({required this.assetHash, required this.amount});
+
+  final String assetHash;
+  final int amount;
+}
+
+class _TransferSummary {
+  const _TransferSummary({
+    required this.details,
+    required this.additionalAssetCount,
+  });
+
+  final String details;
+  final int additionalAssetCount;
+
+  String? get badgeLabel =>
+      additionalAssetCount > 0 ? '+$additionalAssetCount' : null;
 }

@@ -109,6 +109,9 @@ class _TransactionGroupedWidgetState
                 subtitle: info.subtitle != null
                     ? Text(
                         info.subtitle!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
                         style: context.theme.typography.xs.copyWith(
                           color: context.theme.colors.mutedForeground,
                         ),
@@ -117,12 +120,15 @@ class _TransactionGroupedWidgetState
                 details: info.details != null
                     ? Text(
                         info.details!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
                         style: context.theme.typography.xs.copyWith(
                           color: context.theme.colors.mutedForeground,
                         ),
                       )
                     : null,
-                suffix: Icon(FLucideIcons.chevronRight),
+                suffix: TransactionInfoSuffix(info: info),
                 onPress: () => _showTransactionEntry(tx),
               ),
             );
