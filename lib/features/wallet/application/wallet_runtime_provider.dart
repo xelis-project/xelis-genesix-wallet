@@ -255,12 +255,13 @@ class WalletRuntime extends _$WalletRuntime {
 
       case NewTransaction():
         talker.info(event);
-        ref.read(walletHistoryRefreshSignalProvider.notifier).bump();
-        // if (state.topoheight != 0 &&
-        //     event.transactionEntry.topoheight >= state.topoheight) {
         await _updateMultisigState();
 
         final txType = event.transactionEntry.txEntryType;
+
+        await _ensureKnownAssetsForTransaction(repository, txType);
+        ref.read(walletHistoryRefreshSignalProvider.notifier).bump();
+
         switch (txType) {
           case sdk.IncomingEntry():
             final message = await _buildIncomingTransactionMessage(
@@ -466,6 +467,76 @@ class WalletRuntime extends _$WalletRuntime {
     }
 
     _emitInfo(title: loc.asset_successfully_tracked);
+  }
+
+  Future<void> _ensureKnownAssetsForTransaction(
+    NativeWalletRepository repository,
+    sdk.TransactionEntryType txType,
+  ) async {
+    final assetHashes = _assetHashesFromTransaction(txType);
+    if (assetHashes.isEmpty) {
+      return;
+    }
+
+    final missingAssets = assetHashes
+        .where((assetHash) => !state.knownAssets.containsKey(assetHash))
+        .toSet();
+    if (missingAssets.isEmpty) {
+      return;
+    }
+
+    final fetchedAssets = <String, sdk.AssetData>{};
+    for (final assetHash in missingAssets) {
+      if (state.knownAssets.containsKey(assetHash)) {
+        continue;
+      }
+
+      try {
+        final assetData = await repository.getAssetMetadata(assetHash);
+        if (!_isActiveRepository(repository)) {
+          return;
+        }
+        fetchedAssets[assetHash] = assetData;
+      } catch (error) {
+        if (!_isActiveRepository(repository)) {
+          return;
+        }
+        talker.warning(
+          'Failed to fetch asset metadata for transaction asset $assetHash: $error',
+        );
+      }
+    }
+
+    if (fetchedAssets.isEmpty) {
+      return;
+    }
+
+    final updatedAssets = LinkedHashMap<String, sdk.AssetData>.from(
+      state.knownAssets,
+    );
+    updatedAssets.addAll(fetchedAssets);
+    state = state.copyWith(knownAssets: sortMapByKey(updatedAssets));
+  }
+
+  Set<String> _assetHashesFromTransaction(sdk.TransactionEntryType txType) {
+    return switch (txType) {
+      sdk.IncomingEntry() =>
+        txType.transfers.map((transfer) => transfer.asset).toSet(),
+      sdk.OutgoingEntry() =>
+        txType.transfers.map((transfer) => transfer.asset).toSet(),
+      sdk.BurnEntry() => {txType.asset},
+      sdk.InvokeContractEntry() => {
+        ...txType.deposits.keys,
+        ...txType.received.keys,
+      },
+      sdk.DeployContractEntry(invoke: final invoke) => {
+        if (invoke != null) ...invoke.deposits.keys,
+      },
+      sdk.IncomingContractEntry() => txType.transfers.keys.toSet(),
+      sdk.CoinbaseEntry() ||
+      sdk.MultisigEntry() ||
+      sdk.BlobEntry() => const <String>{},
+    };
   }
 
   Future<String> _buildIncomingTransactionMessage({
