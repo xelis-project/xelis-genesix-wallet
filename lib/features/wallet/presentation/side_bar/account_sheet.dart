@@ -42,7 +42,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
               Expanded(
                 child: Text(
                   walletAddress,
-                  style: context.theme.typography.sm.copyWith(
+                  style: context.theme.typography.body.sm.copyWith(
                     color: context.theme.colors.mutedForeground,
                   ),
                 ),

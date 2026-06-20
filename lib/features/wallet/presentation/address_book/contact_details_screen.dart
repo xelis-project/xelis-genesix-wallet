@@ -153,7 +153,7 @@ class _ContactNotFound extends StatelessWidget {
             Text(
               localizations.contact_not_found,
               textAlign: TextAlign.center,
-              style: context.theme.typography.lg.copyWith(
+              style: context.theme.typography.body.lg.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -210,13 +210,13 @@ class _ContactProfileCard extends ConsumerWidget {
                             overflow: TextOverflow.ellipsis,
                             style:
                                 (compact
-                                        ? context.theme.typography.lg
-                                        : context.theme.typography.xl)
+                                        ? context.theme.typography.body.lg
+                                        : context.theme.typography.body.xl)
                                     .copyWith(fontWeight: FontWeight.w700),
                           ),
                           Text(
                             localizations.address,
-                            style: context.theme.typography.xs.copyWith(
+                            style: context.theme.typography.body.xs.copyWith(
                               color: context.theme.colors.mutedForeground,
                             ),
                           ),
@@ -330,14 +330,14 @@ class _ContactNotesCard extends StatelessWidget {
           children: [
             Text(
               localizations.notes,
-              style: context.theme.typography.lg.copyWith(
+              style: context.theme.typography.body.lg.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
             Text(
               hasNotes ? contact.note! : localizations.no_notes,
               softWrap: true,
-              style: context.theme.typography.sm.copyWith(
+              style: context.theme.typography.body.sm.copyWith(
                 color: hasNotes ? null : context.theme.colors.mutedForeground,
               ),
             ),
@@ -360,7 +360,7 @@ class _TransactionsSectionHeader extends StatelessWidget {
       children: [
         Text(
           title,
-          style: context.theme.typography.lg.copyWith(
+          style: context.theme.typography.body.lg.copyWith(
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -415,7 +415,7 @@ class _ContactHistorySliverState extends ConsumerState<_ContactHistorySliver> {
                   child: Center(
                     child: Text(
                       loc.oups,
-                      style: context.theme.typography.md.copyWith(
+                      style: context.theme.typography.body.md.copyWith(
                         color: context.theme.colors.error,
                       ),
                     ),
@@ -430,7 +430,7 @@ class _ContactHistorySliverState extends ConsumerState<_ContactHistorySliver> {
             child: Center(
               child: Text(
                 loc.oups,
-                style: context.theme.typography.md.copyWith(
+                style: context.theme.typography.body.md.copyWith(
                   color: context.theme.colors.error,
                 ),
               ),
@@ -496,7 +496,7 @@ class _ContactTransactionsEmptyState extends StatelessWidget {
         child: Text(
           message,
           textAlign: TextAlign.center,
-          style: context.theme.typography.sm.copyWith(
+          style: context.theme.typography.body.sm.copyWith(
             color: context.theme.colors.mutedForeground,
           ),
         ),

@@ -162,7 +162,7 @@ class _XswdAppNotFound extends StatelessWidget {
               Text(
                 loc.no_application_found,
                 textAlign: TextAlign.center,
-                style: context.theme.typography.lg.copyWith(
+                style: context.theme.typography.body.lg.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -170,7 +170,7 @@ class _XswdAppNotFound extends StatelessWidget {
               Text(
                 'This app may already be disconnected.',
                 textAlign: TextAlign.center,
-                style: context.theme.typography.sm.copyWith(color: muted),
+                style: context.theme.typography.body.sm.copyWith(color: muted),
               ),
               const SizedBox(height: Spaces.medium),
               SizedBox(
@@ -261,7 +261,7 @@ class _XswdAppInfoCard extends StatelessWidget {
         children: [
           Text(
             app.name,
-            style: context.theme.typography.xl.copyWith(
+            style: context.theme.typography.body.xl.copyWith(
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -276,7 +276,7 @@ class _XswdAppInfoCard extends StatelessWidget {
                     onTap: () => onOpenUrl(app.url!),
                     child: Text(
                       app.url!,
-                      style: context.theme.typography.sm.copyWith(
+                      style: context.theme.typography.body.sm.copyWith(
                         color: context.theme.colors.primary,
                         decoration: TextDecoration.underline,
                         decorationColor: context.theme.colors.primary,
@@ -290,7 +290,7 @@ class _XswdAppInfoCard extends StatelessWidget {
           const SizedBox(height: Spaces.medium),
           Text(
             '${loc.applications} ${loc.id}',
-            style: context.theme.typography.xs.copyWith(
+            style: context.theme.typography.body.xs.copyWith(
               color: muted,
               fontWeight: FontWeight.w600,
             ),
@@ -298,7 +298,7 @@ class _XswdAppInfoCard extends StatelessWidget {
           const SizedBox(height: Spaces.extraSmall),
           SelectableText(
             app.id,
-            style: context.theme.typography.sm.copyWith(
+            style: context.theme.typography.body.sm.copyWith(
               fontFamily: 'monospace',
             ),
           ),
@@ -314,13 +314,13 @@ class _XswdAppInfoCard extends StatelessWidget {
             const SizedBox(height: Spaces.small),
             Text(
               loc.description,
-              style: context.theme.typography.xs.copyWith(
+              style: context.theme.typography.body.xs.copyWith(
                 color: muted,
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: Spaces.extraSmall),
-            Text(app.description, style: context.theme.typography.sm),
+            Text(app.description, style: context.theme.typography.body.sm),
           ],
         ],
       ),
@@ -354,7 +354,7 @@ class _XswdPermissionsSection extends StatelessWidget {
             Expanded(
               child: Text(
                 loc.permissions,
-                style: context.theme.typography.lg.copyWith(
+                style: context.theme.typography.body.lg.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -368,7 +368,7 @@ class _XswdPermissionsSection extends StatelessWidget {
             child: Center(
               child: Text(
                 loc.no_data,
-                style: context.theme.typography.sm.copyWith(color: muted),
+                style: context.theme.typography.body.sm.copyWith(color: muted),
               ),
             ),
           )
@@ -428,7 +428,7 @@ class _XswdPermissionCard extends StatelessWidget {
             Expanded(
               child: Text(
                 permissionName,
-                style: context.theme.typography.sm.copyWith(
+                style: context.theme.typography.body.sm.copyWith(
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -544,7 +544,7 @@ class _DisconnectDialog extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 560),
       title: Text(
         'Disconnect $appName?',
-        style: context.theme.typography.xl.copyWith(
+        style: context.theme.typography.body.xl.copyWith(
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -557,7 +557,7 @@ class _DisconnectDialog extends StatelessWidget {
             Text(
               'This will revoke all permissions and close this application connection.',
               textAlign: TextAlign.center,
-              style: context.theme.typography.sm.copyWith(
+              style: context.theme.typography.body.sm.copyWith(
                 color: context.theme.colors.mutedForeground,
               ),
             ),
@@ -587,7 +587,7 @@ class _DisconnectDialog extends StatelessWidget {
             //       Text(
             //         'The app will need to reconnect to request wallet access again.',
             //         textAlign: TextAlign.center,
-            //         style: context.theme.typography.xs.copyWith(
+            //         style: context.theme.typography.body.xs.copyWith(
             //           color: context.theme.colors.mutedForeground,
             //         ),
             //       ),

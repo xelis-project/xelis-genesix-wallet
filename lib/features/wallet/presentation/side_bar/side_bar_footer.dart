@@ -49,7 +49,7 @@ class _SideBarFooterState extends ConsumerState<SideBarFooter> {
                       children: [
                         Text(
                           walletState.name,
-                          style: context.theme.typography.sm.copyWith(
+                          style: context.theme.typography.body.sm.copyWith(
                             fontWeight: FontWeight.bold,
                             color: context.theme.colors.foreground,
                           ),
@@ -57,7 +57,7 @@ class _SideBarFooterState extends ConsumerState<SideBarFooter> {
                         ),
                         Text(
                           truncateText(walletState.address, maxLength: 16),
-                          style: context.theme.typography.xs.copyWith(
+                          style: context.theme.typography.body.xs.copyWith(
                             color: context.theme.colors.mutedForeground,
                           ),
                           overflow: TextOverflow.ellipsis,

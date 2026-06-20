@@ -173,7 +173,7 @@ class _ConnectionIndicatorState extends ConsumerState<ConnectionIndicator>
                 alignment: Alignment.centerLeft,
                 child: Text(
                   text,
-                  style: context.theme.typography.sm.copyWith(
+                  style: context.theme.typography.body.sm.copyWith(
                     color: color,
                     fontWeight: FontWeight.w600,
                   ),

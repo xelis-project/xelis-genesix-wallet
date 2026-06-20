@@ -20,7 +20,7 @@ class LastNewsCard extends ConsumerWidget {
               Expanded(
                 child: Text(
                   loc.last_news,
-                  style: context.theme.typography.xl.copyWith(
+                  style: context.theme.typography.body.xl.copyWith(
                     color: context.theme.colors.primary,
                   ),
                 ),
@@ -30,7 +30,7 @@ class LastNewsCard extends ConsumerWidget {
           const SizedBox(height: Spaces.small),
           Text(
             loc.no_recent_news,
-            style: context.theme.typography.sm.copyWith(
+            style: context.theme.typography.body.sm.copyWith(
               color: context.theme.colors.mutedForeground,
             ),
           ),

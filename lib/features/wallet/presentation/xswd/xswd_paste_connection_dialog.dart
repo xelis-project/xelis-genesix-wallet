@@ -96,7 +96,7 @@ class _XswdPasteConnectionDialogState
             const SizedBox(height: Spaces.small),
             Text(
               _inputError!,
-              style: context.theme.typography.sm.copyWith(
+              style: context.theme.typography.body.sm.copyWith(
                 color: context.theme.colors.error,
               ),
             ),
@@ -201,7 +201,7 @@ class _DialogTitle extends ConsumerWidget {
     final loc = ref.watch(appLocalizationsProvider);
     return Text(
       loc.connection_request,
-      style: context.theme.typography.xl2.copyWith(fontWeight: FontWeight.w600),
+      style: context.theme.typography.body.xl2.copyWith(fontWeight: FontWeight.w600),
       overflow: TextOverflow.ellipsis,
       maxLines: 1,
     );

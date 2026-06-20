@@ -70,7 +70,7 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
                         const SizedBox(width: Spaces.small),
                         Text(
                           loc.warning,
-                          style: context.theme.typography.xl.copyWith(
+                          style: context.theme.typography.body.xl.copyWith(
                             color: context.theme.colors.primary,
                             fontWeight: FontWeight.bold,
                           ),
@@ -156,7 +156,7 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
                               children: [
                                 Text(
                                   '${i + 1}.',
-                                  style: context.theme.typography.sm.copyWith(
+                                  style: context.theme.typography.body.sm.copyWith(
                                     color: context.theme.colors.primary,
                                   ),
                                 ),

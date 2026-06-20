@@ -81,7 +81,7 @@ class _BaseTransactionEntryCardState
                           if (widget.nonce != null)
                             Text(
                               '#${widget.nonce}',
-                              style: theme.typography.sm.copyWith(
+                              style: theme.typography.body.sm.copyWith(
                                 color: theme.colors.mutedForeground,
                               ),
                             ),
@@ -129,7 +129,7 @@ class _BaseTransactionEntryCardState
                               widget.transactionEntry.hash,
                               maxLength: 20,
                             ),
-                            style: theme.typography.md,
+                            style: theme.typography.body.md,
                           ),
                         ),
                       ),

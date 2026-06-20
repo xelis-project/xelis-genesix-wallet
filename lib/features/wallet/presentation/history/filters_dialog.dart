@@ -229,14 +229,16 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                           label: Text(loc.from_date),
                           hint: loc.select_start_date,
                           clearable: true,
-                          start: _earliestHistoryFilterDate,
-                          end: _exclusiveCalendarEnd(
-                            _calendarDate(_maxTimestamp) ?? today,
+                          calendar: FDateFieldGridCalendarProperties(
+                            control: FGridCalendarControl(
+                              start: _earliestHistoryFilterDate,
+                              end: _calendarDate(_maxTimestamp) ?? today,
+                              today: today,
+                            ),
                           ),
-                          today: today,
                           format: _formatCalendarDate,
-                          control: .lifted(
-                            date: _calendarDate(_minTimestamp),
+                          selectionControl: FDateSelectionControl.managedSingle(
+                            initial: _calendarDate(_minTimestamp),
                             onChange: _setMinTimestamp,
                           ),
                         ),
@@ -244,14 +246,18 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                           label: Text(loc.to_date),
                           hint: loc.select_end_date,
                           clearable: true,
-                          start:
-                              _calendarDate(_minTimestamp) ??
-                              _earliestHistoryFilterDate,
-                          end: _exclusiveCalendarEnd(today),
-                          today: today,
+                          calendar: FDateFieldGridCalendarProperties(
+                            control: FGridCalendarControl(
+                              start:
+                                  _calendarDate(_minTimestamp) ??
+                                  _earliestHistoryFilterDate,
+                              end: today,
+                              today: today,
+                            ),
+                          ),
                           format: _formatCalendarDate,
-                          control: .lifted(
-                            date: _calendarDate(_maxTimestamp),
+                          selectionControl: FDateSelectionControl.managedSingle(
+                            initial: _calendarDate(_maxTimestamp),
                             onChange: _setMaxTimestamp,
                           ),
                         ),
@@ -397,10 +403,6 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
   DateTime? _calendarDate(DateTime? value) {
     if (value == null) return null;
     return DateTime.utc(value.year, value.month, value.day);
-  }
-
-  DateTime _exclusiveCalendarEnd(DateTime inclusiveEnd) {
-    return inclusiveEnd.add(const Duration(days: 1));
   }
 
   DateTime? _localStartOfDay(DateTime? value) {

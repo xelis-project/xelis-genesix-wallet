@@ -38,13 +38,13 @@ class CurrentNetworkIndicator extends ConsumerWidget {
               const SizedBox(width: Spaces.extraSmall),
               Text(
                 '${loc.network}: ',
-                style: context.theme.typography.sm.copyWith(
+                style: context.theme.typography.body.sm.copyWith(
                   color: colors.mutedForeground,
                 ),
               ),
               Text(
                 networkName,
-                style: context.theme.typography.sm.copyWith(
+                style: context.theme.typography.body.sm.copyWith(
                   color: colors.foreground,
                   fontWeight: FontWeight.w600,
                 ),

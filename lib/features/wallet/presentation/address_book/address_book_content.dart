@@ -316,7 +316,7 @@ class _CenteredInfo extends StatelessWidget {
         child: Text(
           message,
           textAlign: TextAlign.center,
-          style: context.theme.typography.md.copyWith(
+          style: context.theme.typography.body.md.copyWith(
             color: context.theme.colors.mutedForeground,
           ),
         ),

@@ -49,10 +49,10 @@ class ConnectionStatusCard extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: Spaces.extraSmall,
                 children: [
-                  Text(nodeAddress.name, style: context.theme.typography.sm),
+                  Text(nodeAddress.name, style: context.theme.typography.body.sm),
                   Text(
                     nodeAddress.url,
-                    style: context.theme.typography.xs.copyWith(
+                    style: context.theme.typography.body.xs.copyWith(
                       color: context.theme.colors.mutedForeground,
                     ),
                   ),
@@ -75,13 +75,13 @@ class ConnectionStatusCard extends ConsumerWidget {
                       children: [
                         Text(
                           loc.topoheight,
-                          style: context.theme.typography.sm.copyWith(
+                          style: context.theme.typography.body.sm.copyWith(
                             color: context.theme.colors.mutedForeground,
                           ),
                         ),
                         Text(
                           displayedTopoheight,
-                          style: context.theme.typography.lg.copyWith(
+                          style: context.theme.typography.body.lg.copyWith(
                             color: context.theme.colors.primary,
                           ),
                         ),

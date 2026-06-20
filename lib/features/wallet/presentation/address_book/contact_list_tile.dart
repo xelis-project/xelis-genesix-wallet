@@ -109,7 +109,7 @@ class _ContactIdentityButtonState extends State<_ContactIdentityButton> {
                   widget.contact.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: context.theme.typography.sm.copyWith(
+                  style: context.theme.typography.body.sm.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -120,7 +120,7 @@ class _ContactIdentityButtonState extends State<_ContactIdentityButton> {
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: context.theme.typography.xs.copyWith(
+                  style: context.theme.typography.body.xs.copyWith(
                     color: context.theme.colors.mutedForeground,
                   ),
                 ),
@@ -129,7 +129,7 @@ class _ContactIdentityButtonState extends State<_ContactIdentityButton> {
                     widget.contact.note!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: context.theme.typography.xs.copyWith(
+                    style: context.theme.typography.body.xs.copyWith(
                       color: context.theme.colors.mutedForeground,
                     ),
                   ),

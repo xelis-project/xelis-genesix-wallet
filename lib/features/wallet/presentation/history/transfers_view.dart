@@ -58,7 +58,7 @@ class TransfersView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: Spaces.medium),
               child: Text(
                 loc.transfers,
-                style: context.theme.typography.sm.copyWith(
+                style: context.theme.typography.body.sm.copyWith(
                   color: context.theme.colors.mutedForeground,
                 ),
               ),
@@ -203,7 +203,7 @@ class _WideTable extends ConsumerWidget {
                       Center(
                         child: SelectableText(
                           row.amountText,
-                          style: context.theme.typography.md,
+                          style: context.theme.typography.body.md,
                         ),
                       ),
                     ),
@@ -270,7 +270,7 @@ class _WideTable extends ConsumerWidget {
       headingRowAlignment: MainAxisAlignment.center,
       label: Text(
         label,
-        style: context.theme.typography.sm.copyWith(
+        style: context.theme.typography.body.sm.copyWith(
           color: context.theme.colors.mutedForeground,
         ),
       ),

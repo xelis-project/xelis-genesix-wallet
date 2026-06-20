@@ -134,13 +134,13 @@ class _InvokeContractEntryContentState
                 ),
                 SelectableText(
                   formattedData.$2,
-                  style: context.theme.typography.md,
+                  style: context.theme.typography.body.md,
                 ),
               ],
             ),
             Text(
               loc.to_address(truncateText(destination, maxLength: 20)),
-              style: context.theme.typography.sm.copyWith(
+              style: context.theme.typography.body.sm.copyWith(
                 color: context.theme.colors.mutedForeground,
               ),
             ),
@@ -175,13 +175,13 @@ class _InvokeContractEntryContentState
                 ),
                 SelectableText(
                   formattedData.$2,
-                  style: context.theme.typography.md,
+                  style: context.theme.typography.body.md,
                 ),
               ],
             ),
             Text(
               loc.to_contract_address(truncateText(destination, maxLength: 16)),
-              style: context.theme.typography.sm.copyWith(
+              style: context.theme.typography.body.sm.copyWith(
                 color: context.theme.colors.mutedForeground,
               ),
             ),
@@ -211,7 +211,7 @@ class _InvokeContractEntryContentState
             ),
             SelectableText(
               formattedData.$2,
-              style: context.theme.typography.md,
+              style: context.theme.typography.body.md,
             ),
           ],
         );
@@ -239,7 +239,7 @@ class _InvokeContractEntryContentState
             ),
             SelectableText(
               formattedData.$2,
-              style: context.theme.typography.md,
+              style: context.theme.typography.body.md,
             ),
           ],
         );
@@ -252,7 +252,7 @@ class _InvokeContractEntryContentState
 
         details = SelectableText(
           formatXelis(amount, network),
-          style: context.theme.typography.md,
+          style: context.theme.typography.body.md,
         );
         break;
 
@@ -261,7 +261,7 @@ class _InvokeContractEntryContentState
         final exitCodeValue = value as int?;
         details = SelectableText(
           exitCodeValue?.toString() ?? loc.log_failed,
-          style: context.theme.typography.md.copyWith(
+          style: context.theme.typography.body.md.copyWith(
             fontWeight: FontWeight.bold,
           ),
         );
@@ -296,7 +296,7 @@ class _InvokeContractEntryContentState
         header = type.capitalize();
         details = Text(
           value?.toString() ?? 'N/A',
-          style: context.theme.typography.md,
+          style: context.theme.typography.body.md,
         );
     }
 
@@ -317,14 +317,14 @@ class _InvokeContractEntryContentState
         children: [
           Text(
             header,
-            style: context.theme.typography.xs.copyWith(
+            style: context.theme.typography.body.xs.copyWith(
               color: context.theme.colors.primary,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.6,
             ),
           ),
           DefaultTextStyle.merge(
-            style: context.theme.typography.md,
+            style: context.theme.typography.body.md,
             child: details,
           ),
         ],
@@ -366,7 +366,7 @@ class _InvokeContractEntryContentState
                           widget.invokeContractEntry.contract,
                           maxLength: 20,
                         ),
-                        style: context.theme.typography.md,
+                        style: context.theme.typography.body.md,
                       ),
                     ),
                   ),
@@ -405,7 +405,7 @@ class _InvokeContractEntryContentState
                     children: [
                       Text(
                         loc.deposits,
-                        style: context.theme.typography.sm.copyWith(
+                        style: context.theme.typography.body.sm.copyWith(
                           color: context.theme.colors.mutedForeground,
                         ),
                       ),
@@ -443,7 +443,7 @@ class _InvokeContractEntryContentState
                       children: [
                         Text(
                           loc.received,
-                          style: context.theme.typography.sm.copyWith(
+                          style: context.theme.typography.body.sm.copyWith(
                             color: context.theme.colors.mutedForeground,
                           ),
                         ),
@@ -483,7 +483,7 @@ class _InvokeContractEntryContentState
                       children: [
                         Text(
                           loc.contract_logs,
-                          style: context.theme.typography.sm.copyWith(
+                          style: context.theme.typography.body.sm.copyWith(
                             color: context.theme.colors.mutedForeground,
                           ),
                         ),

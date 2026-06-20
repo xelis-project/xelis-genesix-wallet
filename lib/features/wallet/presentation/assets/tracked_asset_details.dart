@@ -61,7 +61,7 @@ class _TrackedAssetDetailsState extends ConsumerState<TrackedAssetDetails> {
                   InkWell(
                     child: Text(
                       widget.hash,
-                      style: context.theme.typography.md,
+                      style: context.theme.typography.body.md,
                     ),
                     onTap: () => copyToClipboard(widget.hash, ref, loc.copied),
                   ),
@@ -81,7 +81,7 @@ class _TrackedAssetDetailsState extends ConsumerState<TrackedAssetDetails> {
                         widget.asset.decimals,
                         widget.asset.ticker,
                       ),
-                      style: context.theme.typography.md,
+                      style: context.theme.typography.body.md,
                     ),
                   ),
                 if (!widget.asset.owner.isNone) ...[

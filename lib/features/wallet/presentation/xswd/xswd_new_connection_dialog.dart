@@ -44,7 +44,7 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         'New Connection',
-                        style: theme.typography.xl2.copyWith(
+                        style: theme.typography.body.xl2.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -239,7 +239,7 @@ class _ConnectionMethodButton extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.center,
-                            style: theme.typography.md.copyWith(
+                            style: theme.typography.body.md.copyWith(
                               fontWeight: FontWeight.w600,
                               height: 1.1,
                             ),
@@ -250,7 +250,7 @@ class _ConnectionMethodButton extends StatelessWidget {
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.center,
-                            style: theme.typography.sm.copyWith(
+                            style: theme.typography.body.sm.copyWith(
                               color: colors.mutedForeground,
                               height: 1.15,
                             ),

@@ -23,9 +23,9 @@ class AssetNameWidget extends StatelessWidget {
             children: [
               Logo(imagePath: xelisImagePath),
               const SizedBox(width: Spaces.small),
-              Text(AppResources.xelisName, style: context.theme.typography.md),
+              Text(AppResources.xelisName, style: context.theme.typography.body.md),
             ],
           )
-        : SelectableText(assetName, style: context.theme.typography.md);
+        : SelectableText(assetName, style: context.theme.typography.body.md);
   }
 }

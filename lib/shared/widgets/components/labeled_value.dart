@@ -60,7 +60,7 @@ class LabeledValue extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final contentStyle = style ?? context.theme.typography.md;
+    final contentStyle = style ?? context.theme.typography.body.md;
 
     final Widget content =
         child ??
@@ -87,7 +87,7 @@ class LabeledValue extends StatelessWidget {
       children: [
         Text(
           title,
-          style: context.theme.typography.xs.copyWith(
+          style: context.theme.typography.body.xs.copyWith(
             color: context.theme.colors.mutedForeground,
           ),
         ),

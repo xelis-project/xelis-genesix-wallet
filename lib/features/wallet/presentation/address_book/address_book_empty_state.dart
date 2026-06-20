@@ -128,14 +128,14 @@ class _EmptyStateContent extends StatelessWidget {
             textAlign: TextAlign.center,
             style:
                 (compact
-                        ? context.theme.typography.md
-                        : context.theme.typography.lg)
+                        ? context.theme.typography.body.md
+                        : context.theme.typography.body.lg)
                     .copyWith(fontWeight: FontWeight.w600),
           ),
           Text(
             message,
             textAlign: TextAlign.center,
-            style: context.theme.typography.sm.copyWith(
+            style: context.theme.typography.body.sm.copyWith(
               color: context.theme.colors.mutedForeground,
             ),
           ),

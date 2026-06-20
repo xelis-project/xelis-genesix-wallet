@@ -72,7 +72,7 @@ class _RecoveryPhraseDialogState extends ConsumerState<RecoveryPhraseDialog> {
                         children: [
                           Text(
                             '${i + 1}.',
-                            style: context.theme.typography.sm.copyWith(
+                            style: context.theme.typography.body.sm.copyWith(
                               color: context.theme.colors.primary,
                             ),
                           ),

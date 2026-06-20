@@ -9,11 +9,11 @@ FDialogStyle dialogStyle({
   required FHapticFeedback hapticFeedback,
   BuildContext? context,
 }) {
-  final title = typography.lg.copyWith(
+  final title = typography.body.lg.copyWith(
     fontWeight: FontWeight.w600,
     color: colors.foreground,
   );
-  final body = typography.sm.copyWith(color: colors.mutedForeground);
+  final body = typography.body.sm.copyWith(color: colors.mutedForeground);
 
   final double insetH;
   final double insetV;

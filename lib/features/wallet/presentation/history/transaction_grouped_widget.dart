@@ -105,14 +105,14 @@ class _TransactionGroupedWidgetState
                   Opacity(opacity: opacity, child: child),
               child: FItem(
                 prefix: Icon(info.icon, color: info.color, size: 18),
-                title: Text(info.label, style: context.theme.typography.sm),
+                title: Text(info.label, style: context.theme.typography.body.sm),
                 subtitle: info.subtitle != null
                     ? Text(
                         info.subtitle!,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         softWrap: false,
-                        style: context.theme.typography.xs.copyWith(
+                        style: context.theme.typography.body.xs.copyWith(
                           color: context.theme.colors.mutedForeground,
                         ),
                       )
@@ -123,7 +123,7 @@ class _TransactionGroupedWidgetState
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         softWrap: false,
-                        style: context.theme.typography.xs.copyWith(
+                        style: context.theme.typography.body.xs.copyWith(
                           color: context.theme.colors.mutedForeground,
                         ),
                       )

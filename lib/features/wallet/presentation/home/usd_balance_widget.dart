@@ -37,13 +37,13 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
         children: [
           Text(
             hidden,
-            style: context.theme.typography.sm.copyWith(
+            style: context.theme.typography.body.sm.copyWith(
               color: context.theme.colors.mutedForeground,
             ),
           ),
           Text(
             hidden,
-            style: context.theme.typography.sm.copyWith(
+            style: context.theme.typography.body.sm.copyWith(
               color: context.theme.colors.mutedForeground,
               fontWeight: FontWeight.w600,
             ),
@@ -77,7 +77,7 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
         children: [
           Text(
             displayedBalance,
-            style: context.theme.typography.sm.copyWith(
+            style: context.theme.typography.body.sm.copyWith(
               color: context.theme.colors.mutedForeground,
             ),
           ),
@@ -98,7 +98,7 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
                 ),
                 Text(
                   displayedPercentChange24h,
-                  style: context.theme.typography.sm.copyWith(
+                  style: context.theme.typography.body.sm.copyWith(
                     color: isPositiveChange
                         ? context.theme.colors.upColor
                         : context.theme.colors.downColor,

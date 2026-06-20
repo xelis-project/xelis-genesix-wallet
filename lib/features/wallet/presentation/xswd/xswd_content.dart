@@ -283,14 +283,14 @@ class _XswdModeCard extends StatelessWidget {
               children: [
                 Text(
                   'Connected Apps',
-                  style: context.theme.typography.lg.copyWith(
+                  style: context.theme.typography.body.lg.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: Spaces.extraSmall),
                 Text(
                   subtitle,
-                  style: context.theme.typography.sm.copyWith(
+                  style: context.theme.typography.body.sm.copyWith(
                     color: context.theme.colors.mutedForeground,
                   ),
                 ),
@@ -345,7 +345,7 @@ class _XswdStatePanel extends StatelessWidget {
                 Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: context.theme.typography.xl.copyWith(
+                  style: context.theme.typography.body.xl.copyWith(
                     color: context.theme.colors.foreground,
                   ),
                 ),
@@ -353,7 +353,7 @@ class _XswdStatePanel extends StatelessWidget {
                 Text(
                   description,
                   textAlign: TextAlign.center,
-                  style: context.theme.typography.sm.copyWith(
+                  style: context.theme.typography.body.sm.copyWith(
                     color: context.theme.colors.mutedForeground,
                   ),
                 ),
@@ -423,7 +423,7 @@ class _XswdAppsListState extends ConsumerState<_XswdAppsList> {
             children: [
               Text(
                 'Connected Apps',
-                style: context.theme.typography.xl.copyWith(
+                style: context.theme.typography.body.xl.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -456,7 +456,7 @@ class _XswdAppsListState extends ConsumerState<_XswdAppsList> {
                         : null,
                     details: Text(
                       permissionText,
-                      style: context.theme.typography.xs.copyWith(color: muted),
+                      style: context.theme.typography.body.xs.copyWith(color: muted),
                     ),
                     suffix: Icon(FLucideIcons.chevronRight, color: muted),
                   );
@@ -508,7 +508,7 @@ class _XswdConnectionStatusLabel extends StatelessWidget {
       children: [
         Text(
           'Status',
-          style: context.theme.typography.xs.copyWith(
+          style: context.theme.typography.body.xs.copyWith(
             color: context.theme.colors.mutedForeground,
           ),
         ),
@@ -521,7 +521,7 @@ class _XswdConnectionStatusLabel extends StatelessWidget {
         const SizedBox(width: Spaces.extraSmall),
         Text(
           statusText,
-          style: context.theme.typography.sm.copyWith(
+          style: context.theme.typography.body.sm.copyWith(
             color: statusColor,
             fontWeight: FontWeight.w600,
           ),
@@ -572,7 +572,7 @@ class _XswdFooter extends StatelessWidget {
               Text(
                 helperText,
                 textAlign: TextAlign.center,
-                style: context.theme.typography.xs.copyWith(
+                style: context.theme.typography.body.xs.copyWith(
                   color: context.theme.colors.mutedForeground,
                 ),
               ),

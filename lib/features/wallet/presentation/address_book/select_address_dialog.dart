@@ -40,7 +40,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
             children: [
               Text(
                 loc.address_book,
-                style: context.theme.typography.xl2.copyWith(
+                style: context.theme.typography.body.xl2.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -150,7 +150,7 @@ class _CenteredMessage extends StatelessWidget {
         child: Text(
           message,
           textAlign: TextAlign.center,
-          style: context.theme.typography.md.copyWith(color: color),
+          style: context.theme.typography.body.md.copyWith(color: color),
         ),
       ),
     );

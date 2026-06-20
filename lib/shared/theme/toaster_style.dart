@@ -41,13 +41,13 @@ FToasterStyle toasterStyle({
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
           iconStyle: IconThemeData(color: colors.foreground, size: 18),
           iconSpacing: 12,
-          titleTextStyle: typography.sm.copyWith(
+          titleTextStyle: typography.body.sm.copyWith(
             color: colors.foreground,
             fontWeight: FontWeight.w600,
             height: 1.15,
           ),
           titleSpacing: 4,
-          descriptionTextStyle: typography.xs.copyWith(
+          descriptionTextStyle: typography.body.xs.copyWith(
             color: colors.mutedForeground,
             height: 1.35,
             overflow: TextOverflow.ellipsis,

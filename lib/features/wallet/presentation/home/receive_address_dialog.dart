@@ -92,7 +92,7 @@ class ReceiveAddressDialog extends ConsumerWidget {
                     ),
                     child: Text(
                       translateNetworkName(loc, network),
-                      style: context.theme.typography.xs.copyWith(
+                      style: context.theme.typography.body.xs.copyWith(
                         color: context.theme.colors.mutedForeground,
                         fontWeight: FontWeight.w600,
                       ),
@@ -117,14 +117,14 @@ class ReceiveAddressDialog extends ConsumerWidget {
                     children: [
                       Text(
                         loc.wallet_address_capitalize,
-                        style: context.theme.typography.sm.copyWith(
+                        style: context.theme.typography.body.sm.copyWith(
                           color: context.theme.colors.mutedForeground,
                         ),
                       ),
                       SelectableText(
                         walletAddress,
                         maxLines: isWideScreen ? 1 : null,
-                        style: context.theme.typography.xs.copyWith(
+                        style: context.theme.typography.body.xs.copyWith(
                           color: context.theme.colors.foreground,
                           fontFeatures: const [FontFeature.tabularFigures()],
                           fontWeight: FontWeight.w500,

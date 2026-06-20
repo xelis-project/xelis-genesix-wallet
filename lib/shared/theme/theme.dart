@@ -123,81 +123,85 @@ FThemeData greenDark({required bool touch}) {
 FTypography _typography({
   required FColors colors,
   String defaultFontFamily = 'packages/forui/Inter',
-}) => FTypography(
-  fontFamily: defaultFontFamily,
-  xs: TextStyle(
-    color: colors.foreground,
+}) {
+  final typeface = FTypeface(
     fontFamily: defaultFontFamily,
-    fontSize: 12,
-    height: 1,
-  ),
-  sm: TextStyle(
-    color: colors.foreground,
-    fontFamily: defaultFontFamily,
-    fontSize: 14,
-    height: 1.25,
-  ),
-  md: TextStyle(
-    color: colors.foreground,
-    fontFamily: defaultFontFamily,
-    fontSize: 16,
-    height: 1.5,
-  ),
-  lg: TextStyle(
-    color: colors.foreground,
-    fontFamily: defaultFontFamily,
-    fontSize: 18,
-    height: 1.75,
-  ),
-  xl: TextStyle(
-    color: colors.foreground,
-    fontFamily: defaultFontFamily,
-    fontSize: 20,
-    height: 1.75,
-  ),
-  xl2: TextStyle(
-    color: colors.foreground,
-    fontFamily: defaultFontFamily,
-    fontSize: 22,
-    height: 2,
-  ),
-  xl3: TextStyle(
-    color: colors.foreground,
-    fontFamily: defaultFontFamily,
-    fontSize: 30,
-    height: 2.25,
-  ),
-  xl4: TextStyle(
-    color: colors.foreground,
-    fontFamily: defaultFontFamily,
-    fontSize: 36,
-    height: 2.5,
-  ),
-  xl5: TextStyle(
-    color: colors.foreground,
-    fontFamily: defaultFontFamily,
-    fontSize: 48,
-    height: 1,
-  ),
-  xl6: TextStyle(
-    color: colors.foreground,
-    fontFamily: defaultFontFamily,
-    fontSize: 60,
-    height: 1,
-  ),
-  xl7: TextStyle(
-    color: colors.foreground,
-    fontFamily: defaultFontFamily,
-    fontSize: 72,
-    height: 1,
-  ),
-  xl8: TextStyle(
-    color: colors.foreground,
-    fontFamily: defaultFontFamily,
-    fontSize: 96,
-    height: 1,
-  ),
-);
+    xs: TextStyle(
+      color: colors.foreground,
+      fontFamily: defaultFontFamily,
+      fontSize: 12,
+      height: 1,
+    ),
+    sm: TextStyle(
+      color: colors.foreground,
+      fontFamily: defaultFontFamily,
+      fontSize: 14,
+      height: 1.25,
+    ),
+    md: TextStyle(
+      color: colors.foreground,
+      fontFamily: defaultFontFamily,
+      fontSize: 16,
+      height: 1.5,
+    ),
+    lg: TextStyle(
+      color: colors.foreground,
+      fontFamily: defaultFontFamily,
+      fontSize: 18,
+      height: 1.75,
+    ),
+    xl: TextStyle(
+      color: colors.foreground,
+      fontFamily: defaultFontFamily,
+      fontSize: 20,
+      height: 1.75,
+    ),
+    xl2: TextStyle(
+      color: colors.foreground,
+      fontFamily: defaultFontFamily,
+      fontSize: 22,
+      height: 2,
+    ),
+    xl3: TextStyle(
+      color: colors.foreground,
+      fontFamily: defaultFontFamily,
+      fontSize: 30,
+      height: 2.25,
+    ),
+    xl4: TextStyle(
+      color: colors.foreground,
+      fontFamily: defaultFontFamily,
+      fontSize: 36,
+      height: 2.5,
+    ),
+    xl5: TextStyle(
+      color: colors.foreground,
+      fontFamily: defaultFontFamily,
+      fontSize: 48,
+      height: 1,
+    ),
+    xl6: TextStyle(
+      color: colors.foreground,
+      fontFamily: defaultFontFamily,
+      fontSize: 60,
+      height: 1,
+    ),
+    xl7: TextStyle(
+      color: colors.foreground,
+      fontFamily: defaultFontFamily,
+      fontSize: 72,
+      height: 1,
+    ),
+    xl8: TextStyle(
+      color: colors.foreground,
+      fontFamily: defaultFontFamily,
+      fontSize: 96,
+      height: 1,
+    ),
+  );
+
+  return FTypography(display: typeface, body: typeface);
+}
 
 FStyle _style({
   required FColors colors,

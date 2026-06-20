@@ -43,7 +43,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
             padding: const EdgeInsets.only(top: Spaces.small),
             child: Text(
               loc.no_recent_transactions,
-              style: context.theme.typography.sm.copyWith(
+              style: context.theme.typography.body.sm.copyWith(
                 color: context.theme.colors.mutedForeground,
               ),
             ),
@@ -92,21 +92,21 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
                       Opacity(opacity: opacity, child: child),
                   child: FItem(
                     prefix: Icon(info.icon, color: info.color),
-                    title: Text(info.label, style: context.theme.typography.sm),
+                    title: Text(info.label, style: context.theme.typography.body.sm),
                     subtitle: info.details != null
                         ? Text(
                             info.details!,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             softWrap: false,
-                            style: context.theme.typography.xs.copyWith(
+                            style: context.theme.typography.body.xs.copyWith(
                               color: context.theme.colors.mutedForeground,
                             ),
                           )
                         : null,
                     details: Text(
                       timeAgo(loc, tx.timestamp!),
-                      style: context.theme.typography.xs.copyWith(
+                      style: context.theme.typography.body.xs.copyWith(
                         color: context.theme.colors.mutedForeground,
                       ),
                     ),
@@ -131,7 +131,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
         padding: const EdgeInsets.only(top: Spaces.small),
         child: Text(
           loc.oups,
-          style: context.theme.typography.sm.copyWith(
+          style: context.theme.typography.body.sm.copyWith(
             color: context.theme.colors.destructive,
           ),
         ),
@@ -148,7 +148,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
               Expanded(
                 child: Text(
                   loc.last_transactions,
-                  style: context.theme.typography.xl.copyWith(
+                  style: context.theme.typography.body.xl.copyWith(
                     color: context.theme.colors.primary,
                   ),
                 ),

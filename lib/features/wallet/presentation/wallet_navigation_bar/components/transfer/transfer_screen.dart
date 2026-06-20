@@ -315,7 +315,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
                               tipBuilder: (context, controller) {
                                 return Text(
                                   loc.address_book,
-                                  style: context.theme.typography.md,
+                                  style: context.theme.typography.body.md,
                                 );
                               },
                               child: FButton.icon(
@@ -346,7 +346,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
                           children: [
                             Text(
                               loc.estimated_fee,
-                              style: context.theme.typography.sm.copyWith(
+                              style: context.theme.typography.body.sm.copyWith(
                                 color: context.theme.colors.mutedForeground,
                               ),
                             ),
@@ -359,7 +359,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
                                   _boostMultiplier != 1.0
                                       ? '$_baseFee × ${_boostMultiplier}x = $_estimatedFee ${getXelisTicker(network)}'
                                       : '$_estimatedFee ${getXelisTicker(network)}',
-                                  style: context.theme.typography.md.copyWith(
+                                  style: context.theme.typography.body.md.copyWith(
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -380,13 +380,13 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
                           children: [
                             Text(
                               loc.boost_fees_title,
-                              style: context.theme.typography.sm.copyWith(
+                              style: context.theme.typography.body.sm.copyWith(
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                             Text(
                               loc.boost_fees_message,
-                              style: context.theme.typography.xs.copyWith(
+                              style: context.theme.typography.body.xs.copyWith(
                                 color: context.theme.colors.mutedForeground,
                               ),
                             ),

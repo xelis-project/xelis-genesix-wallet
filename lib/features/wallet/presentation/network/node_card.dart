@@ -59,14 +59,14 @@ class _NodeCardState extends ConsumerState<NodeCard> {
               children: [
                 Text(
                   loc.version.toLowerCase(),
-                  style: context.theme.typography.xs.copyWith(
+                  style: context.theme.typography.body.xs.copyWith(
                     color: context.theme.colors.mutedForeground,
                   ),
                 ),
                 const SizedBox(width: Spaces.extraSmall),
                 Text(
                   widget.info?.version ?? '...',
-                  style: context.theme.typography.xs.copyWith(
+                  style: context.theme.typography.body.xs.copyWith(
                     color: context.theme.colors.mutedForeground,
                   ),
                 ),

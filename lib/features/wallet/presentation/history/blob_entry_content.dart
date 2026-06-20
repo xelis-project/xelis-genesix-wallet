@@ -46,7 +46,7 @@ class BlobEntryContent extends ConsumerWidget {
                 ColoredBadge.label(parsed.label),
                 Text(
                   '• ${parsed.fmtSize}',
-                  style: context.theme.typography.sm.copyWith(
+                  style: context.theme.typography.body.sm.copyWith(
                     color: context.theme.colors.mutedForeground,
                     fontStyle: FontStyle.italic,
                   ),

@@ -430,7 +430,7 @@ class _XswdToastCard extends StatelessWidget {
     final requestSurface = spec.accent.withValues(
       alpha: colors.brightness == Brightness.light ? 0.08 : 0.14,
     );
-    final requestTextStyle = context.theme.typography.xs.copyWith(
+    final requestTextStyle = context.theme.typography.body.xs.copyWith(
       color: Color.lerp(colors.mutedForeground, spec.accent, 0.55),
       fontWeight: FontWeight.w600,
       letterSpacing: 0.1,
@@ -465,7 +465,7 @@ class _XswdToastCard extends StatelessWidget {
                     payload.appName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: context.theme.typography.sm.copyWith(
+                    style: context.theme.typography.body.sm.copyWith(
                       color: colors.foreground,
                       fontWeight: FontWeight.w600,
                       height: 1.1,

@@ -21,7 +21,7 @@ class ExtraDataIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (extra == null) {
-      return Text('-', style: context.theme.typography.md);
+      return Text('-', style: context.theme.typography.body.md);
     }
 
     final loc = AppLocalizations.of(context);

@@ -61,10 +61,10 @@ class _GridInfoWidgetState extends State<GridInfoWidget>
 
   @override
   Widget build(BuildContext context) {
-    final labelStyle = context.theme.typography.sm.copyWith(
+    final labelStyle = context.theme.typography.body.sm.copyWith(
       color: context.theme.colors.mutedForeground,
     );
-    final valueStyle = context.theme.typography.md;
+    final valueStyle = context.theme.typography.body.md;
 
     return FCard.raw(
       clipBehavior: Clip.antiAlias,

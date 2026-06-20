@@ -55,7 +55,7 @@ class _UntrackedAssetDetailsState extends ConsumerState<UntrackedAssetDetails> {
               children: [
                 Text(
                   loc.track_asset_dialog_message,
-                  style: context.theme.typography.sm.copyWith(
+                  style: context.theme.typography.body.sm.copyWith(
                     color: context.theme.colors.mutedForeground,
                   ),
                 ),
@@ -79,7 +79,7 @@ class _UntrackedAssetDetailsState extends ConsumerState<UntrackedAssetDetails> {
                   InkWell(
                     child: Text(
                       widget.hash,
-                      style: context.theme.typography.md,
+                      style: context.theme.typography.body.md,
                     ),
                     onTap: () => copyToClipboard(widget.hash, ref, loc.copied),
                   ),
@@ -99,7 +99,7 @@ class _UntrackedAssetDetailsState extends ConsumerState<UntrackedAssetDetails> {
                         widget.asset.decimals,
                         widget.asset.ticker,
                       ),
-                      style: context.theme.typography.md,
+                      style: context.theme.typography.body.md,
                     ),
                   ),
                 if (!widget.asset.owner.isNone)

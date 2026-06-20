@@ -89,7 +89,7 @@ class _PendingChangesCard extends StatelessWidget {
                 Text(
                   message,
                   textAlign: TextAlign.center,
-                  style: context.theme.typography.md,
+                  style: context.theme.typography.body.md,
                 ),
               ],
             ),
@@ -123,7 +123,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
     Widget buildMetric(String title, String value) => LabeledValue.text(
       title,
       value,
-      style: context.theme.typography.lg.copyWith(fontWeight: FontWeight.w600),
+      style: context.theme.typography.body.lg.copyWith(fontWeight: FontWeight.w600),
     );
 
     List<Widget> buildParticipantTiles() {
@@ -138,7 +138,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
             ),
             child: Text(
               loc.no_multisig_configuration_found,
-              style: context.theme.typography.md.copyWith(
+              style: context.theme.typography.body.md.copyWith(
                 color: context.theme.colors.mutedForeground,
               ),
             ),
@@ -215,13 +215,13 @@ class _ConfiguredMultisigView extends StatelessWidget {
                 children: [
                   Text(
                     loc.multisig,
-                    style: context.theme.typography.xl3.copyWith(
+                    style: context.theme.typography.body.xl3.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   Text(
                     'Review the current multisig configuration and participants.',
-                    style: context.theme.typography.sm.copyWith(
+                    style: context.theme.typography.body.sm.copyWith(
                       color: context.theme.colors.mutedForeground,
                     ),
                   ),
@@ -235,7 +235,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
                   children: [
                     Text(
                       loc.information,
-                      style: context.theme.typography.sm.copyWith(
+                      style: context.theme.typography.body.sm.copyWith(
                         color: context.theme.colors.mutedForeground,
                       ),
                     ),
@@ -281,13 +281,13 @@ class _ConfiguredMultisigView extends StatelessWidget {
                       children: [
                         Text(
                           loc.participants,
-                          style: context.theme.typography.md.copyWith(
+                          style: context.theme.typography.body.md.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         Text(
                           'Each entry below represents a wallet allowed to co-sign transactions.',
-                          style: context.theme.typography.sm.copyWith(
+                          style: context.theme.typography.body.sm.copyWith(
                             color: context.theme.colors.mutedForeground,
                           ),
                         ),
@@ -351,7 +351,7 @@ class _EmptyMultisigCallToAction extends StatelessWidget {
             Flexible(
               child: Text(
                 label,
-                style: context.theme.typography.xs.copyWith(
+                style: context.theme.typography.body.xs.copyWith(
                   color: colors.primary,
                   fontWeight: FontWeight.w600,
                 ),
@@ -395,15 +395,15 @@ class _EmptyMultisigCallToAction extends StatelessWidget {
         ? CrossAxisAlignment.start
         : CrossAxisAlignment.center;
 
-    final titleStyle = context.theme.typography.lg.copyWith(
+    final titleStyle = context.theme.typography.body.lg.copyWith(
       fontWeight: FontWeight.w600,
     );
 
-    final bodyStyle = context.theme.typography.md.copyWith(
+    final bodyStyle = context.theme.typography.body.md.copyWith(
       color: colors.mutedForeground,
     );
 
-    final secondaryBodyStyle = context.theme.typography.sm.copyWith(
+    final secondaryBodyStyle = context.theme.typography.body.sm.copyWith(
       color: colors.mutedForeground,
     );
 

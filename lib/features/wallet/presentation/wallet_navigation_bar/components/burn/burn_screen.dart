@@ -118,7 +118,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
                   title: Text(loc.warning),
                   subtitle: Text(
                     loc.burn_screen_warning_message,
-                    style: context.theme.typography.sm.copyWith(
+                    style: context.theme.typography.body.sm.copyWith(
                       color: context.theme.colors.destructiveForeground,
                     ),
                   ),
@@ -186,7 +186,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
                       const SizedBox(height: Spaces.large),
                       Text(
                         loc.asset.capitalize(),
-                        style: context.theme.typography.sm.copyWith(
+                        style: context.theme.typography.body.sm.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),

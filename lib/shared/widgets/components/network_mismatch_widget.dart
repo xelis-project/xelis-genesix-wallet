@@ -23,7 +23,7 @@ class NetworkMismatchWidget extends ConsumerWidget {
         Flexible(
           child: Text(
             loc.network_mismatch,
-            style: context.theme.typography.sm.copyWith(
+            style: context.theme.typography.body.sm.copyWith(
               color: context.theme.colors.error,
               fontWeight: FontWeight.bold,
             ),

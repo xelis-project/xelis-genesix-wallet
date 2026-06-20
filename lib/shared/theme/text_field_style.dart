@@ -36,7 +36,9 @@ FTextFieldStyle _textFieldStyle({
     typography: typography,
     style: style,
   ).ghost.sm;
-  final textStyle = typography.sm.copyWith(fontFamily: typography.fontFamily);
+  final textStyle = typography.body.sm.copyWith(
+    fontFamily: typography.body.fontFamily,
+  );
   final iconStyle =
       FVariants<
         FTextFieldVariantConstraint,
@@ -348,32 +350,32 @@ FButtonSizeStyles _buttonSizeStyles({
   return FButtonSizeStyles(
     FVariants(
       button(
-        textStyle: typography.md,
+        textStyle: typography.body.md,
         contentPadding: const .symmetric(horizontal: 16, vertical: 11),
         contentSpacing: 10,
-        iconSize: typography.md.fontSize ?? 16,
+        iconSize: typography.body.md.fontSize ?? 16,
         iconPadding: const .all(11),
       ),
       variants: {
         [.xs]: button(
-          textStyle: typography.xs,
+          textStyle: typography.body.xs,
           contentPadding: const .symmetric(horizontal: 8, vertical: 7),
           contentSpacing: 6,
-          iconSize: typography.xs.fontSize ?? 12,
+          iconSize: typography.body.xs.fontSize ?? 12,
           iconPadding: const .all(7),
         ),
         [.sm]: button(
-          textStyle: typography.sm,
+          textStyle: typography.body.sm,
           contentPadding: const .symmetric(horizontal: 12, vertical: 9),
           contentSpacing: 8,
-          iconSize: typography.sm.fontSize ?? 14,
+          iconSize: typography.body.sm.fontSize ?? 14,
           iconPadding: const .all(9),
         ),
         [.lg]: button(
-          textStyle: typography.md,
+          textStyle: typography.body.md,
           contentPadding: const .symmetric(horizontal: 32, vertical: 14),
           contentSpacing: 10,
-          iconSize: typography.md.fontSize ?? 16,
+          iconSize: typography.body.md.fontSize ?? 16,
           iconPadding: const .all(14),
         ),
       },

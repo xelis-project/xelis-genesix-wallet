@@ -30,7 +30,7 @@ class IncomingContractEntryContent extends ConsumerWidget {
           children: [
             Text(
               loc.transfers,
-              style: context.theme.typography.sm.copyWith(
+              style: context.theme.typography.body.sm.copyWith(
                 color: context.theme.colors.mutedForeground,
               ),
             ),
