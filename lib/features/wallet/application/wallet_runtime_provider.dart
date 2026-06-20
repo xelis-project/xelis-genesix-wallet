@@ -27,8 +27,12 @@ part 'wallet_runtime_provider.g.dart';
 
 @Riverpod(keepAlive: true)
 class WalletRuntime extends _$WalletRuntime {
+  static const _autoReconnectDelay = Duration(seconds: 5);
+  static const _networkMismatchMessage = 'network mismatch';
+
   NativeWalletRepository? _repository;
   StreamSubscription<Event>? _streamSubscription;
+  Timer? _autoReconnectTimer;
   Future<void> _transitionQueue = Future.value();
   int _connectionRequestId = 0;
   int _onlineEligibleRequestId = -1;
@@ -48,6 +52,7 @@ class WalletRuntime extends _$WalletRuntime {
     _connectionRequestId++;
     _onlineEligibleRequestId = -1;
     _lastReportedConnectionFailureId = -1;
+    _cancelAutoReconnect();
     await _cancelStreamSubscription();
 
     _repository = session.repository;
@@ -70,6 +75,7 @@ class WalletRuntime extends _$WalletRuntime {
     _connectionRequestId++;
     _onlineEligibleRequestId = -1;
     _lastReportedConnectionFailureId = -1;
+    _cancelAutoReconnect();
     await _cancelStreamSubscription();
     _repository = null;
     state = _emptyRuntimeState();
@@ -81,6 +87,7 @@ class WalletRuntime extends _$WalletRuntime {
       selectedNode: selectedNode,
       phase: WalletConnectionPhase.connecting,
       persistSelection: false,
+      reportFailure: true,
     );
   }
 
@@ -88,6 +95,7 @@ class WalletRuntime extends _$WalletRuntime {
     final requestId = ++_connectionRequestId;
     _onlineEligibleRequestId = -1;
     _lastReportedConnectionFailureId = -1;
+    _cancelAutoReconnect();
     _markDisconnectedState(
       selectedNode: state.selectedNode ?? _selectedNodeForCurrentNetwork(),
       clearError: true,
@@ -107,6 +115,7 @@ class WalletRuntime extends _$WalletRuntime {
     final requestId = ++_connectionRequestId;
     _onlineEligibleRequestId = -1;
     _lastReportedConnectionFailureId = -1;
+    _cancelAutoReconnect();
     _markDisconnectedState(clearError: true);
 
     await _enqueueTransition(() async {
@@ -150,6 +159,7 @@ class WalletRuntime extends _$WalletRuntime {
       selectedNode: selectedNode,
       phase: phase,
       persistSelection: nodeAddress != null,
+      reportFailure: true,
     );
   }
 
@@ -376,6 +386,7 @@ class WalletRuntime extends _$WalletRuntime {
         if (_shouldIgnoreTransitionEvent()) {
           return;
         }
+        final wasOnline = state.isOnline;
         if (state.connectionPhase == WalletConnectionPhase.connecting ||
             state.connectionPhase == WalletConnectionPhase.reconnecting) {
           state = state.copyWith(isOnline: false, isSyncing: false);
@@ -393,6 +404,10 @@ class WalletRuntime extends _$WalletRuntime {
               : WalletConnectionPhase.disconnected,
         );
         _emitInfo(title: loc.disconnected);
+        if (wasOnline &&
+            _isRetryableConnectionError(state.lastConnectionError)) {
+          _scheduleAutoReconnect(repository);
+        }
 
       case HistorySynced():
         talker.info(event);
@@ -416,6 +431,9 @@ class WalletRuntime extends _$WalletRuntime {
           title: loc.error_while_syncing,
           description: event.message,
         );
+        if (_isRetryableConnectionError(event.message)) {
+          _scheduleAutoReconnect(repository);
+        }
 
       case TrackAsset():
         talker.info(event);
@@ -611,6 +629,7 @@ class WalletRuntime extends _$WalletRuntime {
     required NodeAddress selectedNode,
     required WalletConnectionPhase phase,
     required bool persistSelection,
+    required bool reportFailure,
   }) async {
     final repository = _repository;
     if (repository == null) {
@@ -620,6 +639,7 @@ class WalletRuntime extends _$WalletRuntime {
     final requestId = ++_connectionRequestId;
     _onlineEligibleRequestId = -1;
     _lastReportedConnectionFailureId = -1;
+    _cancelAutoReconnect();
 
     if (persistSelection) {
       final settings = ref.read(settingsProvider);
@@ -667,11 +687,19 @@ class WalletRuntime extends _$WalletRuntime {
           connectionPhase: WalletConnectionPhase.failed,
           lastConnectionError: _extractXelisMessage(error),
         );
-        _emitConnectionFailure(
-          requestId: requestId,
-          title: loc.cannot_connect_toast_error.replaceFirst(RegExp(r'\.'), ''),
-          description: _extractXelisMessage(error),
-        );
+        if (reportFailure) {
+          _emitConnectionFailure(
+            requestId: requestId,
+            title: loc.cannot_connect_toast_error.replaceFirst(
+              RegExp(r'\.'),
+              '',
+            ),
+            description: _extractXelisMessage(error),
+          );
+        }
+        if (_isRetryableConnectionError(_extractXelisMessage(error))) {
+          _scheduleAutoReconnect(repository);
+        }
       } catch (error) {
         if (!_isCurrentConnectionRequest(requestId, repository)) {
           return;
@@ -683,13 +711,57 @@ class WalletRuntime extends _$WalletRuntime {
           connectionPhase: WalletConnectionPhase.failed,
           lastConnectionError: error.toString(),
         );
-        _emitConnectionFailure(
-          requestId: requestId,
-          title: loc.cannot_connect_toast_error.replaceFirst(RegExp(r'\.'), ''),
-          description: error.toString(),
-        );
+        if (reportFailure) {
+          _emitConnectionFailure(
+            requestId: requestId,
+            title: loc.cannot_connect_toast_error.replaceFirst(
+              RegExp(r'\.'),
+              '',
+            ),
+            description: error.toString(),
+          );
+        }
+        if (_isRetryableConnectionError(error.toString())) {
+          _scheduleAutoReconnect(repository);
+        }
       }
     });
+  }
+
+  void _scheduleAutoReconnect(NativeWalletRepository repository) {
+    if (!_isActiveRepository(repository) || _autoReconnectTimer != null) {
+      return;
+    }
+
+    final requestId = _connectionRequestId;
+    final selectedNode = state.selectedNode;
+    if (selectedNode == null) {
+      return;
+    }
+
+    _autoReconnectTimer = Timer(_autoReconnectDelay, () {
+      _autoReconnectTimer = null;
+      if (!_isCurrentConnectionRequest(requestId, repository)) {
+        return;
+      }
+      unawaited(
+        _queueConnectionTransition(
+          selectedNode: selectedNode,
+          phase: WalletConnectionPhase.reconnecting,
+          persistSelection: false,
+          reportFailure: false,
+        ),
+      );
+    });
+  }
+
+  void _cancelAutoReconnect() {
+    _autoReconnectTimer?.cancel();
+    _autoReconnectTimer = null;
+  }
+
+  bool _isRetryableConnectionError(String? message) {
+    return message?.toLowerCase().contains(_networkMismatchMessage) != true;
   }
 
   Future<void> _enqueueTransition(Future<void> Function() action) {
