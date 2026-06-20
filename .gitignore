@@ -63,5 +63,8 @@ lib/**/*.freezed.dart
 # Wallet precomputed table
 precomputed_tables_26.bin
 
+# Local AI reference snapshots
+.agents/references/forui/
+
 # Web wallet wasm
 web/pkg

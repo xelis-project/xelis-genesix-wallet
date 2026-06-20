@@ -18,9 +18,11 @@ Use this skill before designing, reviewing, or materially changing Flutter UI.
 
 ## Forui Documentation
 
-- Use `.agents/references/forui/llms.txt` as the local Forui documentation index.
-- Use `.agents/references/forui/llms-full.txt` for current component APIs, examples, and migration context.
-- Refresh the snapshots with `dart run tool/sync_forui_docs.dart` before Forui migrations or when API behavior is unclear.
+- Treat `.agents/references/forui/**` as an ignored local cache; do not commit these snapshots.
+- Before any Forui dependency migration, run `dart run tool/sync_forui_docs.dart` after dependency resolution.
+- When Forui API behavior is unclear, run `dart run tool/sync_forui_docs.dart` before using the snapshots; if network access is unavailable, state that and fall back to installed package source plus official changelog.
+- Use `.agents/references/forui/llms.txt` as the local Forui documentation index when present.
+- Use `.agents/references/forui/llms-full.txt` for current component APIs, examples, and migration context when present.
 - Check `https://pub.dev/packages/forui/changelog` for breaking changes when upgrading Forui.
 
 ## Design Rules
