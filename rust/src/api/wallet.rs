@@ -289,7 +289,10 @@ impl XelisWallet {
 
     // set the wallet to online mode
     pub async fn online_mode(&self, daemon_address: String) -> Result<()> {
-        Ok(self.wallet.set_online_mode(&daemon_address, true).await?)
+        // Genesix owns reconnect attempts from Dart. The upstream auto-reconnect
+        // loop can sleep after sync errors and miss stop signals, which blocks
+        // logout/close when a daemon is on the wrong network.
+        Ok(self.wallet.set_online_mode(&daemon_address, false).await?)
     }
 
     // set the wallet to offline mode
