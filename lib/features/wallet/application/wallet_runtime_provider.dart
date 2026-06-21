@@ -8,6 +8,7 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/application/network_nodes_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_effect_bus_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_event_message_builder.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/event.dart';
 import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
@@ -325,13 +326,11 @@ class WalletRuntime extends _$WalletRuntime {
 
         await _ensureKnownAssetsForTransaction(repository, txType);
         ref.read(walletHistoryRefreshSignalProvider.notifier).bump();
+        final messageBuilder = _eventMessageBuilder(loc);
 
         switch (txType) {
           case sdk.IncomingEntry():
-            final message = await _buildIncomingTransactionMessage(
-              loc: loc,
-              txType: txType,
-            );
+            final message = await messageBuilder.incomingTransaction(txType);
             _emitEvent(
               title: loc.new_incoming_transaction.capitalizeAll(),
               description: message,
@@ -349,7 +348,7 @@ class WalletRuntime extends _$WalletRuntime {
             );
 
           case sdk.BurnEntry():
-            final message = _buildBurnTransactionMessage(loc, txType);
+            final message = messageBuilder.burnTransaction(txType);
             _emitEvent(
               title: loc.burn_transaction_confirmed.capitalizeAll(),
               description: message,
@@ -574,6 +573,25 @@ class WalletRuntime extends _$WalletRuntime {
     state = state.copyWith(knownAssets: sortMapByKey(updatedAssets));
   }
 
+  WalletEventMessageBuilder _eventMessageBuilder(AppLocalizations loc) {
+    return WalletEventMessageBuilder(
+      loc: loc,
+      knownAssets: state.knownAssets,
+      contactNameForAddress: _contactNameForAddress,
+    );
+  }
+
+  Future<String?> _contactNameForAddress(String address) async {
+    final addressBook = ref.read(addressBookProvider.notifier);
+    final contactExists = await addressBook.exists(address);
+    if (!contactExists) {
+      return null;
+    }
+
+    final contactDetails = await addressBook.get(address);
+    return contactDetails?.name;
+  }
+
   Set<String> _assetHashesFromTransaction(sdk.TransactionEntryType txType) {
     return switch (txType) {
       sdk.IncomingEntry() =>
@@ -593,68 +611,6 @@ class WalletRuntime extends _$WalletRuntime {
       sdk.MultisigEntry() ||
       sdk.BlobEntry() => const <String>{},
     };
-  }
-
-  Future<String> _buildIncomingTransactionMessage({
-    required AppLocalizations loc,
-    required sdk.IncomingEntry txType,
-  }) async {
-    if (txType.isMultiTransfer()) {
-      return loc.multiple_transfers_detected;
-    }
-
-    final atomicAmount = txType.transfers.first.amount;
-    final assetHash = txType.transfers.first.asset;
-
-    String asset;
-    String amount;
-    if (state.knownAssets.containsKey(assetHash)) {
-      asset = state.knownAssets[assetHash]!.name;
-      amount = formatCoin(
-        atomicAmount,
-        state.knownAssets[assetHash]!.decimals,
-        state.knownAssets[assetHash]!.ticker,
-      );
-    } else {
-      asset = truncateText(assetHash);
-      amount = atomicAmount.toString();
-    }
-
-    var from = truncateText(txType.from);
-    final contactExists = await ref
-        .read(addressBookProvider.notifier)
-        .exists(txType.from);
-    if (contactExists) {
-      final contactDetails = await ref
-          .read(addressBookProvider.notifier)
-          .get(txType.from);
-      if (contactDetails != null && contactDetails.name.isNotEmpty) {
-        from = contactDetails.name;
-      }
-    }
-
-    return '${loc.asset}: $asset\n${loc.amount}: +$amount\n${loc.from}: $from';
-  }
-
-  String _buildBurnTransactionMessage(
-    AppLocalizations loc,
-    sdk.BurnEntry txType,
-  ) {
-    String asset;
-    String amount;
-    if (state.knownAssets.containsKey(txType.asset)) {
-      asset = state.knownAssets[txType.asset]!.name;
-      amount = formatCoin(
-        txType.amount,
-        state.knownAssets[txType.asset]!.decimals,
-        state.knownAssets[txType.asset]!.ticker,
-      );
-    } else {
-      asset = truncateText(txType.asset);
-      amount = txType.amount.toString();
-    }
-
-    return '${loc.asset}: $asset\n${loc.amount}: -$amount';
   }
 
   Future<void> _cancelStreamSubscription() async {
@@ -919,18 +875,6 @@ class WalletRuntime extends _$WalletRuntime {
     ref
         .read(walletEffectBusProvider.notifier)
         .emit(WalletEffect.event(title: title, description: description));
-  }
-}
-
-extension TransactionUtils on sdk.TransactionEntryType {
-  bool isMultiTransfer() {
-    if (this is sdk.IncomingEntry) {
-      return (this as sdk.IncomingEntry).transfers.length > 1;
-    } else if (this is sdk.OutgoingEntry) {
-      return (this as sdk.OutgoingEntry).transfers.length > 1;
-    } else {
-      return false;
-    }
   }
 }
 
