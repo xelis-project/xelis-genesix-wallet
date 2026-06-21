@@ -68,8 +68,9 @@ class WalletSessionCommands extends _$WalletSessionCommands {
 
       final dbName = walletPath.replaceFirst(localStorageDBPrefix, '');
 
+      NativeWalletRepository? repository;
       try {
-        final repository = await _createRepository(
+        repository = await _createRepository(
           dbName: dbName,
           password: password,
           network: settings.network,
@@ -78,6 +79,7 @@ class WalletSessionCommands extends _$WalletSessionCommands {
           seed: seed,
           privateKey: privateKey,
         );
+        final seedToReveal = seed == null ? await repository.getSeed() : null;
 
         await _persistOpenedWallet(
           name: name,
@@ -90,18 +92,19 @@ class WalletSessionCommands extends _$WalletSessionCommands {
         ref
             .read(activeWalletSessionProvider.notifier)
             .setSession(WalletSession(name: name, repository: repository));
+        repository = null;
 
         _maybeUpgradePrecomputedTables(
           precomputedTablesPath: precomputedTablesPath,
           expectedTableType: expectedTableType,
         );
 
-        final seedToReveal = seed == null ? await repository.getSeed() : null;
         return WalletSessionCommandResult.success(
           name: name,
           seedToReveal: seedToReveal,
         );
       } on AnyhowException catch (error) {
+        await _disposeUnattachedRepository(repository);
         talker.critical('Creating wallet failed: $error');
         final message = _extractXelisMessage(error);
         _emitError(title: loc.error_when_creating_wallet, description: message);
@@ -109,6 +112,7 @@ class WalletSessionCommands extends _$WalletSessionCommands {
           WalletSessionFailure.xelis(message: message),
         );
       } catch (error) {
+        await _disposeUnattachedRepository(repository);
         talker.critical('Creating wallet failed: $error');
         _emitError(
           title: loc.error_when_creating_wallet,
@@ -222,16 +226,18 @@ class WalletSessionCommands extends _$WalletSessionCommands {
         'Precomputed tables type that will be used: $initialTableType',
       );
 
+      NativeWalletRepository? repository;
       try {
         await copyPath(sourcePath, targetPath);
 
-        final repository = await NativeWalletRepository.open(
+        repository = await NativeWalletRepository.open(
           targetPath,
           password,
           network,
           precomputeTablesPath: precomputedTablesPath,
           precomputedTableType: initialTableType,
         );
+        final seedToReveal = await repository.getSeed();
 
         await _persistOpenedWallet(
           name: walletName,
@@ -246,18 +252,19 @@ class WalletSessionCommands extends _$WalletSessionCommands {
             .setSession(
               WalletSession(name: walletName, repository: repository),
             );
+        repository = null;
 
         _maybeUpgradePrecomputedTables(
           precomputedTablesPath: precomputedTablesPath,
           expectedTableType: expectedTableType,
         );
 
-        final seedToReveal = await repository.getSeed();
         return WalletSessionCommandResult.success(
           name: walletName,
           seedToReveal: seedToReveal,
         );
       } on AnyhowException catch (error) {
+        await _disposeUnattachedRepository(repository);
         talker.critical('Opening imported wallet failed: $error');
         final message = _extractXelisMessage(error);
         _emitError(title: loc.error_when_opening_wallet, description: message);
@@ -265,6 +272,7 @@ class WalletSessionCommands extends _$WalletSessionCommands {
           WalletSessionFailure.xelis(message: message),
         );
       } catch (error) {
+        await _disposeUnattachedRepository(repository);
         talker.critical('Opening imported wallet failed: $error');
         _emitError(
           title: loc.error_when_opening_wallet,
@@ -295,6 +303,22 @@ class WalletSessionCommands extends _$WalletSessionCommands {
     } finally {
       _activeOperation = null;
       completer.complete();
+    }
+  }
+
+  Future<void> _disposeUnattachedRepository(
+    NativeWalletRepository? repository,
+  ) async {
+    if (repository == null) {
+      return;
+    }
+
+    try {
+      await repository.close();
+    } catch (error) {
+      talker.warning('Failed to close unattached wallet repository: $error');
+    } finally {
+      repository.dispose();
     }
   }
 
