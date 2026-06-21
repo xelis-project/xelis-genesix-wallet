@@ -347,6 +347,7 @@ class WalletSessionCommands extends _$WalletSessionCommands {
         password,
         network,
         privateKey: privateKey,
+        precomputeTablesPath: precomputedTablesPath,
         precomputedTableType: initialTableType,
       );
     }
