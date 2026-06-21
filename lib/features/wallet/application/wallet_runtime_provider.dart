@@ -34,6 +34,7 @@ class WalletRuntime extends _$WalletRuntime {
   StreamSubscription<Event>? _streamSubscription;
   Timer? _autoReconnectTimer;
   Future<void> _transitionQueue = Future.value();
+  Future<void> _eventQueue = Future.value();
   int _connectionRequestId = 0;
   int _onlineEligibleRequestId = -1;
   int _lastReportedConnectionFailureId = -1;
@@ -61,7 +62,9 @@ class WalletRuntime extends _$WalletRuntime {
       _selectedNodeForNetwork(session.network),
     );
     _streamSubscription = session.repository.convertRawEvents().listen(
-      (event) => _onEvent(session.repository, event),
+      (event) {
+        unawaited(_enqueueEvent(() => _onEvent(session.repository, event)));
+      },
       onError: (Object error, StackTrace stackTrace) {
         talker.error('Unhandled wallet event stream error', error, stackTrace);
         _emitError(description: error.toString());
@@ -670,16 +673,18 @@ class WalletRuntime extends _$WalletRuntime {
       }
 
       try {
+        _onlineEligibleRequestId = requestId;
         await repository.setOnline(daemonAddress: selectedNode.url);
         if (!_isCurrentConnectionRequest(requestId, repository)) {
           return;
         }
-        _onlineEligibleRequestId = requestId;
         await _hydrateRuntimeState(repository, requestId: requestId);
+        _markConnectedIfOnlineEventWasMissed(requestId, repository, loc);
       } on AnyhowException catch (error) {
         if (!_isCurrentConnectionRequest(requestId, repository)) {
           return;
         }
+        _onlineEligibleRequestId = -1;
         talker.warning('Cannot connect to network: ${error.message}');
         state = state.copyWith(
           isOnline: false,
@@ -704,6 +709,7 @@ class WalletRuntime extends _$WalletRuntime {
         if (!_isCurrentConnectionRequest(requestId, repository)) {
           return;
         }
+        _onlineEligibleRequestId = -1;
         talker.warning('Cannot connect to network: $error');
         state = state.copyWith(
           isOnline: false,
@@ -770,6 +776,14 @@ class WalletRuntime extends _$WalletRuntime {
     return future;
   }
 
+  Future<void> _enqueueEvent(Future<void> Function() action) {
+    final future = _eventQueue.then((_) => action());
+    _eventQueue = future.catchError((Object error, StackTrace stackTrace) {
+      talker.error('Unhandled wallet event handler error', error, stackTrace);
+    });
+    return future;
+  }
+
   Future<void> _setOfflineBestEffort(NativeWalletRepository repository) async {
     try {
       await repository.setOffline();
@@ -802,6 +816,25 @@ class WalletRuntime extends _$WalletRuntime {
 
   bool _shouldIgnoreTransitionEvent() {
     return _onlineEligibleRequestId != _connectionRequestId;
+  }
+
+  void _markConnectedIfOnlineEventWasMissed(
+    int requestId,
+    NativeWalletRepository repository,
+    AppLocalizations loc,
+  ) {
+    if (!_isCurrentConnectionRequest(requestId, repository) ||
+        state.connectionPhase == WalletConnectionPhase.connected) {
+      return;
+    }
+
+    state = state.copyWith(
+      isOnline: true,
+      connectionPhase: WalletConnectionPhase.connected,
+      lastConnectionError: null,
+    );
+    _lastReportedConnectionFailureId = -1;
+    _emitInfo(title: loc.connected);
   }
 
   void _emitConnectionFailure({
