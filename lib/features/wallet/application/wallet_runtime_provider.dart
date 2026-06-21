@@ -150,6 +150,52 @@ class WalletRuntime extends _$WalletRuntime {
     );
   }
 
+  void _markConnectionTransitionState({
+    required NodeAddress selectedNode,
+    required WalletConnectionPhase phase,
+  }) {
+    state = state.copyWith(
+      isOnline: false,
+      isSyncing: false,
+      isRescanning: false,
+      connectionPhase: phase,
+      selectedNode: selectedNode,
+      lastConnectionError: null,
+    );
+  }
+
+  void _markConnectedState() {
+    state = state.copyWith(
+      isOnline: true,
+      connectionPhase: WalletConnectionPhase.connected,
+      lastConnectionError: null,
+    );
+    _lastReportedConnectionFailureId = -1;
+  }
+
+  void _markOfflineEventState() {
+    state = state.copyWith(
+      isOnline: false,
+      isSyncing: false,
+      connectionPhase: state.connectionPhase == WalletConnectionPhase.failed
+          ? WalletConnectionPhase.failed
+          : WalletConnectionPhase.disconnected,
+    );
+  }
+
+  void _markOfflineDuringConnectionTransition() {
+    state = state.copyWith(isOnline: false, isSyncing: false);
+  }
+
+  void _markConnectionFailedState(String message) {
+    state = state.copyWith(
+      isOnline: false,
+      isSyncing: false,
+      connectionPhase: WalletConnectionPhase.failed,
+      lastConnectionError: message,
+    );
+  }
+
   Future<void> reconnect([NodeAddress? nodeAddress]) async {
     final selectedNode = nodeAddress ?? _selectedNodeForCurrentNetwork();
     final phase = switch (state.connectionPhase) {
@@ -381,12 +427,7 @@ class WalletRuntime extends _$WalletRuntime {
         if (_shouldIgnoreTransitionEvent()) {
           return;
         }
-        state = state.copyWith(
-          isOnline: true,
-          connectionPhase: WalletConnectionPhase.connected,
-          lastConnectionError: null,
-        );
-        _lastReportedConnectionFailureId = -1;
+        _markConnectedState();
         _emitInfo(title: loc.connected);
 
       case Offline():
@@ -397,20 +438,14 @@ class WalletRuntime extends _$WalletRuntime {
         final wasOnline = state.isOnline;
         if (state.connectionPhase == WalletConnectionPhase.connecting ||
             state.connectionPhase == WalletConnectionPhase.reconnecting) {
-          state = state.copyWith(isOnline: false, isSyncing: false);
+          _markOfflineDuringConnectionTransition();
           return;
         }
         if (!state.isOnline &&
             state.connectionPhase == WalletConnectionPhase.disconnected) {
           return;
         }
-        state = state.copyWith(
-          isOnline: false,
-          isSyncing: false,
-          connectionPhase: state.connectionPhase == WalletConnectionPhase.failed
-              ? WalletConnectionPhase.failed
-              : WalletConnectionPhase.disconnected,
-        );
+        _markOfflineEventState();
         _emitInfo(title: loc.disconnected);
         if (wasOnline &&
             _isRetryableConnectionError(state.lastConnectionError)) {
@@ -428,12 +463,7 @@ class WalletRuntime extends _$WalletRuntime {
         if (_shouldIgnoreTransitionEvent()) {
           return;
         }
-        state = state.copyWith(
-          isOnline: false,
-          isSyncing: false,
-          connectionPhase: WalletConnectionPhase.failed,
-          lastConnectionError: event.message,
-        );
+        _markConnectionFailedState(event.message);
         _emitConnectionFailure(
           requestId: _connectionRequestId,
           title: loc.error_while_syncing,
@@ -665,14 +695,7 @@ class WalletRuntime extends _$WalletRuntime {
           .setNodeAddress(settings.network, selectedNode);
     }
 
-    state = state.copyWith(
-      isOnline: false,
-      isSyncing: false,
-      isRescanning: false,
-      connectionPhase: phase,
-      selectedNode: selectedNode,
-      lastConnectionError: null,
-    );
+    _markConnectionTransitionState(selectedNode: selectedNode, phase: phase);
 
     await _enqueueTransition(() async {
       if (!_isCurrentConnectionRequest(requestId, repository)) {
@@ -700,12 +723,8 @@ class WalletRuntime extends _$WalletRuntime {
         }
         _onlineEligibleRequestId = -1;
         talker.warning('Cannot connect to network: ${error.message}');
-        state = state.copyWith(
-          isOnline: false,
-          isSyncing: false,
-          connectionPhase: WalletConnectionPhase.failed,
-          lastConnectionError: _extractXelisMessage(error),
-        );
+        final message = _extractXelisMessage(error);
+        _markConnectionFailedState(message);
         if (reportFailure) {
           _emitConnectionFailure(
             requestId: requestId,
@@ -713,10 +732,10 @@ class WalletRuntime extends _$WalletRuntime {
               RegExp(r'\.'),
               '',
             ),
-            description: _extractXelisMessage(error),
+            description: message,
           );
         }
-        if (_isRetryableConnectionError(_extractXelisMessage(error))) {
+        if (_isRetryableConnectionError(message)) {
           _scheduleAutoReconnect(repository);
         }
       } catch (error) {
@@ -725,12 +744,8 @@ class WalletRuntime extends _$WalletRuntime {
         }
         _onlineEligibleRequestId = -1;
         talker.warning('Cannot connect to network: $error');
-        state = state.copyWith(
-          isOnline: false,
-          isSyncing: false,
-          connectionPhase: WalletConnectionPhase.failed,
-          lastConnectionError: error.toString(),
-        );
+        final message = error.toString();
+        _markConnectionFailedState(message);
         if (reportFailure) {
           _emitConnectionFailure(
             requestId: requestId,
@@ -738,10 +753,10 @@ class WalletRuntime extends _$WalletRuntime {
               RegExp(r'\.'),
               '',
             ),
-            description: error.toString(),
+            description: message,
           );
         }
-        if (_isRetryableConnectionError(error.toString())) {
+        if (_isRetryableConnectionError(message)) {
           _scheduleAutoReconnect(repository);
         }
       }
@@ -836,12 +851,7 @@ class WalletRuntime extends _$WalletRuntime {
       return;
     }
 
-    state = state.copyWith(
-      isOnline: true,
-      connectionPhase: WalletConnectionPhase.connected,
-      lastConnectionError: null,
-    );
-    _lastReportedConnectionFailureId = -1;
+    _markConnectedState();
     _emitInfo(title: loc.connected);
   }
 
