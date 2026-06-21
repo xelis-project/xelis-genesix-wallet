@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:intl/intl.dart';
@@ -10,7 +11,16 @@ part 'node_info_provider.g.dart';
 
 @riverpod
 Future<DaemonInfoSnapshot?> nodeInfo(Ref ref) async {
-  final walletState = ref.watch(walletRuntimeProvider);
+  final walletState = ref.watch(
+    walletRuntimeProvider.select(
+      (state) => (
+        selectedNode: state.selectedNode,
+        connectionPhase: state.connectionPhase,
+        network: state.network,
+        topoheight: state.topoheight,
+      ),
+    ),
+  );
   final walletRepository = ref.watch(activeWalletRepositoryProvider);
 
   if (walletRepository != null &&
