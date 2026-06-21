@@ -9,6 +9,7 @@ import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/application/network_nodes_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_effect_bus_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_event_message_builder.dart';
+import 'package:genesix/features/wallet/application/wallet_transaction_asset_resolver.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/event.dart';
 import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
@@ -528,41 +529,21 @@ class WalletRuntime extends _$WalletRuntime {
     NativeWalletRepository repository,
     sdk.TransactionEntryType txType,
   ) async {
-    final assetHashes = _assetHashesFromTransaction(txType);
-    if (assetHashes.isEmpty) {
-      return;
-    }
-
-    final missingAssets = assetHashes
-        .where((assetHash) => !state.knownAssets.containsKey(assetHash))
-        .toSet();
-    if (missingAssets.isEmpty) {
-      return;
-    }
-
-    final fetchedAssets = <String, sdk.AssetData>{};
-    for (final assetHash in missingAssets) {
-      if (state.knownAssets.containsKey(assetHash)) {
-        continue;
-      }
-
-      try {
-        final assetData = await repository.getAssetMetadata(assetHash);
-        if (!_isActiveRepository(repository)) {
-          return;
-        }
-        fetchedAssets[assetHash] = assetData;
-      } catch (error) {
-        if (!_isActiveRepository(repository)) {
-          return;
-        }
+    final fetchedAssets = await WalletTransactionAssetResolver(
+      getAssetMetadata: repository.getAssetMetadata,
+      hasKnownAsset: (assetHash) => state.knownAssets.containsKey(assetHash),
+      isActiveRepository: () => _isActiveRepository(repository),
+      onFetchError: (assetHash, error) {
         talker.warning(
           'Failed to fetch asset metadata for transaction asset $assetHash: $error',
         );
-      }
+      },
+    ).fetchMissingAssets(txType);
+    if (fetchedAssets == null || fetchedAssets.isEmpty) {
+      return;
     }
 
-    if (fetchedAssets.isEmpty) {
+    if (!_isActiveRepository(repository)) {
       return;
     }
 
@@ -590,27 +571,6 @@ class WalletRuntime extends _$WalletRuntime {
 
     final contactDetails = await addressBook.get(address);
     return contactDetails?.name;
-  }
-
-  Set<String> _assetHashesFromTransaction(sdk.TransactionEntryType txType) {
-    return switch (txType) {
-      sdk.IncomingEntry() =>
-        txType.transfers.map((transfer) => transfer.asset).toSet(),
-      sdk.OutgoingEntry() =>
-        txType.transfers.map((transfer) => transfer.asset).toSet(),
-      sdk.BurnEntry() => {txType.asset},
-      sdk.InvokeContractEntry() => {
-        ...txType.deposits.keys,
-        ...txType.received.keys,
-      },
-      sdk.DeployContractEntry(invoke: final invoke) => {
-        if (invoke != null) ...invoke.deposits.keys,
-      },
-      sdk.IncomingContractEntry() => txType.transfers.keys.toSet(),
-      sdk.CoinbaseEntry() ||
-      sdk.MultisigEntry() ||
-      sdk.BlobEntry() => const <String>{},
-    };
   }
 
   Future<void> _cancelStreamSubscription() async {
