@@ -41,6 +41,7 @@ class WalletRuntime extends _$WalletRuntime {
 
   @override
   WalletRuntimeState build() {
+    ref.onDispose(_disposeRuntimeResources);
     return _emptyRuntimeState();
   }
 
@@ -626,6 +627,15 @@ class WalletRuntime extends _$WalletRuntime {
     final currentSubscription = _streamSubscription;
     _streamSubscription = null;
     await currentSubscription?.cancel();
+  }
+
+  void _disposeRuntimeResources() {
+    _connectionRequestId++;
+    _onlineEligibleRequestId = -1;
+    _lastReportedConnectionFailureId = -1;
+    _cancelAutoReconnect();
+    unawaited(_cancelStreamSubscription());
+    _repository = null;
   }
 
   Future<void> _queueConnectionTransition({
