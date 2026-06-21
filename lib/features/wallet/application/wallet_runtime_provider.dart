@@ -33,8 +33,12 @@ class WalletRuntime extends _$WalletRuntime {
   NativeWalletRepository? _repository;
   StreamSubscription<Event>? _streamSubscription;
   Timer? _autoReconnectTimer;
-  Future<void> _transitionQueue = Future.value();
-  Future<void> _eventQueue = Future.value();
+  final _transitionQueue = _SerialAsyncQueue();
+  final _eventQueue = _SerialAsyncQueue(
+    onError: (error, stackTrace) {
+      talker.error('Unhandled wallet event handler error', error, stackTrace);
+    },
+  );
   int _connectionRequestId = 0;
   int _onlineEligibleRequestId = -1;
   int _lastReportedConnectionFailureId = -1;
@@ -781,17 +785,11 @@ class WalletRuntime extends _$WalletRuntime {
   }
 
   Future<void> _enqueueTransition(Future<void> Function() action) {
-    final future = _transitionQueue.then((_) => action());
-    _transitionQueue = future.catchError((Object _) {});
-    return future;
+    return _transitionQueue.enqueue(action);
   }
 
   Future<void> _enqueueEvent(Future<void> Function() action) {
-    final future = _eventQueue.then((_) => action());
-    _eventQueue = future.catchError((Object error, StackTrace stackTrace) {
-      talker.error('Unhandled wallet event handler error', error, stackTrace);
-    });
-    return future;
+    return _eventQueue.enqueue(action);
   }
 
   Future<void> _setOfflineBestEffort(NativeWalletRepository repository) async {
@@ -923,5 +921,20 @@ extension TransactionUtils on sdk.TransactionEntryType {
     } else {
       return false;
     }
+  }
+}
+
+class _SerialAsyncQueue {
+  _SerialAsyncQueue({this.onError});
+
+  final void Function(Object error, StackTrace stackTrace)? onError;
+  Future<void> _tail = Future.value();
+
+  Future<void> enqueue(Future<void> Function() action) {
+    final future = _tail.then((_) => action());
+    _tail = future.catchError((Object error, StackTrace stackTrace) {
+      onError?.call(error, stackTrace);
+    });
+    return future;
   }
 }
