@@ -82,18 +82,47 @@ class Settings extends _$Settings {
     }
 
     final secureStorage = ref.read(secureStorageProvider);
-    final key = biometricWalletKey(
+    final biometricKey = biometricWalletKey(
       network: state.network,
       walletName: authState.name,
     );
 
     unawaited(
       activateBiometricAuth
-          ? secureStorage.write(key: key, value: '1')
-          : Future.wait<void>([
-              secureStorage.delete(key: key),
-              secureStorage.delete(key: authState.name),
-            ]),
+          ? secureStorage.write(key: biometricKey, value: '1')
+          : _deleteWalletBiometricStorage(authState.name),
+    );
+  }
+
+  Future<void> _deleteWalletBiometricStorage(String walletName) async {
+    final secureStorage = ref.read(secureStorageProvider);
+    final currentNetwork = state.network;
+    await Future.wait<void>([
+      secureStorage.delete(
+        key: biometricWalletKey(
+          network: currentNetwork,
+          walletName: walletName,
+        ),
+      ),
+      secureStorage.delete(
+        key: walletPasswordKey(network: currentNetwork, walletName: walletName),
+      ),
+    ]);
+
+    for (final network in Network.values) {
+      if (network == currentNetwork) {
+        continue;
+      }
+      final hasOtherBiometricWallet = await secureStorage.containsKey(
+        key: biometricWalletKey(network: network, walletName: walletName),
+      );
+      if (hasOtherBiometricWallet) {
+        return;
+      }
+    }
+
+    await secureStorage.delete(
+      key: legacyWalletPasswordKey(walletName: walletName),
     );
   }
 

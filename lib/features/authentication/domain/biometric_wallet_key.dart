@@ -6,3 +6,14 @@ String biometricWalletKey({
 }) {
   return 'biometric_auth:${network.name}:$walletName';
 }
+
+String walletPasswordKey({
+  required Network network,
+  required String walletName,
+}) {
+  return 'wallet_password:${network.name}:$walletName';
+}
+
+String legacyWalletPasswordKey({required String walletName}) {
+  return walletName;
+}

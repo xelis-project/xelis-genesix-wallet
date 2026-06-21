@@ -348,11 +348,12 @@ class WalletSessionCommands extends _$WalletSessionCommands {
 
     if (await _shouldPersistPassword(walletName: name, network: network)) {
       final secureStorage = ref.read(secureStorageProvider);
+      final passwordKey = walletPasswordKey(network: network, walletName: name);
       final shouldWritePassword =
           !writePasswordIfMissingOnly ||
-          !await secureStorage.containsKey(key: name);
+          !await secureStorage.containsKey(key: passwordKey);
       if (shouldWritePassword) {
-        await secureStorage.write(key: name, value: password);
+        await secureStorage.write(key: passwordKey, value: password);
       }
     }
 

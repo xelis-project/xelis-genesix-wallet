@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
 import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
+import 'package:genesix/features/authentication/domain/biometric_wallet_key.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/wallet/application/wallet_effect_bus_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
@@ -247,9 +248,16 @@ class WalletCommandsController {
     );
 
     if (!kIsWeb) {
+      final runtimeState = _runtimeState;
       await ref
           .read(secureStorageProvider)
-          .write(key: _runtimeState.name, value: newPassword);
+          .write(
+            key: walletPasswordKey(
+              network: runtimeState.network,
+              walletName: runtimeState.name,
+            ),
+            value: newPassword,
+          );
     }
   }
 

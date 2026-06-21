@@ -147,7 +147,10 @@ class Wallets extends _$Wallets {
       await Directory(walletPath).rename(newWalletPath);
 
       final secureStorage = ref.read(secureStorageProvider);
-      final password = await secureStorage.read(key: name);
+      final password = await _readStoredWalletPassword(
+        name: name,
+        network: _network,
+      );
       final oldBiometricKey = biometricWalletKey(
         network: _network,
         walletName: name,
@@ -163,10 +166,16 @@ class Wallets extends _$Wallets {
         await secureStorage.write(key: newBiometricKey, value: '1');
         await secureStorage.delete(key: oldBiometricKey);
         if (password != null) {
-          await secureStorage.write(key: newName, value: password);
+          await secureStorage.write(
+            key: walletPasswordKey(network: _network, walletName: newName),
+            value: password,
+          );
         }
       }
-      await secureStorage.delete(key: name);
+      await secureStorage.delete(
+        key: walletPasswordKey(network: _network, walletName: name),
+      );
+      await _deleteLegacyPasswordIfUnused(name: name, currentNetwork: _network);
     }
 
     final settingsNotifier = ref.read(settingsProvider.notifier);
@@ -230,7 +239,42 @@ class Wallets extends _$Wallets {
         walletName: name,
       );
       await secureStorage.delete(key: biometricKey);
-      await secureStorage.delete(key: name);
+      await secureStorage.delete(
+        key: walletPasswordKey(network: _network, walletName: name),
+      );
+      await _deleteLegacyPasswordIfUnused(name: name, currentNetwork: _network);
     }
+  }
+
+  Future<String?> _readStoredWalletPassword({
+    required String name,
+    required Network network,
+  }) async {
+    final secureStorage = ref.read(secureStorageProvider);
+    final password = await secureStorage.read(
+      key: walletPasswordKey(network: network, walletName: name),
+    );
+    return password ??
+        secureStorage.read(key: legacyWalletPasswordKey(walletName: name));
+  }
+
+  Future<void> _deleteLegacyPasswordIfUnused({
+    required String name,
+    required Network currentNetwork,
+  }) async {
+    final secureStorage = ref.read(secureStorageProvider);
+    for (final network in Network.values) {
+      if (network == currentNetwork) {
+        continue;
+      }
+      final hasOtherBiometricWallet = await secureStorage.containsKey(
+        key: biometricWalletKey(network: network, walletName: name),
+      );
+      if (hasOtherBiometricWallet) {
+        return;
+      }
+    }
+
+    await secureStorage.delete(key: legacyWalletPasswordKey(walletName: name));
   }
 }

@@ -267,13 +267,18 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
 
     if (!authenticated) return false;
 
-    final password = await secureStorage.read(key: name);
+    final passwordKey = walletPasswordKey(network: network, walletName: name);
+    var password = await secureStorage.read(key: passwordKey);
+    password ??= await secureStorage.read(
+      key: legacyWalletPasswordKey(walletName: name),
+    );
     if (password == null) {
       ref
           .read(toastProvider.notifier)
           .showError(description: loc.password_not_found);
       return false;
     }
+    await secureStorage.write(key: passwordKey, value: password);
 
     return _openWallet(name, password);
   }
