@@ -253,7 +253,7 @@ String getAddressLabel(
   if (contact != null && contact.name.isNotEmpty) {
     return contact.name;
   } else {
-    return truncateText(address, maxLength: 16);
+    return truncateText(address, maxLength: 8);
   }
 }
 

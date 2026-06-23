@@ -192,17 +192,12 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
       builder: (context, opacity, child) =>
           Opacity(opacity: opacity, child: child),
       child: FItem(
-        prefix: Icon(info.icon, color: info.color),
+        prefix: Icon(info.icon, color: info.color, size: 18),
         title: Text(info.label, style: context.theme.typography.body.sm),
-        subtitle: Text(
-          _transactionSubtitle(info) ??
-              '${loc.hash}: ${truncateText(tx.hash, maxLength: 16)}',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          softWrap: false,
-          style: context.theme.typography.body.xs.copyWith(
-            color: context.theme.colors.mutedForeground,
-          ),
+        subtitle: _transactionSubtitle(
+          txEntryType: tx.txEntryType,
+          info: info,
+          fallbackText: '${loc.hash}: ${truncateText(tx.hash, maxLength: 8)}',
         ),
         details: Text(
           tx.timestamp == null ? loc.pending : timeAgo(loc, tx.timestamp!),
@@ -234,7 +229,6 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
     if (isNew) {
       _markAnimatedAfterBuild(tx.hash);
     }
-    final subtitle = _transactionSubtitle(info);
 
     return TweenAnimationBuilder<double>(
       key: ValueKey(tx.hash),
@@ -244,19 +238,9 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
       builder: (context, opacity, child) =>
           Opacity(opacity: opacity, child: child),
       child: FItem(
-        prefix: Icon(info.icon, color: info.color),
+        prefix: Icon(info.icon, color: info.color, size: 18),
         title: Text(info.label, style: context.theme.typography.body.sm),
-        subtitle: subtitle != null
-            ? Text(
-                subtitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                softWrap: false,
-                style: context.theme.typography.body.xs.copyWith(
-                  color: context.theme.colors.mutedForeground,
-                ),
-              )
-            : null,
+        subtitle: _transactionSubtitle(txEntryType: tx.txEntryType, info: info),
         details: tx.timestamp == null
             ? null
             : Text(
@@ -286,15 +270,52 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
     );
   }
 
-  String? _transactionSubtitle(TransactionDisplayInfo info) {
-    final parts = [
-      if (info.subtitle != null) info.subtitle!,
-      if (info.details != null) info.details!,
-    ];
-    if (parts.isNotEmpty) {
-      return parts.join(' • ');
+  Widget? _transactionSubtitle({
+    required TransactionEntryType txEntryType,
+    required TransactionDisplayInfo info,
+    String? fallbackText,
+  }) {
+    final amountText = _amountBadgeText(txEntryType, info);
+    final subtitleText = info.subtitle ?? fallbackText;
+
+    if (amountText == null && subtitleText == null) {
+      return null;
     }
-    return null;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (amountText != null)
+          _AmountBadge(text: amountText, color: info.color),
+        if (amountText != null && subtitleText != null)
+          const SizedBox(width: Spaces.extraSmall),
+        if (subtitleText != null)
+          Flexible(
+            child: Text(
+              subtitleText,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              softWrap: false,
+              style: context.theme.typography.body.xs.copyWith(
+                color: context.theme.colors.mutedForeground,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  String? _amountBadgeText(
+    TransactionEntryType txEntryType,
+    TransactionDisplayInfo info,
+  ) {
+    return switch (txEntryType) {
+      IncomingEntry() ||
+      OutgoingEntry() ||
+      CoinbaseEntry() ||
+      BurnEntry() => info.details,
+      _ => null,
+    };
   }
 
   String _pendingAnimationKey(String hash) => 'pending:$hash';
@@ -313,6 +334,35 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
     context.push(
       AuthAppScreen.transactionEntry.toPath,
       extra: transactionEntry,
+    );
+  }
+}
+
+class _AmountBadge extends StatelessWidget {
+  const _AmountBadge({required this.text, required this.color});
+
+  final String text;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(minHeight: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.07),
+        border: Border.all(color: color.withValues(alpha: 0.12)),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        text,
+        style: context.theme.typography.body.xs.copyWith(
+          color: color.withValues(alpha: 0.78),
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          height: 1.0,
+        ),
+      ),
     );
   }
 }
