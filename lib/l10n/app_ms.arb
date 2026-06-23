@@ -159,6 +159,7 @@
   "history": "Sejarah",
   "transactions": "Transaksi",
   "transaction": "Transaksi",
+  "pending": "Menunggu",
   "incoming": "Masuk",
   "outgoing": "Keluar",
   "coinbase": "Coinbase",

@@ -159,6 +159,7 @@
   "history": "Історія",
   "transactions": "Транзакції",
   "transaction": "Транзакція",
+  "pending": "В очікуванні",
   "incoming": "Вхідна",
   "outgoing": "Вихідна",
   "coinbase": "Coinbase",

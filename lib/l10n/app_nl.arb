@@ -159,6 +159,7 @@
   "history": "Geschiedenis",
   "transactions": "Transacties",
   "transaction": "Transactie",
+  "pending": "In afwachting",
   "incoming": "Inkomend",
   "outgoing": "Uitgaand",
   "coinbase": "Coinbase",

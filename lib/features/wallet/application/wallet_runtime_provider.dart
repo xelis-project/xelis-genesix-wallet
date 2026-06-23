@@ -385,6 +385,28 @@ class WalletRuntime extends _$WalletRuntime {
         }
       // }
 
+      case NewPendingTransaction():
+        talker.info(event);
+        await _updateMultisigState();
+
+        final txType = event.transactionPending.txEntryType;
+
+        await _ensureKnownAssetsForTransaction(repository, txType);
+        final xelisBalance = await repository.getXelisBalance();
+        if (!_isActiveRepository(repository)) {
+          return;
+        }
+        final updatedBalances = await repository.getTrackedBalances();
+        if (!_isActiveRepository(repository)) {
+          return;
+        }
+        state = state.copyWith(
+          trackedBalances: sortMapByKey(updatedBalances),
+          xelisBalance: formatXelis(xelisBalance, state.network),
+        );
+        ref.read(walletHistoryRefreshSignalProvider.notifier).bump();
+        await _emitPendingTransactionEvent(loc, event.transactionPending);
+
       case BalanceChanged():
         talker.info(event);
         final xelisBalance = await repository.getXelisBalance();
@@ -485,6 +507,47 @@ class WalletRuntime extends _$WalletRuntime {
         }
         state = state.copyWith(trackedBalances: sortMapByKey(updatedBalances));
         _emitInfo(title: loc.asset_successfully_untracked);
+    }
+  }
+
+  Future<void> _emitPendingTransactionEvent(
+    AppLocalizations loc,
+    sdk.TransactionPending transactionPending,
+  ) async {
+    final txType = transactionPending.txEntryType;
+    final title = '${loc.pending} ${loc.transaction}'.capitalize();
+    final hashText = '${loc.hash}: ${truncateText(transactionPending.hash)}';
+    final messageBuilder = _eventMessageBuilder(loc);
+
+    switch (txType) {
+      case sdk.IncomingEntry():
+        final message = await messageBuilder.incomingTransaction(txType);
+        _emitEvent(title: title, description: '$message\n$hashText');
+
+      case sdk.OutgoingEntry():
+        _emitEvent(title: title, description: '(#${txType.nonce})\n$hashText');
+
+      case sdk.CoinbaseEntry():
+        _emitEvent(title: title, description: hashText);
+
+      case sdk.BurnEntry():
+        final message = messageBuilder.burnTransaction(txType);
+        _emitEvent(title: title, description: '$message\n$hashText');
+
+      case sdk.MultisigEntry():
+        _emitEvent(title: title, description: hashText);
+
+      case sdk.InvokeContractEntry():
+        _emitEvent(title: title, description: '${txType.contract}\n$hashText');
+
+      case sdk.DeployContractEntry():
+        _emitEvent(title: title, description: hashText);
+
+      case sdk.IncomingContractEntry():
+        _emitEvent(title: title, description: hashText);
+
+      case sdk.BlobEntry():
+        _emitEvent(title: title, description: hashText);
     }
   }
 

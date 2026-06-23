@@ -159,6 +159,7 @@
   "history": "履歴",
   "transactions": "トランザクション",
   "transaction": "取引",
+  "pending": "保留中",
   "incoming": "着信",
   "outgoing": "発信",
   "coinbase": "コインベース",

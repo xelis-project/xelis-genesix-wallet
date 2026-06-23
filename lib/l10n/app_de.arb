@@ -159,6 +159,7 @@
   "history": "Verlauf",
   "transactions": "Transaktionen",
   "transaction": "Transaktion",
+  "pending": "Ausstehend",
   "incoming": "Eingehend",
   "outgoing": "Ausgehend",
   "coinbase": "Coinbase",

@@ -159,6 +159,7 @@
   "history": "История",
   "transactions": "Транзакции",
   "transaction": "Транзакция",
+  "pending": "В очакване",
   "incoming": "Входящи",
   "outgoing": "Изходящи",
   "coinbase": "Минно дело",

@@ -159,6 +159,7 @@
   "history": "इतिहास",
   "transactions": "लेन-देन",
   "transaction": "लेनदेन",
+  "pending": "लंबित",
   "incoming": "आने वाली",
   "outgoing": "जावक",
   "coinbase": "खुदाई",

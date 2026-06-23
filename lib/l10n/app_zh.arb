@@ -159,6 +159,7 @@
   "history": "历史",
   "transactions": "交易",
   "transaction": "交易",
+  "pending": "待处理",
   "incoming": "收入",
   "outgoing": "支出",
   "coinbase": "Coinbase",

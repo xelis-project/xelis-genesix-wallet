@@ -159,6 +159,7 @@
   "history": "역사",
   "transactions": "거래",
   "transaction": "거래",
+  "pending": "대기 중",
   "incoming": "수신",
   "outgoing": "발신",
   "coinbase": "마이닝",

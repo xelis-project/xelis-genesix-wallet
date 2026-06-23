@@ -159,6 +159,7 @@
   "history": "Historique",
   "transactions": "Transactions",
   "transaction": "Transaction",
+  "pending": "En attente",
   "incoming": "Entrant",
   "outgoing": "Sortant",
   "coinbase": "Minage",

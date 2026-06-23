@@ -159,6 +159,7 @@
   "history": "Cronologia",
   "transactions": "Transazioni",
   "transaction": "Transazione",
+  "pending": "In attesa",
   "incoming": "In arrivo",
   "outgoing": "In uscita",
   "coinbase": "Ricompense mining",

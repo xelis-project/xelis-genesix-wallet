@@ -159,6 +159,7 @@
   "history": "Geçmiş",
   "transactions": "İşlemler",
   "transaction": "İşlem",
+  "pending": "Beklemede",
   "incoming": "Gelen",
   "outgoing": "Giden",
   "coinbase": "Coinbase",

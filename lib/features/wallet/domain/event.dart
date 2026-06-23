@@ -12,6 +12,10 @@ sealed class Event with _$Event {
   const factory Event.newTransaction(TransactionEntry transactionEntry) =
       NewTransaction;
 
+  const factory Event.newPendingTransaction(
+    TransactionPending transactionPending,
+  ) = NewPendingTransaction;
+
   const factory Event.balanceChanged(BalanceChangedEvent balanceChanged) =
       BalanceChanged;
 

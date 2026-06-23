@@ -159,6 +159,7 @@
   "history": "تاريخ",
   "transactions": "المعاملات",
   "transaction": "المعاملة",
+  "pending": "قيد الانتظار",
   "incoming": "الواردة",
   "outgoing": "المخرجة",
   "coinbase": "تعدين",

@@ -159,6 +159,7 @@
   "history": "História",
   "transactions": "Transações",
   "transaction": "Transação",
+  "pending": "Pendente",
   "incoming": "A chegar",
   "outgoing": "De saída",
   "coinbase": "Exploração mineira",

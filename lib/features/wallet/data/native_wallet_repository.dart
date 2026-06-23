@@ -257,6 +257,13 @@ class NativeWalletRepository {
               ),
             );
             yield newTransaction;
+          case sdk.WalletEvent.newPendingTransaction:
+            final newPendingTransaction = Event.newPendingTransaction(
+              sdk.TransactionPending.fromJson(
+                json['data'] as Map<String, dynamic>,
+              ),
+            );
+            yield newPendingTransaction;
           case sdk.WalletEvent.balanceChanged:
             final balanceChanged = Event.balanceChanged(
               sdk.BalanceChangedEvent.fromJson(
@@ -416,6 +423,23 @@ class NativeWalletRepository {
         talker.error('Failed to parse transaction: $e');
         talker.error('Raw JSON: $rawEntry');
         // Skip this transaction instead of crashing
+        continue;
+      }
+    }
+
+    return entries;
+  }
+
+  Future<List<sdk.TransactionPending>> pendingTransactions() async {
+    final rawData = await _xelisWallet.getPendingTransactions();
+    final entries = <sdk.TransactionPending>[];
+
+    for (final rawEntry in rawData) {
+      try {
+        final decoded = jsonDecode(rawEntry) as Map<String, dynamic>;
+        entries.add(sdk.TransactionPending.fromJson(decoded));
+      } catch (e) {
+        talker.error('Failed to parse pending transaction: $e');
         continue;
       }
     }
