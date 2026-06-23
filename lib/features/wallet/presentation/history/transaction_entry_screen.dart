@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/presentation/components/transaction_view_utils.dart';
 import 'package:genesix/features/wallet/presentation/history/base_transaction_entry_card.dart';
@@ -89,6 +90,11 @@ class _TransactionEntryScreenState extends ConsumerState<TransactionEntryScreen>
     final knownAssets = ref.watch(
       walletRuntimeProvider.select((state) => state.knownAssets),
     );
+    final addressBookAsync = ref.watch(addressBookProvider);
+    final Map<String, ContactDetails> addressBook = switch (addressBookAsync) {
+      AsyncData(:final value) => value,
+      _ => const <String, ContactDetails>{},
+    };
 
     final transactionEntry =
         context.goRouterState.extra as sdk.TransactionEntry;
@@ -100,7 +106,7 @@ class _TransactionEntryScreenState extends ConsumerState<TransactionEntryScreen>
       network,
       entryType,
       knownAssets,
-      const <String, ContactDetails>{},
+      addressBook,
     );
 
     // Entry-specific data that parseTxInfo doesn't handle

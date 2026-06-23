@@ -236,9 +236,13 @@ class _WideTable extends ConsumerWidget {
                     ),
                     DataCell(Center(child: SelectableText(row.amountText))),
                     DataCell(
-                      Center(
-                        child: Text(
-                          truncateText(row.destination!, maxLength: 20),
+                      SizedBox(
+                        width: 280,
+                        child: AddressWidget(
+                          row.destination!,
+                          displayHashicon: false,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          compact: true,
                         ),
                       ),
                     ),
