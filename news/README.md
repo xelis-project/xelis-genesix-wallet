@@ -8,6 +8,15 @@ The app reads `news/index.json` from GitHub Pages by default:
 https://xelis-project.github.io/xelis-genesix-wallet/news/index.json
 ```
 
+The endpoint can be overridden at build or run time with Dart defines:
+
+```shell
+flutter run --dart-define=GENESIX_NEWS_INDEX_URL=https://example.com/news/index.json
+```
+
+Use this only for development, staging, or emergency validation builds. If the
+define is omitted, the app uses the GitHub Pages URL above.
+
 When the remote feed cannot be fetched, the app falls back to the last cached
 feed. If there is no cache, it falls back to the bundled `news/index.json`
 shipped with the app.
