@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/presentation/recovery_phrase/recovery_phrase_dialog.dart';
 import 'package:genesix/features/wallet/presentation/home/balance_card.dart';
 import 'package:genesix/features/wallet/presentation/home/connection_status_card.dart';
@@ -45,6 +46,10 @@ class _HomeWalletContentState extends ConsumerState<HomeWalletContent> {
 
   @override
   Widget build(BuildContext context) {
+    final enableNewsFeed = ref.watch(
+      settingsProvider.select((state) => state.enableNewsFeed),
+    );
+
     return FadedScroll(
       controller: _controller,
       fadeFraction: 0.08,
@@ -61,7 +66,7 @@ class _HomeWalletContentState extends ConsumerState<HomeWalletContent> {
               ConnectionStatusCard(),
               BalanceCard(),
               LastTransactionsCard(),
-              LastNewsCard(),
+              if (enableNewsFeed) LastNewsCard(),
             ],
           ),
         ),

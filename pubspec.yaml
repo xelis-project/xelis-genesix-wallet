@@ -82,6 +82,7 @@ flutter:
     - assets/icons/png/circle/green_background_black_logo.png
     - assets/genesix/svg/genesix-wallet-one-line_white.svg
     - assets/genesix/svg/genesix-wallet-one-line_black.svg
+    - news/index.json
 
 msix_config:
   display_name: Genesix Wallet

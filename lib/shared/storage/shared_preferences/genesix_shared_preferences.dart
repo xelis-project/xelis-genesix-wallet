@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:genesix/features/settings/data/settings_state_repository.dart';
+import 'package:genesix/features/news/data/news_repository.dart';
 import 'package:genesix/features/wallet/data/network_nodes_state_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:genesix/features/logger/logger.dart';
@@ -16,6 +17,8 @@ class GenesixSharedPreferences {
         allowList: {
           SettingsStateRepository.storageKey,
           NetworkNodesStateRepository.storageKey,
+          NewsRepository.cacheStorageKey,
+          NewsRepository.dismissedIdsStorageKey,
         },
       ),
     );
