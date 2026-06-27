@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:genesix/features/news/application/news_feed_config.dart';
 import 'package:genesix/features/news/data/news_repository.dart';
 import 'package:genesix/features/news/domain/news_item.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
@@ -13,14 +14,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'news_providers.g.dart';
 
-const _defaultNewsIndexUrl =
-    'https://xelis-project.github.io/xelis-genesix-wallet/news/index.json';
-
-const _newsIndexUrl = String.fromEnvironment(
-  'GENESIX_NEWS_INDEX_URL',
-  defaultValue: _defaultNewsIndexUrl,
-);
-
 @riverpod
 NewsRepository newsRepository(Ref ref) {
   final client = http.Client();
@@ -29,8 +22,8 @@ NewsRepository newsRepository(Ref ref) {
   return NewsRepository(
     client: client,
     storage: GenesixSharedPreferences(ref.watch(sharedPreferencesProvider)),
-    indexUri: Uri.parse(_newsIndexUrl),
-    bundledFeedLoader: () => rootBundle.loadString('news/index.json'),
+    indexUri: Uri.parse(resolvedNewsIndexUrl),
+    bundledFeedLoader: () => rootBundle.loadString(bundledNewsFeedAssetPath),
   );
 }
 
@@ -55,7 +48,7 @@ Future<List<NewsItem>> visibleNews(Ref ref) async {
   final dismissedIds = ref.watch(dismissedNewsIdsProvider);
   final packageInfo = await PackageInfo.fromPlatform();
 
-  final timer = Timer(const Duration(hours: 6), ref.invalidateSelf);
+  final timer = Timer(newsFeedRefreshInterval, ref.invalidateSelf);
   ref.onDispose(timer.cancel);
 
   final feed = await ref.watch(newsRepositoryProvider).fetchFeed();
@@ -74,7 +67,7 @@ Future<List<NewsItem>> visibleNews(Ref ref) async {
           now: now,
         ),
       )
-      .take(3)
+      .take(visibleNewsItemLimit)
       .toList(growable: false);
 
   return visible;

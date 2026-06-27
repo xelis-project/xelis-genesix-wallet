@@ -17,6 +17,9 @@ flutter run --dart-define=GENESIX_NEWS_INDEX_URL=https://example.com/news/index.
 Use this only for development, staging, or emergency validation builds. If the
 define is omitted, the app uses the GitHub Pages URL above.
 
+Runtime feed defaults are centralized in
+`lib/features/news/application/news_feed_config.dart`.
+
 When the remote feed cannot be fetched, the app falls back to the last cached
 feed. If there is no cache, it falls back to the bundled `news/index.json`
 shipped with the app.
