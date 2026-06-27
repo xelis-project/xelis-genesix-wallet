@@ -77,7 +77,6 @@ Future<List<NewsItem>> visibleNews(Ref ref) async {
       .take(3)
       .toList(growable: false);
 
-  ref.keepAlive();
   return visible;
 }
 

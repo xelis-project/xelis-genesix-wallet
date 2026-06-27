@@ -65,6 +65,11 @@ class Settings extends _$Settings {
     _setState(state);
   }
 
+  void setEnableNewsFeed(bool enableNewsFeed) {
+    state = state.copyWith(enableNewsFeed: enableNewsFeed);
+    _setState(state);
+  }
+
   void setActivateBiometricAuth(
     bool activateBiometricAuth, {
     bool syncWalletStorage = true,

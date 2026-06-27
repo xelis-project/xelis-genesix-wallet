@@ -77,6 +77,10 @@ class NewsRepository {
   }
 
   NewsFeed _readCachedFeed() {
+    if (!storage.prefs.containsKey(cacheStorageKey)) {
+      return NewsFeed.empty();
+    }
+
     final cached = storage.get(key: cacheStorageKey);
     if (cached is! Map<String, dynamic>) {
       return NewsFeed.empty();

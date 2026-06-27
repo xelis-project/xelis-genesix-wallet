@@ -147,6 +147,23 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
                         },
                       ),
                     ),
+                    FTile(
+                      prefix: Icon(FLucideIcons.newspaper),
+                      title: Text(loc.news_feed),
+                      subtitle: Text(loc.enable_news_feed),
+                      suffix: FSwitch(
+                        value: ref.watch(
+                          settingsProvider.select(
+                            (state) => state.enableNewsFeed,
+                          ),
+                        ),
+                        onChange: (value) {
+                          ref
+                              .read(settingsProvider.notifier)
+                              .setEnableNewsFeed(value);
+                        },
+                      ),
+                    ),
                   ],
                 ),
               FTileGroup(

@@ -34,7 +34,7 @@ class LastNewsCard extends ConsumerWidget {
                 ),
               ),
               FTooltip(
-                tipBuilder: (context, controller) => Text('refresh'),
+                tipBuilder: (context, controller) => Text(loc.refresh),
                 child: FButton.icon(
                   child: const Icon(FLucideIcons.refreshCcw),
                   onPress: () => ref.invalidate(visibleNewsProvider),
@@ -296,6 +296,8 @@ class _DialogActions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = ref.watch(appLocalizationsProvider);
+
     if (link == null && item.severity == NewsSeverity.critical) {
       return const SizedBox.shrink();
     }
@@ -309,7 +311,7 @@ class _DialogActions extends ConsumerWidget {
           FButton(
             variant: .outline,
             onPress: () => _dismiss(context, ref),
-            child: const Text('Dismiss'),
+            child: Text(loc.dismiss),
           ),
         if (link != null)
           FButton(
