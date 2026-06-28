@@ -73,6 +73,7 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 - Before any Forui dependency migration, run `dart run tool/sync_forui_docs.dart` after dependency resolution, then consult the refreshed snapshots.
 - When Forui API behavior is unclear, run `dart run tool/sync_forui_docs.dart` before relying on local snapshots; if network access is unavailable, state that and fall back to installed package source plus official changelog.
 - Reuse `lib/shared` components and utilities before creating variants.
+- When adding, renaming, modifying, or removing localization keys in `lib/l10n/*.arb`, update every locale ARB in the same change and keep key parity across all locales. Do not rely on generated fallback strings for missing locales.
 - Preserve responsive behavior across desktop, mobile, web, and native targets.
 - Use modern Dart and Flutter idioms when they improve clarity and are supported by the installed SDK and package versions.
 
@@ -109,6 +110,7 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 | Change Surface | Must Inspect | Must Run | Should Run |
 | --- | --- | --- | --- |
 | Dart/Flutter UI, state, repository, routing without generated output impact | Affected files and package versions if external APIs are involved; for Forui API questions, refreshed local Forui docs when network is available | `dart analyze` | `dart format .` |
+| Localization ARB changes | Every `lib/l10n/*.arb` file for key parity and generated localization output impact | `flutter gen-l10n`, `dart analyze` | A focused key-parity check across all ARB files |
 | Riverpod generators, Freezed models, JSON/build_runner annotations | Affected annotations, generated output impact, package versions | `dart run build_runner build -d`, `dart analyze` | `dart format .` |
 | Rust changes without FFI signature impact | Affected modules and crate dependencies if relevant | `cd rust && cargo check` | `cd rust && cargo fmt` |
 | Rust FFI signature or bridge contract changes | Rust API surface, generated bridge impact, Dart call sites | `flutter_rust_bridge_codegen generate`, `dart run build_runner build -d`, `cd rust && cargo check`, `dart analyze` | `cd rust && cargo fmt`, `dart format .` |

@@ -41,7 +41,7 @@ Use this skill before designing, reviewing, or materially changing Flutter UI.
 
 - Prefer composition with small private widgets over named local builder functions.
 - Keep text from overflowing buttons, cards, tiles, and navigation elements.
-- Verify long localized strings in English and French when editing user-facing copy.
+- Verify localized strings in every `lib/l10n/*.arb` locale when editing user-facing copy, and keep ARB keys in parity across all locales.
 - Use existing theme tokens and spacing patterns before adding new styling constants.
 - If the change affects navigation or state flow, validate the relevant routing/provider behavior.
 
