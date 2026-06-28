@@ -10,7 +10,7 @@ watch_rust:
     flutter_rust_bridge_codegen generate --watch
 
 watch_dart:
-    flutter pub run build_runner watch --delete-conflicting-outputs
+    flutter pub run build_runner watch
 
 gen_rust_bridge:
     flutter_rust_bridge_codegen generate
