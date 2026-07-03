@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/transaction_builder_mixin.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
@@ -39,10 +39,10 @@ class _InvokeState extends ConsumerState<InvokeWidget>
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final network = ref.watch(
-      walletStateProvider.select((state) => state.network),
+      walletRuntimeProvider.select((state) => state.network),
     );
     final knownAssets = ref.watch(
-      walletStateProvider.select((state) => state.knownAssets),
+      walletRuntimeProvider.select((state) => state.knownAssets),
     );
 
     return Column(
@@ -76,7 +76,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
             ),
           ),
           const SizedBox(height: Spaces.extraSmall),
-          _buildParametersList(widget.parameters!),
+          _buildParametersList(loc, widget.parameters!),
         ],
       ],
     );
@@ -130,7 +130,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
           borderRadius: BorderRadius.circular(8),
           child: Chip(
             label: Text(displayText, style: context.bodySmall),
-            avatar: const Icon(Icons.currency_exchange, size: 16),
+            avatar: const Icon(FLucideIcons.coins, size: 16),
           ),
         );
       }).toList(),
@@ -150,7 +150,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            const Icon(Icons.currency_exchange),
+            const Icon(FLucideIcons.coins),
             const SizedBox(width: Spaces.small),
             Expanded(child: Text('${loc.deposits} - $ticker')),
           ],
@@ -162,13 +162,13 @@ class _InvokeState extends ConsumerState<InvokeWidget>
             children: [
               _buildDetailRow(loc.amount, '$formattedAmount $ticker'),
               const SizedBox(height: Spaces.small),
-              _buildDetailRow('Raw ${loc.amount}', deposit.amount.toString()),
+              _buildDetailRow(loc.raw_amount, deposit.amount.toString()),
               const SizedBox(height: Spaces.small),
               _buildDetailRow(loc.asset, assetHash),
               const SizedBox(height: Spaces.small),
               _buildDetailRow(
-                'Privacy',
-                deposit.private ? loc.private : 'Public',
+                loc.privacy,
+                deposit.private ? loc.private : loc.public,
               ),
             ],
           ),
@@ -197,7 +197,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
     );
   }
 
-  Widget _buildParametersList(List<dynamic> data) {
+  Widget _buildParametersList(AppLocalizations loc, List<dynamic> data) {
     return Wrap(
       spacing: Spaces.small,
       runSpacing: Spaces.small,
@@ -209,7 +209,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
         final parsed = sdk.deserializeValueCell(param);
 
         // Format for display
-        final formatted = _formatParsedValue(parsed);
+        final formatted = _formatParsedValue(loc, parsed);
         final isTruncated = _isTruncatedValue(parsed);
 
         return InkWell(
@@ -236,35 +236,37 @@ class _InvokeState extends ConsumerState<InvokeWidget>
                 if (isTruncated) ...[
                   const SizedBox(width: Spaces.extraSmall),
                   Icon(
-                    Icons.info_outline,
+                    FLucideIcons.info,
                     size: 14,
                     color: context.theme.colors.mutedForeground,
                   ),
                 ],
               ],
             ),
-            avatar: const Icon(Icons.data_object, size: 16),
+            avatar: const Icon(FLucideIcons.squareCode, size: 16),
           ),
         );
       }).toList(),
     );
   }
 
-  String _formatParsedValue(sdk.ParsedValue parsed) {
+  String _formatParsedValue(AppLocalizations loc, sdk.ParsedValue parsed) {
     // Handle option
     if (parsed is sdk.ParsedOption) {
       if (parsed.isNone) return 'None';
-      return 'Some(${_formatParsedValue(parsed.unwrap())})';
+      return 'Some(${_formatParsedValue(loc, parsed.unwrap())})';
     }
 
     // Handle array
     if (parsed is sdk.ParsedArray) {
       if (parsed.length == 0) return '[]';
       if (parsed.length <= 3) {
-        final items = parsed.items.map(_formatParsedValue).join(', ');
+        final items = parsed.items
+            .map((item) => _formatParsedValue(loc, item))
+            .join(', ');
         return '[$items]';
       }
-      return '[${parsed.length} items]';
+      return '[${loc.item_count(parsed.length)}]';
     }
 
     // Handle map
@@ -272,9 +274,9 @@ class _InvokeState extends ConsumerState<InvokeWidget>
       if (parsed.length == 0) return '{}';
       if (parsed.length == 1) {
         final entry = parsed.entries.entries.first;
-        return '{${_formatValue(entry.key)}: ${_formatValue(entry.value)}}';
+        return '{${_formatValue(loc, entry.key)}: ${_formatValue(loc, entry.value)}}';
       }
-      return '{${parsed.length} entries}';
+      return '{${loc.entry_count(parsed.length)}}';
     }
 
     // Handle primitives
@@ -311,9 +313,9 @@ class _InvokeState extends ConsumerState<InvokeWidget>
     return parsed.value.toString();
   }
 
-  String _formatValue(dynamic value) {
+  String _formatValue(AppLocalizations loc, dynamic value) {
     if (value is sdk.ParsedValue) {
-      return _formatParsedValue(value);
+      return _formatParsedValue(loc, value);
     }
     return value.toString();
   }
@@ -370,9 +372,9 @@ class _InvokeState extends ConsumerState<InvokeWidget>
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            const Icon(Icons.data_object),
+            const Icon(FLucideIcons.squareCode),
             const SizedBox(width: Spaces.small),
-            Text('Parameter #${index + 1}'),
+            Text(loc.parameter_number(index + 1)),
           ],
         ),
         content: SingleChildScrollView(
@@ -380,12 +382,12 @@ class _InvokeState extends ConsumerState<InvokeWidget>
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildDetailRow('Type', _getTypeDisplay(parsed)),
+              _buildDetailRow(loc.type, _getTypeDisplay(parsed)),
               const SizedBox(height: Spaces.small),
-              _buildDetailRow('Value', _getFullValueDisplay(parsed)),
+              _buildDetailRow(loc.value, _getFullValueDisplay(parsed)),
               const SizedBox(height: Spaces.medium),
               Text(
-                'Raw JSON',
+                loc.raw_json,
                 style: context.bodySmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: context.theme.colors.mutedForeground,

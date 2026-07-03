@@ -47,7 +47,7 @@ class _ExtraDataSheetState extends ConsumerState<ExtraDataSheet> {
                     ColoredBadge.label(widget.parsed.label),
                     Text(
                       '• ${widget.parsed.fmtSize}',
-                      style: context.theme.typography.sm.copyWith(
+                      style: context.theme.typography.body.sm.copyWith(
                         color: context.theme.colors.mutedForeground,
                         fontStyle: FontStyle.italic,
                       ),
@@ -63,16 +63,17 @@ class _ExtraDataSheetState extends ConsumerState<ExtraDataSheet> {
                       ref,
                       loc.copied,
                     ),
-                    child: const Icon(FIcons.copy),
+                    child: const Icon(FLucideIcons.copy),
                   ),
                 ),
               ],
             ),
             FCard(
+              clipBehavior: Clip.antiAlias,
               child: Center(
                 child: SelectableText(
                   widget.parsed.pretty,
-                  style: context.theme.typography.sm.copyWith(
+                  style: context.theme.typography.body.sm.copyWith(
                     color: context.theme.colors.mutedForeground,
                     fontWeight: FontWeight.w500,
                   ),

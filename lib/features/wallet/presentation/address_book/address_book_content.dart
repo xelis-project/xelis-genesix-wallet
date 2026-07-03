@@ -1,22 +1,23 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
-import 'package:genesix/features/router/routes.dart';
+import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/application/search_query_provider.dart';
 import 'package:genesix/features/wallet/presentation/address_book/add_contact_sheet.dart';
+import 'package:genesix/features/wallet/presentation/address_book/address_book_empty_state.dart';
+import 'package:genesix/features/wallet/presentation/address_book/contact_list_tile.dart';
 import 'package:genesix/features/wallet/presentation/address_book/edit_contact_sheet.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
-import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/confirm_dialog.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
-import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
+import 'package:go_router/go_router.dart';
 
 class AddressBookContent extends ConsumerStatefulWidget {
   const AddressBookContent({super.key});
@@ -26,7 +27,6 @@ class AddressBookContent extends ConsumerStatefulWidget {
 }
 
 class _AddressBookContentState extends ConsumerState<AddressBookContent> {
-  final TextEditingController _searchController = TextEditingController();
   final _scrollController = ScrollController();
   bool _isLoadingMore = false;
 
@@ -39,7 +39,6 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
   @override
   void dispose() {
     _scrollController.removeListener(_onScroll);
-    _searchController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -80,152 +79,49 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
       }
     });
 
-    return FadedScroll(
-      controller: _scrollController,
-      fadeFraction: 0.08,
-      child: SingleChildScrollView(
-        controller: _scrollController,
-        child: switch (addressBook) {
-          AsyncData(:final value) => Builder(
-            builder: (context) {
-              return Column(
-                spacing: Spaces.medium,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _SearchBar(
-                    localizations: loc,
-                    controller: _searchController,
-                    onChanged: (value) {
-                      ref.read(searchQueryProvider.notifier).change(value);
-                    },
-                    onClear: () {
-                      _searchController.clear();
-                      ref.read(searchQueryProvider.notifier).clear();
-                    },
-                  ),
-                  value.isEmpty
-                      ? AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 220),
-                          switchInCurve: Curves.easeOut,
-                          switchOutCurve: Curves.easeIn,
-                          transitionBuilder: (child, animation) {
-                            final slide = Tween<Offset>(
-                              begin: const Offset(0, 0.04),
-                              end: Offset.zero,
-                            ).animate(animation);
-                            return FadeTransition(
-                              opacity: animation,
-                              child: SlideTransition(
-                                position: slide,
-                                child: child,
-                              ),
-                            );
-                          },
-                          child: isSearching
-                              ? _EmptyStateCard(
-                                  key: const ValueKey('empty-search'),
-                                  title: loc.no_contact_found,
-                                  icon: FIcons.search,
-                                )
-                              : _EmptyStateCard(
-                                  key: const ValueKey('empty-all'),
-                                  title: loc.address_book,
-                                  message: loc.address_book_empty,
-                                  icon: FIcons.users,
-                                  actionLabel: loc.add_contact,
-                                  onAction: _onAddContact,
-                                ),
-                        )
-                      : Column(
-                          children: [
-                            FItemGroup.builder(
-                              count: value.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                final contact = value.values.elementAt(index);
-                                return FItem(
-                                  onPress: () => ContactDetailsRoute(
-                                    $extra: contact.address,
-                                  ).push<void>(context),
-                                  prefix: HashiconWidget(
-                                    hash: contact.address,
-                                    size: const Size(35, 35),
-                                  ),
-                                  title: Text(contact.name),
-                                  subtitle: Text(
-                                    truncateText(
-                                      contact.address,
-                                      maxLength: 20,
-                                    ),
-                                  ),
-                                  suffix: _ContactActions(
-                                    localizations: loc,
-                                    name: contact.name,
-                                    onSend: () => _onSend(contact.address),
-                                    onEdit: () => _onEdit(contact),
-                                    onDelete: () => _onDelete(
-                                      contact.address,
-                                      contact.name,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                            if (_isLoadingMore)
-                              Padding(
-                                padding: const EdgeInsets.all(Spaces.medium),
-                                child: Center(child: FCircularProgress()),
-                              ),
-                          ],
-                        ),
-                ],
-              );
-            },
-          ),
-          AsyncError() => Column(
-            spacing: Spaces.medium,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _SearchBar(
-                localizations: loc,
-                controller: _searchController,
-                onChanged: (value) {
-                  ref.read(searchQueryProvider.notifier).change(value);
-                },
-                onClear: () {
-                  _searchController.clear();
-                  ref.read(searchQueryProvider.notifier).clear();
-                },
-              ),
-              _CenteredInfo(message: loc.oups),
-            ],
-          ),
-          _ => Column(
-            spacing: Spaces.medium,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _SearchBar(
-                localizations: loc,
-                controller: _searchController,
-                onChanged: (value) {
-                  ref.read(searchQueryProvider.notifier).change(value);
-                },
-                onClear: () {
-                  _searchController.clear();
-                  ref.read(searchQueryProvider.notifier).clear();
-                },
-              ),
-            ],
-          ),
-        },
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _SearchBar(
+          localizations: loc,
+          onChanged: (value) {
+            ref.read(searchQueryProvider.notifier).change(value);
+          },
+        ),
+        const SizedBox(height: Spaces.medium),
+        Expanded(
+          child: switch (addressBook) {
+            AsyncData(:final value) =>
+              value.isEmpty
+                  ? _EmptyStateSwitcher(
+                      localizations: loc,
+                      isSearching: isSearching,
+                      onAddContact: _onAddContact,
+                    )
+                  : _ContactList(
+                      contacts: value,
+                      localizations: loc,
+                      scrollController: _scrollController,
+                      isLoadingMore: _isLoadingMore,
+                      onOpen: (contact) => context.push(
+                        '/contact_details',
+                        extra: contact.address,
+                      ),
+                      onSend: (contact) => _onSend(contact.address),
+                      onEdit: _onEdit,
+                      onDelete: (contact) =>
+                          _onDelete(contact.address, contact.name),
+                    ),
+            AsyncError() => _CenteredInfo(message: loc.oups),
+            _ => const Center(child: FCircularProgress()),
+          },
+        ),
+      ],
     );
   }
 
   void _onSend(String address) {
-    TransferRoute($extra: address).go(context);
+    context.push(AuthAppScreen.transfer.toPath, extra: address);
   }
 
   void _onEdit(ContactDetails contactDetails) {
@@ -281,27 +177,128 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
 /// ————— Widgets —————
 
 class _SearchBar extends StatelessWidget {
-  const _SearchBar({
-    required this.localizations,
-    required this.controller,
-    required this.onChanged,
-    required this.onClear,
-  });
+  const _SearchBar({required this.localizations, required this.onChanged});
 
   final AppLocalizations localizations;
-  final TextEditingController controller;
   final ValueChanged<String> onChanged;
-  final VoidCallback onClear;
 
   @override
   Widget build(BuildContext context) {
     return FTextField(
       hint: localizations.search,
-      controller: controller,
+      prefixBuilder: (context, style, states) => FTextField.prefixIconBuilder(
+        context,
+        style,
+        states,
+        const Icon(FLucideIcons.search),
+      ),
+      control: .managed(
+        onChange: (value) {
+          onChanged.call(value.text);
+        },
+      ),
       keyboardType: TextInputType.text,
       maxLines: 1,
       clearable: (v) => v.text.isNotEmpty,
-      onChange: onChanged,
+    );
+  }
+}
+
+class _EmptyStateSwitcher extends StatelessWidget {
+  const _EmptyStateSwitcher({
+    required this.localizations,
+    required this.isSearching,
+    required this.onAddContact,
+  });
+
+  final AppLocalizations localizations;
+  final bool isSearching;
+  final VoidCallback onAddContact;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.expand(
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 220),
+        switchInCurve: Curves.easeOut,
+        switchOutCurve: Curves.easeIn,
+        transitionBuilder: (child, animation) {
+          final slide = Tween<Offset>(
+            begin: const Offset(0, 0.04),
+            end: Offset.zero,
+          ).animate(animation);
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(position: slide, child: child),
+          );
+        },
+        child: isSearching
+            ? AddressBookEmptyState.noSearchResults(
+                key: const ValueKey('empty-search'),
+                localizations: localizations,
+              )
+            : AddressBookEmptyState.noContacts(
+                key: const ValueKey('empty-all'),
+                localizations: localizations,
+                onAddContact: onAddContact,
+              ),
+      ),
+    );
+  }
+}
+
+class _ContactList extends StatelessWidget {
+  const _ContactList({
+    required this.contacts,
+    required this.localizations,
+    required this.scrollController,
+    required this.isLoadingMore,
+    required this.onOpen,
+    required this.onSend,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  final Map<String, ContactDetails> contacts;
+  final AppLocalizations localizations;
+  final ScrollController scrollController;
+  final bool isLoadingMore;
+  final ValueChanged<ContactDetails> onOpen;
+  final ValueChanged<ContactDetails> onSend;
+  final ValueChanged<ContactDetails> onEdit;
+  final ValueChanged<ContactDetails> onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    return FadedScroll(
+      controller: scrollController,
+      fadeFraction: 0.08,
+      child: SingleChildScrollView(
+        controller: scrollController,
+        child: Column(
+          children: [
+            FItemGroup.builder(
+              count: contacts.length,
+              itemBuilder: (BuildContext context, int index) {
+                final contact = contacts.values.elementAt(index);
+                return ContactListTile(
+                  contact: contact,
+                  localizations: localizations,
+                  onOpen: () => onOpen(contact),
+                  onSend: () => onSend(contact),
+                  onEdit: () => onEdit(contact),
+                  onDelete: () => onDelete(contact),
+                );
+              },
+            ),
+            if (isLoadingMore)
+              Padding(
+                padding: const EdgeInsets.all(Spaces.medium),
+                child: Center(child: FCircularProgress()),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -319,147 +316,11 @@ class _CenteredInfo extends StatelessWidget {
         child: Text(
           message,
           textAlign: TextAlign.center,
-          style: context.theme.typography.base.copyWith(
+          style: context.theme.typography.body.md.copyWith(
             color: context.theme.colors.mutedForeground,
           ),
         ),
       ),
-    );
-  }
-}
-
-class _EmptyStateCard extends StatelessWidget {
-  const _EmptyStateCard({
-    super.key,
-    required this.title,
-    required this.icon,
-    this.message,
-    this.actionLabel,
-    this.onAction,
-  });
-
-  final String title;
-  final String? message;
-  final IconData icon;
-  final String? actionLabel;
-  final VoidCallback? onAction;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: Spaces.medium),
-        child: FCard(
-          child: Padding(
-            padding: const EdgeInsets.all(Spaces.large),
-            child: Column(
-              spacing: Spaces.medium,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 72,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    color: context.theme.colors.muted,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    icon,
-                    size: 32,
-                    color: context.theme.colors.primary,
-                  ),
-                ),
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: context.theme.typography.lg.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                if (message != null)
-                  Text(
-                    message!,
-                    textAlign: TextAlign.center,
-                    style: context.theme.typography.base.copyWith(
-                      color: context.theme.colors.mutedForeground,
-                    ),
-                  ),
-                if (actionLabel != null && onAction != null)
-                  FButton(
-                    onPress: onAction,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: Spaces.small,
-                      children: [
-                        const Icon(FIcons.plus, size: 16),
-                        Text(actionLabel!),
-                      ],
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ContactActions extends StatelessWidget {
-  const _ContactActions({
-    required this.localizations,
-    required this.name,
-    // required this.address,
-    required this.onSend,
-    required this.onEdit,
-    required this.onDelete,
-  });
-
-  final AppLocalizations localizations;
-  final String name;
-
-  // final String address;
-  final VoidCallback onSend;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      spacing: Spaces.small,
-      children: [
-        FTooltip(
-          tipBuilder: (_, _) => Text(localizations.transfer_to_contact(name)),
-          child: FButton.icon(
-            onPress: onSend,
-            child: Icon(
-              FIcons.send,
-              color: context.theme.colors.primary,
-              size: 18,
-            ),
-          ),
-        ),
-        FTooltip(
-          tipBuilder: (_, _) => Text(localizations.edit_contact),
-          child: FButton.icon(
-            onPress: onEdit,
-            child: const Icon(FIcons.pencil, size: 18),
-          ),
-        ),
-        FTooltip(
-          tipBuilder: (_, _) =>
-              Text(localizations.remove_contact_button_tooltip),
-          child: FButton.icon(
-            onPress: onDelete,
-            child: Icon(
-              FIcons.trash,
-              color: context.theme.colors.destructive,
-              size: 18,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

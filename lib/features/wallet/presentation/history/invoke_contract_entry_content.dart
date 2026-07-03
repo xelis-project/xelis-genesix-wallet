@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/presentation/assets/asset_name_widget.dart';
 import 'package:genesix/shared/widgets/components/labeled_value.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart'
     as rust;
@@ -40,9 +42,9 @@ class _InvokeContractEntryContentState
   }
 
   Future<void> _fetchData() async {
-    final walletState = ref.read(walletStateProvider);
+    final walletState = ref.read(walletRuntimeProvider);
     final knownAssets = walletState.knownAssets;
-    final repository = walletState.nativeWalletRepository;
+    final repository = ref.read(activeWalletRepositoryProvider);
 
     if (repository == null) {
       setState(() => _isLoading = false);
@@ -54,7 +56,9 @@ class _InvokeContractEntryContentState
         try {
           final assetData = await repository.getAssetMetadata(assetHash);
           _fetchedAssets[assetHash] = assetData;
-        } catch (e) {}
+        } catch (e) {
+          // Metadata fetch is best-effort; unknown assets keep the fallback label.
+        }
       }
     }
 
@@ -76,7 +80,9 @@ class _InvokeContractEntryContentState
             try {
               final assetData = await repository.getAssetMetadata(asset);
               _fetchedAssets[asset] = assetData;
-            } catch (e) {}
+            } catch (e) {
+              // Metadata fetch is best-effort; unknown assets keep the fallback label.
+            }
           }
         }
       }
@@ -92,6 +98,7 @@ class _InvokeContractEntryContentState
     Map<String, dynamic> log,
     Map<String, AssetData> allAssets,
     rust.Network network,
+    AppLocalizations loc,
   ) {
     final type = log['type'] as String;
     final value = log['value'];
@@ -101,7 +108,7 @@ class _InvokeContractEntryContentState
 
     switch (type) {
       case 'transfer':
-        header = 'Transfer';
+        header = loc.log_transfer;
         final data = value as Map<String, dynamic>;
         final asset = data['asset'] as String;
         final amount = data['amount'];
@@ -127,13 +134,13 @@ class _InvokeContractEntryContentState
                 ),
                 SelectableText(
                   formattedData.$2,
-                  style: context.theme.typography.base,
+                  style: context.theme.typography.body.md,
                 ),
               ],
             ),
             Text(
-              'To: ${truncateText(destination, maxLength: 20)}',
-              style: context.theme.typography.base.copyWith(
+              loc.to_address(truncateText(destination, maxLength: 20)),
+              style: context.theme.typography.body.sm.copyWith(
                 color: context.theme.colors.mutedForeground,
               ),
             ),
@@ -142,7 +149,7 @@ class _InvokeContractEntryContentState
         break;
 
       case 'transfer_contract':
-        header = 'Transfer to Contract';
+        header = loc.log_transfer_to_contract;
         final data = value as Map<String, dynamic>;
         final asset = data['asset'] as String;
         final amount = data['amount'];
@@ -168,13 +175,13 @@ class _InvokeContractEntryContentState
                 ),
                 SelectableText(
                   formattedData.$2,
-                  style: context.theme.typography.base,
+                  style: context.theme.typography.body.md,
                 ),
               ],
             ),
             Text(
-              'To Contract: ${truncateText(destination, maxLength: 16)}',
-              style: context.theme.typography.base.copyWith(
+              loc.to_contract_address(truncateText(destination, maxLength: 16)),
+              style: context.theme.typography.body.sm.copyWith(
                 color: context.theme.colors.mutedForeground,
               ),
             ),
@@ -183,7 +190,7 @@ class _InvokeContractEntryContentState
         break;
 
       case 'burn':
-        header = 'Burn';
+        header = loc.burn;
         final data = value as Map<String, dynamic>;
         final asset = data['asset'] as String;
         final amount = data['amount'];
@@ -204,14 +211,14 @@ class _InvokeContractEntryContentState
             ),
             SelectableText(
               formattedData.$2,
-              style: context.theme.typography.base,
+              style: context.theme.typography.body.md,
             ),
           ],
         );
         break;
 
       case 'mint':
-        header = 'Mint';
+        header = loc.log_mint;
         final data = value as Map<String, dynamic>;
         final asset = data['asset'] as String;
         final amount = data['amount'];
@@ -232,36 +239,36 @@ class _InvokeContractEntryContentState
             ),
             SelectableText(
               formattedData.$2,
-              style: context.theme.typography.base,
+              style: context.theme.typography.body.md,
             ),
           ],
         );
         break;
 
       case 'refund_gas':
-        header = 'Gas Refund';
+        header = loc.log_gas_refund;
         final data = value as Map<String, dynamic>;
         final amount = data['amount'];
 
         details = SelectableText(
           formatXelis(amount, network),
-          style: context.theme.typography.base,
+          style: context.theme.typography.body.md,
         );
         break;
 
       case 'exit_code':
-        header = 'Exit Code';
+        header = loc.log_exit_code;
         final exitCodeValue = value as int?;
         details = SelectableText(
-          exitCodeValue?.toString() ?? 'Failed',
-          style: context.theme.typography.base.copyWith(
+          exitCodeValue?.toString() ?? loc.log_failed,
+          style: context.theme.typography.body.md.copyWith(
             fontWeight: FontWeight.bold,
           ),
         );
         break;
 
       case 'new_asset':
-        header = 'New Asset';
+        header = loc.log_new_asset;
         final data = value as Map<String, dynamic>;
         final assetHash = data['asset'] as String?;
         final name = data['name'] as String?;
@@ -272,66 +279,14 @@ class _InvokeContractEntryContentState
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: Spaces.extraSmall,
           children: [
-            if (name != null)
-              Row(
-                children: [
-                  Text(
-                    'Name: ',
-                    style: context.theme.typography.sm.copyWith(
-                      color: context.theme.colors.mutedForeground,
-                    ),
-                  ),
-                  Expanded(
-                    child: SelectableText(
-                      name,
-                      style: context.theme.typography.sm,
-                    ),
-                  ),
-                ],
-              ),
-            if (ticker != null)
-              Row(
-                children: [
-                  Text(
-                    'Ticker: ',
-                    style: context.theme.typography.sm.copyWith(
-                      color: context.theme.colors.mutedForeground,
-                    ),
-                  ),
-                  SelectableText(ticker, style: context.theme.typography.sm),
-                ],
-              ),
+            if (name != null) LabeledValue.text(loc.name, name),
+            if (ticker != null) LabeledValue.text(loc.ticker, ticker),
             if (decimals != null)
-              Row(
-                children: [
-                  Text(
-                    'Decimals: ',
-                    style: context.theme.typography.sm.copyWith(
-                      color: context.theme.colors.mutedForeground,
-                    ),
-                  ),
-                  SelectableText(
-                    decimals.toString(),
-                    style: context.theme.typography.sm,
-                  ),
-                ],
-              ),
+              LabeledValue.text(loc.decimals, decimals.toString()),
             if (assetHash != null)
-              Row(
-                children: [
-                  Text(
-                    'Asset: ',
-                    style: context.theme.typography.sm.copyWith(
-                      color: context.theme.colors.mutedForeground,
-                    ),
-                  ),
-                  Expanded(
-                    child: SelectableText(
-                      truncateText(assetHash, maxLength: 20),
-                      style: context.theme.typography.sm,
-                    ),
-                  ),
-                ],
+              LabeledValue.text(
+                loc.asset,
+                truncateText(assetHash, maxLength: 20),
               ),
           ],
         );
@@ -341,33 +296,35 @@ class _InvokeContractEntryContentState
         header = type.capitalize();
         details = Text(
           value?.toString() ?? 'N/A',
-          style: context.theme.typography.base,
+          style: context.theme.typography.body.md,
         );
     }
 
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(Spaces.small),
-        border: Border.all(
-          color: context.theme.colors.primary.withValues(alpha: 0.5),
-          width: 1,
+        border: Border(
+          left: BorderSide(color: context.theme.colors.primary, width: 2),
         ),
       ),
-      padding: const EdgeInsets.all(Spaces.small),
+      padding: const EdgeInsets.only(
+        left: Spaces.small,
+        top: Spaces.extraSmall,
+        bottom: Spaces.extraSmall,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: Spaces.small,
+        spacing: Spaces.extraSmall,
         children: [
           Text(
             header,
-            style: context.theme.typography.xs.copyWith(
+            style: context.theme.typography.body.xs.copyWith(
               color: context.theme.colors.primary,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.6,
             ),
           ),
           DefaultTextStyle.merge(
-            style: context.theme.typography.base,
+            style: context.theme.typography.body.md,
             child: details,
           ),
         ],
@@ -379,42 +336,63 @@ class _InvokeContractEntryContentState
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final network = ref.watch(
-      walletStateProvider.select((state) => state.network),
+      walletRuntimeProvider.select((state) => state.network),
     );
     final knownAssets = ref.watch(
-      walletStateProvider.select((state) => state.knownAssets),
+      walletRuntimeProvider.select((state) => state.knownAssets),
     );
 
     // Merge known assets with fetched assets
     final allAssets = {...knownAssets, ..._fetchedAssets};
 
     return FCard.raw(
+      clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(Spaces.medium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: Spaces.medium,
           children: [
-            LabeledValue.text(
+            LabeledValue.child(
               loc.contract,
-              widget.invokeContractEntry.contract,
+              Row(
+                children: [
+                  Expanded(
+                    child: FTooltip(
+                      tipBuilder: (context, controller) =>
+                          SelectableText(widget.invokeContractEntry.contract),
+                      child: Text(
+                        truncateText(
+                          widget.invokeContractEntry.contract,
+                          maxLength: 20,
+                        ),
+                        style: context.theme.typography.body.md,
+                      ),
+                    ),
+                  ),
+                  FTooltip(
+                    tipBuilder: (context, controller) => Text(loc.copy),
+                    child: FButton.icon(
+                      onPress: () => copyToClipboard(
+                        widget.invokeContractEntry.contract,
+                        ref,
+                        loc.copied,
+                      ),
+                      child: const Icon(FLucideIcons.copy, size: 16),
+                    ),
+                  ),
+                ],
+              ),
             ),
             LabeledValue.text(
               loc.fee,
               formatXelis(widget.invokeContractEntry.fee, network),
             ),
             LabeledValue.text(
-              'Chunk ID',
+              loc.chunk_id,
               widget.invokeContractEntry.chunkId.toString(),
             ),
-            FDivider(
-              style: context.theme.dividerStyles.horizontalStyle
-                  .copyWith(
-                    padding: EdgeInsets.zero,
-                    color: context.theme.colors.primary,
-                  )
-                  .call,
-            ),
+            FDivider(style: .delta(padding: .add(.zero))),
             if (_isLoading)
               const Center(child: CircularProgressIndicator())
             else
@@ -427,8 +405,8 @@ class _InvokeContractEntryContentState
                     children: [
                       Text(
                         loc.deposits,
-                        style: context.theme.typography.xl.copyWith(
-                          color: context.theme.colors.foreground,
+                        style: context.theme.typography.body.sm.copyWith(
+                          color: context.theme.colors.mutedForeground,
                         ),
                       ),
                       FItemGroup.builder(
@@ -464,9 +442,9 @@ class _InvokeContractEntryContentState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Received',
-                          style: context.theme.typography.xl.copyWith(
-                            color: context.theme.colors.foreground,
+                          loc.received,
+                          style: context.theme.typography.body.sm.copyWith(
+                            color: context.theme.colors.mutedForeground,
                           ),
                         ),
                         FItemGroup.builder(
@@ -504,14 +482,19 @@ class _InvokeContractEntryContentState
                       spacing: Spaces.small,
                       children: [
                         Text(
-                          'Contract Logs',
-                          style: context.theme.typography.xl.copyWith(
-                            color: context.theme.colors.foreground,
+                          loc.contract_logs,
+                          style: context.theme.typography.body.sm.copyWith(
+                            color: context.theme.colors.mutedForeground,
                           ),
                         ),
                         ..._contractLogs.map(
-                          (log) =>
-                              _buildLogWidget(context, log, allAssets, network),
+                          (log) => _buildLogWidget(
+                            context,
+                            log,
+                            allAssets,
+                            network,
+                            loc,
+                          ),
                         ),
                       ],
                     ),

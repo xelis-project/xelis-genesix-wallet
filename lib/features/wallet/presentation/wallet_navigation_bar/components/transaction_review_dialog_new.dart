@@ -6,14 +6,13 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/features/wallet/application/multisig_pending_state_provider.dart';
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/domain/multisig/multisig_participant.dart';
 import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/burn/burn_review_content.dart';
@@ -25,12 +24,13 @@ import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/input_decoration_old.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/async_f_button.dart';
 import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown_old.dart';
+import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 
 class TransactionReviewDialogNew extends ConsumerStatefulWidget {
-  const TransactionReviewDialogNew(this.style, this.animation, {super.key});
+  const TransactionReviewDialogNew(this.animation, {super.key});
 
-  final FDialogStyle style;
   final Animation<double> animation;
 
   @override
@@ -43,12 +43,14 @@ class _TransactionReviewDialogNewState
   final _signaturesFormKey = GlobalKey<FormBuilderState>(
     debugLabel: '_signaturesFormKey',
   );
+  var _isProcessingSignatures = false;
+  var _isBroadcasting = false;
 
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final multisigState = ref.watch(
-      walletStateProvider.select((value) => value.multisigState),
+      walletRuntimeProvider.select((value) => value.multisigState),
     );
     final transactionReview = ref.watch(transactionReviewProvider);
 
@@ -66,7 +68,7 @@ class _TransactionReviewDialogNewState
     };
 
     return FDialog(
-      style: widget.style,
+      clipBehavior: Clip.antiAlias,
       animation: widget.animation,
       constraints: const BoxConstraints(maxWidth: 600),
       body: Column(
@@ -97,9 +99,9 @@ class _TransactionReviewDialogNewState
                 ),
                 if (!transactionReview.isBroadcasted)
                   FButton.icon(
-                    style: FButtonStyle.ghost(),
+                    variant: .ghost,
                     onPress: () => context.pop(),
-                    child: const Icon(FIcons.x, size: 22),
+                    child: const Icon(FLucideIcons.x, size: 22),
                   ),
               ],
             ),
@@ -169,7 +171,7 @@ class _TransactionReviewDialogNewState
                 ref,
                 loc.copied,
               ),
-              icon: const Icon(Icons.copy_rounded, size: 18),
+              icon: const Icon(FLucideIcons.copy, size: 18),
               tooltip: loc.copy_hash_transaction,
             ),
           ],
@@ -295,11 +297,11 @@ class _TransactionReviewDialogNewState
 
     // 1) Multisig, signatures not finalized yet → Next
     if (signaturePending) {
-      return FButton(
+      return AsyncFButton(
         key: const ValueKey('next'),
-        style: FButtonStyle.primary(),
+        isLoading: _isProcessingSignatures,
         onPress: _processSignatures,
-        prefix: const Icon(FIcons.arrowRight, size: 18),
+        prefix: const Icon(FLucideIcons.arrowRight, size: 18),
         child: Text(loc.next),
       );
     }
@@ -308,7 +310,6 @@ class _TransactionReviewDialogNewState
     if (transactionReview.isBroadcasted) {
       return FButton(
         key: const ValueKey('ok'),
-        style: FButtonStyle.primary(),
         onPress: () => context.pop(),
         child: Text(loc.ok_button),
       );
@@ -317,9 +318,9 @@ class _TransactionReviewDialogNewState
     // 3) Ready to broadcast → Broadcast (gated by confirmation)
     final canBroadcast = transactionReview.isConfirmed;
 
-    return FButton(
+    return AsyncFButton(
       key: const ValueKey('broadcast'),
-      style: FButtonStyle.primary(),
+      isLoading: _isBroadcasting,
       onPress: canBroadcast
           ? () => startWithBiometricAuth(
               ref,
@@ -327,7 +328,7 @@ class _TransactionReviewDialogNewState
               reason: loc.please_authenticate_tx,
             )
           : null,
-      prefix: const Icon(FIcons.send, size: 18),
+      prefix: const Icon(FLucideIcons.send, size: 18),
       child: Text(loc.broadcast),
     );
   }
@@ -335,11 +336,16 @@ class _TransactionReviewDialogNewState
   /// --- Logic: finalize multisig signatures ---
 
   Future<void> _processSignatures() async {
-    context.loaderOverlay.show();
+    if (_isProcessingSignatures) return;
 
-    if (_signaturesFormKey.currentState?.saveAndValidate() ?? false) {
-      final threshold = ref.read(walletStateProvider).multisigState.threshold;
+    if (!(_signaturesFormKey.currentState?.saveAndValidate() ?? false)) {
+      return;
+    }
 
+    setState(() => _isProcessingSignatures = true);
+
+    try {
+      final threshold = ref.read(walletRuntimeProvider).multisigState.threshold;
       final signatures = List<SignatureMultisig>.generate(threshold, (index) {
         final multisigParticipant =
             _signaturesFormKey.currentState?.fields['id_$index']?.value
@@ -352,9 +358,8 @@ class _TransactionReviewDialogNewState
           signature: signature,
         );
       });
-
       final tx = await ref
-          .read(walletStateProvider.notifier)
+          .read(walletCommandsProvider)
           .finalizeMultisigTransaction(signatures: signatures);
 
       if (tx != null) {
@@ -372,31 +377,37 @@ class _TransactionReviewDialogNewState
           talker.error('Unknown transaction type');
         }
       }
-    }
-
-    if (mounted && context.loaderOverlay.visible) {
-      context.loaderOverlay.hide();
+    } finally {
+      if (mounted) {
+        setState(() => _isProcessingSignatures = false);
+      }
     }
   }
 
   /// --- Logic: broadcast any reviewed transaction ---
 
   Future<void> _broadcastTransfer(WidgetRef ref) async {
-    final loc = ref.read(appLocalizationsProvider);
-    try {
-      context.loaderOverlay.show();
+    if (_isBroadcasting) return;
 
+    final loc = ref.read(appLocalizationsProvider);
+    setState(() => _isBroadcasting = true);
+
+    try {
       final transactionReview = ref.read(transactionReviewProvider);
 
+      var broadcasted = false;
       switch (transactionReview) {
         case DeleteMultisigTransaction(:final txHash) ||
             SingleTransferTransaction(:final txHash) ||
             BurnTransaction(:final txHash):
-          await ref
-              .read(walletStateProvider.notifier)
+          broadcasted = await ref
+              .read(walletCommandsProvider)
               .broadcastTx(hash: txHash);
         default:
           throw Exception('TransactionReviewState not supported');
+      }
+      if (!broadcasted) {
+        return;
       }
 
       ref.read(transactionReviewProvider.notifier).broadcast();
@@ -415,10 +426,10 @@ class _TransactionReviewDialogNewState
     } catch (e) {
       talker.error('Cannot broadcast transaction: $e');
       ref.read(toastProvider.notifier).showError(description: e.toString());
-    }
-
-    if (mounted && context.loaderOverlay.visible) {
-      context.loaderOverlay.hide();
+    } finally {
+      if (mounted) {
+        setState(() => _isBroadcasting = false);
+      }
     }
   }
 }

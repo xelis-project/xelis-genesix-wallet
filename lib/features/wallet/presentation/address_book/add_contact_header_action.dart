@@ -24,7 +24,7 @@ class _AddContactHeaderActionState
       child: FTooltip(
         tipBuilder: (context, controller) => Text(loc.add_contact),
         child: FHeaderAction(
-          icon: Icon(FIcons.plus),
+          icon: Icon(FLucideIcons.plus),
           onPress: _showAddContactSheet,
         ),
       ),

@@ -10,13 +10,15 @@ class NetworkContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final info = ref.watch(nodeInfoProvider).valueOrNull;
+    final infoAsync = ref.watch(nodeInfoProvider);
+    final info = infoAsync.value;
+    final isLoading = infoAsync.isLoading && info == null;
 
     return Column(
       spacing: Spaces.extraLarge,
       children: [
         NodeCard(info),
-        Expanded(child: DaemonInfoWidget(info)),
+        Expanded(child: DaemonInfoWidget(info, isLoading: isLoading)),
       ],
     );
   }

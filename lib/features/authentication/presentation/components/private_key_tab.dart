@@ -1,12 +1,14 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
-import 'package:genesix/features/authentication/application/authentication_service.dart';
+import 'package:genesix/features/authentication/application/wallet_session_commands_provider.dart';
+import 'package:genesix/features/authentication/domain/wallet_session_command_result.dart';
+import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:loader_overlay/loader_overlay.dart';
-import 'package:genesix/features/authentication/presentation/components/network_select_menu_tile.dart';
+import 'package:genesix/shared/widgets/components/async_f_button.dart';
+import 'package:go_router/go_router.dart';
 
 class PrivateKeyTab extends ConsumerStatefulWidget {
   const PrivateKeyTab({super.key});
@@ -22,6 +24,7 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  var _isRecovering = false;
 
   @override
   void dispose() {
@@ -37,16 +40,16 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
     final loc = ref.watch(appLocalizationsProvider);
 
     return FCard(
+      clipBehavior: Clip.antiAlias,
       subtitle: Text(loc.recover_from_private_key),
       child: Form(
         key: _formKey,
         child: Column(
           children: [
             const SizedBox(height: Spaces.medium),
-            const NetworkSelectMenuTile(),
-            const SizedBox(height: Spaces.large),
             FTextFormField.multiline(
-              controller: _privateKeyController,
+              enabled: !_isRecovering,
+              control: .managed(controller: _privateKeyController),
               label: Text(loc.private_key),
               keyboardType: TextInputType.text,
               validator: (value) {
@@ -65,7 +68,8 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
             ),
             const SizedBox(height: Spaces.medium),
             FTextFormField(
-              controller: _nameController,
+              enabled: !_isRecovering,
+              control: .managed(controller: _nameController),
               label: Text(loc.wallet_name),
               keyboardType: TextInputType.text,
               validator: (value) {
@@ -77,7 +81,8 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
             ),
             const SizedBox(height: Spaces.medium),
             FTextFormField(
-              controller: _passwordController,
+              enabled: !_isRecovering,
+              control: .managed(controller: _passwordController),
               label: Text(loc.password.capitalize()),
               obscureText: true,
               keyboardType: TextInputType.visiblePassword,
@@ -90,7 +95,8 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
             ),
             const SizedBox(height: Spaces.medium),
             FTextFormField(
-              controller: _confirmPasswordController,
+              enabled: !_isRecovering,
+              control: .managed(controller: _confirmPasswordController),
               label: Text(loc.confirm_password.capitalizeAll()),
               obscureText: true,
               keyboardType: TextInputType.visiblePassword,
@@ -105,7 +111,11 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
               },
             ),
             const SizedBox(height: Spaces.large),
-            FButton(onPress: _createWallet, child: Text(loc.recover_button)),
+            AsyncFButton(
+              isLoading: _isRecovering,
+              onPress: _createWallet,
+              child: Text(loc.recover_button),
+            ),
           ],
         ),
       ),
@@ -113,19 +123,29 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
   }
 
   void _createWallet() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      context.loaderOverlay.show();
+    if (_isRecovering || !(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
 
-      await ref
-          .read(authenticationProvider.notifier)
+    setState(() => _isRecovering = true);
+
+    var keepRecovering = false;
+    try {
+      final result = await ref
+          .read(walletSessionCommandsProvider.notifier)
           .createWallet(
             _nameController.text.trim(),
             _passwordController.text.trim(),
             privateKey: _privateKeyController.text.trim(),
           );
 
-      if (mounted && context.loaderOverlay.visible) {
-        context.loaderOverlay.hide();
+      if (result is WalletSessionCommandSuccess && mounted) {
+        keepRecovering = true;
+        context.go(AuthAppScreen.home.toPath, extra: result.seedToReveal);
+      }
+    } finally {
+      if (!keepRecovering && mounted) {
+        setState(() => _isRecovering = false);
       }
     }
   }

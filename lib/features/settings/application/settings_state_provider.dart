@@ -1,5 +1,11 @@
+import 'dart:async';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
+import 'package:genesix/features/authentication/application/authentication_provider.dart';
+import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
+import 'package:genesix/features/authentication/domain/authentication_state.dart';
+import 'package:genesix/features/authentication/domain/biometric_wallet_key.dart';
 import 'package:genesix/features/wallet/domain/history_filter_state.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -59,9 +65,75 @@ class Settings extends _$Settings {
     _setState(state);
   }
 
-  void setActivateBiometricAuth(bool activateBiometricAuth) {
+  void setEnableNewsFeed(bool enableNewsFeed) {
+    state = state.copyWith(enableNewsFeed: enableNewsFeed);
+    _setState(state);
+  }
+
+  void setWalletOfflineMode(bool walletOfflineMode) {
+    state = state.copyWith(walletOfflineMode: walletOfflineMode);
+    _setState(state);
+  }
+
+  void setActivateBiometricAuth(
+    bool activateBiometricAuth, {
+    bool syncWalletStorage = true,
+  }) {
     state = state.copyWith(activateBiometricAuth: activateBiometricAuth);
     _setState(state);
+
+    if (!syncWalletStorage || kIsWeb) {
+      return;
+    }
+
+    final authState = ref.read(authenticationProvider);
+    if (authState is! SignedIn) {
+      return;
+    }
+
+    final secureStorage = ref.read(secureStorageProvider);
+    final biometricKey = biometricWalletKey(
+      network: state.network,
+      walletName: authState.name,
+    );
+
+    unawaited(
+      activateBiometricAuth
+          ? secureStorage.write(key: biometricKey, value: '1')
+          : _deleteWalletBiometricStorage(authState.name),
+    );
+  }
+
+  Future<void> _deleteWalletBiometricStorage(String walletName) async {
+    final secureStorage = ref.read(secureStorageProvider);
+    final currentNetwork = state.network;
+    await Future.wait<void>([
+      secureStorage.delete(
+        key: biometricWalletKey(
+          network: currentNetwork,
+          walletName: walletName,
+        ),
+      ),
+      secureStorage.delete(
+        key: walletPasswordKey(network: currentNetwork, walletName: walletName),
+      ),
+    ]);
+
+    for (final network in Network.values) {
+      if (network == currentNetwork) {
+        continue;
+      }
+      final hasOtherBiometricWallet = await secureStorage.containsKey(
+        key: biometricWalletKey(network: network, walletName: walletName),
+      );
+      if (hasOtherBiometricWallet) {
+        return;
+      }
+    }
+
+    await secureStorage.delete(
+      key: legacyWalletPasswordKey(walletName: walletName),
+    );
   }
 
   void setEnableXswd(bool enableXswd) {

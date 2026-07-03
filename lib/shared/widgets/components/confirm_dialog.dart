@@ -32,24 +32,25 @@ class _ConfirmDialogState extends ConsumerState<ConfirmDialog> {
     var title = widget.title ?? loc.are_you_sure;
 
     return FDialog(
+      clipBehavior: Clip.antiAlias,
       direction: Axis.horizontal,
       title: Text(title),
       body: widget.description != null ? Text(widget.description!) : null,
       actions: [
-        FButton(
-          style: FButtonStyle.outline(),
-          onPress: () {
-            context.pop();
-            widget.onConfirm(false);
-          },
-          child: Text(loc.cancel_button),
-        ),
         FButton(
           onPress: () {
             context.pop();
             widget.onConfirm(true);
           },
           child: Text(loc.confirm_button),
+        ),
+        FButton(
+          variant: .outline,
+          onPress: () {
+            context.pop();
+            widget.onConfirm(false);
+          },
+          child: Text(loc.cancel_button),
         ),
       ],
     );

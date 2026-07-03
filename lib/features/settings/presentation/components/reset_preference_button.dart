@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
@@ -20,13 +22,13 @@ class _ResetPreferenceButtonState extends ConsumerState<ResetPreferenceButton> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     return FButton(
-      style: FButtonStyle.outline(),
+      variant: .outline,
       onPress: _showResetPreferencesDialog,
       child: Text(loc.reset_preferences),
     );
   }
 
-  Future<void> _resetPreferences(BuildContext context) async {
+  Future<void> _resetPreferences() async {
     final loc = ref.read(appLocalizationsProvider);
     try {
       await ref.read(sharedPreferencesProvider).clear();
@@ -40,29 +42,30 @@ class _ResetPreferenceButtonState extends ConsumerState<ResetPreferenceButton> {
     }
   }
 
+  void _confirmResetPreferences(BuildContext dialogContext) {
+    dialogContext.pop();
+    unawaited(_resetPreferences());
+  }
+
   void _showResetPreferencesDialog() {
     final loc = ref.read(appLocalizationsProvider);
     showAppDialog<void>(
       context: context,
       builder: (context, style, animation) {
-        return FDialog(
-          style: style.call,
+        return FDialog.adaptive(
+          clipBehavior: Clip.antiAlias,
           animation: animation,
-          direction: Axis.horizontal,
           title: Text(loc.do_you_want_to_continue),
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [Text(loc.reset_preferences_dialog)],
-          ),
+          body: Text(loc.reset_preferences_dialog),
           actions: [
             FButton(
-              style: FButtonStyle.outline(),
-              onPress: () => context.pop(),
-              child: Text(loc.cancel_button),
+              onPress: () => _confirmResetPreferences(context),
+              child: Text(loc.confirm_button),
             ),
             FButton(
-              onPress: () => context.pop(_resetPreferences(context)),
-              child: Text(loc.confirm_button),
+              variant: .outline,
+              onPress: () => context.pop(),
+              child: Text(loc.cancel_button),
             ),
           ],
         );

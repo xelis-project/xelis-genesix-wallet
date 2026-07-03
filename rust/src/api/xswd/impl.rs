@@ -456,7 +456,6 @@ pub async fn xswd_handler(
             }
             XSWDEvent::RequestPermission(state, request, callback) => {
                 let json = serde_json::to_string(&request).expect("Failed to serialize request");
-                info!("Request: {}", json);
 
                 let event_summary =
                     create_event_summary(&state, XswdRequestType::Permission(json)).await;

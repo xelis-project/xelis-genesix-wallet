@@ -4,7 +4,7 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/presentation/components/transaction_view_utils.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -50,10 +50,10 @@ class _TransactionGroupedWidgetState
     final loc = ref.watch(appLocalizationsProvider);
     final locale = ref.watch(settingsProvider.select((state) => state.locale));
     final network = ref.watch(
-      walletStateProvider.select((state) => state.network),
+      walletRuntimeProvider.select((state) => state.network),
     );
     final knownAssets = ref.watch(
-      walletStateProvider.select((value) => value.knownAssets),
+      walletRuntimeProvider.select((value) => value.knownAssets),
     );
 
     final transactions = widget.transactionGroup.value;
@@ -105,11 +105,17 @@ class _TransactionGroupedWidgetState
                   Opacity(opacity: opacity, child: child),
               child: FItem(
                 prefix: Icon(info.icon, color: info.color, size: 18),
-                title: Text(info.label, style: context.theme.typography.sm),
+                title: Text(
+                  info.label,
+                  style: context.theme.typography.body.sm,
+                ),
                 subtitle: info.subtitle != null
                     ? Text(
                         info.subtitle!,
-                        style: context.theme.typography.xs.copyWith(
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                        style: context.theme.typography.body.xs.copyWith(
                           color: context.theme.colors.mutedForeground,
                         ),
                       )
@@ -117,12 +123,15 @@ class _TransactionGroupedWidgetState
                 details: info.details != null
                     ? Text(
                         info.details!,
-                        style: context.theme.typography.xs.copyWith(
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                        style: context.theme.typography.body.xs.copyWith(
                           color: context.theme.colors.mutedForeground,
                         ),
                       )
                     : null,
-                suffix: Icon(FIcons.chevronRight),
+                suffix: TransactionInfoSuffix(info: info),
                 onPress: () => _showTransactionEntry(tx),
               ),
             );

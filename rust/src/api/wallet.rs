@@ -20,6 +20,7 @@ use xelis_common::asset::AssetData;
 use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
 use xelis_common::crypto::{Address, Hash, Hashable, Signature};
 use xelis_common::network::Network;
+use xelis_common::rpc::client::JsonRPCError;
 use xelis_common::serializer::Serializer;
 use xelis_common::tokio::sync::broadcast::error::RecvError;
 use xelis_common::transaction::builder::{
@@ -29,6 +30,7 @@ use xelis_common::transaction::multisig::{MultiSig, SignatureId};
 use xelis_common::transaction::BurnPayload;
 pub use xelis_common::transaction::Transaction;
 use xelis_common::utils::format_coin;
+use xelis_wallet::error::WalletError;
 use xelis_wallet::precomputed_tables;
 pub use xelis_wallet::precomputed_tables::PrecomputedTablesShared;
 pub use xelis_wallet::transaction_builder::TransactionBuilderState;
@@ -289,7 +291,10 @@ impl XelisWallet {
 
     // set the wallet to online mode
     pub async fn online_mode(&self, daemon_address: String) -> Result<()> {
-        Ok(self.wallet.set_online_mode(&daemon_address, true).await?)
+        // Genesix owns reconnect attempts from Dart. The upstream auto-reconnect
+        // loop can sleep after sync errors and miss stop signals, which blocks
+        // logout/close when a daemon is on the wrong network.
+        Ok(self.wallet.set_online_mode(&daemon_address, false).await?)
     }
 
     // set the wallet to offline mode
@@ -592,6 +597,7 @@ impl XelisWallet {
         let hash = tx.hash();
         info!("Tx Hash: {}", hash);
         let fee = tx.get_fee();
+        Self::log_transaction_context("Prepared transfer transaction", &tx, &state);
 
         self.pending_transactions
             .write()
@@ -739,6 +745,7 @@ impl XelisWallet {
         let hash = tx.hash();
         info!("Tx Hash: {}", hash);
         let fee = tx.get_fee();
+        Self::log_transaction_context("Prepared transfer all transaction", &tx, &state);
 
         self.pending_transactions
             .write()
@@ -899,6 +906,7 @@ impl XelisWallet {
         let hash = tx.hash();
         info!("Tx Hash: {}", hash);
         let fee = tx.get_fee();
+        Self::log_transaction_context("Prepared burn transaction", &tx, &state);
 
         self.pending_transactions
             .write()
@@ -1025,6 +1033,7 @@ impl XelisWallet {
         let hash = tx.hash();
         info!("Tx Hash: {}", hash);
         let fee = tx.get_fee();
+        Self::log_transaction_context("Prepared burn all transaction", &tx, &state);
 
         self.pending_transactions
             .write()
@@ -1110,13 +1119,14 @@ impl XelisWallet {
         tx_hash: String,
     ) -> Result<(Transaction, TransactionBuilderState)> {
         let hash = Hash::from_hex(&tx_hash)?;
-        let res = self
+        let tx = self
             .pending_transactions
             .write()
             .remove(&hash)
-            .context("Cannot delete pending transaction");
+            .context("Cannot delete pending transaction")?;
+
         info!("tx: {} removed from pending transaction", hash);
-        res
+        Ok(tx)
     }
 
     // broadcast a transaction to the network
@@ -1125,23 +1135,50 @@ impl XelisWallet {
 
         if self.wallet.is_online().await {
             let (tx, mut state) = self.clear_transaction(tx_hash.clone())?;
-            let mut storage = self.wallet.get_storage().write().await;
+            let (storage_tx_version, storage_topoheight, storage_top_block_hash) = {
+                let storage = self.wallet.get_storage().read().await;
+                (
+                    storage.get_tx_version().await?,
+                    storage.get_synced_topoheight()?,
+                    storage.get_top_block_hash()?,
+                )
+            };
+
+            Self::log_transaction_context("Broadcasting pending transaction", &tx, &state);
+            info!(
+                "Broadcast storage context: tx_hash={}, storage_tx_version={}, synced_topoheight={}, top_block_hash={}",
+                tx_hash, storage_tx_version, storage_topoheight, storage_top_block_hash
+            );
+            self.log_daemon_context("Broadcast daemon context").await;
 
             info!("Broadcasting transaction...");
             if let Err(e) = self.wallet.submit_transaction(&tx).await {
+                self.log_daemon_context("Broadcast failed daemon context")
+                    .await;
                 error!("Error while submitting transaction, clearing cache...");
-                storage.clear_tx_cache().await;
-                storage.delete_unconfirmed_balances().await;
+                {
+                    let mut storage = self.wallet.get_storage().write().await;
+                    storage.clear_tx_cache().await;
+                    storage.delete_unconfirmed_balances().await;
+                }
 
-                warn!("Inserting back to pending transactions in case of retry...");
-                let hash: Hash = Hash::from_hex(&tx_hash)?;
-                self.pending_transactions.write().insert(hash, (tx, state));
+                if Self::is_retryable_submit_error(&e) {
+                    warn!("Inserting back to pending transactions in case of retry...");
+                    let hash: Hash = Hash::from_hex(&tx_hash)?;
+                    self.pending_transactions.write().insert(hash, (tx, state));
 
-                bail!(e)
+                    bail!(e)
+                }
+
+                bail!(
+                    "Transaction was rejected by the daemon and cannot be retried safely. Please recreate the transaction. Cause: {}",
+                    e
+                )
             } else {
                 info!("Transaction submitted successfully!");
+                let mut storage = self.wallet.get_storage().write().await;
                 state
-                    .apply_changes(&mut storage)
+                    .apply_changes(&mut storage, self.wallet.as_ref(), &tx)
                     .await
                     .context("Error while applying changes")?;
                 info!("Transaction applied to storage");
@@ -1199,6 +1236,18 @@ impl XelisWallet {
         Ok(txs)
     }
 
+    pub async fn get_pending_transactions(&self) -> Result<Vec<String>> {
+        let storage = self.wallet.get_storage().read().await;
+        let mainnet = self.wallet.get_network().is_mainnet();
+
+        storage
+            .get_pending_txs()
+            .iter()
+            .cloned()
+            .map(|tx| serde_json::to_string(&tx.serializable(mainnet)).map_err(Into::into))
+            .collect()
+    }
+
     // Redirect events from wallet to a dart stream
     pub async fn events_stream(&self, sink: StreamSink<String>) {
         let mut rx = self.wallet.subscribe_events().await;
@@ -1208,15 +1257,15 @@ impl XelisWallet {
             match result {
                 Ok(event) => {
                     let json_event = json!({"event": event.kind(), "data": event}).to_string();
-                    sink.add(json_event)
-                        .expect("Unable to send event data through stream");
+                    if sink.add(json_event).is_err() {
+                        break;
+                    }
                 }
                 Err(RecvError::Lagged(skipped)) => {
                     warn!("Events stream lagged; skipped {} messages", skipped);
                     continue;
                 }
                 Err(RecvError::Closed) => {
-                    error!("Events stream closed; stopping listener");
                     break;
                 }
             }
@@ -1372,6 +1421,7 @@ impl XelisWallet {
                 let hash = tx.hash();
                 info!("Tx Hash: {}", hash);
                 let fee = tx.get_fee();
+                Self::log_transaction_context("Prepared multisig setup transaction", &tx, &state);
 
                 self.pending_transactions
                     .write()
@@ -1479,7 +1529,7 @@ impl XelisWallet {
             }
         }
 
-        let (mut unsigned, mut state, transaction_type_builder) = self
+        let (mut unsigned, state, transaction_type_builder) = self
             .pending_unsigned
             .write()
             .take()
@@ -1488,8 +1538,7 @@ impl XelisWallet {
         unsigned.set_multisig(multisig);
 
         let tx = unsigned.finalize(self.wallet.get_keypair());
-
-        state.set_tx_hash_built(tx.hash());
+        Self::log_transaction_context("Prepared finalized multisig transaction", &tx, &state);
 
         self.pending_transactions
             .write()
@@ -1588,5 +1637,64 @@ impl XelisWallet {
         let decimals = storage.get_asset(&asset).await?.get_decimals();
         let amount = (float_amount * 10u32.pow(decimals as u32) as f64) as u64;
         Ok(amount)
+    }
+
+    fn log_transaction_context(action: &str, tx: &Transaction, state: &TransactionBuilderState) {
+        let tx_reference = tx.get_reference();
+        let state_reference = state.get_reference();
+
+        info!(
+            "{}: hash={}, nonce={}, tx_version={}, tx_ref=({}, {}), state_nonce={}, state_ref=({}, {})",
+            action,
+            tx.hash(),
+            tx.get_nonce(),
+            tx.get_version(),
+            tx_reference.topoheight,
+            tx_reference.hash,
+            state.get_nonce(),
+            state_reference.topoheight,
+            state_reference.hash
+        );
+    }
+
+    async fn log_daemon_context(&self, action: &str) {
+        let network_handler = self.wallet.get_network_handler().lock().await;
+        let Some(handler) = network_handler.as_ref() else {
+            warn!(
+                "{}: daemon context unavailable, network handler missing",
+                action
+            );
+            return;
+        };
+
+        match handler.get_api().get_info().await {
+            Ok(info) => info!(
+                "{}: daemon version={}, network={:?}, block_version={}, topoheight={}, stable_topoheight={}, top_block_hash={}, mempool_size={}",
+                action,
+                info.version,
+                info.network,
+                info.block_version,
+                info.topoheight,
+                info.stable_topoheight,
+                info.top_block_hash,
+                info.mempool_size
+            ),
+            Err(e) => warn!("{}: daemon context unavailable: {}", action, e),
+        }
+    }
+
+    fn is_retryable_submit_error(error: &WalletError) -> bool {
+        match error {
+            WalletError::Any(error) => !Self::is_daemon_rejection(error),
+            WalletError::NotOnlineMode | WalletError::NoNetworkHandler => true,
+            _ => false,
+        }
+    }
+
+    fn is_daemon_rejection(error: &anyhow::Error) -> bool {
+        matches!(
+            error.downcast_ref::<JsonRPCError>(),
+            Some(JsonRPCError::ServerError { .. })
+        )
     }
 }

@@ -1,25 +1,24 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
-import 'package:genesix/features/wallet/domain/event.dart';
+import 'package:genesix/features/wallet/application/wallet_history_refresh_signal_provider.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
 
 part 'history_providers.g.dart';
 
 const pageSize = 30;
 
-enum TransactionCategory { incoming, outgoing, coinbase, burn }
+enum TransactionCategory { incoming, outgoing, coinbase, burn, blob }
 
 @riverpod
 Future<List<TransactionEntry>> history(Ref ref, int page) async {
-  final repository = ref.watch(
-    walletStateProvider.select((value) => value.nativeWalletRepository),
-  );
+  ref.watch(walletHistoryRefreshSignalProvider);
+  final repository = ref.watch(activeWalletRepositoryProvider);
   final historyFilterState = ref.watch(
     settingsProvider.select((state) => state.historyFilterState),
   );
@@ -31,6 +30,7 @@ Future<List<TransactionEntry>> history(Ref ref, int page) async {
       acceptOutgoing: historyFilterState.showOutgoing,
       acceptCoinbase: historyFilterState.showCoinbase,
       acceptBurn: historyFilterState.showBurn,
+      acceptBlob: historyFilterState.showBlob,
       limit: BigInt.from(pageSize),
       assetHash: historyFilterState.asset,
       address: historyFilterState.address,
@@ -49,9 +49,8 @@ Future<List<TransactionEntry>> history(Ref ref, int page) async {
 
 @riverpod
 Future<int?> historyCount(Ref ref) async {
-  final repository = ref.watch(
-    walletStateProvider.select((value) => value.nativeWalletRepository),
-  );
+  ref.watch(walletHistoryRefreshSignalProvider);
+  final repository = ref.watch(activeWalletRepositoryProvider);
   if (repository != null) {
     return repository.getHistoryCount();
   }
@@ -62,11 +61,9 @@ Future<int?> historyCount(Ref ref) async {
 class HistoryPagingState extends _$HistoryPagingState {
   @override
   PagingState<int, MapEntry<DateTime, List<TransactionEntry>>> build() {
-    ref.listen(walletStateProvider, (previous, next) {
-      if (next.lastEvent is HistorySynced || next.lastEvent is NewTransaction) {
-        ref.invalidateSelf();
-      }
-    });
+    ref.watch(activeWalletSessionProvider);
+    ref.watch(walletHistoryRefreshSignalProvider);
+    ref.watch(settingsProvider.select((state) => state.historyFilterState));
     return PagingState();
   }
 

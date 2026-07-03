@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/presentation/assets/asset_name_widget.dart';
 import 'package:genesix/features/wallet/presentation/assets/tracked_asset_details.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
@@ -32,10 +32,10 @@ class _TrackedAssetsTabState extends ConsumerState<TrackedAssetsTab> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final knownAssets = ref.watch(
-      walletStateProvider.select((state) => state.knownAssets),
+      walletRuntimeProvider.select((state) => state.knownAssets),
     );
     final balances = ref.watch(
-      walletStateProvider.select((state) => state.trackedBalances),
+      walletRuntimeProvider.select((state) => state.trackedBalances),
     );
 
     // Filter out assets that don't have metadata yet (defensive)
@@ -49,7 +49,7 @@ class _TrackedAssetsTabState extends ConsumerState<TrackedAssetsTab> {
         child: Center(
           child: Text(
             loc.no_tracked_assets,
-            style: context.theme.typography.base.copyWith(
+            style: context.theme.typography.body.md.copyWith(
               color: context.theme.colors.mutedForeground,
             ),
           ),
@@ -73,7 +73,7 @@ class _TrackedAssetsTabState extends ConsumerState<TrackedAssetsTab> {
                 isXelis: isXelis(hash),
               ),
               details: Text('$balance ${asset.ticker}'),
-              suffix: Icon(FIcons.chevronRight),
+              suffix: Icon(FLucideIcons.chevronRight),
               onPress: () => _showDetails(hash, asset, balance),
             );
           },

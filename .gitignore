@@ -45,6 +45,7 @@ app.*.symbols
 app.*.map.json
 
 # Android Studio will place build artifacts here
+/android/build/
 /android/app/.cxx
 /android/app/debug
 /android/app/profile
@@ -61,6 +62,9 @@ lib/**/*.freezed.dart
 
 # Wallet precomputed table
 precomputed_tables_26.bin
+
+# Local AI reference snapshots
+.agents/references/forui/
 
 # Web wallet wasm
 web/pkg

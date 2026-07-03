@@ -24,16 +24,17 @@ class NetworkNodes extends _$NetworkNodes {
     final networkNodesStateRepository = NetworkNodesStateRepository(
       GenesixSharedPreferences(prefs),
     );
+    final nextNodes = List<NodeAddress>.of(nodes);
 
     switch (network) {
       case Network.mainnet:
-        state = state.copyWith(mainnetNodes: nodes);
+        state = state.copyWith(mainnetNodes: nextNodes);
       case Network.testnet:
-        state = state.copyWith(testnetNodes: nodes);
+        state = state.copyWith(testnetNodes: nextNodes);
       case Network.devnet:
-        state = state.copyWith(devnetNodes: nodes);
+        state = state.copyWith(devnetNodes: nextNodes);
       case Network.stagenet:
-        state = state.copyWith(stagenetNodes: nodes);
+        state = state.copyWith(stagenetNodes: nextNodes);
     }
 
     networkNodesStateRepository.localSave(state);
@@ -61,7 +62,7 @@ class NetworkNodes extends _$NetworkNodes {
 
   void addNode(Network network, NodeAddress nodeAddress) {
     if (!state.nodeExists(network, nodeAddress)) {
-      final nodes = state.getNodes(network);
+      final nodes = List<NodeAddress>.of(state.getNodes(network));
       nodes.add(nodeAddress);
       setNodes(network, nodes);
     }
@@ -73,7 +74,7 @@ class NetworkNodes extends _$NetworkNodes {
     NodeAddress newNodeAddress,
   ) {
     if (state.nodeExists(network, oldNodeAddress)) {
-      var nodes = state.getNodes(network);
+      final nodes = List<NodeAddress>.of(state.getNodes(network));
       final index = nodes.indexOf(oldNodeAddress);
       nodes[index] = newNodeAddress;
       setNodes(network, nodes);
@@ -82,7 +83,7 @@ class NetworkNodes extends _$NetworkNodes {
 
   void removeNode(Network network, NodeAddress nodeAddress) {
     if (state.nodeExists(network, nodeAddress)) {
-      var nodes = state.getNodes(network);
+      final nodes = List<NodeAddress>.of(state.getNodes(network));
       nodes.remove(nodeAddress);
       setNodes(network, nodes);
     }

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
-import 'package:genesix/features/wallet/application/xswd_providers.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/wallet/application/xswd_controller_provider.dart';
+import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
@@ -29,6 +30,9 @@ class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
+    final walletOfflineMode = ref.watch(
+      settingsProvider.select((settings) => settings.walletOfflineMode),
+    );
     final appsAsync = ref.watch(xswdApplicationsProvider);
 
     return FScaffold(
@@ -41,34 +45,44 @@ class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
           ),
         ],
       ),
-      child: appsAsync.when(
-        data: (apps) {
-          final liveApp = apps.where((a) => a.id == widget.appId).firstOrNull;
-          if (liveApp != null) {
-            _cachedApp = liveApp;
-          }
-          final app = liveApp ?? _cachedApp;
+      child: walletOfflineMode
+          ? _XswdOfflineDisabled(loc: loc)
+          : appsAsync.when(
+              data: (apps) {
+                final liveApp = apps
+                    .where((a) => a.id == widget.appId)
+                    .firstOrNull;
+                if (liveApp != null) {
+                  _cachedApp = liveApp;
+                }
+                final app = liveApp ?? _cachedApp;
 
-          if (app == null) {
-            if (_isClosing) {
-              return const Center(child: FCircularProgress());
-            }
-            return _XswdAppNotFound(loc: loc);
-          }
-          return _XswdAppDetailContent(
-            app: app,
-            loc: loc,
-            onOpenUrl: (url) => _launchAppUrl(ref, url),
-            onPermissionChange: (permissionName, policy) {
-              return _handlePermissionChange(ref, app, permissionName, policy);
-            },
-            onDisconnect: () => _handleDisconnectApp(context, loc, app),
-          );
-        },
-        loading: () => const Center(child: FCircularProgress()),
-        error: (error, stack) =>
-            Center(child: Text('${loc.error_loading_applications}: $error')),
-      ),
+                if (app == null) {
+                  if (_isClosing) {
+                    return const Center(child: FCircularProgress());
+                  }
+                  return _XswdAppNotFound(loc: loc);
+                }
+                return _XswdAppDetailContent(
+                  app: app,
+                  loc: loc,
+                  onOpenUrl: (url) => _launchAppUrl(ref, url),
+                  onPermissionChange: (permissionName, policy) {
+                    return _handlePermissionChange(
+                      ref,
+                      app,
+                      permissionName,
+                      policy,
+                    );
+                  },
+                  onDisconnect: () => _handleDisconnectApp(context, loc, app),
+                );
+              },
+              loading: () => const Center(child: FCircularProgress()),
+              error: (error, stack) => Center(
+                child: Text('${loc.error_loading_applications}: $error'),
+              ),
+            ),
     );
   }
 
@@ -78,21 +92,15 @@ class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
     String permissionName,
     PermissionPolicy newPolicy,
   ) async {
-    final walletState = ref.read(walletStateProvider);
-    if (walletState.nativeWalletRepository == null) return;
-
     try {
       final updatedPermissions = Map<String, PermissionPolicy>.from(
         app.permissions,
       );
       updatedPermissions[permissionName] = newPolicy;
 
-      await walletState.nativeWalletRepository!.modifyXSWDAppPermissions(
-        app.id,
-        updatedPermissions,
-      );
-
-      ref.invalidate(xswdApplicationsProvider);
+      await ref
+          .read(xswdControllerProvider)
+          .editXswdAppPermission(app.id, updatedPermissions);
     } catch (_) {
       // Keep previous behavior: fail silently for now.
     }
@@ -146,6 +154,44 @@ class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
   }
 }
 
+class _XswdOfflineDisabled extends StatelessWidget {
+  const _XswdOfflineDisabled({required this.loc});
+
+  final AppLocalizations loc;
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = context.theme.colors.mutedForeground;
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
+        child: Padding(
+          padding: const EdgeInsets.all(Spaces.large),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(FLucideIcons.cable, size: 32, color: muted),
+              const SizedBox(height: Spaces.small),
+              Text(
+                loc.xswd_disabled_offline_title,
+                textAlign: TextAlign.center,
+                style: context.theme.typography.display.lg,
+              ),
+              const SizedBox(height: Spaces.extraSmall),
+              Text(
+                loc.xswd_disabled_offline_description,
+                textAlign: TextAlign.center,
+                style: context.theme.typography.body.sm.copyWith(color: muted),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _XswdAppNotFound extends StatelessWidget {
   const _XswdAppNotFound({required this.loc});
 
@@ -163,26 +209,24 @@ class _XswdAppNotFound extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(FIcons.triangleAlert, size: 28, color: muted),
+              Icon(FLucideIcons.triangleAlert, size: 28, color: muted),
               const SizedBox(height: Spaces.small),
               Text(
                 loc.no_application_found,
                 textAlign: TextAlign.center,
-                style: context.theme.typography.lg.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: context.theme.typography.display.lg,
               ),
               const SizedBox(height: Spaces.extraSmall),
               Text(
-                'This app may already be disconnected.',
+                loc.xswd_app_already_disconnected,
                 textAlign: TextAlign.center,
-                style: context.theme.typography.sm.copyWith(color: muted),
+                style: context.theme.typography.body.sm.copyWith(color: muted),
               ),
               const SizedBox(height: Spaces.medium),
               SizedBox(
                 width: 180,
                 child: FButton(
-                  style: FButtonStyle.outline(),
+                  variant: .outline,
                   onPress: () => context.pop(),
                   child: Text(loc.ok_button),
                 ),
@@ -232,9 +276,9 @@ class _XswdAppDetailContent extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: FButton(
-                  style: FButtonStyle.destructive(),
+                  variant: .destructive,
                   onPress: onDisconnect,
-                  child: const Text('Disconnect'),
+                  child: Text(loc.disconnect),
                 ),
               ),
             ],
@@ -261,27 +305,23 @@ class _XswdAppInfoCard extends StatelessWidget {
     final muted = context.theme.colors.mutedForeground;
 
     return FCard(
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            app.name,
-            style: context.theme.typography.xl.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          Text(app.name, style: context.theme.typography.display.xl),
           if (app.url != null && app.url!.isNotEmpty) ...[
             const SizedBox(height: Spaces.small),
             Row(
               children: [
-                Icon(FIcons.link, size: 16, color: muted),
+                Icon(FLucideIcons.link, size: 16, color: muted),
                 const SizedBox(width: Spaces.extraSmall),
                 Expanded(
                   child: GestureDetector(
                     onTap: () => onOpenUrl(app.url!),
                     child: Text(
                       app.url!,
-                      style: context.theme.typography.sm.copyWith(
+                      style: context.theme.typography.body.sm.copyWith(
                         color: context.theme.colors.primary,
                         decoration: TextDecoration.underline,
                         decorationColor: context.theme.colors.primary,
@@ -295,7 +335,7 @@ class _XswdAppInfoCard extends StatelessWidget {
           const SizedBox(height: Spaces.medium),
           Text(
             '${loc.applications} ${loc.id}',
-            style: context.theme.typography.xs.copyWith(
+            style: context.theme.typography.body.xs.copyWith(
               color: muted,
               fontWeight: FontWeight.w600,
             ),
@@ -303,31 +343,29 @@ class _XswdAppInfoCard extends StatelessWidget {
           const SizedBox(height: Spaces.extraSmall),
           SelectableText(
             app.id,
-            style: context.theme.typography.sm.copyWith(
+            style: context.theme.typography.body.sm.copyWith(
               fontFamily: 'monospace',
             ),
           ),
           if (app.description.isNotEmpty) ...[
             const SizedBox(height: Spaces.small),
             FDivider(
-              style: FDividerStyle(
-                padding: const EdgeInsets.symmetric(
-                  vertical: Spaces.extraSmall,
-                ),
+              style: .delta(
+                padding: .value(.symmetric(vertical: Spaces.extraSmall)),
                 color: context.theme.colors.primary,
                 width: 1,
-              ).call,
+              ),
             ),
             const SizedBox(height: Spaces.small),
             Text(
               loc.description,
-              style: context.theme.typography.xs.copyWith(
+              style: context.theme.typography.body.xs.copyWith(
                 color: muted,
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: Spaces.extraSmall),
-            Text(app.description, style: context.theme.typography.sm),
+            Text(app.description, style: context.theme.typography.body.sm),
           ],
         ],
       ),
@@ -361,9 +399,7 @@ class _XswdPermissionsSection extends StatelessWidget {
             Expanded(
               child: Text(
                 loc.permissions,
-                style: context.theme.typography.lg.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: context.theme.typography.display.lg,
               ),
             ),
           ],
@@ -371,10 +407,11 @@ class _XswdPermissionsSection extends StatelessWidget {
         const SizedBox(height: Spaces.medium),
         if (sortedPermissions.isEmpty)
           FCard(
+            clipBehavior: Clip.antiAlias,
             child: Center(
               child: Text(
                 loc.no_data,
-                style: context.theme.typography.sm.copyWith(color: muted),
+                style: context.theme.typography.body.sm.copyWith(color: muted),
               ),
             ),
           )
@@ -412,6 +449,7 @@ class _XswdPermissionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FCard.raw(
+      clipBehavior: Clip.antiAlias,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(Spaces.small),
@@ -425,7 +463,7 @@ class _XswdPermissionCard extends StatelessWidget {
         child: Row(
           children: [
             Icon(
-              Icons.code,
+              FLucideIcons.squareCode,
               size: 16,
               color: context.theme.colors.mutedForeground,
             ),
@@ -433,7 +471,7 @@ class _XswdPermissionCard extends StatelessWidget {
             Expanded(
               child: Text(
                 permissionName,
-                style: context.theme.typography.sm.copyWith(
+                style: context.theme.typography.body.sm.copyWith(
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -507,17 +545,17 @@ class _XswdPolicyButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSelected = currentPolicy == policy;
-    final style = switch (policy) {
+    final styleVariant = switch (policy) {
       PermissionPolicy.reject =>
-        isSelected ? FButtonStyle.destructive() : FButtonStyle.outline(),
+        isSelected ? FButtonVariant.destructive : FButtonVariant.outline,
       PermissionPolicy.ask =>
-        isSelected ? FButtonStyle.secondary() : FButtonStyle.outline(),
+        isSelected ? FButtonVariant.secondary : FButtonVariant.outline,
       PermissionPolicy.accept =>
-        isSelected ? FButtonStyle.primary() : FButtonStyle.outline(),
+        isSelected ? FButtonVariant.primary : FButtonVariant.outline,
     };
 
     return FButton(
-      style: style,
+      variant: styleVariant,
       onPress: isSelected ? null : () => onPress(policy),
       child: Text(label),
     );
@@ -544,14 +582,12 @@ class _DisconnectDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FDialog(
-      style: style.call,
+      clipBehavior: Clip.antiAlias,
       animation: animation,
       constraints: const BoxConstraints(maxWidth: 560),
       title: Text(
-        'Disconnect $appName?',
-        style: context.theme.typography.xl.copyWith(
-          fontWeight: FontWeight.w600,
-        ),
+        loc.disconnect_app_question(appName),
+        style: context.theme.typography.display.xl,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: Spaces.small),
@@ -560,9 +596,9 @@ class _DisconnectDialog extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'This will revoke all permissions and close this application connection.',
+              loc.disconnect_app_description,
               textAlign: TextAlign.center,
-              style: context.theme.typography.sm.copyWith(
+              style: context.theme.typography.body.sm.copyWith(
                 color: context.theme.colors.mutedForeground,
               ),
             ),
@@ -584,7 +620,7 @@ class _DisconnectDialog extends StatelessWidget {
             //     mainAxisSize: MainAxisSize.min,
             //     children: [
             //       Icon(
-            //         FIcons.triangleAlert,
+            //         FLucideIcons.triangleAlert,
             //         size: 20,
             //         color: context.theme.colors.mutedForeground,
             //       ),
@@ -592,7 +628,7 @@ class _DisconnectDialog extends StatelessWidget {
             //       Text(
             //         'The app will need to reconnect to request wallet access again.',
             //         textAlign: TextAlign.center,
-            //         style: context.theme.typography.xs.copyWith(
+            //         style: context.theme.typography.body.xs.copyWith(
             //           color: context.theme.colors.mutedForeground,
             //         ),
             //       ),
@@ -607,7 +643,7 @@ class _DisconnectDialog extends StatelessWidget {
           children: [
             Expanded(
               child: FButton(
-                style: FButtonStyle.outline(),
+                variant: .outline,
                 onPress: onCancel,
                 child: Text(loc.cancel_button),
               ),
@@ -615,7 +651,7 @@ class _DisconnectDialog extends StatelessWidget {
             const SizedBox(width: Spaces.small),
             Expanded(
               child: FButton(
-                style: FButtonStyle.destructive(),
+                variant: .destructive,
                 onPress: onConfirm,
                 child: Text(loc.confirm_button),
               ),

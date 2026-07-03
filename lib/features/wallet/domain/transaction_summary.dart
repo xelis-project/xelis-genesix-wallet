@@ -22,7 +22,7 @@ abstract class TransactionSummary with _$TransactionSummary {
     return TransactionSummary(
       hash: json['hash'] as String,
       fee: json['fee'] as int,
-      transactionType: TransactionTypeBuilderSafe.safeFromJson(
+      transactionType: TransactionTypeBuilder.fromRpcJson(
         json['transaction_type'] as Map<String, dynamic>,
       ),
     );

@@ -11,9 +11,8 @@ import 'xswd_paste_connection_dialog.dart';
 import 'xswd_qr_scanner_screen.dart';
 
 class XswdNewConnectionDialog extends ConsumerWidget {
-  const XswdNewConnectionDialog(this.style, this.animation, {super.key});
+  const XswdNewConnectionDialog(this.animation, {super.key});
 
-  final FDialogStyle style;
   final Animation<double> animation;
 
   @override
@@ -22,7 +21,7 @@ class XswdNewConnectionDialog extends ConsumerWidget {
     final loc = ref.watch(appLocalizationsProvider);
 
     return FDialog(
-      style: style.call,
+      clipBehavior: Clip.antiAlias,
       animation: animation,
       constraints: const BoxConstraints(maxWidth: 600),
       body: LayoutBuilder(
@@ -44,10 +43,8 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        'New Connection',
-                        style: theme.typography.xl2.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                        loc.new_connection,
+                        style: theme.typography.display.xl2,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),
@@ -55,9 +52,9 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                     FTooltip(
                       tipBuilder: (context, controller) => Text(loc.close),
                       child: FButton.icon(
-                        style: FButtonStyle.ghost(),
+                        variant: .ghost,
                         onPress: () => context.pop(),
-                        child: const Icon(FIcons.x, size: 22),
+                        child: const Icon(FLucideIcons.x, size: 22),
                       ),
                     ),
                   ],
@@ -69,7 +66,7 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                   compact: true,
                   title: loc.scan_qr_code,
                   description: loc.point_camera_at_qr,
-                  icon: FIcons.qrCode,
+                  icon: FLucideIcons.qrCode,
                   onPressed: () async {
                     final navigator = Navigator.of(
                       context,
@@ -86,9 +83,9 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                 SizedBox(height: verticalGap),
                 _ConnectionMethodButton(
                   compact: true,
-                  title: 'Paste JSON',
-                  description: 'Paste dApp connection data',
-                  icon: FIcons.clipboard,
+                  title: loc.paste_json,
+                  description: loc.paste_connection_data,
+                  icon: FLucideIcons.clipboard,
                   onPressed: () {
                     final navigator = Navigator.of(
                       context,
@@ -98,12 +95,10 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                     showAppDialog<void>(
                       context: navigator.context,
                       useRootNavigator: true,
-                      builder: (ctx, style, animation) =>
-                          XswdPasteConnectionDialog(
-                            style,
-                            animation,
-                            () => Navigator.of(ctx, rootNavigator: true).pop(),
-                          ),
+                      builder: (ctx, _, animation) => XswdPasteConnectionDialog(
+                        animation,
+                        () => Navigator.of(ctx, rootNavigator: true).pop(),
+                      ),
                     );
                   },
                 ),
@@ -116,7 +111,7 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                         child: _ConnectionMethodButton(
                           title: loc.scan_qr_code,
                           description: loc.point_camera_at_qr,
-                          icon: FIcons.qrCode,
+                          icon: FLucideIcons.qrCode,
                           onPressed: () async {
                             final navigator = Navigator.of(
                               context,
@@ -138,9 +133,9 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                       child: AspectRatio(
                         aspectRatio: 1,
                         child: _ConnectionMethodButton(
-                          title: 'Paste JSON',
-                          description: 'Paste dApp connection data',
-                          icon: FIcons.clipboard,
+                          title: loc.paste_json,
+                          description: loc.paste_connection_data,
+                          icon: FLucideIcons.clipboard,
                           onPressed: () {
                             final navigator = Navigator.of(
                               context,
@@ -150,9 +145,8 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                             showAppDialog<void>(
                               context: navigator.context,
                               useRootNavigator: true,
-                              builder: (ctx, style, animation) =>
+                              builder: (ctx, _, animation) =>
                                   XswdPasteConnectionDialog(
-                                    style,
                                     animation,
                                     () => Navigator.of(
                                       ctx,
@@ -226,7 +220,7 @@ class _ConnectionMethodButton extends StatelessWidget {
               width: double.infinity,
               height: buttonHeight,
               child: FButton.raw(
-                style: FButtonStyle.outline(),
+                variant: .outline,
                 onPress: onPressed,
                 child: SizedBox.expand(
                   child: Padding(
@@ -243,7 +237,7 @@ class _ConnectionMethodButton extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.center,
-                            style: theme.typography.base.copyWith(
+                            style: theme.typography.body.md.copyWith(
                               fontWeight: FontWeight.w600,
                               height: 1.1,
                             ),
@@ -254,7 +248,7 @@ class _ConnectionMethodButton extends StatelessWidget {
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.center,
-                            style: theme.typography.sm.copyWith(
+                            style: theme.typography.body.sm.copyWith(
                               color: colors.mutedForeground,
                               height: 1.15,
                             ),

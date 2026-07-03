@@ -26,7 +26,7 @@ class _FiltersButtonState extends ConsumerState<FiltersButton> {
         tipBuilder: (context, controller) => Text(loc.filters),
         child: FHeaderAction(
           onPress: _showFilterDialog,
-          icon: Icon(FIcons.listFilter),
+          icon: Icon(FLucideIcons.listFilter),
         ),
       ),
     );

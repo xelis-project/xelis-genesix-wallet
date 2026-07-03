@@ -1,10 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/network_nodes_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/sheet_content.dart';
@@ -19,8 +21,8 @@ class AddNodeSheet extends ConsumerStatefulWidget {
 
 class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _urlController = TextEditingController();
+  String _name = '';
+  String _url = '';
 
   @override
   Widget build(BuildContext context) {
@@ -34,12 +36,12 @@ class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FTextFormField(
-              controller: _nameController,
               label: Text(loc.node_name),
               hint: loc.node_name_hint,
               keyboardType: TextInputType.text,
               maxLines: 1,
               autocorrect: false,
+              onSaved: (value) => _name = value?.trim() ?? '',
               validator: (value) {
                 if (value == null || value.isEmpty || value.trim().isEmpty) {
                   return loc.field_required_error;
@@ -49,17 +51,18 @@ class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
             ),
             const SizedBox(height: Spaces.medium),
             FTextFormField(
-              controller: _urlController,
               label: Text(loc.node_url),
               hint: loc.node_url_hint,
-              keyboardType: TextInputType.text,
+              keyboardType: TextInputType.url,
               maxLines: 1,
               autocorrect: false,
+              onSaved: (value) => _url = value?.trim() ?? '',
               validator: (value) {
                 if (value == null || value.isEmpty || value.trim().isEmpty) {
                   return loc.field_required_error;
                 }
-                if (!Uri.tryParse(value)!.hasScheme) {
+                final uri = Uri.tryParse(value.trim());
+                if (uri == null || !uri.hasScheme) {
                   return loc.node_url_error;
                 }
                 return null;
@@ -68,17 +71,7 @@ class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
             const SizedBox(height: Spaces.large),
             FButton(
               child: Text(loc.add_node),
-              onPress: () {
-                if (_formKey.currentState?.validate() ?? false) {
-                  _add(
-                    NodeAddress(
-                      name: _nameController.text,
-                      url: _urlController.text,
-                    ),
-                  );
-                  context.pop();
-                }
-              },
+              onPress: () => _addNodeAndReconnect(context),
             ),
           ],
         ),
@@ -86,13 +79,17 @@ class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
     );
   }
 
-  void _add(NodeAddress? value) {
-    if (value != null) {
-      final network = ref.read(settingsProvider).network;
-      ref.read(networkNodesProvider.notifier).addNode(network, value);
-      // set the newly added network as the current network
-      ref.read(networkNodesProvider.notifier).setNodeAddress(network, value);
-      ref.read(walletStateProvider.notifier).reconnect(value);
+  void _addNodeAndReconnect(BuildContext context) {
+    final form = _formKey.currentState;
+    if (form == null || !form.validate()) {
+      return;
     }
+
+    form.save();
+    final node = NodeAddress(name: _name, url: _url);
+    final network = ref.read(settingsProvider).network;
+    ref.read(networkNodesProvider.notifier).addNode(network, node);
+    unawaited(ref.read(walletRuntimeProvider.notifier).reconnect(node));
+    context.pop();
   }
 }

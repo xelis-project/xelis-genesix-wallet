@@ -15,6 +15,7 @@ class BaseTransactionEntryCard extends ConsumerStatefulWidget {
     required this.transactionEntry,
     required this.type,
     required this.color,
+    required this.icon,
     required this.timestamp,
     required this.topoheight,
     required this.url,
@@ -24,6 +25,7 @@ class BaseTransactionEntryCard extends ConsumerStatefulWidget {
   final TransactionEntry transactionEntry;
   final String type;
   final Color color;
+  final IconData icon;
   final String timestamp;
   final String topoheight;
   final Uri url;
@@ -39,52 +41,115 @@ class _BaseTransactionEntryCardState
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
+    final theme = context.theme;
+
     return FCard.raw(
-      child: Padding(
-        padding: const EdgeInsets.all(Spaces.medium),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: Spaces.medium,
-          children: [
-            if (widget.nonce != null)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '#${widget.nonce}',
-                    style: context.theme.typography.base,
-                  ),
-                ],
-              ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      clipBehavior: Clip.antiAlias,
+      child: ClipRRect(
+        borderRadius: theme.style.borderRadius.md,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            border: Border(top: BorderSide(color: widget.color, width: 3)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(Spaces.medium),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: Spaces.medium,
               children: [
-                FBadge(
-                  style: context.theme.badgeStyles.primary
-                      .copyWith(
-                        decoration: BoxDecoration(
-                          color: widget.color,
-                          borderRadius: FBadgeStyles.defaultRadius,
-                        ),
-                      )
-                      .call,
-                  child: Text(widget.type.capitalize()),
+                Row(
+                  spacing: Spaces.medium,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: Spaces.small,
+                        children: [
+                          Icon(widget.icon, color: widget.color, size: 20),
+                          Flexible(
+                            child: FBadge(
+                              style: .delta(
+                                decoration: .boxDelta(color: widget.color),
+                              ),
+                              child: Text(
+                                widget.type.capitalize(),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                          if (widget.nonce != null)
+                            Text(
+                              '#${widget.nonce}',
+                              style: theme.typography.body.sm.copyWith(
+                                color: theme.colors.mutedForeground,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    FTooltip(
+                      tipBuilder: (context, controller) {
+                        return Text(loc.open_explorer);
+                      },
+                      child: FButton.icon(
+                        onPress: () => _launchUrl(widget.url),
+                        child: const Icon(FLucideIcons.externalLink),
+                      ),
+                    ),
+                  ],
                 ),
-                FTooltip(
-                  tipBuilder: (context, controller) {
-                    return Text(loc.open_explorer);
-                  },
-                  child: FButton.icon(
-                    onPress: () => _launchUrl(widget.url),
-                    child: Icon(FIcons.link),
+                FDivider(style: .delta(padding: .add(.zero))),
+                Row(
+                  spacing: Spaces.medium,
+                  children: [
+                    Expanded(
+                      child: LabeledValue.text(loc.timestamp, widget.timestamp),
+                    ),
+                    Expanded(
+                      child: LabeledValue.text(
+                        loc.topoheight,
+                        widget.topoheight,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                      ),
+                    ),
+                  ],
+                ),
+                LabeledValue.child(
+                  loc.hash,
+                  Row(
+                    spacing: Spaces.small,
+                    children: [
+                      Expanded(
+                        child: FTooltip(
+                          tipBuilder: (context, controller) =>
+                              SelectableText(widget.transactionEntry.hash),
+                          child: Text(
+                            truncateText(
+                              widget.transactionEntry.hash,
+                              maxLength: 20,
+                            ),
+                            style: theme.typography.body.md,
+                          ),
+                        ),
+                      ),
+                      FTooltip(
+                        tipBuilder: (context, controller) => Text(loc.copy),
+                        child: FButton.icon(
+                          onPress: () => copyToClipboard(
+                            widget.transactionEntry.hash,
+                            ref,
+                            loc.copied,
+                          ),
+                          child: const Icon(FLucideIcons.copy, size: 16),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-            LabeledValue.text(loc.timestamp, widget.timestamp),
-            LabeledValue.text(loc.topoheight, widget.topoheight),
-            LabeledValue.text(loc.hash, widget.transactionEntry.hash),
-          ],
+          ),
         ),
       ),
     );

@@ -40,7 +40,7 @@ class TransferReviewContentWidget extends ConsumerWidget {
                     children: [
                       Text(
                         loc.asset,
-                        style: context.theme.typography.base.copyWith(
+                        style: context.theme.typography.body.md.copyWith(
                           color: muted,
                         ),
                       ),
@@ -55,7 +55,7 @@ class TransferReviewContentWidget extends ConsumerWidget {
                                 const SizedBox(width: Spaces.extraSmall),
                                 Text(
                                   transaction.name,
-                                  style: context.theme.typography.base,
+                                  style: context.theme.typography.body.md,
                                 ),
                               ],
                             )
@@ -69,7 +69,7 @@ class TransferReviewContentWidget extends ConsumerWidget {
                     children: [
                       Text(
                         loc.amount.capitalize(),
-                        style: context.theme.typography.base.copyWith(
+                        style: context.theme.typography.body.md.copyWith(
                           color: muted,
                         ),
                       ),
@@ -102,9 +102,9 @@ class TransferReviewContentWidget extends ConsumerWidget {
           ),
 
           FDivider(
-            style: FDividerStyle(
-              padding: const EdgeInsets.symmetric(vertical: Spaces.small),
-              color: FTheme.of(context).colors.primary,
+            style: .delta(
+              padding: .value(.symmetric(vertical: Spaces.small)),
+              color: context.theme.colors.primary,
               width: 1,
             ),
           ),
@@ -133,11 +133,7 @@ class TransferReviewContentWidget extends ConsumerWidget {
                   textStyle: context.bodyMedium?.copyWith(
                     color: context.colors.primary,
                   ),
-                  child: Icon(
-                    Icons.info_outline_rounded,
-                    size: 18,
-                    color: muted,
-                  ),
+                  child: Icon(FLucideIcons.info, size: 18, color: muted),
                 ),
               ],
             ),
@@ -151,7 +147,7 @@ class TransferReviewContentWidget extends ConsumerWidget {
           // Receiver
           Text(
             loc.receiver,
-            style: context.theme.typography.base.copyWith(color: muted),
+            style: context.theme.typography.body.md.copyWith(color: muted),
           ),
           const SizedBox(height: Spaces.extraSmall),
           AddressWidget(transaction.destinationAddress.address),
@@ -160,7 +156,7 @@ class TransferReviewContentWidget extends ConsumerWidget {
             const SizedBox(height: Spaces.small),
             Text(
               loc.payment_id,
-              style: context.theme.typography.base.copyWith(
+              style: context.theme.typography.body.md.copyWith(
                 // FIXED
                 color: muted,
               ),

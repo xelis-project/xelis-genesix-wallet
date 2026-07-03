@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "generatedAt": "2026-06-23T00:00:00Z",
+  "items": [
+    {
+      "id": "2026-06-xelis-node-1-22-2",
+      "publishedAt": "2026-06-16T22:58:52Z",
+      "expiresAt": null,
+      "type": "network",
+      "severity": "info",
+      "title": {
+        "en": "XELIS node v1.22.2 is available",
+        "fr": "Le node XELIS v1.22.2 est disponible"
+      },
+      "summary": {
+        "en": "This release improves sync reliability, peer selection, mempool limits, wallet pending transactions, and Blob support.",
+        "fr": "Cette version améliore la synchronisation, la selection des pairs, les limites mempool, les transactions en attente du wallet et le support Blob."
+      },
+      "targets": {
+        "networks": ["mainnet", "testnet", "devnet", "stagenet"],
+        "platforms": ["android", "ios", "windows", "linux", "macos", "web"],
+        "minAppVersion": "0.2.0",
+        "maxAppVersion": null
+      },
+      "links": [
+        {
+          "label": {
+            "en": "View release",
+            "fr": "Voir la release"
+          },
+          "url": "https://github.com/xelis-project/xelis-blockchain/releases/tag/v1.22.2"
+        }
+      ]
+    }
+  ]
+}

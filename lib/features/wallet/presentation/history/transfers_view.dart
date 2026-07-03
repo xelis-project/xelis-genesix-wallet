@@ -58,7 +58,7 @@ class TransfersView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: Spaces.medium),
               child: Text(
                 loc.transfers,
-                style: context.theme.typography.sm.copyWith(
+                style: context.theme.typography.body.sm.copyWith(
                   color: context.theme.colors.mutedForeground,
                 ),
               ),
@@ -119,10 +119,7 @@ class _NarrowList extends ConsumerWidget {
                 children: [
                   LabeledValue.child(
                     loc.asset,
-                    FBadge(
-                      style: FBadgeStyle.outline(),
-                      child: Text(row.asset),
-                    ),
+                    FBadge(variant: .outline, child: Text(row.asset)),
                     crossAxisAlignment: CrossAxisAlignment.center,
                   ),
                   LabeledValue.text(
@@ -136,10 +133,7 @@ class _NarrowList extends ConsumerWidget {
                 LabeledValue.child(
                   loc.extra_data.capitalizeAll(),
                   hideExtraData
-                      ? FBadge(
-                          style: FBadgeStyle.secondary(),
-                          child: Text(loc.hidden),
-                        )
+                      ? FBadge(variant: .secondary, child: Text(loc.hidden))
                       : ExtraDataIndicator(
                           extra: row.extra,
                           onOpen: () =>
@@ -200,7 +194,7 @@ class _WideTable extends ConsumerWidget {
                     DataCell(
                       Center(
                         child: FBadge(
-                          style: FBadgeStyle.outline(),
+                          variant: .outline,
                           child: Text(row.asset),
                         ),
                       ),
@@ -209,7 +203,7 @@ class _WideTable extends ConsumerWidget {
                       Center(
                         child: SelectableText(
                           row.amountText,
-                          style: context.theme.typography.base,
+                          style: context.theme.typography.body.md,
                         ),
                       ),
                     ),
@@ -217,7 +211,7 @@ class _WideTable extends ConsumerWidget {
                       Center(
                         child: hideExtraData
                             ? FBadge(
-                                style: FBadgeStyle.secondary(),
+                                variant: .secondary,
                                 child: Text(loc.hidden),
                               )
                             : ExtraDataIndicator(
@@ -235,16 +229,20 @@ class _WideTable extends ConsumerWidget {
                     DataCell(
                       Center(
                         child: FBadge(
-                          style: FBadgeStyle.outline(),
+                          variant: .outline,
                           child: Text(row.asset),
                         ),
                       ),
                     ),
                     DataCell(Center(child: SelectableText(row.amountText))),
                     DataCell(
-                      Center(
-                        child: Text(
-                          truncateText(row.destination!, maxLength: 20),
+                      SizedBox(
+                        width: 280,
+                        child: AddressWidget(
+                          row.destination!,
+                          displayHashicon: false,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          compact: true,
                         ),
                       ),
                     ),
@@ -252,7 +250,7 @@ class _WideTable extends ConsumerWidget {
                       Center(
                         child: hideExtraData
                             ? FBadge(
-                                style: FBadgeStyle.secondary(),
+                                variant: .secondary,
                                 child: Text(loc.hidden),
                               )
                             : ExtraDataIndicator(
@@ -276,7 +274,7 @@ class _WideTable extends ConsumerWidget {
       headingRowAlignment: MainAxisAlignment.center,
       label: Text(
         label,
-        style: context.theme.typography.sm.copyWith(
+        style: context.theme.typography.body.sm.copyWith(
           color: context.theme.colors.mutedForeground,
         ),
       ),

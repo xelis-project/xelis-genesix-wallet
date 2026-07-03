@@ -1,5 +1,5 @@
+import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/wallet/application/search_query_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -23,7 +23,7 @@ class AddressBook extends _$AddressBook {
   Future<Map<String, ContactDetails>> loadMore() async {
     if (!_hasMore) return _allContacts;
 
-    final nativeWallet = ref.read(walletStateProvider).nativeWalletRepository;
+    final nativeWallet = ref.read(activeWalletRepositoryProvider);
     if (nativeWallet != null) {
       final searchText = ref.read(searchQueryProvider);
       final skip = _currentPage * pageSize;
@@ -64,7 +64,7 @@ class AddressBook extends _$AddressBook {
   }
 
   Future<ContactDetails?> get(String address) async {
-    final nativeWallet = ref.read(walletStateProvider).nativeWalletRepository;
+    final nativeWallet = ref.read(activeWalletRepositoryProvider);
     if (nativeWallet != null) {
       final contact = await nativeWallet.getContact(address);
       return contact;
@@ -73,7 +73,7 @@ class AddressBook extends _$AddressBook {
   }
 
   Future<void> upsert(String address, String name, String? note) async {
-    final nativeWallet = ref.read(walletStateProvider).nativeWalletRepository;
+    final nativeWallet = ref.read(activeWalletRepositoryProvider);
     if (nativeWallet != null) {
       await nativeWallet.upsertContact(
         name: name,
@@ -85,7 +85,7 @@ class AddressBook extends _$AddressBook {
   }
 
   Future<void> remove(String address) async {
-    final nativeWallet = ref.read(walletStateProvider).nativeWalletRepository;
+    final nativeWallet = ref.read(activeWalletRepositoryProvider);
     if (nativeWallet != null) {
       await nativeWallet.removeContact(address);
       reset();
@@ -93,7 +93,7 @@ class AddressBook extends _$AddressBook {
   }
 
   Future<bool> exists(String address) async {
-    final nativeWallet = ref.read(walletStateProvider).nativeWalletRepository;
+    final nativeWallet = ref.read(activeWalletRepositoryProvider);
     if (nativeWallet != null) {
       return await nativeWallet.isContactPresent(address);
     }

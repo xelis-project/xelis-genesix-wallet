@@ -5,7 +5,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/network_mismatch_provider.dart';
 import 'package:genesix/features/wallet/application/network_nodes_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/domain/network_nodes_state.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -28,16 +28,17 @@ class ConnectionStatusCard extends ConsumerWidget {
     bool mismatch = ref.watch(networkMismatchProvider);
 
     final topoheight = ref.watch(
-      walletStateProvider.select((state) => state.topoheight),
+      walletRuntimeProvider.select((state) => state.topoheight),
     );
 
     final isRescanning = ref.watch(
-      walletStateProvider.select((state) => state.isRescanning),
+      walletRuntimeProvider.select((state) => state.isRescanning),
     );
 
     var displayedTopoheight = NumberFormat().format(topoheight);
 
     return FCard(
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -48,10 +49,13 @@ class ConnectionStatusCard extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: Spaces.extraSmall,
                 children: [
-                  Text(nodeAddress.name, style: context.theme.typography.sm),
+                  Text(
+                    nodeAddress.name,
+                    style: context.theme.typography.body.sm,
+                  ),
                   Text(
                     nodeAddress.url,
-                    style: context.theme.typography.xs.copyWith(
+                    style: context.theme.typography.body.xs.copyWith(
                       color: context.theme.colors.mutedForeground,
                     ),
                   ),
@@ -61,11 +65,7 @@ class ConnectionStatusCard extends ConsumerWidget {
             ],
           ),
           FDivider(
-            style: context.theme.dividerStyles.horizontalStyle
-                .copyWith(
-                  padding: EdgeInsets.symmetric(vertical: Spaces.medium),
-                )
-                .call,
+            style: .delta(padding: .value(.symmetric(vertical: Spaces.medium))),
           ),
           mismatch
               ? NetworkMismatchWidget()
@@ -78,30 +78,30 @@ class ConnectionStatusCard extends ConsumerWidget {
                       children: [
                         Text(
                           loc.topoheight,
-                          style: context.theme.typography.sm.copyWith(
+                          style: context.theme.typography.body.sm.copyWith(
                             color: context.theme.colors.mutedForeground,
                           ),
                         ),
                         Text(
                           displayedTopoheight,
-                          style: context.theme.typography.lg.copyWith(
+                          style: context.theme.typography.body.lg.copyWith(
                             color: context.theme.colors.primary,
                           ),
                         ),
                       ],
                     ),
                     FButton(
-                      style: FButtonStyle.outline(),
+                      variant: .outline,
                       onPress: isRescanning
                           ? null
                           : () async {
                               await ref
-                                  .read(walletStateProvider.notifier)
+                                  .read(walletRuntimeProvider.notifier)
                                   .rescan();
                             },
                       prefix: isRescanning
                           ? const FCircularProgress.loader()
-                          : Icon(FIcons.rotateCcw),
+                          : Icon(FLucideIcons.rotateCcw),
                       child: isRescanning ? Text(loc.wait) : Text(loc.rescan),
                     ),
                   ],

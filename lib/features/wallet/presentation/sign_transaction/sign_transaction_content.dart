@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 
 class SignTransactionContent extends ConsumerStatefulWidget {
   const SignTransactionContent({super.key});
@@ -39,7 +39,15 @@ class _SignTransactionContentState
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             FTextFormField(
-              controller: _transactionController,
+              control: .managed(
+                controller: _transactionController,
+                onChange: (_) {
+                  if (_submitted) {
+                    setState(() => _submitted = false);
+                    _formKey.currentState?.validate();
+                  }
+                },
+              ),
               autovalidateMode: _submitted
                   ? AutovalidateMode.always
                   : AutovalidateMode.disabled,
@@ -53,17 +61,12 @@ class _SignTransactionContentState
                 }
                 return null;
               },
-              onChange: (_) {
-                if (_submitted) {
-                  setState(() => _submitted = false);
-                  _formKey.currentState?.validate();
-                }
-              },
             ),
             AnimatedSize(
               duration: const Duration(milliseconds: AppDurations.animFast),
               curve: Curves.easeOut,
               child: FCard(
+                clipBehavior: Clip.antiAlias,
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(minHeight: 160),
                   child: Center(
@@ -90,7 +93,7 @@ class _SignTransactionContentState
                             padding: const EdgeInsets.all(Spaces.medium),
                             child: Text(
                               loc.no_signature_generated_yet,
-                              style: context.theme.typography.base.copyWith(
+                              style: context.theme.typography.body.md.copyWith(
                                 color: context.theme.colors.mutedForeground,
                               ),
                             ),
@@ -117,7 +120,7 @@ class _SignTransactionContentState
     if (_formKey.currentState?.validate() ?? false) {
       final transactionHash = _transactionController.text.trim();
       final future = ref
-          .read(walletStateProvider.notifier)
+          .read(walletCommandsProvider)
           .signTransactionHash(transactionHash.trim());
       setState(() {
         transactionSignature = future;

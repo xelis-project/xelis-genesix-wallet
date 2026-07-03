@@ -85,8 +85,17 @@ impl Log for SendToDartLogger {
 
     fn log(&self, record: &Record) {
         let entry = Self::record_to_entry(record);
-        if let Some(sink) = &*SEND_TO_DART_LOGGER_STREAM_SINK.read() {
-            sink.add(entry).unwrap();
+        let failed = {
+            let guard = SEND_TO_DART_LOGGER_STREAM_SINK.read();
+            if let Some(sink) = guard.as_ref() {
+                sink.add(entry).is_err()
+            } else {
+                false
+            }
+        };
+
+        if failed {
+            *SEND_TO_DART_LOGGER_STREAM_SINK.write() = None;
         }
     }
 

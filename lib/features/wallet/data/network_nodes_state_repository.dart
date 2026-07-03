@@ -17,13 +17,13 @@ class NetworkNodesStateRepository extends PersistentState<NetworkNodesState> {
       if (value == null) {
         return NetworkNodesState(
           mainnetAddress: AppResources.mainnetNodes.first,
-          mainnetNodes: AppResources.mainnetNodes,
+          mainnetNodes: List.of(AppResources.mainnetNodes),
           testnetAddress: AppResources.testnetNodes.first,
-          testnetNodes: AppResources.testnetNodes,
+          testnetNodes: List.of(AppResources.testnetNodes),
           devnetAddress: AppResources.devnetNodes.first,
-          devnetNodes: AppResources.devnetNodes,
+          devnetNodes: List.of(AppResources.devnetNodes),
           stagenetAddress: AppResources.stagenetNodes.first,
-          stagenetNodes: AppResources.stagenetNodes,
+          stagenetNodes: List.of(AppResources.stagenetNodes),
         );
       }
       return NetworkNodesState.fromJson(value as Map<String, dynamic>);

@@ -24,7 +24,7 @@ const Set<String> _releaseExcludedProviders = {
   // keep minimal in release (add noisy providers here if needed)
   'xelisPriceProvider',
   // excluded for privacy reasons
-  'walletStateProvider',
+  'walletRuntimeProvider',
   'historyProvider',
   'lastTransactionsProvider',
   'historyPagingStateProvider',

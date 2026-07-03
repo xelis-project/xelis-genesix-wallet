@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
-import 'package:genesix/features/authentication/application/authentication_service.dart';
+import 'package:genesix/features/authentication/application/authentication_provider.dart';
+import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
+import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
+import 'package:genesix/features/authentication/domain/authentication_state.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/settings/domain/display_currency.dart';
+import 'package:genesix/features/settings/presentation/components/network_select_menu_tile.dart';
+import 'package:genesix/features/settings/presentation/components/offline_mode_toggle_tile.dart';
 import 'package:genesix/features/settings/presentation/components/reset_preference_button.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -34,18 +41,21 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
     super.initState();
 
     getAppCacheDirPath().then((path) {
+      if (!mounted) return;
       setState(() {
         _cachePath = path;
       });
     });
 
     getAppWalletsDirPath().then((path) {
+      if (!mounted) return;
       setState(() {
         _walletsPath = path;
       });
     });
 
     PackageInfo.fromPlatform().then((packageInfo) {
+      if (!mounted) return;
       setState(() {
         _version = packageInfo.version;
       });
@@ -79,10 +89,10 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
                 label: Text(loc.general),
                 children: [
                   FTile(
-                    prefix: Icon(FIcons.languages),
+                    prefix: Icon(FLucideIcons.languages),
                     title: Text(loc.language),
                     subtitle: Text(translateLocaleName(locale)),
-                    suffix: Icon(FIcons.chevronRight),
+                    suffix: Icon(FLucideIcons.chevronRight),
                     onPress: () {
                       showAppDialog<void>(
                         context: context,
@@ -94,7 +104,7 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
                   ),
                   if (authState.isAuth)
                     FTile(
-                      prefix: Icon(FIcons.fingerprint),
+                      prefix: Icon(FLucideIcons.fingerprintPattern),
                       title: Text(loc.biometric_auth),
                       subtitle: Text(loc.enable_biometric_auth),
                       suffix: FSwitch(
@@ -103,30 +113,29 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
                             (state) => state.activateBiometricAuth,
                           ),
                         ),
-                        onChange: (value) {
-                          ref
-                              .read(settingsProvider.notifier)
-                              .setActivateBiometricAuth(value);
-                        },
+                        onChange: (value) =>
+                            _handleBiometricToggle(context, value),
                       ),
                     ),
+                  offlineModeToggleTile(ref),
                 ],
               ),
+              if (!authState.isAuth) const NetworkSelectMenuTile(),
               if (authState.isAuth)
                 FTileGroup(
                   label: Text(loc.wallet),
                   children: [
                     FTile(
-                      prefix: Icon(FIcons.dollarSign),
+                      prefix: Icon(FLucideIcons.dollarSign),
                       title: Text(loc.conversion_rate),
                       subtitle: Text(_currencySubtitle(ref)),
-                      suffix: Icon(FIcons.chevronRight),
+                      suffix: Icon(FLucideIcons.chevronRight),
                       onPress: () {
                         _showCurrencySelector(context, ref);
                       },
                     ),
                     FTile(
-                      prefix: Icon(FIcons.flame),
+                      prefix: Icon(FLucideIcons.flame),
                       title: Text(loc.burn),
                       subtitle: Text(loc.unlock_burn_transfer),
                       suffix: FSwitch(
@@ -137,6 +146,23 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
                           ref
                               .read(settingsProvider.notifier)
                               .setUnlockBurn(value);
+                        },
+                      ),
+                    ),
+                    FTile(
+                      prefix: Icon(FLucideIcons.newspaper),
+                      title: Text(loc.news_feed),
+                      subtitle: Text(loc.enable_news_feed),
+                      suffix: FSwitch(
+                        value: ref.watch(
+                          settingsProvider.select(
+                            (state) => state.enableNewsFeed,
+                          ),
+                        ),
+                        onChange: (value) {
+                          ref
+                              .read(settingsProvider.notifier)
+                              .setEnableNewsFeed(value);
                         },
                       ),
                     ),
@@ -183,7 +209,7 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
       context: context,
       builder: (context, style, animation) {
         return FDialog(
-          style: style.call,
+          clipBehavior: Clip.antiAlias,
           animation: animation,
           direction: Axis.horizontal,
           body: Padding(
@@ -191,7 +217,15 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
             child: FSelect<DisplayCurrency?>.rich(
               label: Text(loc.conversion_rate),
               description: Text(loc.show_or_hide_conversion_rate),
-              initialValue: currentCurrency,
+              control: .managed(
+                initial: currentCurrency,
+                onChange: (currency) {
+                  ref
+                      .read(settingsProvider.notifier)
+                      .setDisplayCurrency(currency?.code);
+                  context.pop();
+                },
+              ),
               format: (currency) =>
                   currency == null ? loc.disabled : currency.label,
               children: [
@@ -205,16 +239,61 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
                     value: currency,
                   ),
               ],
-              onChange: (value) {
-                ref
-                    .read(settingsProvider.notifier)
-                    .setDisplayCurrency(value?.code);
-              },
             ),
           ),
           actions: [
             FButton(onPress: () => context.pop(), child: Text(loc.ok_button)),
           ],
+        );
+      },
+    );
+  }
+
+  Future<void> _handleBiometricToggle(
+    BuildContext context,
+    bool enabled,
+  ) async {
+    if (!enabled) {
+      ref.read(settingsProvider.notifier).setActivateBiometricAuth(false);
+      return;
+    }
+
+    showAppDialog<void>(
+      context: context,
+      builder: (dialogContext, style, animation) {
+        return PasswordDialog(
+          animation,
+          onEnter: (password) async {
+            final authState = ref.read(authenticationProvider);
+            if (authState is! SignedIn) {
+              return;
+            }
+
+            final wallet = ref.read(activeWalletRepositoryProvider);
+            if (wallet == null) {
+              return;
+            }
+
+            try {
+              await wallet.isValidPassword(password);
+
+              await ref
+                  .read(secureStorageProvider)
+                  .write(key: authState.name, value: password);
+
+              ref
+                  .read(settingsProvider.notifier)
+                  .setActivateBiometricAuth(true);
+
+              if (dialogContext.mounted) {
+                dialogContext.pop();
+              }
+            } catch (e) {
+              ref
+                  .read(toastProvider.notifier)
+                  .showError(description: e.toString());
+            }
+          },
         );
       },
     );

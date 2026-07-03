@@ -6,11 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/xswd_providers.dart';
+import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:genesix/features/wallet/domain/prefetch_permissions_rpc_request.dart';
 import 'package:genesix/features/wallet/domain/permission_rpc_request.dart';
 import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/burn_builder_widget.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/deploy_contract_builder_widget.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/invoke_contract_widget.dart';
@@ -26,9 +27,8 @@ import 'package:go_router/go_router.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class XswdDialog extends ConsumerStatefulWidget {
-  const XswdDialog(this.style, this.animation, {super.key});
+  const XswdDialog(this.animation, {super.key});
 
-  final FDialogStyle style;
   final Animation<double> animation;
 
   @override
@@ -58,6 +58,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
 
   bool _timerShouldRun = false;
   bool _rememberDecision = false;
+  bool _detailsExpanded = false;
 
   late final XswdRequest _xswdRequestNotifier;
 
@@ -235,9 +236,10 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     if (xswdState.xswdEventSummary == null) {
       _cancelRapidFireWait();
       _syncTimerWithState(_ActionSet.okOnly);
+      _detailsExpanded = false;
 
       return FDialog(
-        style: widget.style.call,
+        clipBehavior: Clip.antiAlias,
         animation: widget.animation,
         body: Center(
           child: Text(
@@ -247,7 +249,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
         ),
         actions: [
           FButton(
-            style: FButtonStyle.ghost(),
+            variant: .ghost,
             onPress: () {
               final decision = xswdState.decision;
               if (decision != null && !decision.isCompleted) {
@@ -273,6 +275,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
       _closeDelayTimer = null;
       _awaitingNextRequest = false;
       _awaitingRequestHash = null;
+      _detailsExpanded = false;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _setSuppress(false);
@@ -305,7 +308,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     }
 
     return FDialog(
-      style: widget.style.call,
+      clipBehavior: Clip.antiAlias,
       animation: widget.animation,
       constraints: const BoxConstraints(maxWidth: 700),
       body: LayoutBuilder(
@@ -348,7 +351,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                         FTooltip(
                           tipBuilder: (context, controller) => Text(loc.close),
                           child: FButton.icon(
-                            style: FButtonStyle.ghost(),
+                            variant: .ghost,
                             onPress: () {
                               _stopTimer();
                               _cancelRapidFireWait();
@@ -370,7 +373,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
 
                               context.pop();
                             },
-                            child: const Icon(FIcons.x, size: 22),
+                            child: const Icon(FLucideIcons.x, size: 22),
                           ),
                         ),
                       ],
@@ -395,11 +398,17 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                           ),
                           const SizedBox(height: Spaces.medium),
                           _XswdMoreDetailsAccordion(
+                            expanded: _detailsExpanded,
                             appInfo: summary.applicationInfo,
                             permissionRequest: xswdState.permissionRpcRequest,
                             prefetchRequest:
                                 xswdState.prefetchPermissionsRequest,
                             loc: loc,
+                            onExpandedChange: (expanded) {
+                              setState(() {
+                                _detailsExpanded = expanded;
+                              });
+                            },
                             onAssetTap: (asset) =>
                                 _showAssetDetails(context, loc, asset),
                           ),
@@ -437,12 +446,13 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     showAppDialog<void>(
       context: context,
       builder: (context, style, animation) => FDialog(
-        style: style.call,
+        clipBehavior: Clip.antiAlias,
+        style: style,
         animation: animation,
         direction: Axis.horizontal,
         title: Row(
           children: [
-            const Icon(FIcons.coins),
+            const Icon(FLucideIcons.coins),
             const SizedBox(width: Spaces.small),
             Expanded(child: Text(loc.details.capitalize())),
           ],
@@ -475,6 +485,8 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     _stopTimer();
 
     final xswdState = ref.read(xswdRequestProvider);
+    _showAcceptedConnectionToast(xswdState, decision);
+
     final decisionCompleter = xswdState.decision;
     if (decisionCompleter != null && !decisionCompleter.isCompleted) {
       decisionCompleter.complete(decision);
@@ -487,6 +499,30 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     }
 
     context.pop();
+  }
+
+  void _showAcceptedConnectionToast(
+    XswdRequestState xswdState,
+    UserPermissionDecision decision,
+  ) {
+    final summary = xswdState.xswdEventSummary;
+    if (summary == null || !summary.isApplicationRequest()) {
+      return;
+    }
+
+    final accepted =
+        decision == UserPermissionDecision.accept ||
+        decision == UserPermissionDecision.alwaysAccept;
+    if (!accepted) {
+      return;
+    }
+
+    final loc = ref.read(appLocalizationsProvider);
+    ref
+        .read(toastProvider.notifier)
+        .showInformation(
+          title: loc.app_connected_title(summary.applicationInfo.name),
+        );
   }
 }
 
@@ -568,17 +604,21 @@ class _XswdApplicationInfoSection extends StatelessWidget {
 
 class _XswdMoreDetailsAccordion extends StatelessWidget {
   const _XswdMoreDetailsAccordion({
+    required this.expanded,
     required this.appInfo,
     required this.permissionRequest,
     required this.prefetchRequest,
     required this.loc,
+    required this.onExpandedChange,
     required this.onAssetTap,
   });
 
+  final bool expanded;
   final AppInfo appInfo;
   final PermissionRpcRequest? permissionRequest;
   final PrefetchPermissionsRequest? prefetchRequest;
   final AppLocalizations loc;
+  final ValueChanged<bool> onExpandedChange;
   final ValueChanged<String> onAssetTap;
 
   @override
@@ -596,9 +636,17 @@ class _XswdMoreDetailsAccordion extends StatelessWidget {
     }
 
     return FAccordion(
+      control: FAccordionControl.lifted(
+        expanded: (index) => index == 0 && expanded,
+        onChange: (index, nextExpanded) {
+          if (index == 0) {
+            onExpandedChange(nextExpanded);
+          }
+        },
+      ),
       children: [
         FAccordionItem(
-          title: const Text('More details'),
+          title: Text(loc.more_details),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -701,7 +749,7 @@ class _XswdMinimalPrefetchDetailsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (request.reason != null && request.reason!.isNotEmpty) ...[
-          _XswdInfoRow(label: 'Reason', value: request.reason!),
+          _XswdInfoRow(label: loc.reason, value: request.reason!),
           const SizedBox(height: Spaces.medium),
         ],
         Text(
@@ -761,7 +809,7 @@ class _XswdMinimalBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FBadge(style: FBadgeStyle.outline(), child: Text(label));
+    return FBadge(variant: .outline, child: Text(label));
   }
 }
 
@@ -855,7 +903,6 @@ class _XswdActionFactory {
       case _ActionSet.okOnly:
         return [
           FButton(
-            style: FButtonStyle.primary(),
             onPress: busy ? null : () => context.pop(),
             child: Text(loc.ok_button),
           ),
@@ -875,7 +922,7 @@ class _XswdActionFactory {
       case _ActionSet.permissionDecision:
         return [
           FSwitch(
-            label: const Text('Remember my decision'),
+            label: Text(loc.remember_my_decision),
             value: rememberDecision,
             onChange: busy ? null : onRememberChanged,
           ),
@@ -916,16 +963,11 @@ class _XswdActionFactory {
           _XswdDecisionButton(
             busy: busy,
             label: denyLabel,
-            style: FButtonStyle.outline(),
+            variant: .outline,
             onPress: onDeny,
           ),
           const SizedBox(width: Spaces.small),
-          _XswdDecisionButton(
-            busy: busy,
-            label: allowLabel,
-            style: FButtonStyle.primary(),
-            onPress: onAllow,
-          ),
+          _XswdDecisionButton(busy: busy, label: allowLabel, onPress: onAllow),
         ],
       ),
     ];
@@ -936,20 +978,20 @@ class _XswdDecisionButton extends StatelessWidget {
   const _XswdDecisionButton({
     required this.busy,
     required this.label,
-    required this.style,
+    this.variant = FButtonVariant.primary,
     required this.onPress,
   });
 
   final bool busy;
   final String label;
-  final FBaseButtonStyle Function(FButtonStyle style) style;
+  final FButtonVariant variant;
   final VoidCallback onPress;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: FButton(
-        style: style,
+        variant: variant,
         onPress: busy ? null : onPress,
         child: Text(label),
       ),
@@ -1008,19 +1050,19 @@ class _XswdCountdownIndicator extends StatelessWidget {
 
 class _XswdIconBadge extends StatelessWidget {
   const _XswdIconBadge({
-    required this.style,
+    this.variant = FBadgeVariant.primary,
     required this.icon,
     required this.child,
   });
 
-  final FBaseBadgeStyle Function(FBadgeStyle style) style;
+  final FBadgeVariant variant;
   final IconData icon;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     return FBadge(
-      style: style,
+      variant: variant,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -1053,8 +1095,8 @@ class _AssetPermissionBadge extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: _XswdIconBadge(
-        style: FBadgeStyle.outline(),
-        icon: FIcons.coins,
+        variant: .outline,
+        icon: FLucideIcons.coins,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -1075,7 +1117,7 @@ class _AssetPermissionBadge extends StatelessWidget {
             if (asset.length > 16) ...[
               const SizedBox(width: Spaces.extraSmall),
               Icon(
-                FIcons.circleQuestionMark,
+                FLucideIcons.circleQuestionMark,
                 size: 14,
                 color: context.theme.colors.mutedForeground,
               ),

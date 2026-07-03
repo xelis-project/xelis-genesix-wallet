@@ -20,15 +20,22 @@ class LanguageSelectorDialog extends ConsumerWidget {
     final loc = ref.watch(appLocalizationsProvider);
     final locale = ref.watch(settingsProvider.select((state) => state.locale));
     return FDialog(
-      style: style.call,
+      clipBehavior: Clip.antiAlias,
       animation: animation,
       direction: Axis.horizontal,
       body: Padding(
         padding: const EdgeInsets.all(Spaces.small),
         child: FSelect<Locale>.rich(
+          control: .managed(
+            initial: locale,
+            onChange: (value) {
+              if (value != null) {
+                ref.read(settingsProvider.notifier).setLocale(value);
+              }
+            },
+          ),
           label: Text(loc.language),
           description: Text(loc.select_language_config),
-          initialValue: locale,
           format: (l) => translateLocaleName(l),
           children: List<FSelectItemMixin>.generate(
             AppResources.countryFlags.length,
@@ -41,11 +48,6 @@ class LanguageSelectorDialog extends ConsumerWidget {
               );
             },
           ),
-          onChange: (value) {
-            if (value != null) {
-              ref.read(settingsProvider.notifier).setLocale(value);
-            }
-          },
         ),
       ),
       actions: [

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
 import 'package:genesix/features/wallet/presentation/assets/asset_name_widget.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -10,6 +9,7 @@ import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:genesix/shared/widgets/components/labeled_value.dart';
 import 'package:go_router/go_router.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
+import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 
 class TrackedAssetDetails extends ConsumerStatefulWidget {
   const TrackedAssetDetails(this.hash, this.asset, this.balance, {super.key});
@@ -36,6 +36,7 @@ class _TrackedAssetDetailsState extends ConsumerState<TrackedAssetDetails> {
     final loc = ref.watch(appLocalizationsProvider);
 
     return FDialog(
+      clipBehavior: Clip.antiAlias,
       title: Text(loc.details.capitalize()),
       body: FadedScroll(
         controller: _controller,
@@ -60,7 +61,7 @@ class _TrackedAssetDetailsState extends ConsumerState<TrackedAssetDetails> {
                   InkWell(
                     child: Text(
                       widget.hash,
-                      style: context.theme.typography.base,
+                      style: context.theme.typography.body.md,
                     ),
                     onTap: () => copyToClipboard(widget.hash, ref, loc.copied),
                   ),
@@ -80,7 +81,7 @@ class _TrackedAssetDetailsState extends ConsumerState<TrackedAssetDetails> {
                         widget.asset.decimals,
                         widget.asset.ticker,
                       ),
-                      style: context.theme.typography.base,
+                      style: context.theme.typography.body.md,
                     ),
                   ),
                 if (!widget.asset.owner.isNone) ...[
@@ -109,7 +110,7 @@ class _TrackedAssetDetailsState extends ConsumerState<TrackedAssetDetails> {
         if (!isXelis(widget.hash))
           FButton(
             onPress: () {
-              ref.read(walletStateProvider.notifier).untrackAsset(widget.hash);
+              ref.read(walletCommandsProvider).untrackAsset(widget.hash);
               context.pop();
             },
             child: Text(loc.untrack.capitalize()),

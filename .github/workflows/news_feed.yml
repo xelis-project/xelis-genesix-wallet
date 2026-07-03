@@ -1,0 +1,79 @@
+name: News Feed
+
+on:
+  push:
+    branches: ["main", "dev"]
+    paths:
+      - "news/**"
+      - "lib/features/news/domain/news_feed_contract.dart"
+      - "tool/validate_news_feed.dart"
+      - ".github/workflows/news_feed.yml"
+  pull_request:
+    paths:
+      - "news/**"
+      - "lib/features/news/domain/news_feed_contract.dart"
+      - "tool/validate_news_feed.dart"
+      - ".github/workflows/news_feed.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: news-feed-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Validate news feed
+        run: dart run tool/validate_news_feed.dart
+
+  deploy:
+    name: Deploy Pages
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Prepare news artifact
+        shell: bash
+        run: |
+          mkdir -p _site/news
+          cp -R news/. _site/news/
+          touch _site/.nojekyll
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

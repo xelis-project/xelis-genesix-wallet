@@ -1,15 +1,17 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/logger/logger.dart';
-import 'package:genesix/features/router/routes.dart';
+import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/application/contact_history_providers.dart';
+import 'package:genesix/features/wallet/presentation/address_book/edit_contact_sheet.dart';
 import 'package:genesix/features/wallet/presentation/components/transaction_view_utils.dart';
 import 'package:genesix/features/wallet/presentation/history/transaction_grouped_widget.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
+import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/body_layout_builder.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
@@ -17,12 +19,13 @@ import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:go_router/go_router.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class ContactDetailsScreen extends ConsumerStatefulWidget {
-  final String contactAddress;
-
   const ContactDetailsScreen({super.key, required this.contactAddress});
+
+  final String contactAddress;
 
   @override
   ConsumerState<ContactDetailsScreen> createState() =>
@@ -30,67 +33,12 @@ class ContactDetailsScreen extends ConsumerStatefulWidget {
 }
 
 class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
-  final _notesController = TextEditingController();
-  final _nameController = TextEditingController();
-  bool _isEditingNotes = false;
-  bool _isEditingName = false;
+  final _scrollController = ScrollController();
 
   @override
   void dispose() {
-    _notesController.dispose();
-    _nameController.dispose();
+    _scrollController.dispose();
     super.dispose();
-  }
-
-  Future<void> _saveNotes(ContactDetails contact) async {
-    final loc = ref.read(appLocalizationsProvider);
-    try {
-      await ref
-          .read(addressBookProvider.notifier)
-          .upsert(
-            contact.address,
-            contact.name,
-            _notesController.text.trim().isEmpty
-                ? null
-                : _notesController.text.trim(),
-          );
-      setState(() => _isEditingNotes = false);
-      if (mounted) {
-        ref
-            .read(toastProvider.notifier)
-            .showInformation(title: loc.notes_saved);
-      }
-    } catch (e) {
-      if (mounted) {
-        ref.read(toastProvider.notifier).showError(description: e.toString());
-      }
-    }
-  }
-
-  Future<void> _saveName(ContactDetails contact) async {
-    final loc = ref.read(appLocalizationsProvider);
-    final newName = _nameController.text.trim();
-    if (newName.isEmpty) {
-      ref
-          .read(toastProvider.notifier)
-          .showError(description: 'Name cannot be empty');
-      return;
-    }
-    try {
-      await ref
-          .read(addressBookProvider.notifier)
-          .upsert(contact.address, newName, contact.note);
-      setState(() => _isEditingName = false);
-      if (mounted) {
-        ref
-            .read(toastProvider.notifier)
-            .showInformation(title: loc.notes_saved);
-      }
-    } catch (e) {
-      if (mounted) {
-        ref.read(toastProvider.notifier).showError(description: e.toString());
-      }
-    }
   }
 
   @override
@@ -98,319 +46,115 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
     final loc = ref.watch(appLocalizationsProvider);
     final contactAsync = ref.watch(addressBookProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(loc.contact_details),
-        actions: [
-          contactAsync.maybeWhen(
-            data: (contacts) {
-              final contact = contacts[widget.contactAddress];
-              if (contact == null) return const SizedBox.shrink();
-
-              return _isEditingName
-                  ? Row(
-                      spacing: Spaces.small,
-                      children: [
-                        FButton(
-                          style: FButtonStyle.outline(),
-                          onPress: () {
-                            setState(() {
-                              _isEditingName = false;
-                              _nameController.text = contact.name;
-                            });
-                          },
-                          child: Text(loc.cancel_button),
-                        ),
-                        FButton(
-                          onPress: () => _saveName(contact),
-                          child: Text(loc.save),
-                        ),
-                      ],
-                    )
-                  : FButton(
-                      style: FButtonStyle.outline(),
-                      onPress: () => setState(() => _isEditingName = true),
-                      prefix: const Icon(Icons.edit_rounded, size: 18),
-                      child: Text(loc.edit_button),
-                    );
-            },
-            orElse: () => const SizedBox.shrink(),
-          ),
-          const SizedBox(width: Spaces.small),
-          FButton(
-            onPress: () => TransferRoute(
-              $extra: widget.contactAddress,
-            ).push<void>(context),
-            prefix: const Icon(Icons.send_rounded, size: 18),
-            child: Text(loc.send),
-          ),
-          const SizedBox(width: Spaces.small),
-        ],
+    return FScaffold(
+      header: Padding(
+        padding: const EdgeInsets.only(top: Spaces.medium),
+        child: FHeader.nested(
+          title: Text(loc.contact_details),
+          prefixes: [
+            Padding(
+              padding: const EdgeInsets.all(Spaces.small),
+              child: FHeaderAction.back(onPress: () => context.pop()),
+            ),
+          ],
+        ),
       ),
-      body: contactAsync.when(
+      child: contactAsync.when(
         data: (contacts) {
           final contact = contacts[widget.contactAddress];
           if (contact == null) {
-            return Center(child: Text(loc.contact_not_found));
-          }
-
-          if (_notesController.text.isEmpty && contact.note != null) {
-            _notesController.text = contact.note!;
+            return _ContactNotFound(localizations: loc);
           }
 
           return BodyLayoutBuilder(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(Spaces.medium),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: Spaces.medium,
-                    children: [
-                      _ContactInfoCard(
-                        contact: contact,
-                        localizations: loc,
-                        nameController: _nameController,
-                        isEditingName: _isEditingName,
-                        onEditName: () => setState(() => _isEditingName = true),
-                        onCancelName: () {
-                          setState(() {
-                            _isEditingName = false;
-                            _nameController.text = contact.name;
-                          });
-                        },
-                        onSaveName: () => _saveName(contact),
+            child: FadedScroll(
+              controller: _scrollController,
+              fadeFraction: 0.08,
+              child: CustomScrollView(
+                controller: _scrollController,
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(Spaces.medium),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: Spaces.medium,
+                        children: [
+                          _ContactProfileCard(
+                            contact: contact,
+                            localizations: loc,
+                            onSend: () => context.push(
+                              AuthAppScreen.transfer.toPath,
+                              extra: contact.address,
+                            ),
+                            onEdit: () => _showEditContactSheet(contact),
+                          ),
+                          _ContactNotesCard(
+                            contact: contact,
+                            localizations: loc,
+                          ),
+                          _TransactionsSectionHeader(title: loc.transactions),
+                        ],
                       ),
-                      _NotesCard(
-                        contact: contact,
-                        localizations: loc,
-                        controller: _notesController,
-                        isEditing: _isEditingNotes,
-                        onEdit: () => setState(() => _isEditingNotes = true),
-                        onCancel: () {
-                          setState(() {
-                            _isEditingNotes = false;
-                            _notesController.text = contact.note ?? '';
-                          });
-                        },
-                        onSave: () => _saveNotes(contact),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: _ContactHistoryContent(
-                    contactAddress: widget.contactAddress,
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(
+                      Spaces.medium,
+                      Spaces.small,
+                      Spaces.medium,
+                      Spaces.medium,
+                    ),
+                    sliver: _ContactHistorySliver(
+                      contactAddress: widget.contactAddress,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },
-        loading: () => Center(child: FCircularProgress()),
+        loading: () => const Center(child: FCircularProgress()),
         error: (error, stack) => Center(child: Text('${loc.error}: $error')),
       ),
     );
   }
-}
 
-class _ContactInfoCard extends ConsumerStatefulWidget {
-  final ContactDetails contact;
-  final AppLocalizations localizations;
-  final TextEditingController nameController;
-  final bool isEditingName;
-  final VoidCallback onEditName;
-  final VoidCallback onCancelName;
-  final VoidCallback onSaveName;
-
-  const _ContactInfoCard({
-    required this.contact,
-    required this.localizations,
-    required this.nameController,
-    required this.isEditingName,
-    required this.onEditName,
-    required this.onCancelName,
-    required this.onSaveName,
-  });
-
-  @override
-  ConsumerState<_ContactInfoCard> createState() => _ContactInfoCardState();
-}
-
-class _ContactInfoCardState extends ConsumerState<_ContactInfoCard> {
-  @override
-  void initState() {
-    super.initState();
-    if (widget.nameController.text.isEmpty) {
-      widget.nameController.text = widget.contact.name;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FCard(
-      child: Padding(
-        padding: const EdgeInsets.all(Spaces.medium),
-        child: Column(
-          spacing: Spaces.medium,
-          children: [
-            HashiconWidget(
-              hash: widget.contact.address,
-              size: const Size(80, 80),
-            ),
-            if (widget.isEditingName)
-              FTextField(
-                controller: widget.nameController,
-                hint: 'Contact name',
-              )
-            else
-              Text(
-                widget.contact.name,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                // Calculate font size based on available width
-                // XELIS address is typically 63 characters
-                final addressLength = widget.contact.address.length;
-                final availableWidth =
-                    constraints.maxWidth - 80; // Account for padding and icon
-                final baseCharWidth =
-                    7.5; // Approximate width per character at fontSize 12
-                final baseFontSize = 12.0;
-                final calculatedFontSize =
-                    (availableWidth /
-                            (addressLength * baseCharWidth / baseFontSize))
-                        .clamp(8.0, 12.0);
-
-                return FButton(
-                  style: FButtonStyle.outline(),
-                  onPress: () {
-                    Clipboard.setData(
-                      ClipboardData(text: widget.contact.address),
-                    );
-                    ref
-                        .read(toastProvider.notifier)
-                        .showInformation(
-                          title: widget.localizations.copied_to_clipboard,
-                        );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: Spaces.small,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: Spaces.small,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            widget.contact.address,
-                            style: TextStyle(fontSize: calculatedFontSize),
-                            textAlign: TextAlign.center,
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        const Icon(Icons.copy_rounded, size: 16),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+  void _showEditContactSheet(ContactDetails contact) {
+    showFSheet<void>(
+      context: context,
+      side: FLayout.btt,
+      useRootNavigator: true,
+      mainAxisMaxRatio: context.getFSheetRatio,
+      builder: (context) => EditContactSheet(contact),
     );
   }
 }
 
-class _NotesCard extends StatelessWidget {
-  final ContactDetails contact;
-  final AppLocalizations localizations;
-  final TextEditingController controller;
-  final bool isEditing;
-  final VoidCallback onEdit;
-  final VoidCallback onCancel;
-  final VoidCallback onSave;
+class _ContactNotFound extends StatelessWidget {
+  const _ContactNotFound({required this.localizations});
 
-  const _NotesCard({
-    required this.contact,
-    required this.localizations,
-    required this.controller,
-    required this.isEditing,
-    required this.onEdit,
-    required this.onCancel,
-    required this.onSave,
-  });
+  final AppLocalizations localizations;
 
   @override
   Widget build(BuildContext context) {
-    return FCard(
+    return Center(
       child: Padding(
-        padding: const EdgeInsets.all(Spaces.medium),
+        padding: const EdgeInsets.all(Spaces.large),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
           spacing: Spaces.small,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  localizations.notes,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                if (!isEditing)
-                  FButton(
-                    style: FButtonStyle.outline(),
-                    onPress: onEdit,
-                    prefix: const Icon(Icons.edit_rounded, size: 16),
-                    child: Text(localizations.edit_button),
-                  ),
-              ],
+            Icon(
+              FLucideIcons.circleAlert,
+              size: 28,
+              color: context.theme.colors.mutedForeground,
             ),
-            if (isEditing)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: Spaces.small,
-                children: [
-                  FTextField(
-                    controller: controller,
-                    maxLines: 5,
-                    hint: localizations.enter_notes,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    spacing: Spaces.small,
-                    children: [
-                      FButton(
-                        style: FButtonStyle.outline(),
-                        onPress: onCancel,
-                        child: Text(localizations.cancel_button),
-                      ),
-                      FButton(onPress: onSave, child: Text(localizations.save)),
-                    ],
-                  ),
-                ],
-              )
-            else
-              Text(
-                contact.note?.isEmpty ?? true
-                    ? localizations.no_notes
-                    : contact.note!,
-                style: TextStyle(
-                  color: contact.note?.isEmpty ?? true
-                      ? context.theme.colors.mutedForeground
-                      : null,
-                ),
-              ),
+            Text(
+              localizations.contact_not_found,
+              textAlign: TextAlign.center,
+              style: context.theme.typography.display.lg,
+            ),
           ],
         ),
       ),
@@ -418,25 +162,216 @@ class _NotesCard extends StatelessWidget {
   }
 }
 
-class _ContactHistoryContent extends ConsumerStatefulWidget {
-  final String contactAddress;
+class _ContactProfileCard extends ConsumerWidget {
+  const _ContactProfileCard({
+    required this.contact,
+    required this.localizations,
+    required this.onSend,
+    required this.onEdit,
+  });
 
-  const _ContactHistoryContent({required this.contactAddress});
+  final ContactDetails contact;
+  final AppLocalizations localizations;
+  final VoidCallback onSend;
+  final VoidCallback onEdit;
 
   @override
-  ConsumerState createState() => _ContactHistoryContentState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FCard(
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.all(Spaces.medium),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final compact = constraints.maxWidth < 420;
+            final hashiconSize = compact ? 56.0 : 64.0;
 
-class _ContactHistoryContentState
-    extends ConsumerState<_ContactHistoryContent> {
-  final _controller = ScrollController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: Spaces.medium,
+              children: [
+                Row(
+                  children: [
+                    HashiconWidget(
+                      hash: contact.address,
+                      size: Size.square(hashiconSize),
+                    ),
+                    const SizedBox(width: Spaces.medium),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: Spaces.extraSmall,
+                        children: [
+                          Text(
+                            contact.name,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style:
+                                (compact
+                                        ? context.theme.typography.display.lg
+                                        : context.theme.typography.display.xl)
+                                    .copyWith(fontWeight: FontWeight.w700),
+                          ),
+                          Text(
+                            localizations.address,
+                            style: context.theme.typography.body.xs.copyWith(
+                              color: context.theme.colors.mutedForeground,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                FTooltip(
+                  tipBuilder: (_, _) => Text(contact.address),
+                  child: FButton(
+                    variant: .outline,
+                    semanticsLabel: localizations.copy,
+                    onPress: () => _copyAddress(ref),
+                    suffix: const Icon(FLucideIcons.copy, size: 16),
+                    builder: (_, _, textStyle, _, _, _) => Expanded(
+                      child: Text(
+                        contact.address,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.start,
+                        style: textStyle,
+                      ),
+                    ),
+                  ),
+                ),
+                _ContactActions(
+                  localizations: localizations,
+                  compact: compact,
+                  onSend: onSend,
+                  onEdit: onEdit,
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
   }
 
+  void _copyAddress(WidgetRef ref) {
+    Clipboard.setData(ClipboardData(text: contact.address));
+    ref
+        .read(toastProvider.notifier)
+        .showInformation(title: localizations.copied_to_clipboard);
+  }
+}
+
+class _ContactActions extends StatelessWidget {
+  const _ContactActions({
+    required this.localizations,
+    required this.compact,
+    required this.onSend,
+    required this.onEdit,
+  });
+
+  final AppLocalizations localizations;
+  final bool compact;
+  final VoidCallback onSend;
+  final VoidCallback onEdit;
+
+  @override
+  Widget build(BuildContext context) {
+    final sendButton = FButton(
+      onPress: onSend,
+      prefix: const Icon(FLucideIcons.send, size: 18),
+      child: Text(localizations.send),
+    );
+    final editButton = FButton(
+      variant: .outline,
+      onPress: onEdit,
+      prefix: const Icon(FLucideIcons.pencil, size: 18),
+      child: Text(localizations.edit_button),
+    );
+
+    if (compact) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: Spaces.small,
+        children: [sendButton, editButton],
+      );
+    }
+
+    return Row(
+      spacing: Spaces.small,
+      children: [
+        Expanded(child: sendButton),
+        Expanded(child: editButton),
+      ],
+    );
+  }
+}
+
+class _ContactNotesCard extends StatelessWidget {
+  const _ContactNotesCard({required this.contact, required this.localizations});
+
+  final ContactDetails contact;
+  final AppLocalizations localizations;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasNotes = contact.note?.isNotEmpty ?? false;
+
+    return FCard(
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.all(Spaces.medium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: Spaces.small,
+          children: [
+            Text(
+              localizations.notes,
+              style: context.theme.typography.display.lg,
+            ),
+            Text(
+              hasNotes ? contact.note! : localizations.no_notes,
+              softWrap: true,
+              style: context.theme.typography.body.sm.copyWith(
+                color: hasNotes ? null : context.theme.colors.mutedForeground,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TransactionsSectionHeader extends StatelessWidget {
+  const _TransactionsSectionHeader({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(title, style: context.theme.typography.display.lg),
+        FDivider(),
+      ],
+    );
+  }
+}
+
+class _ContactHistorySliver extends ConsumerStatefulWidget {
+  const _ContactHistorySliver({required this.contactAddress});
+
+  final String contactAddress;
+
+  @override
+  ConsumerState<_ContactHistorySliver> createState() =>
+      _ContactHistorySliverState();
+}
+
+class _ContactHistorySliverState extends ConsumerState<_ContactHistorySliver> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
@@ -447,49 +382,59 @@ class _ContactHistoryContentState
 
     switch (addressBook) {
       case AsyncData(:final value):
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Spaces.medium),
-          child: FadedScroll(
-            controller: _controller,
-            fadeFraction: 0.08,
-            child:
-                PagedListView<int, MapEntry<DateTime, List<TransactionEntry>>>(
-                  scrollController: _controller,
-                  state: pagingState,
-                  fetchNextPage: _fetchPage,
-                  builderDelegate:
-                      PagedChildBuilderDelegate<
-                        MapEntry<DateTime, List<TransactionEntry>>
-                      >(
-                        animateTransitions: true,
-                        itemBuilder: (context, item, index) =>
-                            TransactionGroupedWidget(item, value),
-                        noItemsFoundIndicatorBuilder: (context) => Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(Spaces.large),
-                            child: Text(
-                              loc.no_transactions_with_contact,
-                              style: context.theme.typography.base.copyWith(
-                                color: context.theme.colors.mutedForeground,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+        return PagedSliverList<int, MapEntry<DateTime, List<TransactionEntry>>>(
+          state: pagingState,
+          fetchNextPage: _fetchPage,
+          shrinkWrapFirstPageIndicators: true,
+          builderDelegate:
+              PagedChildBuilderDelegate<
+                MapEntry<DateTime, List<TransactionEntry>>
+              >(
+                animateTransitions: true,
+                itemBuilder: (context, item, index) =>
+                    TransactionGroupedWidget(item, value),
+                noItemsFoundIndicatorBuilder: (context) =>
+                    _ContactTransactionsEmptyState(
+                      message: loc.no_transactions_with_contact,
+                    ),
+                firstPageProgressIndicatorBuilder: (context) => const Padding(
+                  padding: EdgeInsets.symmetric(vertical: Spaces.large),
+                  child: Center(child: FCircularProgress()),
                 ),
-          ),
+                firstPageErrorIndicatorBuilder: (context) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: Spaces.large),
+                  child: Center(
+                    child: Text(
+                      loc.oups,
+                      style: context.theme.typography.body.md.copyWith(
+                        color: context.theme.colors.error,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
         );
       case AsyncError():
-        return Center(
-          child: Text(
-            loc.oups,
-            style: context.theme.typography.base.copyWith(
-              color: context.theme.colors.error,
+        return SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: Spaces.large),
+            child: Center(
+              child: Text(
+                loc.oups,
+                style: context.theme.typography.body.md.copyWith(
+                  color: context.theme.colors.error,
+                ),
+              ),
             ),
           ),
         );
       default:
-        return Center(child: FCircularProgress());
+        return const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: Spaces.large),
+            child: Center(child: FCircularProgress()),
+          ),
+        );
     }
   }
 
@@ -526,5 +471,27 @@ class _ContactHistoryContentState
           )
           .error(error);
     }
+  }
+}
+
+class _ContactTransactionsEmptyState extends StatelessWidget {
+  const _ContactTransactionsEmptyState({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: Spaces.large),
+      child: Center(
+        child: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: context.theme.typography.body.sm.copyWith(
+            color: context.theme.colors.mutedForeground,
+          ),
+        ),
+      ),
+    );
   }
 }

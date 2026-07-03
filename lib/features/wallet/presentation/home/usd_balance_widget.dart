@@ -28,7 +28,14 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
     final hideBalance = ref.watch(
       settingsProvider.select((state) => state.hideBalance),
     );
-    final xelisCoingeckoResponse = ref.watch(xelisPriceProvider).valueOrNull;
+    final effectiveDisplayCurrency = ref.watch(
+      effectiveDisplayCurrencyProvider,
+    );
+    if (effectiveDisplayCurrency == null) {
+      return const SizedBox.shrink();
+    }
+
+    final xelisCoingeckoResponse = ref.watch(xelisPriceProvider).value;
 
     if (hideBalance) {
       return Row(
@@ -37,13 +44,13 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
         children: [
           Text(
             hidden,
-            style: context.theme.typography.sm.copyWith(
+            style: context.theme.typography.body.sm.copyWith(
               color: context.theme.colors.mutedForeground,
             ),
           ),
           Text(
             hidden,
-            style: context.theme.typography.sm.copyWith(
+            style: context.theme.typography.body.sm.copyWith(
               color: context.theme.colors.mutedForeground,
               fontWeight: FontWeight.w600,
             ),
@@ -77,7 +84,7 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
         children: [
           Text(
             displayedBalance,
-            style: context.theme.typography.sm.copyWith(
+            style: context.theme.typography.body.sm.copyWith(
               color: context.theme.colors.mutedForeground,
             ),
           ),
@@ -88,7 +95,9 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
             child: Row(
               children: [
                 Icon(
-                  isPositiveChange ? FIcons.chevronUp : FIcons.chevronDown,
+                  isPositiveChange
+                      ? FLucideIcons.chevronUp
+                      : FLucideIcons.chevronDown,
                   color: isPositiveChange
                       ? context.theme.colors.upColor
                       : context.theme.colors.downColor,
@@ -96,7 +105,7 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
                 ),
                 Text(
                   displayedPercentChange24h,
-                  style: context.theme.typography.sm.copyWith(
+                  style: context.theme.typography.body.sm.copyWith(
                     color: isPositiveChange
                         ? context.theme.colors.upColor
                         : context.theme.colors.downColor,

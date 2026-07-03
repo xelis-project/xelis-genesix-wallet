@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/shared/theme/theme.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:genesix/features/authentication/application/authentication_service.dart';
+import 'package:genesix/features/authentication/application/wallet_session_commands_provider.dart';
 import 'package:genesix/features/router/router.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/settings/domain/settings_state.dart';
@@ -40,13 +41,20 @@ class _GenesixState extends ConsumerState<Genesix> with WindowListener {
     );
 
     FThemeData themeData;
+    final touch = switch (defaultTargetPlatform) {
+      TargetPlatform.android ||
+      TargetPlatform.iOS ||
+      TargetPlatform.fuchsia => true,
+      _ => false,
+    };
+
     switch (appTheme) {
       case AppTheme.light:
-        themeData = greenLight;
+        themeData = greenLight(touch: touch);
       case AppTheme.dark:
-        themeData = greenDark;
+        themeData = greenDark(touch: touch);
       case AppTheme.xelis:
-        themeData = greenDark;
+        themeData = greenDark(touch: touch);
     }
 
     return MaterialApp.router(
@@ -68,7 +76,7 @@ class _GenesixState extends ConsumerState<Genesix> with WindowListener {
 
   @override
   Future<void> onWindowClose() async {
-    await ref.read(authenticationProvider.notifier).logout();
+    await ref.read(walletSessionCommandsProvider.notifier).logout();
     await disposeRustLogging();
   }
 }

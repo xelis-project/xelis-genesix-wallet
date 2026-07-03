@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
-import 'package:genesix/features/authentication/application/wallets_state_provider.dart';
+import 'package:genesix/features/authentication/application/wallets_provider.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
@@ -49,18 +49,17 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
     final loc = ref.watch(appLocalizationsProvider);
     final wallets = ref.watch(walletsProvider.future);
     final walletName = ref.watch(
-      walletStateProvider.select((state) => state.name),
+      walletRuntimeProvider.select((state) => state.name),
     );
     final walletAddress = ref.watch(
-      walletStateProvider.select((state) => state.address),
+      walletRuntimeProvider.select((state) => state.address),
     );
 
     return Row(
       spacing: Spaces.medium,
       children: [
         FAvatar.raw(
-          style: (style) =>
-              style.copyWith(backgroundColor: context.theme.colors.background),
+          style: .delta(backgroundColor: context.theme.colors.background),
           child: HashiconWidget(hash: walletAddress, size: const Size(35, 35)),
         ),
         Expanded(
@@ -78,26 +77,21 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
                   child: Form(
                     key: _formKey,
                     child: FTextFormField(
-                      controller: _nameController,
+                      control: .managed(controller: _nameController),
                       focusNode: _focusNode,
                       enabled: editing,
                       autocorrect: false,
+                      selectAllOnFocus: true,
                       keyboardType: TextInputType.text,
                       maxLines: 1,
-                      style: context.theme.textFieldStyle
-                          .copyWith(
-                            contentTextStyle: FWidgetStateMap({
-                              WidgetState.disabled: context.theme.typography.lg
-                                  .copyWith(
-                                    color: context.theme.colors.foreground,
-                                  ),
-                              WidgetState.any: context.theme.typography.lg
-                                  .copyWith(
-                                    color: context.theme.colors.primary,
-                                  ),
-                            }),
-                          )
-                          .call,
+                      style: .delta(
+                        contentTextStyle: .delta([
+                          .base(.delta(color: context.theme.colors.primary)),
+                          .exact({
+                            .disabled,
+                          }, .delta(color: context.theme.colors.foreground)),
+                        ]),
+                      ),
                       validator: (value) {
                         if (value == null ||
                             value.isEmpty ||
@@ -132,7 +126,7 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
                     onPress: () {
                       _onSave(_nameController.text.trim());
                     },
-                    child: const Icon(FIcons.check),
+                    child: const Icon(FLucideIcons.check),
                   ),
                 )
               : FTooltip(
@@ -140,7 +134,7 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
                       Text(loc.edit_wallet_name),
                   child: FButton.icon(
                     onPress: _onEdit,
-                    child: const Icon(FIcons.pencil),
+                    child: const Icon(FLucideIcons.pencil),
                   ),
                 ),
         ),
@@ -161,7 +155,7 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
     if (_formKey.currentState?.validate() ?? false) {
       try {
         final walletName = ref.read(
-          walletStateProvider.select((state) => state.name),
+          walletRuntimeProvider.select((state) => state.name),
         );
 
         if (newName == walletName) {

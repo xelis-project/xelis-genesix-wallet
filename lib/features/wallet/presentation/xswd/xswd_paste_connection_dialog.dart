@@ -6,22 +6,16 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 
 import 'package:genesix/features/logger/logger.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
-import 'package:genesix/features/wallet/application/xswd_providers.dart';
+import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 
 import 'xswd_relayer.dart';
+import 'package:genesix/features/wallet/application/xswd_controller_provider.dart';
 
 class XswdPasteConnectionDialog extends ConsumerStatefulWidget {
-  const XswdPasteConnectionDialog(
-    this.style,
-    this.animation,
-    this.close, {
-    super.key,
-  });
+  const XswdPasteConnectionDialog(this.animation, this.close, {super.key});
 
-  final FDialogStyle style;
   final Animation<double> animation;
   final VoidCallback close;
 
@@ -65,7 +59,7 @@ class _XswdPasteConnectionDialogState
     final loc = ref.watch(appLocalizationsProvider);
 
     return FDialog(
-      style: widget.style.call,
+      clipBehavior: Clip.antiAlias,
       animation: widget.animation,
       constraints: const BoxConstraints(maxWidth: 700),
       body: Column(
@@ -79,15 +73,15 @@ class _XswdPasteConnectionDialogState
               children: [
                 const Expanded(child: _DialogTitle()),
                 FButton.icon(
-                  style: FButtonStyle.ghost(),
+                  variant: .ghost,
                   onPress: _isProcessing ? null : () => widget.close(),
-                  child: const Icon(FIcons.x, size: 22),
+                  child: const Icon(FLucideIcons.x, size: 22),
                 ),
               ],
             ),
           ),
           FTextField(
-            controller: _controller,
+            control: .managed(controller: _controller),
             label: Text(loc.parameters),
             hint:
                 '{"relayer":"...","encryption_mode":{mode, key},"app_data":{...}}',
@@ -102,7 +96,7 @@ class _XswdPasteConnectionDialogState
             const SizedBox(height: Spaces.small),
             Text(
               _inputError!,
-              style: context.theme.typography.sm.copyWith(
+              style: context.theme.typography.body.sm.copyWith(
                 color: context.theme.colors.error,
               ),
             ),
@@ -114,13 +108,12 @@ class _XswdPasteConnectionDialogState
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             FButton(
-              style: FButtonStyle.outline(),
+              variant: .outline,
               onPress: _isProcessing ? null : () => widget.close(),
               child: Text(loc.cancel_button),
             ),
             const SizedBox(width: Spaces.small),
             FButton(
-              style: FButtonStyle.primary(),
               onPress: !_isProcessing && _hasInput ? _connectFromPaste : null,
               prefix: _isProcessing
                   ? FInheritedCircularProgressStyle(
@@ -169,7 +162,16 @@ class _XswdPasteConnectionDialogState
       talker.info('App name: ${relayerData.name}');
       talker.info('Permissions: ${relayerData.permissions}');
 
-      await ref.read(walletStateProvider.notifier).addXswdRelayer(relayerData);
+      final connected = await ref
+          .read(xswdControllerProvider)
+          .addXswdRelayer(relayerData);
+      if (!connected) {
+        if (!mounted) return;
+        setState(() {
+          _isProcessing = false;
+        });
+        return;
+      }
 
       // Wait for all XSWD permission dialogs to fully complete
       final waitDeadline = DateTime.now().add(const Duration(seconds: 12));
@@ -186,13 +188,15 @@ class _XswdPasteConnectionDialogState
 
       ref
           .read(toastProvider.notifier)
-          .showEvent(description: '${loc.connected}: "${relayerData.name}"');
+          .showEvent(description: loc.app_connected_title(relayerData.name));
     } catch (e, st) {
       talker.error('XSWD paste processing failed', e, st);
 
       if (!mounted) return;
 
-      ref.read(toastProvider.notifier).showError(description: e.toString());
+      ref
+          .read(toastProvider.notifier)
+          .showError(description: loc.invalid_connection_data);
       setState(() {
         _isProcessing = false;
       });
@@ -208,7 +212,7 @@ class _DialogTitle extends ConsumerWidget {
     final loc = ref.watch(appLocalizationsProvider);
     return Text(
       loc.connection_request,
-      style: context.theme.typography.xl2.copyWith(fontWeight: FontWeight.w600),
+      style: context.theme.typography.display.xl2,
       overflow: TextOverflow.ellipsis,
       maxLines: 1,
     );

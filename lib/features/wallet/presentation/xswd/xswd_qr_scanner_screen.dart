@@ -9,12 +9,12 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
-import 'package:genesix/features/wallet/application/xswd_providers.dart';
+import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 
 import 'xswd_relayer.dart';
+import 'package:genesix/features/wallet/application/xswd_controller_provider.dart';
 
 class XswdQRScannerScreen extends ConsumerStatefulWidget {
   const XswdQRScannerScreen({super.key});
@@ -61,6 +61,7 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
                   const Center(child: FCircularProgress()),
               errorBuilder: (context, error) => _ScannerErrorView(
                 message: _scannerMessage(error),
+                retryLabel: loc.try_again,
                 onRetry: _restartScanner,
               ),
             ),
@@ -91,6 +92,8 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
             child: _TorchAction(
               cameraController: _cameraController,
               disabled: _isProcessing,
+              turnOffLabel: loc.turn_flashlight_off,
+              turnOnLabel: loc.turn_flashlight_on,
               onToggle: _toggleTorch,
             ),
           ),
@@ -183,7 +186,17 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
 
       final relayerData = session.toApplicationDataRelayer();
 
-      await ref.read(walletStateProvider.notifier).addXswdRelayer(relayerData);
+      final connected = await ref
+          .read(xswdControllerProvider)
+          .addXswdRelayer(relayerData);
+      if (!connected) {
+        if (!mounted) return;
+        setState(() {
+          _isProcessing = false;
+        });
+        _resumeScanner();
+        return;
+      }
 
       // Wait for all XSWD permission dialogs to fully complete.
       final waitDeadline = DateTime.now().add(const Duration(seconds: 12));
@@ -200,13 +213,15 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
 
       ref
           .read(toastProvider.notifier)
-          .showEvent(description: '${loc.connected}: "${relayerData.name}"');
+          .showEvent(description: loc.app_connected_title(relayerData.name));
     } catch (e, st) {
       talker.error('XSWD QR processing failed', e, st);
 
       if (!mounted) return;
 
-      ref.read(toastProvider.notifier).showError(description: e.toString());
+      ref
+          .read(toastProvider.notifier)
+          .showError(description: loc.invalid_connection_data);
       setState(() {
         _isProcessing = false;
       });
@@ -219,11 +234,15 @@ class _TorchAction extends StatelessWidget {
   const _TorchAction({
     required this.cameraController,
     required this.disabled,
+    required this.turnOffLabel,
+    required this.turnOnLabel,
     required this.onToggle,
   });
 
   final MobileScannerController cameraController;
   final bool disabled;
+  final String turnOffLabel;
+  final String turnOnLabel;
   final VoidCallback onToggle;
 
   @override
@@ -238,9 +257,11 @@ class _TorchAction extends StatelessWidget {
         final torchOn = state.torchState == TorchState.on;
         return FTooltip(
           tipBuilder: (context, controller) =>
-              Text(torchOn ? 'Turn flashlight off' : 'Turn flashlight on'),
+              Text(torchOn ? turnOffLabel : turnOnLabel),
           child: FHeaderAction(
-            icon: Icon(torchOn ? FIcons.flashlightOff : FIcons.flashlight),
+            icon: Icon(
+              torchOn ? FLucideIcons.flashlightOff : FLucideIcons.flashlight,
+            ),
             onPress: disabled ? null : onToggle,
           ),
         );
@@ -298,7 +319,7 @@ class _ScannerOverlay extends StatelessWidget {
               ),
               child: Text(
                 instruction,
-                style: context.theme.typography.base.copyWith(
+                style: context.theme.typography.body.md.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
                 ),
@@ -335,7 +356,7 @@ class _ProcessingOverlay extends StatelessWidget {
               const SizedBox(height: Spaces.medium),
               Text(
                 label,
-                style: context.theme.typography.base.copyWith(
+                style: context.theme.typography.body.md.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
                 ),
@@ -349,9 +370,14 @@ class _ProcessingOverlay extends StatelessWidget {
 }
 
 class _ScannerErrorView extends StatelessWidget {
-  const _ScannerErrorView({required this.message, required this.onRetry});
+  const _ScannerErrorView({
+    required this.message,
+    required this.retryLabel,
+    required this.onRetry,
+  });
 
   final String message;
+  final String retryLabel;
   final VoidCallback onRetry;
 
   @override
@@ -364,23 +390,26 @@ class _ScannerErrorView extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(Spaces.large),
           child: FCard(
+            clipBehavior: Clip.antiAlias,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(FIcons.triangleAlert, size: 22, color: muted),
+                Icon(FLucideIcons.triangleAlert, size: 22, color: muted),
                 const SizedBox(height: Spaces.small),
                 Text(
                   message,
                   textAlign: TextAlign.center,
-                  style: context.theme.typography.sm.copyWith(color: muted),
+                  style: context.theme.typography.body.sm.copyWith(
+                    color: muted,
+                  ),
                 ),
                 const SizedBox(height: Spaces.medium),
                 SizedBox(
                   width: 180,
                   child: FButton(
-                    style: FButtonStyle.outline(),
+                    variant: .outline,
                     onPress: onRetry,
-                    child: const Text('Try again'),
+                    child: Text(retryLabel),
                   ),
                 ),
               ],

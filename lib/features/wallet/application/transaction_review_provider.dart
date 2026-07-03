@@ -1,10 +1,12 @@
+import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/logger/logger.dart';
-import 'package:genesix/features/wallet/application/wallet_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/shared/providers/provider_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'transaction_review_provider.g.dart';
 
@@ -24,13 +26,13 @@ class TransactionReview extends _$TransactionReview {
 
   void setSingleTransferTransaction(TransactionSummary transactionSummary) {
     final network = ref.read(
-      walletStateProvider.select((state) => state.network),
+      walletRuntimeProvider.select((state) => state.network),
     );
     final transfer = transactionSummary.getSingleTransfer();
     final asset = transfer.asset;
     final destination = transfer.destination;
     final knownAssets = ref.read(
-      walletStateProvider.select((state) => state.knownAssets),
+      walletRuntimeProvider.select((state) => state.knownAssets),
     );
     final name = knownAssets[asset]?.name ?? '';
     final ticker = knownAssets[asset]?.ticker ?? '';
@@ -52,12 +54,12 @@ class TransactionReview extends _$TransactionReview {
 
   Future<void> setBurnTransaction(TransactionSummary transactionSummary) async {
     final network = ref.read(
-      walletStateProvider.select((state) => state.network),
+      walletRuntimeProvider.select((state) => state.network),
     );
     final burn = transactionSummary.getBurn();
     final asset = burn.asset;
     final knownAssets = ref.read(
-      walletStateProvider.select((state) => state.knownAssets),
+      walletRuntimeProvider.select((state) => state.knownAssets),
     );
     final name = knownAssets[asset]?.name ?? '';
     final ticker = knownAssets[asset]?.ticker ?? '';
@@ -75,9 +77,7 @@ class TransactionReview extends _$TransactionReview {
   }
 
   void setDeleteMultisigTransaction(TransactionSummary transactionSummary) {
-    final walletRepository = ref.read(
-      walletStateProvider.select((state) => state.nativeWalletRepository),
-    );
+    final walletRepository = ref.read(activeWalletRepositoryProvider);
     if (walletRepository == null) {
       talker.warning('WalletRepository is not available');
       return;

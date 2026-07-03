@@ -6,14 +6,25 @@ import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/presentation/address_book/add_contact_sheet.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
+import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 
 class AddressWidget extends ConsumerStatefulWidget {
-  const AddressWidget(this.address, {super.key, this.displayHashicon = true});
+  const AddressWidget(
+    this.address, {
+    super.key,
+    this.displayHashicon = true,
+    this.mainAxisAlignment = MainAxisAlignment.spaceBetween,
+    this.compact = false,
+    this.compactAddressMaxLength = 18,
+  });
 
   final String address;
 
   final bool displayHashicon;
+  final MainAxisAlignment mainAxisAlignment;
+  final bool compact;
+  final int compactAddressMaxLength;
 
   @override
   ConsumerState createState() => _AddressWidgetState();
@@ -27,9 +38,10 @@ class _AddressWidgetState extends ConsumerState<AddressWidget> {
 
     return Row(
       children: [
-        if (widget.displayHashicon)
+        if (widget.displayHashicon) ...[
           HashiconWidget(hash: widget.address, size: const Size(25, 25)),
-        const SizedBox(width: Spaces.small),
+          const SizedBox(width: Spaces.small),
+        ],
         Expanded(
           child: FutureBuilder(
             future: future,
@@ -40,9 +52,20 @@ class _AddressWidgetState extends ConsumerState<AddressWidget> {
               final value = isRegistered
                   ? snapshot.data![widget.address]!.name
                   : widget.address;
+              final displayValue = widget.compact && !isRegistered
+                  ? truncateText(
+                      widget.address,
+                      maxLength: widget.compactAddressMaxLength,
+                    )
+                  : value;
+              final valueText = SelectableText(
+                displayValue,
+                maxLines: widget.compact ? 1 : null,
+                style: context.theme.typography.body.md,
+              );
 
               return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: widget.mainAxisAlignment,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Flexible(
@@ -50,30 +73,35 @@ class _AddressWidgetState extends ConsumerState<AddressWidget> {
                         ? FTooltip(
                             tipBuilder: (context, controller) =>
                                 Text(widget.address),
-                            child: SelectableText(
-                              value,
-                              style: context.theme.typography.base,
-                            ),
+                            child: valueText,
                           )
-                        : SelectableText(
-                            value,
-                            style: context.theme.typography.base,
+                        : FTooltip(
+                            tipBuilder: (context, controller) =>
+                                Text(widget.address),
+                            child: valueText,
                           ),
                   ),
-                  const SizedBox(width: Spaces.small),
-                  if (!isRegistered)
+                  if (!isRegistered) ...[
+                    const SizedBox(width: Spaces.small),
                     FTooltip(
                       tipBuilder: (context, controller) {
                         return Text(
                           loc.add_to_address_book_tooltip,
-                          style: context.theme.typography.base,
+                          style: context.theme.typography.body.md,
                         );
                       },
-                      child: FButton.icon(
-                        onPress: _onAddAddress,
-                        child: const Icon(FIcons.plus, size: 18),
-                      ),
+                      child: widget.compact
+                          ? FButton.icon(
+                              variant: .ghost,
+                              onPress: _onAddAddress,
+                              child: const Icon(FLucideIcons.plus, size: 16),
+                            )
+                          : FButton.icon(
+                              onPress: _onAddAddress,
+                              child: const Icon(FLucideIcons.plus, size: 18),
+                            ),
                     ),
+                  ],
                 ],
               );
             },

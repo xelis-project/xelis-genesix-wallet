@@ -1,7 +1,8 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:forui/assets.dart';
+import 'package:forui/forui.dart';
+import 'package:genesix/features/wallet/domain/parsed_extra_data.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
@@ -74,7 +75,7 @@ TransactionDisplayInfo parseTxInfo(
   switch (type) {
     case CoinbaseEntry():
       return TransactionDisplayInfo(
-        icon: FIcons.star,
+        icon: FLucideIcons.star,
         color: Colors.amber,
         label: loc.coinbase,
         details: '+${formatXelis(type.reward, network)}',
@@ -82,7 +83,7 @@ TransactionDisplayInfo parseTxInfo(
     case BurnEntry():
       final asset = knownAssets[type.asset];
       return TransactionDisplayInfo(
-        icon: FIcons.flame,
+        icon: FLucideIcons.flame,
         color: Colors.orange,
         label: loc.burn,
         subtitle: truncateText(type.asset, maxLength: 16),
@@ -93,83 +94,155 @@ TransactionDisplayInfo parseTxInfo(
     case IncomingEntry():
       String? subtitle;
       String? detailsMessage;
-      if (type.transfers.length > 1) {
-        detailsMessage = loc.multiple_transfers_received;
-      } else if (type.transfers.isEmpty) {
+      String? badgeLabel;
+      String? badgeSemanticLabel;
+      if (type.transfers.isEmpty) {
         detailsMessage = loc.no_transfers_found;
       } else {
-        final transfer = type.transfers.first;
-        final asset = knownAssets[transfer.asset];
         subtitle = loc.transfer_from(getAddressLabel(type.from, addressBook));
-        if (asset != null) {
-          detailsMessage =
-              '+${formatCoin(transfer.amount, asset.decimals, asset.ticker)}';
-        } else {
-          detailsMessage = loc.unknown_asset;
-        }
+        final summary = _summarizeTransfers(
+          knownAssets,
+          type.transfers.map(
+            (transfer) => _TransferAmount(
+              assetHash: transfer.asset,
+              amount: transfer.amount,
+            ),
+          ),
+          sign: '+',
+        );
+        detailsMessage = summary.details;
+        badgeLabel = summary.badgeLabel;
+        badgeSemanticLabel = _additionalAssetsSemanticLabel(
+          loc,
+          summary.additionalAssetCount,
+        );
       }
       return TransactionDisplayInfo(
-        icon: FIcons.arrowDownLeft,
+        icon: FLucideIcons.arrowDownLeft,
         color: Colors.greenAccent.shade400,
         label: loc.transfer_received,
         subtitle: subtitle,
         details: detailsMessage,
+        badgeLabel: badgeLabel,
+        badgeSemanticLabel: badgeSemanticLabel,
       );
     case OutgoingEntry():
       String? subtitle;
       String? detailsMessage;
-      if (type.transfers.length > 1) {
-        subtitle = loc.multiple_transfers_sent;
-      } else if (type.transfers.isEmpty) {
+      String? badgeLabel;
+      String? badgeSemanticLabel;
+      if (type.transfers.isEmpty) {
         subtitle = loc.no_transfers_found;
       } else {
-        final transfer = type.transfers.first;
-        final asset = knownAssets[transfer.asset];
-        subtitle = loc.transfer_to(
-          getAddressLabel(transfer.destination, addressBook),
-        );
-        if (asset != null) {
-          detailsMessage =
-              '-${formatCoin(transfer.amount, asset.decimals, asset.ticker)}';
+        if (type.transfers.length > 1) {
+          subtitle = loc.multiple_transfers_sent;
         } else {
-          detailsMessage = loc.unknown_asset;
+          final transfer = type.transfers.first;
+          subtitle = loc.transfer_to(
+            getAddressLabel(transfer.destination, addressBook),
+          );
         }
+        final summary = _summarizeTransfers(
+          knownAssets,
+          type.transfers.map(
+            (transfer) => _TransferAmount(
+              assetHash: transfer.asset,
+              amount: transfer.amount,
+            ),
+          ),
+          sign: '-',
+        );
+        detailsMessage = summary.details;
+        badgeLabel = summary.badgeLabel;
+        badgeSemanticLabel = _additionalAssetsSemanticLabel(
+          loc,
+          summary.additionalAssetCount,
+        );
       }
 
       return TransactionDisplayInfo(
-        icon: FIcons.arrowUpRight,
+        icon: FLucideIcons.arrowUpRight,
         color: Colors.redAccent.shade200,
         label: loc.transfer_sent,
         subtitle: subtitle,
         details: detailsMessage,
+        badgeLabel: badgeLabel,
+        badgeSemanticLabel: badgeSemanticLabel,
       );
     case MultisigEntry():
       return TransactionDisplayInfo(
-        icon: FIcons.users,
+        icon: FLucideIcons.users,
         color: Colors.blueAccent.shade200,
         label: loc.multisig,
         subtitle: type.participants.isEmpty ? loc.disabled : loc.enabled,
       );
     case InvokeContractEntry():
       return TransactionDisplayInfo(
-        icon: FIcons.squareCode,
+        icon: FLucideIcons.squareCode,
         color: Colors.deepPurple,
         label: loc.tx_contract_invocation,
         subtitle: truncateText(type.contract, maxLength: 16),
       );
     case DeployContractEntry():
       return TransactionDisplayInfo(
-        icon: FIcons.scrollText,
+        icon: FLucideIcons.scrollText,
         color: Colors.teal,
         label: loc.tx_contract_deployment,
       );
     case IncomingContractEntry():
       return TransactionDisplayInfo(
-        icon: FIcons.arrowDownToLine,
+        icon: FLucideIcons.arrowDownToLine,
         color: Colors.purple.shade300,
-        label: 'Contract Transfer',
+        label: loc.tx_contract_transfer,
+      );
+    case BlobEntry():
+      final parsed = ParsedExtraData.parse(loc, type.data);
+      return TransactionDisplayInfo(
+        icon: FLucideIcons.fileText,
+        color: Colors.cyan.shade400,
+        label: loc.blob,
+        subtitle: loc.extra_data,
+        details:
+            '${parsed.flag.name.capitalize()} • ${parsed.label} • ${parsed.fmtSize}',
       );
   }
+}
+
+_TransferSummary _summarizeTransfers(
+  Map<String, AssetData> knownAssets,
+  Iterable<_TransferAmount> transfers, {
+  required String sign,
+}) {
+  final amountsByAsset = <String, int>{};
+  for (final transfer in transfers) {
+    amountsByAsset.update(
+      transfer.assetHash,
+      (amount) => amount + transfer.amount,
+      ifAbsent: () => transfer.amount,
+    );
+  }
+
+  final firstTransfer = amountsByAsset.entries.first;
+  final formattedData = getFormattedAssetNameAndAmount(
+    knownAssets,
+    firstTransfer.key,
+    firstTransfer.value,
+  );
+  final additionalAssetCount = amountsByAsset.length - 1;
+
+  return _TransferSummary(
+    details: '$sign${formattedData.$2}',
+    additionalAssetCount: additionalAssetCount,
+  );
+}
+
+String? _additionalAssetsSemanticLabel(AppLocalizations loc, int count) {
+  if (count <= 0) {
+    return null;
+  }
+
+  final assetLabel = count == 1 ? loc.asset : loc.assets;
+  return '$count $assetLabel';
 }
 
 String getAddressLabel(
@@ -180,7 +253,7 @@ String getAddressLabel(
   if (contact != null && contact.name.isNotEmpty) {
     return contact.name;
   } else {
-    return truncateText(address, maxLength: 16);
+    return truncateText(address, maxLength: 8);
   }
 }
 
@@ -190,6 +263,8 @@ class TransactionDisplayInfo {
   final String label;
   final String? subtitle;
   final String? details;
+  final String? badgeLabel;
+  final String? badgeSemanticLabel;
 
   TransactionDisplayInfo({
     required this.icon,
@@ -197,5 +272,53 @@ class TransactionDisplayInfo {
     required this.label,
     this.subtitle,
     this.details,
+    this.badgeLabel,
+    this.badgeSemanticLabel,
   });
+}
+
+class TransactionInfoSuffix extends StatelessWidget {
+  const TransactionInfoSuffix({required this.info, super.key});
+
+  final TransactionDisplayInfo info;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 8,
+      children: [
+        if (info.badgeLabel != null)
+          FTooltip(
+            tipBuilder: (context, controller) =>
+                Text(info.badgeSemanticLabel ?? info.badgeLabel!),
+            child: Semantics(
+              label: info.badgeSemanticLabel,
+              child: FBadge(variant: .secondary, child: Text(info.badgeLabel!)),
+            ),
+          ),
+        const Icon(FLucideIcons.chevronRight),
+      ],
+    );
+  }
+}
+
+class _TransferAmount {
+  const _TransferAmount({required this.assetHash, required this.amount});
+
+  final String assetHash;
+  final int amount;
+}
+
+class _TransferSummary {
+  const _TransferSummary({
+    required this.details,
+    required this.additionalAssetCount,
+  });
+
+  final String details;
+  final int additionalAssetCount;
+
+  String? get badgeLabel =>
+      additionalAssetCount > 0 ? '+$additionalAssetCount' : null;
 }
