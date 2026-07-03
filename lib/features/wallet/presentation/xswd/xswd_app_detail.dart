@@ -218,7 +218,7 @@ class _XswdAppNotFound extends StatelessWidget {
               ),
               const SizedBox(height: Spaces.extraSmall),
               Text(
-                'This app may already be disconnected.',
+                loc.xswd_app_already_disconnected,
                 textAlign: TextAlign.center,
                 style: context.theme.typography.body.sm.copyWith(color: muted),
               ),
@@ -278,7 +278,7 @@ class _XswdAppDetailContent extends StatelessWidget {
                 child: FButton(
                   variant: .destructive,
                   onPress: onDisconnect,
-                  child: const Text('Disconnect'),
+                  child: Text(loc.disconnect),
                 ),
               ),
             ],
@@ -586,7 +586,7 @@ class _DisconnectDialog extends StatelessWidget {
       animation: animation,
       constraints: const BoxConstraints(maxWidth: 560),
       title: Text(
-        'Disconnect $appName?',
+        loc.disconnect_app_question(appName),
         style: context.theme.typography.display.xl,
       ),
       body: Padding(
@@ -596,7 +596,7 @@ class _DisconnectDialog extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'This will revoke all permissions and close this application connection.',
+              loc.disconnect_app_description,
               textAlign: TextAlign.center,
               style: context.theme.typography.body.sm.copyWith(
                 color: context.theme.colors.mutedForeground,

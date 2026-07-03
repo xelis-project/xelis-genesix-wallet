@@ -65,8 +65,11 @@ class XswdController {
       return;
     }
 
+    final loc = ref.read(appLocalizationsProvider);
     try {
-      final callbacks = buildXswdCallbacks(channelTitle: 'XSWD');
+      final callbacks = buildXswdCallbacks(
+        channelTitle: loc.xswd_channel_title,
+      );
       await repository.startXSWD(
         cancelRequestCallback: callbacks.cancelRequestCallback,
         requestApplicationCallback: callbacks.requestApplicationCallback,
@@ -80,12 +83,12 @@ class XswdController {
     } on AnyhowException catch (error) {
       talker.error('Cannot start XSWD: $error');
       _emitError(
-        title: 'Cannot start XSWD',
+        title: loc.cannot_start_xswd,
         description: _extractXelisMessage(error),
       );
     } catch (error) {
       talker.error('Cannot start XSWD: $error');
-      _emitError(title: 'Cannot start XSWD', description: error.toString());
+      _emitError(title: loc.cannot_start_xswd, description: error.toString());
     }
   }
 
@@ -107,17 +110,17 @@ class XswdController {
     try {
       await repository.removeXswdApp(appInfo.id);
       ref.invalidate(xswdApplicationsProvider);
-      _emitInfo(title: '${appInfo.name} ${loc.disconnected.toLowerCase()}');
+      _emitInfo(title: loc.app_disconnected_title(appInfo.name));
     } on AnyhowException catch (error) {
       talker.error('Cannot close XSWD app connection: $error');
       _emitError(
-        title: 'Cannot close XSWD app connection',
+        title: loc.cannot_close_xswd_connection,
         description: _extractXelisMessage(error),
       );
     } catch (error) {
       talker.error('Cannot close XSWD app connection: $error');
       _emitError(
-        title: 'Cannot close XSWD app connection',
+        title: loc.cannot_close_xswd_connection,
         description: error.toString(),
       );
     }
@@ -132,8 +135,11 @@ class XswdController {
       return false;
     }
 
+    final loc = ref.read(appLocalizationsProvider);
     try {
-      final callbacks = buildXswdCallbacks(channelTitle: 'XSWD Relayer');
+      final callbacks = buildXswdCallbacks(
+        channelTitle: loc.xswd_relayer_channel_title,
+      );
       await repository.addXswdRelayer(
         cancelRequestCallback: callbacks.cancelRequestCallback,
         requestApplicationCallback: callbacks.requestApplicationCallback,
@@ -149,14 +155,14 @@ class XswdController {
     } on AnyhowException catch (error) {
       talker.error('Cannot add XSWD relay connection: $error');
       _emitError(
-        title: 'Cannot add XSWD relay connection',
+        title: loc.cannot_add_xswd_relayer,
         description: _extractXelisMessage(error),
       );
       rethrow;
     } catch (error) {
       talker.error('Cannot add XSWD relay connection: $error');
       _emitError(
-        title: 'Cannot add XSWD relay connection',
+        title: loc.cannot_add_xswd_relayer,
         description: error.toString(),
       );
       rethrow;
@@ -176,15 +182,17 @@ class XswdController {
       await repository.modifyXSWDAppPermissions(appID, permissions);
       ref.invalidate(xswdApplicationsProvider);
     } on AnyhowException catch (error) {
+      final loc = ref.read(appLocalizationsProvider);
       talker.error('Cannot edit XSWD app permission: $error');
       _emitError(
-        title: 'Cannot edit XSWD app permission',
+        title: loc.cannot_edit_xswd_app_permission,
         description: _extractXelisMessage(error),
       );
     } catch (error) {
+      final loc = ref.read(appLocalizationsProvider);
       talker.error('Cannot edit XSWD app permission: $error');
       _emitError(
-        title: 'Cannot edit XSWD app permission',
+        title: loc.cannot_edit_xswd_app_permission,
         description: error.toString(),
       );
     }
@@ -196,7 +204,7 @@ class XswdController {
     return XswdCallbacks(
       cancelRequestCallback: (request) async {
         final appName = request.applicationInfo.name;
-        final message = '$channelTitle: ${loc.request_cancelled_from} $appName';
+        final message = '$channelTitle: ${loc.request_cancelled_from(appName)}';
 
         talker.info(message);
         ref
@@ -210,7 +218,7 @@ class XswdController {
       requestApplicationCallback: (request) {
         final appName = request.applicationInfo.name;
         final message =
-            '$channelTitle: ${loc.connection_request_from} $appName';
+            '$channelTitle: ${loc.connection_request_from(appName)}';
         return _askXswdUserPermission(
           request: request,
           message: message,
@@ -220,7 +228,7 @@ class XswdController {
       requestPermissionCallback: (request) {
         final appName = request.applicationInfo.name;
         final message =
-            '$channelTitle: ${loc.permission_request_from} $appName';
+            '$channelTitle: ${loc.permission_request_from(appName)}';
         return _askXswdUserPermission(
           request: request,
           message: message,
@@ -230,7 +238,7 @@ class XswdController {
       requestPrefetchPermissionsCallback: (request) {
         final appName = request.applicationInfo.name;
         final message =
-            '$channelTitle: ${loc.prefetch_permissions_request_from} $appName';
+            '$channelTitle: ${loc.prefetch_permissions_request_from(appName)}';
         return _askXswdUserPermission(
           request: request,
           message: message,
@@ -239,8 +247,7 @@ class XswdController {
       },
       appDisconnectCallback: (request) async {
         final appName = request.applicationInfo.name;
-        final message =
-            '$channelTitle: $appName ${loc.disconnected.toLowerCase()}';
+        final message = '$channelTitle: ${loc.app_disconnected_title(appName)}';
 
         talker.info(message);
         ref
@@ -291,16 +298,18 @@ class XswdController {
       ref.invalidate(xswdApplicationsProvider);
     } on AnyhowException catch (error) {
       if (emitErrors) {
+        final loc = ref.read(appLocalizationsProvider);
         talker.error('Cannot stop XSWD: $error');
         _emitError(
-          title: 'Cannot stop XSWD',
+          title: loc.cannot_stop_xswd,
           description: _extractXelisMessage(error),
         );
       }
     } catch (error) {
       if (emitErrors) {
+        final loc = ref.read(appLocalizationsProvider);
         talker.error('Cannot stop XSWD: $error');
-        _emitError(title: 'Cannot stop XSWD', description: error.toString());
+        _emitError(title: loc.cannot_stop_xswd, description: error.toString());
       }
     }
   }

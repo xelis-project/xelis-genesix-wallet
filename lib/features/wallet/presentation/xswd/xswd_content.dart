@@ -167,7 +167,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
                   key: const ValueKey<String>('xswd-enabled-empty'),
                   icon: FLucideIcons.link,
                   title: loc.no_application_connected,
-                  description: 'Use New Connection to add a trusted app.',
+                  description: loc.xswd_empty_enabled_description,
                 );
               }
               return _XswdAppsList(
@@ -182,14 +182,14 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
             ),
             error: (error, stack) => Center(
               key: const ValueKey<String>('xswd-error'),
-              child: Text('Error loading connected apps: $error'),
+              child: Text('${loc.error_loading_applications}: $error'),
             ),
           )
         : _XswdStatePanel(
             key: const ValueKey<String>('xswd-disabled'),
             icon: FLucideIcons.cable,
-            title: 'Connected Apps is off',
-            description: 'Turn it on to approve requests from trusted apps.',
+            title: loc.xswd_disabled_title,
+            description: loc.xswd_disabled_description,
           );
 
     return Column(
@@ -279,15 +279,15 @@ class _XswdModeCard extends StatelessWidget {
       return null;
     }
     if (lockSwitchWhileStarting) {
-      return 'Starting local service...';
+      return loc.xswd_starting_local_service;
     }
     if (isStartupTimedOut && enableXswd) {
-      return 'Startup is taking longer than expected.';
+      return loc.xswd_startup_delayed;
     }
     if (enableXswd) {
-      return 'Manage connected apps and their permissions.';
+      return loc.xswd_enabled_description;
     }
-    return 'Turn this on to connect trusted apps.';
+    return loc.xswd_disabled_subtitle;
   }
 
   @override
@@ -316,7 +316,7 @@ class _XswdModeCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Connected Apps',
+                  loc.connected_apps,
                   style: context.theme.typography.display.lg,
                 ),
                 if (subtitle != null) ...[
@@ -456,7 +456,7 @@ class _XswdAppsListState extends ConsumerState<_XswdAppsList> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Connected Apps',
+                widget.loc.connected_apps,
                 style: context.theme.typography.display.xl,
               ),
               const SizedBox(height: Spaces.medium),
@@ -466,8 +466,8 @@ class _XswdAppsListState extends ConsumerState<_XswdAppsList> {
                   final app = widget.apps[index];
                   final permissionCount = app.permissions.length;
                   final permissionText = permissionCount == 1
-                      ? '1 permission'
-                      : '$permissionCount permissions';
+                      ? widget.loc.one_permission
+                      : widget.loc.permission_count(permissionCount);
 
                   return FItem(
                     onPress: _isDisconnecting
@@ -529,7 +529,7 @@ class _XswdConnectionStatusLabel extends StatelessWidget {
     final statusText = !enableXswd
         ? loc.disabled.capitalize()
         : isRelayMode
-        ? 'Relay mode'
+        ? loc.xswd_relay_mode
         : (isRunning ? loc.running.capitalize() : loc.stopped.capitalize());
     final statusColor = !enableXswd
         ? context.theme.colors.mutedForeground
@@ -541,7 +541,7 @@ class _XswdConnectionStatusLabel extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          'Status',
+          loc.status,
           style: context.theme.typography.body.xs.copyWith(
             color: context.theme.colors.mutedForeground,
           ),
@@ -589,11 +589,11 @@ class _XswdFooter extends StatelessWidget {
     final helperText = isOfflineMode
         ? null
         : !enableXswd
-        ? 'Turn on Connected Apps to add a new application.'
+        ? loc.xswd_enable_before_new_connection
         : isConnectionStopped
         ? (isStartupTimedOut
-              ? 'Startup is taking longer than expected. You can disable and retry.'
-              : 'Connected Apps is starting. Actions are temporarily disabled.')
+              ? loc.xswd_startup_retry_hint
+              : loc.xswd_starting_actions_disabled)
         : null;
 
     return SafeArea(
@@ -623,7 +623,7 @@ class _XswdFooter extends StatelessWidget {
                   ? onNewConnection
                   : null,
               prefix: const Icon(FLucideIcons.qrCode, size: 18),
-              child: const Text('New Connection'),
+              child: Text(loc.new_connection),
             ),
           ],
         ),

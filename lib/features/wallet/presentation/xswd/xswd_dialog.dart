@@ -521,7 +521,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     ref
         .read(toastProvider.notifier)
         .showInformation(
-          title: '${loc.connected}: "${summary.applicationInfo.name}"',
+          title: loc.app_connected_title(summary.applicationInfo.name),
         );
   }
 }
@@ -646,7 +646,7 @@ class _XswdMoreDetailsAccordion extends StatelessWidget {
       ),
       children: [
         FAccordionItem(
-          title: const Text('More details'),
+          title: Text(loc.more_details),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -749,7 +749,7 @@ class _XswdMinimalPrefetchDetailsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (request.reason != null && request.reason!.isNotEmpty) ...[
-          _XswdInfoRow(label: 'Reason', value: request.reason!),
+          _XswdInfoRow(label: loc.reason, value: request.reason!),
           const SizedBox(height: Spaces.medium),
         ],
         Text(
@@ -922,7 +922,7 @@ class _XswdActionFactory {
       case _ActionSet.permissionDecision:
         return [
           FSwitch(
-            label: const Text('Remember my decision'),
+            label: Text(loc.remember_my_decision),
             value: rememberDecision,
             onChange: busy ? null : onRememberChanged,
           ),

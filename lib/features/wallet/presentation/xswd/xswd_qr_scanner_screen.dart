@@ -61,6 +61,7 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
                   const Center(child: FCircularProgress()),
               errorBuilder: (context, error) => _ScannerErrorView(
                 message: _scannerMessage(error),
+                retryLabel: loc.try_again,
                 onRetry: _restartScanner,
               ),
             ),
@@ -91,6 +92,8 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
             child: _TorchAction(
               cameraController: _cameraController,
               disabled: _isProcessing,
+              turnOffLabel: loc.turn_flashlight_off,
+              turnOnLabel: loc.turn_flashlight_on,
               onToggle: _toggleTorch,
             ),
           ),
@@ -210,13 +213,15 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
 
       ref
           .read(toastProvider.notifier)
-          .showEvent(description: '${loc.connected}: "${relayerData.name}"');
+          .showEvent(description: loc.app_connected_title(relayerData.name));
     } catch (e, st) {
       talker.error('XSWD QR processing failed', e, st);
 
       if (!mounted) return;
 
-      ref.read(toastProvider.notifier).showError(description: e.toString());
+      ref
+          .read(toastProvider.notifier)
+          .showError(description: loc.invalid_connection_data);
       setState(() {
         _isProcessing = false;
       });
@@ -229,11 +234,15 @@ class _TorchAction extends StatelessWidget {
   const _TorchAction({
     required this.cameraController,
     required this.disabled,
+    required this.turnOffLabel,
+    required this.turnOnLabel,
     required this.onToggle,
   });
 
   final MobileScannerController cameraController;
   final bool disabled;
+  final String turnOffLabel;
+  final String turnOnLabel;
   final VoidCallback onToggle;
 
   @override
@@ -248,7 +257,7 @@ class _TorchAction extends StatelessWidget {
         final torchOn = state.torchState == TorchState.on;
         return FTooltip(
           tipBuilder: (context, controller) =>
-              Text(torchOn ? 'Turn flashlight off' : 'Turn flashlight on'),
+              Text(torchOn ? turnOffLabel : turnOnLabel),
           child: FHeaderAction(
             icon: Icon(
               torchOn ? FLucideIcons.flashlightOff : FLucideIcons.flashlight,
@@ -361,9 +370,14 @@ class _ProcessingOverlay extends StatelessWidget {
 }
 
 class _ScannerErrorView extends StatelessWidget {
-  const _ScannerErrorView({required this.message, required this.onRetry});
+  const _ScannerErrorView({
+    required this.message,
+    required this.retryLabel,
+    required this.onRetry,
+  });
 
   final String message;
+  final String retryLabel;
   final VoidCallback onRetry;
 
   @override
@@ -395,7 +409,7 @@ class _ScannerErrorView extends StatelessWidget {
                   child: FButton(
                     variant: .outline,
                     onPress: onRetry,
-                    child: const Text('Try again'),
+                    child: Text(retryLabel),
                   ),
                 ),
               ],

@@ -188,13 +188,15 @@ class _XswdPasteConnectionDialogState
 
       ref
           .read(toastProvider.notifier)
-          .showEvent(description: '${loc.connected}: "${relayerData.name}"');
+          .showEvent(description: loc.app_connected_title(relayerData.name));
     } catch (e, st) {
       talker.error('XSWD paste processing failed', e, st);
 
       if (!mounted) return;
 
-      ref.read(toastProvider.notifier).showError(description: e.toString());
+      ref
+          .read(toastProvider.notifier)
+          .showError(description: loc.invalid_connection_data);
       setState(() {
         _isProcessing = false;
       });

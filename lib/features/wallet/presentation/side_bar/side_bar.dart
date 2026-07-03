@@ -199,7 +199,7 @@ class _SideBarState extends ConsumerState<SideBar> {
             FSidebarItem(
               icon: Icon(FLucideIcons.cable),
               selected: _selectedItem == AuthAppScreen.xswd.toPath,
-              label: Text("Connected Apps"),
+              label: Text(loc.connected_apps),
               onPress: () {
                 _closeSideBar();
                 context.go(AuthAppScreen.xswd.toPath);

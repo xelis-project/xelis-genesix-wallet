@@ -43,7 +43,7 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        'New Connection',
+                        loc.new_connection,
                         style: theme.typography.display.xl2,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
@@ -83,8 +83,8 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                 SizedBox(height: verticalGap),
                 _ConnectionMethodButton(
                   compact: true,
-                  title: 'Paste JSON',
-                  description: 'Paste dApp connection data',
+                  title: loc.paste_json,
+                  description: loc.paste_connection_data,
                   icon: FLucideIcons.clipboard,
                   onPressed: () {
                     final navigator = Navigator.of(
@@ -133,8 +133,8 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                       child: AspectRatio(
                         aspectRatio: 1,
                         child: _ConnectionMethodButton(
-                          title: 'Paste JSON',
-                          description: 'Paste dApp connection data',
+                          title: loc.paste_json,
+                          description: loc.paste_connection_data,
                           icon: FLucideIcons.clipboard,
                           onPressed: () {
                             final navigator = Navigator.of(
