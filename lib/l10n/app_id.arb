@@ -1,6 +1,6 @@
 {
   "node_url_hint": "https://node.xelis.io",
-  "node_name_hint": "Nama Node",
+  "node_name_hint": "Node Saya",
   "node_name": "Nama Node",
   "node_url": "URL",
   "node_url_error": "Silakan masukkan URL yang valid",
