@@ -19,8 +19,8 @@ class Toast extends _$Toast {
     show(ToastContent.information(title: title));
   }
 
-  void showWarning({required String title}) {
-    show(ToastContent.warning(title: title));
+  void showWarning({required String title, String? description}) {
+    show(ToastContent.warning(title: title, description: description));
   }
 
   void showEvent({String? title, required String description}) {

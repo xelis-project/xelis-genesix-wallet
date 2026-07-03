@@ -395,13 +395,19 @@ class _TransactionReviewDialogNewState
     try {
       final transactionReview = ref.read(transactionReviewProvider);
 
+      var broadcasted = false;
       switch (transactionReview) {
         case DeleteMultisigTransaction(:final txHash) ||
             SingleTransferTransaction(:final txHash) ||
             BurnTransaction(:final txHash):
-          await ref.read(walletCommandsProvider).broadcastTx(hash: txHash);
+          broadcasted = await ref
+              .read(walletCommandsProvider)
+              .broadcastTx(hash: txHash);
         default:
           throw Exception('TransactionReviewState not supported');
+      }
+      if (!broadcasted) {
+        return;
       }
 
       ref.read(transactionReviewProvider.notifier).broadcast();

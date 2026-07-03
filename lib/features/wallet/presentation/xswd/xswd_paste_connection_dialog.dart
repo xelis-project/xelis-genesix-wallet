@@ -162,7 +162,16 @@ class _XswdPasteConnectionDialogState
       talker.info('App name: ${relayerData.name}');
       talker.info('Permissions: ${relayerData.permissions}');
 
-      await ref.read(xswdControllerProvider).addXswdRelayer(relayerData);
+      final connected = await ref
+          .read(xswdControllerProvider)
+          .addXswdRelayer(relayerData);
+      if (!connected) {
+        if (!mounted) return;
+        setState(() {
+          _isProcessing = false;
+        });
+        return;
+      }
 
       // Wait for all XSWD permission dialogs to fully complete
       final waitDeadline = DateTime.now().add(const Duration(seconds: 12));

@@ -68,7 +68,7 @@ class _ImportWalletScreenState extends ConsumerState<ImportWalletScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const CurrentNetworkIndicator(),
+                      const AuthenticationStatusIndicators(),
                       const SizedBox(height: Spaces.medium),
                       FTabs(
                         children: [

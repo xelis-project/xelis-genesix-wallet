@@ -21,6 +21,7 @@ sealed class ToastContent with _$ToastContent {
 
   const factory ToastContent.warning({
     required String title,
+    String? description,
     @Default(true) bool dismissible,
   }) = WarningToastContent;
 
@@ -56,7 +57,7 @@ sealed class ToastContent with _$ToastContent {
 
   String? get description => switch (this) {
     InformationToastContent() => null,
-    WarningToastContent() => null,
+    WarningToastContent(:final description) => description,
     ErrorToastContent(:final description) => description,
     EventToastContent(:final description) => description,
     XswdToastContent(:final description) => description,

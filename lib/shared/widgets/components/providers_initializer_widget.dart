@@ -48,6 +48,16 @@ class ProvidersInitializerWidget extends ConsumerWidget {
       unawaited(_syncXswdLifecycle(ref));
     });
 
+    ref.listen(
+      settingsProvider.select((settings) => settings.walletOfflineMode),
+      (previous, next) {
+        if (previous == next) {
+          return;
+        }
+        unawaited(_applyOfflineMode(ref, next));
+      },
+    );
+
     ref.listen(walletRuntimeProvider.select((state) => state.isOnline), (
       previous,
       next,
@@ -70,8 +80,8 @@ class ProvidersInitializerWidget extends ConsumerWidget {
       switch (next.effect) {
         case WalletInfoEffect(:final title):
           toastNotifier.showInformation(title: title);
-        case WalletWarningEffect(:final title):
-          toastNotifier.showWarning(title: title);
+        case WalletWarningEffect(:final title, :final description):
+          toastNotifier.showWarning(title: title, description: description);
         case WalletErrorEffect(:final title, :final description):
           toastNotifier.showError(title: title, description: description);
         case WalletEventEffect(:final title, :final description):
@@ -93,11 +103,16 @@ class ProvidersInitializerWidget extends ConsumerWidget {
   }
 }
 
+Future<void> _applyOfflineMode(WidgetRef ref, bool enabled) async {
+  await ref.read(walletRuntimeProvider.notifier).setOfflineMode(enabled);
+  await _syncXswdLifecycle(ref);
+}
+
 Future<void> _syncXswdLifecycle(WidgetRef ref) async {
   await ref
       .read(xswdControllerProvider)
       .sync(
-        enabled: ref.read(settingsProvider).enableXswd,
+        enabled: ref.read(effectiveXswdEnabledProvider),
         hasSession: ref.read(activeWalletSessionProvider) != null,
         isOnline: ref.read(walletRuntimeProvider).isOnline,
       );

@@ -14,6 +14,7 @@ enum WalletConnectionPhase {
   connecting,
   connected,
   reconnecting,
+  offline,
   failed,
 }
 

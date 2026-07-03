@@ -43,6 +43,10 @@ class DismissedNewsIds extends _$DismissedNewsIds {
 @riverpod
 Future<List<NewsItem>> visibleNews(Ref ref) async {
   final settings = ref.watch(settingsProvider);
+  if (settings.walletOfflineMode) {
+    return const <NewsItem>[];
+  }
+
   final locale = settings.locale;
   final network = settings.network;
   final dismissedIds = ref.watch(dismissedNewsIdsProvider);

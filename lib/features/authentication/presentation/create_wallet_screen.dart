@@ -61,7 +61,7 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CurrentNetworkIndicator(),
+          const AuthenticationStatusIndicators(),
           const SizedBox(height: Spaces.medium),
           Container(
             width: context.mediaWidth * 0.9,

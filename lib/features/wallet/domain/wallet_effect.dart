@@ -6,8 +6,10 @@ part 'wallet_effect.freezed.dart';
 sealed class WalletEffect with _$WalletEffect {
   const factory WalletEffect.info({required String title}) = WalletInfoEffect;
 
-  const factory WalletEffect.warning({required String title}) =
-      WalletWarningEffect;
+  const factory WalletEffect.warning({
+    required String title,
+    String? description,
+  }) = WalletWarningEffect;
 
   const factory WalletEffect.error({
     String? title,

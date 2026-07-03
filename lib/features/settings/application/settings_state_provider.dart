@@ -70,6 +70,11 @@ class Settings extends _$Settings {
     _setState(state);
   }
 
+  void setWalletOfflineMode(bool walletOfflineMode) {
+    state = state.copyWith(walletOfflineMode: walletOfflineMode);
+    _setState(state);
+  }
+
   void setActivateBiometricAuth(
     bool activateBiometricAuth, {
     bool syncWalletStorage = true,

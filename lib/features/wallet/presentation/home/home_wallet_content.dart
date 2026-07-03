@@ -46,8 +46,10 @@ class _HomeWalletContentState extends ConsumerState<HomeWalletContent> {
 
   @override
   Widget build(BuildContext context) {
-    final enableNewsFeed = ref.watch(
-      settingsProvider.select((state) => state.enableNewsFeed),
+    final showNewsFeed = ref.watch(
+      settingsProvider.select(
+        (state) => state.enableNewsFeed && !state.walletOfflineMode,
+      ),
     );
 
     return FadedScroll(
@@ -66,7 +68,7 @@ class _HomeWalletContentState extends ConsumerState<HomeWalletContent> {
               ConnectionStatusCard(),
               BalanceCard(),
               LastTransactionsCard(),
-              if (enableNewsFeed) LastNewsCard(),
+              if (showNewsFeed) LastNewsCard(),
             ],
           ),
         ),

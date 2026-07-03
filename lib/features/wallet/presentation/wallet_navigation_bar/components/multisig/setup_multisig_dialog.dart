@@ -622,9 +622,12 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
     setState(() => _isBroadcasting = true);
 
     try {
-      await ref
+      final broadcasted = await ref
           .read(walletCommandsProvider)
           .broadcastTx(hash: _transactionSummary!.hash);
+      if (!broadcasted) {
+        return;
+      }
 
       setState(() {
         _isBroadcast = true;

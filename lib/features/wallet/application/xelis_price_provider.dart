@@ -30,13 +30,23 @@ Uri coinGecko24hMarketChartEndpoint(String vsCurrency) => Uri.https(
 );
 
 @riverpod
-Future<XelisCoingeckoResponse> xelisPrice(Ref ref) async {
-  final currencyCode = ref.watch(
-    settingsProvider.select((state) => state.displayCurrency),
+String? effectiveDisplayCurrency(Ref ref) {
+  final walletOfflineMode = ref.watch(
+    settingsProvider.select((state) => state.walletOfflineMode),
   );
+  if (walletOfflineMode) {
+    return null;
+  }
+
+  return ref.watch(settingsProvider.select((state) => state.displayCurrency));
+}
+
+@riverpod
+Future<XelisCoingeckoResponse?> xelisPrice(Ref ref) async {
+  final currencyCode = ref.watch(effectiveDisplayCurrencyProvider);
 
   if (currencyCode == null) {
-    throw StateError('No display currency selected');
+    return null;
   }
 
   final currency =

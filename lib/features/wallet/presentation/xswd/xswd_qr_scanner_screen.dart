@@ -183,7 +183,17 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
 
       final relayerData = session.toApplicationDataRelayer();
 
-      await ref.read(xswdControllerProvider).addXswdRelayer(relayerData);
+      final connected = await ref
+          .read(xswdControllerProvider)
+          .addXswdRelayer(relayerData);
+      if (!connected) {
+        if (!mounted) return;
+        setState(() {
+          _isProcessing = false;
+        });
+        _resumeScanner();
+        return;
+      }
 
       // Wait for all XSWD permission dialogs to fully complete.
       final waitDeadline = DateTime.now().add(const Duration(seconds: 12));

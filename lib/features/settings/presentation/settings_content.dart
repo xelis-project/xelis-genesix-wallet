@@ -9,6 +9,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/settings/domain/display_currency.dart';
 import 'package:genesix/features/settings/presentation/components/network_select_menu_tile.dart';
+import 'package:genesix/features/settings/presentation/components/offline_mode_toggle_tile.dart';
 import 'package:genesix/features/settings/presentation/components/reset_preference_button.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -116,6 +117,7 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
                             _handleBiometricToggle(context, value),
                       ),
                     ),
+                  offlineModeToggleTile(ref),
                 ],
               ),
               if (!authState.isAuth) const NetworkSelectMenuTile(),

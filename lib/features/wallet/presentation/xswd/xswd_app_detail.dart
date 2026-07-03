@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_controller_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
@@ -29,6 +30,9 @@ class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
+    final walletOfflineMode = ref.watch(
+      settingsProvider.select((settings) => settings.walletOfflineMode),
+    );
     final appsAsync = ref.watch(xswdApplicationsProvider);
 
     return FScaffold(
@@ -41,34 +45,44 @@ class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
           ),
         ],
       ),
-      child: appsAsync.when(
-        data: (apps) {
-          final liveApp = apps.where((a) => a.id == widget.appId).firstOrNull;
-          if (liveApp != null) {
-            _cachedApp = liveApp;
-          }
-          final app = liveApp ?? _cachedApp;
+      child: walletOfflineMode
+          ? _XswdOfflineDisabled(loc: loc)
+          : appsAsync.when(
+              data: (apps) {
+                final liveApp = apps
+                    .where((a) => a.id == widget.appId)
+                    .firstOrNull;
+                if (liveApp != null) {
+                  _cachedApp = liveApp;
+                }
+                final app = liveApp ?? _cachedApp;
 
-          if (app == null) {
-            if (_isClosing) {
-              return const Center(child: FCircularProgress());
-            }
-            return _XswdAppNotFound(loc: loc);
-          }
-          return _XswdAppDetailContent(
-            app: app,
-            loc: loc,
-            onOpenUrl: (url) => _launchAppUrl(ref, url),
-            onPermissionChange: (permissionName, policy) {
-              return _handlePermissionChange(ref, app, permissionName, policy);
-            },
-            onDisconnect: () => _handleDisconnectApp(context, loc, app),
-          );
-        },
-        loading: () => const Center(child: FCircularProgress()),
-        error: (error, stack) =>
-            Center(child: Text('${loc.error_loading_applications}: $error')),
-      ),
+                if (app == null) {
+                  if (_isClosing) {
+                    return const Center(child: FCircularProgress());
+                  }
+                  return _XswdAppNotFound(loc: loc);
+                }
+                return _XswdAppDetailContent(
+                  app: app,
+                  loc: loc,
+                  onOpenUrl: (url) => _launchAppUrl(ref, url),
+                  onPermissionChange: (permissionName, policy) {
+                    return _handlePermissionChange(
+                      ref,
+                      app,
+                      permissionName,
+                      policy,
+                    );
+                  },
+                  onDisconnect: () => _handleDisconnectApp(context, loc, app),
+                );
+              },
+              loading: () => const Center(child: FCircularProgress()),
+              error: (error, stack) => Center(
+                child: Text('${loc.error_loading_applications}: $error'),
+              ),
+            ),
     );
   }
 
@@ -137,6 +151,44 @@ class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
           .read(toastProvider.notifier)
           .showError(description: '${loc.launch_url_error} $rawUrl');
     }
+  }
+}
+
+class _XswdOfflineDisabled extends StatelessWidget {
+  const _XswdOfflineDisabled({required this.loc});
+
+  final AppLocalizations loc;
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = context.theme.colors.mutedForeground;
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
+        child: Padding(
+          padding: const EdgeInsets.all(Spaces.large),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(FLucideIcons.cable, size: 32, color: muted),
+              const SizedBox(height: Spaces.small),
+              Text(
+                loc.xswd_disabled_offline_title,
+                textAlign: TextAlign.center,
+                style: context.theme.typography.display.lg,
+              ),
+              const SizedBox(height: Spaces.extraSmall),
+              Text(
+                loc.xswd_disabled_offline_description,
+                textAlign: TextAlign.center,
+                style: context.theme.typography.body.sm.copyWith(color: muted),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

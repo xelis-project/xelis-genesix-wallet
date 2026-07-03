@@ -93,7 +93,7 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
             ),
           ),
           Spacer(),
-          const CurrentNetworkIndicator(),
+          const AuthenticationStatusIndicators(),
           const SizedBox(height: Spaces.medium),
           Container(
             width: context.mediaWidth * 0.9,

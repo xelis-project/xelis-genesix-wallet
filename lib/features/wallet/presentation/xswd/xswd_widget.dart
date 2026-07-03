@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
@@ -20,6 +21,10 @@ class _XswdWidgetState extends ConsumerState<XswdWidget> {
 
   void _openDialog() {
     if (_isDialogOpen || !mounted) return;
+    if (ref.read(settingsProvider).walletOfflineMode) {
+      ref.read(xswdRequestProvider.notifier).clearRequest();
+      return;
+    }
 
     // Avoid "open while toast overlay is dismissing"
     WidgetsBinding.instance.addPostFrameCallback((_) {

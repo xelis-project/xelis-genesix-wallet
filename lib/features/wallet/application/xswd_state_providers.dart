@@ -136,8 +136,22 @@ class XswdRequest extends _$XswdRequest {
 }
 
 @riverpod
+bool effectiveXswdEnabled(Ref ref) {
+  final settings = ref.watch(
+    settingsProvider.select(
+      (settings) => (
+        enableXswd: settings.enableXswd,
+        walletOfflineMode: settings.walletOfflineMode,
+      ),
+    ),
+  );
+
+  return settings.enableXswd && !settings.walletOfflineMode;
+}
+
+@riverpod
 Future<List<AppInfo>> xswdApplications(Ref ref) async {
-  final enableXswd = ref.watch(settingsProvider.select((s) => s.enableXswd));
+  final enableXswd = ref.watch(effectiveXswdEnabledProvider);
   final nativeWallet = ref.watch(activeWalletRepositoryProvider);
   if (nativeWallet == null || !enableXswd) {
     return [];

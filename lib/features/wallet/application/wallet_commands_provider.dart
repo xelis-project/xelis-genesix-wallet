@@ -5,6 +5,7 @@ import 'package:genesix/features/authentication/application/wallet_session_provi
 import 'package:genesix/features/authentication/domain/biometric_wallet_key.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/wallet/application/wallet_effect_bus_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_node_action_guard.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
@@ -34,6 +35,9 @@ class WalletCommandsController {
   }) async {
     final repository = _repository;
     if (repository == null) {
+      return (null, null);
+    }
+    if (!_nodeActionGuard.ensureNodeAvailable()) {
       return (null, null);
     }
 
@@ -79,6 +83,9 @@ class WalletCommandsController {
     if (repository == null) {
       return (null, null);
     }
+    if (!_nodeActionGuard.ensureNodeAvailable()) {
+      return (null, null);
+    }
 
     try {
       if (_runtimeState.multisigState.isSetup) {
@@ -120,6 +127,9 @@ class WalletCommandsController {
     if (repository == null) {
       return (null, null);
     }
+    if (!_nodeActionGuard.ensureNodeAvailable()) {
+      return (null, null);
+    }
 
     try {
       if (_runtimeState.multisigState.isSetup) {
@@ -159,6 +169,9 @@ class WalletCommandsController {
     if (repository == null) {
       return (null, null);
     }
+    if (!_nodeActionGuard.ensureNodeAvailable()) {
+      return (null, null);
+    }
 
     try {
       if (_runtimeState.multisigState.isSetup) {
@@ -196,11 +209,17 @@ class WalletCommandsController {
     }
   }
 
-  Future<void> broadcastTx({required String hash}) async {
+  Future<bool> broadcastTx({required String hash}) async {
     final repository = _repository;
-    if (repository != null) {
-      await repository.broadcastTransaction(hash);
+    if (repository == null) {
+      return false;
     }
+    if (!_nodeActionGuard.ensureNodeAvailable()) {
+      return false;
+    }
+
+    await repository.broadcastTransaction(hash);
+    return true;
   }
 
   Future<String> estimateFees({
@@ -210,6 +229,9 @@ class WalletCommandsController {
   }) async {
     final repository = _repository;
     if (repository == null) {
+      return AppResources.zeroBalance;
+    }
+    if (!_nodeActionGuard.ensureNodeAvailable(notify: false)) {
       return AppResources.zeroBalance;
     }
 
@@ -279,6 +301,9 @@ class WalletCommandsController {
     if (repository == null) {
       return null;
     }
+    if (!_nodeActionGuard.ensureNodeAvailable()) {
+      return null;
+    }
 
     try {
       return await repository.setupMultisig(
@@ -315,6 +340,9 @@ class WalletCommandsController {
     if (repository == null) {
       return null;
     }
+    if (!_nodeActionGuard.ensureNodeAvailable()) {
+      return null;
+    }
 
     try {
       return await repository.initDeleteMultisig();
@@ -340,6 +368,9 @@ class WalletCommandsController {
   }) async {
     final repository = _repository;
     if (repository == null) {
+      return null;
+    }
+    if (!_nodeActionGuard.ensureNodeAvailable()) {
       return null;
     }
 
@@ -394,6 +425,9 @@ class WalletCommandsController {
     if (repository == null) {
       return;
     }
+    if (!_nodeActionGuard.ensureNodeAvailable()) {
+      return;
+    }
 
     try {
       await repository.trackAsset(assetHash);
@@ -441,6 +475,10 @@ class WalletCommandsController {
 
   WalletRuntimeState get _runtimeState {
     return ref.read(walletRuntimeProvider);
+  }
+
+  WalletNodeActionGuard get _nodeActionGuard {
+    return WalletNodeActionGuard(ref);
   }
 
   void _emitCommandError({

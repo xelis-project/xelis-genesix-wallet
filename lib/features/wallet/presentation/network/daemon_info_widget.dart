@@ -1,9 +1,13 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/domain/daemon_info_snapshot.dart';
+import 'package:genesix/features/wallet/domain/wallet_runtime_state.dart';
 import 'package:genesix/features/wallet/presentation/network/grid_info_widget.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
+import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/custom_skeletonizer.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 
@@ -31,6 +35,15 @@ class _DaemonInfoWidgetState extends ConsumerState<DaemonInfoWidget> {
     final loc = ref.watch(appLocalizationsProvider);
     final info = widget.info;
     final isLoading = widget.isLoading;
+    final isOffline = ref.watch(
+      walletRuntimeProvider.select(
+        (state) => state.connectionPhase == WalletConnectionPhase.offline,
+      ),
+    );
+
+    if (isOffline && !isLoading) {
+      return _OfflineDaemonInfoMessage(loc: loc);
+    }
 
     final items = _buildItems(loc, info, isLoading);
 
@@ -120,5 +133,54 @@ class _DaemonInfoWidgetState extends ConsumerState<DaemonInfoWidget> {
         isLoading: isLoading,
       ),
     ];
+  }
+}
+
+class _OfflineDaemonInfoMessage extends StatelessWidget {
+  const _OfflineDaemonInfoMessage({required this.loc});
+
+  final AppLocalizations loc;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(Spaces.large),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              FLucideIcons.waypoints,
+              size: 42,
+              color: context.theme.colors.mutedForeground,
+            ),
+            const SizedBox(height: Spaces.medium),
+            Text(
+              loc.offline,
+              textAlign: TextAlign.center,
+              style: context.theme.typography.body.lg.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: Spaces.small),
+            Text(
+              loc.daemon_info_unavailable_offline,
+              textAlign: TextAlign.center,
+              style: context.theme.typography.body.sm.copyWith(
+                color: context.theme.colors.mutedForeground,
+              ),
+            ),
+            const SizedBox(height: Spaces.extraSmall),
+            Text(
+              loc.daemon_info_online_settings_hint,
+              textAlign: TextAlign.center,
+              style: context.theme.typography.body.xs.copyWith(
+                color: context.theme.colors.mutedForeground,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -6,6 +6,7 @@ import 'package:genesix/features/authentication/application/wallet_session_provi
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_effect_bus_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_node_action_guard.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/wallet_effect.dart';
@@ -24,6 +25,10 @@ class XswdController {
   const XswdController(this.ref);
 
   final Ref ref;
+
+  bool ensureNodeAvailable() {
+    return WalletNodeActionGuard(ref).ensureNodeAvailable();
+  }
 
   Future<void> sync({
     required bool enabled,
@@ -49,6 +54,9 @@ class XswdController {
   Future<void> startXSWD() async {
     final repository = ref.read(activeWalletRepositoryProvider);
     if (repository == null) {
+      return;
+    }
+    if (!WalletNodeActionGuard(ref).ensureNodeAvailable()) {
       return;
     }
 
@@ -115,10 +123,13 @@ class XswdController {
     }
   }
 
-  Future<void> addXswdRelayer(ApplicationDataRelayer relayerData) async {
+  Future<bool> addXswdRelayer(ApplicationDataRelayer relayerData) async {
     final repository = ref.read(activeWalletRepositoryProvider);
     if (repository == null) {
-      return;
+      return false;
+    }
+    if (!WalletNodeActionGuard(ref).ensureNodeAvailable()) {
+      return false;
     }
 
     try {
@@ -134,6 +145,7 @@ class XswdController {
       );
       ref.invalidate(xswdApplicationsProvider);
       talker.info('XSWD relay connection added: ${relayerData.name}');
+      return true;
     } on AnyhowException catch (error) {
       talker.error('Cannot add XSWD relay connection: $error');
       _emitError(

@@ -42,6 +42,9 @@ class _NodeCardState extends ConsumerState<NodeCard> {
     final network = ref.watch(
       settingsProvider.select((state) => state.network),
     );
+    final walletOfflineMode = ref.watch(
+      settingsProvider.select((state) => state.walletOfflineMode),
+    );
 
     List<NodeAddress> nodes = networkNodes.nodesFor(network);
     NodeAddress nodeAddress = networkNodes.addressFor(network);
@@ -123,7 +126,8 @@ class _NodeCardState extends ConsumerState<NodeCard> {
                       tipBuilder: (context, controller) =>
                           Text(loc.connect_node),
                       child: FButton.icon(
-                        onPress: !isOnline && !isConnecting
+                        onPress:
+                            !walletOfflineMode && !isOnline && !isConnecting
                             ? () => unawaited(
                                 ref
                                     .read(walletRuntimeProvider.notifier)

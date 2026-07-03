@@ -6,6 +6,7 @@ import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
+import 'package:genesix/features/wallet/application/xelis_price_provider.dart';
 import 'package:genesix/features/wallet/presentation/home/receive_address_dialog.dart';
 import 'package:genesix/features/wallet/presentation/home/usd_balance_widget.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
@@ -38,6 +39,9 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
     final loc = ref.watch(appLocalizationsProvider);
     final settings = ref.watch(settingsProvider);
     final walletState = ref.watch(walletRuntimeProvider);
+    final effectiveDisplayCurrency = ref.watch(
+      effectiveDisplayCurrencyProvider,
+    );
 
     var displayedBalance = walletState.xelisBalance;
 
@@ -89,7 +93,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                         color: context.theme.colors.foreground,
                       ),
                     ),
-                    if (settings.displayCurrency != null &&
+                    if (effectiveDisplayCurrency != null &&
                         (isMainnet || kDebugMode))
                       // Show converted balance only on mainnet
                       UsdBalanceWidget(

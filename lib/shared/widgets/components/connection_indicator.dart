@@ -49,6 +49,7 @@ class _ConnectionIndicatorState extends ConsumerState<ConnectionIndicator>
       WalletConnectionPhase.connected => true,
       WalletConnectionPhase.connecting => true,
       WalletConnectionPhase.reconnecting => true,
+      WalletConnectionPhase.offline => false,
       WalletConnectionPhase.disconnected => false,
       WalletConnectionPhase.failed => false,
     };
@@ -94,6 +95,7 @@ class _ConnectionIndicatorState extends ConsumerState<ConnectionIndicator>
         isSyncing ? Colors.orangeAccent : context.theme.colors.primary,
       WalletConnectionPhase.connecting => context.theme.colors.primary,
       WalletConnectionPhase.reconnecting => context.theme.colors.primary,
+      WalletConnectionPhase.offline => context.theme.colors.mutedForeground,
       WalletConnectionPhase.disconnected => context.theme.colors.error,
       WalletConnectionPhase.failed => context.theme.colors.error,
     };
@@ -102,6 +104,7 @@ class _ConnectionIndicatorState extends ConsumerState<ConnectionIndicator>
       WalletConnectionPhase.connecting =>
         '${loc.connect_node.capitalizeAll()}...',
       WalletConnectionPhase.reconnecting => '${loc.reconnect.capitalize()}...',
+      WalletConnectionPhase.offline => loc.offline,
       WalletConnectionPhase.disconnected => loc.disconnected,
       WalletConnectionPhase.failed => loc.disconnected,
     };
@@ -109,6 +112,7 @@ class _ConnectionIndicatorState extends ConsumerState<ConnectionIndicator>
       WalletConnectionPhase.connected => true,
       WalletConnectionPhase.connecting => true,
       WalletConnectionPhase.reconnecting => true,
+      WalletConnectionPhase.offline => false,
       WalletConnectionPhase.disconnected => false,
       WalletConnectionPhase.failed => false,
     };

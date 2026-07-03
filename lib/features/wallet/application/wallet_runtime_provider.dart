@@ -78,6 +78,11 @@ class WalletRuntime extends _$WalletRuntime {
       },
     );
 
+    if (ref.read(settingsProvider).walletOfflineMode) {
+      unawaited(_enterOfflineMode(repository: session.repository));
+      return;
+    }
+
     unawaited(connect());
   }
 
@@ -93,11 +98,27 @@ class WalletRuntime extends _$WalletRuntime {
 
   Future<void> connect() async {
     final selectedNode = _selectedNodeForCurrentNetwork();
+    if (ref.read(settingsProvider).walletOfflineMode) {
+      await _enterOfflineMode(selectedNode: selectedNode);
+      return;
+    }
+
     await _queueConnectionTransition(
       selectedNode: selectedNode,
       phase: WalletConnectionPhase.connecting,
       persistSelection: false,
       reportFailure: true,
+    );
+  }
+
+  Future<void> setOfflineMode(bool enabled) async {
+    if (!enabled) {
+      await reconnect();
+      return;
+    }
+
+    await _enterOfflineMode(
+      selectedNode: state.selectedNode ?? _selectedNodeForCurrentNetwork(),
     );
   }
 
@@ -179,9 +200,22 @@ class WalletRuntime extends _$WalletRuntime {
     state = state.copyWith(
       isOnline: false,
       isSyncing: false,
-      connectionPhase: state.connectionPhase == WalletConnectionPhase.failed
-          ? WalletConnectionPhase.failed
-          : WalletConnectionPhase.disconnected,
+      connectionPhase: switch (state.connectionPhase) {
+        WalletConnectionPhase.failed => WalletConnectionPhase.failed,
+        WalletConnectionPhase.offline => WalletConnectionPhase.offline,
+        _ => WalletConnectionPhase.disconnected,
+      },
+    );
+  }
+
+  void _markOfflineModeState({NodeAddress? selectedNode}) {
+    state = state.copyWith(
+      isOnline: false,
+      isSyncing: false,
+      isRescanning: false,
+      connectionPhase: WalletConnectionPhase.offline,
+      selectedNode: selectedNode ?? state.selectedNode,
+      lastConnectionError: null,
     );
   }
 
@@ -200,10 +234,19 @@ class WalletRuntime extends _$WalletRuntime {
 
   Future<void> reconnect([NodeAddress? nodeAddress]) async {
     final selectedNode = nodeAddress ?? _selectedNodeForCurrentNetwork();
+    if (ref.read(settingsProvider).walletOfflineMode) {
+      await _enterOfflineMode(
+        selectedNode: selectedNode,
+        persistSelection: nodeAddress != null,
+      );
+      return;
+    }
+
     final phase = switch (state.connectionPhase) {
       WalletConnectionPhase.connected => WalletConnectionPhase.reconnecting,
       WalletConnectionPhase.connecting => WalletConnectionPhase.reconnecting,
       WalletConnectionPhase.reconnecting => WalletConnectionPhase.reconnecting,
+      WalletConnectionPhase.offline => WalletConnectionPhase.reconnecting,
       WalletConnectionPhase.failed => WalletConnectionPhase.reconnecting,
       WalletConnectionPhase.disconnected =>
         state.selectedNode == null
@@ -220,6 +263,10 @@ class WalletRuntime extends _$WalletRuntime {
   }
 
   Future<void> rescan() async {
+    if (!_ensureConnectedNodeAvailable()) {
+      return;
+    }
+
     final repository = _repository;
     if (repository == null) {
       return;
@@ -309,9 +356,11 @@ class WalletRuntime extends _$WalletRuntime {
     }
 
     state = state.copyWith(
-      isSyncing: state.connectionPhase == WalletConnectionPhase.failed
-          ? false
-          : isSyncing,
+      isSyncing: switch (state.connectionPhase) {
+        WalletConnectionPhase.failed => false,
+        WalletConnectionPhase.offline => false,
+        _ => isSyncing,
+      },
     );
 
     switch (event) {
@@ -464,7 +513,8 @@ class WalletRuntime extends _$WalletRuntime {
           return;
         }
         if (!state.isOnline &&
-            state.connectionPhase == WalletConnectionPhase.disconnected) {
+            (state.connectionPhase == WalletConnectionPhase.disconnected ||
+                state.connectionPhase == WalletConnectionPhase.offline)) {
           return;
         }
         _markOfflineEventState();
@@ -657,6 +707,14 @@ class WalletRuntime extends _$WalletRuntime {
     required bool persistSelection,
     required bool reportFailure,
   }) async {
+    if (ref.read(settingsProvider).walletOfflineMode) {
+      await _enterOfflineMode(
+        selectedNode: selectedNode,
+        persistSelection: persistSelection,
+      );
+      return;
+    }
+
     final repository = _repository;
     if (repository == null) {
       return;
@@ -743,7 +801,9 @@ class WalletRuntime extends _$WalletRuntime {
   }
 
   void _scheduleAutoReconnect(NativeWalletRepository repository) {
-    if (!_isActiveRepository(repository) || _autoReconnectTimer != null) {
+    if (ref.read(settingsProvider).walletOfflineMode ||
+        !_isActiveRepository(repository) ||
+        _autoReconnectTimer != null) {
       return;
     }
 
@@ -756,6 +816,9 @@ class WalletRuntime extends _$WalletRuntime {
     _autoReconnectTimer = Timer(_autoReconnectDelay, () {
       _autoReconnectTimer = null;
       if (!_isCurrentConnectionRequest(requestId, repository)) {
+        return;
+      }
+      if (ref.read(settingsProvider).walletOfflineMode) {
         return;
       }
       unawaited(
@@ -778,12 +841,82 @@ class WalletRuntime extends _$WalletRuntime {
     return message?.toLowerCase().contains(_networkMismatchMessage) != true;
   }
 
+  bool _ensureConnectedNodeAvailable() {
+    if (state.isOnline &&
+        state.connectionPhase == WalletConnectionPhase.connected) {
+      return true;
+    }
+
+    _emitNodeRequiredWarning();
+    return false;
+  }
+
+  void _emitNodeRequiredWarning() {
+    final loc = ref.read(appLocalizationsProvider);
+    final settings = ref.read(settingsProvider);
+    final description =
+        settings.walletOfflineMode ||
+            state.connectionPhase == WalletConnectionPhase.offline
+        ? loc.action_not_available_offline
+        : state.connectionPhase == WalletConnectionPhase.connecting ||
+              state.connectionPhase == WalletConnectionPhase.reconnecting
+        ? loc.action_wait_for_node_connection
+        : loc.action_requires_connected_node;
+
+    ref
+        .read(walletEffectBusProvider.notifier)
+        .emit(
+          WalletEffect.warning(
+            title: loc.node_required,
+            description: description,
+          ),
+        );
+  }
+
   Future<void> _enqueueTransition(Future<void> Function() action) {
     return _transitionQueue.enqueue(action);
   }
 
   Future<void> _enqueueEvent(Future<void> Function() action) {
     return _eventQueue.enqueue(action);
+  }
+
+  Future<void> _enterOfflineMode({
+    NativeWalletRepository? repository,
+    NodeAddress? selectedNode,
+    bool persistSelection = false,
+  }) async {
+    final activeRepository = repository ?? _repository;
+    final requestId = ++_connectionRequestId;
+    _onlineEligibleRequestId = -1;
+    _lastReportedConnectionFailureId = -1;
+    _cancelAutoReconnect();
+
+    if (persistSelection && selectedNode != null) {
+      final settings = ref.read(settingsProvider);
+      ref
+          .read(networkNodesProvider.notifier)
+          .setNodeAddress(settings.network, selectedNode);
+    }
+
+    _markOfflineModeState(selectedNode: selectedNode);
+
+    if (activeRepository == null) {
+      return;
+    }
+
+    await _enqueueTransition(() async {
+      if (!_isCurrentConnectionRequest(requestId, activeRepository)) {
+        return;
+      }
+
+      await _setOfflineBestEffort(activeRepository);
+      if (!_isCurrentConnectionRequest(requestId, activeRepository)) {
+        return;
+      }
+
+      await _hydrateRuntimeState(activeRepository, requestId: requestId);
+    });
   }
 
   Future<void> _setOfflineBestEffort(NativeWalletRepository repository) async {

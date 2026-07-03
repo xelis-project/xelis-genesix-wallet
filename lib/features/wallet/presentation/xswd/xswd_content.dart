@@ -55,6 +55,16 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
   }
 
   Future<void> _checkXswdStatus() async {
+    if (ref.read(settingsProvider).walletOfflineMode) {
+      if (mounted && (_isXswdRunning || _xswdEnableRequestedAt != null)) {
+        setState(() {
+          _isXswdRunning = false;
+          _xswdEnableRequestedAt = null;
+        });
+      }
+      return;
+    }
+
     final repository = ref.read(activeWalletRepositoryProvider);
     if (repository != null) {
       try {
@@ -94,6 +104,14 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
   }
 
   void _onXswdSwitch(bool enabled) {
+    if (ref.read(settingsProvider).walletOfflineMode) {
+      return;
+    }
+
+    if (enabled && !ref.read(xswdControllerProvider).ensureNodeAvailable()) {
+      return;
+    }
+
     setState(() {
       if (enabled) {
         _xswdEnableRequestedAt ??= DateTime.now();
@@ -124,16 +142,24 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final enableXswd = ref.watch(
-      settingsProvider.select((settings) => settings.enableXswd),
+    final walletOfflineMode = ref.watch(
+      settingsProvider.select((settings) => settings.walletOfflineMode),
     );
+    final enableXswd = ref.watch(effectiveXswdEnabledProvider);
     final isConnectionReady = _isConnectionReady(enableXswd);
     final isConnectionStopped = _isConnectionStopped(enableXswd);
     final isStartupTimedOut = _isStartupTimedOut(enableXswd);
     final lockSwitchWhileStarting = isConnectionStopped && !isStartupTimedOut;
     final appsAsync = ref.watch(xswdApplicationsProvider);
 
-    final stateBody = enableXswd
+    final stateBody = walletOfflineMode
+        ? _XswdStatePanel(
+            key: const ValueKey<String>('xswd-offline-disabled'),
+            icon: FLucideIcons.cable,
+            title: loc.xswd_disabled_offline_title,
+            description: loc.xswd_disabled_offline_description,
+          )
+        : enableXswd
         ? appsAsync.when(
             data: (apps) {
               if (apps.isEmpty) {
@@ -180,6 +206,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
                   _XswdModeCard(
                     loc: loc,
                     enableXswd: enableXswd,
+                    isOfflineMode: walletOfflineMode,
                     isRelayMode: _isRelayMode,
                     isRunning: _isXswdRunning,
                     lockSwitchWhileStarting: lockSwitchWhileStarting,
@@ -213,7 +240,9 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
           ),
         ),
         _XswdFooter(
+          loc: loc,
           enableXswd: enableXswd,
+          isOfflineMode: walletOfflineMode,
           isConnectionReady: isConnectionReady,
           isConnectionStopped: isConnectionStopped,
           isStartupTimedOut: isStartupTimedOut,
@@ -228,6 +257,7 @@ class _XswdModeCard extends StatelessWidget {
   const _XswdModeCard({
     required this.loc,
     required this.enableXswd,
+    required this.isOfflineMode,
     required this.isRelayMode,
     required this.isRunning,
     required this.lockSwitchWhileStarting,
@@ -237,13 +267,17 @@ class _XswdModeCard extends StatelessWidget {
 
   final AppLocalizations loc;
   final bool enableXswd;
+  final bool isOfflineMode;
   final bool isRelayMode;
   final bool isRunning;
   final bool lockSwitchWhileStarting;
   final bool isStartupTimedOut;
   final ValueChanged<bool> onSwitchChange;
 
-  String _buildSubtitle() {
+  String? _buildSubtitle() {
+    if (isOfflineMode) {
+      return null;
+    }
     if (lockSwitchWhileStarting) {
       return 'Starting local service...';
     }
@@ -263,7 +297,7 @@ class _XswdModeCard extends StatelessWidget {
     final canDisableAfterTimeout =
         enableXswd && isStartupTimedOut && !lockSwitchWhileStarting;
 
-    final switchOnChange = lockSwitchWhileStarting
+    final switchOnChange = isOfflineMode || lockSwitchWhileStarting
         ? null
         : canDisableAfterTimeout
         ? (bool value) {
@@ -285,13 +319,15 @@ class _XswdModeCard extends StatelessWidget {
                   'Connected Apps',
                   style: context.theme.typography.display.lg,
                 ),
-                const SizedBox(height: Spaces.extraSmall),
-                Text(
-                  subtitle,
-                  style: context.theme.typography.body.sm.copyWith(
-                    color: context.theme.colors.mutedForeground,
+                if (subtitle != null) ...[
+                  const SizedBox(height: Spaces.extraSmall),
+                  Text(
+                    subtitle,
+                    style: context.theme.typography.body.sm.copyWith(
+                      color: context.theme.colors.mutedForeground,
+                    ),
                   ),
-                ),
+                ],
                 const SizedBox(height: Spaces.small),
                 _XswdConnectionStatusLabel(
                   loc: loc,
@@ -531,14 +567,18 @@ class _XswdConnectionStatusLabel extends StatelessWidget {
 
 class _XswdFooter extends StatelessWidget {
   const _XswdFooter({
+    required this.loc,
     required this.enableXswd,
+    required this.isOfflineMode,
     required this.isConnectionReady,
     required this.isConnectionStopped,
     required this.isStartupTimedOut,
     required this.onNewConnection,
   });
 
+  final AppLocalizations loc;
   final bool enableXswd;
+  final bool isOfflineMode;
   final bool isConnectionReady;
   final bool isConnectionStopped;
   final bool isStartupTimedOut;
@@ -546,7 +586,9 @@ class _XswdFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final helperText = !enableXswd
+    final helperText = isOfflineMode
+        ? null
+        : !enableXswd
         ? 'Turn on Connected Apps to add a new application.'
         : isConnectionStopped
         ? (isStartupTimedOut
@@ -577,7 +619,9 @@ class _XswdFooter extends StatelessWidget {
               const SizedBox(height: Spaces.small),
             ],
             FButton(
-              onPress: isConnectionReady ? onNewConnection : null,
+              onPress: !isOfflineMode && isConnectionReady
+                  ? onNewConnection
+                  : null,
               prefix: const Icon(FLucideIcons.qrCode, size: 18),
               child: const Text('New Connection'),
             ),

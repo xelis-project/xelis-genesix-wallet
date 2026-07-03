@@ -28,6 +28,13 @@ class _UsdBalanceWidgetState extends ConsumerState<UsdBalanceWidget> {
     final hideBalance = ref.watch(
       settingsProvider.select((state) => state.hideBalance),
     );
+    final effectiveDisplayCurrency = ref.watch(
+      effectiveDisplayCurrencyProvider,
+    );
+    if (effectiveDisplayCurrency == null) {
+      return const SizedBox.shrink();
+    }
+
     final xelisCoingeckoResponse = ref.watch(xelisPriceProvider).value;
 
     if (hideBalance) {
