@@ -6,6 +6,7 @@ import 'package:genesix/features/authentication/application/wallet_session_provi
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_effect_bus_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
+import 'package:genesix/features/wallet/application/xswd_background_service.dart';
 import 'package:genesix/features/wallet/application/xswd_controller_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/domain/wallet_effect.dart';
@@ -18,6 +19,8 @@ class ProvidersInitializerWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    unawaited(ref.watch(xswdBackgroundServiceProvider).initialize());
+
     ref.listen(activeWalletSessionProvider, (previous, next) {
       final sessionChanged = !identical(previous?.repository, next?.repository);
       if (sessionChanged) {

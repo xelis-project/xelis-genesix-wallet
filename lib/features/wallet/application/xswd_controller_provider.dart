@@ -1,4 +1,4 @@
-import 'dart:io' show Platform;
+import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
@@ -7,6 +7,7 @@ import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_effect_bus_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_node_action_guard.dart';
+import 'package:genesix/features/wallet/application/xswd_background_service.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/wallet_effect.dart';
@@ -30,39 +31,44 @@ class XswdController {
     return WalletNodeActionGuard(ref).ensureNodeAvailable();
   }
 
-  Future<void> sync({
+  Future<bool> sync({
     required bool enabled,
     required bool hasSession,
     required bool isOnline,
   }) async {
+    final backgroundService = ref.read(xswdBackgroundServiceProvider);
     final repository = ref.read(activeWalletRepositoryProvider);
     if (!hasSession || !isOnline) {
       _resetXswdUiState();
       await _stopXswdInternal(repository);
-      return;
+      await backgroundService.sync(active: false);
+      return false;
     }
 
     if (!enabled) {
       _resetXswdUiState();
       await _stopXswdInternal(repository, emitErrors: true);
-      return;
+      await backgroundService.sync(active: false);
+      return false;
     }
 
-    await startXSWD();
+    final started = await startXSWD();
+    await backgroundService.sync(active: started);
+    return started;
   }
 
-  Future<void> startXSWD() async {
+  Future<bool> startXSWD() async {
     final repository = ref.read(activeWalletRepositoryProvider);
     if (repository == null) {
-      return;
+      return false;
     }
     if (!WalletNodeActionGuard(ref).ensureNodeAvailable()) {
-      return;
+      return false;
     }
 
-    if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
+    if (kIsWeb) {
       talker.info('XSWD skipped: unsupported platform');
-      return;
+      return false;
     }
 
     final loc = ref.read(appLocalizationsProvider);
@@ -80,6 +86,7 @@ class XswdController {
       );
       ref.invalidate(xswdApplicationsProvider);
       talker.info('XSWD server started successfully');
+      return true;
     } on AnyhowException catch (error) {
       talker.error('Cannot start XSWD: $error');
       _emitError(
@@ -90,6 +97,7 @@ class XswdController {
       talker.error('Cannot start XSWD: $error');
       _emitError(title: loc.cannot_start_xswd, description: error.toString());
     }
+    return false;
   }
 
   Future<void> stopXSWD() async {
@@ -98,6 +106,7 @@ class XswdController {
       ref.read(activeWalletRepositoryProvider),
       emitErrors: true,
     );
+    await ref.read(xswdBackgroundServiceProvider).sync(active: false);
   }
 
   Future<void> closeXswdAppConnection(AppInfo appInfo) async {
@@ -150,6 +159,7 @@ class XswdController {
         relayerData: relayerData,
       );
       ref.invalidate(xswdApplicationsProvider);
+      await ref.read(xswdBackgroundServiceProvider).sync(active: true);
       talker.info('XSWD relay connection added: ${relayerData.name}');
       return true;
     } on AnyhowException catch (error) {
@@ -275,12 +285,19 @@ class XswdController {
     final decision = ref
         .read(xswdRequestProvider.notifier)
         .newRequest(xswdEventSummary: request, message: message);
+    final backgroundService = ref.read(xswdBackgroundServiceProvider);
 
     if (!_isXswdToastSuppressed()) {
       _emitXswd(title: message, showOpen: showOpen);
     }
 
-    return decision.future;
+    unawaited(backgroundService.showApprovalNotificationIfBackground());
+
+    try {
+      return await decision.future;
+    } finally {
+      unawaited(backgroundService.clearApprovalNotification());
+    }
   }
 
   Future<void> _stopXswdInternal(
