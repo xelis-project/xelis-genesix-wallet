@@ -492,6 +492,15 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
       decisionCompleter.complete(decision);
     }
 
+    final rejected =
+        decision == UserPermissionDecision.reject ||
+        decision == UserPermissionDecision.alwaysReject;
+    if (rejected) {
+      _cancelRapidFireWait();
+      context.pop();
+      return;
+    }
+
     final currentHash = xswdState.xswdEventSummary?.hashCode;
     if (currentHash != null) {
       _beginRapidFireWait(currentRequestHash: currentHash);

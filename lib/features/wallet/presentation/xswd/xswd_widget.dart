@@ -18,6 +18,7 @@ class XswdWidget extends ConsumerStatefulWidget {
 
 class _XswdWidgetState extends ConsumerState<XswdWidget> {
   bool _isDialogOpen = false;
+  int _lastHandledOpenSignal = 0;
 
   void _openDialog() {
     if (_isDialogOpen || !mounted) return;
@@ -54,11 +55,11 @@ class _XswdWidgetState extends ConsumerState<XswdWidget> {
   Widget build(BuildContext context) {
     // Keep provider alive by watching it (like the old widget did)
     ref.watch(xswdRequestProvider);
-
-    ref.listen<int>(xswdDialogOpenSignalProvider, (previous, next) {
-      if (previous == next) return;
+    final openSignal = ref.watch(xswdDialogOpenSignalProvider);
+    if (openSignal != _lastHandledOpenSignal) {
+      _lastHandledOpenSignal = openSignal;
       _openDialog();
-    });
+    }
 
     return widget.child;
   }

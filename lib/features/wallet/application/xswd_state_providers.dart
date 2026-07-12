@@ -13,7 +13,7 @@ import 'package:genesix/features/logger/logger.dart';
 
 part 'xswd_state_providers.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class XswdDialogOpenSignal extends _$XswdDialogOpenSignal {
   @override
   int build() {
