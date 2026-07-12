@@ -6,7 +6,8 @@ import 'package:genesix/features/authentication/application/wallet_session_provi
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_effect_bus_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
-import 'package:genesix/features/wallet/application/xswd_controller_provider.dart';
+import 'package:genesix/features/wallet/application/xswd_lifecycle_provider.dart';
+import 'package:genesix/features/wallet/application/xswd_notification_service.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/domain/wallet_effect.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
@@ -18,6 +19,9 @@ class ProvidersInitializerWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    unawaited(ref.watch(xswdNotificationServiceProvider).initialize());
+    ref.watch(xswdLifecycleProvider);
+
     ref.listen(activeWalletSessionProvider, (previous, next) {
       final sessionChanged = !identical(previous?.repository, next?.repository);
       if (sessionChanged) {
@@ -34,18 +38,6 @@ class ProvidersInitializerWidget extends ConsumerWidget {
       if (sessionChanged) {
         ref.invalidate(xswdApplicationsProvider);
       }
-
-      unawaited(_syncXswdLifecycle(ref));
-    });
-
-    ref.listen(settingsProvider.select((settings) => settings.enableXswd), (
-      previous,
-      next,
-    ) {
-      if (previous == next) {
-        return;
-      }
-      unawaited(_syncXswdLifecycle(ref));
     });
 
     ref.listen(
@@ -57,16 +49,6 @@ class ProvidersInitializerWidget extends ConsumerWidget {
         unawaited(_applyOfflineMode(ref, next));
       },
     );
-
-    ref.listen(walletRuntimeProvider.select((state) => state.isOnline), (
-      previous,
-      next,
-    ) {
-      if (previous == next) {
-        return;
-      }
-      unawaited(_syncXswdLifecycle(ref));
-    });
 
     ref.listen(walletEffectBusProvider, (previous, next) {
       if (next == null) {
@@ -105,15 +87,4 @@ class ProvidersInitializerWidget extends ConsumerWidget {
 
 Future<void> _applyOfflineMode(WidgetRef ref, bool enabled) async {
   await ref.read(walletRuntimeProvider.notifier).setOfflineMode(enabled);
-  await _syncXswdLifecycle(ref);
-}
-
-Future<void> _syncXswdLifecycle(WidgetRef ref) async {
-  await ref
-      .read(xswdControllerProvider)
-      .sync(
-        enabled: ref.read(effectiveXswdEnabledProvider),
-        hasSession: ref.read(activeWalletSessionProvider) != null,
-        isOnline: ref.read(walletRuntimeProvider).isOnline,
-      );
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
@@ -7,6 +8,7 @@ import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_effect_bus_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_node_action_guard.dart';
+import 'package:genesix/features/wallet/application/xswd_notification_service.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/wallet_effect.dart';
@@ -30,39 +32,14 @@ class XswdController {
     return WalletNodeActionGuard(ref).ensureNodeAvailable();
   }
 
-  Future<void> sync({
-    required bool enabled,
-    required bool hasSession,
-    required bool isOnline,
-  }) async {
-    final repository = ref.read(activeWalletRepositoryProvider);
-    if (!hasSession || !isOnline) {
-      _resetXswdUiState();
-      await _stopXswdInternal(repository);
-      return;
-    }
-
-    if (!enabled) {
-      _resetXswdUiState();
-      await _stopXswdInternal(repository, emitErrors: true);
-      return;
-    }
-
-    await startXSWD();
-  }
-
-  Future<void> startXSWD() async {
-    final repository = ref.read(activeWalletRepositoryProvider);
-    if (repository == null) {
-      return;
-    }
+  Future<bool> startXSWD(NativeWalletRepository repository) async {
     if (!WalletNodeActionGuard(ref).ensureNodeAvailable()) {
-      return;
+      return false;
     }
 
-    if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
+    if (kIsWeb || Platform.isIOS) {
       talker.info('XSWD skipped: unsupported platform');
-      return;
+      return false;
     }
 
     final loc = ref.read(appLocalizationsProvider);
@@ -80,6 +57,7 @@ class XswdController {
       );
       ref.invalidate(xswdApplicationsProvider);
       talker.info('XSWD server started successfully');
+      return true;
     } on AnyhowException catch (error) {
       talker.error('Cannot start XSWD: $error');
       _emitError(
@@ -90,14 +68,12 @@ class XswdController {
       talker.error('Cannot start XSWD: $error');
       _emitError(title: loc.cannot_start_xswd, description: error.toString());
     }
+    return false;
   }
 
-  Future<void> stopXSWD() async {
+  Future<bool> stopXSWD(NativeWalletRepository repository) async {
     _resetXswdUiState();
-    await _stopXswdInternal(
-      ref.read(activeWalletRepositoryProvider),
-      emitErrors: true,
-    );
+    return _stopXswdInternal(repository, emitErrors: true);
   }
 
   Future<void> closeXswdAppConnection(AppInfo appInfo) async {
@@ -110,6 +86,9 @@ class XswdController {
     try {
       await repository.removeXswdApp(appInfo.id);
       ref.invalidate(xswdApplicationsProvider);
+      unawaited(
+        ref.read(xswdNotificationServiceProvider).clearPendingApproval(),
+      );
       _emitInfo(title: loc.app_disconnected_title(appInfo.name));
     } on AnyhowException catch (error) {
       talker.error('Cannot close XSWD app connection: $error');
@@ -150,6 +129,9 @@ class XswdController {
         relayerData: relayerData,
       );
       ref.invalidate(xswdApplicationsProvider);
+      await ref
+          .read(xswdNotificationServiceProvider)
+          .sync(active: true, title: loc.connected_apps);
       talker.info('XSWD relay connection added: ${relayerData.name}');
       return true;
     } on AnyhowException catch (error) {
@@ -214,6 +196,9 @@ class XswdController {
         if (!_isXswdToastSuppressed()) {
           _emitXswd(title: message, showOpen: false);
         }
+        unawaited(
+          ref.read(xswdNotificationServiceProvider).clearPendingApproval(),
+        );
       },
       requestApplicationCallback: (request) {
         final appName = request.applicationInfo.name;
@@ -222,6 +207,7 @@ class XswdController {
         return _askXswdUserPermission(
           request: request,
           message: message,
+          notificationBody: loc.connection_request,
           showOpen: true,
         );
       },
@@ -232,6 +218,7 @@ class XswdController {
         return _askXswdUserPermission(
           request: request,
           message: message,
+          notificationBody: loc.permission_request,
           showOpen: true,
         );
       },
@@ -242,6 +229,7 @@ class XswdController {
         return _askXswdUserPermission(
           request: request,
           message: message,
+          notificationBody: loc.prefetch_permissions_request,
           showOpen: true,
         );
       },
@@ -257,6 +245,9 @@ class XswdController {
         if (!_isXswdToastSuppressed()) {
           _emitXswd(title: message, showOpen: false);
         }
+        unawaited(
+          ref.read(xswdNotificationServiceProvider).clearPendingApproval(),
+        );
       },
     );
   }
@@ -268,9 +259,11 @@ class XswdController {
   Future<UserPermissionDecision> _askXswdUserPermission({
     required XswdRequestSummary request,
     required String message,
+    required String notificationBody,
     required bool showOpen,
   }) async {
     talker.info(message);
+    final loc = ref.read(appLocalizationsProvider);
 
     final decision = ref
         .read(xswdRequestProvider.notifier)
@@ -280,22 +273,36 @@ class XswdController {
       _emitXswd(title: message, showOpen: showOpen);
     }
 
-    return decision.future;
+    final notificationService = ref.read(xswdNotificationServiceProvider);
+    unawaited(
+      notificationService.showPendingApproval(
+        title: loc.connected_apps,
+        appName: request.applicationInfo.name,
+        body: notificationBody,
+      ),
+    );
+
+    try {
+      return await decision.future;
+    } finally {
+      unawaited(notificationService.clearPendingApproval());
+    }
   }
 
-  Future<void> _stopXswdInternal(
+  Future<bool> _stopXswdInternal(
     NativeWalletRepository? repository, {
     bool emitErrors = false,
   }) async {
     if (repository == null) {
       ref.invalidate(xswdApplicationsProvider);
-      return;
+      return true;
     }
 
     try {
       await repository.stopXSWD();
       talker.info('XSWD server stop initiated');
       ref.invalidate(xswdApplicationsProvider);
+      return true;
     } on AnyhowException catch (error) {
       if (emitErrors) {
         final loc = ref.read(appLocalizationsProvider);
@@ -305,12 +312,14 @@ class XswdController {
           description: _extractXelisMessage(error),
         );
       }
+      return false;
     } catch (error) {
       if (emitErrors) {
         final loc = ref.read(appLocalizationsProvider);
         talker.error('Cannot stop XSWD: $error');
         _emitError(title: loc.cannot_stop_xswd, description: error.toString());
       }
+      return false;
     }
   }
 
