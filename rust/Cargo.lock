@@ -2155,9 +2155,9 @@ dependencies = [
 
 [[package]]
 name = "polyval"
-version = "0.7.1"
+version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7dfc63250416fea14f5749b90725916a6c903f599d51cb635aa7a52bfd03eede"
+checksum = "b20f20e954175de5f463f67781b35583397d916b1d148738923711b2ad16bee8"
 dependencies = [
  "cpubits",
  "cpufeatures 0.3.0",
@@ -3834,7 +3834,7 @@ dependencies = [
 [[package]]
 name = "xelis_common"
 version = "1.23.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#7d14f9c48a5707d2f80ce3ff171a325769aae7fd"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#c26a8787e95302df1050888ac84b0c26209462b7"
 dependencies = [
  "actix-rt",
  "actix-web",
@@ -3890,7 +3890,7 @@ dependencies = [
 [[package]]
 name = "xelis_wallet"
 version = "1.23.0"
-source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#7d14f9c48a5707d2f80ce3ff171a325769aae7fd"
+source = "git+https://github.com/xelis-project/xelis-blockchain?branch=dev#c26a8787e95302df1050888ac84b0c26209462b7"
 dependencies = [
  "actix-web",
  "actix-web-httpauth",
