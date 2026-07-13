@@ -13,14 +13,14 @@ class NewsRepository {
   });
 
   static const cacheStorageKey = 'news_feed_cache_v1';
-  static const dismissedIdsStorageKey = 'news_dismissed_ids_v1';
+  static const dismissedIdsStorageKey = 'news_dismissed_ids_v2';
 
   final http.Client client;
   final GenesixSharedPreferences storage;
   final Uri indexUri;
   final Future<String> Function() bundledFeedLoader;
 
-  Future<NewsFeed> fetchFeed() async {
+  Future<NewsFeed> fetchFeed({String? walletScope}) async {
     try {
       final response = await client.get(indexUri);
       if (response.statusCode < 200 || response.statusCode >= 300) {
@@ -34,14 +34,26 @@ class NewsRepository {
 
       await storage.save(key: cacheStorageKey, value: decoded);
       final feed = NewsFeed.fromJson(decoded);
-      await pruneDismissedIds(feed);
+      if (walletScope != null) {
+        await pruneDismissedIds(feed, walletScope: walletScope);
+      }
       return feed;
     } catch (_) {
       return _readCachedOrBundledFeed();
     }
   }
 
-  Set<String> dismissedIds() {
+  Set<String> dismissedIds({required String walletScope}) {
+    final dismissedIdsByWallet = _dismissedIdsByWallet();
+    final ids = dismissedIdsByWallet[walletScope];
+    if (ids is! List) {
+      return {};
+    }
+
+    return ids.whereType<String>().toSet();
+  }
+
+  Map<String, dynamic> _dismissedIdsByWallet() {
     if (!storage.prefs.containsKey(dismissedIdsStorageKey)) {
       return {};
     }
@@ -51,29 +63,32 @@ class NewsRepository {
       return {};
     }
 
-    final ids = value['ids'];
-    if (ids is! List) {
+    final wallets = value['wallets'];
+    if (wallets is! Map<String, dynamic>) {
       return {};
     }
 
-    return ids.whereType<String>().toSet();
+    return Map<String, dynamic>.from(wallets);
   }
 
-  Future<void> dismiss(String id) async {
-    final ids = dismissedIds()..add(id);
-    await _saveDismissedIds(ids);
+  Future<void> dismiss(String id, {required String walletScope}) async {
+    final ids = dismissedIds(walletScope: walletScope)..add(id);
+    await _saveDismissedIds(walletScope, ids);
   }
 
-  Future<void> pruneDismissedIds(NewsFeed feed) async {
+  Future<void> pruneDismissedIds(
+    NewsFeed feed, {
+    required String walletScope,
+  }) async {
     final activeIds = feed.items.map((item) => item.id).toSet();
-    final ids = dismissedIds();
+    final ids = dismissedIds(walletScope: walletScope);
     final prunedIds = ids.intersection(activeIds);
 
     if (prunedIds.length == ids.length) {
       return;
     }
 
-    await _saveDismissedIds(prunedIds);
+    await _saveDismissedIds(walletScope, prunedIds);
   }
 
   NewsFeed _readCachedFeed() {
@@ -107,10 +122,17 @@ class NewsRepository {
     }
   }
 
-  Future<void> _saveDismissedIds(Set<String> ids) async {
+  Future<void> _saveDismissedIds(String walletScope, Set<String> ids) async {
+    final dismissedIdsByWallet = _dismissedIdsByWallet();
+    if (ids.isEmpty) {
+      dismissedIdsByWallet.remove(walletScope);
+    } else {
+      dismissedIdsByWallet[walletScope] = ids.toList(growable: false)..sort();
+    }
+
     await storage.save(
       key: dismissedIdsStorageKey,
-      value: {'ids': ids.toList(growable: false)..sort()},
+      value: {'wallets': dismissedIdsByWallet},
     );
   }
 }
