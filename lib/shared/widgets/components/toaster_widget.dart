@@ -23,7 +23,9 @@ class ToasterWidget extends ConsumerStatefulWidget {
 class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
   BuildContext? _toastContext;
   late BuildContext _appContext;
-  late final ProviderSubscription<ToastContent?> _toastSubscription;
+  FToasterEntry? _xswdToastEntry;
+  final ValueNotifier<int> _visibleXswdToastGeneration = ValueNotifier(0);
+  int _nextXswdToastGeneration = 0;
 
   bool _showStandardDismiss(ToastContent toast) =>
       toast.dismissible &&
@@ -35,10 +37,14 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
   @override
   void initState() {
     super.initState();
-    _toastSubscription = ref.listenManual<ToastContent?>(
-      toastProvider,
-      _onToastChanged,
-    );
+    ref.listenManual<ToastContent?>(toastProvider, _onToastChanged);
+    ref.listenManual<int>(xswdDialogCoordinatorProvider, _onDialogOpenSignal);
+  }
+
+  void _onDialogOpenSignal(int? previous, int next) {
+    if (previous != next) {
+      _dismissXswdToastForDialog();
+    }
   }
 
   void _onToastChanged(ToastContent? prev, ToastContent? next) {
@@ -62,6 +68,15 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
 
       ref.read(toastProvider.notifier).clear();
     });
+  }
+
+  void _dismissXswdToastForDialog() {
+    _visibleXswdToastGeneration.value = 0;
+    final entry = _xswdToastEntry;
+    _xswdToastEntry = null;
+    if (entry?.showing ?? false) {
+      entry!.dismiss();
+    }
   }
 
   void _showStandardToast(BuildContext toastCtx, ToastContent toast) {
@@ -128,35 +143,50 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
   }
 
   void _showXswdToast(BuildContext toastCtx, ToastContent toast) {
+    _dismissXswdToastForDialog();
     final spec = _visualSpec(toastCtx, toast);
     final payload = _xswdToastPayload(toast);
     final style = _xswdToastStyle(toastCtx, spec);
+    final generation = ++_nextXswdToastGeneration;
+    _visibleXswdToastGeneration.value = generation;
 
-    showRawFToast(
+    _xswdToastEntry = showRawFToast(
       context: toastCtx,
       style: style,
       duration: null,
       swipeToDismiss: const [],
-      builder: (context, entry) => _decoratedRawToast(
-        context: context,
-        style: style,
-        child: _XswdToastCard(
-          payload: payload,
-          spec: spec,
-          onOpen: toast.actions.isEmpty
-              ? null
-              : () {
-                  entry.dismiss();
-                  ref.read(xswdRequestProvider.notifier).requestOpenDialog();
-                },
-          onDismiss: toast.dismissible
-              ? () {
-                  ref.read(xswdRequestProvider.notifier).clearRequest();
-                  entry.dismiss();
-                }
-              : null,
-        ),
-      ),
+      builder: (context, entry) {
+        return ValueListenableBuilder<int>(
+          valueListenable: _visibleXswdToastGeneration,
+          child: _decoratedRawToast(
+            context: context,
+            style: style,
+            child: _XswdToastCard(
+              payload: payload,
+              spec: spec,
+              onOpen: toast.actions.isEmpty
+                  ? null
+                  : () {
+                      _dismissXswdToastForDialog();
+                      ref
+                          .read(xswdRequestProvider.notifier)
+                          .requestOpenDialog();
+                    },
+              onDismiss: toast.dismissible
+                  ? () {
+                      ref.read(xswdRequestProvider.notifier).clearRequest();
+                      _dismissXswdToastForDialog();
+                    }
+                  : null,
+            ),
+          ),
+          builder: (context, visibleGeneration, child) {
+            return visibleGeneration == generation
+                ? child!
+                : const SizedBox.shrink();
+          },
+        );
+      },
     );
   }
 
@@ -340,7 +370,8 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
 
   @override
   void dispose() {
-    _toastSubscription.close();
+    _dismissXswdToastForDialog();
+    _visibleXswdToastGeneration.dispose();
     super.dispose();
   }
 

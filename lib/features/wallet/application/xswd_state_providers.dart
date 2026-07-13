@@ -13,15 +13,26 @@ import 'package:genesix/features/logger/logger.dart';
 
 part 'xswd_state_providers.g.dart';
 
-@riverpod
-class XswdDialogOpenSignal extends _$XswdDialogOpenSignal {
+@Riverpod(keepAlive: true)
+class XswdDialogCoordinator extends _$XswdDialogCoordinator {
+  int _lastClaimedSignal = 0;
+
   @override
   int build() {
     return 0;
   }
 
-  void increment() {
+  void requestOpen() {
     state++;
+  }
+
+  bool claimOpenRequest(int signal) {
+    if (signal <= _lastClaimedSignal) {
+      return false;
+    }
+
+    _lastClaimedSignal = signal;
+    return true;
   }
 }
 
@@ -118,7 +129,7 @@ class XswdRequest extends _$XswdRequest {
   }
 
   void requestOpenDialog() {
-    ref.read(xswdDialogOpenSignalProvider.notifier).increment();
+    ref.read(xswdDialogCoordinatorProvider.notifier).requestOpen();
   }
 
   void clearRequest() {

@@ -35,7 +35,7 @@ Localized `title`, `summary`, and link `label` maps must include an `en`
 fallback. Only languages supported by the app are accepted:
 
 ```text
-ar bg de en es fr hi it ja ko ms nl pl pt ru tr uk zh
+ar bg de en es fr hi id it ja ko ms nl pl pt ru tr uk zh
 ```
 
 Allowed item types are:
@@ -56,11 +56,14 @@ will disappear only after expiration.
 ## Item identity and revisions
 
 The `id` is the stable identity of a news item. When a user dismisses a
-non-critical news item, the app stores this `id` locally and filters that item
-from the home feed.
+non-critical news item, the app stores this `id` locally for the active wallet
+and filters that item from its home feed. The wallet scope is derived from the
+network and address, then hashed before storage, so switching wallets does not
+carry dismissed news across sessions.
 
-Dismissed IDs are pruned after a successful remote feed fetch. IDs that no
-longer exist in the active feed are removed from local storage.
+Dismissed IDs are pruned for the active wallet after a successful remote feed
+fetch. IDs that no longer exist in the active feed are removed from that
+wallet's local state.
 
 Keep the same `id` for small corrections such as typos, wording changes,
 translations, or a fixed link. Users who already dismissed the item will not see

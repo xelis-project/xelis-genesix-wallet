@@ -25,7 +25,6 @@ import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/compo
 import 'package:genesix/features/wallet/presentation/xswd/xswd_app_detail.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_content.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_qr_scanner_screen.dart';
-import 'package:genesix/features/wallet/presentation/xswd/xswd_widget.dart';
 import 'package:genesix/features/wallet/presentation/wallet_scaffold.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/authentication/presentation/open_wallet_screen.dart';
@@ -375,9 +374,7 @@ CustomTransitionPage<T> pageTransition<T>(
       animation: animation,
       secondaryAnimation: secondaryAnimation,
       transitionType: SharedAxisTransitionType.horizontal,
-      // The XswdWidget must be added to the widget tree here to ensure the correct context is available to display the dialog
-      // TODO rework this to avoid adding the XswdWidget here
-      child: XswdWidget(child),
+      child: child,
     );
   },
 );

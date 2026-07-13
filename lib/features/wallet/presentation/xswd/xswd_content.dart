@@ -1,15 +1,18 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
-import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/router/routes.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_controller_provider.dart';
+import 'package:genesix/features/wallet/application/xswd_lifecycle_provider.dart';
+import 'package:genesix/features/wallet/application/xswd_notification_service.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
+import 'package:genesix/features/wallet/domain/xswd_lifecycle_state.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
@@ -28,79 +31,25 @@ class XSWDContent extends ConsumerStatefulWidget {
 }
 
 class _XSWDContentState extends ConsumerState<XSWDContent> {
-  static const _xswdStartupGrace = Duration(seconds: 15);
-
   final _scrollController = ScrollController();
-  Timer? _statusCheckTimer;
-  bool _isXswdRunning = false;
-  DateTime? _xswdEnableRequestedAt;
-
-  @override
-  void initState() {
-    super.initState();
-
-    if (isDesktopDevice) {
-      _checkXswdStatus();
-      _statusCheckTimer = Timer.periodic(const Duration(seconds: 5), (_) {
-        _checkXswdStatus();
-      });
-    }
-  }
 
   @override
   void dispose() {
-    _statusCheckTimer?.cancel();
     _scrollController.dispose();
     super.dispose();
   }
 
-  Future<void> _checkXswdStatus() async {
-    if (ref.read(settingsProvider).walletOfflineMode) {
-      if (mounted && (_isXswdRunning || _xswdEnableRequestedAt != null)) {
-        setState(() {
-          _isXswdRunning = false;
-          _xswdEnableRequestedAt = null;
-        });
-      }
-      return;
-    }
+  bool get _isRelayMode => kIsWeb || Platform.isIOS;
 
-    final repository = ref.read(activeWalletRepositoryProvider);
-    if (repository != null) {
-      try {
-        final isRunning = await repository.isXswdRunning();
-        if (mounted) {
-          if (isRunning) {
-            _xswdEnableRequestedAt = null;
-          }
-          setState(() {
-            _isXswdRunning = isRunning;
-          });
-        }
-      } catch (_) {
-        // Silently fail: server may be unavailable.
-      }
-    }
-  }
-
-  bool get _isRelayMode => kIsWeb || isMobileDevice;
-
-  bool _isConnectionReady(bool enableXswd) {
+  bool _isConnectionReady(bool enableXswd, XswdLifecycleState lifecycle) {
     if (!enableXswd) return false;
-    return _isRelayMode || _isXswdRunning;
+    return _isRelayMode || lifecycle.isRunning;
   }
 
-  bool _isConnectionStopped(bool enableXswd) {
+  bool _isConnectionStopped(bool enableXswd, XswdLifecycleState lifecycle) {
     if (!enableXswd) return false;
     if (_isRelayMode) return false;
-    return !_isXswdRunning;
-  }
-
-  bool _isStartupTimedOut(bool enableXswd) {
-    if (!enableXswd || _isRelayMode || _isXswdRunning) return false;
-    final requestedAt = _xswdEnableRequestedAt;
-    if (requestedAt == null) return true;
-    return DateTime.now().difference(requestedAt) >= _xswdStartupGrace;
+    return !lifecycle.isRunning;
   }
 
   void _onXswdSwitch(bool enabled) {
@@ -112,23 +61,13 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
       return;
     }
 
-    setState(() {
-      if (enabled) {
-        _xswdEnableRequestedAt ??= DateTime.now();
-      } else {
-        _xswdEnableRequestedAt = null;
-      }
-
-      if (isDesktopDevice) {
-        // Prevent stale "running" UI while local server restarts.
-        _isXswdRunning = false;
-      }
-    });
-
     ref.read(settingsProvider.notifier).setEnableXswd(enabled);
-
-    if (enabled && isDesktopDevice) {
-      unawaited(_checkXswdStatus());
+    if (enabled) {
+      unawaited(
+        ref
+            .read(xswdNotificationServiceProvider)
+            .requestPermissionFromUserAction(),
+      );
     }
   }
 
@@ -146,10 +85,12 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
       settingsProvider.select((settings) => settings.walletOfflineMode),
     );
     final enableXswd = ref.watch(effectiveXswdEnabledProvider);
-    final isConnectionReady = _isConnectionReady(enableXswd);
-    final isConnectionStopped = _isConnectionStopped(enableXswd);
-    final isStartupTimedOut = _isStartupTimedOut(enableXswd);
-    final lockSwitchWhileStarting = isConnectionStopped && !isStartupTimedOut;
+    final lifecycle = ref.watch(xswdLifecycleProvider);
+    final isConnectionReady = _isConnectionReady(enableXswd, lifecycle);
+    final isConnectionStopped = _isConnectionStopped(enableXswd, lifecycle);
+    final isStartupTimedOut = lifecycle.hasFailed;
+    final lockSwitchWhileStarting =
+        lifecycle.isStarting || lifecycle.isStopping;
     final appsAsync = ref.watch(xswdApplicationsProvider);
 
     final stateBody = walletOfflineMode
@@ -208,7 +149,7 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
                     enableXswd: enableXswd,
                     isOfflineMode: walletOfflineMode,
                     isRelayMode: _isRelayMode,
-                    isRunning: _isXswdRunning,
+                    isRunning: lifecycle.isRunning,
                     lockSwitchWhileStarting: lockSwitchWhileStarting,
                     isStartupTimedOut: isStartupTimedOut,
                     onSwitchChange: _onXswdSwitch,

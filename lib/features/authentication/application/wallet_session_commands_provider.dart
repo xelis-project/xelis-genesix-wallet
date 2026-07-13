@@ -14,7 +14,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_effect_bus_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
-import 'package:genesix/features/wallet/application/xswd_controller_provider.dart';
+import 'package:genesix/features/wallet/application/xswd_lifecycle_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/wallet_effect.dart';
@@ -441,7 +441,7 @@ class WalletSessionCommands extends _$WalletSessionCommands {
     talker.info('Closing active wallet session for ${activeSession.name}');
 
     try {
-      await ref.read(xswdControllerProvider).stopXSWD();
+      await ref.read(xswdLifecycleProvider.notifier).stop();
     } catch (error) {
       talker.warning('Failed to stop XSWD before closing wallet: $error');
     }

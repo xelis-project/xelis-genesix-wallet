@@ -156,7 +156,21 @@ impl XSWD for XelisWallet {
     async fn stop_xswd(&self) -> Result<()> {
         #[cfg(not(target_arch = "wasm32"))]
         {
-            self.get_wallet().stop_api_server().await?;
+            let api_server = {
+                let mut api_server = self.get_wallet().get_api_server().lock().await;
+                api_server.take()
+            };
+            if let Some(api_server) = api_server {
+                api_server.stop().await;
+            }
+        }
+
+        let relayer = {
+            let mut relayer = self.get_wallet().xswd_relayer().lock().await;
+            relayer.take()
+        };
+        if let Some(relayer) = relayer {
+            relayer.close().await;
         }
         Ok(())
     }
