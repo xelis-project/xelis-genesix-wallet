@@ -58,6 +58,16 @@ jobs:
             exit 1
           fi
 
+          PUBSPEC_VERSION="$(git show "${TAG}:pubspec.yaml" | sed -nE 's/^version:[[:space:]]*"?([^"+[:space:]]+)(\+[^"[:space:]]*)?"?[[:space:]]*$/\1/p' | head -n1)"
+          if [[ -z "$PUBSPEC_VERSION" ]]; then
+            echo "Error: unable to read the version from pubspec.yaml at ${TAG}."
+            exit 1
+          fi
+          if [[ "$PUBSPEC_VERSION" != "$VERSION" ]]; then
+            echo "Error: tag ${TAG} does not match pubspec.yaml version ${PUBSPEC_VERSION}."
+            exit 1
+          fi
+
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
 
@@ -350,11 +360,10 @@ jobs:
           TAG: ${{ needs.resolve-version.outputs.tag }}
         run: |
           set -euo pipefail
-          DATE_UTC="$(date -u +"%Y-%m-%d %H:%M UTC")"
           git fetch --tags --force
           PREV_TAG="$(git tag --sort=-v:refname | grep -Fvx "$TAG" | head -n1 || true)"
           if [[ -n "$PREV_TAG" ]]; then
-            CHANGELOG_RANGE="${PREV_TAG#v}...${VERSION}"
+            CHANGELOG_RANGE="${PREV_TAG}...${TAG}"
             FULL_CHANGELOG_LINK="[${CHANGELOG_RANGE}](https://github.com/xelis-project/xelis-genesix-wallet/compare/${CHANGELOG_RANGE})"
           else
             FULL_CHANGELOG_LINK="N/A (first tagged release)"
@@ -365,7 +374,6 @@ jobs:
           sed -i "s/{{TAG}}/${TAG}/g" release_body.md
           ESCAPED_CHANGELOG_LINK="$(printf '%s' "$FULL_CHANGELOG_LINK" | sed -e 's/[\/&]/\\&/g')"
           sed -i "s/{{FULL_CHANGELOG_LINK}}/${ESCAPED_CHANGELOG_LINK}/g" release_body.md
-          sed -i "s/{{DATE_UTC}}/${DATE_UTC}/g" release_body.md
 
       - name: Create or update draft release
         uses: softprops/action-gh-release@v2

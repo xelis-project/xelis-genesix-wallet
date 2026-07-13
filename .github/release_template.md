@@ -3,14 +3,10 @@ Fresh release drop! 🚀
 This version bundles builds for Android, Linux, and Windows.
 
 ## What's New
-_Fill this section before publishing the release._
-- [ ] New feature or improvement #1
-- [ ] New feature or improvement #2
+<!-- Add concise, user-facing highlights before publishing. -->
 
 ## Bug Fixes
-_Fill this section before publishing the release._
-- [ ] Bug fix #1
-- [ ] Bug fix #2
+<!-- Add the most relevant user-facing fixes before publishing. -->
 
 ## Important Note
 ⚠️ The application is still in an early stage. You may encounter bugs or unexpected behavior.  
@@ -22,16 +18,18 @@ Thank you for your patience and continued feedback.
 ⚠️ **Always keep your wallet seed phrase (recovery phrase) backed up and stored securely.**  
 Do not share it with anyone. Anyone with access to it can fully control your wallet funds.
 
+Download Genesix only from the official GitHub release page.
+
 ## Release Assets
-- Android (64-bit ARM): `genesix-android-{{VERSION}}-64bit-arm.apk`
-- Android (32-bit ARM): `genesix-android-{{VERSION}}-32bit-arm.apk`
+- Android (64-bit ARM, recommended for most recent devices): `genesix-android-{{VERSION}}-64bit-arm.apk`
+- Android (32-bit ARM, for older compatible devices): `genesix-android-{{VERSION}}-32bit-arm.apk`
 - Linux (x64): `genesix-linux-{{VERSION}}-x64.tar.gz`
 - Windows (x64, portable): `genesix-windows-x64-v{{VERSION}}.zip`
 - Windows (x64, installer): `genesix-windows-x86_64-v{{VERSION}}.exe`
 
 ## Installation
 ### Android
-- Download the APK matching your device architecture.
+- Use the 64-bit ARM APK for most recent devices. Use the 32-bit ARM APK only for older compatible devices.
 - Enable installation from unknown sources if required by your device policy.
 
 ### Linux
@@ -45,17 +43,16 @@ Do not share it with anyone. Anyone with access to it can fully control your wal
 
 ## Upgrade Notes
 - Close any running Genesix process before upgrading.
-- On Windows, keep wallet data backups before replacing portable files manually.
+- On Windows, run the latest installer to upgrade an existing installation.
+- If you use the Windows portable build, extract the new version to a separate folder instead of overwriting the previous files.
 - Take a minute to verify your backup status before any migration/update 🔐
 
 ## Known Issues
-_Optional: list temporary limitations or known bugs for this version._
-- None reported.
+<!-- Replace this line if release-specific limitations or bugs are known. -->
+- No release-specific issues reported at publication time.
 
 ## Platform Coverage
 - Included: Android, Linux, Windows
-- Not included in this pipeline: macOS (for now) 🙂
+- Not included in this pipeline: iOS, macOS (for now) 🙂
 
 Full Changelog: {{FULL_CHANGELOG_LINK}}
-
-_Released on {{DATE_UTC}}._
