@@ -23,8 +23,6 @@ class ToasterWidget extends ConsumerStatefulWidget {
 class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
   BuildContext? _toastContext;
   late BuildContext _appContext;
-  late final ProviderSubscription<ToastContent?> _toastSubscription;
-  late final ProviderSubscription<int> _dialogOpenSubscription;
   FToasterEntry? _xswdToastEntry;
   final ValueNotifier<int> _visibleXswdToastGeneration = ValueNotifier(0);
   int _nextXswdToastGeneration = 0;
@@ -39,14 +37,8 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
   @override
   void initState() {
     super.initState();
-    _toastSubscription = ref.listenManual<ToastContent?>(
-      toastProvider,
-      _onToastChanged,
-    );
-    _dialogOpenSubscription = ref.listenManual<int>(
-      xswdDialogOpenSignalProvider,
-      _onDialogOpenSignal,
-    );
+    ref.listenManual<ToastContent?>(toastProvider, _onToastChanged);
+    ref.listenManual<int>(xswdDialogCoordinatorProvider, _onDialogOpenSignal);
   }
 
   void _onDialogOpenSignal(int? previous, int next) {
@@ -379,8 +371,6 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
   @override
   void dispose() {
     _dismissXswdToastForDialog();
-    _dialogOpenSubscription.close();
-    _toastSubscription.close();
     _visibleXswdToastGeneration.dispose();
     super.dispose();
   }
