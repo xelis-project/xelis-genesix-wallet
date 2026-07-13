@@ -6,6 +6,7 @@ const supportedNewsLanguages = {
   'es',
   'fr',
   'hi',
+  'id',
   'it',
   'ja',
   'ko',

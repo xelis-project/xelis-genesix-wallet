@@ -35,7 +35,7 @@ Localized `title`, `summary`, and link `label` maps must include an `en`
 fallback. Only languages supported by the app are accepted:
 
 ```text
-ar bg de en es fr hi it ja ko ms nl pl pt ru tr uk zh
+ar bg de en es fr hi id it ja ko ms nl pl pt ru tr uk zh
 ```
 
 Allowed item types are:

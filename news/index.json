@@ -1,20 +1,37 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-23T00:00:00Z",
+  "generatedAt": "2026-07-10T16:22:00Z",
   "items": [
     {
-      "id": "2026-06-xelis-node-1-22-2",
-      "publishedAt": "2026-06-16T22:58:52Z",
+      "id": "2026-07-xelis-node-1-23-0",
+      "publishedAt": "2026-07-10T16:22:00Z",
       "expiresAt": null,
       "type": "network",
       "severity": "info",
       "title": {
-        "en": "XELIS node v1.22.2 is available",
-        "fr": "Le node XELIS v1.22.2 est disponible"
+        "en": "XELIS node v1.23.0 is available",
+        "fr": "Le node XELIS v1.23.0 est disponible"
       },
       "summary": {
-        "en": "This release improves sync reliability, peer selection, mempool limits, wallet pending transactions, and Blob support.",
-        "fr": "Cette version améliore la synchronisation, la selection des pairs, les limites mempool, les transactions en attente du wallet et le support Blob."
+        "ar": "يوفّر الإصدار 1.23.0 عقدة XELIS أسرع وأكثر موثوقية. حدّثها عندما يتوفر لديك بعض الوقت للاستفادة من التحقق الأسرع من المعاملات، والمزامنة المحسّنة، والإصلاحات التي تعزز الاستقرار والأمان.",
+        "bg": "Версия 1.23.0 прави XELIS node по-бърз и по-надежден. Актуализирайте, когато имате време, за по-бърза проверка на транзакции, по-добра синхронизация и поправки за повече стабилност и сигурност.",
+        "de": "Version 1.23.0 macht den XELIS-Node schneller und zuverlässiger. Aktualisiere ihn bei Gelegenheit, um von schnelleren Transaktionsprüfungen, besserer Synchronisierung sowie Stabilitäts- und Sicherheitskorrekturen zu profitieren.",
+        "en": "Version 1.23.0 makes the XELIS node faster and more reliable. Update when you have a moment to benefit from faster transaction checks, improved syncing, and fixes that strengthen stability and security.",
+        "es": "La versión 1.23.0 hace que el nodo XELIS sea más rápido y fiable. Actualiza cuando tengas un momento para disfrutar de verificaciones de transacciones más rápidas, mejor sincronización y correcciones que refuerzan la estabilidad y la seguridad.",
+        "fr": "La version 1.23.0 rend le node XELIS plus rapide et plus fiable. Mettez à jour quand vous aurez un moment pour profiter de vérifications de transactions plus rapides, d'une meilleure synchronisation et de correctifs de stabilité et de sécurité.",
+        "hi": "संस्करण 1.23.0 XELIS नोड को तेज़ और अधिक विश्वसनीय बनाता है। समय मिलने पर अपडेट करें और तेज़ लेन-देन सत्यापन, बेहतर सिंक तथा स्थिरता और सुरक्षा बढ़ाने वाले सुधारों का लाभ लें।",
+        "id": "Versi 1.23.0 membuat node XELIS lebih cepat dan lebih andal. Perbarui saat ada waktu untuk mendapatkan pemeriksaan transaksi yang lebih cepat, sinkronisasi yang lebih baik, serta perbaikan yang meningkatkan stabilitas dan keamanan.",
+        "it": "La versione 1.23.0 rende il nodo XELIS più veloce e affidabile. Aggiorna quando hai un momento per beneficiare di verifiche delle transazioni più rapide, una migliore sincronizzazione e correzioni che aumentano stabilità e sicurezza.",
+        "ja": "バージョン1.23.0では、XELISノードがより高速で信頼性の高いものになりました。時間のあるときに更新すると、トランザクション検証の高速化、同期の改善、安定性とセキュリティを高める修正を利用できます。",
+        "ko": "버전 1.23.0으로 XELIS 노드가 더 빠르고 안정적으로 개선되었습니다. 여유가 있을 때 업데이트하여 더 빠른 거래 검증, 향상된 동기화, 안정성과 보안을 강화하는 수정 사항을 이용하세요.",
+        "ms": "Versi 1.23.0 menjadikan nod XELIS lebih pantas dan boleh dipercayai. Kemas kini apabila anda berkelapangan untuk menikmati semakan transaksi yang lebih pantas, penyegerakan yang lebih baik serta pembaikan yang mengukuhkan kestabilan dan keselamatan.",
+        "nl": "Versie 1.23.0 maakt de XELIS-node sneller en betrouwbaarder. Werk bij gelegenheid bij voor snellere transactiecontroles, betere synchronisatie en oplossingen die stabiliteit en veiligheid versterken.",
+        "pl": "Wersja 1.23.0 sprawia, że węzeł XELIS działa szybciej i niezawodniej. Zaktualizuj, gdy będziesz mieć chwilę, aby skorzystać z szybszej weryfikacji transakcji, lepszej synchronizacji oraz poprawek zwiększających stabilność i bezpieczeństwo.",
+        "pt": "A versão 1.23.0 torna o nó XELIS mais rápido e fiável. Atualize quando tiver um momento para beneficiar de verificações de transações mais rápidas, melhor sincronização e correções que reforçam a estabilidade e a segurança.",
+        "ru": "Версия 1.23.0 делает узел XELIS быстрее и надёжнее. Обновитесь, когда будет удобно, чтобы получить более быструю проверку транзакций, улучшенную синхронизацию и исправления, повышающие стабильность и безопасность.",
+        "tr": "1.23.0 sürümü XELIS düğümünü daha hızlı ve güvenilir hâle getiriyor. Müsait olduğunuzda güncelleyerek daha hızlı işlem doğrulaması, gelişmiş eşitleme ve kararlılık ile güvenliği güçlendiren düzeltmelerden yararlanın.",
+        "uk": "Версія 1.23.0 робить вузол XELIS швидшим і надійнішим. Оновіться, коли матимете час, щоб скористатися швидшою перевіркою транзакцій, покращеною синхронізацією та виправленнями, що посилюють стабільність і безпеку.",
+        "zh": "1.23.0 版本让 XELIS 节点更快、更可靠。请在方便时更新，以获得更快的交易验证、更好的同步体验，以及增强稳定性和安全性的修复。"
       },
       "targets": {
         "networks": ["mainnet", "testnet", "devnet", "stagenet"],
@@ -28,7 +45,7 @@
             "en": "View release",
             "fr": "Voir la release"
           },
-          "url": "https://github.com/xelis-project/xelis-blockchain/releases/tag/v1.22.2"
+          "url": "https://github.com/xelis-project/xelis-blockchain/releases/tag/v1.23.0"
         }
       ]
     }
