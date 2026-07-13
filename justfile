@@ -40,6 +40,12 @@ gen_arb:
     flutter pub get
     cd ../..
 
+sync_forui_docs:
+    dart run tool/sync_forui_docs.dart
+
+validate_news_feed:
+    dart run tool/validate_news_feed.dart
+
 ### Web build and run commands ###
 
 CRATE_DIR      := 'rust'
