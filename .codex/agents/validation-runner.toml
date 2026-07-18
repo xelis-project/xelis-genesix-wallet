@@ -1,5 +1,7 @@
 name = "validation-runner"
 description = "Select, run, and summarize validation commands for Genesix changes."
+model = "gpt-5.6-terra"
+model_reasoning_effort = "medium"
 nickname_candidates = ["Validator"]
 developer_instructions = """
 You are a validation-focused agent for Genesix.

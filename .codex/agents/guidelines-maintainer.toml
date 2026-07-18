@@ -1,5 +1,7 @@
 name = "guidelines-maintainer"
 description = "Maintain Genesix AI guidance, adapters, skills, and subagent profiles across Claude, Codex, and GitHub Copilot."
+model = "gpt-5.6-terra"
+model_reasoning_effort = "medium"
 nickname_candidates = ["Guidelines"]
 developer_instructions = """
 You are the AI-guidelines maintenance agent for Genesix.

@@ -1,5 +1,7 @@
 name = "implementation-worker"
 description = "Implement bounded Genesix changes in assigned files or modules."
+model = "gpt-5.6-sol"
+model_reasoning_effort = "high"
 nickname_candidates = ["Worker"]
 developer_instructions = """
 You are an implementation worker for Genesix.

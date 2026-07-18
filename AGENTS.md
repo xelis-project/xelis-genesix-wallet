@@ -137,9 +137,10 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 
 1. Use `codebase-explorer` for non-blocking research when multiple areas need inspection.
 2. Use `implementation-planning` before broad or multi-layer changes.
-3. Implement in the smallest coherent slice.
-4. Use `validation-runner` to select and run checks.
-5. Use `code-reviewer` before delivery when the diff is non-trivial.
+3. Implement directly when coordination overhead would outweigh delegation; otherwise use `quick-implementer` for a small mechanical change limited to one or two files, or `implementation-worker` for a bounded feature or bugfix slice.
+4. Implement in the smallest coherent slice.
+5. Use `validation-runner` to select and run checks.
+6. Use `code-reviewer` before delivery when the diff is non-trivial.
 
 ### Bugfix
 
@@ -228,6 +229,7 @@ Native project profiles:
 Project profiles:
 
 - `codebase-explorer`: read-only repository exploration and source mapping.
+- `quick-implementer`: small, well-defined implementation work limited to one or two files.
 - `implementation-worker`: bounded implementation work in assigned files.
 - `ui-ux-designer`: UX/UI critique and design guidance for Flutter/Forui screens.
 - `security-reviewer`: independent wallet/application security review and threat modeling.
@@ -239,6 +241,8 @@ Subagent rules:
 
 - Give each subagent a concrete, bounded task.
 - Avoid duplicate work between the main agent and subagents.
+- Keep delegation root-orchestrated by default: subagents report to the main agent, which launches reviewers and validators as independent sibling agents when needed.
+- Do not request recursive delegation unless the user explicitly asks for it and the task has independently executable nested work that justifies the extra cost.
 - For implementation subagents, define file ownership and remind them not to revert unrelated changes.
 - Prefer read-only explorers for broad inspection.
 - Use validation subagents for noisy checks when they can run independently.

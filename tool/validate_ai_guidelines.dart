@@ -9,6 +9,44 @@ const _agentProfileRoots = <String, String>{
   '.claude/agents': '.md',
   '.github/agents': '.agent.md',
 };
+const _codexAgentConfigurations = <String, Map<String, String>>{
+  'codebase-explorer': {
+    'model': 'gpt-5.6-terra',
+    'model_reasoning_effort': 'medium',
+    'sandbox_mode': 'read-only',
+  },
+  'quick-implementer': {
+    'model': 'gpt-5.6-terra',
+    'model_reasoning_effort': 'medium',
+  },
+  'implementation-worker': {
+    'model': 'gpt-5.6-sol',
+    'model_reasoning_effort': 'high',
+  },
+  'code-reviewer': {
+    'model': 'gpt-5.6-sol',
+    'model_reasoning_effort': 'high',
+    'sandbox_mode': 'read-only',
+  },
+  'security-reviewer': {
+    'model': 'gpt-5.6-sol',
+    'model_reasoning_effort': 'high',
+    'sandbox_mode': 'read-only',
+  },
+  'ui-ux-designer': {
+    'model': 'gpt-5.6-sol',
+    'model_reasoning_effort': 'high',
+    'sandbox_mode': 'read-only',
+  },
+  'validation-runner': {
+    'model': 'gpt-5.6-terra',
+    'model_reasoning_effort': 'medium',
+  },
+  'guidelines-maintainer': {
+    'model': 'gpt-5.6-terra',
+    'model_reasoning_effort': 'medium',
+  },
+};
 const _requiredGuidancePaths = <String>[
   _agentsDocument,
   'CLAUDE.md',
@@ -138,12 +176,21 @@ Set<String> _validateAgentProfiles(List<String> failures) {
       );
       names.add(profileName);
       _validateDeclaredAgentName(entity, profileName, failures);
+      if (entry.key == '.codex/agents') {
+        _validateCodexAgentConfiguration(entity, profileName, failures);
+      }
     }
     namesByRoot[entry.key] = names;
   }
 
   final referenceNames =
       namesByRoot[_agentProfileRoots.keys.first] ?? <String>{};
+  _compareNameSets(
+    expected: _codexAgentConfigurations.keys.toSet(),
+    actual: referenceNames,
+    label: 'configured Codex agent profiles',
+    failures: failures,
+  );
   for (final entry in namesByRoot.entries.skip(1)) {
     _compareNameSets(
       expected: referenceNames,
@@ -154,6 +201,34 @@ Set<String> _validateAgentProfiles(List<String> failures) {
   }
 
   return referenceNames;
+}
+
+void _validateCodexAgentConfiguration(
+  File file,
+  String profileName,
+  List<String> failures,
+) {
+  final content = file.readAsStringSync();
+  final expected = _codexAgentConfigurations[profileName];
+  if (expected == null) {
+    failures.add('Missing expected Codex configuration: $profileName');
+    return;
+  }
+
+  for (final entry in expected.entries) {
+    final actualValue = _tomlStringValue(content, entry.key);
+    if (actualValue != entry.value) {
+      failures.add(
+        'Invalid Codex ${entry.key} for $profileName: expected '
+        '"${entry.value}", found "${actualValue ?? 'missing'}"',
+      );
+    }
+  }
+
+  if (!expected.containsKey('sandbox_mode') &&
+      _tomlStringValue(content, 'sandbox_mode') != null) {
+    failures.add('Unexpected Codex sandbox_mode: ${file.path}');
+  }
 }
 
 void _validateDeclaredAgentName(
@@ -317,4 +392,11 @@ String? _frontmatterValue(String content, String key) {
     }
   }
   return null;
+}
+
+String? _tomlStringValue(String content, String key) {
+  return RegExp(
+    '^${RegExp.escape(key)}\\s*=\\s*"([^"]+)"\\s*\$',
+    multiLine: true,
+  ).firstMatch(content)?.group(1);
 }
