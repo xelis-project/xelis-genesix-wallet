@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:forui/forui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
@@ -42,7 +43,7 @@ class BurnBuilderWidget extends ConsumerWidget with TransactionBuilderMixin {
             Text(
               loc.burn,
               style: context.bodyLarge!.copyWith(
-                color: context.moreColors.mutedColor,
+                color: context.theme.colors.mutedForeground,
               ),
             ),
           ],

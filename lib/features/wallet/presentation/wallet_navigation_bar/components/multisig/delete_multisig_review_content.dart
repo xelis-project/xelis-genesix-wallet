@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:forui/forui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
@@ -20,7 +21,7 @@ class DeleteMultisigReviewContent extends ConsumerWidget {
         Text(
           loc.hash,
           style: context.bodyLarge!.copyWith(
-            color: context.moreColors.mutedColor,
+            color: context.theme.colors.mutedForeground,
           ),
         ),
         const SizedBox(height: Spaces.extraSmall),
@@ -29,7 +30,7 @@ class DeleteMultisigReviewContent extends ConsumerWidget {
         Text(
           loc.fee,
           style: context.bodyLarge!.copyWith(
-            color: context.moreColors.mutedColor,
+            color: context.theme.colors.mutedForeground,
           ),
         ),
         const SizedBox(height: Spaces.extraSmall),
@@ -38,7 +39,7 @@ class DeleteMultisigReviewContent extends ConsumerWidget {
         Text(
           loc.transaction_type,
           style: context.bodyLarge!.copyWith(
-            color: context.moreColors.mutedColor,
+            color: context.theme.colors.mutedForeground,
           ),
         ),
         const SizedBox(height: Spaces.extraSmall),

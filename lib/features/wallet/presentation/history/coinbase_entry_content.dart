@@ -20,7 +20,7 @@ class CoinbaseEntryContent extends ConsumerWidget {
       walletRuntimeProvider.select((state) => state.network),
     );
 
-    return FCard.raw(
+    return FCard(
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(Spaces.medium),

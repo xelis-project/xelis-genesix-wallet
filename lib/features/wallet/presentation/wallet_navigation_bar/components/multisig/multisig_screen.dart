@@ -8,14 +8,15 @@ import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart
 import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/multisig/setup_multisig_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/multisig/sign_transaction_dialog.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_dialog_old.dart';
+import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_review_dialog_new.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
-import 'package:genesix/shared/widgets/components/generic_app_bar_widget_old.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
+import 'package:go_router/go_router.dart';
 
 class MultisigScreen extends ConsumerStatefulWidget {
   const MultisigScreen({super.key});
@@ -35,7 +36,15 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
     );
     final pendingState = ref.watch(multisigPendingStateProvider);
     return CustomScaffold(
-      appBar: GenericAppBar(title: loc.multisig),
+      appBar: FHeader.nested(
+        title: Text(loc.multisig),
+        suffixes: [
+          Padding(
+            padding: const EdgeInsets.all(Spaces.small),
+            child: FHeaderAction.x(onPress: () => context.pop()),
+          ),
+        ],
+      ),
       body: AnimatedSwitcher(
         key: ValueKey<bool>(pendingState),
         duration: const Duration(milliseconds: AppDurations.animFast),
@@ -61,13 +70,13 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                     Text(
                       loc.threshold,
                       style: context.labelLarge?.copyWith(
-                        color: context.moreColors.mutedColor,
+                        color: context.theme.colors.mutedForeground,
                       ),
                     ),
                     Text(
                       loc.minimum_signatures_required.toLowerCase(),
                       style: context.labelSmall?.copyWith(
-                        color: context.moreColors.mutedColor,
+                        color: context.theme.colors.mutedForeground,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
@@ -76,13 +85,13 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                     Text(
                       loc.topoheight,
                       style: context.labelLarge?.copyWith(
-                        color: context.moreColors.mutedColor,
+                        color: context.theme.colors.mutedForeground,
                       ),
                     ),
                     Text(
                       loc.multisig_activation_height.toLowerCase(),
                       style: context.labelSmall?.copyWith(
-                        color: context.moreColors.mutedColor,
+                        color: context.theme.colors.mutedForeground,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
@@ -91,7 +100,7 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                     Text(
                       loc.participants,
                       style: context.labelLarge?.copyWith(
-                        color: context.moreColors.mutedColor,
+                        color: context.theme.colors.mutedForeground,
                       ),
                     ),
                     const Divider(),
@@ -119,13 +128,19 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                                       Text(
                                         loc.id,
                                         style: context.labelMedium?.copyWith(
-                                          color: context.moreColors.mutedColor,
+                                          color: context
+                                              .theme
+                                              .colors
+                                              .mutedForeground,
                                         ),
                                       ),
                                       Text(
                                         loc.address,
                                         style: context.labelMedium?.copyWith(
-                                          color: context.moreColors.mutedColor,
+                                          color: context
+                                              .theme
+                                              .colors
+                                              .mutedForeground,
                                         ),
                                       ),
                                     ],
@@ -209,7 +224,7 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                       Text(
                         '${loc.multisig_intro_message_1}\n${loc.multisig_intro_message_2}',
                         style: context.titleMedium?.copyWith(
-                          color: context.moreColors.mutedColor,
+                          color: context.theme.colors.mutedForeground,
                         ),
                       ),
                       Spacer(),
@@ -268,10 +283,10 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
             .read(transactionReviewProvider.notifier)
             .signaturePending(unsignedTx);
 
-        showDialog<void>(
+        showAppDialog<void>(
           context: context,
-          builder: (context) {
-            return TransactionDialog();
+          builder: (dialogContext, _, animation) {
+            return TransactionReviewDialogNew(animation);
           },
         );
       } else {

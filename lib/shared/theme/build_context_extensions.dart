@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import 'package:genesix/shared/theme/more_colors_old.dart';
 import 'package:go_router/go_router.dart';
 
 extension TypographyUtils on BuildContext {
@@ -13,10 +12,6 @@ extension TypographyUtils on BuildContext {
   ScrollBehavior get scrollBehavior => ScrollConfiguration.of(this);
 
   GoRouterState get goRouterState => GoRouterState.of(this);
-
-  MoreColors get moreColors {
-    return Theme.of(this).extension<MoreColors>()!;
-  }
 
   TextStyle? get displayLarge => textTheme.displayLarge;
 

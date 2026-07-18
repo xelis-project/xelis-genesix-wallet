@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
@@ -20,7 +21,7 @@ class XswdNewConnectionDialog extends ConsumerWidget {
     final theme = context.theme;
     final loc = ref.watch(appLocalizationsProvider);
 
-    return FDialog(
+    return AppDialog(
       clipBehavior: Clip.antiAlias,
       animation: animation,
       constraints: const BoxConstraints(maxWidth: 600),

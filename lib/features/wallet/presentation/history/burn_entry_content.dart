@@ -32,7 +32,7 @@ class BurnEntryContent extends ConsumerWidget {
     final assetName = formattedData.$1;
     final amount = '-${formattedData.$2}';
 
-    return FCard.raw(
+    return FCard(
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(Spaces.medium),

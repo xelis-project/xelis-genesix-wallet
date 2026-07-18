@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_card.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
@@ -112,7 +114,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
     final applyText = widget.applyLabel ?? loc.apply;
     final today = _calendarDate(DateTime.now())!;
 
-    return FDialog(
+    return AppDialog(
       clipBehavior: Clip.antiAlias,
       direction: Axis.horizontal,
       title: Text(titleText),
@@ -220,7 +222,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                           .toList();
                     },
                   ),
-                  FCard(
+                  AppCard(
                     clipBehavior: Clip.antiAlias,
                     child: Column(
                       spacing: Spaces.medium,
@@ -265,7 +267,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                     ),
                   ),
                   // Other options
-                  FCard(
+                  AppCard(
                     clipBehavior: Clip.antiAlias,
                     child: Column(
                       spacing: Spaces.medium,

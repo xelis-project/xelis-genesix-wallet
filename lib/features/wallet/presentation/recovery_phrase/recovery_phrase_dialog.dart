@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -35,7 +36,7 @@ class _RecoveryPhraseDialogState extends ConsumerState<RecoveryPhraseDialog> {
 
     final words = widget.seed.split(' ');
 
-    return FDialog(
+    return AppDialog(
       clipBehavior: Clip.antiAlias,
       animation: widget.animation,
       title: Row(

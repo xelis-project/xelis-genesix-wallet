@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/authentication/application/authentication_provider.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
 import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
@@ -208,7 +209,7 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
     showAppDialog<void>(
       context: context,
       builder: (context, style, animation) {
-        return FDialog(
+        return AppDialog(
           clipBehavior: Clip.antiAlias,
           animation: animation,
           direction: Axis.horizontal,

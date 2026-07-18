@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -43,7 +44,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    return FDialog.adaptive(
+    return AppDialog.adaptive(
       clipBehavior: Clip.antiAlias,
       animation: widget.animation,
       title: Text(loc.change_password),

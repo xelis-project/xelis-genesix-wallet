@@ -47,7 +47,7 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
     final loc = ref.watch(appLocalizationsProvider);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Spaces.medium),
-      child: FCard.raw(
+      child: FCard(
         clipBehavior: Clip.antiAlias,
         child: Padding(
           padding: const EdgeInsets.all(Spaces.medium),

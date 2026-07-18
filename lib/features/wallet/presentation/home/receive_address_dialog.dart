@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/domain/network_translate_name.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
@@ -41,7 +42,7 @@ class ReceiveAddressDialog extends ConsumerWidget {
         ? const Color(0xFFFFFFFF)
         : const Color(0xFF111111);
 
-    return FDialog(
+    return AppDialog(
       clipBehavior: Clip.antiAlias,
       animation: animation,
       constraints: BoxConstraints(minWidth: 280, maxWidth: maxDialogWidth),

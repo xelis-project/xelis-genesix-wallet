@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_card.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -177,7 +178,7 @@ class _ContactProfileCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return FCard(
+    return AppCard(
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(Spaces.medium),
@@ -318,7 +319,7 @@ class _ContactNotesCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasNotes = contact.note?.isNotEmpty ?? false;
 
-    return FCard(
+    return AppCard(
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(Spaces.medium),

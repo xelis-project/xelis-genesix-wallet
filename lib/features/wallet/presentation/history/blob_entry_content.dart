@@ -29,7 +29,7 @@ class BlobEntryContent extends ConsumerWidget {
     );
     final parsed = ParsedExtraData.parse(loc, blobEntry.data);
 
-    return FCard.raw(
+    return FCard(
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(Spaces.medium),

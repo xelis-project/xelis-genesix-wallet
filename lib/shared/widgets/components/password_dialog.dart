@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
@@ -83,7 +84,7 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
 
-    return FDialog.adaptive(
+    return AppDialog.adaptive(
       clipBehavior: Clip.antiAlias,
       animation: widget.animation,
       title: Text(loc.authentication.capitalize()),

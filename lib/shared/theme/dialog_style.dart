@@ -14,25 +14,15 @@ FDialogStyle dialogStyle({
 
   final double insetH;
   final double insetV;
-  final double contentH;
-  final double contentV;
-
   if (context != null) {
     final mq = context.mediaQueryData;
     final w = mq.size.width;
     final h = mq.size.height;
-    final scale = mq.textScaler.scale(1.0);
-
     insetH = (w * 0.06).clamp(12.0, 40.0);
     insetV = (h * 0.04).clamp(12.0, 24.0);
-
-    contentH = (w * 0.05 / scale).clamp(12.0, 30.0);
-    contentV = (w * 0.05 / scale).clamp(12.0, 28.0);
   } else {
     insetH = 40.0;
     insetV = 24.0;
-    contentH = 30.0;
-    contentV = 25.0;
   }
 
   return FDialogStyle(
@@ -48,30 +38,8 @@ FDialogStyle dialogStyle({
         ),
       ],
     ),
-    contentStyle: FDialogContentStyles(
-      FVariants(
-        FDialogContentStyle(
-          titleTextStyle: title,
-          bodyTextStyle: body,
-          padding: .symmetric(horizontal: contentH, vertical: contentV),
-          titleSpacing: 8,
-          contentSpacing: 8,
-          actionSpacing: 10,
-          expandActions: false,
-        ),
-        variants: {
-          [FDialogAxisVariant.vertical]: FDialogContentStyle(
-            titleTextStyle: title,
-            bodyTextStyle: body,
-            padding: .symmetric(horizontal: contentH, vertical: contentV),
-            titleSpacing: 6,
-            contentSpacing: 6,
-            actionSpacing: 8,
-            expandActions: true,
-          ),
-        },
-      ),
-    ),
+    titleTextStyle: title,
+    bodyTextStyle: body,
     slidePressHapticFeedback: hapticFeedback.selectionClick,
     motion: FDialogMotion(
       fadeInCurve: Curves.easeOutCubic,
@@ -92,11 +60,13 @@ Future<T?> showAppDialog<T>({
   )
   builder,
   bool useRootNavigator = true,
+  bool barrierDismissible = true,
 }) {
   final theme = context.theme;
   return showFDialog<T>(
     context: context,
     useRootNavigator: useRootNavigator,
+    barrierDismissible: barrierDismissible,
     builder: (ctx, style, animation) => builder(
       ctx,
       dialogStyle(

@@ -345,7 +345,7 @@ class _InvokeContractEntryContentState
     // Merge known assets with fetched assets
     final allAssets = {...knownAssets, ..._fetchedAssets};
 
-    return FCard.raw(
+    return FCard(
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(Spaces.medium),

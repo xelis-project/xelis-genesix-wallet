@@ -32,7 +32,7 @@ class CustomScaffold extends StatelessWidget {
     this.restorationId,
   });
 
-  final PreferredSizeWidget? appBar;
+  final Widget? appBar;
   final Widget body;
   final Widget? floatingActionButton;
   final FloatingActionButtonLocation? floatingActionButtonLocation;

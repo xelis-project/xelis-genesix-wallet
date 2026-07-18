@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
 import 'package:go_router/go_router.dart';
 
@@ -22,10 +21,8 @@ import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/input_decoration_old.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/async_f_button.dart';
-import 'package:genesix/shared/widgets/components/generic_form_builder_dropdown_old.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 
 class TransactionReviewDialogNew extends ConsumerStatefulWidget {
@@ -40,11 +37,23 @@ class TransactionReviewDialogNew extends ConsumerStatefulWidget {
 
 class _TransactionReviewDialogNewState
     extends ConsumerState<TransactionReviewDialogNew> {
-  final _signaturesFormKey = GlobalKey<FormBuilderState>(
-    debugLabel: '_signaturesFormKey',
-  );
+  final _signaturesFormKey = GlobalKey<FormState>();
+  final List<FSelectController<MultisigParticipant>> _participantControllers =
+      [];
+  final List<TextEditingController> _signatureControllers = [];
   var _isProcessingSignatures = false;
   var _isBroadcasting = false;
+
+  @override
+  void dispose() {
+    for (final controller in _participantControllers) {
+      controller.dispose();
+    }
+    for (final controller in _signatureControllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +76,7 @@ class _TransactionReviewDialogNewState
       _ => const SizedBox.shrink(),
     };
 
-    return FDialog(
+    return AppDialog(
       clipBehavior: Clip.antiAlias,
       animation: widget.animation,
       constraints: const BoxConstraints(maxWidth: 600),
@@ -151,6 +160,7 @@ class _TransactionReviewDialogNewState
     SignaturePending transactionReview,
   ) {
     final loc = ref.watch(appLocalizationsProvider);
+    _ensureSignatureInputs(multisigState.threshold);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,7 +172,7 @@ class _TransactionReviewDialogNewState
             Text(
               loc.transaction_hash_to_sign,
               style: context.titleMedium?.copyWith(
-                color: context.moreColors.mutedColor,
+                color: context.theme.colors.mutedForeground,
               ),
             ),
             IconButton(
@@ -184,13 +194,13 @@ class _TransactionReviewDialogNewState
         Text(
           loc.multisig_barrier_message,
           style: context.labelMedium?.copyWith(
-            color: context.moreColors.mutedColor,
+            color: context.theme.colors.mutedForeground,
           ),
         ),
         const SizedBox(height: Spaces.large),
 
         // Form
-        FormBuilder(
+        Form(
           key: _signaturesFormKey,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,35 +213,26 @@ class _TransactionReviewDialogNewState
                     Text(
                       loc.participant_id,
                       style: context.labelMedium?.copyWith(
-                        color: context.moreColors.mutedColor,
+                        color: context.theme.colors.mutedForeground,
                       ),
                     ),
                     const SizedBox(height: Spaces.small),
                     ...List.generate(multisigState.threshold, (index) {
-                      return GenericFormBuilderDropdown<MultisigParticipant>(
-                        name: 'id_$index',
-                        items: multisigState.participants
-                            .map(
-                              (participant) => DropdownMenuItem(
-                                value: participant,
-                                child: Text(participant.id.toString()),
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: Spaces.small),
+                        child: FSelect<MultisigParticipant>(
+                          control: .managed(
+                            controller: _participantControllers[index],
+                          ),
+                          items: multisigState.participants
+                              .fold<Map<String, MultisigParticipant>>(
+                                {},
+                                (items, participant) => items
+                                  ..[participant.id.toString()] = participant,
                               ),
-                            )
-                            .toList(),
-                        validator:
-                            FormBuilderValidators.required<MultisigParticipant>(
-                              errorText: loc.field_required_error,
-                            ),
-                        onChanged: (value) {
-                          final hasError = _signaturesFormKey
-                              .currentState
-                              ?.fields['id_$index']
-                              ?.hasError;
-                          if (hasError ?? false) {
-                            _signaturesFormKey.currentState?.fields['id_$index']
-                                ?.reset();
-                          }
-                        },
+                          validator: (value) =>
+                              value == null ? loc.field_required_error : null,
+                        ),
                       );
                     }),
                   ],
@@ -249,31 +250,24 @@ class _TransactionReviewDialogNewState
                     Text(
                       loc.signature,
                       style: context.labelMedium?.copyWith(
-                        color: context.moreColors.mutedColor,
+                        color: context.theme.colors.mutedForeground,
                       ),
                     ),
                     const SizedBox(height: Spaces.small),
                     ...List.generate(multisigState.threshold, (index) {
-                      return FormBuilderTextField(
-                        name: 'signature_$index',
-                        autocorrect: false,
-                        keyboardType: TextInputType.text,
-                        decoration: context.textInputDecoration,
-                        validator: FormBuilderValidators.required(
-                          errorText: loc.field_required_error,
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: Spaces.small),
+                        child: FTextFormField(
+                          control: .managed(
+                            controller: _signatureControllers[index],
+                          ),
+                          autocorrect: false,
+                          keyboardType: TextInputType.text,
+                          validator: (value) =>
+                              value == null || value.trim().isEmpty
+                              ? loc.field_required_error
+                              : null,
                         ),
-                        onChanged: (value) {
-                          final hasError = _signaturesFormKey
-                              .currentState
-                              ?.fields['signature_$index']
-                              ?.hasError;
-                          if (hasError ?? false) {
-                            _signaturesFormKey
-                                .currentState
-                                ?.fields['signature_$index']
-                                ?.reset();
-                          }
-                        },
                       );
                     }),
                   ],
@@ -338,7 +332,7 @@ class _TransactionReviewDialogNewState
   Future<void> _processSignatures() async {
     if (_isProcessingSignatures) return;
 
-    if (!(_signaturesFormKey.currentState?.saveAndValidate() ?? false)) {
+    if (!(_signaturesFormKey.currentState?.validate() ?? false)) {
       return;
     }
 
@@ -347,12 +341,8 @@ class _TransactionReviewDialogNewState
     try {
       final threshold = ref.read(walletRuntimeProvider).multisigState.threshold;
       final signatures = List<SignatureMultisig>.generate(threshold, (index) {
-        final multisigParticipant =
-            _signaturesFormKey.currentState?.fields['id_$index']?.value
-                as MultisigParticipant;
-        final signature =
-            _signaturesFormKey.currentState?.fields['signature_$index']?.value
-                as String;
+        final multisigParticipant = _participantControllers[index].value!;
+        final signature = _signatureControllers[index].text.trim();
         return SignatureMultisig(
           id: multisigParticipant.id,
           signature: signature,
@@ -381,6 +371,17 @@ class _TransactionReviewDialogNewState
       if (mounted) {
         setState(() => _isProcessingSignatures = false);
       }
+    }
+  }
+
+  void _ensureSignatureInputs(int threshold) {
+    while (_participantControllers.length < threshold) {
+      _participantControllers.add(FSelectController<MultisigParticipant>());
+      _signatureControllers.add(TextEditingController());
+    }
+    while (_participantControllers.length > threshold) {
+      _participantControllers.removeLast().dispose();
+      _signatureControllers.removeLast().dispose();
     }
   }
 

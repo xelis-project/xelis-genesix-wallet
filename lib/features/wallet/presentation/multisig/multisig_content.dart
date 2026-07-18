@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_card.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/multisig_pending_state_provider.dart';
@@ -70,7 +71,7 @@ class _PendingChangesCard extends StatelessWidget {
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 360),
-          child: FCard(
+          child: AppCard(
             clipBehavior: Clip.antiAlias,
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -227,7 +228,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
                   ),
                 ],
               ),
-              FCard(
+              AppCard(
                 clipBehavior: Clip.antiAlias,
                 child: Column(
                   spacing: Spaces.large,
@@ -269,7 +270,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
                   ],
                 ),
               ),
-              FCard(
+              AppCard(
                 clipBehavior: Clip.antiAlias,
                 child: Column(
                   spacing: Spaces.large,
@@ -481,7 +482,7 @@ class _EmptyMultisigCallToAction extends StatelessWidget {
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: maxWidth),
-          child: FCard(
+          child: AppCard(
             clipBehavior: Clip.antiAlias,
             child: Padding(
               padding: EdgeInsets.all(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:forui/forui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
@@ -31,7 +32,7 @@ class _MultisigBuilderWidgetState extends ConsumerState<MultisigBuilderWidget>
             Text(
               loc.multisig,
               style: context.bodyLarge!.copyWith(
-                color: context.moreColors.mutedColor,
+                color: context.theme.colors.mutedForeground,
               ),
             ),
           ],
@@ -44,7 +45,7 @@ class _MultisigBuilderWidgetState extends ConsumerState<MultisigBuilderWidget>
         Text(
           loc.participants,
           style: context.bodyMedium!.copyWith(
-            color: context.moreColors.mutedColor,
+            color: context.theme.colors.mutedForeground,
           ),
         ),
         const SizedBox(height: Spaces.extraSmall),

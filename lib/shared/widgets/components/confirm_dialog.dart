@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 
@@ -31,7 +32,7 @@ class _ConfirmDialogState extends ConsumerState<ConfirmDialog> {
 
     var title = widget.title ?? loc.are_you_sure;
 
-    return FDialog(
+    return AppDialog(
       clipBehavior: Clip.antiAlias,
       direction: Axis.horizontal,
       title: Text(title),

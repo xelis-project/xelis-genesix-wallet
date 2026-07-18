@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
@@ -19,7 +20,7 @@ class LanguageSelectorDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
     final locale = ref.watch(settingsProvider.select((state) => state.locale));
-    return FDialog(
+    return AppDialog(
       clipBehavior: Clip.antiAlias,
       animation: animation,
       direction: Axis.horizontal,
