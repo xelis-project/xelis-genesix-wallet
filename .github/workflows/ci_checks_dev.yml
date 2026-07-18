@@ -11,6 +11,7 @@ run-name: "Checks • ${{ github.event_name }} • ${{ github.ref_name }}"
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: ci-checks-dev-${{ github.workflow }}-${{ github.ref }}

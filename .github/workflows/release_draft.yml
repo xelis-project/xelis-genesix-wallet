@@ -105,7 +105,7 @@ jobs:
         run: flutter_rust_bridge_codegen generate
 
       - name: Generate Dart code
-        run: dart run build_runner build -d
+        run: dart run build_runner build
 
       - name: Prepare Android signing
         shell: bash
@@ -200,7 +200,7 @@ jobs:
         run: flutter_rust_bridge_codegen generate
 
       - name: Generate Dart code
-        run: dart run build_runner build -d
+        run: dart run build_runner build
 
       - name: Build Linux app
         run: flutter build linux --release
@@ -253,7 +253,7 @@ jobs:
         run: flutter_rust_bridge_codegen generate
 
       - name: Generate Dart code
-        run: dart run build_runner build -d
+        run: dart run build_runner build
 
       - name: Build Windows app
         run: flutter build windows --release

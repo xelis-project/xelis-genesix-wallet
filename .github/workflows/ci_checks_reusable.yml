@@ -11,13 +11,105 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 env:
   FRB_CODEGEN_VERSION: 2.12.0
 
 jobs:
+  changes:
+    name: Changes · Detect
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      dart: ${{ steps.detect.outputs.dart }}
+      rust: ${{ steps.detect.outputs.rust }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Detect affected checks
+        id: detect
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE_SHA: ${{ github.event.before }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          REF_NAME: ${{ github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          merged_pr=false
+          if [[ "$EVENT_NAME" == "push" ]]; then
+            if associated_pr="$(gh api \
+              "repos/$GITHUB_REPOSITORY/commits/$HEAD_SHA/pulls" \
+              --jq "any(.[]; .merged_at != null and .base.ref == \"$REF_NAME\")" \
+              2>/dev/null)"; then
+              merged_pr="$associated_pr"
+            else
+              echo "::warning::Unable to inspect pull requests for $HEAD_SHA; running affected checks conservatively."
+            fi
+          fi
+
+          if [[ "$merged_pr" == "true" ]]; then
+            dart=false
+            rust=false
+            files="Merged pull request: checks already completed before merge"
+          elif [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            dart=true
+            rust=true
+            files="Manual run: all checks enabled"
+          else
+            if [[ "$EVENT_NAME" == "pull_request" ]]; then
+              files="$(git diff --name-only "$BASE_SHA...$HEAD_SHA")"
+            elif [[ -z "$BEFORE_SHA" || "$BEFORE_SHA" =~ ^0+$ ]]; then
+              files="$(git show --pretty='' --name-only "$HEAD_SHA")"
+            else
+              files="$(git diff --name-only "$BEFORE_SHA" "$HEAD_SHA")"
+            fi
+
+            dart=false
+            rust=false
+
+            while IFS= read -r file; do
+              case "$file" in
+                .github/workflows/*|.github/actions/*)
+                  dart=true
+                  rust=true
+                  ;;
+                rust/*)
+                  dart=true
+                  rust=true
+                  ;;
+                lib/*|tool/*|test/*|integration_test/*|rust_builder/*|pubspec.yaml|pubspec.lock|analysis_options.yaml|build.yaml|flutter_rust_bridge.yaml|l10n.yaml)
+                  dart=true
+                  ;;
+              esac
+            done <<< "$files"
+          fi
+
+          echo "dart=$dart" >> "$GITHUB_OUTPUT"
+          echo "rust=$rust" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "### Affected checks"
+            echo "- Dart: $dart"
+            echo "- Rust: $rust"
+            echo ""
+            echo "### Changed files"
+            echo '```text'
+            printf '%s\n' "$files"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
   dart-analyze:
     name: Dart · Analyze
+    needs: changes
+    if: needs.changes.outputs.dart == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -42,6 +134,15 @@ jobs:
       - name: Check Dart formatting
         run: dart format --output=none --set-exit-if-changed lib tool
 
+      - name: Cache build_runner state
+        uses: actions/cache@v4
+        with:
+          path: .dart_tool/build
+          key: >-
+            ${{ runner.os }}-build-runner-${{ hashFiles('pubspec.lock', 'build.yaml', 'flutter_rust_bridge.yaml') }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-build-runner-${{ hashFiles('pubspec.lock', 'build.yaml', 'flutter_rust_bridge.yaml') }}-
+
       - name: Cache Flutter Rust bridge codegen
         id: cache-frb-codegen
         uses: actions/cache@v4
@@ -56,19 +157,40 @@ jobs:
       - name: Generate bridge code
         run: flutter_rust_bridge_codegen generate
 
+      - name: Upload generated Rust bridge
+        if: needs.changes.outputs.rust == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: generated-rust-bridge
+          path: rust/src/frb_generated.rs
+          if-no-files-found: error
+          retention-days: 1
+
       - name: Generate Dart code
-        run: dart run build_runner build -d
+        run: dart run build_runner build
 
       - name: Dart analyze
         run: dart analyze ${{ inputs.dart_analyze_args }}
 
   rust-check:
     name: Rust · Cargo Check
+    needs:
+      - changes
+      - dart-analyze
+    if: >-
+      needs.changes.outputs.rust == 'true' &&
+      needs.dart-analyze.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+
+      - name: Download generated Rust bridge
+        uses: actions/download-artifact@v8
+        with:
+          name: generated-rust-bridge
+          path: rust/src
 
       - name: Set up Rust toolchain
         uses: dtolnay/rust-toolchain@stable

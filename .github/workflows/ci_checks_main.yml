@@ -1,6 +1,8 @@
 name: Checks · Main · Branch Gate
 
 on:
+  push:
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
@@ -9,6 +11,7 @@ run-name: "Checks • ${{ github.event_name }} • ${{ github.ref_name }}"
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: ci-checks-main-${{ github.workflow }}-${{ github.ref }}
@@ -16,5 +19,10 @@ concurrency:
 
 jobs:
   ci:
+    # GitHub merge commits were already validated through pull_request.
+    # Direct pushes and non-PR merge commits still run the core checks.
+    if: >-
+      github.event_name != 'push' ||
+      !startsWith(github.event.head_commit.message, 'Merge pull request #')
     name: Checks · Main · Run Core
     uses: ./.github/workflows/ci_checks_reusable.yml
