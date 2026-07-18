@@ -11,7 +11,14 @@ import 'package:go_router/go_router.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 
 class SignTransactionDialog extends ConsumerStatefulWidget {
-  const SignTransactionDialog({super.key});
+  const SignTransactionDialog({
+    required this.style,
+    required this.animation,
+    super.key,
+  });
+
+  final FDialogStyle style;
+  final Animation<double> animation;
 
   @override
   ConsumerState createState() => _SignTransactionDialogState();
@@ -33,6 +40,8 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     return AppDialog(
+      style: widget.style,
+      animation: widget.animation,
       title: SizedBox(
         width: double.infinity,
         child: Row(
@@ -59,11 +68,13 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
                 right: Spaces.small,
                 top: Spaces.small,
               ),
-              child: IconButton(
-                onPressed: () {
+              child: FButton.icon(
+                variant: .ghost,
+                semanticsLabel: loc.close,
+                onPress: () {
                   context.pop();
                 },
-                icon: const Icon(FLucideIcons.x),
+                child: const Icon(FLucideIcons.x),
               ),
             ),
           ],
@@ -147,14 +158,19 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
                                 color: context.theme.colors.mutedForeground,
                               ),
                             ),
-                            IconButton(
-                              onPressed: () => copyToClipboard(
-                                snapshot.requireData,
-                                ref,
-                                loc.copied,
+                            FTooltip(
+                              tipBuilder: (context, controller) =>
+                                  Text(loc.copy_signature),
+                              child: FButton.icon(
+                                variant: .ghost,
+                                semanticsLabel: loc.copy_signature,
+                                onPress: () => copyToClipboard(
+                                  snapshot.requireData,
+                                  ref,
+                                  loc.copied,
+                                ),
+                                child: const Icon(FLucideIcons.copy, size: 18),
                               ),
-                              icon: const Icon(FLucideIcons.copy, size: 18),
-                              tooltip: loc.copy_signature,
                             ),
                           ],
                         ),
@@ -171,7 +187,7 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
           ],
         ),
       ),
-      actions: [TextButton(onPressed: _signTransaction, child: Text(loc.sign))],
+      actions: [FButton(onPress: _signTransaction, child: Text(loc.sign))],
     );
   }
 

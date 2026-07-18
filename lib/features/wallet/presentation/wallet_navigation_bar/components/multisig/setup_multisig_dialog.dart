@@ -20,7 +20,14 @@ import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 
 class SetupMultisigDialog extends ConsumerStatefulWidget {
-  const SetupMultisigDialog({super.key});
+  const SetupMultisigDialog({
+    required this.style,
+    required this.animation,
+    super.key,
+  });
+
+  final FDialogStyle style;
+  final Animation<double> animation;
 
   @override
   ConsumerState createState() => _SetupMultisigDialogState();
@@ -64,6 +71,8 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
     );
     bool transactionReadyToBroadcast = _transactionSummary != null;
     return AppDialog(
+      style: widget.style,
+      animation: widget.animation,
       title: SizedBox(
         width: double.infinity,
         child: Row(
@@ -97,11 +106,13 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                   right: Spaces.small,
                   top: Spaces.small,
                 ),
-                child: IconButton(
-                  onPressed: () {
+                child: FButton.icon(
+                  variant: .ghost,
+                  semanticsLabel: loc.close,
+                  onPress: () {
                     context.pop();
                   },
-                  icon: const Icon(FLucideIcons.x),
+                  child: const Icon(FLucideIcons.x),
                 ),
               ),
           ],
@@ -160,13 +171,15 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                               ),
                               Row(
                                 children: [
-                                  IconButton(
-                                    onPressed: _addParticipant,
-                                    icon: Icon(FLucideIcons.plus, size: 18),
+                                  FButton.icon(
+                                    variant: .ghost,
+                                    onPress: _addParticipant,
+                                    child: Icon(FLucideIcons.plus, size: 18),
                                   ),
-                                  IconButton(
-                                    onPressed: _removeParticipant,
-                                    icon: Icon(FLucideIcons.minus, size: 18),
+                                  FButton.icon(
+                                    variant: .ghost,
+                                    onPress: _removeParticipant,
+                                    child: Icon(FLucideIcons.minus, size: 18),
                                   ),
                                 ],
                               ),
@@ -382,31 +395,31 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
       actions: [
         _transactionSummary != null
             ? _isBroadcast
-                  ? TextButton(
-                      onPressed: () {
+                  ? FButton(
+                      onPress: () {
                         context.pop();
                       },
                       child: Text(loc.ok_button),
                     )
-                  : TextButton.icon(
-                      onPressed: _isConfirmed && !_isBroadcasting
+                  : FButton(
+                      onPress: _isConfirmed && !_isBroadcasting
                           ? () => startWithBiometricAuth(
                               ref,
                               callback: _broadcastTransfer,
                               reason: loc.please_authenticate_tx,
                             )
                           : null,
-                      icon: _isBroadcasting
+                      prefix: _isBroadcasting
                           ? const FCircularProgress.loader()
                           : const Icon(FLucideIcons.send, size: 18),
-                      label: Text(loc.broadcast),
+                      child: Text(loc.broadcast),
                     )
-            : TextButton.icon(
-                onPressed: _isPreparing ? null : _confirmMultisigSetup,
-                label: Text(loc.next),
-                icon: _isPreparing
+            : FButton(
+                onPress: _isPreparing ? null : _confirmMultisigSetup,
+                prefix: _isPreparing
                     ? const FCircularProgress.loader()
                     : Icon(FLucideIcons.arrowRight, size: 18),
+                child: Text(loc.next),
               ),
       ],
     );

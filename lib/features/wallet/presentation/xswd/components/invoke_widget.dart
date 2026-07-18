@@ -7,7 +7,9 @@ import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart
 import 'package:genesix/features/wallet/presentation/xswd/components/transaction_builder_mixin.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
@@ -145,9 +147,12 @@ class _InvokeState extends ConsumerState<InvokeWidget>
     sdk.ContractDepositBuilder deposit,
     String formattedAmount,
   ) {
-    showDialog<void>(
+    showAppDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context, style, animation) => AppDialog(
+        style: style,
+        animation: animation,
+        direction: Axis.horizontal,
         title: Row(
           children: [
             const Icon(FLucideIcons.coins),
@@ -155,7 +160,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
             Expanded(child: Text('${loc.deposits} - $ticker')),
           ],
         ),
-        content: SingleChildScrollView(
+        body: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,7 +179,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
           ),
         ),
         actions: [
-          TextButton(onPressed: () => context.pop(), child: Text(loc.close)),
+          FButton(onPress: () => context.pop(), child: Text(loc.close)),
         ],
       ),
     );
@@ -367,9 +372,12 @@ class _InvokeState extends ConsumerState<InvokeWidget>
     const encoder = JsonEncoder.withIndent('  ');
     final jsonString = encoder.convert(param);
 
-    showDialog<void>(
+    showAppDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context, style, animation) => AppDialog(
+        style: style,
+        animation: animation,
+        direction: Axis.horizontal,
         title: Row(
           children: [
             const Icon(FLucideIcons.squareCode),
@@ -377,7 +385,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
             Text(loc.parameter_number(index + 1)),
           ],
         ),
-        content: SingleChildScrollView(
+        body: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -413,7 +421,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
           ),
         ),
         actions: [
-          TextButton(onPressed: () => context.pop(), child: Text(loc.close)),
+          FButton(onPress: () => context.pop(), child: Text(loc.close)),
         ],
       ),
     );

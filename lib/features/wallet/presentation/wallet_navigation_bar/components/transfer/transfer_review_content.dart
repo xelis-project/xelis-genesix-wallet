@@ -8,6 +8,7 @@ import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/app_card.dart';
 import 'package:genesix/shared/widgets/components/logo.dart';
 
 class TransferReviewContentWidget extends ConsumerWidget {
@@ -27,10 +28,9 @@ class TransferReviewContentWidget extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Card(
-            margin: const EdgeInsets.only(top: Spaces.medium),
-            child: Padding(
-              padding: const EdgeInsets.all(Spaces.medium),
+          Padding(
+            padding: const EdgeInsets.only(top: Spaces.medium),
+            child: AppCard(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -128,10 +128,12 @@ class TransferReviewContentWidget extends ConsumerWidget {
                   style: context.bodyLarge!.copyWith(color: muted),
                 ),
                 const SizedBox(width: Spaces.small),
-                Tooltip(
-                  message: loc.integrated_address_detected,
-                  textStyle: context.bodyMedium?.copyWith(
-                    color: context.colors.primary,
+                FTooltip(
+                  tipBuilder: (context, controller) => Text(
+                    loc.integrated_address_detected,
+                    style: context.bodyMedium?.copyWith(
+                      color: context.colors.primary,
+                    ),
                   ),
                   child: Icon(FLucideIcons.info, size: 18, color: muted),
                 ),

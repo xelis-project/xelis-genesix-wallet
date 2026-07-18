@@ -14,6 +14,7 @@ import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/app_card.dart';
 import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 import 'package:go_router/go_router.dart';
@@ -107,14 +108,11 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                     Expanded(
                       child: ListView.builder(
                         itemBuilder: (context, index) {
-                          return Card(
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(
-                                Spaces.medium,
-                                Spaces.small,
-                                Spaces.medium,
-                                Spaces.small,
-                              ),
+                          return Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: Spaces.small,
+                            ),
+                            child: AppCard(
                               child: Table(
                                 columnWidths: {
                                   0: FixedColumnWidth(Spaces.extraLarge),
@@ -153,10 +151,13 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                                             .id
                                             .toString(),
                                       ),
-                                      Tooltip(
-                                        message: multisigState.participants
-                                            .elementAt(index)
-                                            .address,
+                                      FTooltip(
+                                        tipBuilder: (context, controller) =>
+                                            Text(
+                                              multisigState.participants
+                                                  .elementAt(index)
+                                                  .address,
+                                            ),
                                         child: GestureDetector(
                                           child: AddressWidget(
                                             multisigState.participants
@@ -185,27 +186,15 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                       ),
                     ),
                     Center(
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.all(Spaces.medium),
-                          side: BorderSide(
-                            color: context.colors.error,
-                            width: 1,
-                          ),
-                        ),
-                        onPressed: _isDeletingMultisig
+                      child: FButton(
+                        variant: .destructive,
+                        onPress: _isDeletingMultisig
                             ? null
                             : _showDeleteMultisigDialog,
-                        icon: _isDeletingMultisig
+                        prefix: _isDeletingMultisig
                             ? const FCircularProgress.loader()
                             : Icon(FLucideIcons.trash2),
-                        label: Text(
-                          loc.delete_multisig_configuration,
-                          style: context.titleSmall!.copyWith(
-                            color: context.colors.error,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
+                        child: Text(loc.delete_multisig_configuration),
                       ),
                     ),
                   ],
@@ -236,8 +225,8 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                         ),
                       ),
                       const SizedBox(height: Spaces.medium),
-                      TextButton(
-                        onPressed: _showSetupMultisigDialog,
+                      FButton(
+                        onPress: _showSetupMultisigDialog,
                         child: Text(loc.setup),
                       ),
                       Spacer(),
@@ -246,19 +235,22 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                 ),
               ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showSignTransactionDialog,
-        tooltip: loc.sign_transaction,
-        child: const Icon(FLucideIcons.key),
+      floatingActionButton: FTooltip(
+        tipBuilder: (context, controller) => Text(loc.sign_transaction),
+        child: FButton.icon(
+          semanticsLabel: loc.sign_transaction,
+          onPress: _showSignTransactionDialog,
+          child: const Icon(FLucideIcons.key),
+        ),
       ),
     );
   }
 
   void _showSetupMultisigDialog() {
-    showDialog<void>(
+    showAppDialog<void>(
       context: context,
-      builder: (context) {
-        return SetupMultisigDialog();
+      builder: (context, style, animation) {
+        return SetupMultisigDialog(style: style, animation: animation);
       },
     );
   }
@@ -297,10 +289,10 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
   }
 
   void _showSignTransactionDialog() {
-    showDialog<void>(
+    showAppDialog<void>(
       context: context,
-      builder: (context) {
-        return SignTransactionDialog();
+      builder: (context, style, animation) {
+        return SignTransactionDialog(style: style, animation: animation);
       },
     );
   }

@@ -175,14 +175,19 @@ class _TransactionReviewDialogNewState
                 color: context.theme.colors.mutedForeground,
               ),
             ),
-            IconButton(
-              onPressed: () => copyToClipboard(
-                transactionReview.hashToSign,
-                ref,
-                loc.copied,
+            FTooltip(
+              tipBuilder: (context, controller) =>
+                  Text(loc.copy_hash_transaction),
+              child: FButton.icon(
+                variant: .ghost,
+                semanticsLabel: loc.copy_hash_transaction,
+                onPress: () => copyToClipboard(
+                  transactionReview.hashToSign,
+                  ref,
+                  loc.copied,
+                ),
+                child: const Icon(FLucideIcons.copy, size: 18),
               ),
-              icon: const Icon(FLucideIcons.copy, size: 18),
-              tooltip: loc.copy_hash_transaction,
             ),
           ],
         ),
