@@ -107,7 +107,7 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 
 ### Validation Matrix
 
-| Change Surface | Must Inspect | Must Run | Should Run |
+| Change Surface | Must Inspect | Required Validation | Should Run |
 | --- | --- | --- | --- |
 | Dart/Flutter UI, state, repository, routing without generated output impact | Affected files and package versions if external APIs are involved; for Forui API questions, refreshed local Forui docs when network is available | `dart analyze` | `dart format .` |
 | Localization ARB changes | Every `lib/l10n/*.arb` file for key parity and generated localization output impact | `flutter gen-l10n`, `dart analyze` | A focused key-parity check across all ARB files |
@@ -115,14 +115,17 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 | Rust changes without FFI signature impact | Affected modules and crate dependencies if relevant | `cd rust && cargo check` | `cd rust && cargo fmt` |
 | Rust FFI signature or bridge contract changes | Rust API surface, generated bridge impact, Dart call sites | `flutter_rust_bridge_codegen generate`, `dart run build_runner build -d`, `cd rust && cargo check`, `dart analyze` | `cd rust && cargo fmt`, `dart format .` |
 | Dependency version changes | Manifests, impacted docs, affected call sites; for Forui changes, run `dart run tool/sync_forui_docs.dart` and keep `.agents/references/forui/**` uncommitted | Relevant analyze/check/build command for impacted area | Formatting commands |
-| Security-sensitive wallet changes | Trust boundaries, sensitive-data handling, lifecycle ordering, storage/signing/FFI/XSWD/logging impact | Relevant analyze/check/build command for impacted area, plus `wallet-security-review` | Focused tests or security review subagent when risk justifies it |
+| Security-sensitive wallet changes | Trust boundaries, sensitive-data handling, lifecycle ordering, storage/signing/FFI/XSWD/logging impact | Relevant analyze/check/build command for impacted area and the `wallet-security-review` workflow | Focused tests or security review subagent when risk justifies it |
 | AI guideline/docs-only changes | Instruction entrypoints and links | `dart tool/validate_ai_guidelines.dart` plus Markdown/readability review | No Dart/Rust checks unless code changed |
 
 ### Delivery Notes
 
 - Summarize what changed and why.
+- Inspect the final diff and repository status, and confirm that only the intended scope changed.
 - List validation commands run and outcomes.
-- Call out skipped checks and why.
+- Distinguish successful checks from verification of the user-requested outcome; one does not prove the other.
+- For each material acceptance criterion, record the verdict as `satisfied`, `not satisfied`, or `not verified`, and label supporting evidence as `automated` or `manual` when available.
+- Call out skipped checks, unrelated or pre-existing failures, unverified outcomes, and residual risk.
 - Mention dependency/version assumptions when they materially affect the solution.
 
 ### Commit Messages
@@ -158,8 +161,9 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 
 - Lead with findings ordered by severity.
 - Reference concrete files and lines.
-- Focus on bugs, regressions, security, correctness, missing validation, and maintainability risk.
-- If no issues are found, say so and mention residual test gaps.
+- Review both compliance with the request and acceptance criteria, and engineering quality of the implementation.
+- Focus on omitted scope, incorrect behavior, bugs, regressions, security, correctness, missing validation, and maintainability risk.
+- If no issues are found, say so and mention residual risk, unverified outcomes, or test gaps.
 
 ### Dart/Flutter UI Or State
 
