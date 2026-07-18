@@ -1,8 +1,6 @@
 name: Checks · Main · Branch Gate
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
@@ -20,5 +18,3 @@ jobs:
   ci:
     name: Checks · Main · Run Core
     uses: ./.github/workflows/ci_checks_reusable.yml
-    with:
-      dart_analyze_args: --no-fatal-warnings

@@ -19,9 +19,10 @@ jobs:
   dart-analyze:
     name: Dart · Analyze
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -38,7 +39,18 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Check Dart formatting
+        run: dart format --output=none --set-exit-if-changed lib tool
+
+      - name: Cache Flutter Rust bridge codegen
+        id: cache-frb-codegen
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/flutter_rust_bridge_codegen
+          key: ${{ runner.os }}-${{ runner.arch }}-frb-codegen-${{ env.FRB_CODEGEN_VERSION }}
+
       - name: Install Flutter Rust bridge codegen
+        if: steps.cache-frb-codegen.outputs.cache-hit != 'true'
         run: cargo install flutter_rust_bridge_codegen --version "$FRB_CODEGEN_VERSION" --locked
 
       - name: Generate bridge code
@@ -53,9 +65,10 @@ jobs:
   rust-check:
     name: Rust · Cargo Check
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -63,21 +76,10 @@ jobs:
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@v2
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Install Flutter Rust bridge codegen
-        run: cargo install flutter_rust_bridge_codegen --version "$FRB_CODEGEN_VERSION" --locked
-
-      - name: Generate bridge code
-        run: flutter_rust_bridge_codegen generate
+      - name: Check Rust formatting
+        working-directory: rust
+        run: cargo fmt --check
 
       - name: Cargo check
         working-directory: rust
-        run: cargo check
+        run: cargo check --locked

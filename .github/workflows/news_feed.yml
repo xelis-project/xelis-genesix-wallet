@@ -26,6 +26,11 @@ concurrency:
 jobs:
   validate:
     name: Validate
+    # On dev, a GitHub PR merge was already validated by pull_request.
+    # Main pushes still validate because deployment depends on this job.
+    if: >-
+      github.ref != 'refs/heads/dev' ||
+      !startsWith(github.event.head_commit.message, 'Merge pull request #')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

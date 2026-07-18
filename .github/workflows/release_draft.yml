@@ -12,7 +12,7 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: release-draft-${{ github.ref }}
@@ -30,7 +30,7 @@ jobs:
       tag: ${{ steps.resolve.outputs.tag }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -79,7 +79,7 @@ jobs:
       BUILD_VERSION: ${{ needs.resolve-version.outputs.version }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ needs.resolve-version.outputs.tag }}
 
@@ -168,7 +168,7 @@ jobs:
       BUILD_VERSION: ${{ needs.resolve-version.outputs.version }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ needs.resolve-version.outputs.tag }}
 
@@ -227,7 +227,7 @@ jobs:
       BUILD_VERSION: ${{ needs.resolve-version.outputs.version }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ needs.resolve-version.outputs.tag }}
 
@@ -314,6 +314,8 @@ jobs:
   draft-release:
     name: Draft Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     needs:
       - resolve-version
       - build-android
@@ -321,7 +323,7 @@ jobs:
       - build-windows
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ needs.resolve-version.outputs.tag }}
 
