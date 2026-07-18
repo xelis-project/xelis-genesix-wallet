@@ -63,15 +63,15 @@ class CustomScaffold extends StatelessWidget {
       header: appBar,
       child: Row(
         children: [
-          if (context.isWideScreen) Spacer(),
+          if (context.isWideLayout) Spacer(),
           Flexible(flex: 2, child: body),
-          if (context.isWideScreen) Spacer(),
+          if (context.isWideLayout) Spacer(),
         ],
       ),
       // floatingActionButton: floatingActionButton != null
       //     ? Row(
       //         children: [
-      //           if (context.isWideScreen) Spacer(),
+      //           if (context.isWideLayout) Spacer(),
       //           Expanded(
       //             flex: 2,
       //             child: Row(
@@ -79,7 +79,7 @@ class CustomScaffold extends StatelessWidget {
       //               children: [floatingActionButton!],
       //             ),
       //           ),
-      //           if (context.isWideScreen) Spacer(),
+      //           if (context.isWideLayout) Spacer(),
       //         ],
       //       )
       //     : null,
@@ -94,9 +94,9 @@ class CustomScaffold extends StatelessWidget {
       // bottomNavigationBar: bottomNavigationBar != null
       //     ? Row(
       //         children: [
-      //           if (context.isWideScreen) Spacer(),
+      //           if (context.isWideLayout) Spacer(),
       //           Expanded(flex: 2, child: bottomNavigationBar!),
-      //           if (context.isWideScreen) Spacer(),
+      //           if (context.isWideLayout) Spacer(),
       //         ],
       //       )
       //     : null,

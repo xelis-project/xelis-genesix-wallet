@@ -33,6 +33,8 @@ class _ConfirmDialogState extends ConsumerState<ConfirmDialog> {
     var title = widget.title ?? loc.are_you_sure;
 
     return AppDialog(
+      style: widget.style,
+      animation: widget.animation,
       clipBehavior: Clip.antiAlias,
       direction: Axis.horizontal,
       title: Text(title),

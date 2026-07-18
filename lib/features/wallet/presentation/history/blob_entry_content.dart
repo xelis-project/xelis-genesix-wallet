@@ -81,7 +81,7 @@ void _openExtraSheet(
     context: context,
     side: FLayout.btt,
     useRootNavigator: true,
-    mainAxisMaxRatio: context.getFSheetRatio,
+    mainAxisMaxRatio: context.responsiveSheetMaxRatio,
     builder: (context) =>
         ExtraDataSheet(parsed: ParsedExtraData.parse(loc, extra)),
   );

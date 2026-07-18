@@ -322,8 +322,8 @@ class _EmptyMultisigCallToAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mediaWidth = context.mediaWidth;
-    final mediaHeight = context.mediaHeight;
+    final mediaWidth = context.viewportWidth;
+    final mediaHeight = context.viewportHeight;
     final breakpoints = context.theme.breakpoints;
     final bool isWide = mediaWidth >= breakpoints.md;
     final bool useHorizontalLayout = isWide && mediaHeight >= 620;

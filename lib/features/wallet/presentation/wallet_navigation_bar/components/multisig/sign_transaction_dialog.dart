@@ -133,13 +133,13 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
                         Text(
                           loc.error,
                           style: context.bodyMedium?.copyWith(
-                            color: context.colors.error,
+                            color: context.theme.colors.error,
                           ),
                         ),
                         Text(
                           (snapshot.error as AnyhowException).message,
                           style: context.bodyMedium?.copyWith(
-                            color: context.colors.error,
+                            color: context.theme.colors.error,
                           ),
                         ),
                       ],

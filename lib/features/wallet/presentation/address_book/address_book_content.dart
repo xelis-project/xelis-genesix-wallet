@@ -129,7 +129,7 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
       context: context,
       side: FLayout.btt,
       useRootNavigator: true,
-      mainAxisMaxRatio: context.getFSheetRatio,
+      mainAxisMaxRatio: context.responsiveSheetMaxRatio,
       builder: (context) => EditContactSheet(contactDetails),
     );
   }
@@ -139,7 +139,7 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
       context: context,
       side: FLayout.btt,
       useRootNavigator: true,
-      mainAxisMaxRatio: context.getFSheetRatio,
+      mainAxisMaxRatio: context.responsiveSheetMaxRatio,
       builder: (context) => const AddContactSheet(),
     );
   }

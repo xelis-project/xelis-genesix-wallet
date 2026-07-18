@@ -1,5 +1,6 @@
 import 'package:forui/forui.dart';
 import 'package:flutter/material.dart';
+import 'package:genesix/shared/theme/card_style.dart';
 import 'package:genesix/shared/theme/theme_colors.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/theme/text_field_style.dart';
@@ -19,40 +20,14 @@ import 'package:genesix/shared/theme/toaster_style.dart';
 ///
 /// See https://forui.dev/docs/themes#customize-themes for more information.
 FThemeData greenLight({required bool touch}) {
-  final colors = genesixLightColors;
-
-  final typography = _typography(colors: colors);
-  final style = _style(colors: colors, typography: typography, touch: touch);
-  const hapticFeedback = FHapticFeedback();
-
-  return FThemeData(
-    colors: colors,
-    touch: touch,
-    typography: typography,
-    style: style,
-    hapticFeedback: hapticFeedback,
-    dialogStyle: dialogStyle(
-      style: style,
-      colors: colors,
-      typography: typography,
-      hapticFeedback: hapticFeedback,
-    ),
-    toasterStyle: toasterStyle(
-      colors: colors,
-      typography: typography,
-      style: style,
-    ),
-    textFieldStyles: textFieldStyles(
-      colors: colors,
-      typography: typography,
-      style: style,
-    ),
-  );
+  return _genesixTheme(colors: genesixLightColors, touch: touch);
 }
 
 FThemeData greenDark({required bool touch}) {
-  final colors = genesixDarkColors;
+  return _genesixTheme(colors: genesixDarkColors, touch: touch);
+}
 
+FThemeData _genesixTheme({required FColors colors, required bool touch}) {
   final typography = _typography(colors: colors);
   final style = _style(colors: colors, typography: typography, touch: touch);
   const hapticFeedback = FHapticFeedback();
@@ -63,21 +38,25 @@ FThemeData greenDark({required bool touch}) {
     typography: typography,
     style: style,
     hapticFeedback: hapticFeedback,
+    cardStyle: cardStyle(
+      colors: colors,
+      typography: typography,
+      style: style,
+      touch: touch,
+    ),
     dialogStyle: dialogStyle(
       style: style,
       colors: colors,
       typography: typography,
       hapticFeedback: hapticFeedback,
+      touch: touch,
     ),
-    toasterStyle: toasterStyle(
-      colors: colors,
-      typography: typography,
-      style: style,
-    ),
+    toasterStyle: toasterStyle(colors: colors, typography: typography),
     textFieldStyles: textFieldStyles(
       colors: colors,
       typography: typography,
       style: style,
+      touch: touch,
     ),
   );
 }

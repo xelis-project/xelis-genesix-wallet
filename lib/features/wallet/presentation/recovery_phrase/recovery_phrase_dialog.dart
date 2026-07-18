@@ -57,7 +57,9 @@ class _RecoveryPhraseDialogState extends ConsumerState<RecoveryPhraseDialog> {
         children: [
           const SizedBox(height: Spaces.medium),
           ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: context.mediaHeight * 0.4),
+            constraints: BoxConstraints(
+              maxHeight: context.viewportHeight * 0.4,
+            ),
             child: FadedScroll(
               controller: _controller,
               child: SingleChildScrollView(

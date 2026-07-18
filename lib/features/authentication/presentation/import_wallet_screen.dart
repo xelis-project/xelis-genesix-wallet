@@ -60,7 +60,7 @@ class _ImportWalletScreenState extends ConsumerState<ImportWalletScreen> {
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: Container(
-                  width: context.mediaWidth * 0.9,
+                  width: context.viewportWidth * 0.9,
                   constraints: BoxConstraints(
                     maxWidth: context.theme.breakpoints.sm,
                     minHeight: 600,

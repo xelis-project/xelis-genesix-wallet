@@ -220,7 +220,7 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                       Text(
                         loc.no_multisig_configuration_found,
                         style: context.titleSmall?.copyWith(
-                          color: context.colors.primary,
+                          color: context.theme.colors.primary,
                           fontStyle: FontStyle.italic,
                         ),
                       ),

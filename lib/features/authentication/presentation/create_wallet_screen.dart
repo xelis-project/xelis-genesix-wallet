@@ -65,7 +65,7 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
           const AuthenticationStatusIndicators(),
           const SizedBox(height: Spaces.medium),
           Container(
-            width: context.mediaWidth * 0.9,
+            width: context.viewportWidth * 0.9,
             constraints: BoxConstraints(maxWidth: context.theme.breakpoints.sm),
             child: AppCard(
               clipBehavior: Clip.antiAlias,

@@ -5,8 +5,9 @@ import 'package:genesix/shared/theme/more_colors.dart';
 FToasterStyle toasterStyle({
   required FColors colors,
   required FTypography typography,
-  required FStyle style,
 }) {
+  // Unlike the generated default, Genesix keeps operational wallet events
+  // visible at the top on both touch and desktop layouts.
   final baseRadius = BorderRadius.circular(16);
 
   return FToasterStyle(

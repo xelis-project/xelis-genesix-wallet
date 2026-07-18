@@ -132,7 +132,7 @@ class TransferReviewContentWidget extends ConsumerWidget {
                   tipBuilder: (context, controller) => Text(
                     loc.integrated_address_detected,
                     style: context.bodyMedium?.copyWith(
-                      color: context.colors.primary,
+                      color: context.theme.colors.primary,
                     ),
                   ),
                   child: Icon(FLucideIcons.info, size: 18, color: muted),

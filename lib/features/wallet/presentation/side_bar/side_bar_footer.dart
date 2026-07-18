@@ -79,7 +79,7 @@ class _SideBarFooterState extends ConsumerState<SideBarFooter> {
       context: context,
       side: FLayout.btt,
       useRootNavigator: true,
-      mainAxisMaxRatio: context.getFSheetRatio,
+      mainAxisMaxRatio: context.responsiveSheetMaxRatio,
       builder: (context) => AccountSheet(),
     );
   }

@@ -30,7 +30,9 @@ class _WalletScaffoldState extends ConsumerState<WalletScaffold> {
   @override
   Widget build(BuildContext context) {
     final needTitle =
-        widget.title != null && widget.title!.isNotEmpty && context.isMobile;
+        widget.title != null &&
+        widget.title!.isNotEmpty &&
+        context.isCompactLayout;
 
     return PopScope(
       canPop: context.goRouterState.fullPath == AuthAppScreen.home.toPath,
@@ -48,7 +50,7 @@ class _WalletScaffoldState extends ConsumerState<WalletScaffold> {
                   child: Text(widget.title!),
                 )
               : SizedBox.shrink(),
-          prefixes: context.isMobile
+          prefixes: context.isCompactLayout
               ? [
                   Padding(
                     padding: const EdgeInsets.all(Spaces.small),
@@ -65,7 +67,9 @@ class _WalletScaffoldState extends ConsumerState<WalletScaffold> {
               : [],
           suffixes: widget.headerSuffixes ?? [],
         ),
-        sidebar: !context.isMobile ? SideBar(widget.goRouterState) : null,
+        sidebar: !context.isCompactLayout
+            ? SideBar(widget.goRouterState)
+            : null,
         child: BodyLayoutBuilder(child: widget.child),
       ),
     );

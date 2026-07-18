@@ -71,9 +71,7 @@ class AppDialog extends StatelessWidget {
       semanticsLabel: semanticsLabel,
       constraints: constraints,
       resizeToAvoidInsets: resizeToAvoidInsets,
-      builder: direction == Axis.horizontal
-          ? _buildHorizontal
-          : _buildVertical,
+      builder: direction == Axis.horizontal ? _buildHorizontal : _buildVertical,
     );
   }
 
@@ -117,26 +115,16 @@ class _AppDialogContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final scale = mediaQuery.textScaler.scale(1);
-    final horizontalPadding = (mediaQuery.size.width * 0.05 / scale).clamp(
-      12.0,
-      30.0,
-    );
-    final verticalPadding = (mediaQuery.size.width * 0.05 / scale).clamp(
-      12.0,
-      28.0,
-    );
+    final touch = context.platformVariant.touch;
     final vertical = direction == Axis.vertical;
-    final titleSpacing = vertical ? 6.0 : 8.0;
-    final contentSpacing = vertical ? 6.0 : 8.0;
-    final actionSpacing = vertical ? 8.0 : 10.0;
+    final titleSpacing = touch ? 9.0 : 5.0;
+    final contentSpacing = touch ? 20.0 : 16.0;
+    final actionSpacing = touch ? 10.0 : 8.0;
 
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: horizontalPadding,
-        vertical: verticalPadding,
-      ),
+      padding: touch
+          ? const EdgeInsets.symmetric(horizontal: 16, vertical: 18)
+          : const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -146,17 +134,28 @@ class _AppDialogContent extends StatelessWidget {
             if (title != null || body != null) SizedBox(height: contentSpacing),
           ],
           if (title case final title?) ...[
-            DefaultTextStyle.merge(
-              style: style.titleTextStyle,
-              child: title,
+            Padding(
+              padding: EdgeInsets.only(
+                left: vertical || touch ? 8 : 0,
+                right: vertical || touch ? 8 : 0,
+              ),
+              child: DefaultTextStyle.merge(
+                style: style.titleTextStyle,
+                child: title,
+              ),
             ),
             if (body != null) SizedBox(height: titleSpacing),
           ],
           if (body case final body?)
             Flexible(
-              child: DefaultTextStyle.merge(
-                style: style.bodyTextStyle,
-                child: body,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: vertical || touch ? 8 : 0,
+                ),
+                child: DefaultTextStyle.merge(
+                  style: style.bodyTextStyle,
+                  child: body,
+                ),
               ),
             ),
           if (actions.isNotEmpty) ...[
@@ -174,7 +173,9 @@ class _AppDialogContent extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 mainAxisSize: MainAxisSize.max,
                 spacing: actionSpacing,
-                children: actions,
+                children: touch
+                    ? [for (final action in actions) Expanded(child: action)]
+                    : actions,
               ),
           ],
         ],

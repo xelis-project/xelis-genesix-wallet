@@ -66,7 +66,7 @@ class TransfersView extends StatelessWidget {
             Expanded(child: FDivider()),
           ],
         ),
-        if (context.isWideScreen)
+        if (context.isWideLayout)
           _WideTable(loc: loc, rows: rows, mode: mode)
         else
           _NarrowList(loc: loc, rows: rows),
@@ -291,7 +291,7 @@ void _openExtraSheet(
     context: context,
     side: FLayout.btt,
     useRootNavigator: true,
-    mainAxisMaxRatio: context.getFSheetRatio,
+    mainAxisMaxRatio: context.responsiveSheetMaxRatio,
     builder: (context) =>
         ExtraDataSheet(parsed: ParsedExtraData.parse(loc, extra)),
   );

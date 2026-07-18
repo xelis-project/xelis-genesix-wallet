@@ -584,6 +584,7 @@ class _DisconnectDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppDialog(
+      style: style,
       clipBehavior: Clip.antiAlias,
       animation: animation,
       constraints: const BoxConstraints(maxWidth: 560),

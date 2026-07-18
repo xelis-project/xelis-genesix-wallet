@@ -126,7 +126,7 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
       context: context,
       side: FLayout.btt,
       useRootNavigator: true,
-      mainAxisMaxRatio: context.getFSheetRatio,
+      mainAxisMaxRatio: context.responsiveSheetMaxRatio,
       builder: (context) => EditContactSheet(contact),
     );
   }

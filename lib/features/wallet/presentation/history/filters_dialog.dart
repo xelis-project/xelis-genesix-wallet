@@ -119,7 +119,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
       direction: Axis.horizontal,
       title: Text(titleText),
       body: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: context.mediaHeight * 0.6),
+        constraints: BoxConstraints(maxHeight: context.viewportHeight * 0.6),
         child: FadedScroll(
           controller: _scrollController,
           child: SingleChildScrollView(

@@ -28,7 +28,7 @@ class ReceiveAddressDialog extends ConsumerWidget {
       walletRuntimeProvider.select((state) => state.network),
     );
 
-    final isWideScreen = context.isWideScreen;
+    final isWideLayout = context.isWideLayout;
     final maxDialogWidth = context.responsiveDialogMaxWidth(medium: 600);
     final maxBodyHeight = context.responsiveDialogMaxHeight();
     final dialogWidth = context.responsiveDialogWidth(medium: 600);
@@ -124,7 +124,7 @@ class ReceiveAddressDialog extends ConsumerWidget {
                       ),
                       SelectableText(
                         walletAddress,
-                        maxLines: isWideScreen ? 1 : null,
+                        maxLines: isWideLayout ? 1 : null,
                         style: context.theme.typography.body.xs.copyWith(
                           color: context.theme.colors.foreground,
                           fontFeatures: const [FontFeature.tabularFigures()],

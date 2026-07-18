@@ -152,7 +152,7 @@ class _NodeCardState extends ConsumerState<NodeCard> {
       context: context,
       side: FLayout.btt,
       useRootNavigator: true,
-      mainAxisMaxRatio: context.getFSheetRatio,
+      mainAxisMaxRatio: context.responsiveSheetMaxRatio,
       builder: (context) => AddNodeSheet(),
     );
   }
@@ -162,7 +162,7 @@ class _NodeCardState extends ConsumerState<NodeCard> {
       context: context,
       side: FLayout.btt,
       useRootNavigator: true,
-      mainAxisMaxRatio: context.getFSheetRatio,
+      mainAxisMaxRatio: context.responsiveSheetMaxRatio,
       builder: (context) => EditNodeSheet(nodeAddress),
     );
   }
