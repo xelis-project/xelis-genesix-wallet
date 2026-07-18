@@ -33,4 +33,4 @@ Use this skill when maintaining the repository AI guidance system.
 
 ## Validation
 
-Check Markdown readability, expected paths, mirrored skill consistency, and stale references to old source-of-truth language.
+Run `dart tool/validate_ai_guidelines.dart`, then check Markdown readability and any tool-specific compatibility notes that cannot be validated mechanically.

@@ -116,7 +116,7 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 | Rust FFI signature or bridge contract changes | Rust API surface, generated bridge impact, Dart call sites | `flutter_rust_bridge_codegen generate`, `dart run build_runner build -d`, `cd rust && cargo check`, `dart analyze` | `cd rust && cargo fmt`, `dart format .` |
 | Dependency version changes | Manifests, impacted docs, affected call sites; for Forui changes, run `dart run tool/sync_forui_docs.dart` and keep `.agents/references/forui/**` uncommitted | Relevant analyze/check/build command for impacted area | Formatting commands |
 | Security-sensitive wallet changes | Trust boundaries, sensitive-data handling, lifecycle ordering, storage/signing/FFI/XSWD/logging impact | Relevant analyze/check/build command for impacted area, plus `wallet-security-review` | Focused tests or security review subagent when risk justifies it |
-| AI guideline/docs-only changes | Instruction entrypoints and links | Markdown/readability review and stale-reference search | No Dart/Rust checks unless code changed |
+| AI guideline/docs-only changes | Instruction entrypoints and links | `dart tool/validate_ai_guidelines.dart` plus Markdown/readability review | No Dart/Rust checks unless code changed |
 
 ### Delivery Notes
 

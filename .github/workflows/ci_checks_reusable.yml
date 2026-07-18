@@ -22,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
+      ai: ${{ steps.detect.outputs.ai }}
       dart: ${{ steps.detect.outputs.dart }}
       rust: ${{ steps.detect.outputs.rust }}
     steps:
@@ -56,10 +57,12 @@ jobs:
           fi
 
           if [[ "$merged_pr" == "true" ]]; then
+            ai=false
             dart=false
             rust=false
             files="Merged pull request: checks already completed before merge"
           elif [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            ai=true
             dart=true
             rust=true
             files="Manual run: all checks enabled"
@@ -72,14 +75,19 @@ jobs:
               files="$(git diff --name-only "$BEFORE_SHA" "$HEAD_SHA")"
             fi
 
+            ai=false
             dart=false
             rust=false
 
             while IFS= read -r file; do
               case "$file" in
                 .github/workflows/*|.github/actions/*)
+                  ai=true
                   dart=true
                   rust=true
+                  ;;
+                AGENTS.md|CLAUDE.md|.agents/*|.codex/*|.claude/*|.github/agents/*|.github/skills/*|.github/copilot-instructions.md|tool/validate_ai_guidelines.dart)
+                  ai=true
                   ;;
                 rust/*)
                   dart=true
@@ -92,11 +100,13 @@ jobs:
             done <<< "$files"
           fi
 
+          echo "ai=$ai" >> "$GITHUB_OUTPUT"
           echo "dart=$dart" >> "$GITHUB_OUTPUT"
           echo "rust=$rust" >> "$GITHUB_OUTPUT"
 
           {
             echo "### Affected checks"
+            echo "- AI guidelines: $ai"
             echo "- Dart: $dart"
             echo "- Rust: $rust"
             echo ""
@@ -105,6 +115,29 @@ jobs:
             printf '%s\n' "$files"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+
+  ai-guidelines:
+    name: AI · Guidelines
+    needs: changes
+    if: needs.changes.outputs.ai == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Check validator formatting
+        run: >-
+          dart format --output=none --set-exit-if-changed
+          tool/validate_ai_guidelines.dart
+
+      - name: Validate AI guidelines
+        run: dart tool/validate_ai_guidelines.dart
 
   dart-analyze:
     name: Dart · Analyze

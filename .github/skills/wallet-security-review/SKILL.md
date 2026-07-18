@@ -29,6 +29,14 @@ Use this skill for security-sensitive planning, implementation review, and threa
 7. Check dependency APIs against `pubspec.yaml` or `Cargo.toml` before relying on security behavior.
 8. Recommend validation from `AGENTS.md` plus targeted tests for sensitive behavior when feasible.
 
+## High-Risk Wallet Checks
+
+- Signing, finalization, and broadcast flows must bind user confirmation to decoded transaction details and the exact transaction/hash being submitted; reject blank, stale, or generic confirmations.
+- Multisig pending transactions and collected signatures must be scoped by an expected transaction hash or id; reject mismatched or stale pending state.
+- Hash-only signing is blind signing: require strict hash validation, explicit high-risk labeling, and strong confirmation; prefer decoded unsigned transaction review when available.
+- Never log raw QR, deep link, XSWD, clipboard, file, or network payloads; parse first and log only redacted metadata.
+- For security findings, trace source to sink through Dart state, Rust FFI, signing/finalization, and broadcast before assigning severity.
+
 ## Security Rules
 
 - Never log secrets, seed material, private keys, passwords, tokens, raw signatures, or full sensitive payloads.
