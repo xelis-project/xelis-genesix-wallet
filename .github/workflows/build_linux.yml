@@ -1,10 +1,24 @@
 name: Build Linux
 
 on:
+  workflow_call:
+    inputs:
+      version:
+        description: Build version used in artifact names
+        required: true
+        type: string
+      ref:
+        description: Git ref to build
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       version:
-        description: Build version when not running from a tag (e.g. 0.1.3-test)
+        description: Build version used in artifact names (e.g. 0.1.3-test)
+        required: true
+        type: string
+      ref:
+        description: Git ref to build (defaults to the selected branch)
         required: false
         type: string
 
@@ -21,9 +35,14 @@ env:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    env:
+      BUILD_VERSION: ${{ inputs.version }}
+      BUILD_REF: ${{ inputs.ref || github.ref }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          ref: ${{ env.BUILD_REF }}
 
       - name: Update packages
         run: sudo apt-get update -y
@@ -43,20 +62,6 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Resolve build version
-        env:
-          INPUT_VERSION: ${{ github.event.inputs.version }}
-        run: |
-          if [[ "${GITHUB_REF:-}" == refs/tags/v* ]]; then
-            VERSION="${GITHUB_REF#refs/tags/v}"
-          elif [[ -n "${INPUT_VERSION:-}" ]]; then
-            VERSION="${INPUT_VERSION}"
-          else
-            echo "Error: build version is required for workflow_dispatch when not building from a tag (refs/tags/v*)."
-            exit 1
-          fi
-          echo "BUILD_VERSION=$VERSION" >> "$GITHUB_ENV"
-
       - name: Install Flutter Rust bridge
         run: cargo install flutter_rust_bridge_codegen --version "$FRB_CODEGEN_VERSION" --locked
 
@@ -72,9 +77,16 @@ jobs:
       - name: Build Linux app
         run: flutter build linux --release
 
-      - name: Archive artifacts
+      - name: Package Linux archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist/linux
+          tar -C build/linux/x64/release -czf "dist/linux/genesix-linux-${BUILD_VERSION}-x64.tar.gz" bundle
+
+      - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
         with:
-          name: genesix-linux-${{ env.BUILD_VERSION }}
-          path: build/linux/x64/release/bundle
+          name: release-linux-${{ env.BUILD_VERSION }}
+          path: dist/linux/*.tar.gz
           if-no-files-found: error
