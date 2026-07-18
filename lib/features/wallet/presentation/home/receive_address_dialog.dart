@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/domain/network_translate_name.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
@@ -27,7 +28,7 @@ class ReceiveAddressDialog extends ConsumerWidget {
       walletRuntimeProvider.select((state) => state.network),
     );
 
-    final isWideScreen = context.isWideScreen;
+    final isWideLayout = context.isWideLayout;
     final maxDialogWidth = context.responsiveDialogMaxWidth(medium: 600);
     final maxBodyHeight = context.responsiveDialogMaxHeight();
     final dialogWidth = context.responsiveDialogWidth(medium: 600);
@@ -41,7 +42,7 @@ class ReceiveAddressDialog extends ConsumerWidget {
         ? const Color(0xFFFFFFFF)
         : const Color(0xFF111111);
 
-    return FDialog(
+    return AppDialog(
       clipBehavior: Clip.antiAlias,
       animation: animation,
       constraints: BoxConstraints(minWidth: 280, maxWidth: maxDialogWidth),
@@ -123,7 +124,7 @@ class ReceiveAddressDialog extends ConsumerWidget {
                       ),
                       SelectableText(
                         walletAddress,
-                        maxLines: isWideScreen ? 1 : null,
+                        maxLines: isWideLayout ? 1 : null,
                         style: context.theme.typography.body.xs.copyWith(
                           color: context.theme.colors.foreground,
                           fontFeatures: const [FontFeature.tabularFigures()],

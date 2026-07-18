@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
@@ -52,7 +53,7 @@ class _ResetPreferenceButtonState extends ConsumerState<ResetPreferenceButton> {
     showAppDialog<void>(
       context: context,
       builder: (context, style, animation) {
-        return FDialog.adaptive(
+        return AppDialog.adaptive(
           clipBehavior: Clip.antiAlias,
           animation: animation,
           title: Text(loc.do_you_want_to_continue),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_card.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/domain/parsed_extra_data.dart';
 import 'package:genesix/features/wallet/presentation/components/colored_badge.dart';
@@ -68,7 +69,7 @@ class _ExtraDataSheetState extends ConsumerState<ExtraDataSheet> {
                 ),
               ],
             ),
-            FCard(
+            AppCard(
               clipBehavior: Clip.antiAlias,
               child: Center(
                 child: SelectableText(

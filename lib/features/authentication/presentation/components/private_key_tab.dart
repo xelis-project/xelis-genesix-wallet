@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_card.dart';
 import 'package:genesix/features/authentication/application/wallet_session_commands_provider.dart';
 import 'package:genesix/features/authentication/domain/wallet_session_command_result.dart';
 import 'package:genesix/features/router/route_utils.dart';
@@ -39,7 +40,7 @@ class _PrivateKeyTabState extends ConsumerState<PrivateKeyTab> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
 
-    return FCard(
+    return AppCard(
       clipBehavior: Clip.antiAlias,
       subtitle: Text(loc.recover_from_private_key),
       child: Form(

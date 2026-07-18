@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_card.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_controller_provider.dart';
@@ -304,7 +306,7 @@ class _XswdAppInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final muted = context.theme.colors.mutedForeground;
 
-    return FCard(
+    return AppCard(
       clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -406,7 +408,7 @@ class _XswdPermissionsSection extends StatelessWidget {
         ),
         const SizedBox(height: Spaces.medium),
         if (sortedPermissions.isEmpty)
-          FCard(
+          AppCard(
             clipBehavior: Clip.antiAlias,
             child: Center(
               child: Text(
@@ -448,7 +450,7 @@ class _XswdPermissionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FCard.raw(
+    return FCard(
       clipBehavior: Clip.antiAlias,
       child: Container(
         width: double.infinity,
@@ -581,7 +583,8 @@ class _DisconnectDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FDialog(
+    return AppDialog(
+      style: style,
       clipBehavior: Clip.antiAlias,
       animation: animation,
       constraints: const BoxConstraints(maxWidth: 560),

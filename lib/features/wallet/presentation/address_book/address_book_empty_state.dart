@@ -31,7 +31,7 @@ class AddressBookEmptyState extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final padding = EdgeInsets.all(compact ? Spaces.medium : Spaces.large);
-        final fullWidthAction = context.isMobile;
+        final fullWidthAction = context.isCompactLayout;
         final content = _EmptyStateContent(
           title: switch (_type) {
             _AddressBookEmptyStateType.noContacts =>

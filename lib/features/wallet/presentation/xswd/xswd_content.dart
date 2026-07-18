@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_card.dart';
 import 'package:genesix/features/router/routes.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
@@ -13,7 +14,6 @@ import 'package:genesix/features/wallet/application/xswd_lifecycle_provider.dart
 import 'package:genesix/features/wallet/application/xswd_notification_service.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/domain/xswd_lifecycle_state.dart';
-import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -247,7 +247,7 @@ class _XswdModeCard extends StatelessWidget {
           }
         : onSwitchChange;
 
-    return FCard(
+    return AppCard(
       clipBehavior: Clip.antiAlias,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -540,7 +540,7 @@ class _XswdFooter extends StatelessWidget {
     return SafeArea(
       child: Container(
         decoration: BoxDecoration(
-          color: context.colors.surface,
+          color: context.theme.colors.background,
           border: Border(
             top: BorderSide(color: context.theme.colors.border, width: 1),
           ),

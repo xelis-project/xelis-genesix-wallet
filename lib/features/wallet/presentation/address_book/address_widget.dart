@@ -116,7 +116,7 @@ class _AddressWidgetState extends ConsumerState<AddressWidget> {
       context: context,
       side: FLayout.btt,
       useRootNavigator: true,
-      mainAxisMaxRatio: context.getFSheetRatio,
+      mainAxisMaxRatio: context.responsiveSheetMaxRatio,
       builder: (context) => AddContactSheet(address: widget.address),
     );
   }

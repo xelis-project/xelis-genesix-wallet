@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/presentation/address_book/address_book_empty_state.dart';
@@ -26,7 +27,7 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
     final loc = ref.watch(appLocalizationsProvider);
     final addressBook = ref.watch(addressBookProvider);
 
-    return FDialog(
+    return AppDialog(
       clipBehavior: Clip.antiAlias,
       animation: widget.animation,
       constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),

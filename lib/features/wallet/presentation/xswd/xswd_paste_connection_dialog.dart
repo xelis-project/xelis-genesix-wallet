@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 
 import 'package:genesix/features/logger/logger.dart';
@@ -58,7 +59,7 @@ class _XswdPasteConnectionDialogState
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
 
-    return FDialog(
+    return AppDialog(
       clipBehavior: Clip.antiAlias,
       animation: widget.animation,
       constraints: const BoxConstraints(maxWidth: 700),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/presentation/assets/asset_name_widget.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -41,7 +42,7 @@ class _UntrackedAssetDetailsState extends ConsumerState<UntrackedAssetDetails> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
 
-    return FDialog(
+    return AppDialog(
       clipBehavior: Clip.antiAlias,
       title: Text(loc.details.capitalize()),
       body: FadedScroll(

@@ -8,14 +8,16 @@ import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart
 import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/multisig/setup_multisig_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/multisig/sign_transaction_dialog.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_dialog_old.dart';
+import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_review_dialog_new.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/shared/widgets/components/custom_scaffold.dart';
-import 'package:genesix/shared/widgets/components/generic_app_bar_widget_old.dart';
+import 'package:genesix/shared/widgets/components/app_card.dart';
+import 'package:genesix/shared/widgets/components/body_layout_builder.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
+import 'package:go_router/go_router.dart';
 
 class MultisigScreen extends ConsumerStatefulWidget {
   const MultisigScreen({super.key});
@@ -34,170 +36,37 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
       walletRuntimeProvider.select((value) => value.multisigState),
     );
     final pendingState = ref.watch(multisigPendingStateProvider);
-    return CustomScaffold(
-      appBar: GenericAppBar(title: loc.multisig),
-      body: AnimatedSwitcher(
-        key: ValueKey<bool>(pendingState),
-        duration: const Duration(milliseconds: AppDurations.animFast),
-        child: pendingState
-            ? Center(
-                child: Text(
-                  loc.changes_in_progress,
-                  style: context.titleMedium,
-                ),
-              )
-            : multisigState.isSetup
-            ? Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  Spaces.large,
-                  Spaces.none,
-                  Spaces.large,
-                  Spaces.large,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: Spaces.large),
-                    Text(
-                      loc.threshold,
-                      style: context.labelLarge?.copyWith(
-                        color: context.moreColors.mutedColor,
-                      ),
-                    ),
-                    Text(
-                      loc.minimum_signatures_required.toLowerCase(),
-                      style: context.labelSmall?.copyWith(
-                        color: context.moreColors.mutedColor,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                    SelectableText(multisigState.threshold.toString()),
-                    const SizedBox(height: Spaces.large),
-                    Text(
-                      loc.topoheight,
-                      style: context.labelLarge?.copyWith(
-                        color: context.moreColors.mutedColor,
-                      ),
-                    ),
-                    Text(
-                      loc.multisig_activation_height.toLowerCase(),
-                      style: context.labelSmall?.copyWith(
-                        color: context.moreColors.mutedColor,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                    SelectableText(multisigState.topoheight.toString()),
-                    const SizedBox(height: Spaces.large),
-                    Text(
-                      loc.participants,
-                      style: context.labelLarge?.copyWith(
-                        color: context.moreColors.mutedColor,
-                      ),
-                    ),
-                    const Divider(),
-                    Expanded(
-                      child: ListView.builder(
-                        itemBuilder: (context, index) {
-                          return Card(
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(
-                                Spaces.medium,
-                                Spaces.small,
-                                Spaces.medium,
-                                Spaces.small,
-                              ),
-                              child: Table(
-                                columnWidths: {
-                                  0: FixedColumnWidth(Spaces.extraLarge),
-                                  1: FlexColumnWidth(),
-                                },
-                                defaultVerticalAlignment:
-                                    TableCellVerticalAlignment.middle,
-                                children: [
-                                  TableRow(
-                                    children: [
-                                      Text(
-                                        loc.id,
-                                        style: context.labelMedium?.copyWith(
-                                          color: context.moreColors.mutedColor,
-                                        ),
-                                      ),
-                                      Text(
-                                        loc.address,
-                                        style: context.labelMedium?.copyWith(
-                                          color: context.moreColors.mutedColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  TableRow(
-                                    children: [
-                                      Text(
-                                        multisigState.participants
-                                            .elementAt(index)
-                                            .id
-                                            .toString(),
-                                      ),
-                                      Tooltip(
-                                        message: multisigState.participants
-                                            .elementAt(index)
-                                            .address,
-                                        child: GestureDetector(
-                                          child: AddressWidget(
-                                            multisigState.participants
-                                                .elementAt(index)
-                                                .address,
-                                          ),
-                                          onTap: () => copyToClipboard(
-                                            multisigState.participants
-                                                .elementAt(index)
-                                                .address,
-                                            ref,
-                                            loc.copied,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                        itemCount: multisigState.participants.length,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                      ),
-                    ),
-                    Center(
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.all(Spaces.medium),
-                          side: BorderSide(
-                            color: context.colors.error,
-                            width: 1,
-                          ),
-                        ),
-                        onPressed: _isDeletingMultisig
-                            ? null
-                            : _showDeleteMultisigDialog,
-                        icon: _isDeletingMultisig
-                            ? const FCircularProgress.loader()
-                            : Icon(FLucideIcons.trash2),
-                        label: Text(
-                          loc.delete_multisig_configuration,
-                          style: context.titleSmall!.copyWith(
-                            color: context.colors.error,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            : Center(
-                child: Padding(
+    return FScaffold(
+      header: FHeader.nested(
+        title: Text(loc.multisig),
+        suffixes: [
+          FTooltip(
+            tipBuilder: (context, controller) => Text(loc.sign_transaction),
+            child: FHeaderAction(
+              icon: const Icon(FLucideIcons.key),
+              semanticsLabel: loc.sign_transaction,
+              onPress: _showSignTransactionDialog,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(Spaces.small),
+            child: FHeaderAction.x(onPress: () => context.pop()),
+          ),
+        ],
+      ),
+      child: BodyLayoutBuilder(
+        child: AnimatedSwitcher(
+          key: ValueKey<bool>(pendingState),
+          duration: const Duration(milliseconds: AppDurations.animFast),
+          child: pendingState
+              ? Center(
+                  child: Text(
+                    loc.changes_in_progress,
+                    style: context.titleMedium,
+                  ),
+                )
+              : multisigState.isSetup
+              ? Padding(
                   padding: const EdgeInsets.fromLTRB(
                     Spaces.large,
                     Spaces.none,
@@ -205,45 +74,185 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
                     Spaces.large,
                   ),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      const SizedBox(height: Spaces.large),
                       Text(
-                        '${loc.multisig_intro_message_1}\n${loc.multisig_intro_message_2}',
-                        style: context.titleMedium?.copyWith(
-                          color: context.moreColors.mutedColor,
+                        loc.threshold,
+                        style: context.labelLarge?.copyWith(
+                          color: context.theme.colors.mutedForeground,
                         ),
                       ),
-                      Spacer(),
                       Text(
-                        loc.no_multisig_configuration_found,
-                        style: context.titleSmall?.copyWith(
-                          color: context.colors.primary,
+                        loc.minimum_signatures_required.toLowerCase(),
+                        style: context.labelSmall?.copyWith(
+                          color: context.theme.colors.mutedForeground,
                           fontStyle: FontStyle.italic,
                         ),
                       ),
-                      const SizedBox(height: Spaces.medium),
-                      TextButton(
-                        onPressed: _showSetupMultisigDialog,
-                        child: Text(loc.setup),
+                      SelectableText(multisigState.threshold.toString()),
+                      const SizedBox(height: Spaces.large),
+                      Text(
+                        loc.topoheight,
+                        style: context.labelLarge?.copyWith(
+                          color: context.theme.colors.mutedForeground,
+                        ),
                       ),
-                      Spacer(),
+                      Text(
+                        loc.multisig_activation_height.toLowerCase(),
+                        style: context.labelSmall?.copyWith(
+                          color: context.theme.colors.mutedForeground,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                      SelectableText(multisigState.topoheight.toString()),
+                      const SizedBox(height: Spaces.large),
+                      Text(
+                        loc.participants,
+                        style: context.labelLarge?.copyWith(
+                          color: context.theme.colors.mutedForeground,
+                        ),
+                      ),
+                      const Divider(),
+                      Expanded(
+                        child: ListView.builder(
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: Spaces.small,
+                              ),
+                              child: AppCard(
+                                child: Table(
+                                  columnWidths: {
+                                    0: FixedColumnWidth(Spaces.extraLarge),
+                                    1: FlexColumnWidth(),
+                                  },
+                                  defaultVerticalAlignment:
+                                      TableCellVerticalAlignment.middle,
+                                  children: [
+                                    TableRow(
+                                      children: [
+                                        Text(
+                                          loc.id,
+                                          style: context.labelMedium?.copyWith(
+                                            color: context
+                                                .theme
+                                                .colors
+                                                .mutedForeground,
+                                          ),
+                                        ),
+                                        Text(
+                                          loc.address,
+                                          style: context.labelMedium?.copyWith(
+                                            color: context
+                                                .theme
+                                                .colors
+                                                .mutedForeground,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        Text(
+                                          multisigState.participants
+                                              .elementAt(index)
+                                              .id
+                                              .toString(),
+                                        ),
+                                        FTooltip(
+                                          tipBuilder: (context, controller) =>
+                                              Text(
+                                                multisigState.participants
+                                                    .elementAt(index)
+                                                    .address,
+                                              ),
+                                          child: GestureDetector(
+                                            child: AddressWidget(
+                                              multisigState.participants
+                                                  .elementAt(index)
+                                                  .address,
+                                            ),
+                                            onTap: () => copyToClipboard(
+                                              multisigState.participants
+                                                  .elementAt(index)
+                                                  .address,
+                                              ref,
+                                              loc.copied,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                          itemCount: multisigState.participants.length,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                        ),
+                      ),
+                      Center(
+                        child: FButton(
+                          variant: .destructive,
+                          onPress: _isDeletingMultisig
+                              ? null
+                              : _showDeleteMultisigDialog,
+                          prefix: _isDeletingMultisig
+                              ? const FCircularProgress.loader()
+                              : Icon(FLucideIcons.trash2),
+                          child: Text(loc.delete_multisig_configuration),
+                        ),
+                      ),
                     ],
                   ),
+                )
+              : Center(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      Spaces.large,
+                      Spaces.none,
+                      Spaces.large,
+                      Spaces.large,
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          '${loc.multisig_intro_message_1}\n${loc.multisig_intro_message_2}',
+                          style: context.titleMedium?.copyWith(
+                            color: context.theme.colors.mutedForeground,
+                          ),
+                        ),
+                        Spacer(),
+                        Text(
+                          loc.no_multisig_configuration_found,
+                          style: context.titleSmall?.copyWith(
+                            color: context.theme.colors.primary,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                        const SizedBox(height: Spaces.medium),
+                        FButton(
+                          onPress: _showSetupMultisigDialog,
+                          child: Text(loc.setup),
+                        ),
+                        Spacer(),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showSignTransactionDialog,
-        tooltip: loc.sign_transaction,
-        child: const Icon(FLucideIcons.key),
+        ),
       ),
     );
   }
 
   void _showSetupMultisigDialog() {
-    showDialog<void>(
+    showAppDialog<void>(
       context: context,
-      builder: (context) {
-        return SetupMultisigDialog();
+      builder: (context, style, animation) {
+        return SetupMultisigDialog(style: style, animation: animation);
       },
     );
   }
@@ -268,10 +277,10 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
             .read(transactionReviewProvider.notifier)
             .signaturePending(unsignedTx);
 
-        showDialog<void>(
+        showAppDialog<void>(
           context: context,
-          builder: (context) {
-            return TransactionDialog();
+          builder: (dialogContext, _, animation) {
+            return TransactionReviewDialogNew(animation);
           },
         );
       } else {
@@ -282,10 +291,10 @@ class _MultisigScreenState extends ConsumerState<MultisigScreen> {
   }
 
   void _showSignTransactionDialog() {
-    showDialog<void>(
+    showAppDialog<void>(
       context: context,
-      builder: (context) {
-        return SignTransactionDialog();
+      builder: (context, style, animation) {
+        return SignTransactionDialog(style: style, animation: animation);
       },
     );
   }

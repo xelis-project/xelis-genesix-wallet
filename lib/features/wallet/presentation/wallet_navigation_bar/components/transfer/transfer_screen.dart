@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_card.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_dialog_old.dart';
 import 'package:genesix/features/wallet/presentation/address_book/select_address_dialog.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transaction_review_dialog_new.dart';
 import 'package:genesix/src/generated/rust_bridge/api/utils.dart';
@@ -335,7 +335,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
                   const SizedBox(height: Spaces.large),
 
                   // Fee Information Section
-                  FCard(
+                  AppCard(
                     clipBehavior: Clip.antiAlias,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -598,11 +598,11 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
             .signaturePending(record.$2!);
 
         if (mounted) {
-          showDialog<void>(
+          showAppDialog<void>(
             context: context,
             barrierDismissible: false,
-            builder: (context) {
-              return const TransactionDialog();
+            builder: (dialogContext, _, animation) {
+              return TransactionReviewDialogNew(animation);
             },
           );
         }

@@ -36,7 +36,7 @@ class OutgoingEntryContent extends ConsumerWidget {
       hideZeroTransfer,
     );
 
-    return FCard.raw(
+    return FCard(
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(Spaces.medium),

@@ -20,7 +20,7 @@ class IncomingContractEntryContent extends ConsumerWidget {
       walletRuntimeProvider.select((state) => state.knownAssets),
     );
 
-    return FCard.raw(
+    return FCard(
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(Spaces.medium),

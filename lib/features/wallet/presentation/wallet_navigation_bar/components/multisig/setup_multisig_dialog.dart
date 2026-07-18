@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/features/logger/logger.dart';
@@ -14,26 +12,31 @@ import 'package:genesix/features/wallet/presentation/address_book/address_widget
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
-import 'package:genesix/shared/theme/input_decoration_old.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/shared/widgets/components/generic_dialog_old.dart';
-import 'package:genesix/shared/widgets/components/warning_widget_old.dart';
+import 'package:genesix/shared/widgets/components/app_card.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 
 class SetupMultisigDialog extends ConsumerStatefulWidget {
-  const SetupMultisigDialog({super.key});
+  const SetupMultisigDialog({
+    required this.style,
+    required this.animation,
+    super.key,
+  });
+
+  final FDialogStyle style;
+  final Animation<double> animation;
 
   @override
   ConsumerState createState() => _SetupMultisigDialogState();
 }
 
 class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
-  final _multisigFormKey = GlobalKey<FormBuilderState>(
-    debugLabel: '_multisigFormKey',
-  );
-  final List<FormBuilderTextField> _participantFormFields = [];
+  final _multisigFormKey = GlobalKey<FormState>();
+  final TextEditingController _thresholdController = TextEditingController();
+  final List<TextEditingController> _participantControllers = [];
   final ScrollController _mainScrollController = ScrollController();
   final ScrollController _participantsScrollController = ScrollController();
 
@@ -44,13 +47,18 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
   TransactionSummary? _transactionSummary;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_participantFormFields.isEmpty) _addParticipant();
+  void initState() {
+    super.initState();
+    _participantControllers.add(TextEditingController());
   }
 
   @override
   void dispose() {
+    _thresholdController.dispose();
+    for (final controller in _participantControllers) {
+      controller.dispose();
+    }
+    _mainScrollController.dispose();
     _participantsScrollController.dispose();
     super.dispose();
   }
@@ -62,8 +70,9 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
       walletRuntimeProvider.select((state) => state.network),
     );
     bool transactionReadyToBroadcast = _transactionSummary != null;
-    return GenericDialog(
-      scrollable: false,
+    return AppDialog(
+      style: widget.style,
+      animation: widget.animation,
       title: SizedBox(
         width: double.infinity,
         child: Row(
@@ -97,17 +106,19 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                   right: Spaces.small,
                   top: Spaces.small,
                 ),
-                child: IconButton(
-                  onPressed: () {
+                child: FButton.icon(
+                  variant: .ghost,
+                  semanticsLabel: loc.close,
+                  onPress: () {
                     context.pop();
                   },
-                  icon: const Icon(FLucideIcons.x),
+                  child: const Icon(FLucideIcons.x),
                 ),
               ),
           ],
         ),
       ),
-      content: Container(
+      body: Container(
         constraints: BoxConstraints(maxWidth: 600),
         width: double.maxFinite,
         child: ScrollConfiguration(
@@ -117,15 +128,18 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
             shrinkWrap: true,
             children: [
               if (!transactionReadyToBroadcast) ...[
-                WarningWidget([
-                  '${loc.multisig_setup_message_1}\n',
-                  '${loc.multisig_setup_message_2}\n',
-                  (loc.multisig_setup_message_3),
-                ]),
+                FAlert(
+                  title: Text(loc.warning),
+                  subtitle: Text(
+                    '${loc.multisig_setup_message_1}\n'
+                    '${loc.multisig_setup_message_2}\n'
+                    '${loc.multisig_setup_message_3}',
+                  ),
+                ),
                 const SizedBox(height: Spaces.large),
               ],
               !transactionReadyToBroadcast
-                  ? FormBuilder(
+                  ? Form(
                       key: _multisigFormKey,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -134,52 +148,16 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                           Text(
                             loc.threshold,
                             style: context.labelLarge?.copyWith(
-                              color: context.moreColors.mutedColor,
+                              color: context.theme.colors.mutedForeground,
                             ),
                           ),
                           const SizedBox(height: Spaces.extraSmall),
-                          FormBuilderTextField(
-                            name: 'threshold',
-                            style: context.bodyMedium,
+                          FTextFormField(
+                            control: .managed(controller: _thresholdController),
                             autocorrect: false,
                             keyboardType: TextInputType.number,
-                            decoration: context.textInputDecoration.copyWith(
-                              labelText: loc.threshold_formfield_label_text,
-                              labelStyle: context.labelMedium!.copyWith(
-                                color: context.moreColors.mutedColor,
-                              ),
-                            ),
-                            onChanged: (value) {
-                              // workaround to reset the error message when the user modifies the field
-                              final hasError = _multisigFormKey
-                                  .currentState
-                                  ?.fields['threshold']
-                                  ?.hasError;
-                              if (hasError ?? false) {
-                                _multisigFormKey
-                                    .currentState
-                                    ?.fields['threshold']
-                                    ?.reset();
-                              }
-                            },
-                            validator: FormBuilderValidators.compose([
-                              FormBuilderValidators.required(
-                                errorText: loc.field_required_error,
-                              ),
-                              FormBuilderValidators.numeric(
-                                errorText: loc.must_be_numeric_error,
-                              ),
-                              FormBuilderValidators.min(1),
-                              FormBuilderValidators.max(255),
-                              (value) {
-                                final threshold = int.tryParse(value ?? '');
-                                if (threshold != null &&
-                                    threshold > _participantFormFields.length) {
-                                  return loc.threshold_formfield_error;
-                                }
-                                return null;
-                              },
-                            ]),
+                            label: Text(loc.threshold_formfield_label_text),
+                            validator: (value) => _validateThreshold(value),
                           ),
                           const SizedBox(height: Spaces.large),
                           Row(
@@ -188,18 +166,20 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                               Text(
                                 loc.participants,
                                 style: context.labelLarge?.copyWith(
-                                  color: context.moreColors.mutedColor,
+                                  color: context.theme.colors.mutedForeground,
                                 ),
                               ),
                               Row(
                                 children: [
-                                  IconButton(
-                                    onPressed: _addParticipant,
-                                    icon: Icon(FLucideIcons.plus, size: 18),
+                                  FButton.icon(
+                                    variant: .ghost,
+                                    onPress: _addParticipant,
+                                    child: Icon(FLucideIcons.plus, size: 18),
                                   ),
-                                  IconButton(
-                                    onPressed: _removeParticipant,
-                                    icon: Icon(FLucideIcons.minus, size: 18),
+                                  FButton.icon(
+                                    variant: .ghost,
+                                    onPress: _removeParticipant,
+                                    child: Icon(FLucideIcons.minus, size: 18),
                                   ),
                                 ],
                               ),
@@ -211,16 +191,13 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                             child: ListView.builder(
                               shrinkWrap: true,
                               controller: _participantsScrollController,
-                              itemCount: _participantFormFields.length,
+                              itemCount: _participantControllers.length,
                               itemBuilder: (context, index) {
-                                return Card(
-                                  child: Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                      Spaces.medium,
-                                      Spaces.medium,
-                                      Spaces.medium,
-                                      Spaces.medium,
-                                    ),
+                                return Padding(
+                                  padding: const EdgeInsets.only(
+                                    bottom: Spaces.small,
+                                  ),
+                                  child: AppCard(
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
@@ -238,8 +215,9 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                                                 style: context.labelLarge
                                                     ?.copyWith(
                                                       color: context
-                                                          .moreColors
-                                                          .mutedColor,
+                                                          .theme
+                                                          .colors
+                                                          .mutedForeground,
                                                     ),
                                               ),
                                             ),
@@ -251,7 +229,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                                         ),
                                         const SizedBox(width: Spaces.large),
                                         Expanded(
-                                          child: _participantFormFields[index],
+                                          child: _buildParticipantField(index),
                                         ),
                                       ],
                                     ),
@@ -271,7 +249,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                           Text(
                             loc.hash,
                             style: context.bodyLarge!.copyWith(
-                              color: context.moreColors.mutedColor,
+                              color: context.theme.colors.mutedForeground,
                             ),
                           ),
                           const SizedBox(height: Spaces.extraSmall),
@@ -280,7 +258,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                           Text(
                             loc.fee,
                             style: context.bodyLarge!.copyWith(
-                              color: context.moreColors.mutedColor,
+                              color: context.theme.colors.mutedForeground,
                             ),
                           ),
                           const SizedBox(height: Spaces.extraSmall),
@@ -291,7 +269,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                           Text(
                             loc.threshold,
                             style: context.bodyLarge!.copyWith(
-                              color: context.moreColors.mutedColor,
+                              color: context.theme.colors.mutedForeground,
                             ),
                           ),
                           const SizedBox(height: Spaces.extraSmall),
@@ -305,7 +283,7 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                           Text(
                             loc.participants,
                             style: context.bodyLarge!.copyWith(
-                              color: context.moreColors.mutedColor,
+                              color: context.theme.colors.mutedForeground,
                             ),
                           ),
                           const SizedBox(height: Spaces.extraSmall),
@@ -317,14 +295,11 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                                       .participants;
                               return Column(
                                 children: participants.map((participant) {
-                                  return Card(
-                                    child: Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                        Spaces.medium,
-                                        Spaces.small,
-                                        Spaces.medium,
-                                        Spaces.small,
-                                      ),
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                      bottom: Spaces.small,
+                                    ),
+                                    child: AppCard(
                                       child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
@@ -340,8 +315,9 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                                                   style: context.labelMedium
                                                       ?.copyWith(
                                                         color: context
-                                                            .moreColors
-                                                            .mutedColor,
+                                                            .theme
+                                                            .colors
+                                                            .mutedForeground,
                                                       ),
                                                 ),
                                               ),
@@ -369,8 +345,9 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                                                     style: context.labelMedium
                                                         ?.copyWith(
                                                           color: context
-                                                              .moreColors
-                                                              .mutedColor,
+                                                              .theme
+                                                              .colors
+                                                              .mutedForeground,
                                                         ),
                                                   ),
                                                 ),
@@ -395,25 +372,15 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
                             ),
                             child: _isBroadcast
                                 ? SizedBox.shrink()
-                                : FormBuilderCheckbox(
-                                    name: 'confirm',
-                                    decoration: InputDecoration(
-                                      contentPadding: const EdgeInsets.only(
-                                        top: Spaces.small,
-                                      ),
-                                      isDense: true,
-                                      fillColor: Colors.transparent,
-                                    ),
-                                    title: Text(
+                                : FCheckbox(
+                                    value: _isConfirmed,
+                                    label: Text(
                                       loc.multisig_setup_confirmation_message,
                                       style: context.bodyMedium,
                                     ),
-                                    validator: FormBuilderValidators.required(
-                                      errorText: loc.field_required_error,
-                                    ),
-                                    onChanged: (value) {
+                                    onChange: (value) {
                                       setState(() {
-                                        _isConfirmed = value ?? false;
+                                        _isConfirmed = value;
                                       });
                                     },
                                   ),
@@ -428,122 +395,94 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
       actions: [
         _transactionSummary != null
             ? _isBroadcast
-                  ? TextButton(
-                      onPressed: () {
+                  ? FButton(
+                      onPress: () {
                         context.pop();
                       },
                       child: Text(loc.ok_button),
                     )
-                  : TextButton.icon(
-                      onPressed: _isConfirmed && !_isBroadcasting
+                  : FButton(
+                      onPress: _isConfirmed && !_isBroadcasting
                           ? () => startWithBiometricAuth(
                               ref,
                               callback: _broadcastTransfer,
                               reason: loc.please_authenticate_tx,
                             )
                           : null,
-                      icon: _isBroadcasting
+                      prefix: _isBroadcasting
                           ? const FCircularProgress.loader()
                           : const Icon(FLucideIcons.send, size: 18),
-                      label: Text(loc.broadcast),
+                      child: Text(loc.broadcast),
                     )
-            : TextButton.icon(
-                onPressed: _isPreparing ? null : _confirmMultisigSetup,
-                label: Text(loc.next),
-                icon: _isPreparing
+            : FButton(
+                onPress: _isPreparing ? null : _confirmMultisigSetup,
+                prefix: _isPreparing
                     ? const FCircularProgress.loader()
                     : Icon(FLucideIcons.arrowRight, size: 18),
+                child: Text(loc.next),
               ),
       ],
     );
   }
 
+  String? _validateThreshold(String? value) {
+    final loc = ref.read(appLocalizationsProvider);
+    final raw = value?.trim() ?? '';
+    if (raw.isEmpty) {
+      return loc.field_required_error;
+    }
+    final threshold = int.tryParse(raw);
+    if (threshold == null) {
+      return loc.must_be_numeric_error;
+    }
+    if (threshold < 1 ||
+        threshold > 255 ||
+        threshold > _participantControllers.length) {
+      return loc.threshold_formfield_error;
+    }
+    return null;
+  }
+
+  Widget _buildParticipantField(int index) {
+    final loc = ref.read(appLocalizationsProvider);
+    return FTextFormField(
+      key: ValueKey(_participantControllers[index]),
+      control: .managed(controller: _participantControllers[index]),
+      autocorrect: false,
+      keyboardType: TextInputType.text,
+      label: Text(loc.wallet_address_capitalize.toLowerCase()),
+      clearable: (value) => value.text.isNotEmpty,
+      validator: (value) => _validateParticipant(value, index),
+    );
+  }
+
+  String? _validateParticipant(String? value, int index) {
+    final loc = ref.read(appLocalizationsProvider);
+    final address = value?.trim() ?? '';
+    if (address.isEmpty) {
+      return loc.field_required_error;
+    }
+    if (!ref.read(walletCommandsProvider).isAddressValidForMultisig(address)) {
+      return loc.multisig_address_validation_error;
+    }
+    final duplicated = _participantControllers.indexed.any(
+      (entry) => entry.$1 != index && entry.$2.text.trim() == address,
+    );
+    if (duplicated) {
+      return loc.multisig_participant_duplicated;
+    }
+    return null;
+  }
+
   void _addParticipant() {
-    if (_participantFormFields.length < 255) {
-      final loc = ref.read(appLocalizationsProvider);
-      int index = _participantFormFields.length;
-      String participantFieldId = 'participant_$index';
+    if (_participantControllers.length < 255) {
       setState(() {
-        _participantFormFields.add(
-          FormBuilderTextField(
-            name: participantFieldId,
-            style: context.bodyMedium,
-            autocorrect: false,
-            keyboardType: TextInputType.text,
-            decoration: context.textInputDecoration.copyWith(
-              suffixIcon: IconButton(
-                hoverColor: Colors.transparent,
-                onPressed: () => _multisigFormKey
-                    .currentState
-                    ?.fields[participantFieldId]
-                    ?.reset(),
-                icon: Icon(
-                  FLucideIcons.x,
-                  size: 18,
-                  color: context.moreColors.mutedColor,
-                ),
-              ),
-              labelText: loc.wallet_address_capitalize.toLowerCase(),
-            ),
-            onChanged: (value) {
-              // workaround to reset the error message when the user modifies the field
-              final hasError = _multisigFormKey
-                  .currentState
-                  ?.fields[participantFieldId]
-                  ?.hasError;
-              if (hasError ?? false) {
-                _multisigFormKey.currentState?.fields[participantFieldId]
-                    ?.reset();
-              }
-            },
-            validator: FormBuilderValidators.compose([
-              FormBuilderValidators.required(
-                errorText: loc.field_required_error,
-              ),
-              // check if the address is valid for multisig
-              (value) {
-                if (value != null &&
-                    !ref
-                        .read(walletCommandsProvider)
-                        .isAddressValidForMultisig(value.trim())) {
-                  return loc.multisig_address_validation_error;
-                }
-                return null;
-              },
-              // check if the address is already a participant
-              (value) {
-                if (value != null) {
-                  final List<String>? participants = _multisigFormKey
-                      .currentState
-                      ?.fields
-                      .keys
-                      .where(
-                        (element) =>
-                            element.startsWith('participant_') &&
-                            element != participantFieldId,
-                      )
-                      .map(
-                        (e) =>
-                            _multisigFormKey.currentState?.fields[e]?.value
-                                as String?,
-                      )
-                      .where((element) => element != null)
-                      .cast<String>()
-                      .toList();
-                  if (participants?.contains(value) ?? false) {
-                    return loc.multisig_participant_duplicated;
-                  }
-                }
-                return null;
-              },
-            ]),
-          ),
-        );
+        _participantControllers.add(TextEditingController());
       });
 
       // scroll to the bottom
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_participantFormFields.length > 1) {
+        if (_participantControllers.length > 1) {
           _mainScrollController.animateTo(
             _mainScrollController.position.maxScrollExtent,
             duration: Duration(milliseconds: AppDurations.animFast),
@@ -560,9 +499,9 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
   }
 
   void _removeParticipant() {
-    if (_participantFormFields.length > 1) {
+    if (_participantControllers.length > 1) {
       setState(() {
-        _participantFormFields.removeLast();
+        _participantControllers.removeLast().dispose();
       });
     }
   }
@@ -570,23 +509,13 @@ class _SetupMultisigDialogState extends ConsumerState<SetupMultisigDialog> {
   Future<void> _confirmMultisigSetup() async {
     if (_isPreparing) return;
 
-    if (_multisigFormKey.currentState?.saveAndValidate() ?? false) {
+    if (_multisigFormKey.currentState?.validate() ?? false) {
       final loc = ref.read(appLocalizationsProvider);
 
-      final threshold = int.parse(
-        (_multisigFormKey.currentState?.value['threshold'] as String).trim(),
-      );
-      final participants =
-          _multisigFormKey.currentState?.fields.keys
-                  .where((element) => element.startsWith('participant_'))
-                  .map(
-                    (e) =>
-                        _multisigFormKey.currentState?.fields[e]?.value
-                            as String,
-                  )
-                  .map((e) => e.trim())
-                  .toList()
-              as List<String>;
+      final threshold = int.parse(_thresholdController.text.trim());
+      final participants = _participantControllers
+          .map((controller) => controller.text.trim())
+          .toList();
 
       setState(() => _isPreparing = true);
 

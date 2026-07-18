@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
@@ -11,6 +9,7 @@ import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
+import 'package:genesix/shared/widgets/components/app_card.dart';
 
 class BurnReviewContent extends ConsumerWidget {
   const BurnReviewContent(this.transaction, {super.key});
@@ -28,10 +27,9 @@ class BurnReviewContent extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Card(
-            margin: const EdgeInsets.only(top: Spaces.medium),
-            child: Padding(
-              padding: const EdgeInsets.all(Spaces.medium),
+          Padding(
+            padding: const EdgeInsets.only(top: Spaces.medium),
+            child: AppCard(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -126,24 +124,16 @@ class BurnReviewContent extends ConsumerWidget {
             duration: const Duration(milliseconds: AppDurations.animFast),
             child: transaction.isBroadcasted
                 ? const SizedBox.shrink()
-                : FormBuilderCheckbox(
-                    name: 'confirm_burn',
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.only(top: Spaces.small),
-                      isDense: true,
-                      fillColor: Colors.transparent,
-                    ),
-                    title: Text(
+                : FCheckbox(
+                    value: transaction.isConfirmed,
+                    label: Text(
                       loc.burn_confirmation,
                       style: context.bodyMedium,
                     ),
-                    validator: FormBuilderValidators.required(
-                      errorText: loc.field_required_error,
-                    ),
-                    onChanged: (value) {
+                    onChange: (value) {
                       ref
                           .read(transactionReviewProvider.notifier)
-                          .setConfirmation(value as bool);
+                          .setConfirmation(value);
                     },
                   ),
           ),

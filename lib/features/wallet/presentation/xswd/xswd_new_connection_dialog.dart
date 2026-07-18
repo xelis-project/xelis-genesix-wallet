@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:go_router/go_router.dart';
@@ -20,7 +20,7 @@ class XswdNewConnectionDialog extends ConsumerWidget {
     final theme = context.theme;
     final loc = ref.watch(appLocalizationsProvider);
 
-    return FDialog(
+    return AppDialog(
       clipBehavior: Clip.antiAlias,
       animation: animation,
       constraints: const BoxConstraints(maxWidth: 600),
@@ -189,8 +189,9 @@ class _ConnectionMethodButton extends StatelessWidget {
     final theme = context.theme;
     final colors = theme.colors;
 
-    final cappedMq = context.mediaQueryData.copyWith(
-      textScaler: context.mediaQueryData.textScaler.clamp(
+    final mediaQuery = MediaQuery.of(context);
+    final cappedMq = mediaQuery.copyWith(
+      textScaler: mediaQuery.textScaler.clamp(
         minScaleFactor: 1.0,
         maxScaleFactor: 1.2,
       ),

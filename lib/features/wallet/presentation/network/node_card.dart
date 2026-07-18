@@ -49,7 +49,7 @@ class _NodeCardState extends ConsumerState<NodeCard> {
     List<NodeAddress> nodes = networkNodes.nodesFor(network);
     NodeAddress nodeAddress = networkNodes.addressFor(network);
 
-    return FCard.raw(
+    return FCard(
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(Spaces.medium),
@@ -152,7 +152,7 @@ class _NodeCardState extends ConsumerState<NodeCard> {
       context: context,
       side: FLayout.btt,
       useRootNavigator: true,
-      mainAxisMaxRatio: context.getFSheetRatio,
+      mainAxisMaxRatio: context.responsiveSheetMaxRatio,
       builder: (context) => AddNodeSheet(),
     );
   }
@@ -162,7 +162,7 @@ class _NodeCardState extends ConsumerState<NodeCard> {
       context: context,
       side: FLayout.btt,
       useRootNavigator: true,
-      mainAxisMaxRatio: context.getFSheetRatio,
+      mainAxisMaxRatio: context.responsiveSheetMaxRatio,
       builder: (context) => EditNodeSheet(nodeAddress),
     );
   }

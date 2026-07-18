@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_card.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
@@ -65,7 +66,7 @@ class _SignTransactionContentState
             AnimatedSize(
               duration: const Duration(milliseconds: AppDurations.animFast),
               curve: Curves.easeOut,
-              child: FCard(
+              child: AppCard(
                 clipBehavior: Clip.antiAlias,
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(minHeight: 160),

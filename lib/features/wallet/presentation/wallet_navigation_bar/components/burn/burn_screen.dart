@@ -238,7 +238,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
                 // Review button centered on wide screens
                 Row(
                   children: [
-                    if (context.isWideScreen) const Spacer(),
+                    if (context.isWideLayout) const Spacer(),
                     Expanded(
                       child: AsyncFButton(
                         isLoading: _isReviewing,
@@ -246,7 +246,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
                         child: Text(loc.review_burn),
                       ),
                     ),
-                    if (context.isWideScreen) const Spacer(),
+                    if (context.isWideLayout) const Spacer(),
                   ],
                 ),
               ],

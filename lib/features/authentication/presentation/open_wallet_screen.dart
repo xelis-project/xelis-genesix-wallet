@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_card.dart';
 import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
 import 'package:genesix/features/authentication/application/wallet_session_commands_provider.dart';
@@ -96,9 +97,9 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
           const AuthenticationStatusIndicators(),
           const SizedBox(height: Spaces.medium),
           Container(
-            width: context.mediaWidth * 0.9,
+            width: context.viewportWidth * 0.9,
             constraints: BoxConstraints(maxWidth: context.theme.breakpoints.sm),
-            child: FCard(
+            child: AppCard(
               clipBehavior: Clip.antiAlias,
               child: FutureBuilder(
                 future: wallets,

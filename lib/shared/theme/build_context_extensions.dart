@@ -2,71 +2,52 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import 'package:genesix/shared/theme/more_colors_old.dart';
 import 'package:go_router/go_router.dart';
 
-extension TypographyUtils on BuildContext {
-  TextTheme get textTheme => theme.toApproximateMaterialTheme().textTheme;
+/// Compatibility accessors for widgets that still use Material typography.
+///
+/// New Forui UI should use [theme] directly. This extension can disappear once
+/// the remaining Material surfaces have been migrated.
+extension MaterialThemeUtils on BuildContext {
+  TextTheme get _materialTextTheme =>
+      theme.toApproximateMaterialTheme().textTheme;
 
-  ColorScheme get colors => theme.toApproximateMaterialTheme().colorScheme;
+  TextStyle? get headlineSmall => _materialTextTheme.headlineSmall;
 
+  TextStyle? get titleMedium => _materialTextTheme.titleMedium;
+
+  TextStyle? get titleSmall => _materialTextTheme.titleSmall;
+
+  TextStyle? get labelLarge => _materialTextTheme.labelLarge;
+
+  TextStyle? get labelMedium => _materialTextTheme.labelMedium;
+
+  TextStyle? get labelSmall => _materialTextTheme.labelSmall;
+
+  TextStyle? get bodyLarge => _materialTextTheme.bodyLarge;
+
+  TextStyle? get bodyMedium => _materialTextTheme.bodyMedium;
+
+  TextStyle? get bodySmall => _materialTextTheme.bodySmall;
+}
+
+extension ScrollUtils on BuildContext {
   ScrollBehavior get scrollBehavior => ScrollConfiguration.of(this);
+}
 
+extension RouterUtils on BuildContext {
   GoRouterState get goRouterState => GoRouterState.of(this);
-
-  MoreColors get moreColors {
-    return Theme.of(this).extension<MoreColors>()!;
-  }
-
-  TextStyle? get displayLarge => textTheme.displayLarge;
-
-  TextStyle? get displayMedium => textTheme.displayMedium;
-
-  TextStyle? get displaySmall => textTheme.displaySmall;
-
-  TextStyle? get headlineLarge => textTheme.headlineLarge;
-
-  TextStyle? get headlineMedium => textTheme.headlineMedium;
-
-  TextStyle? get headlineSmall => textTheme.headlineSmall;
-
-  TextStyle? get titleLarge => textTheme.titleLarge;
-
-  TextStyle? get titleMedium => textTheme.titleMedium;
-
-  TextStyle? get titleSmall => textTheme.titleSmall;
-
-  TextStyle? get labelLarge => textTheme.labelLarge;
-
-  TextStyle? get labelMedium => textTheme.labelMedium;
-
-  TextStyle? get labelSmall => textTheme.labelSmall;
-
-  TextStyle? get bodyLarge => textTheme.bodyLarge;
-
-  TextStyle? get bodyMedium => textTheme.bodyMedium;
-
-  TextStyle? get bodySmall => textTheme.bodySmall;
 }
 
-extension DisplayUtils on BuildContext {
-  MediaQueryData get mediaQueryData => MediaQuery.of(this);
+extension ViewportUtils on BuildContext {
+  double get viewportWidth => MediaQuery.sizeOf(this).width;
 
-  Size get mediaSize => MediaQuery.sizeOf(this);
-
-  double get mediaWidth => mediaSize.width;
-
-  double get mediaHeight => mediaSize.height;
-
-  bool get isDarkMode {
-    final brightness = mediaQueryData.platformBrightness;
-    return brightness == Brightness.dark;
-  }
+  double get viewportHeight => MediaQuery.sizeOf(this).height;
 }
 
-extension FormFactorUtils on BuildContext {
-  bool get isWideScreen => mediaWidth >= theme.breakpoints.sm;
-  bool get isMobile => !isWideScreen;
+extension LayoutUtils on BuildContext {
+  bool get isWideLayout => viewportWidth >= theme.breakpoints.sm;
+  bool get isCompactLayout => !isWideLayout;
 
   double responsiveDialogMaxWidth({
     double compact = 420,
@@ -74,7 +55,7 @@ extension FormFactorUtils on BuildContext {
     double expanded = 720,
   }) {
     final breakpoints = theme.breakpoints;
-    final width = mediaWidth;
+    final width = viewportWidth;
 
     if (width < breakpoints.sm) return compact;
     if (width < breakpoints.lg) return medium;
@@ -94,37 +75,37 @@ extension FormFactorUtils on BuildContext {
       expanded: expanded,
     );
 
-    return math.min(maxWidth, math.max(min, mediaWidth * viewportRatio));
+    return math.min(maxWidth, math.max(min, viewportWidth * viewportRatio));
   }
 
   double responsiveDialogMaxHeight({
     double max = 560,
     double viewportRatio = 0.72,
   }) {
-    return math.min(max, mediaHeight * viewportRatio);
+    return math.min(max, viewportHeight * viewportRatio);
   }
 
-  double get getFSheetRatio {
+  double get responsiveSheetMaxRatio {
     final breakpoints = theme.breakpoints;
-    final width = mediaWidth;
+    final width = viewportWidth;
 
     if (width < breakpoints.sm) {
-      // mobile
+      // Compact layout.
       return 0.55;
     } else if (width < breakpoints.md) {
-      // small tablet
+      // Medium layout.
       return 0.50;
     } else if (width < breakpoints.lg) {
-      // tablet/large phone landscape
+      // Expanded layout.
       return 0.45;
     } else if (width < breakpoints.xl) {
-      // laptop/desktop
+      // Large layout.
       return 0.40;
     } else if (width < breakpoints.xl2) {
-      // very large screen
+      // Extra-large layout.
       return 0.36;
     } else {
-      // ultra wide
+      // Ultra-wide layout.
       return 0.33;
     }
   }

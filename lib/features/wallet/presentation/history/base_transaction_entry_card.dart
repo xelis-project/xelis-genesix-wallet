@@ -43,7 +43,7 @@ class _BaseTransactionEntryCardState
     final loc = ref.watch(appLocalizationsProvider);
     final theme = context.theme;
 
-    return FCard.raw(
+    return FCard(
       clipBehavior: Clip.antiAlias,
       child: ClipRRect(
         borderRadius: theme.style.borderRadius.md,

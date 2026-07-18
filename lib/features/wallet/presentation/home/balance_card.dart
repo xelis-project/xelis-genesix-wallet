@@ -51,7 +51,7 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
 
     final isMainnet = settings.network == Network.mainnet;
 
-    return FCard.raw(
+    return FCard(
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: EdgeInsets.all(Spaces.medium),

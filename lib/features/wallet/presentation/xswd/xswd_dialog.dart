@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
@@ -238,7 +239,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
       _syncTimerWithState(_ActionSet.okOnly);
       _detailsExpanded = false;
 
-      return FDialog(
+      return AppDialog(
         clipBehavior: Clip.antiAlias,
         animation: widget.animation,
         body: Center(
@@ -307,7 +308,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
         title = loc.app_disconnected.capitalize();
     }
 
-    return FDialog(
+    return AppDialog(
       clipBehavior: Clip.antiAlias,
       animation: widget.animation,
       constraints: const BoxConstraints(maxWidth: 700),
@@ -445,7 +446,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
   ) {
     showAppDialog<void>(
       context: context,
-      builder: (context, style, animation) => FDialog(
+      builder: (context, style, animation) => AppDialog(
         clipBehavior: Clip.antiAlias,
         style: style,
         animation: animation,

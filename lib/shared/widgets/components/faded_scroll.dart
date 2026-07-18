@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:genesix/shared/theme/build_context_extensions.dart';
 
 /// Fades the edges of a scrollable child and auto-hides fades
 /// at start/end using only a ScrollController.
@@ -103,7 +102,7 @@ class _FadedScrollState extends State<FadedScroll> with WidgetsBindingObserver {
     final p = widget.controller.position;
 
     // Use max of user epsilon and ~2 physical pixels converted to logical px.
-    final dpr = context.mediaQueryData.devicePixelRatio;
+    final dpr = MediaQuery.devicePixelRatioOf(context);
     final eps = max(widget.epsilon, 2.0 / dpr);
     final overflow = (p.maxScrollExtent - p.minScrollExtent) > eps;
 

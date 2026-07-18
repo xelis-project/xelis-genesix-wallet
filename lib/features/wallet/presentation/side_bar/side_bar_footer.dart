@@ -26,7 +26,7 @@ class _SideBarFooterState extends ConsumerState<SideBarFooter> {
         onTap: showAccountSheet,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: Spaces.medium),
-          child: FCard.raw(
+          child: FCard(
             clipBehavior: Clip.antiAlias,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -79,7 +79,7 @@ class _SideBarFooterState extends ConsumerState<SideBarFooter> {
       context: context,
       side: FLayout.btt,
       useRootNavigator: true,
-      mainAxisMaxRatio: context.getFSheetRatio,
+      mainAxisMaxRatio: context.responsiveSheetMaxRatio,
       builder: (context) => AccountSheet(),
     );
   }

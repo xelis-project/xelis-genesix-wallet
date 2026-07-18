@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_card.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/news/application/news_providers.dart';
 import 'package:genesix/features/news/domain/news_item.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -18,7 +20,7 @@ class LastNewsCard extends ConsumerWidget {
     final loc = ref.watch(appLocalizationsProvider);
     final newsAsync = ref.watch(visibleNewsProvider);
 
-    return FCard(
+    return AppCard(
       clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -404,7 +406,7 @@ class _NewsDetailsDialog extends ConsumerWidget {
     final link = item.primaryLink;
     final badgeVariant = _badgeVariantFor(item);
 
-    return FDialog(
+    return AppDialog(
       style: style,
       animation: animation,
       direction: Axis.horizontal,

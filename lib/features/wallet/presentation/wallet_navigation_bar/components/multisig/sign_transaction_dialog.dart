@@ -1,37 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
-import 'package:genesix/shared/theme/input_decoration_old.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/shared/widgets/components/generic_dialog_old.dart';
+import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 
 class SignTransactionDialog extends ConsumerStatefulWidget {
-  const SignTransactionDialog({super.key});
+  const SignTransactionDialog({
+    required this.style,
+    required this.animation,
+    super.key,
+  });
+
+  final FDialogStyle style;
+  final Animation<double> animation;
 
   @override
   ConsumerState createState() => _SignTransactionDialogState();
 }
 
 class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
-  final _signTransactionFormKey = GlobalKey<FormBuilderState>(
-    debugLabel: '_signFormKey',
-  );
+  final _signTransactionFormKey = GlobalKey<FormState>();
+  final _transactionController = TextEditingController();
 
   Future<String>? transactionSignature;
 
   @override
+  void dispose() {
+    _transactionController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    return GenericDialog(
-      scrollable: false,
+    return AppDialog(
+      style: widget.style,
+      animation: widget.animation,
       title: SizedBox(
         width: double.infinity,
         child: Row(
@@ -58,17 +68,19 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
                 right: Spaces.small,
                 top: Spaces.small,
               ),
-              child: IconButton(
-                onPressed: () {
+              child: FButton.icon(
+                variant: .ghost,
+                semanticsLabel: loc.close,
+                onPress: () {
                   context.pop();
                 },
-                icon: const Icon(FLucideIcons.x),
+                child: const Icon(FLucideIcons.x),
               ),
             ),
           ],
         ),
       ),
-      content: Container(
+      body: Container(
         constraints: BoxConstraints(maxWidth: 600),
         width: double.maxFinite,
         child: Column(
@@ -77,46 +89,35 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
             Text(
               loc.sign_transaction_dialog_message,
               style: context.bodyMedium!.copyWith(
-                color: context.moreColors.mutedColor,
+                color: context.theme.colors.mutedForeground,
               ),
             ),
             const SizedBox(height: Spaces.large),
-            FormBuilder(
+            Form(
               key: _signTransactionFormKey,
-              child: FormBuilderTextField(
-                name: 'transactionHash',
-                style: context.bodyMedium,
+              child: FTextFormField(
+                control: .managed(
+                  controller: _transactionController,
+                  onChange: (value) {
+                    if (value.text.isEmpty && transactionSignature != null) {
+                      setState(() => transactionSignature = null);
+                    }
+                  },
+                ),
                 autocorrect: false,
                 keyboardType: TextInputType.text,
-                decoration: context.textInputDecoration.copyWith(
-                  labelText: loc.transaction_hash,
-                  suffixIcon: IconButton(
-                    hoverColor: Colors.transparent,
-                    onPressed: () {
-                      _signTransactionFormKey
-                          .currentState
-                          ?.fields['transactionHash']
-                          ?.reset();
-                      setState(() {
-                        transactionSignature = null;
-                      });
-                    },
-                    icon: Icon(
-                      FLucideIcons.x,
-                      size: 18,
-                      color: context.moreColors.mutedColor,
-                    ),
-                  ),
-                ),
-                validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(
-                    errorText: loc.field_required_error,
-                  ),
-                  FormBuilderValidators.equalLength(
-                    64,
-                    errorText: loc.sign_transaction_formfield_error,
-                  ),
-                ]),
+                label: Text(loc.transaction_hash),
+                clearable: (value) => value.text.isNotEmpty,
+                validator: (value) {
+                  final hash = value?.trim() ?? '';
+                  if (hash.isEmpty) {
+                    return loc.field_required_error;
+                  }
+                  if (hash.length != 64) {
+                    return loc.sign_transaction_formfield_error;
+                  }
+                  return null;
+                },
               ),
             ),
             const SizedBox(height: Spaces.large),
@@ -132,13 +133,13 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
                         Text(
                           loc.error,
                           style: context.bodyMedium?.copyWith(
-                            color: context.colors.error,
+                            color: context.theme.colors.error,
                           ),
                         ),
                         Text(
                           (snapshot.error as AnyhowException).message,
                           style: context.bodyMedium?.copyWith(
-                            color: context.colors.error,
+                            color: context.theme.colors.error,
                           ),
                         ),
                       ],
@@ -154,17 +155,22 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
                             Text(
                               loc.signature,
                               style: context.bodyMedium!.copyWith(
-                                color: context.moreColors.mutedColor,
+                                color: context.theme.colors.mutedForeground,
                               ),
                             ),
-                            IconButton(
-                              onPressed: () => copyToClipboard(
-                                snapshot.requireData,
-                                ref,
-                                loc.copied,
+                            FTooltip(
+                              tipBuilder: (context, controller) =>
+                                  Text(loc.copy_signature),
+                              child: FButton.icon(
+                                variant: .ghost,
+                                semanticsLabel: loc.copy_signature,
+                                onPress: () => copyToClipboard(
+                                  snapshot.requireData,
+                                  ref,
+                                  loc.copied,
+                                ),
+                                child: const Icon(FLucideIcons.copy, size: 18),
                               ),
-                              icon: const Icon(FLucideIcons.copy, size: 18),
-                              tooltip: loc.copy_signature,
                             ),
                           ],
                         ),
@@ -181,25 +187,18 @@ class _SignTransactionDialogState extends ConsumerState<SignTransactionDialog> {
           ],
         ),
       ),
-      actions: [TextButton(onPressed: _signTransaction, child: Text(loc.sign))],
+      actions: [FButton(onPress: _signTransaction, child: Text(loc.sign))],
     );
   }
 
   Future<void> _signTransaction() async {
-    if (_signTransactionFormKey.currentState?.saveAndValidate() ?? false) {
-      final transactionHash =
-          _signTransactionFormKey.currentState?.value['transactionHash']
-              as String?;
-      if (transactionHash != null) {
-        try {
-          final future = ref
-              .read(walletCommandsProvider)
-              .signTransactionHash(transactionHash.trim());
-          setState(() {
-            transactionSignature = future;
-          });
-        } finally {}
-      }
+    if (_signTransactionFormKey.currentState?.validate() ?? false) {
+      final future = ref
+          .read(walletCommandsProvider)
+          .signTransactionHash(_transactionController.text.trim());
+      setState(() {
+        transactionSignature = future;
+      });
     }
   }
 }

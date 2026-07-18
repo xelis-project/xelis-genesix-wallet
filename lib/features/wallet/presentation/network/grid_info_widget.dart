@@ -66,7 +66,7 @@ class _GridInfoWidgetState extends State<GridInfoWidget>
     );
     final valueStyle = context.theme.typography.body.md;
 
-    return FCard.raw(
+    return FCard(
       clipBehavior: Clip.antiAlias,
       child: AnimatedBuilder(
         animation: _highlightOpacity,

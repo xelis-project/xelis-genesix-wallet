@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/widgets/components/app_card.dart';
 import 'package:genesix/features/authentication/application/wallet_session_commands_provider.dart';
 import 'package:genesix/features/authentication/domain/wallet_session_command_result.dart';
 import 'package:genesix/features/authentication/presentation/components/current_network_indicator.dart';
@@ -64,9 +65,9 @@ class _CreateWalletScreenState extends ConsumerState<CreateWalletScreen> {
           const AuthenticationStatusIndicators(),
           const SizedBox(height: Spaces.medium),
           Container(
-            width: context.mediaWidth * 0.9,
+            width: context.viewportWidth * 0.9,
             constraints: BoxConstraints(maxWidth: context.theme.breakpoints.sm),
-            child: FCard(
+            child: AppCard(
               clipBehavior: Clip.antiAlias,
               title: Text(loc.create_new_wallet),
               subtitle: Text(loc.create_new_wallet_subtitle),
