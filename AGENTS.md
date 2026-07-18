@@ -144,11 +144,15 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 
 ### Bugfix
 
-1. Reproduce or identify the failing behavior from source, logs, tests, or user evidence.
-2. Isolate the root cause before editing.
-3. Apply the minimal fix that addresses the root cause.
-4. Add or update focused tests when the risk justifies it.
-5. Validate the changed surface.
+1. Use the `systematic-diagnosis` skill for unresolved bugs, regressions, flaky behavior, or runtime-only failures.
+2. Record the observed behavior, expected behavior, relevant environment, and the tightest available reproduction signal.
+3. Trace the actual data and control path across local state, generated output, cache, remote sources, networking, FFI, and platform boundaries as applicable.
+4. Rank falsifiable hypotheses from the evidence and test one discriminating variable at a time.
+5. Isolate the root cause before corrective editing, or state the remaining uncertainty and the next evidence needed. Narrow diagnostic instrumentation is allowed when evidence cannot otherwise be obtained.
+6. If a fix is requested, apply the smallest change that addresses the root cause. A diagnosis-only request does not authorize a fix.
+7. Add or update focused tests when appropriate and in scope, then validate the changed surface and replay the original failure signal.
+8. Remove temporary diagnostic instrumentation before delivery and never expose secrets or sensitive wallet data in logs.
+9. After three failed interventions, stop patching and reassess the assumptions, data path, and architecture before trying again.
 
 ### Review
 
@@ -208,6 +212,7 @@ Project skills:
 
 - `repo-onboarding`: understand repository shape, dependencies, and validation entrypoints.
 - `implementation-planning`: produce decision-complete implementation plans.
+- `systematic-diagnosis`: investigate bugs and unexplained behavior through evidence, tracing, and falsifiable hypotheses before corrective changes.
 - `flutter-riverpod-change`: guide Flutter, Riverpod, routing, model, and UI changes.
 - `flutter-forui-ux-design`: guide UX/UI design for Flutter screens using Forui as the primary UI library.
 - `wallet-security-review`: review wallet, storage, signing, FFI, XSWD, logging, input, and dependency security risk.
