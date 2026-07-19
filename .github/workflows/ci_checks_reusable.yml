@@ -206,7 +206,7 @@ jobs:
         run: dart analyze ${{ inputs.dart_analyze_args }}
 
   rust-check:
-    name: Rust · Cargo Check
+    name: Rust · Check & Test
     needs:
       - changes
       - dart-analyze
@@ -238,3 +238,7 @@ jobs:
       - name: Cargo check
         working-directory: rust
         run: cargo check --locked
+
+      - name: Cargo test
+        working-directory: rust
+        run: cargo test --locked
