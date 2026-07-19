@@ -9,6 +9,27 @@ use xelis_common::config::XELIS_ASSET;
 use xelis_common::crypto::Hash;
 use xelis_common::serializer::Serializer;
 
+fn asset_metadata(asset_data: &AssetData) -> XelisAssetMetadata {
+    XelisAssetMetadata {
+        name: asset_data.get_name().to_owned(),
+        ticker: asset_data.get_ticker().to_owned(),
+        decimals: asset_data.get_decimals(),
+        max_supply: XelisMaxSupplyMode::from(asset_data.get_max_supply()),
+        owner: Some(XelisAssetOwner::from(asset_data.get_owner())),
+    }
+}
+
+fn asset_metadata_json(asset_data: &AssetData) -> Result<String> {
+    Ok(serde_json::to_string(&asset_metadata(asset_data))?)
+}
+
+fn resolve_asset_hash(asset_hash: Option<&str>) -> Result<Hash> {
+    match asset_hash {
+        Some(value) => Hash::from_hex(value).context("Invalid asset"),
+        None => Ok(XELIS_ASSET),
+    }
+}
+
 impl XelisWallet {
     pub async fn has_asset_balance(&self, asset: String) -> Result<bool> {
         let asset_hash = Hash::from_hex(&asset).context("Invalid asset")?;
@@ -56,19 +77,7 @@ impl XelisWallet {
             let (hash, asset_data) = res?;
 
             info!("Retrieving asset data for asset {}", hash);
-            let supply_mode_dto = XelisMaxSupplyMode::from(asset_data.get_max_supply());
-            let owner_dto = XelisAssetOwner::from(asset_data.get_owner());
-
-            let dto = XelisAssetMetadata {
-                name: asset_data.get_name().to_string(),
-                ticker: asset_data.get_ticker().to_string(),
-                decimals: asset_data.get_decimals(),
-                max_supply: supply_mode_dto,
-                owner: Some(owner_dto),
-            };
-
-            let json_str = serde_json::to_string(&dto)?;
-            assets.insert(hash.to_hex(), json_str);
+            assets.insert(hash.to_hex(), asset_metadata_json(&asset_data)?);
         }
 
         Ok(assets)
@@ -110,19 +119,7 @@ impl XelisWallet {
         let asset_hash = Hash::from_hex(&asset).context("Invalid asset")?;
         let asset_data = self.get_asset_data(&asset_hash).await?;
 
-        let owner_dto = XelisAssetOwner::from(asset_data.get_owner());
-        let supply_mode_dto = XelisMaxSupplyMode::from(asset_data.get_max_supply());
-
-        let dto = XelisAssetMetadata {
-            name: asset_data.get_name().to_string(),
-            ticker: asset_data.get_ticker().to_string(),
-            decimals: asset_data.get_decimals(),
-            max_supply: supply_mode_dto,
-            owner: Some(owner_dto),
-        };
-
-        let json_str = serde_json::to_string(&dto)?;
-        Ok(json_str)
+        asset_metadata_json(&asset_data)
     }
 
     pub async fn get_contract_logs(&self, tx_hash: String) -> Result<String> {
@@ -152,10 +149,7 @@ impl XelisWallet {
         atomic_amount: u64,
         asset_hash: Option<String>,
     ) -> Result<String> {
-        let asset = match asset_hash {
-            None => XELIS_ASSET,
-            Some(value) => Hash::from_hex(&value).context("Invalid asset")?,
-        };
+        let asset = resolve_asset_hash(asset_hash.as_deref())?;
 
         let data = self.get_asset_data(&asset).await?;
         Ok(xelis_common::utils::format_coin(
@@ -213,3 +207,6 @@ impl XelisWallet {
         Ok(asset_data)
     }
 }
+
+#[cfg(test)]
+mod tests;

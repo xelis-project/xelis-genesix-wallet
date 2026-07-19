@@ -14,6 +14,39 @@ use xelis_common::transaction::BurnPayload;
 use xelis_common::utils::format_coin;
 use xelis_wallet::error::WalletError;
 
+pub(super) fn encrypt_extra_data_or_default(value: Option<bool>) -> bool {
+    value.unwrap_or(true)
+}
+
+pub(super) fn amount_after_fee(
+    amount: u64,
+    fee: u64,
+    asset: &Hash,
+    insufficient_funds_context: &'static str,
+) -> Result<u64> {
+    if asset == &XELIS_ASSET {
+        amount.checked_sub(fee).context(insufficient_funds_context)
+    } else {
+        Ok(amount)
+    }
+}
+
+pub(super) fn build_transfer(
+    destination: Address,
+    amount: u64,
+    asset: Hash,
+    extra_data: Option<String>,
+    encrypt_extra_data: Option<bool>,
+) -> TransferBuilder {
+    TransferBuilder {
+        destination,
+        amount,
+        asset,
+        extra_data: extra_data.map(|value| DataElement::Value(DataValue::String(value))),
+        encrypt_extra_data: encrypt_extra_data_or_default(encrypt_extra_data),
+    }
+}
+
 impl XelisWallet {
     pub async fn estimate_fees(
         &self,
@@ -105,21 +138,13 @@ impl XelisWallet {
 
         let address = Address::from_string(&str_address).context("Invalid address")?;
 
-        let extra_data = match extra_data {
-            None => None,
-            Some(value) => Some(DataElement::Value(DataValue::String(value))),
-        };
-
-        let transfer = TransferBuilder {
-            destination: address.clone(),
+        let transfer = build_transfer(
+            address.clone(),
             amount,
-            asset: asset.clone(),
-            extra_data: extra_data.clone(),
-            encrypt_extra_data: match encrypt_extra_data {
-                Some(value) => value,
-                None => true,
-            },
-        };
+            asset.clone(),
+            extra_data.clone(),
+            encrypt_extra_data,
+        );
 
         let estimated_fees = self
             .wallet
@@ -131,23 +156,20 @@ impl XelisWallet {
             .await
             .context("Error while estimating fees")?;
 
-        if asset == XELIS_ASSET {
-            amount = amount
-                .checked_sub(estimated_fees)
-                .context("Insufficient balance for fees")?;
-        }
-
-        let transfer = TransferBuilder {
-            destination: address,
+        amount = amount_after_fee(
             amount,
-            asset: asset.clone(),
+            estimated_fees,
+            &asset,
+            "Insufficient balance for fees",
+        )?;
 
+        let transfer = build_transfer(
+            address,
+            amount,
+            asset.clone(),
             extra_data,
-            encrypt_extra_data: match encrypt_extra_data {
-                Some(value) => value,
-                None => true,
-            },
-        };
+            encrypt_extra_data,
+        );
 
         let transaction_type_builder = TransactionTypeBuilder::Transfers(vec![transfer]);
 
@@ -273,12 +295,13 @@ impl XelisWallet {
             .await
             .context("Error while estimating fees")?;
 
-        if asset == XELIS_ASSET {
-            amount = amount
-                .checked_sub(estimated_fees)
-                .context("Insufficient balance to pay burn transaction fees")?;
-            payload.amount = amount;
-        }
+        amount = amount_after_fee(
+            amount,
+            estimated_fees,
+            &asset,
+            "Insufficient balance to pay burn transaction fees",
+        )?;
+        payload.amount = amount;
 
         let transaction_type_builder = TransactionTypeBuilder::Burn(payload);
 
@@ -404,20 +427,13 @@ pub(super) async fn create_transfers(
             .context("Error while converting amount to atomic format")?;
 
         let address = Address::from_string(&transfer.str_address).context("Invalid address")?;
-
-        let transfer_builder = TransferBuilder {
-            destination: address,
+        let transfer_builder = build_transfer(
+            address,
             amount,
             asset,
-            extra_data: match transfer.extra_data {
-                None => None,
-                Some(value) => Some(DataElement::Value(DataValue::String(value))),
-            },
-            encrypt_extra_data: match transfer.encrypt_extra_data {
-                Some(value) => value,
-                None => true,
-            },
-        };
+            transfer.extra_data,
+            transfer.encrypt_extra_data,
+        );
 
         vec.push(transfer_builder);
     }
@@ -497,3 +513,6 @@ fn is_daemon_rejection(error: &anyhow::Error) -> bool {
         Some(JsonRPCError::ServerError { .. })
     )
 }
+
+#[cfg(test)]
+mod tests;

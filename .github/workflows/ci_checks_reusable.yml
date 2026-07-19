@@ -25,6 +25,7 @@ jobs:
       ai: ${{ steps.detect.outputs.ai }}
       dart: ${{ steps.detect.outputs.dart }}
       rust: ${{ steps.detect.outputs.rust }}
+      wallet_lifecycle: ${{ steps.detect.outputs.wallet_lifecycle }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -60,11 +61,13 @@ jobs:
             ai=false
             dart=false
             rust=false
+            wallet_lifecycle=false
             files="Merged pull request: checks already completed before merge"
           elif [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
             ai=true
             dart=true
             rust=true
+            wallet_lifecycle=true
             files="Manual run: all checks enabled"
           else
             if [[ "$EVENT_NAME" == "pull_request" ]]; then
@@ -78,6 +81,7 @@ jobs:
             ai=false
             dart=false
             rust=false
+            wallet_lifecycle=false
 
             while IFS= read -r file; do
               case "$file" in
@@ -85,9 +89,15 @@ jobs:
                   ai=true
                   dart=true
                   rust=true
+                  wallet_lifecycle=true
                   ;;
                 AGENTS.md|CLAUDE.md|.agents/*|.codex/*|.claude/*|.github/agents/*|.github/skills/*|.github/copilot-instructions.md|tool/validate_ai_guidelines.dart)
                   ai=true
+                  ;;
+                rust/Cargo.toml|rust/Cargo.lock|rust/src/api/wallet/runtime.rs|rust/tests/wallet_lifecycle.rs)
+                  dart=true
+                  rust=true
+                  wallet_lifecycle=true
                   ;;
                 rust/*)
                   dart=true
@@ -103,12 +113,14 @@ jobs:
           echo "ai=$ai" >> "$GITHUB_OUTPUT"
           echo "dart=$dart" >> "$GITHUB_OUTPUT"
           echo "rust=$rust" >> "$GITHUB_OUTPUT"
+          echo "wallet_lifecycle=$wallet_lifecycle" >> "$GITHUB_OUTPUT"
 
           {
             echo "### Affected checks"
             echo "- AI guidelines: $ai"
             echo "- Dart: $dart"
             echo "- Rust: $rust"
+            echo "- Wallet lifecycle smoke test: $wallet_lifecycle"
             echo ""
             echo "### Changed files"
             echo '```text'
@@ -242,3 +254,8 @@ jobs:
       - name: Cargo test
         working-directory: rust
         run: cargo test --locked
+
+      - name: Cargo test · Wallet lifecycle (slow)
+        if: needs.changes.outputs.wallet_lifecycle == 'true'
+        working-directory: rust
+        run: cargo test --locked --test wallet_lifecycle -- --ignored

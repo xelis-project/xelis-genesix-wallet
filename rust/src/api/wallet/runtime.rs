@@ -19,6 +19,11 @@ use xelis_wallet::wallet::{RecoverOption, Wallet};
 static CACHED_TABLES: Mutex<Option<PrecomputedTablesShared>> = Mutex::new(None);
 static MT_PARAMS: Mutex<Option<(usize, usize)>> = Mutex::new(None);
 
+fn mt_params_for_cpu_cores(cpu_cores: usize) -> (usize, usize) {
+    let thread_count = (cpu_cores.saturating_sub(2)).max(1).min(32);
+    (thread_count, thread_count * 4)
+}
+
 fn get_mt_params() -> (usize, usize) {
     let mut guard = MT_PARAMS.lock();
 
@@ -29,12 +34,44 @@ fn get_mt_params() -> (usize, usize) {
     let cpu_cores = thread::available_parallelism()
         .map(|p| p.get())
         .unwrap_or(1);
+    let params = mt_params_for_cpu_cores(cpu_cores);
 
-    let thread_count = (cpu_cores.saturating_sub(2)).max(1).min(32);
-    let concurrency = thread_count * 4;
+    *guard = Some(params);
+    params
+}
 
-    *guard = Some((thread_count, concurrency));
-    (thread_count, concurrency)
+fn resolve_wallet_path(name: &str, directory: &str) -> Result<String> {
+    if name.is_empty() {
+        if directory.is_empty() {
+            bail!("Either 'name' or 'directory' must be non-empty");
+        }
+
+        return Ok(directory.to_owned());
+    }
+
+    Ok(Path::new(directory)
+        .join(name)
+        .to_string_lossy()
+        .into_owned())
+}
+
+fn recover_option<'a>(seed: Option<&'a str>, private_key: Option<&'a str>) -> RecoverOption<'a> {
+    if let Some(seed) = seed {
+        RecoverOption::Seed(seed)
+    } else if let Some(private_key) = private_key {
+        RecoverOption::PrivateKey(private_key)
+    } else {
+        RecoverOption::None
+    }
+}
+
+fn precomputed_table_type_from_l1(size: usize) -> PrecomputedTableType {
+    match size {
+        precomputed_tables::L1_LOW => PrecomputedTableType::L1Low,
+        precomputed_tables::L1_MEDIUM => PrecomputedTableType::L1Medium,
+        precomputed_tables::L1_FULL => PrecomputedTableType::L1Full,
+        custom => PrecomputedTableType::Custom(custom),
+    }
 }
 
 pub(super) fn refresh_mt_params() {
@@ -88,14 +125,7 @@ pub(super) fn get_current_precomputed_tables_type() -> Result<PrecomputedTableTy
     };
     info!("Current precomputed tables L1 size: {}", size);
 
-    let table_type = match size {
-        precomputed_tables::L1_LOW => PrecomputedTableType::L1Low,
-        precomputed_tables::L1_MEDIUM => PrecomputedTableType::L1Medium,
-        precomputed_tables::L1_FULL => PrecomputedTableType::L1Full,
-        c => PrecomputedTableType::Custom(c),
-    };
-
-    Ok(table_type)
+    Ok(precomputed_table_type_from_l1(size))
 }
 
 pub(super) async fn create_xelis_wallet(
@@ -108,18 +138,7 @@ pub(super) async fn create_xelis_wallet(
     precomputed_tables_path: Option<String>,
     precomputed_table_type: PrecomputedTableType,
 ) -> Result<XelisWallet> {
-    // Build full wallet path: <directory>/<name>
-    let full_path = if name.is_empty() {
-        if directory.is_empty() {
-            bail!("Either 'name' or 'directory' must be non-empty");
-        }
-        directory.clone()
-    } else {
-        Path::new(&directory)
-            .join(&name)
-            .to_string_lossy()
-            .to_string()
-    };
+    let full_path = resolve_wallet_path(&name, &directory)?;
 
     let precomputed_tables_size = precomputed_table_type.to_l1_size()?;
 
@@ -148,14 +167,7 @@ pub(super) async fn create_xelis_wallet(
         }
     };
 
-    // Recover option (seed / private key / none)
-    let recover = if let Some(seed) = seed.as_deref() {
-        RecoverOption::Seed(seed)
-    } else if let Some(private_key) = private_key.as_deref() {
-        RecoverOption::PrivateKey(private_key)
-    } else {
-        RecoverOption::None
-    };
+    let recover = recover_option(seed.as_deref(), private_key.as_deref());
 
     let (thread_count, concurrency) = get_mt_params();
 
@@ -185,18 +197,7 @@ pub(super) async fn open_xelis_wallet(
     precomputed_tables_path: Option<String>,
     precomputed_table_type: PrecomputedTableType,
 ) -> Result<XelisWallet> {
-    // Build full wallet path: <directory>/<name>
-    let full_path = if name.is_empty() {
-        if directory.is_empty() {
-            bail!("Either 'name' or 'directory' must be non-empty");
-        }
-        directory.clone()
-    } else {
-        Path::new(&directory)
-            .join(&name)
-            .to_string_lossy()
-            .to_string()
-    };
+    let full_path = resolve_wallet_path(&name, &directory)?;
 
     let precomputed_tables_size = precomputed_table_type.to_l1_size()?;
 
@@ -311,3 +312,6 @@ impl XelisWallet {
         }
     }
 }
+
+#[cfg(test)]
+mod tests;

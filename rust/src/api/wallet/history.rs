@@ -10,6 +10,11 @@ use log::{info, warn};
 use serde_json::json;
 use xelis_common::tokio::sync::broadcast::error::RecvError;
 
+fn page_is_out_of_range(transaction_count: usize, page: usize, limit: usize) -> bool {
+    let max_pages = transaction_count / limit + usize::from(transaction_count % limit != 0);
+    page > max_pages
+}
+
 impl XelisWallet {
     pub async fn get_history_count(&self) -> Result<usize> {
         let storage = self.wallet.get_storage().read().await;
@@ -18,6 +23,7 @@ impl XelisWallet {
 
     pub async fn history(&self, filter: HistoryPageFilter) -> Result<Vec<String>> {
         let mut txs: Vec<String> = Vec::new();
+        let options = filter.options()?;
 
         let storage = self.wallet.get_storage().read().await;
 
@@ -29,23 +35,14 @@ impl XelisWallet {
         }
 
         if let Some(limit) = filter.limit {
-            if limit == 0 {
-                bail!("Limit cannot be 0");
-            }
-
-            let mut max_pages = txs_len / limit;
-            if txs_len % limit != 0 {
-                max_pages += 1;
-            }
-
-            if filter.page > max_pages {
+            if page_is_out_of_range(txs_len, filter.page, limit) {
                 info!("Page out of range");
 
                 return Ok(txs);
             }
         }
 
-        let transactions = storage.get_filtered_transactions(filter.options()?)?;
+        let transactions = storage.get_filtered_transactions(options)?;
 
         for tx in transactions {
             let transaction_entry = tx.serializable(self.wallet.get_network().is_mainnet());
@@ -127,3 +124,6 @@ impl XelisWallet {
             .context("Error while exporting transactions to CSV")
     }
 }
+
+#[cfg(test)]
+mod tests;

@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use anyhow::{Context, Result};
+use anyhow::{ensure, Context, Result};
 use flutter_rust_bridge::frb;
 
 use serde::{Deserialize, Serialize};
@@ -131,6 +131,11 @@ pub struct HistoryPageFilter {
 
 impl HistoryPageFilter {
     pub fn options<'a>(&'a self) -> Result<TransactionFilterOptions<'a>> {
+        ensure!(self.page > 0, "Page must be at least 1");
+        if let Some(limit) = self.limit {
+            ensure!(limit > 0, "Limit cannot be 0");
+        }
+
         let address = match self.address.as_ref() {
             Some(address) => {
                 let address = Address::from_string(&address).context("Invalid address")?;
@@ -165,7 +170,12 @@ impl HistoryPageFilter {
             min_timestamp: self.min_timestamp,
             max_timestamp: self.max_timestamp,
             skip: match self.limit {
-                Some(limit) => Some((self.page - 1) * limit),
+                Some(limit) => Some(
+                    self.page
+                        .checked_sub(1)
+                        .and_then(|page| page.checked_mul(limit))
+                        .context("Pagination offset is too large")?,
+                ),
                 None => None,
             },
             limit: self.limit,

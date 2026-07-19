@@ -19,15 +19,46 @@ use log::{info, warn};
 use serde_json::json;
 use xelis_common::api::daemon::{GetMultisigParams, GetMultisigResult, MultisigState};
 use xelis_common::api::wallet::BaseFeeMode;
-use xelis_common::api::{DataElement, DataValue};
 use xelis_common::config::XELIS_ASSET;
-use xelis_common::crypto::{Address, Hash, Hashable};
+use xelis_common::crypto::{Address, Hash, Hashable, PublicKey};
 use xelis_common::serializer::Serializer;
 use xelis_common::transaction::builder::{
-    FeeBuilder, MultiSigBuilder, TransactionTypeBuilder, TransferBuilder, UnsignedTransaction,
+    FeeBuilder, MultiSigBuilder, TransactionTypeBuilder, UnsignedTransaction,
 };
 use xelis_common::transaction::{BurnPayload, MultiSigPayload};
 use xelis_common::utils::format_coin;
+
+fn is_multisig_participant_address_valid(
+    address: &Address,
+    mainnet: bool,
+    wallet_public_key: &PublicKey,
+) -> bool {
+    address.is_normal()
+        && address.is_mainnet() == mainnet
+        && address.get_public_key() != wallet_public_key
+}
+
+fn parse_multisig_participants(
+    participants: Vec<String>,
+    mainnet: bool,
+    wallet_public_key: &PublicKey,
+) -> Result<IndexSet<Address>> {
+    let mut participant_addresses = IndexSet::with_capacity(participants.len());
+
+    for participant in participants {
+        let Ok(address) = Address::from_string(&participant) else {
+            bail!("Invalid multisig participant address");
+        };
+        if !is_multisig_participant_address_valid(&address, mainnet, wallet_public_key) {
+            bail!("Invalid multisig participant address");
+        }
+        if !participant_addresses.insert(address) {
+            bail!("A multisig participant was provided more than once");
+        }
+    }
+
+    Ok(participant_addresses)
+}
 
 impl XelisWallet {
     pub async fn create_multisig_transfers_transaction(
@@ -102,21 +133,13 @@ impl XelisWallet {
             Some(multisig) => {
                 let address = Address::from_string(&str_address).context("Invalid address")?;
 
-                let extra_data = match extra_data {
-                    None => None,
-                    Some(value) => Some(DataElement::Value(DataValue::String(value))),
-                };
-
-                let transfer = TransferBuilder {
-                    destination: address.clone(),
+                let transfer = transactions::build_transfer(
+                    address.clone(),
                     amount,
-                    asset: asset.clone(),
-                    extra_data: extra_data.clone(),
-                    encrypt_extra_data: match encrypt_extra_data {
-                        Some(value) => value,
-                        None => true,
-                    },
-                };
+                    asset.clone(),
+                    extra_data.clone(),
+                    encrypt_extra_data,
+                );
 
                 let estimated_fees = self
                     .wallet
@@ -128,22 +151,20 @@ impl XelisWallet {
                     .await
                     .context("Error while estimating fees")?;
 
-                if asset == XELIS_ASSET {
-                    amount = amount
-                        .checked_sub(estimated_fees)
-                        .context("Insufficient balance for fees")?;
-                }
-
-                let transfer = TransferBuilder {
-                    destination: address,
+                amount = transactions::amount_after_fee(
                     amount,
-                    asset: asset.clone(),
+                    estimated_fees,
+                    &asset,
+                    "Insufficient balance for fees",
+                )?;
+
+                let transfer = transactions::build_transfer(
+                    address,
+                    amount,
+                    asset.clone(),
                     extra_data,
-                    encrypt_extra_data: match encrypt_extra_data {
-                        Some(value) => value,
-                        None => true,
-                    },
-                };
+                    encrypt_extra_data,
+                );
 
                 let transaction_type_builder = TransactionTypeBuilder::Transfers(vec![transfer]);
 
@@ -261,12 +282,13 @@ impl XelisWallet {
                     .await
                     .context("Error while estimating fees")?;
 
-                if asset == XELIS_ASSET {
-                    amount = amount
-                        .checked_sub(estimated_fees)
-                        .context("Insufficient balance to pay burn transaction fees")?;
-                    payload.amount = amount;
-                }
+                amount = transactions::amount_after_fee(
+                    amount,
+                    estimated_fees,
+                    &asset,
+                    "Insufficient balance to pay burn transaction fees",
+                )?;
+                payload.amount = amount;
 
                 let transaction_type_builder = TransactionTypeBuilder::Burn(payload);
 
@@ -341,17 +363,11 @@ impl XelisWallet {
                 bail!("Multisig already configured");
             }
             None => {
-                let mut participant_addresses = IndexSet::with_capacity(participants.len());
-                for participant in participants {
-                    if !self.is_address_valid_for_multisig(participant.clone())? {
-                        bail!("Invalid multisig participant address");
-                    }
-
-                    let address = Address::from_string(&participant).context("Invalid address")?;
-                    if !participant_addresses.insert(address) {
-                        bail!("A multisig participant was provided more than once");
-                    }
-                }
+                let participant_addresses = parse_multisig_participants(
+                    participants,
+                    self.wallet.get_network().is_mainnet(),
+                    self.wallet.get_public_key(),
+                )?;
 
                 let payload = MultiSigBuilder {
                     participants: participant_addresses,
@@ -406,23 +422,12 @@ impl XelisWallet {
             }
         };
 
-        if !address.is_normal() {
-            warn!("Address is not normal");
-            return Ok(false);
-        }
-
         let mainnet = self.wallet.get_network().is_mainnet();
-        if address.is_mainnet() != mainnet {
-            warn!("Address is not from the same network");
-            return Ok(false);
-        }
-
-        if address.get_public_key() == self.wallet.get_public_key() {
-            warn!("Address is the same as the wallet address");
-            return Ok(false);
-        }
-
-        Ok(true)
+        Ok(is_multisig_participant_address_valid(
+            &address,
+            mainnet,
+            self.wallet.get_public_key(),
+        ))
     }
 
     pub async fn init_delete_multisig(&self) -> Result<MultisigSigningRequest> {
@@ -669,3 +674,6 @@ impl XelisWallet {
         Ok((unsigned, state))
     }
 }
+
+#[cfg(test)]
+mod tests;
