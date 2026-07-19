@@ -21,8 +21,8 @@ import 'package:genesix/features/wallet/presentation/network/network_content.dar
 import 'package:genesix/features/wallet/presentation/recovery_phrase/recovery_phrase_content.dart';
 import 'package:genesix/features/wallet/presentation/sign_transaction/sign_transaction_content.dart';
 import 'package:genesix/features/wallet/presentation/transaction_review/transaction_review_screen.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/burn/burn_screen.dart';
-import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transfer/transfer_screen.dart';
+import 'package:genesix/features/wallet/presentation/burn/burn_screen.dart';
+import 'package:genesix/features/wallet/presentation/transfer/transfer_screen.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_app_detail.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_content.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_qr_scanner_screen.dart';
