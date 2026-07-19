@@ -4,13 +4,42 @@ Persistent notes for future agents and maintainers. Use this file for durable
 technical context that is easy to forget, risky to rediscover by trial and
 error, and too specific for the general rules in `AGENTS.md`.
 
+This is not a glossary, architecture overview, task log, or general repository
+map. Put stable domain terminology in `DOMAIN_VOCABULARY.md`; keep ordinary
+workflow rules in `AGENTS.md` or the relevant skill.
+
 ## How To Use
 
 - Read this file when onboarding or before dependency, storage, security,
   platform, or migration work.
 - Keep entries short, dated, and tied to concrete files or packages.
 - Prefer facts, constraints, and migration warnings over meeting-style notes.
+- Add an entry only when rediscovering the fact would be costly or risky.
 - Remove or update entries when the underlying constraint no longer applies.
+
+## Architecture Transition
+
+### 2026-07-18 - Material-to-Forui modernization
+
+Genesix is actively moving from an experimental Material-era UI and provider
+architecture toward a production-oriented Forui architecture.
+
+Guidance:
+
+- Classify a touched surface as legacy, transitional, or aligned with the target
+  architecture before treating nearby code as precedent.
+- Existing Material code documents current behavior but is not automatically the
+  preferred pattern for new or materially refactored UI.
+- Prefer Forui and current shared wrappers for new work while keeping migrations
+  scoped to the requested surface. Do not turn a focused change into an
+  unrelated application-wide rewrite.
+- Preserve behavior, accessibility, localization, and mobile/desktop/web/native
+  constraints while modernizing a surface.
+
+Invalidation:
+
+- Update or remove this note when the Material-era migration is complete and
+  the target UI architecture is consistently represented across the repository.
 
 ## Secure Storage
 

@@ -29,9 +29,14 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
   - `**/*.g.dart`
   - `**/*.freezed.dart`
   - `lib/src/generated/**`
-- Durable project notes for agents live in `.agents/knowledge/PROJECT_NOTES.md`.
-  Read them during onboarding and before dependency, storage, security,
-  platform, or migration work.
+  - `rust/src/frb_generated.rs`
+- Stable domain terminology for agents lives in
+  `.agents/knowledge/DOMAIN_VOCABULARY.md`. Read it when a task crosses layers
+  or uses ambiguous wallet, runtime, node, daemon, storage, transaction, FFI,
+  or XSWD terms.
+- Exceptional durable constraints and migration warnings live in
+  `.agents/knowledge/PROJECT_NOTES.md`. Read them before dependency, storage,
+  security, platform, or migration work.
 
 ## Engineering Rules
 
@@ -43,7 +48,6 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 - Update documentation when behavior, workflow, architecture, or AI guidance changes.
 - Do not declare named functions inside other functions in Dart or Rust. Use private file-level helpers, private methods, or small private widgets/classes instead.
 - Anonymous closures are acceptable only for short callback glue. Extract non-trivial or reused logic.
-- Do not hand-edit generated files.
 - Before using a third-party package or crate API, read the installed version from `pubspec.yaml` or `Cargo.toml` and use compatible APIs.
 - If a requested solution requires a dependency upgrade, migration, or generated output refresh, state that explicitly.
 - `justfile` targets are developer shortcuts only. They are not the authoritative workflow for agents.
@@ -67,10 +71,13 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 - When model, provider, serializer, or route annotations change, regenerate builders and verify call sites.
 - Use typed GoRouter patterns already defined under `lib/features/router/**`.
 - Keep route extras and codecs consistent when adding transfer objects.
-- Prefer Forui for Flutter UI when it fits the existing feature.
+- Genesix UI is transitioning from experimental Material-era patterns to a production-oriented Forui architecture. Classify touched UI as legacy, transitional, or target architecture before copying nearby patterns.
+- Prefer Forui and current shared wrappers for new or materially refactored UI. Treat adjacent legacy Material code as evidence of current behavior, not automatically as the target pattern.
+- Keep Material-to-Forui migration scoped to the request; preserving legacy code temporarily is preferable to an unrelated broad rewrite.
 - For Forui API details and migration work, use the local-only snapshots under `.agents/references/forui/`.
 - Do not commit `.agents/references/forui/**`; these files are an ignored local cache of upstream Forui documentation.
-- Before any Forui dependency migration, run `dart run tool/sync_forui_docs.dart` after dependency resolution, then consult the refreshed snapshots.
+- Before any Forui dependency migration, review the [official Forui changelog](https://pub.dev/packages/forui/changelog) for breaking changes and migration notes.
+- After resolving a Forui dependency change, run `dart run tool/sync_forui_docs.dart`, then consult the refreshed snapshots.
 - When Forui API behavior is unclear, run `dart run tool/sync_forui_docs.dart` before relying on local snapshots; if network access is unavailable, state that and fall back to installed package source plus official changelog.
 - Reuse `lib/shared` components and utilities before creating variants.
 - When adding, renaming, modifying, or removing localization keys in `lib/l10n/*.arb`, update every locale ARB in the same change and keep key parity across all locales. Do not rely on generated fallback strings for missing locales.
@@ -86,7 +93,6 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 - Return explicit error context and avoid opaque failures.
 - Avoid panics in FFI-facing paths unless the condition is unrecoverable.
 - Any Rust API or FFI signature change must be mirrored through regenerated bridge code and Dart call-site updates.
-- Do not patch generated bridge files manually.
 
 ## Workflow
 
@@ -94,6 +100,7 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 
 - Confirm target files and current behavior from source.
 - Evaluate the net impact of non-trivial changes using the rules above.
+- For architecture, workflow, or public contract changes, assess AI-guidance impact and record whether `AGENTS.md`, skills, or knowledge documents need an update.
 - Inspect whether generated output is impacted.
 - Inspect relevant dependency versions when external package or crate APIs are involved.
 - Check for existing user changes and do not revert unrelated work.
@@ -165,12 +172,13 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 - Focus on omitted scope, incorrect behavior, bugs, regressions, security, correctness, missing validation, and maintainability risk.
 - If no issues are found, say so and mention residual risk, unverified outcomes, or test gaps.
 
-### Dart/Flutter UI Or State
+### Dart/Flutter Application Behavior
 
-- Use the `flutter-riverpod-change` skill.
+- Use the `flutter-riverpod-change` skill when changing providers, state, routing, repositories, models, serializers, generated annotations, or behavior-bearing widgets.
 - Inspect local provider, widget, and repository patterns first.
 - Prefer existing shared UI and feature-local conventions.
 - Regenerate builders when annotated Dart changes require it.
+- For UI design or review without state, routing, or data-flow changes, use `flutter-forui-ux-design` without adding `flutter-riverpod-change`.
 
 ### Flutter UX/UI Design
 
@@ -178,6 +186,7 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 - Treat Forui as the primary component library when it fits the task.
 - Start from the user workflow and information hierarchy before styling.
 - Preserve mobile, desktop, web, and native ergonomics.
+- Pair with `flutter-riverpod-change` only when the UI work also changes state, providers, routing, repositories, models, or data flow.
 - Use the `ui-ux-designer` subagent for design critique, UI audits, or non-blocking exploration of complex screens.
 
 ### Security-Sensitive Change
@@ -199,6 +208,7 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 - Keep `AGENTS.md` canonical.
 - Keep Claude, Codex, and Copilot adapters short and non-conflicting.
 - Prefer skills for reusable workflows and subagents for isolated or parallel work.
+- Treat new durable agent knowledge as a reviewable proposal, never as a silent self-update. Promote only source-backed, reusable facts with a clear scope and invalidation condition.
 - Update mirrors when canonical skills change.
 
 ## Skills
@@ -217,7 +227,7 @@ Project skills:
 - `repo-onboarding`: understand repository shape, dependencies, and validation entrypoints.
 - `implementation-planning`: produce decision-complete implementation plans.
 - `systematic-diagnosis`: investigate bugs and unexplained behavior through evidence, tracing, and falsifiable hypotheses before corrective changes.
-- `flutter-riverpod-change`: guide Flutter, Riverpod, routing, model, and UI changes.
+- `flutter-riverpod-change`: guide Dart/Flutter application behavior, Riverpod, routing, repository, model, serializer, and state changes.
 - `flutter-forui-ux-design`: guide UX/UI design for Flutter screens using Forui as the primary UI library.
 - `wallet-security-review`: review wallet, storage, signing, FFI, XSWD, logging, input, and dependency security risk.
 - `rust-ffi-change`: guide Rust, FFI, and bridge regeneration changes.

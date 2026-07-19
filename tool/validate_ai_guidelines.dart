@@ -1,6 +1,7 @@
 import 'dart:io';
 
 const _agentsDocument = 'AGENTS.md';
+const _domainVocabularyDocument = '.agents/knowledge/DOMAIN_VOCABULARY.md';
 const _defaultProjectDocumentLimit = 32 * 1024;
 const _canonicalSkillRoot = '.agents/skills';
 const _skillMirrorRoots = <String>['.claude/skills', '.github/skills'];
@@ -51,6 +52,7 @@ const _requiredGuidancePaths = <String>[
   _agentsDocument,
   'CLAUDE.md',
   '.github/copilot-instructions.md',
+  _domainVocabularyDocument,
   '.agents/knowledge/PROJECT_NOTES.md',
 ];
 
@@ -62,6 +64,7 @@ void main() {
   final agentNames = _validateAgentProfiles(failures);
   _validateAgentsDocument(skillNames, agentNames, failures);
   _validateAdapters(failures);
+  _validateLocalMarkdownLinks(_domainVocabularyDocument, failures);
   _validateStaleReferences(failures);
 
   if (failures.isNotEmpty) {
@@ -296,6 +299,130 @@ void _validateAdapters(List<String> failures) {
       failures.add('Tool adapter does not reference $_agentsDocument: $path');
     }
   }
+}
+
+void _validateLocalMarkdownLinks(String path, List<String> failures) {
+  final file = File(path);
+  if (!file.existsSync()) {
+    return;
+  }
+
+  final baseUri = file.absolute.uri.resolve('.');
+  final links = _markdownLinkDestinations(file.readAsStringSync());
+
+  for (final link in links) {
+    final uri = Uri.tryParse(link);
+    if (uri == null) {
+      failures.add('Invalid Markdown link in $path: $link');
+      continue;
+    }
+    if (uri.hasScheme || uri.hasAuthority || link.startsWith('#')) {
+      continue;
+    }
+
+    final target = link.split(RegExp(r'[?#]')).first;
+    if (target.isEmpty) {
+      continue;
+    }
+
+    String targetPath;
+    try {
+      targetPath = baseUri.resolve(target).toFilePath();
+    } on FormatException {
+      failures.add('Invalid local Markdown link in $path: $link');
+      continue;
+    } on UnsupportedError {
+      failures.add('Unsupported local Markdown link in $path: $link');
+      continue;
+    }
+    if (FileSystemEntity.typeSync(targetPath) ==
+        FileSystemEntityType.notFound) {
+      failures.add('Broken local Markdown link in $path: $link');
+    }
+  }
+}
+
+Set<String> _markdownLinkDestinations(String content) {
+  final links = <String>{};
+
+  for (var index = 0; index < content.length - 1; index++) {
+    if (content.codeUnitAt(index) != 0x5D ||
+        content.codeUnitAt(index + 1) != 0x28) {
+      continue;
+    }
+
+    var cursor = index + 2;
+    while (cursor < content.length &&
+        _isMarkdownWhitespace(content.codeUnitAt(cursor))) {
+      cursor++;
+    }
+    if (cursor >= content.length) {
+      continue;
+    }
+
+    final destination = StringBuffer();
+    var escaped = false;
+
+    if (content.codeUnitAt(cursor) == 0x3C) {
+      cursor++;
+      for (; cursor < content.length; cursor++) {
+        final codeUnit = content.codeUnitAt(cursor);
+        if (escaped) {
+          destination.writeCharCode(codeUnit);
+          escaped = false;
+        } else if (codeUnit == 0x5C) {
+          escaped = true;
+        } else if (codeUnit == 0x3E) {
+          if (destination.isNotEmpty) {
+            links.add(destination.toString());
+          }
+          break;
+        } else {
+          destination.writeCharCode(codeUnit);
+        }
+      }
+      continue;
+    }
+
+    var parenthesisDepth = 0;
+    for (; cursor < content.length; cursor++) {
+      final codeUnit = content.codeUnitAt(cursor);
+      if (escaped) {
+        destination.writeCharCode(codeUnit);
+        escaped = false;
+      } else if (codeUnit == 0x5C) {
+        escaped = true;
+      } else if (codeUnit == 0x28) {
+        parenthesisDepth++;
+        destination.writeCharCode(codeUnit);
+      } else if (codeUnit == 0x29) {
+        if (parenthesisDepth == 0) {
+          if (destination.isNotEmpty) {
+            links.add(destination.toString());
+          }
+          break;
+        }
+        parenthesisDepth--;
+        destination.writeCharCode(codeUnit);
+      } else if (_isMarkdownWhitespace(codeUnit) && parenthesisDepth == 0) {
+        if (destination.isNotEmpty) {
+          links.add(destination.toString());
+        }
+        break;
+      } else {
+        destination.writeCharCode(codeUnit);
+      }
+    }
+  }
+
+  return links;
+}
+
+bool _isMarkdownWhitespace(int codeUnit) {
+  return codeUnit == 0x20 ||
+      codeUnit == 0x09 ||
+      codeUnit == 0x0A ||
+      codeUnit == 0x0D;
 }
 
 void _validateStaleReferences(List<String> failures) {

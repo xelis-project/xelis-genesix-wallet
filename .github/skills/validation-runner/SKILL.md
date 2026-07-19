@@ -13,10 +13,11 @@ Use this skill to validate the relevant changed surface and determine whether th
 2. Extract the material acceptance criteria from the request or plan. For a bugfix, include the original failure signal.
 3. Map the changed files to the validation matrix in `AGENTS.md` and run required checks first.
 4. Verify that generated output, skill mirrors, bridge artifacts, localization output, or other coupled artifacts are current when the changed surface requires them.
-5. If a check fails, report the command, key error, relation to the change, likely cause, and next fix. Separate unrelated or pre-existing failures from regressions caused by the change.
-6. Run a completion gate against each material acceptance criterion using the strongest available evidence. Record the verdict as `satisfied`, `not satisfied`, or `not verified`, and label supporting evidence as `automated` or `manual` when available.
-7. Do not treat a successful command as proof of user-visible or contract behavior unless it directly exercises that outcome.
-8. Do not run broad expensive checks when a focused check gives enough confidence unless risk justifies it.
+5. For architecture, workflow, or public contract changes, confirm whether AI guidance or knowledge documents required an update and whether that decision is evidenced.
+6. If a check fails, report the command, key error, relation to the change, likely cause, and next fix. Separate unrelated or pre-existing failures from regressions caused by the change.
+7. Run a completion gate against each material acceptance criterion using the strongest available evidence. Record the verdict as `satisfied`, `not satisfied`, or `not verified`, and label supporting evidence as `automated` or `manual` when available.
+8. Do not treat a successful command as proof of user-visible or contract behavior unless it directly exercises that outcome.
+9. Do not run broad expensive checks when a focused check gives enough confidence unless risk justifies it.
 
 ## Common Commands
 

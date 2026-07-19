@@ -24,6 +24,15 @@ Use this skill when maintaining the repository AI guidance system.
 5. Sync mirrored skills after canonical skill changes.
 6. Keep subagent roles narrow and explicit.
 
+## Knowledge Promotion
+
+- Let agents propose durable learning as a normal reviewable diff; never let a task silently rewrite its own instructions.
+- Promote only source-backed knowledge that is reusable, repeatedly relevant, or costly or risky to rediscover.
+- Put universal invariants in `AGENTS.md`, procedures in skills, stable terms in `DOMAIN_VOCABULARY.md`, and exceptional or temporary constraints in `PROJECT_NOTES.md`.
+- Include the scope, evidence, and condition that would invalidate or retire the knowledge.
+- Reject speculative one-off observations and remove or update stale guidance when the underlying contract changes.
+- Apply normal human review, mirror synchronization, and validation before accepting promoted knowledge.
+
 ## Compatibility
 
 - Codex reads `AGENTS.md`, `.agents/skills`, and `.codex/agents`.

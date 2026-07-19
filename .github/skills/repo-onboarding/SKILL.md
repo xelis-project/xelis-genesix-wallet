@@ -10,11 +10,13 @@ Use this skill to build accurate local context before planning or editing.
 ## Workflow
 
 1. Read `AGENTS.md` first.
-2. Read `.agents/knowledge/PROJECT_NOTES.md` when present, especially before dependency, storage, security, platform, or migration work.
-3. Inspect task-relevant files instead of relying on memory.
-4. Check dependency versions in `pubspec.yaml` or `Cargo.toml` before using third-party APIs.
-5. Identify generated-file impact before proposing edits.
-6. Map the likely validation surface from the matrix in `AGENTS.md`.
+2. Read `.agents/knowledge/DOMAIN_VOCABULARY.md` when the task crosses layers or uses ambiguous wallet, runtime, node, daemon, storage, transaction, FFI, or XSWD terms.
+3. Read `.agents/knowledge/PROJECT_NOTES.md` before dependency, storage, security, platform, or migration work; treat it as exceptional durable context, not a repository overview.
+4. For UI or provider work, classify the touched surface as legacy, transitional, or target architecture before using neighboring code as precedent.
+5. Inspect task-relevant files instead of relying on the knowledge documents as API references.
+6. Check dependency versions in `pubspec.yaml` or `Cargo.toml` before using third-party APIs.
+7. Identify generated-file impact before proposing edits.
+8. Map the likely validation surface from the matrix in `AGENTS.md`.
 
 ## Repository Map
 
@@ -25,6 +27,8 @@ Use this skill to build accurate local context before planning or editing.
 - Rust bridge entry: `rust/src/lib.rs`
 - Rust API modules: `rust/src/api/**`
 - Generated bridge output: `lib/src/generated/**`
+- Stable domain terms: `.agents/knowledge/DOMAIN_VOCABULARY.md`
+- Exceptional durable constraints: `.agents/knowledge/PROJECT_NOTES.md`
 
 ## Output
 

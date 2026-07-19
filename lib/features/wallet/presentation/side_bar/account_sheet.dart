@@ -99,10 +99,10 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
               startWithBiometricAuth(
                 ref,
                 callback: (ref) {
-                  final walletSnapshot = ref.read(walletRuntimeProvider);
+                  final walletRuntimeState = ref.read(walletRuntimeProvider);
                   final wallets = ref.read(walletsProvider.notifier);
                   wallets
-                      .deleteWallet(walletSnapshot.name)
+                      .deleteWallet(walletRuntimeState.name)
                       .then(
                         (value) {
                           ref

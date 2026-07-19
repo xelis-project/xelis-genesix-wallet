@@ -33,6 +33,7 @@ Use this skill for review stance, not implementation stance.
 - The implementation matches the stated plan or explains intentional deviations.
 - Validation claims demonstrate the relevant outcome instead of only reporting successful commands.
 - Required generated, mirrored, localized, or cross-language artifacts are included.
+- Architecture, workflow, or public contract changes state their AI-guidance impact and update the relevant knowledge when required.
 
 ### Engineering Quality
 
@@ -41,5 +42,6 @@ Use this skill for review stance, not implementation stance.
 - Rust FFI signatures changed without regeneration.
 - Riverpod/Freezed annotations changed without build_runner.
 - Wallet lifecycle, storage, routing, or session ordering regressions.
+- New or materially refactored UI copies legacy Material or provider patterns without justification.
 - Complexity or API surface added without enough benefit.
 - Missing validation for the changed surface.

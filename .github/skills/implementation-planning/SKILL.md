@@ -7,6 +7,12 @@ description: Produce decision-complete implementation plans for Genesix changes.
 
 Use this skill to turn intent into a concrete implementation path.
 
+## Context
+
+- Read `.agents/knowledge/DOMAIN_VOCABULARY.md` for cross-layer plans or ambiguous domain terms, then verify behavior in the linked source.
+- Read `.agents/knowledge/PROJECT_NOTES.md` before dependency, storage, security, platform, or migration planning.
+- Use vocabulary terms consistently and include a vocabulary update when a planned contract change makes a definition stale.
+
 ## Plan Requirements
 
 Include:
@@ -15,7 +21,9 @@ Include:
 - Net impact: expected benefit, negative impact, complexity cost, regression risk, and simpler alternatives.
 - In-scope and out-of-scope behavior.
 - Files or subsystems likely to change.
+- Architecture maturity for affected UI/provider surfaces: legacy, transitional, or target, with an explicit migration boundary.
 - Data flow or API/interface changes.
+- AI-guidance and knowledge impact for architecture, workflow, or public contract changes.
 - Generated-code impact.
 - Validation commands from `AGENTS.md`.
 - Risks, compatibility concerns, and assumptions.

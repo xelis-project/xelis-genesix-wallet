@@ -1,6 +1,6 @@
 ---
 name: flutter-forui-ux-design
-description: Design and critique Genesix Flutter UX/UI using Forui as the primary component library. Use when creating or reviewing screens, workflows, responsive layouts, interaction states, empty/error/loading states, accessibility, visual hierarchy, or reusable UI patterns.
+description: Design and critique Genesix Flutter UX/UI using Forui as the primary component library. Use when creating, reviewing, or materially changing screens, workflows, responsive layouts, interaction states, accessibility, visual hierarchy, or reusable UI patterns; pair with flutter-riverpod-change only when state, routing, repository, model, or data-flow behavior also changes.
 ---
 
 # Flutter Forui UX Design
@@ -12,18 +12,15 @@ Use this skill before designing, reviewing, or materially changing Flutter UI.
 1. Start from the user task, not from visual decoration.
 2. Identify the primary action, secondary actions, destructive actions, and expected recovery paths.
 3. Map states before layout: loading, empty, populated, error, disabled, selected, pending, and offline when relevant.
-4. Inspect neighboring Genesix screens and shared widgets before introducing new UI patterns.
-5. Prefer Forui components when they fit the interaction.
-6. Keep business decisions outside widgets; pair this skill with `flutter-riverpod-change` when state or providers are involved.
+4. Classify the surface and neighboring examples as legacy, transitional, or target architecture before using them as precedent.
+5. Inspect current shared widgets before introducing new UI patterns.
+6. Prefer Forui components when they fit the interaction.
+7. Keep business decisions outside widgets; pair this skill with `flutter-riverpod-change` only when state, providers, routing, repositories, models, or data flow also change.
 
 ## Forui Documentation
 
-- Treat `.agents/references/forui/**` as an ignored local cache; do not commit these snapshots.
-- Before any Forui dependency migration, run `dart run tool/sync_forui_docs.dart` after dependency resolution.
-- When Forui API behavior is unclear, run `dart run tool/sync_forui_docs.dart` before using the snapshots; if network access is unavailable, state that and fall back to installed package source plus official changelog.
-- Use `.agents/references/forui/llms.txt` as the local Forui documentation index when present.
-- Use `.agents/references/forui/llms-full.txt` for current component APIs, examples, and migration context when present.
-- Check `https://pub.dev/packages/forui/changelog` for breaking changes when upgrading Forui.
+- Follow the Forui cache, synchronization, migration, and commit rules in `AGENTS.md`.
+- After synchronization, use `.agents/references/forui/llms.txt` as the index and `llms-full.txt` for component APIs and migration context when present.
 
 ## Design Rules
 
@@ -41,7 +38,7 @@ Use this skill before designing, reviewing, or materially changing Flutter UI.
 
 - Prefer composition with small private widgets over named local builder functions.
 - Keep text from overflowing buttons, cards, tiles, and navigation elements.
-- Verify localized strings in every `lib/l10n/*.arb` locale when editing user-facing copy, and keep ARB keys in parity across all locales.
+- Follow the localization parity rules in `AGENTS.md` when editing user-facing copy.
 - Use existing theme tokens and spacing patterns before adding new styling constants.
 - If the change affects navigation or state flow, validate the relevant routing/provider behavior.
 
