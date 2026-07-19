@@ -436,5 +436,13 @@
   "received": "Получено",
   "constructor": "Конструктор",
   "to_address": "Кому: {address}",
-  "to_contract_address": "К контракту: {address}"
+  "to_contract_address": "К контракту: {address}",
+  "multisig_signing_request": "Запрос подписи multisig",
+  "enter_multisig_signing_request": "Вставьте запрос подписи multisig",
+  "verified_multisig_request": "Проверенный запрос multisig",
+  "signature_share": "Доля подписи",
+  "wallet_not_multisig_participant": "Этот кошелёк не является участником этой мультиподписной конфигурации.",
+  "fee_limit": "Лимит комиссии",
+  "transaction_broadcast_confirmation": "Я проверил данные транзакции и хочу отправить её в сеть.",
+  "delete_multisig_confirmation": "Я понимаю, что отправка этой транзакции удалит конфигурацию multisig."
 }

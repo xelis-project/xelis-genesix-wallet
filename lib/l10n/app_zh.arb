@@ -436,5 +436,13 @@
   "received": "已接收",
   "constructor": "构造函数",
   "to_address": "至：{address}",
-  "to_contract_address": "至合约：{address}"
+  "to_contract_address": "至合约：{address}",
+  "multisig_signing_request": "多签签名请求",
+  "enter_multisig_signing_request": "粘贴多签签名请求",
+  "verified_multisig_request": "已验证的多签请求",
+  "signature_share": "签名份额",
+  "wallet_not_multisig_participant": "此钱包不是该多重签名配置的参与者。",
+  "fee_limit": "手续费上限",
+  "transaction_broadcast_confirmation": "我已核对交易详情，并希望广播此交易。",
+  "delete_multisig_confirmation": "我明白广播此交易将移除多签配置。"
 }

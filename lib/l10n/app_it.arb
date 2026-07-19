@@ -436,5 +436,13 @@
   "received": "Ricevuto",
   "constructor": "Costruttore",
   "to_address": "A: {address}",
-  "to_contract_address": "A contratto: {address}"
+  "to_contract_address": "A contratto: {address}",
+  "multisig_signing_request": "Richiesta di firma multisig",
+  "enter_multisig_signing_request": "Incolla la richiesta di firma multisig",
+  "verified_multisig_request": "Richiesta multisig verificata",
+  "signature_share": "Quota di firma",
+  "wallet_not_multisig_participant": "Questo wallet non partecipa a questa configurazione multisig.",
+  "fee_limit": "Limite commissione",
+  "transaction_broadcast_confirmation": "Ho verificato i dettagli della transazione e desidero trasmetterla.",
+  "delete_multisig_confirmation": "Comprendo che la trasmissione di questa transazione rimuoverà la configurazione multisig."
 }

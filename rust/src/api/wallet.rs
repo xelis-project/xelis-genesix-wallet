@@ -1,5 +1,6 @@
 use flutter_rust_bridge::frb;
 
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Write;
@@ -9,16 +10,17 @@ use std::thread;
 
 use super::precomputed_tables::{LogProgressTableGenerationReportFunction, PrecomputedTableType};
 use crate::frb_generated::StreamSink;
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{anyhow, bail, ensure, Context, Result};
 use indexmap::IndexSet;
 use log::{debug, error, info, warn};
 use parking_lot::{Mutex, RwLock};
 use serde_json::json;
+use xelis_common::api::daemon::{GetMultisigParams, GetMultisigResult, MultisigState};
 use xelis_common::api::wallet::BaseFeeMode;
 use xelis_common::api::{DataElement, DataValue};
 use xelis_common::asset::AssetData;
 use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
-use xelis_common::crypto::{Address, Hash, Hashable, Signature};
+use xelis_common::crypto::{Address, Hash, Hashable};
 use xelis_common::network::Network;
 use xelis_common::rpc::client::JsonRPCError;
 use xelis_common::serializer::Serializer;
@@ -26,9 +28,8 @@ use xelis_common::tokio::sync::broadcast::error::RecvError;
 use xelis_common::transaction::builder::{
     FeeBuilder, MultiSigBuilder, TransactionTypeBuilder, TransferBuilder, UnsignedTransaction,
 };
-use xelis_common::transaction::multisig::{MultiSig, SignatureId};
-use xelis_common::transaction::BurnPayload;
 pub use xelis_common::transaction::Transaction;
+use xelis_common::transaction::{BurnPayload, MultiSigPayload};
 use xelis_common::utils::format_coin;
 use xelis_wallet::error::WalletError;
 use xelis_wallet::precomputed_tables;
@@ -37,20 +38,28 @@ pub use xelis_wallet::transaction_builder::TransactionBuilderState;
 use xelis_wallet::wallet::{RecoverOption, Wallet};
 
 use super::models::wallet_dtos::{
-    HistoryPageFilter, MultisigDartPayload, ParticipantDartPayload, SignatureMultisig,
-    SummaryTransaction, Transfer, XelisAssetMetadata, XelisAssetOwner, XelisMaxSupplyMode,
+    HistoryPageFilter, MultisigDartPayload, MultisigSignatureShare, MultisigSigningRequest,
+    ParticipantDartPayload, SummaryTransaction, Transfer, XelisAssetMetadata, XelisAssetOwner,
+    XelisMaxSupplyMode,
 };
+use crate::multisig::{
+    build_verified_multisig, create_multisig_signature_share, create_multisig_signing_request,
+    parse_multisig_signature_share, parse_multisig_signing_request, validate_multisig_setup,
+    ParsedMultisigSigningRequest, PendingMultisigStore,
+};
+
+#[frb(ignore)]
+struct PendingMultisigTransaction {
+    unsigned: UnsignedTransaction,
+    state: TransactionBuilderState,
+    transaction_type: TransactionTypeBuilder,
+    configuration: MultiSigPayload,
+}
 
 pub struct XelisWallet {
     wallet: Arc<Wallet>,
     pending_transactions: RwLock<HashMap<Hash, (Transaction, TransactionBuilderState)>>,
-    pending_unsigned: RwLock<
-        Option<(
-            UnsignedTransaction,
-            TransactionBuilderState,
-            TransactionTypeBuilder,
-        )>,
-    >,
+    pending_multisig: RwLock<PendingMultisigStore<PendingMultisigTransaction>>,
 }
 
 static CACHED_TABLES: Mutex<Option<PrecomputedTablesShared>> = Mutex::new(None);
@@ -72,6 +81,29 @@ fn get_mt_params() -> (usize, usize) {
 
     *guard = Some((thread_count, concurrency));
     (thread_count, concurrency)
+}
+
+fn checked_atomic_amount(float_amount: f64, decimals: u8) -> Result<u64> {
+    ensure!(
+        float_amount.is_finite() && float_amount > 0.0,
+        "The amount must be a finite positive number"
+    );
+    let factor = 10u64
+        .checked_pow(decimals as u32)
+        .context("The asset decimal precision is unsupported")?;
+    let scaled = float_amount * factor as f64;
+    ensure!(
+        scaled.is_finite() && scaled < u64::MAX as f64,
+        "The amount is too large"
+    );
+    let rounded = scaled.round();
+    ensure!(
+        (scaled - rounded).abs() <= 1e-6,
+        "The amount has more decimal places than the asset supports"
+    );
+    let amount = rounded as u64;
+    ensure!(amount > 0, "The amount is below the smallest asset unit");
+    Ok(amount)
 }
 
 #[frb(sync)]
@@ -214,7 +246,7 @@ pub async fn create_xelis_wallet(
     Ok(XelisWallet {
         wallet: xelis_wallet,
         pending_transactions: RwLock::new(HashMap::new()),
-        pending_unsigned: RwLock::new(None),
+        pending_multisig: RwLock::new(PendingMultisigStore::default()),
     })
 }
 
@@ -274,7 +306,7 @@ pub async fn open_xelis_wallet(
     Ok(XelisWallet {
         wallet: xelis_wallet,
         pending_transactions: RwLock::new(HashMap::new()),
-        pending_unsigned: RwLock::new(None),
+        pending_multisig: RwLock::new(PendingMultisigStore::default()),
     })
 }
 
@@ -615,7 +647,7 @@ impl XelisWallet {
         &self,
         transfers: Vec<Transfer>,
         // TODO: add extra fee options
-    ) -> Result<String> {
+    ) -> Result<MultisigSigningRequest> {
         info!("Building transaction...");
 
         let multisig = {
@@ -642,15 +674,12 @@ impl XelisWallet {
                     )
                     .await?;
 
-                let hash = unsigned.get_hash_for_multisig().to_hex();
-
-                let mut pending_unsigned = self.pending_unsigned.write();
-
-                *pending_unsigned = Some((unsigned, state, transaction_type_builder));
-
-                info!("Unsigned transaction created: {}", hash);
-
-                Ok(hash)
+                self.store_pending_multisig_transaction(
+                    unsigned,
+                    state,
+                    transaction_type_builder,
+                    multisig.payload,
+                )
             }
             None => {
                 bail!("No multisig configured");
@@ -766,7 +795,7 @@ impl XelisWallet {
         extra_data: Option<String>,
         encrypt_extra_data: Option<bool>,
         // TODO: add extra fee options
-    ) -> Result<String> {
+    ) -> Result<MultisigSigningRequest> {
         info!("Building multisig transfer all transaction...");
 
         let asset = match asset_hash {
@@ -841,15 +870,12 @@ impl XelisWallet {
                     )
                     .await?;
 
-                let hash = unsigned.get_hash_for_multisig().to_hex();
-
-                let mut pending_unsigned = self.pending_unsigned.write();
-
-                *pending_unsigned = Some((unsigned, state, transaction_type_builder));
-
-                info!("Unsigned transaction created: {}", hash);
-
-                Ok(hash)
+                self.store_pending_multisig_transaction(
+                    unsigned,
+                    state,
+                    transaction_type_builder,
+                    multisig.payload,
+                )
             }
             None => {
                 bail!("No multisig configured");
@@ -876,7 +902,7 @@ impl XelisWallet {
                 .await
                 .context("Asset not found in storage")?
                 .get_decimals();
-            let amount: u64 = (float_amount * 10u32.pow(decimals as u32) as f64) as u64;
+            let amount = checked_atomic_amount(float_amount, decimals)?;
             (amount, decimals)
         };
 
@@ -924,7 +950,7 @@ impl XelisWallet {
         &self,
         float_amount: f64,
         asset_hash: String,
-    ) -> Result<String> {
+    ) -> Result<MultisigSigningRequest> {
         info!("Building burn transaction...");
 
         let asset = Hash::from_hex(&asset_hash).context("Invalid asset")?;
@@ -936,7 +962,7 @@ impl XelisWallet {
                 .await
                 .context("Asset not found in storage")?
                 .get_decimals();
-            let amount: u64 = (float_amount * 10u32.pow(decimals as u32) as f64) as u64;
+            let amount = checked_atomic_amount(float_amount, decimals)?;
             let multisig = storage
                 .get_multisig_state()
                 .await
@@ -963,15 +989,12 @@ impl XelisWallet {
                     )
                     .await?;
 
-                let hash = unsigned.get_hash_for_multisig().to_hex();
-
-                let mut pending_unsigned = self.pending_unsigned.write();
-
-                *pending_unsigned = Some((unsigned, state, transaction_type_builder));
-
-                info!("Unsigned transaction created: {}", hash);
-
-                Ok(hash)
+                self.store_pending_multisig_transaction(
+                    unsigned,
+                    state,
+                    transaction_type_builder,
+                    multisig.payload,
+                )
             }
             None => {
                 bail!("No multisig configured");
@@ -1010,7 +1033,9 @@ impl XelisWallet {
             .context("Error while estimating fees")?;
 
         if asset == XELIS_ASSET {
-            amount -= estimated_fees;
+            amount = amount
+                .checked_sub(estimated_fees)
+                .context("Insufficient balance to pay burn transaction fees")?;
             payload.amount = amount;
         }
 
@@ -1048,7 +1073,10 @@ impl XelisWallet {
     }
 
     // create a multisig transaction to burn all of an asset
-    pub async fn create_multisig_burn_all_transaction(&self, asset_hash: String) -> Result<String> {
+    pub async fn create_multisig_burn_all_transaction(
+        &self,
+        asset_hash: String,
+    ) -> Result<MultisigSigningRequest> {
         info!("Building burn all transaction...");
 
         let asset = Hash::from_hex(&asset_hash).context("Invalid asset")?;
@@ -1083,7 +1111,9 @@ impl XelisWallet {
                     .context("Error while estimating fees")?;
 
                 if asset == XELIS_ASSET {
-                    amount -= estimated_fees;
+                    amount = amount
+                        .checked_sub(estimated_fees)
+                        .context("Insufficient balance to pay burn transaction fees")?;
                     payload.amount = amount;
                 }
 
@@ -1097,15 +1127,12 @@ impl XelisWallet {
                     )
                     .await?;
 
-                let hash = unsigned.get_hash_for_multisig().to_hex();
-
-                let mut pending_unsigned = self.pending_unsigned.write();
-
-                *pending_unsigned = Some((unsigned, state, transaction_type_builder));
-
-                info!("Unsigned transaction created: {}", hash);
-
-                Ok(hash)
+                self.store_pending_multisig_transaction(
+                    unsigned,
+                    state,
+                    transaction_type_builder,
+                    multisig.payload,
+                )
             }
             None => {
                 bail!("No multisig configured");
@@ -1134,7 +1161,6 @@ impl XelisWallet {
         info!("start to broadcast tx: {}", tx_hash);
 
         if self.wallet.is_online().await {
-            let (tx, mut state) = self.clear_transaction(tx_hash.clone())?;
             let (storage_tx_version, storage_topoheight, storage_top_block_hash) = {
                 let storage = self.wallet.get_storage().read().await;
                 (
@@ -1143,6 +1169,7 @@ impl XelisWallet {
                     storage.get_top_block_hash()?,
                 )
             };
+            let (tx, mut state) = self.clear_transaction(tx_hash.clone())?;
 
             Self::log_transaction_context("Broadcasting pending transaction", &tx, &state);
             info!(
@@ -1378,6 +1405,8 @@ impl XelisWallet {
 
     pub async fn multisig_setup(&self, threshold: u8, participants: Vec<String>) -> Result<String> {
         info!("Setting up multisig...");
+        validate_multisig_setup(threshold, participants.len())?;
+
         let multisig = {
             let storage = self.wallet.get_storage().read().await;
             let multisig = storage
@@ -1394,8 +1423,14 @@ impl XelisWallet {
             None => {
                 let mut participant_addresses = IndexSet::with_capacity(participants.len());
                 for participant in participants {
+                    if !self.is_address_valid_for_multisig(participant.clone())? {
+                        bail!("Invalid multisig participant address");
+                    }
+
                     let address = Address::from_string(&participant).context("Invalid address")?;
-                    participant_addresses.insert(address);
+                    if !participant_addresses.insert(address) {
+                        bail!("A multisig participant was provided more than once");
+                    }
                 }
 
                 let payload = MultiSigBuilder {
@@ -1467,7 +1502,7 @@ impl XelisWallet {
     }
 
     // Initiate the delete multisig process
-    pub async fn init_delete_multisig(&self) -> Result<String> {
+    pub async fn init_delete_multisig(&self) -> Result<MultisigSigningRequest> {
         info!("Deleting multisig...");
         let multisig = {
             let storage = self.wallet.get_storage().read().await;
@@ -1495,15 +1530,12 @@ impl XelisWallet {
                     )
                     .await?;
 
-                let hash = unsigned.get_hash_for_multisig().to_hex();
-
-                let mut pending_unsigned = self.pending_unsigned.write();
-
-                *pending_unsigned = Some((unsigned, state, transaction_type_builder));
-
-                info!("Unsigned transaction created: {}", hash);
-
-                Ok(hash)
+                self.store_pending_multisig_transaction(
+                    unsigned,
+                    state,
+                    transaction_type_builder,
+                    multisig.payload,
+                )
             }
             None => bail!("No multisig configured"),
         }
@@ -1512,28 +1544,27 @@ impl XelisWallet {
     // finalize multisig by signing the transaction
     pub async fn finalize_multisig_transaction(
         &self,
-        signatures: Vec<SignatureMultisig>,
+        tx_hash: String,
+        signature_shares: Vec<String>,
     ) -> Result<String> {
-        let mut signature_ids = Vec::new();
-        for signature in signatures {
-            let id = signature.id;
-            let signature = Signature::from_hex(&signature.signature)
-                .context(format!("Invalid signature for id: {}", id))?;
-            signature_ids.push(SignatureId { id, signature });
-        }
-
-        let mut multisig = MultiSig::new();
-        for signature in signature_ids {
-            if !multisig.add_signature(signature) {
-                bail!("Invalid signature");
-            }
-        }
-
-        let (mut unsigned, state, transaction_type_builder) = self
-            .pending_unsigned
+        let expected_hash = Hash::from_hex(&tx_hash).context("Invalid multisig request hash")?;
+        let signatures = signature_shares
+            .iter()
+            .map(|share| parse_multisig_signature_share(share, &expected_hash))
+            .collect::<Result<Vec<_>>>()?;
+        let (pending, multisig) = self
+            .pending_multisig
             .write()
-            .take()
-            .ok_or_else(|| anyhow!("No unsigned transaction available"))?;
+            .take_validated(&expected_hash, |pending| {
+                build_verified_multisig(&expected_hash, &pending.configuration, &signatures)
+            })?;
+
+        let PendingMultisigTransaction {
+            mut unsigned,
+            state,
+            transaction_type: transaction_type_builder,
+            ..
+        } = pending;
 
         unsigned.set_multisig(multisig);
 
@@ -1552,11 +1583,127 @@ impl XelisWallet {
         .to_string())
     }
 
-    // Sign a multisig transaction
-    pub fn multisig_sign(&self, tx_hash: String) -> Result<String> {
-        let hash = Hash::from_hex(&tx_hash)?;
-        let signature = self.wallet.sign_data(hash.as_bytes());
-        Ok(signature.to_hex())
+    #[frb(sync)]
+    pub fn get_pending_multisig_request_hash(&self) -> Option<String> {
+        self.pending_multisig
+            .read()
+            .hash()
+            .map(|hash| hash.to_hex())
+    }
+
+    #[frb(sync)]
+    pub fn cancel_pending_multisig_request(&self, tx_hash: String) -> Result<()> {
+        let expected_hash = Hash::from_hex(&tx_hash).context("Invalid multisig request hash")?;
+        self.pending_multisig.write().cancel(&expected_hash)
+    }
+
+    pub async fn inspect_multisig_signing_request(
+        &self,
+        encoded: String,
+    ) -> Result<MultisigSigningRequest> {
+        let parsed = parse_multisig_signing_request(&encoded, *self.wallet.get_network())?;
+        let (threshold, participants, signer_id) =
+            self.resolve_multisig_signing_configuration(&parsed).await?;
+
+        Ok(parsed.into_request(threshold, participants, signer_id))
+    }
+
+    pub async fn sign_multisig_signing_request(
+        &self,
+        encoded: String,
+    ) -> Result<MultisigSignatureShare> {
+        let parsed = parse_multisig_signing_request(&encoded, *self.wallet.get_network())?;
+        let (_, _, signer_id) = self.resolve_multisig_signing_configuration(&parsed).await?;
+        let signer_id = signer_id.context(
+            "The opened wallet is not an authorized participant for this multisig request",
+        )?;
+        let signature = self.wallet.sign_data(parsed.hash.as_bytes());
+
+        create_multisig_signature_share(&parsed.hash, signer_id, signature)
+    }
+
+    fn store_pending_multisig_transaction(
+        &self,
+        unsigned: UnsignedTransaction,
+        state: TransactionBuilderState,
+        transaction_type: TransactionTypeBuilder,
+        configuration: MultiSigPayload,
+    ) -> Result<MultisigSigningRequest> {
+        let hash = unsigned.get_hash_for_multisig();
+        let request = create_multisig_signing_request(
+            &unsigned,
+            &transaction_type,
+            &configuration,
+            *self.wallet.get_network(),
+            self.wallet.get_keypair(),
+        )?;
+        self.pending_multisig.write().insert(
+            hash.clone(),
+            PendingMultisigTransaction {
+                unsigned,
+                state,
+                transaction_type,
+                configuration,
+            },
+        )?;
+
+        info!("Unsigned multisig transaction created: {}", hash);
+        Ok(request)
+    }
+
+    async fn resolve_multisig_signing_configuration(
+        &self,
+        request: &ParsedMultisigSigningRequest,
+    ) -> Result<(u8, Vec<ParticipantDartPayload>, Option<u8>)> {
+        let source = Address::from_string(&request.source)
+            .context("Invalid multisig signing request source")?;
+        let network_handler = self
+            .wallet
+            .get_network_handler()
+            .lock()
+            .await
+            .clone()
+            .context("The wallet must be online to verify a multisig signing request")?;
+        // The daemon's `get_multisig_at_topoheight` endpoint performs an exact
+        // version lookup. A transaction reference is not the configuration's
+        // activation topoheight, so use the latest configuration that consensus
+        // would apply when the transaction is submitted.
+        let result: GetMultisigResult = network_handler
+            .get_api()
+            .client()
+            .call_with(
+                "get_multisig",
+                &GetMultisigParams {
+                    address: Cow::Borrowed(&source),
+                },
+            )
+            .await
+            .context("Unable to verify the multisig configuration with the node")?;
+        let MultisigState::Active {
+            participants,
+            threshold,
+        } = result.state
+        else {
+            bail!("The multisig configuration was not active for this request");
+        };
+        validate_multisig_setup(threshold, participants.len())?;
+
+        let mut signer_id = None;
+        let participants = participants
+            .into_iter()
+            .enumerate()
+            .map(|(id, participant)| {
+                if participant.get_public_key() == self.wallet.get_public_key() {
+                    signer_id = Some(id as u8);
+                }
+                ParticipantDartPayload {
+                    id: id as u8,
+                    address: participant.to_string(),
+                }
+            })
+            .collect();
+
+        Ok((threshold, participants, signer_id))
     }
 
     // Private method to build an unsigned transaction
@@ -1635,8 +1782,7 @@ impl XelisWallet {
     async fn convert_float_amount(&self, float_amount: f64, asset: &Hash) -> Result<u64> {
         let storage = self.wallet.get_storage().read().await;
         let decimals = storage.get_asset(&asset).await?.get_decimals();
-        let amount = (float_amount * 10u32.pow(decimals as u32) as f64) as u64;
-        Ok(amount)
+        checked_atomic_amount(float_amount, decimals)
     }
 
     fn log_transaction_context(action: &str, tx: &Transaction, state: &TransactionBuilderState) {
@@ -1679,7 +1825,7 @@ impl XelisWallet {
                 info.top_block_hash,
                 info.mempool_size
             ),
-            Err(e) => warn!("{}: daemon context unavailable: {}", action, e),
+            Err(_) => warn!("{}: daemon context unavailable", action),
         }
     }
 
@@ -1696,5 +1842,31 @@ impl XelisWallet {
             error.downcast_ref::<JsonRPCError>(),
             Some(JsonRPCError::ServerError { .. })
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::checked_atomic_amount;
+
+    #[test]
+    fn atomic_amount_accepts_supported_decimal_precision() {
+        assert_eq!(checked_atomic_amount(1.25, 8).unwrap(), 125_000_000);
+        assert_eq!(checked_atomic_amount(0.1, 8).unwrap(), 10_000_000);
+    }
+
+    #[test]
+    fn atomic_amount_rejects_non_finite_and_non_positive_values() {
+        assert!(checked_atomic_amount(f64::NAN, 8).is_err());
+        assert!(checked_atomic_amount(f64::INFINITY, 8).is_err());
+        assert!(checked_atomic_amount(-1.0, 8).is_err());
+        assert!(checked_atomic_amount(0.0, 8).is_err());
+    }
+
+    #[test]
+    fn atomic_amount_rejects_out_of_range_or_excess_precision() {
+        assert!(checked_atomic_amount(f64::MAX, 8).is_err());
+        assert!(checked_atomic_amount(u64::MAX as f64, 0).is_err());
+        assert!(checked_atomic_amount(0.000_000_001, 8).is_err());
     }
 }

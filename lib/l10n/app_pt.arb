@@ -436,5 +436,13 @@
   "received": "Recebido",
   "constructor": "Construtor",
   "to_address": "Para: {address}",
-  "to_contract_address": "Para contrato: {address}"
+  "to_contract_address": "Para contrato: {address}",
+  "multisig_signing_request": "Pedido de assinatura multisig",
+  "enter_multisig_signing_request": "Cole o pedido de assinatura multisig",
+  "verified_multisig_request": "Pedido multisig verificado",
+  "signature_share": "Parcela de assinatura",
+  "wallet_not_multisig_participant": "Esta carteira não participa desta configuração multisig.",
+  "fee_limit": "Limite de taxa",
+  "transaction_broadcast_confirmation": "Revisei os detalhes da transação e quero transmiti-la.",
+  "delete_multisig_confirmation": "Entendo que transmitir esta transação removerá a configuração multisig."
 }

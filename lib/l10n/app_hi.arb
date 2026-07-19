@@ -436,5 +436,13 @@
   "received": "प्राप्त",
   "constructor": "कंस्ट्रक्टर",
   "to_address": "प्रति: {address}",
-  "to_contract_address": "कॉन्ट्रैक्ट को: {address}"
+  "to_contract_address": "कॉन्ट्रैक्ट को: {address}",
+  "multisig_signing_request": "मल्टीसिग हस्ताक्षर अनुरोध",
+  "enter_multisig_signing_request": "मल्टीसिग हस्ताक्षर अनुरोध पेस्ट करें",
+  "verified_multisig_request": "सत्यापित मल्टीसिग अनुरोध",
+  "signature_share": "हस्ताक्षर हिस्सा",
+  "wallet_not_multisig_participant": "यह वॉलेट इस मल्टीसिग कॉन्फ़िगरेशन में भागीदार नहीं है।",
+  "fee_limit": "शुल्क सीमा",
+  "transaction_broadcast_confirmation": "मैंने लेन-देन का विवरण जाँच लिया है और इसे प्रसारित करना चाहता हूँ।",
+  "delete_multisig_confirmation": "मैं समझता हूँ कि इस लेन-देन को प्रसारित करने से मल्टीसिग कॉन्फ़िगरेशन हट जाएगा।"
 }

@@ -436,5 +436,13 @@
   "received": "Received",
   "constructor": "Constructor",
   "to_address": "To: {address}",
-  "to_contract_address": "To Contract: {address}"
+  "to_contract_address": "To Contract: {address}",
+  "multisig_signing_request": "Multisig signing request",
+  "enter_multisig_signing_request": "Paste the multisig signing request",
+  "verified_multisig_request": "Verified multisig request",
+  "signature_share": "Signature share",
+  "wallet_not_multisig_participant": "This wallet is not a participant in this multisig configuration.",
+  "fee_limit": "Fee limit",
+  "transaction_broadcast_confirmation": "I have reviewed the transaction details and want to broadcast it.",
+  "delete_multisig_confirmation": "I understand that broadcasting this transaction will remove the multisig configuration."
 }

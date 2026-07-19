@@ -436,5 +436,13 @@
   "received": "Diterima",
   "constructor": "Pembina",
   "to_address": "Kepada: {address}",
-  "to_contract_address": "Kepada kontrak: {address}"
+  "to_contract_address": "Kepada kontrak: {address}",
+  "multisig_signing_request": "Permintaan tandatangan multisig",
+  "enter_multisig_signing_request": "Tampal permintaan tandatangan multisig",
+  "verified_multisig_request": "Permintaan multisig disahkan",
+  "signature_share": "Bahagian tandatangan",
+  "wallet_not_multisig_participant": "Dompet ini bukan peserta dalam konfigurasi multisig ini.",
+  "fee_limit": "Had yuran",
+  "transaction_broadcast_confirmation": "Saya telah menyemak butiran transaksi dan mahu menyiarkannya.",
+  "delete_multisig_confirmation": "Saya faham bahawa menyiarkan transaksi ini akan membuang konfigurasi multisig."
 }

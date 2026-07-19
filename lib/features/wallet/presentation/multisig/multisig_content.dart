@@ -5,6 +5,8 @@ import 'package:genesix/shared/widgets/components/app_card.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/multisig_pending_state_provider.dart';
+import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -221,7 +223,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
                     style: context.theme.typography.display.xl3,
                   ),
                   Text(
-                    'Review the current multisig configuration and participants.',
+                    loc.multisig_setup_confirmation_message,
                     style: context.theme.typography.body.sm.copyWith(
                       color: context.theme.colors.mutedForeground,
                     ),
@@ -287,7 +289,7 @@ class _ConfiguredMultisigView extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'Each entry below represents a wallet allowed to co-sign transactions.',
+                          loc.multisig_setup_message_1,
                           style: context.theme.typography.body.sm.copyWith(
                             color: context.theme.colors.mutedForeground,
                           ),
@@ -303,8 +305,22 @@ class _ConfiguredMultisigView extends StatelessWidget {
                 child: FButton(
                   variant: .destructive,
                   prefix: const Icon(FLucideIcons.trash),
-                  onPress: () {},
-                  child: Text(loc.delete_wallet.capitalizeAll()),
+                  onPress: () async {
+                    final commands = ref.read(walletCommandsProvider);
+                    final request = await commands.startDeleteMultisig();
+                    if (request == null) return;
+                    if (!context.mounted) {
+                      await commands.cancelPendingMultisigRequest(
+                        txHash: request.hash,
+                      );
+                      return;
+                    }
+                    ref
+                        .read(transactionReviewProvider.notifier)
+                        .signaturePending(request);
+                    await context.push(AuthAppScreen.transactionReview.toPath);
+                  },
+                  child: Text(loc.delete_multisig_configuration),
                 ),
               ),
             ],
@@ -415,17 +431,18 @@ class _EmptyMultisigCallToAction extends StatelessWidget {
           spacing: Spaces.smallMedium,
           children: [
             Text(
-              'Collaborative security for your wallet',
+              loc.multisig_setup_title,
               textAlign: textAlignment,
               style: titleStyle,
             ),
             Text(
-              'Upgrade this wallet into a coordinated multisig vault managed with your trusted participants.',
+              loc.multisig_setup_message_1,
               textAlign: textAlignment,
               style: bodyStyle,
             ),
             Text(
-              'Outgoing transfers will only execute once the signing threshold you define is satisfied.',
+              '${loc.multisig_setup_message_2}\n'
+              '${loc.multisig_setup_message_3}',
               textAlign: textAlignment,
               style: secondaryBodyStyle,
             ),
@@ -438,9 +455,9 @@ class _EmptyMultisigCallToAction extends StatelessWidget {
               ? WrapAlignment.start
               : WrapAlignment.center,
           children: [
-            featurePill(FLucideIcons.users, 'Shared custodians'),
-            featurePill(FLucideIcons.lock, 'Approval workflow'),
-            featurePill(FLucideIcons.history, 'Audit trail'),
+            featurePill(FLucideIcons.users, loc.participants),
+            featurePill(FLucideIcons.lock, loc.threshold),
+            featurePill(FLucideIcons.history, loc.history),
           ],
         ),
         Align(

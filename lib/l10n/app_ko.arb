@@ -436,5 +436,13 @@
   "received": "받음",
   "constructor": "생성자",
   "to_address": "받는 주소: {address}",
-  "to_contract_address": "받는 컨트랙트: {address}"
+  "to_contract_address": "받는 컨트랙트: {address}",
+  "multisig_signing_request": "멀티시그 서명 요청",
+  "enter_multisig_signing_request": "멀티시그 서명 요청을 붙여넣으세요",
+  "verified_multisig_request": "검증된 멀티시그 요청",
+  "signature_share": "서명 공유",
+  "wallet_not_multisig_participant": "이 지갑은 이 다중 서명 구성의 참여자가 아닙니다.",
+  "fee_limit": "수수료 한도",
+  "transaction_broadcast_confirmation": "거래 세부 정보를 검토했으며 이 거래를 전송하겠습니다.",
+  "delete_multisig_confirmation": "이 거래를 전송하면 멀티시그 구성이 삭제됨을 이해했습니다."
 }

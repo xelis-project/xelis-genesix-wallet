@@ -436,5 +436,13 @@
   "received": "تم الاستلام",
   "constructor": "المُنشئ",
   "to_address": "إلى: {address}",
-  "to_contract_address": "إلى العقد: {address}"
+  "to_contract_address": "إلى العقد: {address}",
+  "multisig_signing_request": "طلب توقيع متعدد التوقيعات",
+  "enter_multisig_signing_request": "الصق طلب التوقيع متعدد التوقيعات",
+  "verified_multisig_request": "طلب متعدد التوقيعات تم التحقق منه",
+  "signature_share": "حصة التوقيع",
+  "wallet_not_multisig_participant": "هذه المحفظة ليست مشاركًا في إعداد التوقيع المتعدد هذا.",
+  "fee_limit": "حد الرسوم",
+  "transaction_broadcast_confirmation": "لقد راجعت تفاصيل المعاملة وأرغب في بثها.",
+  "delete_multisig_confirmation": "أفهم أن بث هذه المعاملة سيزيل إعداد التوقيع المتعدد."
 }

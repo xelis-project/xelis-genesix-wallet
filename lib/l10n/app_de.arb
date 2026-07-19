@@ -436,5 +436,13 @@
   "received": "Empfangen",
   "constructor": "Konstruktor",
   "to_address": "An: {address}",
-  "to_contract_address": "An Contract: {address}"
+  "to_contract_address": "An Contract: {address}",
+  "multisig_signing_request": "Multisig-Signaturanfrage",
+  "enter_multisig_signing_request": "Multisig-Signaturanfrage einfügen",
+  "verified_multisig_request": "Verifizierte Multisig-Anfrage",
+  "signature_share": "Signaturanteil",
+  "wallet_not_multisig_participant": "Diese Wallet ist kein Teilnehmer dieser Multisig-Konfiguration.",
+  "fee_limit": "Gebührenlimit",
+  "transaction_broadcast_confirmation": "Ich habe die Transaktionsdetails geprüft und möchte die Transaktion senden.",
+  "delete_multisig_confirmation": "Ich verstehe, dass das Senden dieser Transaktion die Multisig-Konfiguration entfernt."
 }

@@ -37,6 +37,59 @@ pub struct SignatureMultisig {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "snake_case")]
+#[frb(dart_metadata=("freezed"))]
+pub enum MultisigSigningTransaction {
+    Transfers {
+        transfers: Vec<MultisigSigningTransfer>,
+    },
+    Burn {
+        asset: String,
+        amount: u64,
+    },
+    DeleteMultisig,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[frb(dart_metadata=("freezed"))]
+pub struct MultisigSigningTransfer {
+    pub amount: u64,
+    pub asset: String,
+    pub destination: String,
+    pub has_extra_data: bool,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[frb(dart_metadata=("freezed"))]
+pub struct MultisigSigningRequest {
+    /// Canonical request envelope to share with each participant.
+    pub encoded: String,
+    /// Hash recomputed from the canonical unsigned transaction.
+    pub hash: String,
+    pub source: String,
+    pub network: String,
+    pub fee: u64,
+    pub fee_limit: u64,
+    pub nonce: u64,
+    pub reference_topoheight: u64,
+    pub threshold: u8,
+    pub participants: Vec<ParticipantDartPayload>,
+    /// Present when the currently opened wallet is an authorized signer.
+    pub signer_id: Option<u8>,
+    pub transaction: MultisigSigningTransaction,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[frb(dart_metadata=("freezed"))]
+pub struct MultisigSignatureShare {
+    /// Canonical signature envelope to return to the request creator.
+    pub encoded: String,
+    pub request_hash: String,
+    pub signer_id: u8,
+    pub signature: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[frb(dart_metadata=("freezed"))]
 pub struct MultisigDartPayload {
     pub threshold: u8,

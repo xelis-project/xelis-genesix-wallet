@@ -436,5 +436,13 @@
   "received": "Получено",
   "constructor": "Конструктор",
   "to_address": "Към: {address}",
-  "to_contract_address": "Към договор: {address}"
+  "to_contract_address": "Към договор: {address}",
+  "multisig_signing_request": "Заявка за multisig подпис",
+  "enter_multisig_signing_request": "Поставете заявката за multisig подпис",
+  "verified_multisig_request": "Проверена multisig заявка",
+  "signature_share": "Дял от подписа",
+  "wallet_not_multisig_participant": "Този портфейл не е участник в тази конфигурация с множество подписи.",
+  "fee_limit": "Лимит на таксата",
+  "transaction_broadcast_confirmation": "Прегледах данните за транзакцията и искам да я излъча.",
+  "delete_multisig_confirmation": "Разбирам, че излъчването на тази транзакция ще премахне multisig конфигурацията."
 }

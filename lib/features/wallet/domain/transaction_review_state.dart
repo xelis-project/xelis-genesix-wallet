@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:genesix/features/wallet/domain/destination_address.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
 
 part 'transaction_review_state.freezed.dart';
 
@@ -13,7 +14,7 @@ sealed class TransactionReviewState with _$TransactionReviewState {
   const factory TransactionReviewState.signaturePending({
     @Default(false) bool isBroadcasted,
     @Default(false) bool isConfirmed,
-    required String hashToSign,
+    required MultisigSigningRequest request,
   }) = SignaturePending;
 
   const factory TransactionReviewState.singleTransferTransaction({

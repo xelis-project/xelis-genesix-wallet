@@ -487,7 +487,7 @@ class NativeWalletRepository {
     return TransactionSummary.fromJson(jsonTx);
   }
 
-  Future<String> createMultisigTransferTransaction({
+  Future<MultisigSigningRequest> createMultisigTransferTransaction({
     double? amount,
     required String address,
     required String assetHash,
@@ -520,7 +520,7 @@ class NativeWalletRepository {
     return TransactionSummary.fromJson(jsonTx);
   }
 
-  Future<String> createMultisigTransfersTransaction(
+  Future<MultisigSigningRequest> createMultisigTransfersTransaction(
     List<Transfer> transfers,
   ) async {
     return _xelisWallet.createMultisigTransfersTransaction(
@@ -545,7 +545,7 @@ class NativeWalletRepository {
     return TransactionSummary.fromJson(jsonTx);
   }
 
-  Future<String> createMultisigBurnTransaction({
+  Future<MultisigSigningRequest> createMultisigBurnTransaction({
     double? amount,
     required String assetHash,
   }) async {
@@ -582,8 +582,12 @@ class NativeWalletRepository {
     }
   }
 
-  Future<String> signTransactionHash(String txHash) async {
-    return _xelisWallet.multisigSign(txHash: txHash);
+  Future<MultisigSigningRequest> inspectMultisigSigningRequest(String encoded) {
+    return _xelisWallet.inspectMultisigSigningRequest(encoded: encoded);
+  }
+
+  Future<MultisigSignatureShare> signMultisigSigningRequest(String encoded) {
+    return _xelisWallet.signMultisigSigningRequest(encoded: encoded);
   }
 
   Future<TransactionSummary?> setupMultisig({
@@ -602,18 +606,28 @@ class NativeWalletRepository {
     return _xelisWallet.isAddressValidForMultisig(address: address);
   }
 
-  Future<String> initDeleteMultisig() async {
+  Future<MultisigSigningRequest> initDeleteMultisig() async {
     return _xelisWallet.initDeleteMultisig();
   }
 
   Future<TransactionSummary?> finalizeMultisigTransaction({
-    required List<SignatureMultisig> signatures,
+    required String txHash,
+    required List<String> signatureShares,
   }) async {
     final rawTx = await _xelisWallet.finalizeMultisigTransaction(
-      signatures: signatures,
+      txHash: txHash,
+      signatureShares: signatureShares,
     );
     final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
     return TransactionSummary.fromJson(jsonTx);
+  }
+
+  String? getPendingMultisigRequestHash() {
+    return _xelisWallet.getPendingMultisigRequestHash();
+  }
+
+  void cancelPendingMultisigRequest(String txHash) {
+    _xelisWallet.cancelPendingMultisigRequest(txHash: txHash);
   }
 
   Future<void> startXSWD({

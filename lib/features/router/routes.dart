@@ -20,6 +20,7 @@ import 'package:genesix/features/wallet/presentation/multisig/setup_multisig.dar
 import 'package:genesix/features/wallet/presentation/network/network_content.dart';
 import 'package:genesix/features/wallet/presentation/recovery_phrase/recovery_phrase_content.dart';
 import 'package:genesix/features/wallet/presentation/sign_transaction/sign_transaction_content.dart';
+import 'package:genesix/features/wallet/presentation/transaction_review/transaction_review_screen.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/burn/burn_screen.dart';
 import 'package:genesix/features/wallet/presentation/wallet_navigation_bar/components/transfer/transfer_screen.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_app_detail.dart';
@@ -308,6 +309,25 @@ class SetupMultisigRoute extends GoRouteData with $SetupMultisigRoute {
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
       SetupMultisig(),
+      state.pageKey,
+      state.fullPath,
+      state.extra,
+      AppDurations.animNormal,
+    );
+  }
+}
+
+@TypedGoRoute<TransactionReviewRoute>(
+  name: 'transaction_review',
+  path: '/transaction_review',
+)
+class TransactionReviewRoute extends GoRouteData with $TransactionReviewRoute {
+  const TransactionReviewRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return pageTransition(
+      const TransactionReviewScreen(),
       state.pageKey,
       state.fullPath,
       state.extra,

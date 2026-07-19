@@ -3,6 +3,7 @@ import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
 import 'package:genesix/shared/providers/provider_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -18,10 +19,8 @@ class TransactionReview extends _$TransactionReview {
     return TransactionReviewState.initial();
   }
 
-  void signaturePending(String transactionHashToSign) {
-    state = TransactionReviewState.signaturePending(
-      hashToSign: transactionHashToSign,
-    );
+  void signaturePending(MultisigSigningRequest request) {
+    state = TransactionReviewState.signaturePending(request: request);
   }
 
   void setSingleTransferTransaction(TransactionSummary transactionSummary) {
@@ -40,7 +39,6 @@ class TransactionReview extends _$TransactionReview {
     final formattedAmount = formatCoin(transfer.amount, decimals, ticker);
 
     state = TransactionReviewState.singleTransferTransaction(
-      isConfirmed: true,
       asset: asset,
       name: name,
       ticker: ticker,
@@ -84,7 +82,6 @@ class TransactionReview extends _$TransactionReview {
     }
 
     state = TransactionReviewState.deleteMultisigTransaction(
-      isConfirmed: true,
       fee: formatXelis(transactionSummary.fee, walletRepository.network),
       txHash: transactionSummary.hash,
     );
@@ -96,5 +93,9 @@ class TransactionReview extends _$TransactionReview {
 
   void broadcast() {
     state = state.copyWith(isBroadcasted: true);
+  }
+
+  void reset() {
+    state = const TransactionReviewState.initial();
   }
 }

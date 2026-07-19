@@ -124,14 +124,13 @@ class _SideBarState extends ConsumerState<SideBar> {
                 FSidebarItem(
                   selected: _selectedItem == AuthAppScreen.multisig.toPath,
                   label: Text(loc.multisig),
-                  // disable for pre-alpha
-                  onPress: null /*() {
+                  onPress: () {
                     _closeSideBar();
                     context.go(AuthAppScreen.multisig.toPath);
                     setState(() {
                       _selectedItem = AuthAppScreen.multisig.toPath;
                     });
-                  },*/,
+                  },
                 ),
                 FSidebarItem(
                   selected: _selectedItem == AuthAppScreen.burn.toPath,

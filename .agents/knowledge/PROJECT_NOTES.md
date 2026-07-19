@@ -41,6 +41,26 @@ Invalidation:
 - Update or remove this note when the Material-era migration is complete and
   the target UI architecture is consistently represented across the repository.
 
+## Multisig
+
+### 2026-07-19 - Confidential multisig transfer review
+
+Every amount displayed for a confidential multisig transfer must be bound to
+the exact sender ciphertext and source public key by a canonical
+`BalanceProof`. Parsing must reject a missing, reordered, non-canonical, or
+invalid proof; source attestation alone is not sufficient for cosigner review.
+
+The signing envelope must not serialize plaintext `extra_data`. Cosigners can
+verify and display its presence and the public destination, but encrypted
+contents remain private to the sender and destination.
+
+Source: `rust/src/multisig.rs`.
+
+Invalidation:
+
+- Re-evaluate this rule if the upstream transaction proof format or ciphertext
+  transcript changes.
+
 ## Secure Storage
 
 ### 2026-05-21 - `flutter_secure_storage` Android namespace migration

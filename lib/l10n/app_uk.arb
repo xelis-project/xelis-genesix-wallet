@@ -436,5 +436,13 @@
   "received": "Отримано",
   "constructor": "Конструктор",
   "to_address": "Кому: {address}",
-  "to_contract_address": "До контракту: {address}"
+  "to_contract_address": "До контракту: {address}",
+  "multisig_signing_request": "Запит на підпис multisig",
+  "enter_multisig_signing_request": "Вставте запит на підпис multisig",
+  "verified_multisig_request": "Перевірений запит multisig",
+  "signature_share": "Частка підпису",
+  "wallet_not_multisig_participant": "Цей гаманець не є учасником цієї конфігурації мультипідпису.",
+  "fee_limit": "Ліміт комісії",
+  "transaction_broadcast_confirmation": "Я перевірив дані транзакції та хочу надіслати її в мережу.",
+  "delete_multisig_confirmation": "Я розумію, що надсилання цієї транзакції видалить конфігурацію multisig."
 }

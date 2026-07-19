@@ -436,5 +436,13 @@
   "received": "受信済み",
   "constructor": "コンストラクター",
   "to_address": "宛先: {address}",
-  "to_contract_address": "コントラクト宛先: {address}"
+  "to_contract_address": "コントラクト宛先: {address}",
+  "multisig_signing_request": "マルチシグ署名リクエスト",
+  "enter_multisig_signing_request": "マルチシグ署名リクエストを貼り付けてください",
+  "verified_multisig_request": "検証済みマルチシグリクエスト",
+  "signature_share": "署名シェア",
+  "wallet_not_multisig_participant": "このウォレットはこのマルチシグ構成の参加者ではありません。",
+  "fee_limit": "手数料上限",
+  "transaction_broadcast_confirmation": "取引の詳細を確認し、この取引を送信します。",
+  "delete_multisig_confirmation": "この取引を送信するとマルチシグ設定が削除されることを理解しました。"
 }

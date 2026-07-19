@@ -436,5 +436,13 @@
   "received": "Otrzymano",
   "constructor": "Konstruktor",
   "to_address": "Do: {address}",
-  "to_contract_address": "Do kontraktu: {address}"
+  "to_contract_address": "Do kontraktu: {address}",
+  "multisig_signing_request": "Żądanie podpisu multisig",
+  "enter_multisig_signing_request": "Wklej żądanie podpisu multisig",
+  "verified_multisig_request": "Zweryfikowane żądanie multisig",
+  "signature_share": "Udział podpisu",
+  "wallet_not_multisig_participant": "Ten portfel nie jest uczestnikiem tej konfiguracji multisig.",
+  "fee_limit": "Limit opłaty",
+  "transaction_broadcast_confirmation": "Sprawdziłem szczegóły transakcji i chcę ją rozgłosić.",
+  "delete_multisig_confirmation": "Rozumiem, że rozgłoszenie tej transakcji usunie konfigurację multisig."
 }

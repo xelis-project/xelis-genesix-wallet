@@ -436,5 +436,13 @@
   "received": "Alındı",
   "constructor": "Constructor",
   "to_address": "Alıcı: {address}",
-  "to_contract_address": "Kontrat alıcısı: {address}"
+  "to_contract_address": "Kontrat alıcısı: {address}",
+  "multisig_signing_request": "Multisig imzalama isteği",
+  "enter_multisig_signing_request": "Multisig imzalama isteğini yapıştırın",
+  "verified_multisig_request": "Doğrulanmış multisig isteği",
+  "signature_share": "İmza payı",
+  "wallet_not_multisig_participant": "Bu cüzdan, bu çoklu imza yapılandırmasının katılımcısı değildir.",
+  "fee_limit": "Ücret limiti",
+  "transaction_broadcast_confirmation": "İşlem ayrıntılarını inceledim ve işlemi yayınlamak istiyorum.",
+  "delete_multisig_confirmation": "Bu işlemi yayınlamanın multisig yapılandırmasını kaldıracağını anlıyorum."
 }

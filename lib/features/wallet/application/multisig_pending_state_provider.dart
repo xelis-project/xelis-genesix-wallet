@@ -4,11 +4,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'multisig_pending_state_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class MultisigPendingState extends _$MultisigPendingState {
   @override
   bool build() {
-    ref.watch(walletRuntimeProvider.select((value) => value.multisigState));
+    ref.watch(
+      walletRuntimeProvider.select(
+        (value) =>
+            (value.name, value.address, value.network, value.multisigState),
+      ),
+    );
     return false;
   }
 

@@ -28,7 +28,7 @@ class WalletCommandsController {
 
   final Ref ref;
 
-  Future<(TransactionSummary?, String?)> send({
+  Future<(TransactionSummary?, MultisigSigningRequest?)> send({
     required double amount,
     required String destination,
     required String asset,
@@ -43,13 +43,13 @@ class WalletCommandsController {
 
     try {
       if (_runtimeState.multisigState.isSetup) {
-        final transactionHash = await repository
+        final signingRequest = await repository
             .createMultisigTransferTransaction(
               amount: amount,
               address: destination,
               assetHash: asset,
             );
-        return (null, transactionHash);
+        return (null, signingRequest);
       }
 
       final transactionSummary = await repository.createTransferTransaction(
@@ -58,24 +58,14 @@ class WalletCommandsController {
         assetHash: asset,
       );
       return (transactionSummary, null);
-    } on AnyhowException catch (error) {
-      _emitCommandError(
-        title: 'Cannot create transaction',
-        description: _extractXelisMessage(error),
-        logMessage: 'Cannot create transaction: $error',
-      );
-    } catch (error) {
-      _emitCommandError(
-        title: 'Cannot create transaction',
-        description: error.toString(),
-        logMessage: 'Cannot create transaction: $error',
-      );
+    } catch (_) {
+      _emitGenericCommandError(title: 'Cannot create transaction');
     }
 
     return (null, null);
   }
 
-  Future<(TransactionSummary?, String?)> sendAll({
+  Future<(TransactionSummary?, MultisigSigningRequest?)> sendAll({
     required String destination,
     required String asset,
   }) async {
@@ -89,12 +79,12 @@ class WalletCommandsController {
 
     try {
       if (_runtimeState.multisigState.isSetup) {
-        final transactionHash = await repository
+        final signingRequest = await repository
             .createMultisigTransferTransaction(
               address: destination,
               assetHash: asset,
             );
-        return (null, transactionHash);
+        return (null, signingRequest);
       }
 
       final transactionSummary = await repository.createTransferTransaction(
@@ -102,24 +92,14 @@ class WalletCommandsController {
         assetHash: asset,
       );
       return (transactionSummary, null);
-    } on AnyhowException catch (error) {
-      _emitCommandError(
-        title: 'Cannot create transaction',
-        description: _extractXelisMessage(error),
-        logMessage: 'Cannot create transaction: $error',
-      );
-    } catch (error) {
-      _emitCommandError(
-        title: 'Cannot create transaction',
-        description: error.toString(),
-        logMessage: 'Cannot create transaction: $error',
-      );
+    } catch (_) {
+      _emitGenericCommandError(title: 'Cannot create transaction');
     }
 
     return (null, null);
   }
 
-  Future<(TransactionSummary?, String?)> burn({
+  Future<(TransactionSummary?, MultisigSigningRequest?)> burn({
     required double amount,
     required String asset,
   }) async {
@@ -133,11 +113,11 @@ class WalletCommandsController {
 
     try {
       if (_runtimeState.multisigState.isSetup) {
-        final transactionHash = await repository.createMultisigBurnTransaction(
+        final signingRequest = await repository.createMultisigBurnTransaction(
           amount: amount,
           assetHash: asset,
         );
-        return (null, transactionHash);
+        return (null, signingRequest);
       }
 
       final transactionSummary = await repository.createBurnTransaction(
@@ -145,24 +125,14 @@ class WalletCommandsController {
         assetHash: asset,
       );
       return (transactionSummary, null);
-    } on AnyhowException catch (error) {
-      _emitCommandError(
-        title: 'Cannot create transaction',
-        description: _extractXelisMessage(error),
-        logMessage: 'Cannot create transaction: $error',
-      );
-    } catch (error) {
-      _emitCommandError(
-        title: 'Cannot create transaction',
-        description: error.toString(),
-        logMessage: 'Cannot create transaction: $error',
-      );
+    } catch (_) {
+      _emitGenericCommandError(title: 'Cannot create transaction');
     }
 
     return (null, null);
   }
 
-  Future<(TransactionSummary?, String?)> burnAll({
+  Future<(TransactionSummary?, MultisigSigningRequest?)> burnAll({
     required String asset,
   }) async {
     final repository = _repository;
@@ -175,37 +145,33 @@ class WalletCommandsController {
 
     try {
       if (_runtimeState.multisigState.isSetup) {
-        final transactionHash = await repository.createMultisigBurnTransaction(
+        final signingRequest = await repository.createMultisigBurnTransaction(
           assetHash: asset,
         );
-        return (null, transactionHash);
+        return (null, signingRequest);
       }
 
       final transactionSummary = await repository.createBurnTransaction(
         assetHash: asset,
       );
       return (transactionSummary, null);
-    } on AnyhowException catch (error) {
-      _emitCommandError(
-        title: 'Cannot create transaction',
-        description: _extractXelisMessage(error),
-        logMessage: 'Cannot create transaction: $error',
-      );
-    } catch (error) {
-      _emitCommandError(
-        title: 'Cannot create transaction',
-        description: error.toString(),
-        logMessage: 'Cannot create transaction: $error',
-      );
+    } catch (_) {
+      _emitGenericCommandError(title: 'Cannot create transaction');
     }
 
     return (null, null);
   }
 
-  Future<void> cancelTransaction({required String hash}) async {
+  Future<bool> cancelTransaction({required String hash}) async {
     final repository = _repository;
-    if (repository != null) {
+    if (repository == null) return false;
+
+    try {
       await repository.clearTransaction(hash);
+      return true;
+    } catch (error) {
+      talker.warning('Cannot clear pending transaction: $error');
+      return false;
     }
   }
 
@@ -310,18 +276,8 @@ class WalletCommandsController {
         participants: participants,
         threshold: threshold,
       );
-    } on AnyhowException catch (error) {
-      _emitCommandError(
-        title: 'Cannot setup multisig',
-        description: _extractXelisMessage(error),
-        logMessage: 'Cannot setup multisig: $error',
-      );
-    } catch (error) {
-      _emitCommandError(
-        title: 'Cannot setup multisig',
-        description: error.toString(),
-        logMessage: 'Cannot setup multisig: $error',
-      );
+    } catch (_) {
+      _emitGenericCommandError(title: 'Cannot setup multisig');
     }
 
     return null;
@@ -335,7 +291,7 @@ class WalletCommandsController {
     return repository.isAddressValidForMultisig(address);
   }
 
-  Future<String?> startDeleteMultisig() async {
+  Future<MultisigSigningRequest?> startDeleteMultisig() async {
     final repository = _repository;
     if (repository == null) {
       return null;
@@ -346,26 +302,57 @@ class WalletCommandsController {
 
     try {
       return await repository.initDeleteMultisig();
-    } on AnyhowException catch (error) {
-      _emitCommandError(
-        title: 'Cannot start delete multisig',
-        description: _extractXelisMessage(error),
-        logMessage: 'Cannot start delete multisig: $error',
-      );
-    } catch (error) {
-      _emitCommandError(
-        title: 'Cannot start delete multisig',
-        description: error.toString(),
-        logMessage: 'Cannot start delete multisig: $error',
-      );
+    } catch (_) {
+      _emitGenericCommandError(title: 'Cannot start delete multisig');
     }
 
     return null;
   }
 
   Future<TransactionSummary?> finalizeMultisigTransaction({
-    required List<SignatureMultisig> signatures,
+    required String txHash,
+    required List<String> signatureShares,
   }) async {
+    final repository = _repository;
+    if (repository == null) {
+      return null;
+    }
+
+    try {
+      return await repository.finalizeMultisigTransaction(
+        txHash: txHash,
+        signatureShares: signatureShares,
+      );
+    } catch (_) {
+      _emitGenericCommandError(title: 'Cannot finalize multisig transaction');
+    }
+
+    return null;
+  }
+
+  String? getPendingMultisigRequestHash() {
+    return _repository?.getPendingMultisigRequestHash();
+  }
+
+  Future<bool> cancelPendingMultisigRequest({required String txHash}) async {
+    final repository = _repository;
+    if (repository == null) {
+      return false;
+    }
+
+    try {
+      repository.cancelPendingMultisigRequest(txHash);
+      return true;
+    } catch (_) {
+      _emitGenericCommandError(title: 'Cannot cancel multisig request');
+    }
+
+    return false;
+  }
+
+  Future<MultisigSigningRequest?> inspectMultisigSigningRequest(
+    String encoded,
+  ) async {
     final repository = _repository;
     if (repository == null) {
       return null;
@@ -375,49 +362,32 @@ class WalletCommandsController {
     }
 
     try {
-      return await repository.finalizeMultisigTransaction(
-        signatures: signatures,
-      );
-    } on AnyhowException catch (error) {
-      _emitCommandError(
-        title: 'Cannot finalize delete multisig',
-        description: _extractXelisMessage(error),
-        logMessage: 'Cannot finalize delete multisig: $error',
-      );
-    } catch (error) {
-      _emitCommandError(
-        title: 'Cannot finalize delete multisig',
-        description: error.toString(),
-        logMessage: 'Cannot finalize delete multisig: $error',
-      );
+      return await repository.inspectMultisigSigningRequest(encoded);
+    } catch (_) {
+      _emitGenericCommandError(title: 'Cannot inspect multisig request');
     }
 
     return null;
   }
 
-  Future<String> signTransactionHash(String transactionHash) async {
+  Future<MultisigSignatureShare?> signMultisigSigningRequest(
+    String encoded,
+  ) async {
     final repository = _repository;
     if (repository == null) {
-      return '';
+      return null;
+    }
+    if (!_nodeActionGuard.ensureNodeAvailable()) {
+      return null;
     }
 
     try {
-      return await repository.signTransactionHash(transactionHash);
-    } on AnyhowException catch (error) {
-      _emitCommandError(
-        title: 'Cannot sign transaction',
-        description: _extractXelisMessage(error),
-        logMessage: 'Cannot sign transaction: $error',
-      );
-    } catch (error) {
-      _emitCommandError(
-        title: 'Cannot sign transaction',
-        description: error.toString(),
-        logMessage: 'Cannot sign transaction: $error',
-      );
+      return await repository.signMultisigSigningRequest(encoded);
+    } catch (_) {
+      _emitGenericCommandError(title: 'Cannot sign multisig request');
     }
 
-    return '';
+    return null;
   }
 
   Future<void> trackAsset(String assetHash) async {
@@ -490,6 +460,14 @@ class WalletCommandsController {
     ref
         .read(walletEffectBusProvider.notifier)
         .emit(WalletEffect.error(title: title, description: description));
+  }
+
+  void _emitGenericCommandError({required String title}) {
+    _emitCommandError(
+      title: title,
+      description: 'The request could not be completed.',
+      logMessage: title,
+    );
   }
 
   String _extractXelisMessage(AnyhowException error) {

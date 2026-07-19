@@ -436,5 +436,13 @@
   "received": "Ontvangen",
   "constructor": "Constructor",
   "to_address": "Naar: {address}",
-  "to_contract_address": "Naar contract: {address}"
+  "to_contract_address": "Naar contract: {address}",
+  "multisig_signing_request": "Multisig-ondertekenverzoek",
+  "enter_multisig_signing_request": "Plak het multisig-ondertekenverzoek",
+  "verified_multisig_request": "Geverifieerd multisig-verzoek",
+  "signature_share": "Handtekeningaandeel",
+  "wallet_not_multisig_participant": "Deze wallet is geen deelnemer aan deze multisigconfiguratie.",
+  "fee_limit": "Kostenlimiet",
+  "transaction_broadcast_confirmation": "Ik heb de transactiegegevens gecontroleerd en wil de transactie uitzenden.",
+  "delete_multisig_confirmation": "Ik begrijp dat het uitzenden van deze transactie de multisig-configuratie verwijdert."
 }
