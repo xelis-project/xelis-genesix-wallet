@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
+import 'package:genesix/features/wallet/domain/transaction_broadcast_result.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
@@ -561,9 +562,22 @@ class NativeWalletRepository {
     }
   }
 
-  Future<void> broadcastTransaction(String hash) async {
-    await _xelisWallet.broadcastTransaction(txHash: hash);
-    talker.info('Transaction successfully broadcast: $hash');
+  Future<TransactionBroadcastResult> broadcastTransaction(String hash) async {
+    final outcome = await _xelisWallet.broadcastTransaction(txHash: hash);
+    talker.info('Transaction broadcast completed: outcome=${outcome.name}');
+
+    return switch (outcome) {
+      BroadcastTransactionOutcome.submitted =>
+        TransactionBroadcastResult.submitted,
+      BroadcastTransactionOutcome.retryable =>
+        TransactionBroadcastResult.retryable,
+      BroadcastTransactionOutcome.rejected =>
+        TransactionBroadcastResult.rejected,
+      BroadcastTransactionOutcome.localFailure =>
+        TransactionBroadcastResult.localFailure,
+      BroadcastTransactionOutcome.submittedNeedsResync =>
+        TransactionBroadcastResult.submittedNeedsResync,
+    };
   }
 
   Future<void> clearTransaction(String hash) async {

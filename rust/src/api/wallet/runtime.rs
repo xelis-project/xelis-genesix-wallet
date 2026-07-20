@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::path::Path;
 use std::thread;
 
@@ -184,7 +183,7 @@ pub(super) async fn create_xelis_wallet(
 
     Ok(XelisWallet {
         wallet: xelis_wallet,
-        pending_transactions: RwLock::new(HashMap::new()),
+        prepared_transaction: RwLock::new(Default::default()),
         pending_multisig: RwLock::new(PendingMultisigStore::default()),
     })
 }
@@ -233,7 +232,7 @@ pub(super) async fn open_xelis_wallet(
 
     Ok(XelisWallet {
         wallet: xelis_wallet,
-        pending_transactions: RwLock::new(HashMap::new()),
+        prepared_transaction: RwLock::new(Default::default()),
         pending_multisig: RwLock::new(PendingMultisigStore::default()),
     })
 }

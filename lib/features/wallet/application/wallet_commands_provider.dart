@@ -9,6 +9,7 @@ import 'package:genesix/features/wallet/application/wallet_node_action_guard.dar
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
+import 'package:genesix/features/wallet/domain/transaction_broadcast_result.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/features/wallet/domain/wallet_effect.dart';
 import 'package:genesix/features/wallet/domain/wallet_runtime_state.dart';
@@ -175,17 +176,27 @@ class WalletCommandsController {
     }
   }
 
-  Future<bool> broadcastTx({required String hash}) async {
+  Future<TransactionBroadcastResult?> broadcastTx({
+    required String hash,
+  }) async {
     final repository = _repository;
     if (repository == null) {
-      return false;
+      return null;
     }
     if (!_nodeActionGuard.ensureNodeAvailable()) {
-      return false;
+      return null;
     }
 
-    await repository.broadcastTransaction(hash);
-    return true;
+    try {
+      final result = await repository.broadcastTransaction(hash);
+      if (result == TransactionBroadcastResult.submittedNeedsResync) {
+        await ref.read(walletRuntimeProvider.notifier).rescan();
+      }
+      return result;
+    } catch (_) {
+      _emitGenericCommandError(title: 'Cannot broadcast transaction');
+      return null;
+    }
   }
 
   Future<String> estimateFees({

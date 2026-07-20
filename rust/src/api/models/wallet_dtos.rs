@@ -11,6 +11,16 @@ pub use xelis_common::transaction::builder::TransactionTypeBuilder;
 pub use xelis_common::{api::DataElement, crypto::Address};
 use xelis_wallet::storage::TransactionFilterOptions;
 
+#[frb]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum BroadcastTransactionOutcome {
+    Submitted,
+    Retryable,
+    Rejected,
+    LocalFailure,
+    SubmittedNeedsResync,
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[frb(dart_metadata=("freezed"))]
 pub struct SummaryTransaction {

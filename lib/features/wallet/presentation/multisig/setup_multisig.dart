@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
-import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/multisig_pending_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
+import 'package:genesix/features/wallet/domain/transaction_broadcast_result.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
@@ -400,29 +399,30 @@ class _SetupMultisigState extends ConsumerState<SetupMultisig> {
       final broadcasted = await ref
           .read(walletCommandsProvider)
           .broadcastTx(hash: _transaction!.hash);
-      if (!mounted || !broadcasted) return;
-      ref.read(multisigPendingStateProvider.notifier).pendingState();
-      ref
-          .read(toastProvider.notifier)
-          .showEvent(
-            description: ref
-                .read(appLocalizationsProvider)
-                .transaction_broadcast_message,
+      if (!mounted || broadcasted == null) return;
+
+      final loc = ref.read(appLocalizationsProvider);
+      final toast = ref.read(toastProvider.notifier);
+      switch (broadcasted) {
+        case TransactionBroadcastResult.submitted:
+          ref.read(multisigPendingStateProvider.notifier).pendingState();
+          toast.showEvent(description: loc.transaction_broadcast_message);
+          setState(() => _isComplete = true);
+        case TransactionBroadcastResult.retryable:
+          toast.showWarning(title: loc.transaction_broadcast_retry_message);
+        case TransactionBroadcastResult.rejected:
+        case TransactionBroadcastResult.localFailure:
+          toast.showError(
+            description: loc.transaction_broadcast_recreate_message,
           );
-      setState(() => _isComplete = true);
-    } on AnyhowException {
-      talker.error('Cannot broadcast multisig setup transaction');
-      if (mounted) {
-        ref
-            .read(toastProvider.notifier)
-            .showError(description: ref.read(appLocalizationsProvider).oups);
-      }
-    } catch (_) {
-      talker.error('Cannot broadcast multisig setup transaction');
-      if (mounted) {
-        ref
-            .read(toastProvider.notifier)
-            .showError(description: ref.read(appLocalizationsProvider).oups);
+          setState(() {
+            _transaction = null;
+            _confirmed = false;
+          });
+        case TransactionBroadcastResult.submittedNeedsResync:
+          ref.read(multisigPendingStateProvider.notifier).pendingState();
+          toast.showWarning(title: loc.transaction_broadcast_resync_message);
+          setState(() => _isComplete = true);
       }
     } finally {
       if (mounted) setState(() => _isBroadcasting = false);

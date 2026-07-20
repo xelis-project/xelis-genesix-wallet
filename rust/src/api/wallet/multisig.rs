@@ -398,9 +398,7 @@ impl XelisWallet {
                     &state,
                 );
 
-                self.pending_transactions
-                    .write()
-                    .insert(hash.clone(), (tx, state));
+                self.replace_prepared_transaction(hash.clone(), tx, state)?;
 
                 Ok(json!(SummaryTransaction {
                     hash: hash.to_hex(),
@@ -479,6 +477,8 @@ impl XelisWallet {
             .iter()
             .map(|share| parse_multisig_signature_share(share, &expected_hash))
             .collect::<Result<Vec<_>>>()?;
+        let mut prepared_transaction = self.prepared_transaction.write();
+        prepared_transaction.ensure_replaceable()?;
         let (pending, multisig) = self
             .pending_multisig
             .write()
@@ -502,9 +502,7 @@ impl XelisWallet {
             &state,
         );
 
-        self.pending_transactions
-            .write()
-            .insert(tx.hash().clone(), (tx.clone(), state));
+        prepared_transaction.replace(tx.hash().clone(), (tx.clone(), state))?;
 
         Ok(json!(SummaryTransaction {
             hash: tx.hash().to_hex(),

@@ -1,13 +1,11 @@
 use flutter_rust_bridge::frb;
 
-use std::collections::HashMap;
 use std::sync::Arc;
 
 use super::precomputed_tables::PrecomputedTableType;
 use crate::multisig::PendingMultisigStore;
 use anyhow::Result;
 use parking_lot::RwLock;
-use xelis_common::crypto::Hash;
 use xelis_common::network::Network;
 use xelis_common::transaction::builder::{TransactionTypeBuilder, UnsignedTransaction};
 use xelis_common::transaction::MultiSigPayload;
@@ -33,7 +31,8 @@ struct PendingMultisigTransaction {
 
 pub struct XelisWallet {
     wallet: Arc<Wallet>,
-    pending_transactions: RwLock<HashMap<Hash, (Transaction, TransactionBuilderState)>>,
+    prepared_transaction:
+        RwLock<transactions::PreparedTransactionStore<(Transaction, TransactionBuilderState)>>,
     pending_multisig: RwLock<PendingMultisigStore<PendingMultisigTransaction>>,
 }
 
