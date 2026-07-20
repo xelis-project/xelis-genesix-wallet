@@ -93,6 +93,7 @@ These are optional convenience commands, not required.
 - Flutter app code: `lib/`
 - Rust wallet core and APIs: `rust/`
 - Generated Flutter/Rust bridge code: `lib/src/generated/`
+- Multisig request and cosigning flow: [`docs/multisig-signing.md`](docs/multisig-signing.md)
 
 ## Security Notes
 

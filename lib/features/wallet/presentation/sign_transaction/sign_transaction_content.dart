@@ -43,6 +43,15 @@ class _SignTransactionContentState
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final runtime = ref.watch(walletRuntimeProvider);
+    final isNodeAvailable =
+        runtime.isOnline &&
+        runtime.connectionPhase == WalletConnectionPhase.connected;
+    final nodeRequirementMessage = switch (runtime.connectionPhase) {
+      WalletConnectionPhase.offline => loc.action_not_available_offline,
+      WalletConnectionPhase.connecting ||
+      WalletConnectionPhase.reconnecting => loc.action_wait_for_node_connection,
+      _ => loc.action_requires_connected_node,
+    };
     return SingleChildScrollView(
       padding: const EdgeInsets.all(Spaces.medium),
       child: Center(
@@ -54,6 +63,11 @@ class _SignTransactionContentState
               spacing: Spaces.large,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (!isNodeAvailable)
+                  FAlert(
+                    title: Text(loc.node_required),
+                    subtitle: Text(nodeRequirementMessage),
+                  ),
                 FTextFormField(
                   enabled: !_isInspecting && !_isSigning && _request == null,
                   control: .managed(
@@ -84,7 +98,7 @@ class _SignTransactionContentState
                 if (_request == null)
                   AsyncFButton(
                     isLoading: _isInspecting,
-                    onPress: _inspectRequest,
+                    onPress: isNodeAvailable ? _inspectRequest : null,
                     prefix: const Icon(FLucideIcons.shieldCheck, size: 18),
                     child: Text(loc.continue_button),
                   )
@@ -108,7 +122,8 @@ class _SignTransactionContentState
                         ),
                         AsyncFButton(
                           isLoading: _isSigning,
-                          onPress: _request!.signerId == null
+                          onPress:
+                              _request!.signerId == null || !isNodeAvailable
                               ? null
                               : () => startWithBiometricAuth(
                                   ref,

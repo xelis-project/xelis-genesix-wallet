@@ -1,3 +1,17 @@
+//! Canonical multisig request and signature-share protocol used by Genesix.
+//!
+//! A source wallet sends this request out of band so a participant can inspect
+//! the typed transaction instead of blindly signing a hash. The source
+//! attestation, canonical transaction reconstruction, and amount proofs protect
+//! the request contents. The wallet wrapper then resolves the source address's
+//! latest active multisig configuration from a connected node, because a
+//! participant wallet's local storage tracks only its own account. This extra
+//! lookup identifies the participant ID and rejects unauthorized signing; the
+//! node does not transport the request or the returned signature share.
+//!
+//! See `docs/multisig-signing.md` for the end-to-end flow, trust boundaries,
+//! and transport considerations.
+
 use anyhow::{bail, ensure, Context, Result};
 use serde::{Deserialize, Serialize};
 use xelis_common::{

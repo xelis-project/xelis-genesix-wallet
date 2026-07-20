@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, future::Future};
 
 use super::super::models::wallet_dtos::{
     MultisigDartPayload, MultisigSignatureShare, MultisigSigningRequest, ParticipantDartPayload,
@@ -20,7 +20,7 @@ use serde_json::json;
 use xelis_common::api::daemon::{GetMultisigParams, GetMultisigResult, MultisigState};
 use xelis_common::api::wallet::BaseFeeMode;
 use xelis_common::config::XELIS_ASSET;
-use xelis_common::crypto::{Address, Hash, Hashable, PublicKey};
+use xelis_common::crypto::{Address, Hash, Hashable, PublicKey, Signature};
 use xelis_common::serializer::Serializer;
 use xelis_common::transaction::builder::{
     FeeBuilder, MultiSigBuilder, TransactionTypeBuilder, UnsignedTransaction,
@@ -58,6 +58,75 @@ fn parse_multisig_participants(
     }
 
     Ok(participant_addresses)
+}
+
+#[derive(Debug)]
+struct ResolvedMultisigSigningConfiguration {
+    threshold: u8,
+    participants: Vec<ParticipantDartPayload>,
+    signer_id: Option<u8>,
+}
+
+fn resolve_active_multisig_configuration(
+    state: MultisigState,
+    wallet_public_key: &PublicKey,
+) -> Result<ResolvedMultisigSigningConfiguration> {
+    let MultisigState::Active {
+        participants,
+        threshold,
+    } = state
+    else {
+        bail!("The multisig configuration was not active for this request");
+    };
+    validate_multisig_setup(threshold, participants.len())?;
+
+    let mut signer_id = None;
+    let participants = participants
+        .into_iter()
+        .enumerate()
+        .map(|(id, participant)| {
+            if participant.get_public_key() == wallet_public_key {
+                signer_id = Some(id as u8);
+            }
+            ParticipantDartPayload {
+                id: id as u8,
+                address: participant.to_string(),
+            }
+        })
+        .collect();
+
+    Ok(ResolvedMultisigSigningConfiguration {
+        threshold,
+        participants,
+        signer_id,
+    })
+}
+
+async fn resolve_multisig_signing_configuration_with<F, Fut>(
+    source: &str,
+    wallet_public_key: &PublicKey,
+    fetch_state: F,
+) -> Result<ResolvedMultisigSigningConfiguration>
+where
+    F: FnOnce(Address) -> Fut,
+    Fut: Future<Output = Result<MultisigState>>,
+{
+    let source = Address::from_string(source).context("Invalid multisig signing request source")?;
+    let state = fetch_state(source).await?;
+
+    resolve_active_multisig_configuration(state, wallet_public_key)
+}
+
+fn create_authorized_multisig_signature_share(
+    request_hash: &Hash,
+    signer_id: Option<u8>,
+    sign: impl FnOnce(&[u8]) -> Signature,
+) -> Result<MultisigSignatureShare> {
+    let signer_id = signer_id
+        .context("The opened wallet is not an authorized participant for this multisig request")?;
+    let signature = sign(request_hash.as_bytes());
+
+    create_multisig_signature_share(request_hash, signer_id, signature)
 }
 
 impl XelisWallet {
@@ -531,10 +600,13 @@ impl XelisWallet {
         encoded: String,
     ) -> Result<MultisigSigningRequest> {
         let parsed = parse_multisig_signing_request(&encoded, *self.wallet.get_network())?;
-        let (threshold, participants, signer_id) =
-            self.resolve_multisig_signing_configuration(&parsed).await?;
+        let configuration = self.resolve_multisig_signing_configuration(&parsed).await?;
 
-        Ok(parsed.into_request(threshold, participants, signer_id))
+        Ok(parsed.into_request(
+            configuration.threshold,
+            configuration.participants,
+            configuration.signer_id,
+        ))
     }
 
     pub async fn sign_multisig_signing_request(
@@ -542,13 +614,11 @@ impl XelisWallet {
         encoded: String,
     ) -> Result<MultisigSignatureShare> {
         let parsed = parse_multisig_signing_request(&encoded, *self.wallet.get_network())?;
-        let (_, _, signer_id) = self.resolve_multisig_signing_configuration(&parsed).await?;
-        let signer_id = signer_id.context(
-            "The opened wallet is not an authorized participant for this multisig request",
-        )?;
-        let signature = self.wallet.sign_data(parsed.hash.as_bytes());
+        let configuration = self.resolve_multisig_signing_configuration(&parsed).await?;
 
-        create_multisig_signature_share(&parsed.hash, signer_id, signature)
+        create_authorized_multisig_signature_share(&parsed.hash, configuration.signer_id, |data| {
+            self.wallet.sign_data(data)
+        })
     }
 
     fn store_pending_multisig_transaction(
@@ -583,56 +653,42 @@ impl XelisWallet {
     async fn resolve_multisig_signing_configuration(
         &self,
         request: &ParsedMultisigSigningRequest,
-    ) -> Result<(u8, Vec<ParticipantDartPayload>, Option<u8>)> {
-        let source = Address::from_string(&request.source)
-            .context("Invalid multisig signing request source")?;
-        let network_handler = self
-            .wallet
-            .get_network_handler()
-            .lock()
-            .await
-            .clone()
-            .context("The wallet must be online to verify a multisig signing request")?;
-        // The daemon's `get_multisig_at_topoheight` endpoint performs an exact
-        // version lookup. A transaction reference is not the configuration's
-        // activation topoheight, so use the latest configuration that consensus
-        // would apply when the transaction is submitted.
-        let result: GetMultisigResult = network_handler
-            .get_api()
-            .client()
-            .call_with(
-                "get_multisig",
-                &GetMultisigParams {
-                    address: Cow::Borrowed(&source),
-                },
-            )
-            .await
-            .context("Unable to verify the multisig configuration with the node")?;
-        let MultisigState::Active {
-            participants,
-            threshold,
-        } = result.state
-        else {
-            bail!("The multisig configuration was not active for this request");
-        };
-        validate_multisig_setup(threshold, participants.len())?;
+    ) -> Result<ResolvedMultisigSigningConfiguration> {
+        // The opened participant wallet only stores multisig state for its own
+        // address, while this request belongs to another source wallet. Resolve
+        // that source's active configuration from the node so inspection can
+        // derive the participant ID and signing can reject an unauthorized key.
+        resolve_multisig_signing_configuration_with(
+            &request.source,
+            self.wallet.get_public_key(),
+            |source| async move {
+                let network_handler = self
+                    .wallet
+                    .get_network_handler()
+                    .lock()
+                    .await
+                    .clone()
+                    .context("The wallet must be online to verify a multisig signing request")?;
+                // The daemon's `get_multisig_at_topoheight` endpoint performs an exact
+                // version lookup. A transaction reference is not the configuration's
+                // activation topoheight, so use the latest configuration that consensus
+                // would apply when the transaction is submitted.
+                let result: GetMultisigResult = network_handler
+                    .get_api()
+                    .client()
+                    .call_with(
+                        "get_multisig",
+                        &GetMultisigParams {
+                            address: Cow::Borrowed(&source),
+                        },
+                    )
+                    .await
+                    .context("Unable to verify the multisig configuration with the node")?;
 
-        let mut signer_id = None;
-        let participants = participants
-            .into_iter()
-            .enumerate()
-            .map(|(id, participant)| {
-                if participant.get_public_key() == self.wallet.get_public_key() {
-                    signer_id = Some(id as u8);
-                }
-                ParticipantDartPayload {
-                    id: id as u8,
-                    address: participant.to_string(),
-                }
-            })
-            .collect();
-
-        Ok((threshold, participants, signer_id))
+                Ok(result.state)
+            },
+        )
+        .await
     }
 
     async fn build_unsigned_transaction(
