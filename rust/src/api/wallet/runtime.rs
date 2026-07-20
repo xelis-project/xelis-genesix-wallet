@@ -1,22 +1,21 @@
 use std::path::Path;
 use std::thread;
 
-use super::super::precomputed_tables::{
-    LogProgressTableGenerationReportFunction, PrecomputedTableType,
-};
-use super::{PrecomputedTablesShared, XelisWallet};
+use super::super::precomputed_tables::PrecomputedTableType;
+use super::XelisWallet;
 use crate::multisig::PendingMultisigStore;
 use anyhow::{anyhow, bail, Result};
 use flutter_rust_bridge::frb;
 use log::info;
-use parking_lot::{Mutex, RwLock};
+use parking_lot::{Mutex as StateMutex, RwLock as StateRwLock};
 use serde_json;
 use xelis_common::network::Network;
 use xelis_wallet::precomputed_tables;
 use xelis_wallet::wallet::{RecoverOption, Wallet};
 
-static CACHED_TABLES: Mutex<Option<PrecomputedTablesShared>> = Mutex::new(None);
-static MT_PARAMS: Mutex<Option<(usize, usize)>> = Mutex::new(None);
+mod table_cache;
+
+static MT_PARAMS: StateMutex<Option<(usize, usize)>> = StateMutex::new(None);
 
 fn mt_params_for_cpu_cores(cpu_cores: usize) -> (usize, usize) {
     let thread_count = (cpu_cores.saturating_sub(2)).max(1).min(32);
@@ -83,7 +82,7 @@ pub(super) fn set_mt_params(thread_count: usize, concurrency: usize) {
 }
 
 pub(super) fn clear_cached_tables() {
-    CACHED_TABLES.lock().take();
+    table_cache::clear_cached_tables();
 }
 
 pub(super) fn drop_wallet(wallet: XelisWallet) {
@@ -96,32 +95,20 @@ pub(super) async fn update_tables(
 ) -> Result<()> {
     let precomputed_tables_size = precomputed_table_type.to_l1_size()?;
 
-    let tables = precomputed_tables::read_or_generate_precomputed_tables(
+    table_cache::get_or_load_precomputed_tables(
         Some(&precomputed_tables_path),
         precomputed_tables_size,
-        LogProgressTableGenerationReportFunction,
-        true,
     )
     .await?;
-
-    CACHED_TABLES.lock().replace(tables.clone());
     Ok(())
 }
 
 pub(super) fn get_current_precomputed_tables_type() -> Result<PrecomputedTableType> {
     info!("Getting current precomputed tables type...");
-    let guard = CACHED_TABLES.lock();
-    let tables_arc = guard
-        .as_ref()
-        .ok_or_else(|| anyhow!("Precomputed tables not initialized"))?;
+    let size =
+        table_cache::current_l1().ok_or_else(|| anyhow!("Precomputed tables not initialized"))?;
 
     info!("Precomputed tables found in cache.");
-    let size = {
-        let tables_guard = tables_arc
-            .read()
-            .expect("Failed to read precomputed tables");
-        tables_guard.view().get_l1()
-    };
     info!("Current precomputed tables L1 size: {}", size);
 
     Ok(precomputed_table_type_from_l1(size))
@@ -143,28 +130,11 @@ pub(super) async fn create_xelis_wallet(
 
     info!("Creating wallet at path: {}", full_path);
 
-    // Use cached tables if available, otherwise generate & cache
-    let precomputed_tables = {
-        let mut maybe_cached = CACHED_TABLES.lock().clone();
-        info!("Maybe cached tables: {}", maybe_cached.is_some());
-        match maybe_cached {
-            Some(tables) => tables,
-            None => {
-                info!("No cached tables, generating new ones...");
-                let tables = precomputed_tables::read_or_generate_precomputed_tables(
-                    precomputed_tables_path.as_deref(),
-                    precomputed_tables_size,
-                    LogProgressTableGenerationReportFunction,
-                    true,
-                )
-                .await?;
-                info!("Precomputed tables generated.");
-
-                maybe_cached.replace(tables.clone());
-                tables
-            }
-        }
-    };
+    let precomputed_tables = table_cache::get_or_load_precomputed_tables(
+        precomputed_tables_path.as_deref(),
+        precomputed_tables_size,
+    )
+    .await?;
 
     let recover = recover_option(seed.as_deref(), private_key.as_deref());
 
@@ -183,8 +153,8 @@ pub(super) async fn create_xelis_wallet(
 
     Ok(XelisWallet {
         wallet: xelis_wallet,
-        prepared_transaction: RwLock::new(Default::default()),
-        pending_multisig: RwLock::new(PendingMultisigStore::default()),
+        prepared_transaction: StateRwLock::new(Default::default()),
+        pending_multisig: StateRwLock::new(PendingMultisigStore::default()),
     })
 }
 
@@ -200,24 +170,11 @@ pub(super) async fn open_xelis_wallet(
 
     let precomputed_tables_size = precomputed_table_type.to_l1_size()?;
 
-    let precomputed_tables = {
-        let mut maybe_cached = CACHED_TABLES.lock().clone();
-        match maybe_cached {
-            Some(tables) => tables,
-            None => {
-                let tables = precomputed_tables::read_or_generate_precomputed_tables(
-                    precomputed_tables_path.as_deref(),
-                    precomputed_tables_size,
-                    LogProgressTableGenerationReportFunction,
-                    true,
-                )
-                .await?;
-
-                maybe_cached.replace(tables.clone());
-                tables
-            }
-        }
-    };
+    let precomputed_tables = table_cache::get_or_load_precomputed_tables(
+        precomputed_tables_path.as_deref(),
+        precomputed_tables_size,
+    )
+    .await?;
 
     let (thread_count, concurrency) = get_mt_params();
 
@@ -232,8 +189,8 @@ pub(super) async fn open_xelis_wallet(
 
     Ok(XelisWallet {
         wallet: xelis_wallet,
-        prepared_transaction: RwLock::new(Default::default()),
-        pending_multisig: RwLock::new(PendingMultisigStore::default()),
+        prepared_transaction: StateRwLock::new(Default::default()),
+        pending_multisig: StateRwLock::new(PendingMultisigStore::default()),
     })
 }
 

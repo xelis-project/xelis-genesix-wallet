@@ -2512,6 +2512,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "flutter_rust_bridge",
+ "futures",
  "getrandom 0.3.4",
  "indexmap",
  "lazy_static",
