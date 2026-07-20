@@ -6,7 +6,7 @@ use xelis_common::asset::{AssetData, AssetOwner, MaxSupplyMode};
 use xelis_common::config::XELIS_ASSET;
 use xelis_common::crypto::Hash;
 
-use super::{asset_metadata_json, resolve_asset_data, resolve_asset_hash, AssetDataSource};
+use super::{asset_metadata_json, resolve_asset_data, resolve_asset_hash};
 
 enum CacheOutcome {
     Hit(AssetData),
@@ -41,41 +41,39 @@ impl FakeAssetDataSource {
     }
 
     async fn resolve(&self) -> Result<AssetData> {
-        resolve_asset_data(self, &self.resolution_lock).await
-    }
-}
+        resolve_asset_data(
+            &self.resolution_lock,
+            || async {
+                self.events.lock().push("cache");
 
-impl AssetDataSource for FakeAssetDataSource {
-    async fn load_cached(&self) -> Result<Option<AssetData>> {
-        self.events.lock().push("cache");
+                match &*self.cache.lock() {
+                    CacheOutcome::Hit(asset_data) => Ok(Some(asset_data.clone())),
+                    CacheOutcome::Miss => Ok(None),
+                    CacheOutcome::Error => Err(anyhow!("cache failure")),
+                }
+            },
+            || async {
+                self.events.lock().push("daemon");
+                tokio::task::yield_now().await;
 
-        match &*self.cache.lock() {
-            CacheOutcome::Hit(asset_data) => Ok(Some(asset_data.clone())),
-            CacheOutcome::Miss => Ok(None),
-            CacheOutcome::Error => Err(anyhow!("cache failure")),
-        }
-    }
+                match &self.daemon {
+                    DaemonOutcome::Success(asset_data) => Ok(asset_data.clone()),
+                    DaemonOutcome::Error => Err(anyhow!("daemon failure")),
+                }
+            },
+            |asset_data| async move {
+                self.events.lock().push("persist");
 
-    async fn fetch_from_daemon(&self) -> Result<AssetData> {
-        self.events.lock().push("daemon");
-        tokio::task::yield_now().await;
+                if self.persistence_fails {
+                    return Err(anyhow!("persistence failure"));
+                }
 
-        match &self.daemon {
-            DaemonOutcome::Success(asset_data) => Ok(asset_data.clone()),
-            DaemonOutcome::Error => Err(anyhow!("daemon failure")),
-        }
-    }
-
-    async fn persist(&self, asset_data: &AssetData) -> Result<()> {
-        self.events.lock().push("persist");
-
-        if self.persistence_fails {
-            return Err(anyhow!("persistence failure"));
-        }
-
-        *self.persisted.lock() = Some(asset_data.clone());
-        *self.cache.lock() = CacheOutcome::Hit(asset_data.clone());
-        Ok(())
+                *self.persisted.lock() = Some(asset_data.clone());
+                *self.cache.lock() = CacheOutcome::Hit(asset_data.clone());
+                Ok(asset_data)
+            },
+        )
+        .await
     }
 }
 
