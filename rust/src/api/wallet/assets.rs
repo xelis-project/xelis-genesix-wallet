@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use super::super::models::wallet_dtos::{XelisAssetMetadata, XelisAssetOwner, XelisMaxSupplyMode};
 use super::XelisWallet;
 use anyhow::{anyhow, Context, Result};
+use futures::lock::Mutex as AsyncMutex;
 use log::{debug, info};
 use xelis_common::asset::AssetData;
 use xelis_common::config::XELIS_ASSET;
@@ -28,6 +29,89 @@ fn resolve_asset_hash(asset_hash: Option<&str>) -> Result<Hash> {
         Some(value) => Hash::from_hex(value).context("Invalid asset"),
         None => Ok(XELIS_ASSET),
     }
+}
+
+trait AssetDataSource {
+    async fn load_cached(&self) -> Result<Option<AssetData>>;
+
+    async fn fetch_from_daemon(&self) -> Result<AssetData>;
+
+    async fn persist(&self, asset_data: &AssetData) -> Result<()>;
+}
+
+struct WalletAssetDataSource<'a> {
+    wallet: &'a XelisWallet,
+    asset_hash: &'a Hash,
+}
+
+impl AssetDataSource for WalletAssetDataSource<'_> {
+    async fn load_cached(&self) -> Result<Option<AssetData>> {
+        let storage = self.wallet.wallet.get_storage().read().await;
+        storage
+            .get_optional_asset(self.asset_hash)
+            .await
+            .context("Error reading asset from wallet storage")
+    }
+
+    async fn fetch_from_daemon(&self) -> Result<AssetData> {
+        if !self.wallet.wallet.is_online().await {
+            return Err(anyhow!(
+                "Asset {} not found in wallet storage/cache and wallet is offline",
+                self.asset_hash
+            ));
+        }
+
+        let network_handler = self.wallet.wallet.get_network_handler().lock().await;
+        let handler = network_handler
+            .as_ref()
+            .ok_or_else(|| anyhow!("Network handler not available"))?;
+
+        debug!("Fetching asset {} from daemon", self.asset_hash);
+        let data = handler
+            .get_api()
+            .get_asset(self.asset_hash)
+            .await
+            .map_err(|_| anyhow!("Failed to fetch asset from daemon"))?;
+
+        Ok(data.inner)
+    }
+
+    async fn persist(&self, asset_data: &AssetData) -> Result<()> {
+        debug!(
+            "Storing fetched asset {} from network in wallet storage",
+            self.asset_hash
+        );
+
+        let mut storage = self.wallet.wallet.get_storage().write().await;
+        storage
+            .add_asset(self.asset_hash, asset_data.clone())
+            .await
+            .context("Error storing fetched asset in wallet storage")?;
+
+        debug!("Asset {} stored in wallet storage", self.asset_hash);
+        Ok(())
+    }
+}
+
+async fn resolve_asset_data(
+    source: &impl AssetDataSource,
+    resolution_lock: &AsyncMutex<()>,
+) -> Result<AssetData> {
+    if let Some(asset_data) = source.load_cached().await? {
+        return Ok(asset_data);
+    }
+
+    let _resolution_guard = resolution_lock.lock().await;
+
+    // Another request may have persisted the asset while this one waited.
+    if let Some(asset_data) = source.load_cached().await? {
+        return Ok(asset_data);
+    }
+
+    let asset_data = source.fetch_from_daemon().await?;
+    source.persist(&asset_data).await?;
+
+    Ok(asset_data)
 }
 
 impl XelisWallet {
@@ -159,52 +243,14 @@ impl XelisWallet {
     }
 
     async fn get_asset_data(&self, asset_hash: &Hash) -> Result<AssetData> {
-        {
-            let storage = self.wallet.get_storage().read().await;
-            if storage.has_asset(asset_hash).await? {
-                return storage.get_asset(asset_hash).await;
-            }
-        }
-
-        // 3. offline guard
-        if !self.wallet.is_online().await {
-            return Err(anyhow!(
-                "Asset {} not found in wallet storage/cache and wallet is offline",
-                asset_hash
-            ));
-        }
-
-        // 4. daemon
-        let asset_data = {
-            let network_handler = self.wallet.get_network_handler().lock().await;
-            if let Some(handler) = network_handler.as_ref() {
-                let api = handler.get_api();
-                debug!("Fetching asset {} from daemon", asset_hash);
-                let data = api
-                    .get_asset(asset_hash)
-                    .await
-                    .map_err(|e| anyhow!("Failed to fetch asset from daemon: {}", e))?;
-
-                data.inner
-            } else {
-                return Err(anyhow!("Network handler not available"));
-            }
-        };
-
-        debug!(
-            "Storing fetched asset {} from network, storing it in wallet storage",
-            asset_hash
-        );
-
-        let mut storage = self.wallet.get_storage().write().await;
-        storage
-            .add_asset(asset_hash, asset_data.clone())
-            .await
-            .context("Error storing fetched asset in wallet storage")?;
-
-        debug!("Asset {} stored in wallet storage", asset_hash);
-
-        Ok(asset_data)
+        resolve_asset_data(
+            &WalletAssetDataSource {
+                wallet: self,
+                asset_hash,
+            },
+            &self.asset_resolution,
+        )
+        .await
     }
 }
 

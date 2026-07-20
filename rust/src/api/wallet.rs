@@ -5,6 +5,7 @@ use std::sync::Arc;
 use super::precomputed_tables::PrecomputedTableType;
 use crate::multisig::PendingMultisigStore;
 use anyhow::Result;
+use futures::lock::Mutex as AsyncMutex;
 use parking_lot::RwLock;
 use xelis_common::network::Network;
 use xelis_common::transaction::builder::{TransactionTypeBuilder, UnsignedTransaction};
@@ -31,6 +32,7 @@ struct PendingMultisigTransaction {
 
 pub struct XelisWallet {
     wallet: Arc<Wallet>,
+    asset_resolution: AsyncMutex<()>,
     prepared_transaction:
         RwLock<transactions::PreparedTransactionStore<(Transaction, TransactionBuilderState)>>,
     pending_multisig: RwLock<PendingMultisigStore<PendingMultisigTransaction>>,

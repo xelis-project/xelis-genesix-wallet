@@ -153,6 +153,7 @@ pub(super) async fn create_xelis_wallet(
 
     Ok(XelisWallet {
         wallet: xelis_wallet,
+        asset_resolution: Default::default(),
         prepared_transaction: StateRwLock::new(Default::default()),
         pending_multisig: StateRwLock::new(PendingMultisigStore::default()),
     })
@@ -189,6 +190,7 @@ pub(super) async fn open_xelis_wallet(
 
     Ok(XelisWallet {
         wallet: xelis_wallet,
+        asset_resolution: Default::default(),
         prepared_transaction: StateRwLock::new(Default::default()),
         pending_multisig: StateRwLock::new(PendingMultisigStore::default()),
     })
