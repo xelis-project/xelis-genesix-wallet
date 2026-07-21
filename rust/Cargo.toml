@@ -34,7 +34,8 @@ getrandom = { version = "0.3", features = ["wasm_js"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 [features]
-default = ["xelis_wallet/api_server", "network_handler", "xswd"]
+default = ["api_server"]
+api_server = ["xelis_wallet/api_server", "network_handler", "xswd"]
 network_handler = ["xelis_wallet/network_handler"]
 xswd = ["xelis_wallet/xswd"]
 

@@ -1,14 +1,14 @@
 use indexmap::IndexMap;
 use std::collections::HashMap;
 
-use anyhow::{bail, Error, Result};
+use anyhow::{anyhow, bail, Context, Error, Result};
 pub use flutter_rust_bridge::DartFnFuture;
 use log::{debug, error, info};
 pub use xelis_common::api::wallet::XSWDPrefetchPermissions;
 use xelis_common::tokio::spawn_task;
 pub use xelis_common::tokio::sync::mpsc::UnboundedReceiver;
 pub use xelis_common::tokio::sync::oneshot::Sender;
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(not(target_arch = "wasm32"), feature = "api_server"))]
 use xelis_wallet::api::APIServer;
 pub use xelis_wallet::api::AppState;
 use xelis_wallet::api::{Permission, PermissionResult};
@@ -128,7 +128,19 @@ impl XSWD for XelisWallet {
             bail!("Local XSWD server not supported on web. Use relay mode instead.");
         }
 
-        #[cfg(not(target_arch = "wasm32"))]
+        #[cfg(all(not(target_arch = "wasm32"), not(feature = "api_server")))]
+        {
+            let _ = (
+                _cancel_request_dart_callback,
+                _request_application_dart_callback,
+                _request_permission_dart_callback,
+                _request_prefetch_permissions_dart_callback,
+                _app_disconnect_dart_callback,
+            );
+            bail!("Local XSWD server not enabled in this build. Use relay mode instead.");
+        }
+
+        #[cfg(all(not(target_arch = "wasm32"), feature = "api_server"))]
         {
             match self.get_wallet().enable_xswd().await {
                 Ok(Some(receiver)) => {
@@ -154,7 +166,7 @@ impl XSWD for XelisWallet {
     }
 
     async fn stop_xswd(&self) -> Result<()> {
-        #[cfg(not(target_arch = "wasm32"))]
+        #[cfg(all(not(target_arch = "wasm32"), feature = "api_server"))]
         {
             let api_server = {
                 let mut api_server = self.get_wallet().get_api_server().lock().await;
@@ -177,7 +189,7 @@ impl XSWD for XelisWallet {
 
     async fn is_xswd_running(&self) -> bool {
         // Check if local XSWD server is running (native only)
-        #[cfg(not(target_arch = "wasm32"))]
+        #[cfg(all(not(target_arch = "wasm32"), feature = "api_server"))]
         {
             let lock = self.get_wallet().get_api_server().lock().await;
             if lock.is_some() {
@@ -200,7 +212,7 @@ impl XSWD for XelisWallet {
         let mut apps = Vec::new();
 
         // Get applications from XSWD server (local connections - native only)
-        #[cfg(not(target_arch = "wasm32"))]
+        #[cfg(all(not(target_arch = "wasm32"), feature = "api_server"))]
         {
             let lock = self.get_wallet().get_api_server().lock().await;
             if let Some(api_server) = lock.as_ref() {
@@ -237,37 +249,8 @@ impl XSWD for XelisWallet {
         id: &String,
         permissions: HashMap<String, PermissionPolicy>,
     ) -> Result<()> {
-        // Helper function to modify permissions
-        async fn modify_perms(
-            app: &AppState,
-            permissions: &HashMap<String, PermissionPolicy>,
-        ) -> Result<()> {
-            info!("Modifying permissions for application: {}", app.get_name());
-            debug!("New permissions: {:?}", permissions);
-
-            let mut inner_permissions = app.get_permissions().lock().await;
-            for (key, value) in permissions.iter() {
-                if let Some(entry) = inner_permissions.get_mut(key) {
-                    match value {
-                        PermissionPolicy::Accept => {
-                            *entry = Permission::Allow;
-                        }
-                        PermissionPolicy::Reject => {
-                            *entry = Permission::Reject;
-                        }
-                        PermissionPolicy::Ask => {
-                            *entry = Permission::Ask;
-                        }
-                    }
-                } else {
-                    bail!(format!("Permission {} not found", key));
-                }
-            }
-            Ok(())
-        }
-
         // Try XSWD server first (native only)
-        #[cfg(not(target_arch = "wasm32"))]
+        #[cfg(all(not(target_arch = "wasm32"), feature = "api_server"))]
         {
             let lock = self.get_wallet().get_api_server().lock().await;
             if let Some(api_server) = lock.as_ref() {
@@ -275,7 +258,7 @@ impl XSWD for XelisWallet {
                     let mut applications = xswd.get_handler().get_applications().write().await;
                     if let Some((_, app)) = applications.iter_mut().find(|(_, v)| v.get_id() == id)
                     {
-                        return modify_perms(app, &permissions).await;
+                        return modify_app_permissions(app, &permissions).await;
                     }
                 }
             }
@@ -287,7 +270,7 @@ impl XSWD for XelisWallet {
         if let Some(relayer) = relayer_lock.as_ref() {
             let relayer_apps = relayer.applications().read().await;
             if let Some((app, _)) = relayer_apps.iter().find(|(app, _)| app.get_id() == id) {
-                return modify_perms(app, &permissions).await;
+                return modify_app_permissions(app, &permissions).await;
             }
         }
 
@@ -296,7 +279,7 @@ impl XSWD for XelisWallet {
 
     async fn close_application_session(&self, id: &String) -> Result<()> {
         // Try XSWD server first (native only)
-        #[cfg(not(target_arch = "wasm32"))]
+        #[cfg(all(not(target_arch = "wasm32"), feature = "api_server"))]
         {
             let lock = self.get_wallet().get_api_server().lock().await;
             if let Some(api_server) = lock.as_ref() {
@@ -368,19 +351,7 @@ impl XSWD for XelisWallet {
             + Sync
             + 'static,
     ) -> Result<()> {
-        // Convert DTO to core ApplicationDataRelayer
-        let encryption_mode = app_data.encryption_mode.map(|mode| match mode {
-            EncryptionMode::Aes { key } => {
-                let mut key_array = [0u8; 32];
-                key_array.copy_from_slice(&key[..32]);
-                CoreEncryptionMode::AES { key: key_array }
-            }
-            EncryptionMode::Chacha20Poly1305 { key } => {
-                let mut key_array = [0u8; 32];
-                key_array.copy_from_slice(&key[..32]);
-                CoreEncryptionMode::Chacha20Poly1305 { key: key_array }
-            }
-        });
+        let encryption_mode = convert_encryption_mode(app_data.encryption_mode)?;
 
         // Use serde to construct ApplicationData since fields are private
         let app_data_json = serde_json::json!({
@@ -432,6 +403,61 @@ impl XSWD for XelisWallet {
     }
 }
 
+fn permission_from_policy(policy: &PermissionPolicy) -> Permission {
+    match policy {
+        PermissionPolicy::Accept => Permission::Allow,
+        PermissionPolicy::Reject => Permission::Reject,
+        PermissionPolicy::Ask => Permission::Ask,
+    }
+}
+
+fn apply_permission_updates(
+    current: &mut IndexMap<String, Permission>,
+    updates: &HashMap<String, PermissionPolicy>,
+) -> Result<()> {
+    if updates.keys().any(|key| !current.contains_key(key)) {
+        bail!("XSWD permission not found");
+    }
+
+    for (key, policy) in updates {
+        if let Some(permission) = current.get_mut(key) {
+            *permission = permission_from_policy(policy);
+        }
+    }
+
+    Ok(())
+}
+
+async fn modify_app_permissions(
+    app: &AppState,
+    permissions: &HashMap<String, PermissionPolicy>,
+) -> Result<()> {
+    info!("Modifying XSWD application permissions");
+    debug!("Updating {} XSWD permission policies", permissions.len());
+
+    let mut current = app.get_permissions().lock().await;
+    apply_permission_updates(&mut current, permissions)
+}
+
+fn encryption_key(key: Vec<u8>) -> Result<[u8; 32]> {
+    let length = key.len();
+    key.try_into().map_err(|_| {
+        anyhow!("Invalid XSWD relayer encryption key length: expected 32 bytes, got {length}")
+    })
+}
+
+fn convert_encryption_mode(mode: Option<EncryptionMode>) -> Result<Option<CoreEncryptionMode>> {
+    mode.map(|mode| match mode {
+        EncryptionMode::Aes { key } => Ok(CoreEncryptionMode::AES {
+            key: encryption_key(key)?,
+        }),
+        EncryptionMode::Chacha20Poly1305 { key } => Ok(CoreEncryptionMode::Chacha20Poly1305 {
+            key: encryption_key(key)?,
+        }),
+    })
+    .transpose()
+}
+
 pub async fn xswd_handler(
     mut receiver: UnboundedReceiver<XSWDEvent>,
     cancel_request_dart_callback: impl Fn(XswdRequestSummary) -> DartFnFuture<()>,
@@ -449,59 +475,100 @@ pub async fn xswd_handler(
     info!("XSWD Server has been enabled");
     while let Some(event) = receiver.recv().await {
         info!("Received XSWD event: {}", xswd_event_name(&event));
-        match event {
-            XSWDEvent::CancelRequest(state, callback) => {
-                let event_summary =
-                    create_event_summary(&state, XswdRequestType::CancelRequest).await;
+        handle_xswd_event(
+            event,
+            &cancel_request_dart_callback,
+            &request_application_dart_callback,
+            &request_permission_dart_callback,
+            &request_prefetch_permissions_dart_callback,
+            &app_disconnect_dart_callback,
+        )
+        .await;
+    }
+}
 
-                cancel_request_dart_callback(event_summary.to_owned()).await;
+async fn handle_xswd_event<Cancel, Application, Request, Prefetch, Disconnect>(
+    event: XSWDEvent,
+    cancel_request_dart_callback: &Cancel,
+    request_application_dart_callback: &Application,
+    request_permission_dart_callback: &Request,
+    request_prefetch_permissions_dart_callback: &Prefetch,
+    app_disconnect_dart_callback: &Disconnect,
+) where
+    Cancel: Fn(XswdRequestSummary) -> DartFnFuture<()>,
+    Application: Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>,
+    Request: Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>,
+    Prefetch: Fn(XswdRequestSummary) -> DartFnFuture<UserPermissionDecision>,
+    Disconnect: Fn(XswdRequestSummary) -> DartFnFuture<()>,
+{
+    match event {
+        XSWDEvent::CancelRequest(state, callback) => {
+            let event_summary = create_event_summary(&state, XswdRequestType::CancelRequest).await;
 
-                if callback.send(Ok(())).is_err() {
-                    error!("Error while sending cancel response to XSWD");
+            cancel_request_dart_callback(event_summary).await;
+
+            if callback.send(Ok(())).is_err() {
+                error!("Error while sending cancel response to XSWD");
+            }
+        }
+        XSWDEvent::RequestApplication(state, callback) => {
+            let event_summary = create_event_summary(&state, XswdRequestType::Application).await;
+
+            let decision = request_application_dart_callback(event_summary).await;
+
+            handle_permission_decision(decision, callback);
+        }
+        XSWDEvent::RequestPermission(state, request, callback) => {
+            let json = match serde_json::to_string(&request)
+                .context("Failed to serialize XSWD permission request")
+            {
+                Ok(json) => json,
+                Err(error) => {
+                    if callback.send(Err(error)).is_err() {
+                        error!("Error while sending permission serialization failure to XSWD");
+                    }
+                    return;
                 }
-            }
-            XSWDEvent::RequestApplication(state, callback) => {
-                let event_summary =
-                    create_event_summary(&state, XswdRequestType::Application).await;
+            };
 
-                let decision = request_application_dart_callback(event_summary).await;
+            let event_summary =
+                create_event_summary(&state, XswdRequestType::Permission(json)).await;
 
-                handle_permission_decision(decision, callback);
-            }
-            XSWDEvent::RequestPermission(state, request, callback) => {
-                let json = serde_json::to_string(&request).expect("Failed to serialize request");
+            let decision = request_permission_dart_callback(event_summary).await;
 
-                let event_summary =
-                    create_event_summary(&state, XswdRequestType::Permission(json)).await;
+            handle_permission_decision(decision, callback);
+        }
+        XSWDEvent::PrefetchPermissions(state, permissions, callback) => {
+            let json = match serde_json::to_string(&permissions)
+                .context("Failed to serialize XSWD prefetch permissions request")
+            {
+                Ok(json) => json,
+                Err(error) => {
+                    if callback.send(Err(error)).is_err() {
+                        error!("Error while sending prefetch serialization failure to XSWD");
+                    }
+                    return;
+                }
+            };
 
-                let decision = request_permission_dart_callback(event_summary).await;
+            let event_summary =
+                create_event_summary(&state, XswdRequestType::PrefetchPermissions(json)).await;
 
-                handle_permission_decision(decision, callback);
-            }
-            XSWDEvent::PrefetchPermissions(state, permissions, callback) => {
-                let json = serde_json::to_string(&permissions)
-                    .expect("Failed to serialize prefetch permissions request");
+            let decision = request_prefetch_permissions_dart_callback(event_summary).await;
 
-                let event_summary =
-                    create_event_summary(&state, XswdRequestType::PrefetchPermissions(json)).await;
+            handle_prefetch_permissions_decision(decision, permissions, callback);
+        }
+        XSWDEvent::AppDisconnect(app_state) => {
+            let event_summary =
+                create_event_summary(&app_state, XswdRequestType::AppDisconnect).await;
 
-                let decision = request_prefetch_permissions_dart_callback(event_summary).await;
-
-                handle_prefetch_permissions_decision(decision, permissions, callback);
-            }
-            XSWDEvent::AppDisconnect(app_state) => {
-                let event_summary =
-                    create_event_summary(&app_state, XswdRequestType::AppDisconnect).await;
-
-                app_disconnect_dart_callback(event_summary).await;
-            }
-        };
+            app_disconnect_dart_callback(event_summary).await;
+        }
     }
 }
 
 async fn create_event_summary(state: &AppState, event_type: XswdRequestType) -> XswdRequestSummary {
     let application_info = create_app_info(state).await;
-    info!("application_info: {:?}", application_info);
     XswdRequestSummary::new(event_type, application_info)
 }
 
@@ -533,15 +600,19 @@ fn handle_permission_decision(
     decision: UserPermissionDecision,
     callback: Sender<Result<PermissionResult, Error>>,
 ) {
-    let result = match decision {
+    let result = permission_result_from_decision(decision);
+
+    if callback.send(Ok(result)).is_err() {
+        error!("Error while sending permission response to XSWD");
+    }
+}
+
+fn permission_result_from_decision(decision: UserPermissionDecision) -> PermissionResult {
+    match decision {
         UserPermissionDecision::Accept => PermissionResult::Accept,
         UserPermissionDecision::Reject => PermissionResult::Reject,
         UserPermissionDecision::AlwaysAccept => PermissionResult::AlwaysAccept,
         UserPermissionDecision::AlwaysReject => PermissionResult::AlwaysReject,
-    };
-
-    if callback.send(Ok(result)).is_err() {
-        error!("Error while sending permission response to XSWD");
     }
 }
 
@@ -550,6 +621,17 @@ fn handle_prefetch_permissions_decision(
     permissions: XSWDPrefetchPermissions,
     callback: Sender<Result<IndexMap<String, Permission>, Error>>,
 ) {
+    let results = prefetch_permissions_from_decision(decision, permissions);
+
+    if callback.send(Ok(results)).is_err() {
+        error!("Error while sending prefetch permissions response back to XSWD");
+    }
+}
+
+fn prefetch_permissions_from_decision(
+    decision: UserPermissionDecision,
+    permissions: XSWDPrefetchPermissions,
+) -> IndexMap<String, Permission> {
     let accepted = matches!(
         decision,
         UserPermissionDecision::Accept | UserPermissionDecision::AlwaysAccept
@@ -562,9 +644,7 @@ fn handle_prefetch_permissions_decision(
         }
     }
 
-    if callback.send(Ok(results)).is_err() {
-        error!("Error while sending prefetch permissions response back to XSWD");
-    }
+    results
 }
 
 fn xswd_event_name(event: &XSWDEvent) -> &'static str {
@@ -576,3 +656,7 @@ fn xswd_event_name(event: &XSWDEvent) -> &'static str {
         XSWDEvent::AppDisconnect(_) => "AppDisconnect",
     }
 }
+
+#[cfg(test)]
+#[path = "impl/tests.rs"]
+mod tests;

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use anyhow::{Error, Result};
+use anyhow::{anyhow, Error, Result};
 pub use flutter_rust_bridge::DartFnFuture;
 pub use xelis_common::tokio::sync::mpsc::UnboundedReceiver;
 pub use xelis_common::tokio::sync::oneshot::Sender;
@@ -123,7 +123,7 @@ impl XSWD for XelisWallet {
             + Sync
             + 'static,
     ) -> Result<()> {
-        Ok(())
+        xswd_unavailable()
     }
 
     async fn stop_xswd(&self) -> Result<()> {
@@ -143,11 +143,11 @@ impl XSWD for XelisWallet {
         _id: &String,
         _permissions: HashMap<String, PermissionPolicy>,
     ) -> Result<()> {
-        Ok(())
+        xswd_unavailable()
     }
 
     async fn close_application_session(&self, _id: &String) -> Result<()> {
-        Ok(())
+        xswd_unavailable()
     }
 
     async fn add_xswd_relayer(
@@ -174,9 +174,12 @@ impl XSWD for XelisWallet {
             + Sync
             + 'static,
     ) -> Result<()> {
-        // stub - relay connections require network_handler
-        Ok(())
+        xswd_unavailable()
     }
+}
+
+fn xswd_unavailable<T>() -> Result<T> {
+    Err(anyhow!("XSWD support is not enabled in this build"))
 }
 
 pub async fn xswd_handler(
@@ -238,3 +241,7 @@ pub fn xswd_event_name(event: &XSWDEvent) -> &'static str {
         XSWDEvent::AppDisconnect => "AppDisconnect",
     }
 }
+
+#[cfg(test)]
+#[path = "stub/tests.rs"]
+mod tests;

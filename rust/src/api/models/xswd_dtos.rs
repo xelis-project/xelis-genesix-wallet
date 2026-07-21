@@ -117,3 +117,6 @@ pub enum EncryptionMode {
     Aes { key: Vec<u8> },
     Chacha20Poly1305 { key: Vec<u8> },
 }
+
+#[cfg(test)]
+mod tests;
