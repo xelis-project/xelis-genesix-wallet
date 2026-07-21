@@ -453,6 +453,5 @@
   "paste_signature_share": "Paste signature share",
   "invalid_multisig_signature_share": "This signature share is invalid or belongs to another transaction.",
   "duplicate_multisig_signature_share": "This participant has already provided a signature.",
-  "remove_signature_share": "Remove signature share",
-  "ready_for_review": "Ready for review"
+  "remove_signature_share": "Remove signature share"
 }

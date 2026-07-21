@@ -453,6 +453,5 @@
   "paste_signature_share": "Pegar parte de firma",
   "invalid_multisig_signature_share": "Esta parte de firma no es válida o pertenece a otra transacción.",
   "duplicate_multisig_signature_share": "Este participante ya ha proporcionado una firma.",
-  "remove_signature_share": "Eliminar parte de firma",
-  "ready_for_review": "Listo para revisar"
+  "remove_signature_share": "Eliminar parte de firma"
 }

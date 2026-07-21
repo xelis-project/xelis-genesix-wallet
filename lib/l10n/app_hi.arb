@@ -453,6 +453,5 @@
   "paste_signature_share": "हस्ताक्षर हिस्सा पेस्ट करें",
   "invalid_multisig_signature_share": "यह हस्ताक्षर हिस्सा अमान्य है या किसी अन्य लेन-देन से संबंधित है।",
   "duplicate_multisig_signature_share": "यह प्रतिभागी पहले ही हस्ताक्षर दे चुका है।",
-  "remove_signature_share": "हस्ताक्षर अंश हटाएँ",
-  "ready_for_review": "समीक्षा के लिए तैयार"
+  "remove_signature_share": "हस्ताक्षर अंश हटाएँ"
 }

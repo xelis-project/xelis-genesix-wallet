@@ -453,6 +453,5 @@
   "paste_signature_share": "署名シェアを貼り付け",
   "invalid_multisig_signature_share": "この署名シェアは無効か、別のトランザクションに属しています。",
   "duplicate_multisig_signature_share": "この参加者はすでに署名を提供しています。",
-  "remove_signature_share": "署名シェアを削除",
-  "ready_for_review": "確認の準備ができました"
+  "remove_signature_share": "署名シェアを削除"
 }

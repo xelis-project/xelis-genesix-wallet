@@ -453,6 +453,5 @@
   "paste_signature_share": "서명 공유 붙여넣기",
   "invalid_multisig_signature_share": "이 서명 공유가 유효하지 않거나 다른 트랜잭션에 속합니다.",
   "duplicate_multisig_signature_share": "이 참가자는 이미 서명을 제공했습니다.",
-  "remove_signature_share": "서명 공유 제거",
-  "ready_for_review": "검토 준비 완료"
+  "remove_signature_share": "서명 공유 제거"
 }

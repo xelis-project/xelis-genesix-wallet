@@ -453,6 +453,5 @@
   "paste_signature_share": "لصق حصة التوقيع",
   "invalid_multisig_signature_share": "حصة التوقيع هذه غير صالحة أو تخص معاملة أخرى.",
   "duplicate_multisig_signature_share": "قدم هذا المشارك توقيعًا بالفعل.",
-  "remove_signature_share": "إزالة حصة التوقيع",
-  "ready_for_review": "جاهز للمراجعة"
+  "remove_signature_share": "إزالة حصة التوقيع"
 }

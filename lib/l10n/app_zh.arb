@@ -453,6 +453,5 @@
   "paste_signature_share": "粘贴签名份额",
   "invalid_multisig_signature_share": "此签名份额无效或属于其他交易。",
   "duplicate_multisig_signature_share": "此参与者已经提供了签名。",
-  "remove_signature_share": "移除签名份额",
-  "ready_for_review": "已准备好审核"
+  "remove_signature_share": "移除签名份额"
 }

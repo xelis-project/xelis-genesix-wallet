@@ -453,6 +453,5 @@
   "paste_signature_share": "Handtekeningsdeel plakken",
   "invalid_multisig_signature_share": "Dit handtekeningsdeel is ongeldig of hoort bij een andere transactie.",
   "duplicate_multisig_signature_share": "Deze deelnemer heeft al een handtekening aangeleverd.",
-  "remove_signature_share": "Handtekeningdeel verwijderen",
-  "ready_for_review": "Klaar voor controle"
+  "remove_signature_share": "Handtekeningdeel verwijderen"
 }

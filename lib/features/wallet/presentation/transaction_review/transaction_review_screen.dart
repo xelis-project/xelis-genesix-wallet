@@ -23,6 +23,7 @@ import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
 import 'package:go_router/go_router.dart';
 
 const _maxMultisigSignatureShareLength = 1024;
+const _multisigSignatureInspectionDelay = Duration(milliseconds: 500);
 
 class TransactionReviewScreen extends ConsumerStatefulWidget {
   const TransactionReviewScreen({super.key});
@@ -47,7 +48,7 @@ class _TransactionReviewScreenState
         ? _BroadcastComplete(onClose: _finish)
         : switch (review) {
             SignaturePending(:final request) => _SignatureCollectionStep(
-              key: ValueKey('signature-${request.hash}'),
+              key: ValueKey('signature-${request.hash}-${request.threshold}'),
               request: request,
               isFinalizing: _isFinalizing,
               onFinalize: _finalize,
@@ -235,23 +236,27 @@ class _SignatureCollectionStep extends ConsumerStatefulWidget {
 class _SignatureCollectionStepState
     extends ConsumerState<_SignatureCollectionStep> {
   final _controller = TextEditingController();
+  final _signatureListKey = GlobalKey<AnimatedListState>();
   final List<MultisigSignatureShare> _verifiedShares = [];
   Timer? _inspectionTimer;
   _SignatureShareInputError? _inputError;
   bool _isInspecting = false;
   int _inspectionGeneration = 0;
+  int _presentationGeneration = 0;
+  String _observedInputText = '';
+  bool _isSettlingShare = false;
+  bool _isInputVisible = true;
+  bool _isInputExitComplete = false;
+
+  bool get _hasRequiredShares =>
+      _verifiedShares.length == widget.request.threshold;
 
   bool get _canFinalize =>
-      !_isInspecting && _verifiedShares.length == widget.request.threshold;
-
-  @override
-  void didUpdateWidget(covariant _SignatureCollectionStep oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.request.hash != widget.request.hash ||
-        oldWidget.request.threshold != widget.request.threshold) {
-      _resetCollection();
-    }
-  }
+      !_isInspecting &&
+      !_isSettlingShare &&
+      _hasRequiredShares &&
+      !_isInputVisible &&
+      _isInputExitComplete;
 
   @override
   void dispose() {
@@ -263,6 +268,7 @@ class _SignatureCollectionStepState
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
+    final motionDuration = _signatureMotionDuration(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -301,31 +307,47 @@ class _SignatureCollectionStepState
                       ),
                     ),
                     FBadge(
-                      variant: _canFinalize ? .primary : .secondary,
+                      variant: _hasRequiredShares ? .primary : .secondary,
                       child: Text(
                         '${_verifiedShares.length}/${widget.request.threshold}',
                       ),
                     ),
                   ],
                 ),
-                for (final share in _verifiedShares)
-                  _VerifiedParticipant(
-                    signerId: share.signerId,
-                    participant: _participantFor(share),
-                    onRemove: widget.isFinalizing
-                        ? null
-                        : () => _removeShare(share),
-                  ),
-                if (_canFinalize)
-                  const _SignatureCollectionComplete()
-                else
-                  _SignatureShareInput(
-                    controller: _controller,
-                    error: _localizedInputError(loc),
-                    isInspecting: _isInspecting,
-                    onChanged: _queueInspection,
-                    onPaste: _pasteShare,
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _AnimatedSignatureEntryState(
+                      isInputVisible: _isInputVisible,
+                      controller: _controller,
+                      error: _localizedInputError(loc),
+                      isInputEnabled:
+                          !_isSettlingShare &&
+                          !_hasRequiredShares &&
+                          !widget.isFinalizing,
+                      duration: motionDuration,
+                      onChanged: _handleInputChanged,
+                      onPaste: _pasteShare,
+                    ),
+                    AnimatedContainer(
+                      duration: motionDuration,
+                      curve: Curves.easeInOutCubic,
+                      height: _verifiedShares.isNotEmpty && _isInputVisible
+                          ? Spaces.medium
+                          : 0,
+                    ),
+                    _AnimatedSignatureList(
+                      listKey: _signatureListKey,
+                      shares: _verifiedShares,
+                      participants: {
+                        for (final participant in widget.request.participants)
+                          participant.id: participant,
+                      },
+                      canRemove: !_isSettlingShare && !widget.isFinalizing,
+                      onRemove: _removeShare,
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -343,27 +365,31 @@ class _SignatureCollectionStepState
     );
   }
 
-  void _resetCollection() {
-    _inspectionTimer?.cancel();
-    _inspectionGeneration++;
-    _controller.clear();
-    _verifiedShares.clear();
-    _inputError = null;
-    _isInspecting = false;
+  void _handleInputChanged(String value) {
+    if (value == _observedInputText) return;
+
+    _observedInputText = value;
+    _scheduleInspection(value);
   }
 
-  void _queueInspection(String value) {
+  void _scheduleInspection(String value, {bool immediately = false}) {
+    if (_isSettlingShare || _hasRequiredShares || widget.isFinalizing) return;
+
     _inspectionTimer?.cancel();
     final generation = ++_inspectionGeneration;
     final encoded = value.trim();
     setState(() {
       _inputError = null;
-      _isInspecting = encoded.isNotEmpty;
+      _isInspecting = false;
     });
     if (encoded.isEmpty) return;
     final requestHash = widget.request.hash;
+    if (immediately) {
+      unawaited(_inspectShare(encoded, generation, requestHash));
+      return;
+    }
     _inspectionTimer = Timer(
-      const Duration(milliseconds: 250),
+      _multisigSignatureInspectionDelay,
       () => unawaited(_inspectShare(encoded, generation, requestHash)),
     );
   }
@@ -373,6 +399,14 @@ class _SignatureCollectionStepState
     int generation,
     String requestHash,
   ) async {
+    if (!mounted ||
+        generation != _inspectionGeneration ||
+        requestHash != widget.request.hash ||
+        _controller.text.trim() != encoded) {
+      return;
+    }
+
+    setState(() => _isInspecting = true);
     final share = await ref
         .read(walletCommandsProvider)
         .inspectMultisigSignatureShare(txHash: requestHash, encoded: encoded);
@@ -397,39 +431,174 @@ class _SignatureCollectionStepState
       return;
     }
 
-    _controller.clear();
+    final insertionIndex = _verifiedShares.length;
+    final animatedList = _signatureListKey.currentState;
+    final duration = _signatureMotionDuration(context);
     setState(() {
       _verifiedShares.add(share);
       _inputError = null;
       _isInspecting = false;
+      _isSettlingShare = true;
+      _isInputExitComplete = false;
     });
+    animatedList?.insertItem(insertionIndex, duration: duration);
+    if (_hasRequiredShares) {
+      _startCompletionSequence(duration);
+    } else {
+      _startIntermediateShareSequence(duration);
+    }
   }
 
   Future<void> _pasteShare() async {
+    if (_isSettlingShare || _hasRequiredShares || widget.isFinalizing) return;
+
     final clipboard = await Clipboard.getData(Clipboard.kTextPlain);
     final encoded = clipboard?.text?.trim();
     if (!mounted || encoded == null || encoded.isEmpty) return;
     if (encoded.length > _maxMultisigSignatureShareLength) {
       _inspectionTimer?.cancel();
       _inspectionGeneration++;
-      _controller.text = encoded.substring(0, _maxMultisigSignatureShareLength);
+      _setInputText(encoded.substring(0, _maxMultisigSignatureShareLength));
       setState(() {
         _inputError = _SignatureShareInputError.invalid;
         _isInspecting = false;
       });
       return;
     }
-    _controller.text = encoded;
-    _queueInspection(encoded);
+    _setInputText(encoded);
+    _scheduleInspection(encoded, immediately: true);
   }
 
   void _removeShare(MultisigSignatureShare share) {
+    final index = _verifiedShares.indexWhere(
+      (item) => item.signerId == share.signerId,
+    );
+    if (index < 0) return;
+
+    final wasComplete = _hasRequiredShares;
+    final removedShare = _verifiedShares[index];
+    final participant = _participantFor(removedShare);
+    final animatedList = _signatureListKey.currentState;
+    final duration = _signatureMotionDuration(context);
+    final wasSettling = _isSettlingShare;
     final revalidateCurrentInput =
         _inputError == _SignatureShareInputError.duplicate &&
         _controller.text.trim().isNotEmpty;
-    setState(() => _verifiedShares.remove(share));
-    if (revalidateCurrentInput) _queueInspection(_controller.text);
+    _presentationGeneration++;
+    if (wasSettling) _clearInput();
+    setState(() {
+      _verifiedShares.removeAt(index);
+      _isSettlingShare = false;
+      _isInputExitComplete = false;
+    });
+    animatedList?.removeItem(
+      index,
+      (context, animation) => _AnimatedVerifiedParticipant(
+        animation: animation,
+        signerId: removedShare.signerId,
+        participant: participant,
+        onRemove: null,
+      ),
+      duration: duration,
+    );
+    if (wasComplete || !_isInputVisible) {
+      _startIncompleteSequence(duration);
+    }
+    if (revalidateCurrentInput) {
+      _scheduleInspection(_controller.text, immediately: true);
+    }
   }
+
+  void _startIntermediateShareSequence(Duration duration) {
+    final generation = ++_presentationGeneration;
+
+    if (duration == Duration.zero) {
+      _clearAcceptedShare();
+      return;
+    }
+
+    unawaited(_finishIntermediateShareSequence(generation, duration));
+  }
+
+  Future<void> _finishIntermediateShareSequence(
+    int generation,
+    Duration duration,
+  ) async {
+    await Future<void>.delayed(duration);
+    if (!_isCurrentPresentation(generation) || _hasRequiredShares) return;
+
+    _clearAcceptedShare();
+  }
+
+  void _clearAcceptedShare() {
+    _clearInput();
+    setState(() => _isSettlingShare = false);
+  }
+
+  void _setInputText(String value) {
+    _observedInputText = value;
+    _controller.text = value;
+  }
+
+  void _clearInput() => _setInputText('');
+
+  void _startCompletionSequence(Duration duration) {
+    final generation = ++_presentationGeneration;
+
+    if (duration == Duration.zero) {
+      _clearInput();
+      setState(() {
+        _isSettlingShare = false;
+        _isInputVisible = false;
+        _isInputExitComplete = true;
+      });
+      return;
+    }
+
+    unawaited(_showCompletionSequence(generation, duration));
+  }
+
+  Future<void> _showCompletionSequence(
+    int generation,
+    Duration duration,
+  ) async {
+    await Future<void>.delayed(duration);
+    if (!_isCurrentPresentation(generation) || !_hasRequiredShares) return;
+
+    setState(() => _isInputVisible = false);
+    await Future<void>.delayed(duration);
+    if (!_isCurrentPresentation(generation) || !_hasRequiredShares) return;
+
+    _clearInput();
+    setState(() {
+      _isSettlingShare = false;
+      _isInputExitComplete = true;
+    });
+  }
+
+  void _startIncompleteSequence(Duration duration) {
+    final generation = ++_presentationGeneration;
+
+    if (duration == Duration.zero) {
+      setState(() => _isInputVisible = true);
+      return;
+    }
+
+    unawaited(_showIncompleteSequence(generation, duration));
+  }
+
+  Future<void> _showIncompleteSequence(
+    int generation,
+    Duration duration,
+  ) async {
+    await Future<void>.delayed(duration);
+    if (!_isCurrentPresentation(generation) || _hasRequiredShares) return;
+
+    setState(() => _isInputVisible = true);
+  }
+
+  bool _isCurrentPresentation(int generation) =>
+      mounted && generation == _presentationGeneration;
 
   ParticipantDartPayload? _participantFor(MultisigSignatureShare? share) {
     if (share == null) return null;
@@ -455,6 +624,195 @@ class _SignatureCollectionStepState
 }
 
 enum _SignatureShareInputError { invalid, duplicate }
+
+enum _SignatureRevealDirection { fromTop, fromEnd }
+
+Duration _signatureMotionDuration(BuildContext context) {
+  final animationsDisabled =
+      MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+  return animationsDisabled
+      ? Duration.zero
+      : const Duration(milliseconds: AppDurations.animNormal);
+}
+
+class _AnimatedSignatureList extends StatelessWidget {
+  const _AnimatedSignatureList({
+    required this.listKey,
+    required this.shares,
+    required this.participants,
+    required this.canRemove,
+    required this.onRemove,
+  });
+
+  final GlobalKey<AnimatedListState> listKey;
+  final List<MultisigSignatureShare> shares;
+  final Map<int, ParticipantDartPayload> participants;
+  final bool canRemove;
+  final ValueChanged<MultisigSignatureShare> onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedList.separated(
+      key: listKey,
+      initialItemCount: shares.length,
+      primary: false,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      clipBehavior: Clip.none,
+      itemBuilder: (context, index, animation) {
+        final share = shares[index];
+        return _AnimatedVerifiedParticipant(
+          key: ValueKey(share.signerId),
+          animation: animation,
+          signerId: share.signerId,
+          participant: participants[share.signerId],
+          onRemove: canRemove ? () => onRemove(share) : null,
+        );
+      },
+      separatorBuilder: (context, index, animation) =>
+          _AnimatedSignatureSeparator(animation: animation),
+      removedSeparatorBuilder: (context, index, animation) =>
+          _AnimatedSignatureSeparator(animation: animation),
+    );
+  }
+}
+
+class _AnimatedSignatureSeparator extends StatelessWidget {
+  const _AnimatedSignatureSeparator({required this.animation});
+
+  final Animation<double> animation;
+
+  @override
+  Widget build(BuildContext context) {
+    final curved = CurvedAnimation(
+      parent: animation,
+      curve: Curves.easeInOutCubic,
+      reverseCurve: Curves.easeInOutCubic,
+    );
+
+    return SizeTransition(
+      sizeFactor: curved,
+      alignment: AlignmentDirectional.topStart,
+      child: const SizedBox(height: Spaces.medium),
+    );
+  }
+}
+
+class _AnimatedVerifiedParticipant extends StatelessWidget {
+  const _AnimatedVerifiedParticipant({
+    required this.animation,
+    required this.signerId,
+    required this.participant,
+    required this.onRemove,
+    super.key,
+  });
+
+  final Animation<double> animation;
+  final int signerId;
+  final ParticipantDartPayload? participant;
+  final VoidCallback? onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return _SignatureRevealTransition(
+      animation: animation,
+      direction: _SignatureRevealDirection.fromEnd,
+      child: _VerifiedParticipant(
+        signerId: signerId,
+        participant: participant,
+        onRemove: onRemove,
+      ),
+    );
+  }
+}
+
+class _AnimatedSignatureEntryState extends StatelessWidget {
+  const _AnimatedSignatureEntryState({
+    required this.isInputVisible,
+    required this.controller,
+    required this.error,
+    required this.isInputEnabled,
+    required this.duration,
+    required this.onChanged,
+    required this.onPaste,
+  });
+
+  final bool isInputVisible;
+  final TextEditingController controller;
+  final String? error;
+  final bool isInputEnabled;
+  final Duration duration;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onPaste;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRect(
+      child: AnimatedSwitcher(
+        duration: duration,
+        transitionBuilder: (child, animation) => _SignatureRevealTransition(
+          animation: animation,
+          direction: _SignatureRevealDirection.fromTop,
+          child: child,
+        ),
+        child: isInputVisible
+            ? _SignatureShareInput(
+                key: const ValueKey('signature-input'),
+                controller: controller,
+                error: error,
+                isEnabled: isInputEnabled,
+                onChanged: onChanged,
+                onPaste: onPaste,
+              )
+            : const SizedBox.shrink(key: ValueKey('signature-empty')),
+      ),
+    );
+  }
+}
+
+class _SignatureRevealTransition extends StatelessWidget {
+  const _SignatureRevealTransition({
+    required this.animation,
+    required this.direction,
+    required this.child,
+  });
+
+  final Animation<double> animation;
+  final _SignatureRevealDirection direction;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final curved = CurvedAnimation(
+      parent: animation,
+      curve: Curves.easeInOutCubic,
+      reverseCurve: Curves.easeInOutCubic,
+    );
+    final begin = switch (direction) {
+      _SignatureRevealDirection.fromTop => const Offset(0, -28),
+      _SignatureRevealDirection.fromEnd => Offset(
+        Directionality.of(context) == TextDirection.ltr ? 32 : -32,
+        0,
+      ),
+    };
+
+    return FadeTransition(
+      opacity: curved,
+      child: SizeTransition(
+        sizeFactor: curved,
+        alignment: AlignmentDirectional.topStart,
+        child: AnimatedBuilder(
+          animation: curved,
+          child: child,
+          builder: (context, child) => Transform.translate(
+            offset: Offset.lerp(begin, Offset.zero, curved.value)!,
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class _SigningRequestCard extends ConsumerWidget {
   const _SigningRequestCard({required this.request});
@@ -544,14 +902,15 @@ class _SignatureShareInput extends ConsumerWidget {
   const _SignatureShareInput({
     required this.controller,
     required this.error,
-    required this.isInspecting,
+    required this.isEnabled,
     required this.onChanged,
     required this.onPaste,
+    super.key,
   });
 
   final TextEditingController controller;
   final String? error;
-  final bool isInspecting;
+  final bool isEnabled;
   final ValueChanged<String> onChanged;
   final VoidCallback onPaste;
 
@@ -561,12 +920,12 @@ class _SignatureShareInput extends ConsumerWidget {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: Spaces.small,
       children: [
         Semantics(
           label: loc.signature_share,
           textField: true,
           child: FTextField(
+            enabled: isEnabled,
             control: .managed(
               controller: controller,
               onChange: (value) => onChanged(value.text),
@@ -578,24 +937,18 @@ class _SignatureShareInput extends ConsumerWidget {
                 _maxMultisigSignatureShareLength,
               ),
             ],
-            minLines: 2,
-            maxLines: 5,
+            minLines: 3,
+            maxLines: 3,
             hint: loc.paste_signature_share,
             error: error == null ? null : Text(error!),
           ),
         ),
-        if (isInspecting)
-          Text(
-            loc.pending,
-            style: context.theme.typography.body.sm.copyWith(
-              color: context.theme.colors.mutedForeground,
-            ),
-          ),
+        const SizedBox(height: Spaces.small),
         Align(
           alignment: Alignment.centerRight,
           child: FButton(
             variant: .ghost,
-            onPress: onPaste,
+            onPress: isEnabled ? onPaste : null,
             prefix: const Icon(FLucideIcons.clipboardPaste, size: 18),
             child: Text(loc.paste_signature_share),
           ),
@@ -644,34 +997,6 @@ class _VerifiedParticipant extends ConsumerWidget {
           onPress: onRemove,
           semanticsLabel: loc.remove_signature_share,
           child: const Icon(FLucideIcons.trash2, size: 18),
-        ),
-      ],
-    );
-  }
-}
-
-class _SignatureCollectionComplete extends ConsumerWidget {
-  const _SignatureCollectionComplete();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final loc = ref.watch(appLocalizationsProvider);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: Spaces.medium,
-      children: [
-        const FDivider(
-          style: FDividerStyleDelta.delta(
-            padding: EdgeInsetsGeometryDelta.value(EdgeInsets.zero),
-          ),
-        ),
-        Text(
-          loc.ready_for_review,
-          textAlign: TextAlign.center,
-          style: context.theme.typography.body.md.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
         ),
       ],
     );

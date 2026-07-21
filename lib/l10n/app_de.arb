@@ -453,6 +453,5 @@
   "paste_signature_share": "Signaturanteil einfügen",
   "invalid_multisig_signature_share": "Dieser Signaturanteil ist ungültig oder gehört zu einer anderen Transaktion.",
   "duplicate_multisig_signature_share": "Dieser Teilnehmer hat bereits eine Signatur bereitgestellt.",
-  "remove_signature_share": "Signaturanteil entfernen",
-  "ready_for_review": "Bereit zur Überprüfung"
+  "remove_signature_share": "Signaturanteil entfernen"
 }

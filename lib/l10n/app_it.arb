@@ -453,6 +453,5 @@
   "paste_signature_share": "Incolla quota di firma",
   "invalid_multisig_signature_share": "Questa quota di firma non è valida o appartiene a un'altra transazione.",
   "duplicate_multisig_signature_share": "Questo partecipante ha già fornito una firma.",
-  "remove_signature_share": "Rimuovi quota di firma",
-  "ready_for_review": "Pronto per la revisione"
+  "remove_signature_share": "Rimuovi quota di firma"
 }

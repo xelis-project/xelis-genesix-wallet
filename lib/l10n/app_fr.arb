@@ -453,6 +453,5 @@
   "paste_signature_share": "Coller une part de signature",
   "invalid_multisig_signature_share": "Cette part de signature est invalide ou appartient à une autre transaction.",
   "duplicate_multisig_signature_share": "Ce participant a déjà fourni une signature.",
-  "remove_signature_share": "Retirer la part de signature",
-  "ready_for_review": "Prêt pour la vérification"
+  "remove_signature_share": "Retirer la part de signature"
 }

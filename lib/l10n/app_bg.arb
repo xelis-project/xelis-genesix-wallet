@@ -453,6 +453,5 @@
   "paste_signature_share": "Поставяне на дял от подпис",
   "invalid_multisig_signature_share": "Този дял от подпис е невалиден или принадлежи на друга транзакция.",
   "duplicate_multisig_signature_share": "Този участник вече е предоставил подпис.",
-  "remove_signature_share": "Премахване на дял от подпис",
-  "ready_for_review": "Готово за преглед"
+  "remove_signature_share": "Премахване на дял от подпис"
 }

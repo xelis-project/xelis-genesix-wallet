@@ -453,6 +453,5 @@
   "paste_signature_share": "Tampal bahagian tandatangan",
   "invalid_multisig_signature_share": "Bahagian tandatangan ini tidak sah atau milik transaksi lain.",
   "duplicate_multisig_signature_share": "Peserta ini telah memberikan tandatangan.",
-  "remove_signature_share": "Alih keluar bahagian tandatangan",
-  "ready_for_review": "Sedia untuk disemak"
+  "remove_signature_share": "Alih keluar bahagian tandatangan"
 }

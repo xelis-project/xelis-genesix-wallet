@@ -453,6 +453,5 @@
   "paste_signature_share": "Wklej część podpisu",
   "invalid_multisig_signature_share": "Ta część podpisu jest nieprawidłowa lub należy do innej transakcji.",
   "duplicate_multisig_signature_share": "Ten uczestnik już dostarczył podpis.",
-  "remove_signature_share": "Usuń udział podpisu",
-  "ready_for_review": "Gotowe do sprawdzenia"
+  "remove_signature_share": "Usuń udział podpisu"
 }

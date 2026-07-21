@@ -453,6 +453,5 @@
   "paste_signature_share": "Colar parte da assinatura",
   "invalid_multisig_signature_share": "Esta parte da assinatura é inválida ou pertence a outra transação.",
   "duplicate_multisig_signature_share": "Este participante já forneceu uma assinatura.",
-  "remove_signature_share": "Remover parte da assinatura",
-  "ready_for_review": "Pronto para revisão"
+  "remove_signature_share": "Remover parte da assinatura"
 }

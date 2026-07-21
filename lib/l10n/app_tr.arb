@@ -453,6 +453,5 @@
   "paste_signature_share": "İmza payını yapıştır",
   "invalid_multisig_signature_share": "Bu imza payı geçersiz veya başka bir işleme ait.",
   "duplicate_multisig_signature_share": "Bu katılımcı zaten bir imza sağladı.",
-  "remove_signature_share": "İmza payını kaldır",
-  "ready_for_review": "İncelemeye hazır"
+  "remove_signature_share": "İmza payını kaldır"
 }

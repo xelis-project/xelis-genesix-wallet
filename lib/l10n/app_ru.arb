@@ -453,6 +453,5 @@
   "paste_signature_share": "Вставить часть подписи",
   "invalid_multisig_signature_share": "Эта часть подписи недействительна или относится к другой транзакции.",
   "duplicate_multisig_signature_share": "Этот участник уже предоставил подпись.",
-  "remove_signature_share": "Удалить долю подписи",
-  "ready_for_review": "Готово к проверке"
+  "remove_signature_share": "Удалить долю подписи"
 }
