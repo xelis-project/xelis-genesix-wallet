@@ -6,6 +6,7 @@ use anyhow::{bail, Context, Result};
 use log::{error, info, warn};
 use parking_lot::RwLock;
 use serde_json::json;
+use std::future::Future;
 use std::mem;
 use xelis_common::api::wallet::BaseFeeMode;
 use xelis_common::api::{DataElement, DataValue};
@@ -251,11 +252,17 @@ pub(super) fn amount_after_fee(
     asset: &Hash,
     insufficient_funds_context: &'static str,
 ) -> Result<u64> {
-    if asset == &XELIS_ASSET {
-        amount.checked_sub(fee).context(insufficient_funds_context)
+    let amount = if asset == &XELIS_ASSET {
+        amount
+            .checked_sub(fee)
+            .context(insufficient_funds_context)?
     } else {
-        Ok(amount)
-    }
+        amount
+    };
+
+    (amount > 0)
+        .then_some(amount)
+        .context(insufficient_funds_context)
 }
 
 pub(super) fn build_transfer(
@@ -274,7 +281,117 @@ pub(super) fn build_transfer(
     }
 }
 
+fn build_transfer_from_input(
+    transfer: Transfer,
+    asset: Hash,
+    decimals: u8,
+) -> Result<TransferBuilder> {
+    let amount = amounts::checked_atomic_amount(transfer.float_amount, decimals)
+        .context("Error while converting amount to atomic format")?;
+    let destination = Address::from_string(&transfer.str_address).context("Invalid address")?;
+
+    Ok(build_transfer(
+        destination,
+        amount,
+        asset,
+        transfer.extra_data,
+        transfer.encrypt_extra_data,
+    ))
+}
+
+fn build_transfer_all_type(
+    destination: Address,
+    balance: u64,
+    fee: u64,
+    asset: Hash,
+    extra_data: Option<String>,
+    encrypt_extra_data: Option<bool>,
+) -> Result<TransactionTypeBuilder> {
+    let amount = amount_after_fee(balance, fee, &asset, "Insufficient balance for fees")?;
+    let transfer = build_transfer(destination, amount, asset, extra_data, encrypt_extra_data);
+
+    Ok(TransactionTypeBuilder::Transfers(vec![transfer]))
+}
+
+fn build_burn_type(asset: Hash, amount: u64) -> TransactionTypeBuilder {
+    TransactionTypeBuilder::Burn(BurnPayload { amount, asset })
+}
+
+fn build_burn_all_type(asset: Hash, balance: u64, fee: u64) -> Result<TransactionTypeBuilder> {
+    let amount = amount_after_fee(
+        balance,
+        fee,
+        &asset,
+        "Insufficient balance to pay burn transaction fees",
+    )?;
+
+    Ok(build_burn_type(asset, amount))
+}
+
+fn transaction_summary_json(
+    hash: &Hash,
+    fee: u64,
+    transaction_type: TransactionTypeBuilder,
+) -> String {
+    json!(SummaryTransaction {
+        hash: hash.to_hex(),
+        fee,
+        transaction_type,
+    })
+    .to_string()
+}
+
+async fn build_and_store_prepared<T, Build, BuildFuture>(
+    store: &RwLock<PreparedTransactionStore<T>>,
+    transaction_type: TransactionTypeBuilder,
+    build: Build,
+) -> Result<String>
+where
+    Build: FnOnce(TransactionTypeBuilder) -> BuildFuture,
+    BuildFuture: Future<Output = Result<(Hash, u64, T)>>,
+{
+    let (hash, fee, prepared) = build(transaction_type.clone()).await?;
+    let summary = transaction_summary_json(&hash, fee, transaction_type);
+    store.write().replace(hash, prepared)?;
+
+    Ok(summary)
+}
+
 impl XelisWallet {
+    async fn create_and_store_prepared_transaction(
+        &self,
+        transaction_type: TransactionTypeBuilder,
+        action: &'static str,
+    ) -> Result<String> {
+        build_and_store_prepared(
+            &self.prepared_transaction,
+            transaction_type,
+            |transaction_type| async move {
+                let (tx, state) = {
+                    let mut storage = self.wallet.get_storage().write().await;
+                    self.wallet
+                        .create_transaction_with_storage(
+                            &mut storage,
+                            transaction_type,
+                            FeeBuilder::default(),
+                            BaseFeeMode::None,
+                            None,
+                        )
+                        .await?
+                };
+
+                info!("Transaction created!");
+                let hash = tx.hash();
+                info!("Tx Hash: {}", hash);
+                let fee = tx.get_fee();
+                log_transaction_context(action, &tx, &state);
+
+                Ok((hash, fee, (tx, state)))
+            },
+        )
+        .await
+    }
+
     pub async fn estimate_fees(
         &self,
         transfers: Vec<Transfer>,
@@ -308,33 +425,11 @@ impl XelisWallet {
             .await
             .context("Error while creating transaction type builder")?;
 
-        let (tx, state) = {
-            let mut storage = self.wallet.get_storage().write().await;
-            self.wallet
-                .create_transaction_with_storage(
-                    &mut storage,
-                    transaction_type_builder.clone(),
-                    FeeBuilder::default(),
-                    BaseFeeMode::None,
-                    None,
-                )
-                .await?
-        };
-
-        info!("Transaction created!");
-        let hash = tx.hash();
-        info!("Tx Hash: {}", hash);
-        let fee = tx.get_fee();
-        log_transaction_context("Prepared transfer transaction", &tx, &state);
-
-        self.replace_prepared_transaction(hash.clone(), tx, state)?;
-
-        Ok(json!(SummaryTransaction {
-            hash: hash.to_hex(),
-            fee,
-            transaction_type: transaction_type_builder
-        })
-        .to_string())
+        self.create_and_store_prepared_transaction(
+            transaction_type_builder,
+            "Prepared transfer transaction",
+        )
+        .await
     }
 
     pub async fn create_transfer_all_transaction(
@@ -352,75 +447,46 @@ impl XelisWallet {
             Some(value) => Hash::from_hex(&value).context("Invalid asset")?,
         };
 
-        let mut amount = {
+        let balance = {
             let storage = self.wallet.get_storage().read().await;
             storage.get_plaintext_balance_for(&asset).await?
         };
 
         let address = Address::from_string(&str_address).context("Invalid address")?;
 
-        let transfer = build_transfer(
+        let estimated_transaction_type = build_transfer_all_type(
             address.clone(),
-            amount,
+            balance,
+            0,
             asset.clone(),
             extra_data.clone(),
             encrypt_extra_data,
-        );
+        )?;
 
         let estimated_fees = self
             .wallet
             .estimate_fees(
-                TransactionTypeBuilder::Transfers(vec![transfer]),
+                estimated_transaction_type,
                 FeeBuilder::default(),
                 BaseFeeMode::None,
             )
             .await
             .context("Error while estimating fees")?;
 
-        amount = amount_after_fee(
-            amount,
-            estimated_fees,
-            &asset,
-            "Insufficient balance for fees",
-        )?;
-
-        let transfer = build_transfer(
+        let transaction_type_builder = build_transfer_all_type(
             address,
-            amount,
-            asset.clone(),
+            balance,
+            estimated_fees,
+            asset,
             extra_data,
             encrypt_extra_data,
-        );
+        )?;
 
-        let transaction_type_builder = TransactionTypeBuilder::Transfers(vec![transfer]);
-
-        let (tx, state) = {
-            let mut storage = self.wallet.get_storage().write().await;
-            self.wallet
-                .create_transaction_with_storage(
-                    &mut storage,
-                    transaction_type_builder.clone(),
-                    FeeBuilder::default(),
-                    BaseFeeMode::None,
-                    None,
-                )
-                .await?
-        };
-
-        info!("Transaction created!");
-        let hash = tx.hash();
-        info!("Tx Hash: {}", hash);
-        let fee = tx.get_fee();
-        log_transaction_context("Prepared transfer all transaction", &tx, &state);
-
-        self.replace_prepared_transaction(hash.clone(), tx, state)?;
-
-        Ok(json!(SummaryTransaction {
-            hash: hash.to_hex(),
-            fee,
-            transaction_type: transaction_type_builder
-        })
-        .to_string())
+        self.create_and_store_prepared_transaction(
+            transaction_type_builder,
+            "Prepared transfer all transaction",
+        )
+        .await
     }
 
     pub async fn create_burn_transaction(
@@ -445,40 +511,13 @@ impl XelisWallet {
 
         info!("Burning {} of {}", format_coin(amount, decimals), asset);
 
-        let payload = BurnPayload {
-            amount,
-            asset: asset.clone(),
-        };
+        let transaction_type_builder = build_burn_type(asset, amount);
 
-        let transaction_type_builder = TransactionTypeBuilder::Burn(payload);
-
-        let (tx, state) = {
-            let mut storage = self.wallet.get_storage().write().await;
-            self.wallet
-                .create_transaction_with_storage(
-                    &mut storage,
-                    transaction_type_builder.clone(),
-                    FeeBuilder::default(),
-                    BaseFeeMode::None,
-                    None,
-                )
-                .await?
-        };
-
-        info!("Transaction created!");
-        let hash = tx.hash();
-        info!("Tx Hash: {}", hash);
-        let fee = tx.get_fee();
-        log_transaction_context("Prepared burn transaction", &tx, &state);
-
-        self.replace_prepared_transaction(hash.clone(), tx, state)?;
-
-        Ok(json!(SummaryTransaction {
-            hash: hash.to_hex(),
-            fee,
-            transaction_type: transaction_type_builder
-        })
-        .to_string())
+        self.create_and_store_prepared_transaction(
+            transaction_type_builder,
+            "Prepared burn transaction",
+        )
+        .await
     }
 
     pub async fn create_burn_all_transaction(&self, asset_hash: String) -> Result<String> {
@@ -486,65 +525,32 @@ impl XelisWallet {
 
         let asset = Hash::from_hex(&asset_hash).context("Invalid asset")?;
 
-        let mut amount = {
+        let balance = {
             let storage = self.wallet.get_storage().read().await;
             storage.get_plaintext_balance_for(&asset).await?
         };
 
-        info!("Burning all {} of {}", amount, asset);
+        info!("Burning all {} of {}", balance, asset);
 
-        let mut payload = BurnPayload {
-            amount,
-            asset: asset.clone(),
-        };
+        let estimated_transaction_type = build_burn_all_type(asset.clone(), balance, 0)?;
 
         let estimated_fees = self
             .wallet
             .estimate_fees(
-                TransactionTypeBuilder::Burn(payload.clone()),
+                estimated_transaction_type,
                 FeeBuilder::default(),
                 BaseFeeMode::None,
             )
             .await
             .context("Error while estimating fees")?;
 
-        amount = amount_after_fee(
-            amount,
-            estimated_fees,
-            &asset,
-            "Insufficient balance to pay burn transaction fees",
-        )?;
-        payload.amount = amount;
+        let transaction_type_builder = build_burn_all_type(asset, balance, estimated_fees)?;
 
-        let transaction_type_builder = TransactionTypeBuilder::Burn(payload);
-
-        let (tx, state) = {
-            let mut storage = self.wallet.get_storage().write().await;
-            self.wallet
-                .create_transaction_with_storage(
-                    &mut storage,
-                    transaction_type_builder.clone(),
-                    FeeBuilder::default(),
-                    BaseFeeMode::None,
-                    None,
-                )
-                .await?
-        };
-
-        info!("Transaction created!");
-        let hash = tx.hash();
-        info!("Tx Hash: {}", hash);
-        let fee = tx.get_fee();
-        log_transaction_context("Prepared burn all transaction", &tx, &state);
-
-        self.replace_prepared_transaction(hash.clone(), tx, state)?;
-
-        Ok(json!(SummaryTransaction {
-            hash: hash.to_hex(),
-            fee,
-            transaction_type: transaction_type_builder
-        })
-        .to_string())
+        self.create_and_store_prepared_transaction(
+            transaction_type_builder,
+            "Prepared burn all transaction",
+        )
+        .await
     }
 
     pub(super) fn clear_transaction_internal(
@@ -648,37 +654,34 @@ pub(super) async fn create_transfers(
     wallet: &XelisWallet,
     transfers: Vec<Transfer>,
 ) -> Result<TransactionTypeBuilder> {
+    create_transfers_with_decimals(transfers, |asset| async move {
+        let storage = wallet.wallet.get_storage().read().await;
+        Ok(storage.get_asset(&asset).await?.get_decimals())
+    })
+    .await
+}
+
+async fn create_transfers_with_decimals<LoadDecimals, LoadDecimalsFuture>(
+    transfers: Vec<Transfer>,
+    mut load_decimals: LoadDecimals,
+) -> Result<TransactionTypeBuilder>
+where
+    LoadDecimals: FnMut(Hash) -> LoadDecimalsFuture,
+    LoadDecimalsFuture: Future<Output = Result<u8>>,
+{
     let mut vec = Vec::new();
 
     for transfer in transfers {
         let asset = Hash::from_hex(&transfer.asset_hash).context("Invalid asset")?;
-
-        let amount = wallet
-            .convert_float_amount(transfer.float_amount, &asset)
+        let decimals = load_decimals(asset.clone())
             .await
             .context("Error while converting amount to atomic format")?;
-
-        let address = Address::from_string(&transfer.str_address).context("Invalid address")?;
-        let transfer_builder = build_transfer(
-            address,
-            amount,
-            asset,
-            transfer.extra_data,
-            transfer.encrypt_extra_data,
-        );
+        let transfer_builder = build_transfer_from_input(transfer, asset, decimals)?;
 
         vec.push(transfer_builder);
     }
 
     Ok(TransactionTypeBuilder::Transfers(vec))
-}
-
-impl XelisWallet {
-    async fn convert_float_amount(&self, float_amount: f64, asset: &Hash) -> Result<u64> {
-        let storage = self.wallet.get_storage().read().await;
-        let decimals = storage.get_asset(&asset).await?.get_decimals();
-        amounts::checked_atomic_amount(float_amount, decimals)
-    }
 }
 
 pub(super) fn log_transaction_context(
