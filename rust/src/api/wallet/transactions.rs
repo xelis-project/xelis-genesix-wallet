@@ -1,345 +1,27 @@
-use super::super::models::wallet_dtos::{
-    BroadcastTransactionOutcome, SummaryTransaction, Transfer,
-};
+use super::super::models::wallet_dtos::{BroadcastTransactionOutcome, Transfer};
 use super::{amounts, Transaction, TransactionBuilderState, XelisWallet};
-use anyhow::{bail, Context, Result};
-use log::{error, info, warn};
+use anyhow::{Context, Result};
+use log::{error, info};
 use parking_lot::RwLock;
-use serde_json::json;
 use std::future::Future;
-use std::mem;
 use xelis_common::api::wallet::BaseFeeMode;
-use xelis_common::api::{DataElement, DataValue};
 use xelis_common::config::{COIN_DECIMALS, XELIS_ASSET};
 use xelis_common::crypto::{Address, Hash, Hashable};
-use xelis_common::rpc::client::JsonRPCError;
 use xelis_common::serializer::Serializer;
-use xelis_common::transaction::builder::{FeeBuilder, TransactionTypeBuilder, TransferBuilder};
-use xelis_common::transaction::BurnPayload;
+use xelis_common::transaction::builder::{FeeBuilder, TransactionTypeBuilder};
 use xelis_common::utils::format_coin;
-use xelis_wallet::error::WalletError;
 
-enum SubmissionResolution {
-    Submitted,
-    Retryable(WalletError),
-    DaemonRejected(WalletError),
-    LocalFailure(WalletError),
-}
+mod builders;
+mod prepared;
+mod submission;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-enum SubmitErrorClass {
-    Retryable,
-    DaemonRejected,
-    LocalFailure,
-}
-
-enum PreparedTransactionState<T> {
-    Empty,
-    Ready { hash: Hash, transaction: T },
-    InFlight { hash: Hash },
-}
-
-impl<T> Default for PreparedTransactionState<T> {
-    fn default() -> Self {
-        Self::Empty
-    }
-}
-
-pub(super) struct PreparedTransactionStore<T> {
-    state: PreparedTransactionState<T>,
-}
-
-impl<T> Default for PreparedTransactionStore<T> {
-    fn default() -> Self {
-        Self {
-            state: PreparedTransactionState::Empty,
-        }
-    }
-}
-
-impl<T> PreparedTransactionStore<T> {
-    pub(super) fn ensure_replaceable(&self) -> Result<()> {
-        if matches!(self.state, PreparedTransactionState::InFlight { .. }) {
-            bail!(
-                "Cannot replace a prepared transaction while another transaction is being submitted"
-            );
-        }
-
-        Ok(())
-    }
-
-    pub(super) fn replace(&mut self, hash: Hash, transaction: T) -> Result<()> {
-        self.ensure_replaceable()?;
-        self.state = PreparedTransactionState::Ready { hash, transaction };
-        Ok(())
-    }
-
-    fn cancel(&mut self, hash: &Hash) -> Result<T> {
-        match &self.state {
-            PreparedTransactionState::InFlight {
-                hash: submitted_hash,
-            } if submitted_hash == hash => {
-                bail!("Cannot cancel a transaction while it is being submitted")
-            }
-            PreparedTransactionState::Ready {
-                hash: prepared_hash,
-                ..
-            } if prepared_hash == hash => {}
-            _ => bail!("Cannot delete prepared transaction"),
-        }
-
-        match mem::take(&mut self.state) {
-            PreparedTransactionState::Ready { transaction, .. } => Ok(transaction),
-            previous_state => {
-                self.state = previous_state;
-                bail!("Prepared transaction state changed during cancellation")
-            }
-        }
-    }
-
-    fn take_for_submission(&mut self, hash: &Hash) -> Result<T> {
-        match &self.state {
-            PreparedTransactionState::InFlight {
-                hash: submitted_hash,
-            } if submitted_hash == hash => {
-                bail!("Transaction is already being submitted")
-            }
-            PreparedTransactionState::Ready {
-                hash: prepared_hash,
-                ..
-            } if prepared_hash == hash => {}
-            _ => bail!("Cannot find prepared transaction"),
-        }
-
-        match mem::take(&mut self.state) {
-            PreparedTransactionState::Ready {
-                hash: prepared_hash,
-                transaction,
-            } => {
-                self.state = PreparedTransactionState::InFlight {
-                    hash: prepared_hash,
-                };
-                Ok(transaction)
-            }
-            previous_state => {
-                self.state = previous_state;
-                bail!("Prepared transaction state changed before submission")
-            }
-        }
-    }
-
-    fn restore_after_submission(&mut self, hash: Hash, transaction: T) -> Result<()> {
-        match &self.state {
-            PreparedTransactionState::InFlight {
-                hash: submitted_hash,
-            } if submitted_hash == &hash => {
-                self.state = PreparedTransactionState::Ready { hash, transaction };
-                Ok(())
-            }
-            _ => bail!("Prepared transaction submission state is inconsistent"),
-        }
-    }
-
-    fn finish_submission(&mut self, hash: &Hash) -> bool {
-        if matches!(
-            &self.state,
-            PreparedTransactionState::InFlight {
-                hash: submitted_hash
-            } if submitted_hash == hash
-        ) {
-            self.state = PreparedTransactionState::Empty;
-            true
-        } else {
-            false
-        }
-    }
-}
-
-struct PreparedTransactionGuard<'a, T> {
-    store: &'a RwLock<PreparedTransactionStore<T>>,
-    hash: Hash,
-    transaction: Option<T>,
-}
-
-impl<'a, T> PreparedTransactionGuard<'a, T> {
-    fn take(store: &'a RwLock<PreparedTransactionStore<T>>, hash: Hash) -> Result<Self> {
-        let transaction = store.write().take_for_submission(&hash)?;
-        Ok(Self {
-            store,
-            hash,
-            transaction: Some(transaction),
-        })
-    }
-
-    fn transaction(&self) -> Result<&T> {
-        self.transaction
-            .as_ref()
-            .context("Prepared transaction guard is empty")
-    }
-
-    fn restore(mut self) -> Result<()> {
-        let transaction = self
-            .transaction
-            .take()
-            .context("Prepared transaction guard is empty")?;
-        self.store
-            .write()
-            .restore_after_submission(self.hash.clone(), transaction)
-    }
-
-    fn finish(mut self) -> Result<T> {
-        let transaction = self
-            .transaction
-            .take()
-            .context("Prepared transaction guard is empty")?;
-
-        if !self.store.write().finish_submission(&self.hash) {
-            self.transaction = Some(transaction);
-            bail!("Prepared transaction submission state is inconsistent");
-        }
-
-        Ok(transaction)
-    }
-}
-
-impl<T> Drop for PreparedTransactionGuard<'_, T> {
-    fn drop(&mut self) {
-        if let Some(transaction) = self.transaction.take() {
-            if let Err(error) = self
-                .store
-                .write()
-                .restore_after_submission(self.hash.clone(), transaction)
-            {
-                error!(
-                    "Prepared transaction could not be restored after an interrupted submission: {error}"
-                );
-            } else {
-                warn!(
-                    "Prepared transaction {} restored after an interrupted submission",
-                    self.hash
-                );
-            }
-        }
-    }
-}
-
-fn ensure_wallet_online(is_online: bool) -> Result<()> {
-    if !is_online {
-        bail!("Wallet is offline, transaction cannot be submitted");
-    }
-
-    Ok(())
-}
-
-fn resolve_submission(submit_result: std::result::Result<(), WalletError>) -> SubmissionResolution {
-    match submit_result {
-        Ok(()) => SubmissionResolution::Submitted,
-        Err(error) => match classify_submit_error(&error) {
-            SubmitErrorClass::Retryable => SubmissionResolution::Retryable(error),
-            SubmitErrorClass::DaemonRejected => SubmissionResolution::DaemonRejected(error),
-            SubmitErrorClass::LocalFailure => SubmissionResolution::LocalFailure(error),
-        },
-    }
-}
-
-pub(super) fn encrypt_extra_data_or_default(value: Option<bool>) -> bool {
-    value.unwrap_or(true)
-}
-
-pub(super) fn amount_after_fee(
-    amount: u64,
-    fee: u64,
-    asset: &Hash,
-    insufficient_funds_context: &'static str,
-) -> Result<u64> {
-    let amount = if asset == &XELIS_ASSET {
-        amount
-            .checked_sub(fee)
-            .context(insufficient_funds_context)?
-    } else {
-        amount
-    };
-
-    (amount > 0)
-        .then_some(amount)
-        .context(insufficient_funds_context)
-}
-
-pub(super) fn build_transfer(
-    destination: Address,
-    amount: u64,
-    asset: Hash,
-    extra_data: Option<String>,
-    encrypt_extra_data: Option<bool>,
-) -> TransferBuilder {
-    TransferBuilder {
-        destination,
-        amount,
-        asset,
-        extra_data: extra_data.map(|value| DataElement::Value(DataValue::String(value))),
-        encrypt_extra_data: encrypt_extra_data_or_default(encrypt_extra_data),
-    }
-}
-
-fn build_transfer_from_input(
-    transfer: Transfer,
-    asset: Hash,
-    decimals: u8,
-) -> Result<TransferBuilder> {
-    let amount = amounts::checked_atomic_amount(transfer.float_amount, decimals)
-        .context("Error while converting amount to atomic format")?;
-    let destination = Address::from_string(&transfer.str_address).context("Invalid address")?;
-
-    Ok(build_transfer(
-        destination,
-        amount,
-        asset,
-        transfer.extra_data,
-        transfer.encrypt_extra_data,
-    ))
-}
-
-fn build_transfer_all_type(
-    destination: Address,
-    balance: u64,
-    fee: u64,
-    asset: Hash,
-    extra_data: Option<String>,
-    encrypt_extra_data: Option<bool>,
-) -> Result<TransactionTypeBuilder> {
-    let amount = amount_after_fee(balance, fee, &asset, "Insufficient balance for fees")?;
-    let transfer = build_transfer(destination, amount, asset, extra_data, encrypt_extra_data);
-
-    Ok(TransactionTypeBuilder::Transfers(vec![transfer]))
-}
-
-fn build_burn_type(asset: Hash, amount: u64) -> TransactionTypeBuilder {
-    TransactionTypeBuilder::Burn(BurnPayload { amount, asset })
-}
-
-fn build_burn_all_type(asset: Hash, balance: u64, fee: u64) -> Result<TransactionTypeBuilder> {
-    let amount = amount_after_fee(
-        balance,
-        fee,
-        &asset,
-        "Insufficient balance to pay burn transaction fees",
-    )?;
-
-    Ok(build_burn_type(asset, amount))
-}
-
-fn transaction_summary_json(
-    hash: &Hash,
-    fee: u64,
-    transaction_type: TransactionTypeBuilder,
-) -> String {
-    json!(SummaryTransaction {
-        hash: hash.to_hex(),
-        fee,
-        transaction_type,
-    })
-    .to_string()
-}
+pub(super) use builders::{amount_after_fee, build_transfer, create_transfers};
+use builders::{
+    build_burn_all_type, build_burn_type, build_transfer_all_type, transaction_summary_json,
+};
+use prepared::PreparedTransactionGuard;
+pub(super) use prepared::PreparedTransactionStore;
+use submission::{ensure_wallet_online, resolve_submission, SubmissionResolution};
 
 async fn build_and_store_prepared<T, Build, BuildFuture>(
     store: &RwLock<PreparedTransactionStore<T>>,
@@ -648,40 +330,11 @@ impl XelisWallet {
             }
         }
     }
-}
 
-pub(super) async fn create_transfers(
-    wallet: &XelisWallet,
-    transfers: Vec<Transfer>,
-) -> Result<TransactionTypeBuilder> {
-    create_transfers_with_decimals(transfers, |asset| async move {
-        let storage = wallet.wallet.get_storage().read().await;
-        Ok(storage.get_asset(&asset).await?.get_decimals())
-    })
-    .await
-}
-
-async fn create_transfers_with_decimals<LoadDecimals, LoadDecimalsFuture>(
-    transfers: Vec<Transfer>,
-    mut load_decimals: LoadDecimals,
-) -> Result<TransactionTypeBuilder>
-where
-    LoadDecimals: FnMut(Hash) -> LoadDecimalsFuture,
-    LoadDecimalsFuture: Future<Output = Result<u8>>,
-{
-    let mut vec = Vec::new();
-
-    for transfer in transfers {
-        let asset = Hash::from_hex(&transfer.asset_hash).context("Invalid asset")?;
-        let decimals = load_decimals(asset.clone())
-            .await
-            .context("Error while converting amount to atomic format")?;
-        let transfer_builder = build_transfer_from_input(transfer, asset, decimals)?;
-
-        vec.push(transfer_builder);
+    async fn clear_unconfirmed_transaction_state(&self) {
+        let mut storage = self.wallet.get_storage().write().await;
+        storage.delete_unconfirmed_balances().await;
     }
-
-    Ok(TransactionTypeBuilder::Transfers(vec))
 }
 
 pub(super) fn log_transaction_context(
@@ -704,53 +357,6 @@ pub(super) fn log_transaction_context(
         state_reference.topoheight,
         state_reference.hash
     );
-}
-
-impl XelisWallet {
-    async fn clear_unconfirmed_transaction_state(&self) {
-        let mut storage = self.wallet.get_storage().write().await;
-        storage.delete_unconfirmed_balances().await;
-    }
-}
-
-fn is_daemon_rejection(error: &anyhow::Error) -> bool {
-    matches!(
-        error.downcast_ref::<JsonRPCError>(),
-        Some(
-            JsonRPCError::ParseError
-                | JsonRPCError::InvalidRequest
-                | JsonRPCError::MethodNotFound
-                | JsonRPCError::InvalidParams
-                | JsonRPCError::InternalError { .. }
-                | JsonRPCError::ServerError { .. }
-        )
-    )
-}
-
-fn is_retryable_rpc_error(error: &anyhow::Error) -> bool {
-    matches!(
-        error.downcast_ref::<JsonRPCError>(),
-        Some(
-            JsonRPCError::NoResponse(_, _)
-                | JsonRPCError::TimedOut(_)
-                | JsonRPCError::HttpError(_)
-                | JsonRPCError::ConnectionError(_)
-                | JsonRPCError::SocketError(_)
-                | JsonRPCError::SendError(_, _)
-        )
-    )
-}
-
-fn classify_submit_error(error: &WalletError) -> SubmitErrorClass {
-    // Retain the prepared transaction only for explicitly known transport or
-    // offline failures. New or wrapped error variants must remain final until
-    // their retry semantics have been reviewed.
-    match error {
-        WalletError::Any(error) if is_retryable_rpc_error(error) => SubmitErrorClass::Retryable,
-        WalletError::Any(error) if is_daemon_rejection(error) => SubmitErrorClass::DaemonRejected,
-        WalletError::NotOnlineMode | WalletError::NoNetworkHandler => SubmitErrorClass::Retryable,
-        _ => SubmitErrorClass::LocalFailure,
-    }
 }
 
 #[cfg(test)]
