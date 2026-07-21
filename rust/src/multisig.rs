@@ -153,21 +153,26 @@ impl<T> PendingMultisigStore<T> {
         expected_hash: &Hash,
         validate: impl FnOnce(&T) -> Result<R>,
     ) -> Result<(T, R)> {
-        self.ensure_expected_hash(expected_hash)?;
-
-        let validation = {
-            let (_, payload) = self
-                .request
-                .as_ref()
-                .context("No multisig request is pending")?;
-            validate(payload)?
-        };
+        let validation = self.validate(expected_hash, validate)?;
 
         let (_, payload) = self
             .request
             .take()
             .context("No multisig request is pending")?;
         Ok((payload, validation))
+    }
+
+    pub fn validate<R>(
+        &self,
+        expected_hash: &Hash,
+        validate: impl FnOnce(&T) -> Result<R>,
+    ) -> Result<R> {
+        self.ensure_expected_hash(expected_hash)?;
+        let (_, payload) = self
+            .request
+            .as_ref()
+            .context("No multisig request is pending")?;
+        validate(payload)
     }
 
     fn ensure_expected_hash(&self, expected_hash: &Hash) -> Result<()> {
@@ -209,33 +214,45 @@ pub(super) fn build_verified_multisig(
 
     let mut multisig = MultiSig::new();
     for signature in signatures {
-        let participant = configuration
-            .participants
-            .get_index(signature.id as usize)
-            .context("The multisig participant id is invalid")?;
-        let participant = participant
-            .decompress()
-            .context("The multisig participant key is invalid")?;
-        let parsed_signature = Signature::from_hex(&signature.signature)
-            .context("The multisig signature encoding is invalid")?;
-        ensure!(
-            parsed_signature.to_hex() == signature.signature,
-            "The multisig signature encoding is not canonical"
-        );
-
-        if !parsed_signature.verify(expected_hash.as_bytes(), &participant) {
-            bail!("The multisig signature is invalid for this transaction");
-        }
-
-        if !multisig.add_signature(SignatureId {
-            id: signature.id,
-            signature: parsed_signature,
-        }) {
+        if !multisig.add_signature(verify_multisig_signature(
+            expected_hash,
+            configuration,
+            signature,
+        )?) {
             bail!("A multisig participant was provided more than once");
         }
     }
 
     Ok(multisig)
+}
+
+pub(super) fn verify_multisig_signature(
+    expected_hash: &Hash,
+    configuration: &MultiSigPayload,
+    signature: &SignatureMultisig,
+) -> Result<SignatureId> {
+    let participant = configuration
+        .participants
+        .get_index(signature.id as usize)
+        .context("The multisig participant id is invalid")?;
+    let participant = participant
+        .decompress()
+        .context("The multisig participant key is invalid")?;
+    let parsed_signature = Signature::from_hex(&signature.signature)
+        .context("The multisig signature encoding is invalid")?;
+    ensure!(
+        parsed_signature.to_hex() == signature.signature,
+        "The multisig signature encoding is not canonical"
+    );
+
+    if !parsed_signature.verify(expected_hash.as_bytes(), &participant) {
+        bail!("The multisig signature is invalid for this transaction");
+    }
+
+    Ok(SignatureId {
+        id: signature.id,
+        signature: parsed_signature,
+    })
 }
 
 pub(super) fn create_multisig_signing_request(

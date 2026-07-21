@@ -447,5 +447,12 @@
   "wallet_not_multisig_participant": "Diese Wallet ist kein Teilnehmer dieser Multisig-Konfiguration.",
   "fee_limit": "Gebührenlimit",
   "transaction_broadcast_confirmation": "Ich habe die Transaktionsdetails geprüft und möchte die Transaktion senden.",
-  "delete_multisig_confirmation": "Ich verstehe, dass das Senden dieser Transaktion die Multisig-Konfiguration entfernt."
+  "delete_multisig_confirmation": "Ich verstehe, dass das Senden dieser Transaktion die Multisig-Konfiguration entfernt.",
+  "copy_multisig_signing_request": "Multisig-Signaturanfrage kopieren",
+  "multisig_share_request_instruction": "Kopiere diese Anfrage und sende sie vertraulich an jeden Teilnehmer, dessen Signatur du benötigst.",
+  "paste_signature_share": "Signaturanteil einfügen",
+  "invalid_multisig_signature_share": "Dieser Signaturanteil ist ungültig oder gehört zu einer anderen Transaktion.",
+  "duplicate_multisig_signature_share": "Dieser Teilnehmer hat bereits eine Signatur bereitgestellt.",
+  "remove_signature_share": "Signaturanteil entfernen",
+  "ready_for_review": "Bereit zur Überprüfung"
 }

@@ -604,6 +604,16 @@ class NativeWalletRepository {
     return _xelisWallet.signMultisigSigningRequest(encoded: encoded);
   }
 
+  Future<MultisigSignatureShare> inspectMultisigSignatureShare({
+    required String txHash,
+    required String encoded,
+  }) {
+    return _xelisWallet.inspectMultisigSignatureShare(
+      txHash: txHash,
+      encoded: encoded,
+    );
+  }
+
   Future<TransactionSummary?> setupMultisig({
     required List<String> participants,
     required int threshold,

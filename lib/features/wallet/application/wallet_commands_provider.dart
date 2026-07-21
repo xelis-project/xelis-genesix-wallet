@@ -401,6 +401,27 @@ class WalletCommandsController {
     return null;
   }
 
+  Future<MultisigSignatureShare?> inspectMultisigSignatureShare({
+    required String txHash,
+    required String encoded,
+  }) async {
+    final repository = _repository;
+    if (repository == null) {
+      return null;
+    }
+
+    try {
+      return await repository.inspectMultisigSignatureShare(
+        txHash: txHash,
+        encoded: encoded,
+      );
+    } catch (_) {
+      // Invalid clipboard input is rendered as a field error. Do not log the
+      // raw share or emit a global wallet error for this expected failure.
+      return null;
+    }
+  }
+
   Future<void> trackAsset(String assetHash) async {
     final repository = _repository;
     if (repository == null) {

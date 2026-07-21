@@ -447,5 +447,12 @@
   "wallet_not_multisig_participant": "此钱包不是该多重签名配置的参与者。",
   "fee_limit": "手续费上限",
   "transaction_broadcast_confirmation": "我已核对交易详情，并希望广播此交易。",
-  "delete_multisig_confirmation": "我明白广播此交易将移除多签配置。"
+  "delete_multisig_confirmation": "我明白广播此交易将移除多签配置。",
+  "copy_multisig_signing_request": "复制多签签名请求",
+  "multisig_share_request_instruction": "复制此请求，并私下发送给每位需要其签名的参与者。",
+  "paste_signature_share": "粘贴签名份额",
+  "invalid_multisig_signature_share": "此签名份额无效或属于其他交易。",
+  "duplicate_multisig_signature_share": "此参与者已经提供了签名。",
+  "remove_signature_share": "移除签名份额",
+  "ready_for_review": "已准备好审核"
 }

@@ -447,5 +447,12 @@
   "wallet_not_multisig_participant": "Ce wallet ne participe pas à cette configuration multisig.",
   "fee_limit": "Plafond de frais",
   "transaction_broadcast_confirmation": "J’ai vérifié les détails de la transaction et je souhaite la diffuser.",
-  "delete_multisig_confirmation": "Je comprends que la diffusion de cette transaction supprimera la configuration multisig."
+  "delete_multisig_confirmation": "Je comprends que la diffusion de cette transaction supprimera la configuration multisig.",
+  "copy_multisig_signing_request": "Copier la demande de signature multisig",
+  "multisig_share_request_instruction": "Copiez cette demande et transmettez-la de manière privée à chaque participant dont la signature est requise.",
+  "paste_signature_share": "Coller une part de signature",
+  "invalid_multisig_signature_share": "Cette part de signature est invalide ou appartient à une autre transaction.",
+  "duplicate_multisig_signature_share": "Ce participant a déjà fourni une signature.",
+  "remove_signature_share": "Retirer la part de signature",
+  "ready_for_review": "Prêt pour la vérification"
 }

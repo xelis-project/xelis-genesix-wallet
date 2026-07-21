@@ -14,9 +14,9 @@ use xelis_common::{
 use super::{
     build_verified_multisig, create_multisig_signature_share, create_multisig_signing_request,
     multisig_request_signing_bytes, parse_multisig_signature_share, parse_multisig_signing_request,
-    validate_multisig_setup, MultisigSignatureShareEnvelope, MultisigSigningRequestEnvelope,
-    MultisigSigningRequestTransaction, PendingMultisigStore, MAX_MULTISIG_SIGNATURE_SHARE_SIZE,
-    MAX_MULTISIG_SIGNING_REQUEST_SIZE,
+    validate_multisig_setup, verify_multisig_signature, MultisigSignatureShareEnvelope,
+    MultisigSigningRequestEnvelope, MultisigSigningRequestTransaction, PendingMultisigStore,
+    MAX_MULTISIG_SIGNATURE_SHARE_SIZE, MAX_MULTISIG_SIGNING_REQUEST_SIZE,
 };
 use crate::api::models::wallet_dtos::{MultisigSigningTransaction, SignatureMultisig};
 
@@ -246,6 +246,42 @@ fn verified_multisig_rejects_invalid_participant_id() {
     let configuration = configuration(&[&signer], 1);
     let signatures = vec![signature(1, &signer, &hash)];
     assert!(build_verified_multisig(&hash, &configuration, &signatures).is_err());
+}
+
+#[test]
+fn individual_signature_validation_identifies_participant_without_consuming_store() {
+    let first = KeyPair::new();
+    let second = KeyPair::new();
+    let hash = Hash::new([7; 32]);
+    let configuration = configuration(&[&first, &second], 2);
+    let signature = signature(1, &second, &hash);
+    let mut store = PendingMultisigStore::default();
+    store.insert(hash.clone(), configuration).unwrap();
+
+    let verified = store
+        .validate(&hash, |configuration| {
+            verify_multisig_signature(&hash, configuration, &signature)
+        })
+        .unwrap();
+
+    assert_eq!(verified.id, 1);
+    assert_eq!(store.hash(), Some(&hash));
+}
+
+#[test]
+fn individual_signature_validation_rejects_claimed_wrong_participant() {
+    let expected = KeyPair::new();
+    let actual = KeyPair::new();
+    let hash = Hash::new([7; 32]);
+    let configuration = configuration(&[&expected, &actual], 2);
+    let signature = signature(0, &actual, &hash);
+
+    let error = verify_multisig_signature(&hash, &configuration, &signature).unwrap_err();
+
+    assert_eq!(
+        error.to_string(),
+        "The multisig signature is invalid for this transaction"
+    );
 }
 
 #[test]

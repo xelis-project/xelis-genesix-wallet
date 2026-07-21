@@ -447,5 +447,12 @@
   "wallet_not_multisig_participant": "Questo wallet non partecipa a questa configurazione multisig.",
   "fee_limit": "Limite commissione",
   "transaction_broadcast_confirmation": "Ho verificato i dettagli della transazione e desidero trasmetterla.",
-  "delete_multisig_confirmation": "Comprendo che la trasmissione di questa transazione rimuoverà la configurazione multisig."
+  "delete_multisig_confirmation": "Comprendo che la trasmissione di questa transazione rimuoverà la configurazione multisig.",
+  "copy_multisig_signing_request": "Copia richiesta firma multisig",
+  "multisig_share_request_instruction": "Copia questa richiesta e inviala privatamente a ogni partecipante di cui ti serve la firma.",
+  "paste_signature_share": "Incolla quota di firma",
+  "invalid_multisig_signature_share": "Questa quota di firma non è valida o appartiene a un'altra transazione.",
+  "duplicate_multisig_signature_share": "Questo partecipante ha già fornito una firma.",
+  "remove_signature_share": "Rimuovi quota di firma",
+  "ready_for_review": "Pronto per la revisione"
 }

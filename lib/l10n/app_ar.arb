@@ -447,5 +447,12 @@
   "wallet_not_multisig_participant": "هذه المحفظة ليست مشاركًا في إعداد التوقيع المتعدد هذا.",
   "fee_limit": "حد الرسوم",
   "transaction_broadcast_confirmation": "لقد راجعت تفاصيل المعاملة وأرغب في بثها.",
-  "delete_multisig_confirmation": "أفهم أن بث هذه المعاملة سيزيل إعداد التوقيع المتعدد."
+  "delete_multisig_confirmation": "أفهم أن بث هذه المعاملة سيزيل إعداد التوقيع المتعدد.",
+  "copy_multisig_signing_request": "نسخ طلب التوقيع المتعدد",
+  "multisig_share_request_instruction": "انسخ هذا الطلب وأرسله بشكل خاص إلى كل مشارك تحتاج إلى توقيعه.",
+  "paste_signature_share": "لصق حصة التوقيع",
+  "invalid_multisig_signature_share": "حصة التوقيع هذه غير صالحة أو تخص معاملة أخرى.",
+  "duplicate_multisig_signature_share": "قدم هذا المشارك توقيعًا بالفعل.",
+  "remove_signature_share": "إزالة حصة التوقيع",
+  "ready_for_review": "جاهز للمراجعة"
 }

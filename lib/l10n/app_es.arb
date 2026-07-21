@@ -447,5 +447,12 @@
   "wallet_not_multisig_participant": "Esta cartera no participa en esta configuración multifirma.",
   "fee_limit": "Límite de comisión",
   "transaction_broadcast_confirmation": "He revisado los detalles de la transacción y quiero difundirla.",
-  "delete_multisig_confirmation": "Entiendo que difundir esta transacción eliminará la configuración multisig."
+  "delete_multisig_confirmation": "Entiendo que difundir esta transacción eliminará la configuración multisig.",
+  "copy_multisig_signing_request": "Copiar solicitud de firma multisig",
+  "multisig_share_request_instruction": "Copia esta solicitud y envíala de forma privada a cada participante cuya firma necesites.",
+  "paste_signature_share": "Pegar parte de firma",
+  "invalid_multisig_signature_share": "Esta parte de firma no es válida o pertenece a otra transacción.",
+  "duplicate_multisig_signature_share": "Este participante ya ha proporcionado una firma.",
+  "remove_signature_share": "Eliminar parte de firma",
+  "ready_for_review": "Listo para revisar"
 }

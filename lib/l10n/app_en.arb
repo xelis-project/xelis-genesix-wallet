@@ -447,5 +447,12 @@
   "wallet_not_multisig_participant": "This wallet is not a participant in this multisig configuration.",
   "fee_limit": "Fee limit",
   "transaction_broadcast_confirmation": "I have reviewed the transaction details and want to broadcast it.",
-  "delete_multisig_confirmation": "I understand that broadcasting this transaction will remove the multisig configuration."
+  "delete_multisig_confirmation": "I understand that broadcasting this transaction will remove the multisig configuration.",
+  "copy_multisig_signing_request": "Copy multisig signing request",
+  "multisig_share_request_instruction": "Copy this request and send it privately to each participant whose signature you need.",
+  "paste_signature_share": "Paste signature share",
+  "invalid_multisig_signature_share": "This signature share is invalid or belongs to another transaction.",
+  "duplicate_multisig_signature_share": "This participant has already provided a signature.",
+  "remove_signature_share": "Remove signature share",
+  "ready_for_review": "Ready for review"
 }

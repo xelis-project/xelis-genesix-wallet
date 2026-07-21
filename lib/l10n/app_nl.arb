@@ -447,5 +447,12 @@
   "wallet_not_multisig_participant": "Deze wallet is geen deelnemer aan deze multisigconfiguratie.",
   "fee_limit": "Kostenlimiet",
   "transaction_broadcast_confirmation": "Ik heb de transactiegegevens gecontroleerd en wil de transactie uitzenden.",
-  "delete_multisig_confirmation": "Ik begrijp dat het uitzenden van deze transactie de multisig-configuratie verwijdert."
+  "delete_multisig_confirmation": "Ik begrijp dat het uitzenden van deze transactie de multisig-configuratie verwijdert.",
+  "copy_multisig_signing_request": "Multisig-ondertekeningsverzoek kopiëren",
+  "multisig_share_request_instruction": "Kopieer dit verzoek en stuur het privé naar elke deelnemer van wie je een handtekening nodig hebt.",
+  "paste_signature_share": "Handtekeningsdeel plakken",
+  "invalid_multisig_signature_share": "Dit handtekeningsdeel is ongeldig of hoort bij een andere transactie.",
+  "duplicate_multisig_signature_share": "Deze deelnemer heeft al een handtekening aangeleverd.",
+  "remove_signature_share": "Handtekeningdeel verwijderen",
+  "ready_for_review": "Klaar voor controle"
 }

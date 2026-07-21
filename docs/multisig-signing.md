@@ -24,7 +24,8 @@ sequenceDiagram
     B->>B: Review, authenticate and sign the exact request hash
     B->>C: Copy and return the signature share
     C->>A: Paste signature share into Genesix
-    A->>A: Validate shares against the pending request and configuration
+    A->>A: Validate and identify each participant without consuming the request
+    A->>A: Revalidate the complete set against the pending configuration
     A->>N: Broadcast the finalized transaction
 ```
 
@@ -69,9 +70,11 @@ Before showing a request as verified, Genesix:
 - binds every returned signature share to the request hash and participant ID.
 
 The source wallet keeps the unsigned transaction and its multisig configuration
-in its pending state. Finalization rejects a different hash, malformed shares,
-duplicate participant IDs, unauthorized keys, and an incorrect signature
-count without consuming the pending request.
+in its pending state. Each pasted share can be verified non-destructively so the
+interface can display its participant ID. Finalization revalidates the complete
+set and rejects a different hash, malformed shares, duplicate participant IDs,
+unauthorized keys, and an incorrect signature count without consuming the
+pending request.
 
 ## Transport and privacy
 

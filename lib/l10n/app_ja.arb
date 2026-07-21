@@ -447,5 +447,12 @@
   "wallet_not_multisig_participant": "このウォレットはこのマルチシグ構成の参加者ではありません。",
   "fee_limit": "手数料上限",
   "transaction_broadcast_confirmation": "取引の詳細を確認し、この取引を送信します。",
-  "delete_multisig_confirmation": "この取引を送信するとマルチシグ設定が削除されることを理解しました。"
+  "delete_multisig_confirmation": "この取引を送信するとマルチシグ設定が削除されることを理解しました。",
+  "copy_multisig_signing_request": "マルチシグ署名リクエストをコピー",
+  "multisig_share_request_instruction": "このリクエストをコピーし、署名が必要な各参加者に非公開で送信してください。",
+  "paste_signature_share": "署名シェアを貼り付け",
+  "invalid_multisig_signature_share": "この署名シェアは無効か、別のトランザクションに属しています。",
+  "duplicate_multisig_signature_share": "この参加者はすでに署名を提供しています。",
+  "remove_signature_share": "署名シェアを削除",
+  "ready_for_review": "確認の準備ができました"
 }

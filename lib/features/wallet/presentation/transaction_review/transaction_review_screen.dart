@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +18,8 @@ import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/app_card.dart';
 import 'package:genesix/shared/widgets/components/async_f_button.dart';
+import 'package:genesix/src/generated/l10n/app_localizations.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
 import 'package:go_router/go_router.dart';
 
 const _maxMultisigSignatureShareLength = 1024;
@@ -30,25 +34,34 @@ class TransactionReviewScreen extends ConsumerStatefulWidget {
 
 class _TransactionReviewScreenState
     extends ConsumerState<TransactionReviewScreen> {
-  final _sharesFormKey = GlobalKey<FormState>();
-  final List<TextEditingController> _shareControllers = [];
   bool _isFinalizing = false;
   bool _isBroadcasting = false;
   bool _isClosing = false;
-
-  @override
-  void dispose() {
-    for (final controller in _shareControllers) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final review = ref.watch(transactionReviewProvider);
     final busy = _isFinalizing || _isBroadcasting || _isClosing;
+    final content = review.isBroadcasted
+        ? _BroadcastComplete(onClose: _finish)
+        : switch (review) {
+            SignaturePending(:final request) => _SignatureCollectionStep(
+              key: ValueKey('signature-${request.hash}'),
+              request: request,
+              isFinalizing: _isFinalizing,
+              onFinalize: _finalize,
+            ),
+            SingleTransferTransaction() ||
+            BurnTransaction() ||
+            DeleteMultisigTransaction() => _BroadcastReviewStep(
+              key: ValueKey('broadcast-${_transactionHash(review)}'),
+              review: review,
+              isBroadcasting: _isBroadcasting,
+              onBroadcast: _broadcast,
+            ),
+            Initial() => _EmptyReview(onClose: _finish),
+          };
 
     return PopScope(
       canPop: false,
@@ -76,7 +89,7 @@ class _TransactionReviewScreenState
                 constraints: const BoxConstraints(maxWidth: 760),
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: AppDurations.animFast),
-                  child: _buildContent(context, review),
+                  child: content,
                 ),
               ),
             ),
@@ -86,191 +99,8 @@ class _TransactionReviewScreenState
     );
   }
 
-  Widget _buildContent(BuildContext context, TransactionReviewState review) {
-    if (review.isBroadcasted) return _BroadcastComplete(onClose: _finish);
-
-    return switch (review) {
-      SignaturePending() => _buildSignatureCollection(context, review),
-      SingleTransferTransaction() ||
-      BurnTransaction() ||
-      DeleteMultisigTransaction() => _buildBroadcastReview(context, review),
-      Initial() => _EmptyReview(onClose: _finish),
-    };
-  }
-
-  Widget _buildSignatureCollection(
-    BuildContext context,
-    SignaturePending review,
-  ) {
-    final loc = ref.watch(appLocalizationsProvider);
-    final request = review.request;
-    _ensureShareInputs(request.threshold);
-
-    return Column(
-      key: ValueKey('signature-${request.hash}'),
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: Spaces.large,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: Spaces.small,
-          children: [
-            Text(
-              loc.multisig_signing_request,
-              style: context.theme.typography.display.xl2,
-            ),
-            Text(
-              loc.multisig_barrier_message,
-              style: context.theme.typography.body.sm.copyWith(
-                color: context.theme.colors.mutedForeground,
-              ),
-            ),
-          ],
-        ),
-        AppCard(
-          child: Padding(
-            padding: const EdgeInsets.all(Spaces.medium),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: Spaces.medium,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        loc.multisig_signing_request,
-                        style: context.theme.typography.display.lg,
-                      ),
-                    ),
-                    FButton.icon(
-                      variant: .ghost,
-                      semanticsLabel: loc.copy,
-                      onPress: () =>
-                          copyToClipboard(request.encoded, ref, loc.copied),
-                      child: const Icon(FLucideIcons.copy, size: 18),
-                    ),
-                  ],
-                ),
-                const FDivider(),
-                _Detail(label: loc.wallet, value: request.source),
-                _Detail(label: loc.network, value: request.network),
-                _Detail(label: loc.hash, value: request.hash),
-                _Detail(
-                  label: loc.threshold,
-                  value: '${request.threshold}/${request.participants.length}',
-                ),
-              ],
-            ),
-          ),
-        ),
-        Form(
-          key: _sharesFormKey,
-          child: AppCard(
-            child: Padding(
-              padding: const EdgeInsets.all(Spaces.medium),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: Spaces.medium,
-                children: [
-                  Text(
-                    loc.signature_share,
-                    style: context.theme.typography.display.lg,
-                  ),
-                  ...List.generate(
-                    request.threshold,
-                    (index) => FTextFormField(
-                      control: .managed(controller: _shareControllers[index]),
-                      autocorrect: false,
-                      keyboardType: TextInputType.multiline,
-                      inputFormatters: [
-                        LengthLimitingTextInputFormatter(
-                          _maxMultisigSignatureShareLength,
-                        ),
-                      ],
-                      minLines: 3,
-                      maxLines: 6,
-                      label: Text('#${index + 1}'),
-                      validator: (value) =>
-                          value == null || value.trim().isEmpty
-                          ? loc.field_required_error
-                          : null,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: AsyncFButton(
-            isLoading: _isFinalizing,
-            onPress: _isFinalizing ? null : _finalize,
-            prefix: const Icon(FLucideIcons.arrowRight, size: 18),
-            child: Text(loc.next),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBroadcastReview(
-    BuildContext context,
-    TransactionReviewState review,
-  ) {
-    final loc = ref.watch(appLocalizationsProvider);
-
-    return Column(
-      key: ValueKey('broadcast-${_transactionHash(review)}'),
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: Spaces.large,
-      children: [
-        Text(loc.review, style: context.theme.typography.display.xl2),
-        AppCard(
-          child: Padding(
-            padding: const EdgeInsets.all(Spaces.medium),
-            child: _TransactionDetails(review: review),
-          ),
-        ),
-        FCheckbox(
-          value: review.isConfirmed,
-          onChange: (value) => ref
-              .read(transactionReviewProvider.notifier)
-              .setConfirmation(value),
-          label: Text(_confirmationLabel(review)),
-        ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: AsyncFButton(
-            isLoading: _isBroadcasting,
-            onPress: !review.isConfirmed || _isBroadcasting
-                ? null
-                : () => startWithBiometricAuth(
-                    ref,
-                    callback: _broadcast,
-                    reason: loc.please_authenticate_tx,
-                  ),
-            prefix: const Icon(FLucideIcons.send, size: 18),
-            child: Text(loc.broadcast),
-          ),
-        ),
-      ],
-    );
-  }
-
-  String _confirmationLabel(TransactionReviewState review) {
-    final loc = ref.read(appLocalizationsProvider);
-    return switch (review) {
-      BurnTransaction() => loc.burn_confirmation,
-      DeleteMultisigTransaction() => loc.delete_multisig_confirmation,
-      _ => loc.transaction_broadcast_confirmation,
-    };
-  }
-
-  Future<void> _finalize() async {
-    if (_isFinalizing || !(_sharesFormKey.currentState?.validate() ?? false)) {
-      return;
-    }
+  Future<void> _finalize(List<String> signatureShares) async {
+    if (_isFinalizing) return;
     final review = ref.read(transactionReviewProvider);
     if (review is! SignaturePending) return;
     final commands = ref.read(walletCommandsProvider);
@@ -279,10 +109,7 @@ class _TransactionReviewScreenState
     try {
       final transaction = await commands.finalizeMultisigTransaction(
         txHash: review.request.hash,
-        signatureShares: _shareControllers
-            .take(review.request.threshold)
-            .map((controller) => controller.text.trim())
-            .toList(growable: false),
+        signatureShares: signatureShares,
       );
       if (transaction == null) return;
       if (!mounted) {
@@ -386,23 +213,536 @@ class _TransactionReviewScreenState
     ref.read(transactionReviewProvider.notifier).reset();
     context.pop();
   }
+}
 
-  void _ensureShareInputs(int threshold) {
-    while (_shareControllers.length < threshold) {
-      _shareControllers.add(TextEditingController());
-    }
-    while (_shareControllers.length > threshold) {
-      _shareControllers.removeLast().dispose();
+class _SignatureCollectionStep extends ConsumerStatefulWidget {
+  const _SignatureCollectionStep({
+    required this.request,
+    required this.isFinalizing,
+    required this.onFinalize,
+    super.key,
+  });
+
+  final MultisigSigningRequest request;
+  final bool isFinalizing;
+  final Future<void> Function(List<String>) onFinalize;
+
+  @override
+  ConsumerState<_SignatureCollectionStep> createState() =>
+      _SignatureCollectionStepState();
+}
+
+class _SignatureCollectionStepState
+    extends ConsumerState<_SignatureCollectionStep> {
+  final _controller = TextEditingController();
+  final List<MultisigSignatureShare> _verifiedShares = [];
+  Timer? _inspectionTimer;
+  _SignatureShareInputError? _inputError;
+  bool _isInspecting = false;
+  int _inspectionGeneration = 0;
+
+  bool get _canFinalize =>
+      !_isInspecting && _verifiedShares.length == widget.request.threshold;
+
+  @override
+  void didUpdateWidget(covariant _SignatureCollectionStep oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.request.hash != widget.request.hash ||
+        oldWidget.request.threshold != widget.request.threshold) {
+      _resetCollection();
     }
   }
 
-  String? _transactionHash(TransactionReviewState review) => switch (review) {
-    SingleTransferTransaction(:final txHash) ||
-    BurnTransaction(:final txHash) ||
-    DeleteMultisigTransaction(:final txHash) => txHash,
-    _ => null,
+  @override
+  void dispose() {
+    _inspectionTimer?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = ref.watch(appLocalizationsProvider);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: Spaces.large,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: Spaces.small,
+          children: [
+            Text(
+              loc.multisig_signing_request,
+              style: context.theme.typography.display.xl,
+            ),
+            Text(
+              loc.multisig_barrier_message,
+              style: context.theme.typography.body.sm.copyWith(
+                color: context.theme.colors.mutedForeground,
+              ),
+            ),
+          ],
+        ),
+        _SigningRequestCard(request: widget.request),
+        AppCard(
+          child: Padding(
+            padding: const EdgeInsets.all(Spaces.medium),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: Spaces.medium,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        loc.signature_share,
+                        style: context.theme.typography.display.lg,
+                      ),
+                    ),
+                    FBadge(
+                      variant: _canFinalize ? .primary : .secondary,
+                      child: Text(
+                        '${_verifiedShares.length}/${widget.request.threshold}',
+                      ),
+                    ),
+                  ],
+                ),
+                for (final share in _verifiedShares)
+                  _VerifiedParticipant(
+                    signerId: share.signerId,
+                    participant: _participantFor(share),
+                    onRemove: widget.isFinalizing
+                        ? null
+                        : () => _removeShare(share),
+                  ),
+                if (_canFinalize)
+                  const _SignatureCollectionComplete()
+                else
+                  _SignatureShareInput(
+                    controller: _controller,
+                    error: _localizedInputError(loc),
+                    isInspecting: _isInspecting,
+                    onChanged: _queueInspection,
+                    onPaste: _pasteShare,
+                  ),
+              ],
+            ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: AsyncFButton(
+            isLoading: widget.isFinalizing,
+            onPress: !_canFinalize || widget.isFinalizing ? null : _submit,
+            prefix: const Icon(FLucideIcons.shieldCheck, size: 18),
+            child: Text(loc.review),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _resetCollection() {
+    _inspectionTimer?.cancel();
+    _inspectionGeneration++;
+    _controller.clear();
+    _verifiedShares.clear();
+    _inputError = null;
+    _isInspecting = false;
+  }
+
+  void _queueInspection(String value) {
+    _inspectionTimer?.cancel();
+    final generation = ++_inspectionGeneration;
+    final encoded = value.trim();
+    setState(() {
+      _inputError = null;
+      _isInspecting = encoded.isNotEmpty;
+    });
+    if (encoded.isEmpty) return;
+    final requestHash = widget.request.hash;
+    _inspectionTimer = Timer(
+      const Duration(milliseconds: 250),
+      () => unawaited(_inspectShare(encoded, generation, requestHash)),
+    );
+  }
+
+  Future<void> _inspectShare(
+    String encoded,
+    int generation,
+    String requestHash,
+  ) async {
+    final share = await ref
+        .read(walletCommandsProvider)
+        .inspectMultisigSignatureShare(txHash: requestHash, encoded: encoded);
+    if (!mounted ||
+        generation != _inspectionGeneration ||
+        requestHash != widget.request.hash ||
+        _controller.text.trim() != encoded) {
+      return;
+    }
+    if (share == null) {
+      setState(() {
+        _inputError = _SignatureShareInputError.invalid;
+        _isInspecting = false;
+      });
+      return;
+    }
+    if (_verifiedShares.any((item) => item.signerId == share.signerId)) {
+      setState(() {
+        _inputError = _SignatureShareInputError.duplicate;
+        _isInspecting = false;
+      });
+      return;
+    }
+
+    _controller.clear();
+    setState(() {
+      _verifiedShares.add(share);
+      _inputError = null;
+      _isInspecting = false;
+    });
+  }
+
+  Future<void> _pasteShare() async {
+    final clipboard = await Clipboard.getData(Clipboard.kTextPlain);
+    final encoded = clipboard?.text?.trim();
+    if (!mounted || encoded == null || encoded.isEmpty) return;
+    if (encoded.length > _maxMultisigSignatureShareLength) {
+      _inspectionTimer?.cancel();
+      _inspectionGeneration++;
+      _controller.text = encoded.substring(0, _maxMultisigSignatureShareLength);
+      setState(() {
+        _inputError = _SignatureShareInputError.invalid;
+        _isInspecting = false;
+      });
+      return;
+    }
+    _controller.text = encoded;
+    _queueInspection(encoded);
+  }
+
+  void _removeShare(MultisigSignatureShare share) {
+    final revalidateCurrentInput =
+        _inputError == _SignatureShareInputError.duplicate &&
+        _controller.text.trim().isNotEmpty;
+    setState(() => _verifiedShares.remove(share));
+    if (revalidateCurrentInput) _queueInspection(_controller.text);
+  }
+
+  ParticipantDartPayload? _participantFor(MultisigSignatureShare? share) {
+    if (share == null) return null;
+    for (final participant in widget.request.participants) {
+      if (participant.id == share.signerId) return participant;
+    }
+    return null;
+  }
+
+  String? _localizedInputError(AppLocalizations loc) => switch (_inputError) {
+    _SignatureShareInputError.invalid => loc.invalid_multisig_signature_share,
+    _SignatureShareInputError.duplicate =>
+      loc.duplicate_multisig_signature_share,
+    null => null,
   };
+
+  Future<void> _submit() async {
+    if (!_canFinalize) return;
+    await widget.onFinalize(
+      _verifiedShares.map((share) => share.encoded).toList(growable: false),
+    );
+  }
 }
+
+enum _SignatureShareInputError { invalid, duplicate }
+
+class _SigningRequestCard extends ConsumerWidget {
+  const _SigningRequestCard({required this.request});
+
+  final MultisigSigningRequest request;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = ref.watch(appLocalizationsProvider);
+
+    return AppCard(
+      child: Padding(
+        padding: const EdgeInsets.all(Spaces.medium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: Spaces.medium,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                  FLucideIcons.send,
+                  size: 32,
+                  color: context.theme.colors.primary,
+                ),
+                const SizedBox(width: Spaces.small),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: Spaces.extraSmall,
+                    children: [
+                      Text(
+                        loc.copy_multisig_signing_request,
+                        style: context.theme.typography.display.lg,
+                      ),
+                      Text(
+                        loc.multisig_share_request_instruction,
+                        style: context.theme.typography.body.sm.copyWith(
+                          color: context.theme.colors.mutedForeground,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            FButton(
+              onPress: () => copyToClipboard(request.encoded, ref, loc.copied),
+              prefix: const Icon(FLucideIcons.copy, size: 18),
+              child: Text(loc.copy_multisig_signing_request),
+            ),
+            FAccordion(
+              children: [
+                FAccordionItem(
+                  style: const FAccordionStyleDelta.delta(
+                    dividerStyle: FDividerStyleDelta.delta(
+                      color: Colors.transparent,
+                      padding: EdgeInsetsGeometryDelta.value(EdgeInsets.zero),
+                    ),
+                  ),
+                  title: Text(loc.more_details),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: Spaces.medium,
+                    children: [
+                      _Detail(label: loc.wallet, value: request.source),
+                      _Detail(label: loc.network, value: request.network),
+                      _Detail(label: loc.hash, value: request.hash),
+                      _Detail(
+                        label: loc.threshold,
+                        value:
+                            '${request.threshold}/${request.participants.length}',
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SignatureShareInput extends ConsumerWidget {
+  const _SignatureShareInput({
+    required this.controller,
+    required this.error,
+    required this.isInspecting,
+    required this.onChanged,
+    required this.onPaste,
+  });
+
+  final TextEditingController controller;
+  final String? error;
+  final bool isInspecting;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onPaste;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = ref.watch(appLocalizationsProvider);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: Spaces.small,
+      children: [
+        Semantics(
+          label: loc.signature_share,
+          textField: true,
+          child: FTextField(
+            control: .managed(
+              controller: controller,
+              onChange: (value) => onChanged(value.text),
+            ),
+            autocorrect: false,
+            keyboardType: TextInputType.multiline,
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(
+                _maxMultisigSignatureShareLength,
+              ),
+            ],
+            minLines: 2,
+            maxLines: 5,
+            hint: loc.paste_signature_share,
+            error: error == null ? null : Text(error!),
+          ),
+        ),
+        if (isInspecting)
+          Text(
+            loc.pending,
+            style: context.theme.typography.body.sm.copyWith(
+              color: context.theme.colors.mutedForeground,
+            ),
+          ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: FButton(
+            variant: .ghost,
+            onPress: onPaste,
+            prefix: const Icon(FLucideIcons.clipboardPaste, size: 18),
+            child: Text(loc.paste_signature_share),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _VerifiedParticipant extends ConsumerWidget {
+  const _VerifiedParticipant({
+    required this.signerId,
+    required this.participant,
+    required this.onRemove,
+  });
+
+  final int signerId;
+  final ParticipantDartPayload? participant;
+  final VoidCallback? onRemove;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = ref.watch(appLocalizationsProvider);
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          FLucideIcons.circleCheckBig,
+          size: 16,
+          color: context.theme.colors.primary,
+        ),
+        const SizedBox(width: Spaces.extraSmall),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: Spaces.extraSmall,
+            children: [
+              Text('${loc.participant_id} #${signerId + 1}'),
+              if (participant != null) AddressWidget(participant!.address),
+            ],
+          ),
+        ),
+        FButton.icon(
+          variant: .destructive,
+          onPress: onRemove,
+          semanticsLabel: loc.remove_signature_share,
+          child: const Icon(FLucideIcons.trash2, size: 18),
+        ),
+      ],
+    );
+  }
+}
+
+class _SignatureCollectionComplete extends ConsumerWidget {
+  const _SignatureCollectionComplete();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = ref.watch(appLocalizationsProvider);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: Spaces.medium,
+      children: [
+        const FDivider(
+          style: FDividerStyleDelta.delta(
+            padding: EdgeInsetsGeometryDelta.value(EdgeInsets.zero),
+          ),
+        ),
+        Text(
+          loc.ready_for_review,
+          textAlign: TextAlign.center,
+          style: context.theme.typography.body.md.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _BroadcastReviewStep extends ConsumerWidget {
+  const _BroadcastReviewStep({
+    required this.review,
+    required this.isBroadcasting,
+    required this.onBroadcast,
+    super.key,
+  });
+
+  final TransactionReviewState review;
+  final bool isBroadcasting;
+  final Future<void> Function(WidgetRef) onBroadcast;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = ref.watch(appLocalizationsProvider);
+    final confirmationLabel = switch (review) {
+      BurnTransaction() => loc.burn_confirmation,
+      DeleteMultisigTransaction() => loc.delete_multisig_confirmation,
+      _ => loc.transaction_broadcast_confirmation,
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: Spaces.large,
+      children: [
+        Text(loc.review, style: context.theme.typography.display.xl2),
+        AppCard(
+          child: Padding(
+            padding: const EdgeInsets.all(Spaces.medium),
+            child: _TransactionDetails(review: review),
+          ),
+        ),
+        FCheckbox(
+          value: review.isConfirmed,
+          onChange: (value) => ref
+              .read(transactionReviewProvider.notifier)
+              .setConfirmation(value),
+          label: Text(confirmationLabel),
+        ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: AsyncFButton(
+            isLoading: isBroadcasting,
+            onPress: !review.isConfirmed || isBroadcasting
+                ? null
+                : () => startWithBiometricAuth(
+                    ref,
+                    callback: onBroadcast,
+                    reason: loc.please_authenticate_tx,
+                  ),
+            prefix: const Icon(FLucideIcons.send, size: 18),
+            child: Text(loc.broadcast),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+String? _transactionHash(TransactionReviewState review) => switch (review) {
+  SingleTransferTransaction(:final txHash) ||
+  BurnTransaction(:final txHash) ||
+  DeleteMultisigTransaction(:final txHash) => txHash,
+  _ => null,
+};
 
 class _TransactionDetails extends ConsumerWidget {
   const _TransactionDetails({required this.review});

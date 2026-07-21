@@ -447,5 +447,12 @@
   "wallet_not_multisig_participant": "Dompet ini bukan peserta dalam konfigurasi multisig ini.",
   "fee_limit": "Had yuran",
   "transaction_broadcast_confirmation": "Saya telah menyemak butiran transaksi dan mahu menyiarkannya.",
-  "delete_multisig_confirmation": "Saya faham bahawa menyiarkan transaksi ini akan membuang konfigurasi multisig."
+  "delete_multisig_confirmation": "Saya faham bahawa menyiarkan transaksi ini akan membuang konfigurasi multisig.",
+  "copy_multisig_signing_request": "Salin permintaan tandatangan multisig",
+  "multisig_share_request_instruction": "Salin permintaan ini dan hantarkannya secara peribadi kepada setiap peserta yang tandatangannya anda perlukan.",
+  "paste_signature_share": "Tampal bahagian tandatangan",
+  "invalid_multisig_signature_share": "Bahagian tandatangan ini tidak sah atau milik transaksi lain.",
+  "duplicate_multisig_signature_share": "Peserta ini telah memberikan tandatangan.",
+  "remove_signature_share": "Alih keluar bahagian tandatangan",
+  "ready_for_review": "Sedia untuk disemak"
 }

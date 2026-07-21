@@ -447,5 +447,12 @@
   "wallet_not_multisig_participant": "Этот кошелёк не является участником этой мультиподписной конфигурации.",
   "fee_limit": "Лимит комиссии",
   "transaction_broadcast_confirmation": "Я проверил данные транзакции и хочу отправить её в сеть.",
-  "delete_multisig_confirmation": "Я понимаю, что отправка этой транзакции удалит конфигурацию multisig."
+  "delete_multisig_confirmation": "Я понимаю, что отправка этой транзакции удалит конфигурацию multisig.",
+  "copy_multisig_signing_request": "Копировать запрос мультиподписи",
+  "multisig_share_request_instruction": "Скопируйте этот запрос и отправьте его конфиденциально каждому участнику, чья подпись необходима.",
+  "paste_signature_share": "Вставить часть подписи",
+  "invalid_multisig_signature_share": "Эта часть подписи недействительна или относится к другой транзакции.",
+  "duplicate_multisig_signature_share": "Этот участник уже предоставил подпись.",
+  "remove_signature_share": "Удалить долю подписи",
+  "ready_for_review": "Готово к проверке"
 }

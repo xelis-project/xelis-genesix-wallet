@@ -447,5 +447,12 @@
   "wallet_not_multisig_participant": "이 지갑은 이 다중 서명 구성의 참여자가 아닙니다.",
   "fee_limit": "수수료 한도",
   "transaction_broadcast_confirmation": "거래 세부 정보를 검토했으며 이 거래를 전송하겠습니다.",
-  "delete_multisig_confirmation": "이 거래를 전송하면 멀티시그 구성이 삭제됨을 이해했습니다."
+  "delete_multisig_confirmation": "이 거래를 전송하면 멀티시그 구성이 삭제됨을 이해했습니다.",
+  "copy_multisig_signing_request": "멀티시그 서명 요청 복사",
+  "multisig_share_request_instruction": "이 요청을 복사하여 서명이 필요한 각 참가자에게 비공개로 보내세요.",
+  "paste_signature_share": "서명 공유 붙여넣기",
+  "invalid_multisig_signature_share": "이 서명 공유가 유효하지 않거나 다른 트랜잭션에 속합니다.",
+  "duplicate_multisig_signature_share": "이 참가자는 이미 서명을 제공했습니다.",
+  "remove_signature_share": "서명 공유 제거",
+  "ready_for_review": "검토 준비 완료"
 }

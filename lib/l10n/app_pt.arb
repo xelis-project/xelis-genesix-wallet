@@ -447,5 +447,12 @@
   "wallet_not_multisig_participant": "Esta carteira não participa desta configuração multisig.",
   "fee_limit": "Limite de taxa",
   "transaction_broadcast_confirmation": "Revisei os detalhes da transação e quero transmiti-la.",
-  "delete_multisig_confirmation": "Entendo que transmitir esta transação removerá a configuração multisig."
+  "delete_multisig_confirmation": "Entendo que transmitir esta transação removerá a configuração multisig.",
+  "copy_multisig_signing_request": "Copiar pedido de assinatura multisig",
+  "multisig_share_request_instruction": "Copie este pedido e envie-o de forma privada a cada participante cuja assinatura seja necessária.",
+  "paste_signature_share": "Colar parte da assinatura",
+  "invalid_multisig_signature_share": "Esta parte da assinatura é inválida ou pertence a outra transação.",
+  "duplicate_multisig_signature_share": "Este participante já forneceu uma assinatura.",
+  "remove_signature_share": "Remover parte da assinatura",
+  "ready_for_review": "Pronto para revisão"
 }

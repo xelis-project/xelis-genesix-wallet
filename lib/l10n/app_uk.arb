@@ -447,5 +447,12 @@
   "wallet_not_multisig_participant": "Цей гаманець не є учасником цієї конфігурації мультипідпису.",
   "fee_limit": "Ліміт комісії",
   "transaction_broadcast_confirmation": "Я перевірив дані транзакції та хочу надіслати її в мережу.",
-  "delete_multisig_confirmation": "Я розумію, що надсилання цієї транзакції видалить конфігурацію multisig."
+  "delete_multisig_confirmation": "Я розумію, що надсилання цієї транзакції видалить конфігурацію multisig.",
+  "copy_multisig_signing_request": "Копіювати запит мультипідпису",
+  "multisig_share_request_instruction": "Скопіюйте цей запит і надішліть його приватно кожному учаснику, чий підпис потрібен.",
+  "paste_signature_share": "Вставити частку підпису",
+  "invalid_multisig_signature_share": "Ця частка підпису недійсна або належить іншій транзакції.",
+  "duplicate_multisig_signature_share": "Цей учасник уже надав підпис.",
+  "remove_signature_share": "Видалити частку підпису",
+  "ready_for_review": "Готово до перевірки"
 }

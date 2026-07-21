@@ -447,5 +447,12 @@
   "wallet_not_multisig_participant": "Този портфейл не е участник в тази конфигурация с множество подписи.",
   "fee_limit": "Лимит на таксата",
   "transaction_broadcast_confirmation": "Прегледах данните за транзакцията и искам да я излъча.",
-  "delete_multisig_confirmation": "Разбирам, че излъчването на тази транзакция ще премахне multisig конфигурацията."
+  "delete_multisig_confirmation": "Разбирам, че излъчването на тази транзакция ще премахне multisig конфигурацията.",
+  "copy_multisig_signing_request": "Копиране на заявката за мултиподпис",
+  "multisig_share_request_instruction": "Копирайте тази заявка и я изпратете поверително на всеки участник, чийто подпис е необходим.",
+  "paste_signature_share": "Поставяне на дял от подпис",
+  "invalid_multisig_signature_share": "Този дял от подпис е невалиден или принадлежи на друга транзакция.",
+  "duplicate_multisig_signature_share": "Този участник вече е предоставил подпис.",
+  "remove_signature_share": "Премахване на дял от подпис",
+  "ready_for_review": "Готово за преглед"
 }

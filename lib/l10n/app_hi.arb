@@ -447,5 +447,12 @@
   "wallet_not_multisig_participant": "यह वॉलेट इस मल्टीसिग कॉन्फ़िगरेशन में भागीदार नहीं है।",
   "fee_limit": "शुल्क सीमा",
   "transaction_broadcast_confirmation": "मैंने लेन-देन का विवरण जाँच लिया है और इसे प्रसारित करना चाहता हूँ।",
-  "delete_multisig_confirmation": "मैं समझता हूँ कि इस लेन-देन को प्रसारित करने से मल्टीसिग कॉन्फ़िगरेशन हट जाएगा।"
+  "delete_multisig_confirmation": "मैं समझता हूँ कि इस लेन-देन को प्रसारित करने से मल्टीसिग कॉन्फ़िगरेशन हट जाएगा।",
+  "copy_multisig_signing_request": "मल्टीसिग हस्ताक्षर अनुरोध कॉपी करें",
+  "multisig_share_request_instruction": "इस अनुरोध को कॉपी करें और इसे निजी रूप से प्रत्येक उस प्रतिभागी को भेजें जिसके हस्ताक्षर की आपको आवश्यकता है।",
+  "paste_signature_share": "हस्ताक्षर हिस्सा पेस्ट करें",
+  "invalid_multisig_signature_share": "यह हस्ताक्षर हिस्सा अमान्य है या किसी अन्य लेन-देन से संबंधित है।",
+  "duplicate_multisig_signature_share": "यह प्रतिभागी पहले ही हस्ताक्षर दे चुका है।",
+  "remove_signature_share": "हस्ताक्षर अंश हटाएँ",
+  "ready_for_review": "समीक्षा के लिए तैयार"
 }

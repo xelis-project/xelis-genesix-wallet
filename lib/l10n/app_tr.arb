@@ -447,5 +447,12 @@
   "wallet_not_multisig_participant": "Bu cüzdan, bu çoklu imza yapılandırmasının katılımcısı değildir.",
   "fee_limit": "Ücret limiti",
   "transaction_broadcast_confirmation": "İşlem ayrıntılarını inceledim ve işlemi yayınlamak istiyorum.",
-  "delete_multisig_confirmation": "Bu işlemi yayınlamanın multisig yapılandırmasını kaldıracağını anlıyorum."
+  "delete_multisig_confirmation": "Bu işlemi yayınlamanın multisig yapılandırmasını kaldıracağını anlıyorum.",
+  "copy_multisig_signing_request": "Çoklu imza talebini kopyala",
+  "multisig_share_request_instruction": "Bu talebi kopyalayın ve imzasına ihtiyaç duyduğunuz her katılımcıya özel olarak gönderin.",
+  "paste_signature_share": "İmza payını yapıştır",
+  "invalid_multisig_signature_share": "Bu imza payı geçersiz veya başka bir işleme ait.",
+  "duplicate_multisig_signature_share": "Bu katılımcı zaten bir imza sağladı.",
+  "remove_signature_share": "İmza payını kaldır",
+  "ready_for_review": "İncelemeye hazır"
 }

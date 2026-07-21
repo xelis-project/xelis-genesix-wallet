@@ -10,7 +10,7 @@ use super::{
 use crate::multisig::{
     build_verified_multisig, create_multisig_signature_share, create_multisig_signing_request,
     parse_multisig_signature_share, parse_multisig_signing_request, validate_multisig_setup,
-    ParsedMultisigSigningRequest,
+    verify_multisig_signature, ParsedMultisigSigningRequest,
 };
 use anyhow::{bail, Context, Result};
 use flutter_rust_bridge::frb;
@@ -593,6 +593,27 @@ impl XelisWallet {
     pub fn cancel_pending_multisig_request(&self, tx_hash: String) -> Result<()> {
         let expected_hash = Hash::from_hex(&tx_hash).context("Invalid multisig request hash")?;
         self.pending_multisig.write().cancel(&expected_hash)
+    }
+
+    pub fn inspect_multisig_signature_share(
+        &self,
+        tx_hash: String,
+        encoded: String,
+    ) -> Result<MultisigSignatureShare> {
+        let expected_hash = Hash::from_hex(&tx_hash).context("Invalid multisig request hash")?;
+        let signature = parse_multisig_signature_share(&encoded, &expected_hash)?;
+        self.pending_multisig
+            .read()
+            .validate(&expected_hash, |pending| {
+                verify_multisig_signature(&expected_hash, &pending.configuration, &signature)
+            })?;
+
+        Ok(MultisigSignatureShare {
+            encoded: encoded.trim().to_owned(),
+            request_hash: expected_hash.to_hex(),
+            signer_id: signature.id,
+            signature: signature.signature,
+        })
     }
 
     pub async fn inspect_multisig_signing_request(
