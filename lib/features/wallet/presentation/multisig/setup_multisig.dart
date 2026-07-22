@@ -9,12 +9,12 @@ import 'package:genesix/features/wallet/application/wallet_commands_provider.dar
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_broadcast_result.dart';
 import 'package:genesix/features/wallet/domain/transaction_summary.dart';
-import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
+import 'package:genesix/features/wallet/presentation/multisig/components/setup/multisig_setup_complete.dart';
+import 'package:genesix/features/wallet/presentation/multisig/components/setup/multisig_setup_configuration.dart';
+import 'package:genesix/features/wallet/presentation/multisig/components/setup/multisig_setup_review.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/shared/widgets/components/app_card.dart';
-import 'package:genesix/shared/widgets/components/async_f_button.dart';
 import 'package:go_router/go_router.dart';
 
 class SetupMultisig extends ConsumerStatefulWidget {
@@ -25,11 +25,8 @@ class SetupMultisig extends ConsumerStatefulWidget {
 }
 
 class _SetupMultisigState extends ConsumerState<SetupMultisig> {
-  final _formKey = GlobalKey<FormState>();
-  final _thresholdController = TextEditingController(text: '1');
-  final List<TextEditingController> _participantControllers = [
-    TextEditingController(),
-  ];
+  List<String> _participants = [];
+  int _threshold = 1;
 
   TransactionSummary? _transaction;
   bool _confirmed = false;
@@ -38,22 +35,59 @@ class _SetupMultisigState extends ConsumerState<SetupMultisig> {
   bool _isComplete = false;
 
   @override
-  void dispose() {
-    _thresholdController.dispose();
-    for (final controller in _participantControllers) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
-    final title = _transaction == null
+    final network = ref.watch(
+      walletRuntimeProvider.select((state) => state.network),
+    );
+    final title = _isComplete
+        ? loc.multisig_setup_broadcast_title
+        : _transaction == null
         ? loc.multisig_setup_title
-        : _isComplete
-        ? loc.multisig
-        : loc.review;
+        : loc.multisig_setup_review_title;
+    final transitionDuration =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false
+        ? Duration.zero
+        : const Duration(milliseconds: AppDurations.animFast);
+
+    final Widget content;
+    if (_isComplete) {
+      content = MultisigSetupComplete(
+        key: const ValueKey('multisig-complete'),
+        loc: loc,
+        onFinish: _finish,
+      );
+    } else if (_transaction case final transaction?) {
+      content = MultisigSetupReview(
+        key: const ValueKey('multisig-review'),
+        loc: loc,
+        hash: transaction.hash,
+        fee: formatXelis(transaction.fee, network),
+        threshold: _threshold,
+        participants: _participants,
+        confirmed: _confirmed,
+        isBroadcasting: _isBroadcasting,
+        onConfirmationChanged: (value) => setState(() => _confirmed = value),
+        onEdit: _editConfiguration,
+        onActivate: () => startWithBiometricAuth(
+          ref,
+          callback: _broadcast,
+          reason: loc.please_authenticate_tx,
+        ),
+      );
+    } else {
+      content = MultisigSetupConfiguration(
+        key: const ValueKey('multisig-configuration'),
+        loc: loc,
+        participants: _participants,
+        threshold: _threshold,
+        isPreparing: _isPreparing,
+        validateParticipant: _validateParticipant,
+        onParticipantsChanged: _updateParticipants,
+        onThresholdChanged: _updateThreshold,
+        onPrepare: _prepare,
+      );
+    }
 
     return PopScope(
       canPop: false,
@@ -80,14 +114,10 @@ class _SetupMultisigState extends ConsumerState<SetupMultisig> {
             padding: const EdgeInsets.all(Spaces.medium),
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 760),
+                constraints: const BoxConstraints(maxWidth: 900),
                 child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: AppDurations.animFast),
-                  child: _isComplete
-                      ? _buildComplete(context)
-                      : _transaction == null
-                      ? _buildConfiguration(context)
-                      : _buildReview(context),
+                  duration: transitionDuration,
+                  child: content,
                 ),
               ),
             ),
@@ -97,289 +127,50 @@ class _SetupMultisigState extends ConsumerState<SetupMultisig> {
     );
   }
 
-  Widget _buildConfiguration(BuildContext context) {
-    final loc = ref.watch(appLocalizationsProvider);
-
-    return Form(
-      key: _formKey,
-      child: Column(
-        key: const ValueKey('multisig-configuration'),
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: Spaces.large,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: Spaces.small,
-            children: [
-              Text(
-                loc.multisig_setup_title,
-                style: context.theme.typography.display.xl2,
-              ),
-              Text(
-                '${loc.multisig_setup_message_1}\n'
-                '${loc.multisig_setup_message_2}\n'
-                '${loc.multisig_setup_message_3}',
-                style: context.theme.typography.body.sm.copyWith(
-                  color: context.theme.colors.mutedForeground,
-                ),
-              ),
-            ],
-          ),
-          FAlert(
-            title: Text(loc.warning),
-            subtitle: Text(loc.multisig_setup_confirmation_message),
-          ),
-          AppCard(
-            child: Padding(
-              padding: const EdgeInsets.all(Spaces.medium),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: Spaces.medium,
-                children: [
-                  Text(
-                    loc.threshold,
-                    style: context.theme.typography.display.lg,
-                  ),
-                  FTextFormField(
-                    control: .managed(controller: _thresholdController),
-                    keyboardType: TextInputType.number,
-                    label: Text(loc.threshold_formfield_label_text),
-                    validator: _validateThreshold,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          AppCard(
-            child: Padding(
-              padding: const EdgeInsets.all(Spaces.medium),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: Spaces.medium,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          loc.participants,
-                          style: context.theme.typography.display.lg,
-                        ),
-                      ),
-                      FButton.icon(
-                        variant: .outline,
-                        onPress: _participantControllers.length >= 255
-                            ? null
-                            : _addParticipant,
-                        semanticsLabel: loc.participants,
-                        child: const Icon(FLucideIcons.plus, size: 18),
-                      ),
-                    ],
-                  ),
-                  ..._participantControllers.indexed.map(
-                    (entry) => _ParticipantField(
-                      key: ValueKey(entry.$2),
-                      index: entry.$1,
-                      controller: entry.$2,
-                      canRemove: _participantControllers.length > 1,
-                      validator: (value) =>
-                          _validateParticipant(value, entry.$1),
-                      onRemove: () => _removeParticipant(entry.$1),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: AsyncFButton(
-              isLoading: _isPreparing,
-              onPress: _isPreparing ? null : _prepare,
-              prefix: const Icon(FLucideIcons.arrowRight, size: 18),
-              child: Text(loc.next),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildReview(BuildContext context) {
-    final loc = ref.watch(appLocalizationsProvider);
-    final network = ref.watch(
-      walletRuntimeProvider.select((state) => state.network),
-    );
-    final transaction = _transaction!;
-
-    return Column(
-      key: const ValueKey('multisig-review'),
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: Spaces.large,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: Spaces.small,
-          children: [
-            Text(loc.review, style: context.theme.typography.display.xl2),
-            Text(
-              loc.multisig_setup_confirmation_message,
-              style: context.theme.typography.body.sm.copyWith(
-                color: context.theme.colors.mutedForeground,
-              ),
-            ),
-          ],
-        ),
-        AppCard(
-          child: Padding(
-            padding: const EdgeInsets.all(Spaces.medium),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: Spaces.medium,
-              children: [
-                _ReviewRow(label: loc.hash, value: transaction.hash),
-                const FDivider(),
-                _ReviewRow(
-                  label: loc.fee,
-                  value: formatXelis(transaction.fee, network),
-                ),
-                _ReviewRow(
-                  label: loc.threshold,
-                  value: _thresholdController.text.trim(),
-                ),
-              ],
-            ),
-          ),
-        ),
-        AppCard(
-          child: Padding(
-            padding: const EdgeInsets.all(Spaces.medium),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: Spaces.medium,
-              children: [
-                Text(
-                  loc.participants,
-                  style: context.theme.typography.display.lg,
-                ),
-                ..._participantControllers.indexed.map(
-                  (entry) => Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      FBadge(
-                        variant: .outline,
-                        child: Text('#${entry.$1 + 1}'),
-                      ),
-                      const SizedBox(width: Spaces.medium),
-                      Expanded(child: AddressWidget(entry.$2.text.trim())),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        FCheckbox(
-          value: _confirmed,
-          onChange: (value) => setState(() => _confirmed = value),
-          label: Text(loc.multisig_setup_confirmation_message),
-        ),
-        Wrap(
-          alignment: WrapAlignment.end,
-          spacing: Spaces.small,
-          runSpacing: Spaces.small,
-          children: [
-            FButton(
-              variant: .outline,
-              onPress: _isBroadcasting ? null : _editConfiguration,
-              child: Text(loc.edit_button),
-            ),
-            AsyncFButton(
-              isLoading: _isBroadcasting,
-              onPress: !_confirmed || _isBroadcasting
-                  ? null
-                  : () => startWithBiometricAuth(
-                      ref,
-                      callback: _broadcast,
-                      reason: loc.please_authenticate_tx,
-                    ),
-              prefix: const Icon(FLucideIcons.send, size: 18),
-              child: Text(loc.broadcast),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildComplete(BuildContext context) {
-    final loc = ref.watch(appLocalizationsProvider);
-
-    return Column(
-      key: const ValueKey('multisig-complete'),
-      mainAxisAlignment: MainAxisAlignment.center,
-      spacing: Spaces.large,
-      children: [
-        Icon(
-          FLucideIcons.circleCheckBig,
-          size: 72,
-          color: context.theme.colors.primary,
-        ),
-        Text(
-          loc.transaction_broadcast_message,
-          textAlign: TextAlign.center,
-          style: context.theme.typography.display.xl,
-        ),
-        FButton(
-          onPress: () => context.go(AuthAppScreen.multisig.toPath),
-          child: Text(loc.close),
-        ),
-      ],
-    );
-  }
-
-  String? _validateThreshold(String? value) {
+  String? _validateParticipant(String rawAddress) {
     final loc = ref.read(appLocalizationsProvider);
-    final threshold = int.tryParse(value?.trim() ?? '');
-    if (threshold == null) return loc.must_be_numeric_error;
-    if (threshold < 1 ||
-        threshold > 255 ||
-        threshold > _participantControllers.length) {
-      return loc.threshold_formfield_error;
-    }
-    return null;
-  }
-
-  String? _validateParticipant(String? value, int index) {
-    final loc = ref.read(appLocalizationsProvider);
-    final address = value?.trim() ?? '';
+    final address = rawAddress.trim();
     if (address.isEmpty) return loc.field_required_error;
     if (!ref.read(walletCommandsProvider).isAddressValidForMultisig(address)) {
       return loc.multisig_address_validation_error;
     }
-    final duplicate = _participantControllers.indexed.any(
-      (entry) => entry.$1 != index && entry.$2.text.trim() == address,
-    );
-    return duplicate ? loc.multisig_participant_duplicated : null;
+    if (_participants.contains(address)) {
+      return loc.multisig_participant_duplicated;
+    }
+    return null;
   }
 
-  void _addParticipant() {
-    setState(() => _participantControllers.add(TextEditingController()));
+  void _updateParticipants(List<String> participants) {
+    setState(() {
+      _participants = List.of(participants);
+      if (_participants.isEmpty) {
+        _threshold = 1;
+      } else if (_threshold > _participants.length) {
+        _threshold = _participants.length;
+      }
+    });
   }
 
-  void _removeParticipant(int index) {
-    setState(() => _participantControllers.removeAt(index).dispose());
+  void _updateThreshold(int threshold) {
+    if (_participants.isEmpty ||
+        threshold < 1 ||
+        threshold > _participants.length) {
+      return;
+    }
+    setState(() => _threshold = threshold);
   }
 
   Future<void> _prepare() async {
-    if (_isPreparing || !(_formKey.currentState?.validate() ?? false)) return;
+    if (_isPreparing || _participants.isEmpty) return;
+
+    final participants = List.of(_participants, growable: false);
+    final threshold = _threshold;
     final commands = ref.read(walletCommandsProvider);
     setState(() => _isPreparing = true);
     try {
       final transaction = await commands.setupMultisig(
-        participants: _participantControllers
-            .map((controller) => controller.text.trim())
-            .toList(growable: false),
-        threshold: int.parse(_thresholdController.text.trim()),
+        participants: participants,
+        threshold: threshold,
       );
       if (transaction == null) return;
       if (!mounted) {
@@ -449,83 +240,14 @@ class _SetupMultisigState extends ConsumerState<SetupMultisig> {
       return;
     }
     if (!mounted) return;
+    _finish();
+  }
+
+  void _finish() {
     if (context.canPop()) {
       context.pop();
     } else {
       context.go(AuthAppScreen.multisig.toPath);
     }
-  }
-}
-
-class _ParticipantField extends ConsumerWidget {
-  const _ParticipantField({
-    super.key,
-    required this.index,
-    required this.controller,
-    required this.canRemove,
-    required this.validator,
-    required this.onRemove,
-  });
-
-  final int index;
-  final TextEditingController controller;
-  final bool canRemove;
-  final FormFieldValidator<String> validator;
-  final VoidCallback onRemove;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final loc = ref.watch(appLocalizationsProvider);
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: Spaces.small),
-          child: FBadge(variant: .outline, child: Text('#${index + 1}')),
-        ),
-        const SizedBox(width: Spaces.small),
-        Expanded(
-          child: FTextFormField(
-            control: .managed(controller: controller),
-            autocorrect: false,
-            label: Text(loc.wallet_address_capitalize),
-            clearable: (value) => value.text.isNotEmpty,
-            validator: validator,
-          ),
-        ),
-        const SizedBox(width: Spaces.small),
-        FButton.icon(
-          variant: .ghost,
-          onPress: canRemove ? onRemove : null,
-          semanticsLabel: loc.delete_multisig_configuration,
-          child: const Icon(FLucideIcons.trash2, size: 18),
-        ),
-      ],
-    );
-  }
-}
-
-class _ReviewRow extends StatelessWidget {
-  const _ReviewRow({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: Spaces.extraSmall,
-      children: [
-        Text(
-          label,
-          style: context.theme.typography.body.sm.copyWith(
-            color: context.theme.colors.mutedForeground,
-          ),
-        ),
-        SelectableText(value),
-      ],
-    );
   }
 }

@@ -278,6 +278,42 @@
   "multisig_intro_warning": "After activation, you will need enough participant wallets to reach the threshold when transferring funds or removing multisig. An incorrect configuration can make funds inaccessible.",
   "configure_multisig": "Configure multisig",
   "multisig_setup_title": "Multisig Setup",
+  "multisig_setup_step_configuration": "Step 1 of 2",
+  "multisig_setup_description": "Add the wallets allowed to approve transactions, then choose how many signatures will be required.",
+  "multisig_setup_warning": "Make sure the owners will retain access to these wallets. After activation, the signature threshold will be required to transfer funds or remove multisig.",
+  "multisig_setup_participants_description": "Add the wallet addresses allowed to approve transactions.",
+  "multisig_setup_participant_address": "Participant wallet address",
+  "multisig_setup_paste_address": "Paste address",
+  "multisig_setup_add_participant": "Add participant",
+  "multisig_setup_participant_count": "{count, plural, =0{No participants} =1{1 participant} other{{count} participants}}",
+  "@multisig_setup_participant_count": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "multisig_setup_no_participants": "No participants added yet.",
+  "multisig_setup_max_participants": "Maximum of 255 participants reached",
+  "multisig_setup_remove_participant": "Remove participant",
+  "multisig_setup_threshold_description": "Choose the minimum number of participant signatures needed.",
+  "multisig_setup_threshold_label": "Required signatures",
+  "multisig_setup_threshold_empty": "Add at least one participant to choose a threshold.",
+  "multisig_setup_threshold_summary": "{threshold, plural, =1{1 signature required} other{{threshold} signatures required}} out of {participants, plural, =1{1 participant} other{{participants} participants}}.",
+  "@multisig_setup_threshold_summary": {
+    "placeholders": {
+      "threshold": {"type": "int"},
+      "participants": {"type": "int"}
+    }
+  },
+  "multisig_setup_review_configuration": "Review configuration",
+  "multisig_setup_step_review": "Step 2 of 2",
+  "multisig_setup_review_title": "Review and activate",
+  "multisig_setup_review_description": "Check every address, the signature threshold, and the transaction details before broadcasting.",
+  "multisig_setup_summary_title": "Configuration summary",
+  "multisig_setup_review_confirmation": "I confirm that I have checked the addresses, the threshold, and continued access to the participant wallets.",
+  "multisig_setup_activate": "Activate multisig",
+  "multisig_setup_broadcast_title": "Multisig configuration broadcast",
+  "multisig_setup_broadcast_description": "The configuration transaction was sent to the network. It may still need to be confirmed.",
+  "multisig_setup_finish": "Finish",
   "multisig_setup_message_1": "Make sure you have the correct participants and threshold before proceeding.",
   "multisig_setup_message_2": "Afterwards, it will no longer be possible to transfer funds or deactivate the multisig without access to participating wallets.",
   "multisig_setup_message_3": "An incorrect setup can result in a loss of funds.",
