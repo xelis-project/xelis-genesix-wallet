@@ -14,19 +14,29 @@ class BroadcastComplete extends ConsumerWidget {
     final loc = ref.watch(appLocalizationsProvider);
     return Column(
       key: const ValueKey('broadcast-complete'),
-      spacing: Spaces.large,
       children: [
-        Icon(
-          FLucideIcons.circleCheckBig,
-          size: 72,
-          color: context.theme.colors.primary,
+        Expanded(
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              spacing: Spaces.large,
+              children: [
+                Icon(
+                  FLucideIcons.circleCheckBig,
+                  size: 72,
+                  color: context.theme.colors.primary,
+                ),
+                Text(
+                  loc.transaction_broadcast_message,
+                  textAlign: TextAlign.center,
+                  style: context.theme.typography.display.xl,
+                ),
+              ],
+            ),
+          ),
         ),
-        Text(
-          loc.transaction_broadcast_message,
-          textAlign: TextAlign.center,
-          style: context.theme.typography.display.xl,
-        ),
-        FButton(onPress: onClose, child: Text(loc.close)),
+        const SizedBox(height: Spaces.medium),
+        _BottomCloseButton(label: loc.close, onClose: onClose),
       ],
     );
   }
@@ -41,12 +51,42 @@ class EmptyReview extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = ref.watch(appLocalizationsProvider);
     return Column(
-      spacing: Spaces.large,
       children: [
-        const Icon(FLucideIcons.fileQuestion, size: 64),
-        Text(loc.no_data),
-        FButton(onPress: onClose, child: Text(loc.close)),
+        Expanded(
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              spacing: Spaces.large,
+              children: [
+                const Icon(FLucideIcons.fileQuestion, size: 64),
+                Text(loc.no_data, textAlign: TextAlign.center),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: Spaces.medium),
+        _BottomCloseButton(label: loc.close, onClose: onClose),
       ],
+    );
+  }
+}
+
+class _BottomCloseButton extends StatelessWidget {
+  const _BottomCloseButton({required this.label, required this.onClose});
+
+  final String label;
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 360),
+        child: SizedBox(
+          width: double.infinity,
+          child: FButton(onPress: onClose, child: Text(label)),
+        ),
+      ),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/logger/logger.dart';
+import 'package:genesix/features/router/routes.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/multisig_pending_state_provider.dart';
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
@@ -34,6 +35,7 @@ class _TransactionReviewScreenState
     final loc = ref.watch(appLocalizationsProvider);
     final review = ref.watch(transactionReviewProvider);
     final busy = _isFinalizing || _isBroadcasting || _isClosing;
+    final isFullHeightContent = review.isBroadcasted || review is Initial;
     final content = review.isBroadcasted
         ? BroadcastComplete(onClose: _finish)
         : switch (review) {
@@ -53,6 +55,15 @@ class _TransactionReviewScreenState
             ),
             Initial() => EmptyReview(onClose: _finish),
           };
+    final pageContent = Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 760),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: AppDurations.animFast),
+          child: content,
+        ),
+      ),
+    );
 
     return PopScope(
       canPop: false,
@@ -73,18 +84,15 @@ class _TransactionReviewScreenState
         ),
         child: SafeArea(
           top: false,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(Spaces.medium),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 760),
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: AppDurations.animFast),
-                  child: content,
+          child: isFullHeightContent
+              ? Padding(
+                  padding: const EdgeInsets.all(Spaces.medium),
+                  child: pageContent,
+                )
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(Spaces.medium),
+                  child: pageContent,
                 ),
-              ),
-            ),
-          ),
         ),
       ),
     );
@@ -202,7 +210,7 @@ class _TransactionReviewScreenState
 
   void _finish() {
     ref.read(transactionReviewProvider.notifier).reset();
-    context.pop();
+    HomeRoute().go(context);
   }
 }
 
