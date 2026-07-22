@@ -1,30 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
-import 'package:genesix/shared/widgets/components/app_card.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/multisig_pending_state_provider.dart';
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
-import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
+import 'package:genesix/features/wallet/presentation/multisig/components/configured_multisig_view.dart';
+import 'package:genesix/features/wallet/presentation/multisig/components/multisig_introduction.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/shared/widgets/components/faded_scroll.dart';
-import 'package:genesix/shared/widgets/components/labeled_value.dart';
+import 'package:genesix/shared/widgets/components/app_card.dart';
 import 'package:go_router/go_router.dart';
-import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
-import 'package:genesix/features/wallet/domain/multisig/multisig_participant.dart';
-import 'package:genesix/src/generated/l10n/app_localizations.dart';
-import 'package:intl/intl.dart';
 
 class MultisigContent extends ConsumerStatefulWidget {
   const MultisigContent({super.key});
 
   @override
-  ConsumerState createState() => _MultisigContentState();
+  ConsumerState<MultisigContent> createState() => _MultisigContentState();
 }
 
 class _MultisigContentState extends ConsumerState<MultisigContent> {
@@ -44,25 +38,58 @@ class _MultisigContentState extends ConsumerState<MultisigContent> {
     );
     final pendingState = ref.watch(multisigPendingStateProvider);
 
+    final Widget content;
+    if (pendingState) {
+      content = _PendingChangesCard(
+        key: const ValueKey('multisig-pending'),
+        message: loc.changes_in_progress,
+      );
+    } else if (multisigState.isSetup) {
+      content = ConfiguredMultisigView(
+        key: const ValueKey('multisig-configured'),
+        loc: loc,
+        state: multisigState,
+        scrollController: _scrollController,
+        onCopyParticipant: _copyParticipant,
+        onDelete: _deleteMultisig,
+      );
+    } else {
+      content = MultisigIntroduction(
+        key: const ValueKey('multisig-introduction'),
+        loc: loc,
+        onConfigure: _openSetup,
+      );
+    }
+
     return AnimatedSwitcher(
-      key: ValueKey<bool>(pendingState),
       duration: const Duration(milliseconds: AppDurations.animFast),
-      child: pendingState
-          ? _PendingChangesCard(message: loc.changes_in_progress)
-          : multisigState.isSetup
-          ? _ConfiguredMultisigView(
-              loc: loc,
-              state: multisigState,
-              scrollController: _scrollController,
-              ref: ref,
-            )
-          : _EmptyMultisigCallToAction(loc: loc),
+      child: content,
     );
+  }
+
+  void _openSetup() => context.go(AuthAppScreen.setupMultisig.toPath);
+
+  void _copyParticipant(String address) {
+    final loc = ref.read(appLocalizationsProvider);
+    copyToClipboard(address, ref, loc.copied);
+  }
+
+  Future<void> _deleteMultisig() async {
+    final commands = ref.read(walletCommandsProvider);
+    final request = await commands.startDeleteMultisig();
+    if (request == null) return;
+    if (!mounted) {
+      await commands.cancelPendingMultisigRequest(txHash: request.hash);
+      return;
+    }
+
+    ref.read(transactionReviewProvider.notifier).signaturePending(request);
+    await context.push(AuthAppScreen.transactionReview.toPath);
   }
 }
 
 class _PendingChangesCard extends StatelessWidget {
-  const _PendingChangesCard({required this.message});
+  const _PendingChangesCard({required this.message, super.key});
 
   final String message;
 
@@ -95,417 +122,6 @@ class _PendingChangesCard extends StatelessWidget {
                   style: context.theme.typography.body.md,
                 ),
               ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ConfiguredMultisigView extends StatelessWidget {
-  const _ConfiguredMultisigView({
-    required this.loc,
-    required this.state,
-    required this.scrollController,
-    required this.ref,
-  });
-
-  final AppLocalizations loc;
-  final MultisigState state;
-  final ScrollController scrollController;
-  final WidgetRef ref;
-
-  @override
-  Widget build(BuildContext context) {
-    final participants = state.participants.toList(growable: false);
-    final formattedTopoheight = NumberFormat.decimalPattern().format(
-      state.topoheight,
-    );
-
-    Widget buildMetric(String title, String value) => LabeledValue.text(
-      title,
-      value,
-      style: context.theme.typography.body.lg.copyWith(
-        fontWeight: FontWeight.w600,
-      ),
-    );
-
-    List<Widget> buildParticipantTiles() {
-      if (participants.isEmpty) {
-        return [
-          Container(
-            padding: const EdgeInsets.all(Spaces.medium),
-            decoration: BoxDecoration(
-              color: context.theme.colors.secondary,
-              borderRadius: BorderRadius.circular(Spaces.medium),
-              border: Border.all(color: context.theme.colors.border),
-            ),
-            child: Text(
-              loc.no_multisig_configuration_found,
-              style: context.theme.typography.body.md.copyWith(
-                color: context.theme.colors.mutedForeground,
-              ),
-            ),
-          ),
-        ];
-      }
-
-      return participants
-          .asMap()
-          .entries
-          .map((entry) {
-            final index = entry.key;
-            final MultisigParticipant participant = entry.value;
-
-            final tile = Container(
-              padding: const EdgeInsets.all(Spaces.medium),
-              decoration: BoxDecoration(
-                color: context.theme.colors.secondary,
-                borderRadius: BorderRadius.circular(Spaces.medium),
-                border: Border.all(color: context.theme.colors.border),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: Spaces.medium,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      FBadge(variant: .outline, child: Text('#${index + 1}')),
-                      FTooltip(
-                        tipBuilder: (context, controller) => Text(loc.copy),
-                        child: FButton.icon(
-                          variant: .ghost,
-                          onPress: () => copyToClipboard(
-                            participant.address,
-                            ref,
-                            loc.copied,
-                          ),
-                          child: const Icon(FLucideIcons.copy, size: 18),
-                        ),
-                      ),
-                    ],
-                  ),
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () =>
-                        copyToClipboard(participant.address, ref, loc.copied),
-                    child: AddressWidget(participant.address),
-                  ),
-                ],
-              ),
-            );
-
-            if (index == participants.length - 1) return tile;
-
-            return Column(spacing: Spaces.medium, children: [tile, FDivider()]);
-          })
-          .toList(growable: false);
-    }
-
-    return Padding(
-      padding: const EdgeInsets.all(Spaces.medium),
-      child: FadedScroll(
-        controller: scrollController,
-        child: SingleChildScrollView(
-          controller: scrollController,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: Spaces.extraLarge,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: Spaces.small,
-                children: [
-                  Text(
-                    loc.multisig,
-                    style: context.theme.typography.display.xl3,
-                  ),
-                  Text(
-                    loc.multisig_setup_confirmation_message,
-                    style: context.theme.typography.body.sm.copyWith(
-                      color: context.theme.colors.mutedForeground,
-                    ),
-                  ),
-                ],
-              ),
-              AppCard(
-                clipBehavior: Clip.antiAlias,
-                child: Column(
-                  spacing: Spaces.large,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      loc.information,
-                      style: context.theme.typography.body.sm.copyWith(
-                        color: context.theme.colors.mutedForeground,
-                      ),
-                    ),
-                    Wrap(
-                      spacing: Spaces.large,
-                      runSpacing: Spaces.large,
-                      children: [
-                        SizedBox(
-                          width: 200,
-                          child: buildMetric(
-                            loc.threshold,
-                            '${state.threshold}/${participants.length}',
-                          ),
-                        ),
-                        SizedBox(
-                          width: 200,
-                          child: buildMetric(
-                            loc.participants,
-                            participants.length.toString(),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 200,
-                          child: buildMetric(
-                            loc.topoheight,
-                            formattedTopoheight,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              AppCard(
-                clipBehavior: Clip.antiAlias,
-                child: Column(
-                  spacing: Spaces.large,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: Spaces.small,
-                      children: [
-                        Text(
-                          loc.participants,
-                          style: context.theme.typography.body.md.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          loc.multisig_setup_message_1,
-                          style: context.theme.typography.body.sm.copyWith(
-                            color: context.theme.colors.mutedForeground,
-                          ),
-                        ),
-                      ],
-                    ),
-                    ...buildParticipantTiles(),
-                  ],
-                ),
-              ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: FButton(
-                  variant: .destructive,
-                  prefix: const Icon(FLucideIcons.trash),
-                  onPress: () async {
-                    final commands = ref.read(walletCommandsProvider);
-                    final request = await commands.startDeleteMultisig();
-                    if (request == null) return;
-                    if (!context.mounted) {
-                      await commands.cancelPendingMultisigRequest(
-                        txHash: request.hash,
-                      );
-                      return;
-                    }
-                    ref
-                        .read(transactionReviewProvider.notifier)
-                        .signaturePending(request);
-                    await context.push(AuthAppScreen.transactionReview.toPath);
-                  },
-                  child: Text(loc.delete_multisig_configuration),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _EmptyMultisigCallToAction extends StatelessWidget {
-  const _EmptyMultisigCallToAction({required this.loc});
-
-  final AppLocalizations loc;
-
-  @override
-  Widget build(BuildContext context) {
-    final mediaWidth = context.viewportWidth;
-    final mediaHeight = context.viewportHeight;
-    final breakpoints = context.theme.breakpoints;
-    final bool isWide = mediaWidth >= breakpoints.md;
-    final bool useHorizontalLayout = isWide && mediaHeight >= 620;
-    final double maxWidth = useHorizontalLayout
-        ? (mediaWidth * 0.55).clamp(520.0, 880.0).toDouble()
-        : 420.0;
-    final colors = context.theme.colors;
-
-    Widget featurePill(IconData icon, String label) => Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: Spaces.medium,
-        vertical: Spaces.extraSmall,
-      ),
-      decoration: BoxDecoration(
-        color: colors.secondary,
-        borderRadius: BorderRadius.circular(Spaces.large),
-        border: Border.all(color: colors.border),
-      ),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 32, maxWidth: 220),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 16, color: colors.primary),
-            const SizedBox(width: Spaces.extraSmall),
-            Flexible(
-              child: Text(
-                label,
-                style: context.theme.typography.body.xs.copyWith(
-                  color: colors.primary,
-                  fontWeight: FontWeight.w600,
-                ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                softWrap: false,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-
-    final double illustrationSize = useHorizontalLayout ? 140 : 104;
-
-    final illustration = Container(
-      width: illustrationSize,
-      height: illustrationSize,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          colors: [
-            colors.primary.withValues(alpha: 0.18),
-            colors.primary.withValues(alpha: 0.06),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: Icon(
-        FLucideIcons.shieldCheck,
-        size: useHorizontalLayout ? 68 : 52,
-        color: colors.primary,
-      ),
-    );
-
-    final textAlignment = useHorizontalLayout
-        ? TextAlign.left
-        : TextAlign.center;
-    final crossAxis = useHorizontalLayout
-        ? CrossAxisAlignment.start
-        : CrossAxisAlignment.center;
-
-    final titleStyle = context.theme.typography.display.lg;
-
-    final bodyStyle = context.theme.typography.body.md.copyWith(
-      color: colors.mutedForeground,
-    );
-
-    final secondaryBodyStyle = context.theme.typography.body.sm.copyWith(
-      color: colors.mutedForeground,
-    );
-
-    final description = Column(
-      crossAxisAlignment: crossAxis,
-      spacing: Spaces.extraLarge,
-      children: [
-        Column(
-          crossAxisAlignment: crossAxis,
-          spacing: Spaces.smallMedium,
-          children: [
-            Text(
-              loc.multisig_setup_title,
-              textAlign: textAlignment,
-              style: titleStyle,
-            ),
-            Text(
-              loc.multisig_setup_message_1,
-              textAlign: textAlignment,
-              style: bodyStyle,
-            ),
-            Text(
-              '${loc.multisig_setup_message_2}\n'
-              '${loc.multisig_setup_message_3}',
-              textAlign: textAlignment,
-              style: secondaryBodyStyle,
-            ),
-          ],
-        ),
-        Wrap(
-          spacing: Spaces.small,
-          runSpacing: Spaces.small,
-          alignment: useHorizontalLayout
-              ? WrapAlignment.start
-              : WrapAlignment.center,
-          children: [
-            featurePill(FLucideIcons.users, loc.participants),
-            featurePill(FLucideIcons.lock, loc.threshold),
-            featurePill(FLucideIcons.history, loc.history),
-          ],
-        ),
-        Align(
-          alignment: useHorizontalLayout
-              ? Alignment.centerLeft
-              : Alignment.center,
-          child: FButton(
-            onPress: () => context.go(AuthAppScreen.setupMultisig.toPath),
-            child: Text(loc.setup),
-          ),
-        ),
-      ],
-    );
-
-    final content = useHorizontalLayout
-        ? Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              illustration,
-              const SizedBox(width: Spaces.extraLarge),
-              Expanded(child: description),
-            ],
-          )
-        : Column(
-            mainAxisSize: MainAxisSize.min,
-            spacing: Spaces.large,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [illustration, description],
-          );
-
-    final outerPadding = EdgeInsets.symmetric(
-      horizontal: useHorizontalLayout ? Spaces.extraLarge * 1.5 : Spaces.medium,
-      vertical: useHorizontalLayout ? Spaces.extraLarge : Spaces.medium,
-    );
-
-    return SingleChildScrollView(
-      padding: outerPadding,
-      child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: maxWidth),
-          child: AppCard(
-            clipBehavior: Clip.antiAlias,
-            child: Padding(
-              padding: EdgeInsets.all(
-                useHorizontalLayout ? Spaces.extraLarge : Spaces.large,
-              ),
-              child: content,
             ),
           ),
         ),
