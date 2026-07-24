@@ -406,24 +406,27 @@ class _EmptyParticipantList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: Spaces.medium),
-      child: Column(
-        spacing: Spaces.small,
-        children: [
-          Icon(
-            FLucideIcons.users,
-            size: 28,
-            color: context.theme.colors.mutedForeground,
-          ),
-          Text(
-            loc.multisig_setup_no_participants,
-            textAlign: TextAlign.center,
-            style: context.theme.typography.body.sm.copyWith(
+    return SizedBox(
+      width: double.infinity,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: Spaces.medium),
+        child: Column(
+          spacing: Spaces.small,
+          children: [
+            Icon(
+              FLucideIcons.users,
+              size: 28,
               color: context.theme.colors.mutedForeground,
             ),
-          ),
-        ],
+            Text(
+              loc.multisig_setup_no_participants,
+              textAlign: TextAlign.center,
+              style: context.theme.typography.body.sm.copyWith(
+                color: context.theme.colors.mutedForeground,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
