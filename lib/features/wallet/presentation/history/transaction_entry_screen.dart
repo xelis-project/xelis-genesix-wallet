@@ -139,8 +139,11 @@ class _TransactionEntryScreenState extends ConsumerState<TransactionEntryScreen>
         transactionTypeContent = DeployContractEntryContent(entryType);
       case sdk.IncomingContractEntry():
         transactionTypeContent = IncomingContractEntryContent(entryType);
-      case sdk.BlobEntry():
-        transactionTypeContent = BlobEntryContent(entryType);
+      case sdk.IncomingBlobEntry():
+        transactionTypeContent = BlobEntryContent.incoming(entryType);
+      case sdk.OutgoingBlobEntry():
+        nonce = entryType.nonce;
+        transactionTypeContent = BlobEntryContent.outgoing(entryType);
     }
 
     Uri url;

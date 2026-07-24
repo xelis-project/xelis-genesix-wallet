@@ -18,7 +18,8 @@ class TransactionEntryAdapter extends ExtraTypeAdapter<TransactionEntry> {
       InvokeContractEntry e => ('invoke_contract', e.toJson()),
       DeployContractEntry e => ('deploy_contract', e.toJson()),
       IncomingContractEntry e => ('incoming_contract', e.toJson()),
-      BlobEntry e => ('blob', e.toJson()),
+      OutgoingBlobEntry e => ('outgoing_blob', e.toJson()),
+      IncomingBlobEntry e => ('incoming_blob', e.toJson()),
     };
 
     final Json payload = {

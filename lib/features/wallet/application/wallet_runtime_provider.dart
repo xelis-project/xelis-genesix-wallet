@@ -425,7 +425,7 @@ class WalletRuntime extends _$WalletRuntime {
           case sdk.IncomingContractEntry():
             _emitInfo(title: 'Contract Transfer Received');
 
-          case sdk.BlobEntry():
+          case sdk.IncomingBlobEntry() || sdk.OutgoingBlobEntry():
             _emitEvent(
               title: loc.blob.capitalize(),
               description:
@@ -596,7 +596,7 @@ class WalletRuntime extends _$WalletRuntime {
       case sdk.IncomingContractEntry():
         _emitEvent(title: title, description: hashText);
 
-      case sdk.BlobEntry():
+      case sdk.IncomingBlobEntry() || sdk.OutgoingBlobEntry():
         _emitEvent(title: title, description: hashText);
     }
   }

@@ -195,17 +195,39 @@ TransactionDisplayInfo parseTxInfo(
         color: Colors.purple.shade300,
         label: loc.tx_contract_transfer,
       );
-    case BlobEntry():
-      final parsed = ParsedExtraData.parse(loc, type.data);
-      return TransactionDisplayInfo(
-        icon: FLucideIcons.fileText,
-        color: Colors.cyan.shade400,
-        label: loc.blob,
-        subtitle: loc.extra_data,
-        details:
-            '${parsed.flag.name.capitalize()} • ${parsed.label} • ${parsed.fmtSize}',
+    case IncomingBlobEntry():
+      return _blobDisplayInfo(
+        loc,
+        type.data,
+        direction: loc.incoming,
+        icon: FLucideIcons.arrowDownLeft,
+      );
+    case OutgoingBlobEntry():
+      return _blobDisplayInfo(
+        loc,
+        type.data,
+        direction: loc.outgoing,
+        icon: FLucideIcons.arrowUpRight,
       );
   }
+}
+
+TransactionDisplayInfo _blobDisplayInfo(
+  AppLocalizations loc,
+  ExtraData data, {
+  required String direction,
+  required IconData icon,
+}) {
+  final parsed = ParsedExtraData.parse(loc, data);
+
+  return TransactionDisplayInfo(
+    icon: icon,
+    color: Colors.cyan.shade400,
+    label: loc.blob,
+    subtitle: direction,
+    details:
+        '${parsed.flag.name.capitalize()} • ${parsed.label} • ${parsed.fmtSize}',
+  );
 }
 
 _TransferSummary _summarizeTransfers(

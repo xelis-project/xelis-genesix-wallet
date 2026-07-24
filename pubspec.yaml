@@ -23,7 +23,7 @@ dependencies:
   path_provider: ^2.1.6
   riverpod_annotation: 4.0.2
   shared_preferences: ^2.5.5
-  xelis_dart_sdk: ^0.34.0
+  xelis_dart_sdk: ^0.35.1
   pretty_qr_code: ^3.6.0
   mobile_scanner: ^7.4.0
   flutter_native_splash: ^2.4.8
@@ -41,7 +41,7 @@ dependencies:
   local_auth: ^3.0.2
   web: ^1.1.1
   infinite_scroll_pagination: ^5.1.1
-  forui: ^0.24.2
+  forui: ^0.24.3
   animations: ^2.2.0
   jovial_svg: ^1.1.30
   fl_chart: ^1.2.0

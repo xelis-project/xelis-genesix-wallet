@@ -6,6 +6,7 @@ import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/presentation/assets/asset_name_widget.dart';
+import 'package:genesix/features/wallet/presentation/history/contract_asset_transfers.dart';
 import 'package:genesix/shared/widgets/components/labeled_value.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -51,7 +52,14 @@ class _InvokeContractEntryContentState
       return;
     }
 
-    for (final assetHash in widget.invokeContractEntry.deposits.keys) {
+    final transactionAssetHashes = {
+      ...widget.invokeContractEntry.deposits.keys,
+      ...widget.invokeContractEntry.received.values.expand(
+        (transfers) => transfers.keys,
+      ),
+    };
+
+    for (final assetHash in transactionAssetHashes) {
       if (!knownAssets.containsKey(assetHash)) {
         try {
           final assetData = await repository.getAssetMetadata(assetHash);
@@ -438,43 +446,11 @@ class _InvokeContractEntryContentState
                     ],
                   ),
                   if (widget.invokeContractEntry.received.isNotEmpty)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          loc.received,
-                          style: context.theme.typography.body.sm.copyWith(
-                            color: context.theme.colors.mutedForeground,
-                          ),
-                        ),
-                        FItemGroup.builder(
-                          count: widget.invokeContractEntry.received.length,
-                          itemBuilder: (context, index) {
-                            final received = widget
-                                .invokeContractEntry
-                                .received
-                                .entries
-                                .elementAt(index);
-
-                            final formattedData =
-                                getFormattedAssetNameAndAmount(
-                                  allAssets,
-                                  received.key,
-                                  received.value,
-                                );
-                            final assetName = formattedData.$1;
-                            final amount = formattedData.$2;
-
-                            return FItem(
-                              title: AssetNameWidget(
-                                assetName: assetName,
-                                isXelis: isXelis(received.key),
-                              ),
-                              details: SelectableText(amount),
-                            );
-                          },
-                        ),
-                      ],
+                    ContractAssetTransfers(
+                      title: loc.received,
+                      transfers: widget.invokeContractEntry.received,
+                      knownAssets: allAssets,
+                      loc: loc,
                     ),
                   if (_contractLogs.isNotEmpty)
                     Column(

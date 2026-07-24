@@ -67,14 +67,16 @@ Set<String> assetHashesFromTransaction(sdk.TransactionEntryType txType) {
     sdk.BurnEntry() => {txType.asset},
     sdk.InvokeContractEntry() => {
       ...txType.deposits.keys,
-      ...txType.received.keys,
+      ...txType.received.values.expand((transfers) => transfers.keys),
     },
     sdk.DeployContractEntry(invoke: final invoke) => {
       if (invoke != null) ...invoke.deposits.keys,
     },
-    sdk.IncomingContractEntry() => txType.transfers.keys.toSet(),
+    sdk.IncomingContractEntry() =>
+      txType.transfers.values.expand((transfers) => transfers.keys).toSet(),
     sdk.CoinbaseEntry() ||
     sdk.MultisigEntry() ||
-    sdk.BlobEntry() => const <String>{},
+    sdk.IncomingBlobEntry() ||
+    sdk.OutgoingBlobEntry() => const <String>{},
   };
 }
