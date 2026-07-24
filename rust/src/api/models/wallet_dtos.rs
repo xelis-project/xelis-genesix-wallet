@@ -164,6 +164,7 @@ impl HistoryPageFilter {
         Ok(TransactionFilterOptions {
             address,
             asset,
+            contract: None, // TODO: Add contract filter to the API
             min_topoheight: self.min_topoheight,
             max_topoheight: self.max_topoheight,
             accept_incoming: self.accept_incoming,
