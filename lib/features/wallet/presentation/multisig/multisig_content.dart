@@ -23,6 +23,7 @@ class MultisigContent extends ConsumerStatefulWidget {
 
 class _MultisigContentState extends ConsumerState<MultisigContent> {
   final _scrollController = ScrollController();
+  bool _isPreparingDeletion = false;
 
   @override
   void dispose() {
@@ -51,6 +52,7 @@ class _MultisigContentState extends ConsumerState<MultisigContent> {
         state: multisigState,
         scrollController: _scrollController,
         onCopyParticipant: _copyParticipant,
+        isDeleting: _isPreparingDeletion,
         onDelete: _deleteMultisig,
       );
     } else {
@@ -75,16 +77,23 @@ class _MultisigContentState extends ConsumerState<MultisigContent> {
   }
 
   Future<void> _deleteMultisig() async {
-    final commands = ref.read(walletCommandsProvider);
-    final request = await commands.startDeleteMultisig();
-    if (request == null) return;
-    if (!mounted) {
-      await commands.cancelPendingMultisigRequest(txHash: request.hash);
-      return;
-    }
+    if (_isPreparingDeletion) return;
 
-    ref.read(transactionReviewProvider.notifier).signaturePending(request);
-    await context.push(AuthAppScreen.transactionReview.toPath);
+    setState(() => _isPreparingDeletion = true);
+    final commands = ref.read(walletCommandsProvider);
+    try {
+      final request = await commands.startDeleteMultisig();
+      if (request == null) return;
+      if (!mounted) {
+        await commands.cancelPendingMultisigRequest(txHash: request.hash);
+        return;
+      }
+
+      ref.read(transactionReviewProvider.notifier).signaturePending(request);
+      await context.push(AuthAppScreen.transactionReview.toPath);
+    } finally {
+      if (mounted) setState(() => _isPreparingDeletion = false);
+    }
   }
 }
 
