@@ -54,7 +54,7 @@ The signing envelope must not serialize plaintext `extra_data`. Cosigners can
 verify and display its presence and the public destination, but encrypted
 contents remain private to the sender and destination.
 
-Source: `rust/src/multisig.rs`.
+Source: `rust/src/api/multisig.rs`.
 
 Invalidation:
 

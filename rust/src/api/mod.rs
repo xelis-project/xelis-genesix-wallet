@@ -6,6 +6,7 @@ pub mod address_book;
 pub mod api;
 pub mod logger;
 pub mod models;
+mod multisig;
 pub mod precomputed_tables;
 pub mod progress_report;
 pub mod seed_search_engine;

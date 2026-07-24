@@ -3,7 +3,7 @@ use flutter_rust_bridge::frb;
 use std::sync::Arc;
 
 use super::precomputed_tables::PrecomputedTableType;
-use crate::multisig::PendingMultisigStore;
+use crate::api::multisig::PendingMultisigStore;
 use anyhow::Result;
 use futures::lock::Mutex as AsyncMutex;
 use parking_lot::RwLock;

@@ -3,7 +3,7 @@ use std::thread;
 
 use super::super::precomputed_tables::PrecomputedTableType;
 use super::XelisWallet;
-use crate::multisig::PendingMultisigStore;
+use crate::api::multisig::PendingMultisigStore;
 use anyhow::{anyhow, bail, Result};
 use flutter_rust_bridge::frb;
 use log::info;

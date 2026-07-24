@@ -11,6 +11,7 @@ use xelis_common::{
     },
 };
 
+use super::super::models::wallet_dtos::{MultisigSigningTransaction, SignatureMultisig};
 use super::{
     build_verified_multisig, create_multisig_signature_share, create_multisig_signing_request,
     multisig_request_signing_bytes, parse_multisig_signature_share, parse_multisig_signing_request,
@@ -18,7 +19,6 @@ use super::{
     MultisigSigningRequestEnvelope, MultisigSigningRequestTransaction, PendingMultisigStore,
     MAX_MULTISIG_SIGNATURE_SHARE_SIZE, MAX_MULTISIG_SIGNING_REQUEST_SIZE,
 };
-use crate::api::models::wallet_dtos::{MultisigSigningTransaction, SignatureMultisig};
 
 fn signature(id: u8, keypair: &KeyPair, hash: &Hash) -> SignatureMultisig {
     SignatureMultisig {

@@ -7,7 +7,7 @@ use super::super::models::wallet_dtos::{
 use super::{
     amounts, transactions, PendingMultisigTransaction, TransactionBuilderState, XelisWallet,
 };
-use crate::multisig::{
+use crate::api::multisig::{
     build_verified_multisig, create_multisig_signature_share, create_multisig_signing_request,
     parse_multisig_signature_share, parse_multisig_signing_request, validate_multisig_setup,
     verify_multisig_signature, ParsedMultisigSigningRequest,

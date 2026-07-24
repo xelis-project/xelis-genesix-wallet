@@ -26,7 +26,7 @@ use xelis_common::{
     },
 };
 
-use crate::api::models::wallet_dtos::{
+use super::models::wallet_dtos::{
     MultisigSignatureShare, MultisigSigningRequest, MultisigSigningTransaction,
     MultisigSigningTransfer, ParticipantDartPayload, SignatureMultisig,
 };
@@ -81,6 +81,7 @@ struct MultisigSignatureShareEnvelope {
     signature: String,
 }
 
+#[flutter_rust_bridge::frb(ignore)]
 #[derive(Debug)]
 pub(super) struct ParsedMultisigSigningRequest {
     encoded: String,

@@ -50,7 +50,7 @@ Status labels:
   node before signing. Confidential transfer amounts remain source-attested because
   they cannot be independently derived from the public transaction payload.
   Sources: [flow and security model](../../docs/multisig-signing.md),
-  [Rust contract](../../rust/src/multisig.rs),
+  [Rust contract](../../rust/src/api/multisig.rs),
   [Dart adapter](../../lib/features/wallet/data/native_wallet_repository.dart).
 - **Storage** (`current`): qualify the surface instead of saying only “storage”:
   native wallet data, wallet metadata/path persistence, secure storage, or
