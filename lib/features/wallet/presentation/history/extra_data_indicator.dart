@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/domain/parsed_extra_data.dart';
 import 'package:genesix/features/wallet/presentation/components/colored_badge.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
-class ExtraDataIndicator extends StatelessWidget {
+class ExtraDataIndicator extends ConsumerWidget {
   const ExtraDataIndicator({
     super.key,
     required this.extra,
@@ -19,12 +20,12 @@ class ExtraDataIndicator extends StatelessWidget {
   final bool dense;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (extra == null) {
       return Text('-', style: context.theme.typography.body.md);
     }
 
-    final loc = AppLocalizations.of(context);
+    final loc = ref.watch(appLocalizationsProvider);
     final parsed = ParsedExtraData.parse(loc, extra!);
     final color = flagColor(parsed.flag);
     final tooltip =
