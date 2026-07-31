@@ -1,46 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:forui/forui.dart';
 import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
+import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
+import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/wallet_runtime_state.dart';
+import 'package:genesix/features/wallet/presentation/sign_transaction/components/signing_request_entry.dart';
+import 'package:genesix/features/wallet/presentation/sign_transaction/components/signing_request_review.dart';
+import 'package:genesix/features/wallet/presentation/sign_transaction/components/signature_share_ready.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/shared/widgets/components/app_card.dart';
-import 'package:genesix/shared/widgets/components/async_f_button.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
 
 const _maxMultisigSigningRequestLength = 3 * 1024 * 1024;
+
+enum _SigningRequestInputError { required, invalid }
+
+enum _SigningFlowDirection { forward, backward }
 
 class SignTransactionContent extends ConsumerStatefulWidget {
   const SignTransactionContent({super.key});
 
   @override
-  ConsumerState createState() => _SignTransactionContentState();
+  ConsumerState<SignTransactionContent> createState() =>
+      _SignTransactionContentState();
 }
 
 class _SignTransactionContentState
     extends ConsumerState<SignTransactionContent> {
-  final _formKey = GlobalKey<FormState>();
   final _requestController = TextEditingController();
+  final _scrollController = ScrollController();
 
   MultisigSigningRequest? _request;
   MultisigSignatureShare? _signatureShare;
-  var _submitted = false;
-  var _isInspecting = false;
-  var _isSigning = false;
+  NativeWalletRepository? _requestRepository;
+  _SigningRequestInputError? _inputError;
+  String _observedInputText = '';
+  bool _deleteConfirmed = false;
+  bool _isInspecting = false;
+  bool _isAuthenticating = false;
+  bool _isSigning = false;
+  bool _signingFailed = false;
+  bool _copied = false;
+  _SigningFlowDirection _transitionDirection = _SigningFlowDirection.forward;
 
   @override
   void dispose() {
     _requestController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<NativeWalletRepository?>(
+      activeWalletRepositoryProvider,
+      _handleActiveRepositoryChanged,
+    );
     final loc = ref.watch(appLocalizationsProvider);
     final runtime = ref.watch(walletRuntimeProvider);
     final isNodeAvailable =
@@ -52,375 +71,360 @@ class _SignTransactionContentState
       WalletConnectionPhase.reconnecting => loc.action_wait_for_node_connection,
       _ => loc.action_requires_connected_node,
     };
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(Spaces.medium),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 760),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              spacing: Spaces.large,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (!isNodeAvailable)
-                  FAlert(
-                    title: Text(loc.node_required),
-                    subtitle: Text(nodeRequirementMessage),
+    final transitionDuration =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false
+        ? Duration.zero
+        : const Duration(milliseconds: AppDurations.animFast);
+
+    final Widget content;
+    if (_signatureShare case final share?) {
+      content = SignatureShareReady(
+        key: ValueKey('signature-ready-${share.requestHash}'),
+        share: share,
+        participant: _participantFor(share.signerId),
+        copied: _copied,
+        onCopy: _copySignatureShare,
+        onRestart: _restart,
+      );
+    } else if (_request case final request?) {
+      content = SigningRequestReview(
+        key: ValueKey('signing-review-${request.hash}'),
+        request: request,
+        runtime: runtime,
+        participant: _participantFor(request.signerId),
+        isNodeAvailable: isNodeAvailable,
+        nodeRequirementMessage: nodeRequirementMessage,
+        deleteConfirmed: _deleteConfirmed,
+        isSigning: _isAuthenticating || _isSigning,
+        signingFailed: _signingFailed,
+        onDeleteConfirmationChanged: _setDeleteConfirmation,
+        onEdit: _editRequest,
+        onSign: _startSigning,
+      );
+    } else {
+      content = SigningRequestEntry(
+        key: const ValueKey('signing-request-entry'),
+        controller: _requestController,
+        maxLength: _maxMultisigSigningRequestLength,
+        isNodeAvailable: isNodeAvailable,
+        nodeRequirementMessage: nodeRequirementMessage,
+        isInspecting: _isInspecting,
+        error: switch (_inputError) {
+          _SigningRequestInputError.required => loc.field_required_error,
+          _SigningRequestInputError.invalid =>
+            loc.invalid_multisig_signing_request,
+          null => null,
+        },
+        onChanged: _handleRequestChanged,
+        onPaste: _pasteRequest,
+        onInspect: _inspectRequest,
+      );
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final minimumHeight = constraints.maxHeight.isFinite
+            ? (constraints.maxHeight - Spaces.medium * 2).clamp(
+                0.0,
+                double.infinity,
+              )
+            : 0.0;
+
+        return SingleChildScrollView(
+          controller: _scrollController,
+          padding: const EdgeInsets.all(Spaces.medium),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: 900,
+                minHeight: minimumHeight,
+              ),
+              child: ClipRect(
+                child: AnimatedSwitcher(
+                  duration: transitionDuration,
+                  switchInCurve: Curves.easeInOutCubic,
+                  switchOutCurve: Curves.easeInOutCubic,
+                  layoutBuilder: _buildTransitionLayout,
+                  transitionBuilder: (child, animation) => _buildTransition(
+                    child,
+                    animation,
+                    isIncoming: child.key == content.key,
                   ),
-                FTextFormField(
-                  enabled: !_isInspecting && !_isSigning && _request == null,
-                  control: .managed(
-                    controller: _requestController,
-                    onChange: (_) => _resetResult(),
-                  ),
-                  autovalidateMode: _submitted
-                      ? AutovalidateMode.always
-                      : AutovalidateMode.disabled,
-                  label: Text(loc.multisig_signing_request),
-                  hint: loc.enter_multisig_signing_request,
-                  keyboardType: TextInputType.multiline,
-                  inputFormatters: [
-                    LengthLimitingTextInputFormatter(
-                      _maxMultisigSigningRequestLength,
-                    ),
-                  ],
-                  minLines: 4,
-                  maxLines: 8,
-                  clearable: (value) => value.text.isNotEmpty,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return loc.field_required_error;
-                    }
-                    return null;
-                  },
+                  child: content,
                 ),
-                if (_request == null)
-                  AsyncFButton(
-                    isLoading: _isInspecting,
-                    onPress: isNodeAvailable ? _inspectRequest : null,
-                    prefix: const Icon(FLucideIcons.shieldCheck, size: 18),
-                    child: Text(loc.continue_button),
-                  )
-                else ...[
-                  _SigningRequestPreview(request: _request!, runtime: runtime),
-                  if (_signatureShare == null) ...[
-                    if (_request!.signerId == null)
-                      FAlert(
-                        title: Text(loc.not_available),
-                        subtitle: Text(loc.wallet_not_multisig_participant),
-                      ),
-                    Wrap(
-                      alignment: WrapAlignment.end,
-                      spacing: Spaces.small,
-                      runSpacing: Spaces.small,
-                      children: [
-                        FButton(
-                          variant: .outline,
-                          onPress: _isSigning ? null : _clearRequest,
-                          child: Text(loc.cancel_button),
-                        ),
-                        AsyncFButton(
-                          isLoading: _isSigning,
-                          onPress:
-                              _request!.signerId == null || !isNodeAvailable
-                              ? null
-                              : () => startWithBiometricAuth(
-                                  ref,
-                                  callback: (_) => _signRequest(),
-                                  reason: loc.please_authenticate_tx,
-                                ),
-                          prefix: const Icon(FLucideIcons.penLine, size: 18),
-                          child: Text(loc.sign_transaction),
-                        ),
-                      ],
-                    ),
-                  ] else
-                    _SignatureShareCard(
-                      share: _signatureShare!,
-                      onCopy: () => copyToClipboard(
-                        _signatureShare!.encoded,
-                        ref,
-                        loc.copied,
-                      ),
-                      onDone: _clearRequest,
-                    ),
-                ],
-              ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  void _resetResult() {
-    if (_submitted || _request != null || _signatureShare != null) {
-      setState(() {
-        _submitted = false;
-        _request = null;
-        _signatureShare = null;
-      });
+  Widget _buildTransition(
+    Widget child,
+    Animation<double> animation, {
+    required bool isIncoming,
+  }) {
+    final direction = _transitionDirection == _SigningFlowDirection.forward
+        ? 1.0
+        : -1.0;
+    final offset = Tween<Offset>(
+      begin: Offset(isIncoming ? direction : -direction, 0),
+      end: Offset.zero,
+    ).animate(animation);
+
+    return SlideTransition(position: offset, child: child);
+  }
+
+  Widget _buildTransitionLayout(
+    Widget? currentChild,
+    List<Widget> previousChildren,
+  ) {
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: [...previousChildren, ?currentChild],
+    );
+  }
+
+  ParticipantDartPayload? _participantFor(int? signerId) {
+    if (signerId == null) return null;
+    final participants = _request?.participants;
+    if (participants == null) return null;
+    for (final participant in participants) {
+      if (participant.id == signerId) return participant;
+    }
+    return null;
+  }
+
+  void _handleRequestChanged(String value) {
+    if (value == _observedInputText) return;
+    _observedInputText = value;
+    if (_inputError != null) {
+      setState(() => _inputError = null);
     }
   }
 
-  void _clearRequest() {
-    setState(() {
-      _submitted = false;
+  void _handleActiveRepositoryChanged(
+    NativeWalletRepository? previous,
+    NativeWalletRepository? next,
+  ) {
+    final requestRepository = _requestRepository;
+    if (requestRepository == null || identical(next, requestRepository)) return;
+
+    _changeStep(() {
       _request = null;
+      _requestRepository = null;
       _signatureShare = null;
+      _inputError = null;
+      _observedInputText = '';
+      _deleteConfirmed = false;
+      _signingFailed = false;
+      _copied = false;
       _requestController.clear();
-    });
+    }, direction: _SigningFlowDirection.backward);
+  }
+
+  Future<void> _pasteRequest() async {
+    if (_isInspecting) return;
+
+    final clipboard = await Clipboard.getData(Clipboard.kTextPlain);
+    if (!mounted) return;
+    final text = clipboard?.text;
+    if (text == null || text.isEmpty) return;
+    if (text.length > _maxMultisigSigningRequestLength) {
+      setState(() => _inputError = _SigningRequestInputError.invalid);
+      return;
+    }
+
+    _requestController.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+    _handleRequestChanged(text);
   }
 
   Future<void> _inspectRequest() async {
-    setState(() => _submitted = true);
-    if (!(_formKey.currentState?.validate() ?? false)) {
+    if (_isInspecting) return;
+
+    final encoded = _requestController.text.trim();
+    if (encoded.isEmpty) {
+      setState(() => _inputError = _SigningRequestInputError.required);
       return;
     }
 
-    setState(() => _isInspecting = true);
+    final repository = ref.read(activeWalletRepositoryProvider);
+    if (repository == null) return;
+
+    setState(() {
+      _inputError = null;
+      _isInspecting = true;
+    });
     try {
       final request = await ref
           .read(walletCommandsProvider)
-          .inspectMultisigSigningRequest(_requestController.text.trim());
-      if (!mounted || request == null) {
+          .inspectMultisigSigningRequest(encoded);
+      if (!mounted ||
+          _requestController.text.trim() != encoded ||
+          !identical(ref.read(activeWalletRepositoryProvider), repository)) {
         return;
       }
-      setState(() {
+      if (request == null) {
+        final runtime = ref.read(walletRuntimeProvider);
+        final nodeStillAvailable =
+            runtime.isOnline &&
+            runtime.connectionPhase == WalletConnectionPhase.connected;
+        if (nodeStillAvailable) {
+          setState(() => _inputError = _SigningRequestInputError.invalid);
+        }
+        return;
+      }
+
+      _changeStep(() {
         _request = request;
+        _requestRepository = repository;
         _signatureShare = null;
+        _deleteConfirmed = false;
+        _signingFailed = false;
+        _copied = false;
       });
     } finally {
-      if (mounted) {
-        setState(() => _isInspecting = false);
-      }
+      if (mounted) setState(() => _isInspecting = false);
     }
   }
 
-  Future<void> _signRequest() async {
+  void _setDeleteConfirmation(bool value) {
+    setState(() => _deleteConfirmed = value);
+  }
+
+  void _editRequest() {
+    if (_isAuthenticating || _isSigning) return;
+    _changeStep(() {
+      _request = null;
+      _requestRepository = null;
+      _signatureShare = null;
+      _deleteConfirmed = false;
+      _signingFailed = false;
+      _copied = false;
+    }, direction: _SigningFlowDirection.backward);
+  }
+
+  Future<void> _startSigning() async {
     final request = _request;
-    if (request == null || _isSigning) {
+    final requestRepository = _requestRepository;
+    if (request == null ||
+        requestRepository == null ||
+        !identical(
+          ref.read(activeWalletRepositoryProvider),
+          requestRepository,
+        ) ||
+        request.signerId == null ||
+        _isAuthenticating ||
+        _isSigning) {
       return;
     }
 
-    setState(() => _isSigning = true);
+    final loc = ref.read(appLocalizationsProvider);
+    setState(() => _isAuthenticating = true);
     try {
-      final share = await ref
-          .read(walletCommandsProvider)
-          .signMultisigSigningRequest(request.encoded);
-      if (!mounted || share == null || share.requestHash != request.hash) {
-        return;
-      }
-      setState(() => _signatureShare = share);
+      await startWithBiometricAuth(
+        ref,
+        callback: (authenticatedRef) =>
+            _signRequest(authenticatedRef, request.hash, requestRepository),
+        reason: loc.please_authenticate_tx,
+      );
     } finally {
-      if (mounted) {
-        setState(() => _isSigning = false);
-      }
+      if (mounted) setState(() => _isAuthenticating = false);
     }
   }
-}
 
-class _SigningRequestPreview extends ConsumerWidget {
-  const _SigningRequestPreview({required this.request, required this.runtime});
+  Future<void> _signRequest(
+    WidgetRef authenticatedRef,
+    String expectedRequestHash,
+    NativeWalletRepository expectedRepository,
+  ) async {
+    final request = _request;
+    if (request == null ||
+        request.hash != expectedRequestHash ||
+        !identical(
+          authenticatedRef.read(activeWalletRepositoryProvider),
+          expectedRepository,
+        ) ||
+        request.signerId == null ||
+        (request.transaction is MultisigSigningTransaction_DeleteMultisig &&
+            !_deleteConfirmed) ||
+        _isSigning) {
+      return;
+    }
 
-  final MultisigSigningRequest request;
-  final WalletRuntimeState runtime;
+    setState(() {
+      _isSigning = true;
+      _signingFailed = false;
+    });
+    try {
+      final share = await authenticatedRef
+          .read(walletCommandsProvider)
+          .signMultisigSigningRequest(request.encoded);
+      if (!mounted ||
+          _request?.hash != request.hash ||
+          !identical(
+            authenticatedRef.read(activeWalletRepositoryProvider),
+            expectedRepository,
+          )) {
+        return;
+      }
+      if (share == null || share.requestHash != request.hash) {
+        setState(() => _signingFailed = true);
+        return;
+      }
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final loc = ref.watch(appLocalizationsProvider);
-    final transactionDetails = switch (request.transaction) {
-      MultisigSigningTransaction_Transfers(:final transfers) => Column(
-        spacing: Spaces.small,
-        children: [
-          for (final transfer in transfers)
-            _TransferPreview(transfer: transfer, runtime: runtime),
-        ],
-      ),
-      MultisigSigningTransaction_Burn(:final asset, :final amount) => Column(
-        children: [
-          _DetailRow(
-            label: runtime.knownAssets.containsKey(asset)
-                ? loc.amount
-                : loc.raw_amount,
-            value: _formatAmount(amount, asset),
-          ),
-          _DetailRow(label: loc.asset, value: asset),
-        ],
-      ),
-      MultisigSigningTransaction_DeleteMultisig() => _DetailRow(
-        label: loc.multisig,
-        value: loc.delete_multisig_configuration,
-      ),
-    };
-
-    return AppCard(
-      child: Padding(
-        padding: const EdgeInsets.all(Spaces.medium),
-        child: Column(
-          spacing: Spaces.small,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  FLucideIcons.badgeCheck,
-                  color: context.theme.colors.primary,
-                ),
-                const SizedBox(width: Spaces.small),
-                Expanded(
-                  child: Text(
-                    loc.multisig_signing_request,
-                    style: context.theme.typography.display.lg,
-                  ),
-                ),
-              ],
-            ),
-            const FDivider(),
-            _DetailRow(label: loc.wallet, value: request.source),
-            _DetailRow(label: loc.network, value: request.network),
-            _DetailRow(label: loc.transaction_id, value: request.hash),
-            _DetailRow(
-              label: loc.fee,
-              value: formatXelis(request.fee, runtime.network),
-            ),
-            _DetailRow(
-              label: loc.fee_limit,
-              value: formatXelis(request.feeLimit, runtime.network),
-            ),
-            _DetailRow(
-              label: loc.threshold,
-              value: '${request.threshold}/${request.participants.length}',
-            ),
-            _DetailRow(
-              label: loc.participant_id,
-              value: request.signerId == null
-                  ? '—'
-                  : '#${request.signerId! + 1}',
-            ),
-            _DetailRow(
-              label: loc.topoheight,
-              value: request.referenceTopoheight.toString(),
-            ),
-            const FDivider(),
-            transactionDetails,
-          ],
-        ),
-      ),
-    );
+      _changeStep(() {
+        _signatureShare = share;
+        _copied = false;
+      });
+    } finally {
+      if (mounted) setState(() => _isSigning = false);
+    }
   }
 
-  String _formatAmount(BigInt amount, String asset) {
-    final metadata = runtime.knownAssets[asset];
-    if (metadata == null) return amount.toString();
-    return formatCoin(amount, metadata.decimals, metadata.ticker);
+  void _copySignatureShare() {
+    final share = _signatureShare;
+    if (share == null) return;
+
+    final loc = ref.read(appLocalizationsProvider);
+    copyToClipboard(share.encoded, ref, loc.copied);
+    setState(() => _copied = true);
   }
-}
 
-class _TransferPreview extends ConsumerWidget {
-  const _TransferPreview({required this.transfer, required this.runtime});
-
-  final MultisigSigningTransfer transfer;
-  final WalletRuntimeState runtime;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final loc = ref.watch(appLocalizationsProvider);
-    final metadata = runtime.knownAssets[transfer.asset];
-    final amount = metadata == null
-        ? transfer.amount.toString()
-        : formatCoin(transfer.amount, metadata.decimals, metadata.ticker);
-
-    return Column(
-      children: [
-        _DetailRow(
-          label: metadata == null ? loc.raw_amount : loc.amount,
-          value: amount,
-        ),
-        _DetailRow(label: loc.destination, value: transfer.destination),
-        _DetailRow(label: loc.asset, value: transfer.asset),
-        if (transfer.hasExtraData)
-          _DetailRow(label: loc.extra_data, value: loc.enabled),
-      ],
-    );
+  void _restart() {
+    if (_isAuthenticating || _isSigning) return;
+    _changeStep(() {
+      _request = null;
+      _requestRepository = null;
+      _signatureShare = null;
+      _inputError = null;
+      _observedInputText = '';
+      _deleteConfirmed = false;
+      _signingFailed = false;
+      _copied = false;
+      _requestController.clear();
+    }, direction: _SigningFlowDirection.backward);
   }
-}
 
-class _SignatureShareCard extends ConsumerWidget {
-  const _SignatureShareCard({
-    required this.share,
-    required this.onCopy,
-    required this.onDone,
-  });
-
-  final MultisigSignatureShare share;
-  final VoidCallback onCopy;
-  final VoidCallback onDone;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final loc = ref.watch(appLocalizationsProvider);
-
-    return AppCard(
-      child: Padding(
-        padding: const EdgeInsets.all(Spaces.medium),
-        child: Column(
-          spacing: Spaces.medium,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              loc.signature_share,
-              style: context.theme.typography.display.lg,
-            ),
-            SelectableText(share.encoded),
-            Wrap(
-              alignment: WrapAlignment.end,
-              spacing: Spaces.small,
-              runSpacing: Spaces.small,
-              children: [
-                FButton(
-                  variant: .outline,
-                  onPress: onDone,
-                  child: Text(loc.close),
-                ),
-                FButton(
-                  onPress: onCopy,
-                  prefix: const Icon(FLucideIcons.copy, size: 18),
-                  child: Text(loc.copy),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _DetailRow extends StatelessWidget {
-  const _DetailRow({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 132,
-          child: Text(
-            label,
-            style: context.theme.typography.body.sm.copyWith(
-              color: context.theme.colors.mutedForeground,
-            ),
-          ),
-        ),
-        const SizedBox(width: Spaces.small),
-        Expanded(child: SelectableText(value)),
-      ],
-    );
+  void _changeStep(
+    VoidCallback update, {
+    _SigningFlowDirection direction = _SigningFlowDirection.forward,
+  }) {
+    setState(() {
+      _transitionDirection = direction;
+      update();
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_scrollController.hasClients) return;
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: AppDurations.animFast),
+        curve: Curves.easeOutCubic,
+      );
+    });
   }
 }
