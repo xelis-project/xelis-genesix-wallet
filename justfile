@@ -21,11 +21,6 @@ format:
 clean:
     flutter clean
 
-gen_arb:
-    cd lib/l10n && python ./scripts/csv_to_arb.py
-    flutter pub get
-    cd ../..
-
 sync_forui_docs:
     dart run tool/sync_forui_docs.dart
 
