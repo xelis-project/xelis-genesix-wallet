@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/logger/logger.dart';
+import 'package:genesix/shared/lifecycle/desktop_shutdown_coordinator.dart';
 import 'package:genesix/shared/theme/theme.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:window_manager/window_manager.dart';
@@ -23,11 +24,19 @@ class Genesix extends ConsumerStatefulWidget {
 }
 
 class _GenesixState extends ConsumerState<Genesix> with WindowListener {
-  bool _isClosing = false;
+  late final DesktopShutdownCoordinator _shutdownCoordinator;
 
   @override
   void initState() {
     super.initState();
+    _shutdownCoordinator = DesktopShutdownCoordinator(
+      closeSession: _closeWalletSession,
+      stopLogging: disposeRustLogging,
+      destroyWindow: windowManager.destroy,
+      allowNativeClose: _allowNativeClose,
+      requestNativeClose: windowManager.close,
+      recordFailure: _recordShutdownFailure,
+    );
     windowManager.addListener(this);
   }
 
@@ -80,34 +89,26 @@ class _GenesixState extends ConsumerState<Genesix> with WindowListener {
 
   @override
   void onWindowClose() {
-    if (_isClosing) return;
-    _isClosing = true;
-    unawaited(_closeWindow());
+    unawaited(_shutdownCoordinator.close());
   }
 
-  Future<void> _closeWindow() async {
-    try {
-      try {
-        await ref.read(walletSessionCommandsProvider.notifier).logout();
-      } catch (error, stackTrace) {
-        logSupportEvent(
-          AppSupportEvent.desktopShutdownFailed,
-          diagnosticContext: 'phase=logout errorType=${error.runtimeType}',
-          stackTrace: stackTrace,
-        );
-      }
+  Future<void> _closeWalletSession() async {
+    await ref.read(walletSessionCommandsProvider.notifier).logout();
+  }
 
-      try {
-        await disposeRustLogging();
-      } catch (error, stackTrace) {
-        logSupportEvent(
-          AppSupportEvent.desktopShutdownFailed,
-          diagnosticContext: 'phase=logging errorType=${error.runtimeType}',
-          stackTrace: stackTrace,
-        );
-      }
-    } finally {
-      await windowManager.destroy();
-    }
+  Future<void> _allowNativeClose() {
+    return windowManager.setPreventClose(false);
+  }
+
+  void _recordShutdownFailure(
+    String phase,
+    Object error,
+    StackTrace stackTrace,
+  ) {
+    logSupportEvent(
+      AppSupportEvent.desktopShutdownFailed,
+      diagnosticContext: 'phase=$phase errorType=${error.runtimeType}',
+      stackTrace: stackTrace,
+    );
   }
 }
