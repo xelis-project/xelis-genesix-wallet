@@ -5,8 +5,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/shared/storage/shared_preferences/genesix_shared_preferences.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/src/generated/rust_bridge/api/api.dart';
-import 'package:genesix/src/generated/rust_bridge/frb_generated.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:jovial_svg/jovial_svg.dart';
 import 'package:window_manager/window_manager.dart';
@@ -22,12 +21,12 @@ Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   talker.info('initializing Rust lib ...');
-  await RustLib.init();
+  await XelisWalletFlutter.initialize();
   await initRustLogging();
 
   // Initialize xelis_common config (VM libraries, etc.)
   talker.info('initializing xelis config ...');
-  await initializeXelisConfig();
+  await XelisWalletFlutter.initializeConfiguration();
 
   if (kIsWeb) {
     talker.info('initializing local storage ...');
@@ -37,12 +36,13 @@ Future<void> main() async {
     // TODO: forced to kill the app when returning to the android's home screen and wanting to reopen it
     // need to call this before any tls calls
     // talker.info('initializing crypto provider ...');
-    // await initializeCryptoProvider();
+    // await XelisWalletFlutter.initializeCryptoProvider();
   }
 
   if (isDesktopDevice) {
     talker.info('initializing window manager ...');
     await windowManager.ensureInitialized();
+    await windowManager.setPreventClose(true);
 
     WindowOptions windowOptions = const WindowOptions(
       title: AppResources.xelisWalletName,

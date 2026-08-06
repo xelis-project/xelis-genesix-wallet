@@ -4,17 +4,21 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/router/routes.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/wallet/application/multisig_pending_state_provider.dart';
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
-import 'package:genesix/features/wallet/domain/transaction_broadcast_result.dart';
+import 'package:genesix/features/wallet/domain/transaction_review_policy.dart';
 import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
+import 'package:genesix/features/wallet/domain/transaction_broadcast_result.dart';
 import 'package:genesix/features/wallet/presentation/transaction_review/components/broadcast_review_step.dart';
 import 'package:genesix/features/wallet/presentation/transaction_review/components/review_state_widgets.dart';
 import 'package:genesix/features/wallet/presentation/transaction_review/components/signature_collection_step.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:go_router/go_router.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart'
+    as wallet_flutter;
 
 class TransactionReviewScreen extends ConsumerStatefulWidget {
   const TransactionReviewScreen({super.key});
@@ -40,7 +44,7 @@ class _TransactionReviewScreenState
         ? BroadcastComplete(onClose: _finish)
         : switch (review) {
             SignaturePending(:final request) => SignatureCollectionStep(
-              key: ValueKey('signature-${request.hash}-${request.threshold}'),
+              key: ObjectKey(request),
               request: request,
               isFinalizing: _isFinalizing,
               onFinalize: _finalize,
@@ -48,10 +52,10 @@ class _TransactionReviewScreenState
             SingleTransferTransaction() ||
             BurnTransaction() ||
             DeleteMultisigTransaction() => BroadcastReviewStep(
-              key: ValueKey('broadcast-${_transactionHash(review)}'),
+              key: ValueKey('broadcast-${transactionReviewHash(review)}'),
               review: review,
               isBroadcasting: _isBroadcasting,
-              onBroadcast: _broadcast,
+              onBroadcast: (callbackRef) => _broadcast(callbackRef, review),
             ),
             Initial() => EmptyReview(onClose: _finish),
           };
@@ -98,7 +102,9 @@ class _TransactionReviewScreenState
     );
   }
 
-  Future<void> _finalize(List<String> signatureShares) async {
+  Future<void> _finalize(
+    List<wallet_flutter.XelisWalletMultisigSignatureShare> shares,
+  ) async {
     if (_isFinalizing) return;
     final review = ref.read(transactionReviewProvider);
     if (review is! SignaturePending) return;
@@ -107,70 +113,118 @@ class _TransactionReviewScreenState
     setState(() => _isFinalizing = true);
     try {
       final transaction = await commands.finalizeMultisigTransaction(
-        txHash: review.request.hash,
-        signatureShares: signatureShares,
+        request: review.request,
+        shares: shares,
+        sessionIdentity: review.sessionIdentity,
       );
       if (transaction == null) return;
       if (!mounted) {
-        await commands.cancelTransaction(hash: transaction.hash);
+        await commands.cancelPreparedTransaction(
+          transaction: transaction,
+          sessionIdentity: review.sessionIdentity,
+        );
         return;
       }
 
-      final notifier = ref.read(transactionReviewProvider.notifier);
-      if (transaction.isTransfer) {
-        notifier.setSingleTransferTransaction(transaction);
-      } else if (transaction.isBurn) {
-        await notifier.setBurnTransaction(transaction);
-      } else if (transaction.isMultiSig) {
-        notifier.setDeleteMultisigTransaction(transaction);
-      } else {
-        talker.error('Unsupported finalized multisig transaction type');
+      final latest = ref.read(transactionReviewProvider);
+      if (latest is! SignaturePending ||
+          !identical(latest.request, review.request) ||
+          !identical(
+            ref.read(activeWalletRepositoryProvider),
+            review.sessionIdentity,
+          )) {
+        talker.warning('Multisig review changed during finalization');
+        await commands.cancelPreparedTransaction(
+          transaction: transaction,
+          sessionIdentity: review.sessionIdentity,
+        );
+        return;
       }
+      final notifier = ref.read(transactionReviewProvider.notifier);
+      notifier.setPreparedMultisigTransaction(
+        transaction,
+        sessionIdentity: review.sessionIdentity,
+      );
     } finally {
       if (mounted) setState(() => _isFinalizing = false);
     }
   }
 
-  Future<void> _broadcast(WidgetRef ref) async {
+  Future<void> _broadcast(
+    WidgetRef callbackRef,
+    TransactionReviewState reviewed,
+  ) async {
     if (_isBroadcasting) return;
-    final review = ref.read(transactionReviewProvider);
-    final hash = _transactionHash(review);
+    final current = callbackRef.read(transactionReviewProvider);
+    if (!isSameConfirmedTransactionReview(current, reviewed)) {
+      talker.warning('Transaction review changed during authentication');
+      return;
+    }
+
+    final hash = transactionReviewHash(reviewed);
     if (hash == null) return;
 
     setState(() => _isBroadcasting = true);
     try {
-      final broadcasted = await ref
+      final prepared = transactionReviewPrepared(reviewed);
+      if (prepared == null) return;
+      final result = await callbackRef
           .read(walletCommandsProvider)
-          .broadcastTx(hash: hash);
-      if (!mounted || broadcasted == null) return;
-
-      final loc = ref.read(appLocalizationsProvider);
-      final toast = ref.read(toastProvider.notifier);
-      switch (broadcasted) {
-        case TransactionBroadcastResult.submitted:
-          ref.read(transactionReviewProvider.notifier).broadcast();
-          if (review is DeleteMultisigTransaction) {
-            ref.read(multisigPendingStateProvider.notifier).pendingState();
-          }
-          toast.showEvent(description: loc.transaction_broadcast_message);
-        case TransactionBroadcastResult.retryable:
-          toast.showWarning(title: loc.transaction_broadcast_retry_message);
-        case TransactionBroadcastResult.rejected:
-        case TransactionBroadcastResult.localFailure:
-          ref.read(transactionReviewProvider.notifier).reset();
-          toast.showError(
-            description: loc.transaction_broadcast_recreate_message,
+          .broadcastPreparedTx(
+            transaction: prepared,
+            sessionIdentity: transactionReviewSessionIdentity(reviewed)!,
           );
-          context.pop();
-        case TransactionBroadcastResult.submittedNeedsResync:
-          ref.read(transactionReviewProvider.notifier).broadcast();
-          if (review is DeleteMultisigTransaction) {
-            ref.read(multisigPendingStateProvider.notifier).pendingState();
-          }
-          toast.showWarning(title: loc.transaction_broadcast_resync_message);
+      if (!mounted || result == null) return;
+      final latest = callbackRef.read(transactionReviewProvider);
+      if (!isSameConfirmedTransactionReview(latest, reviewed)) {
+        talker.warning('Transaction review changed during broadcast');
+        return;
       }
+      _handlePreparedBroadcastResult(callbackRef, reviewed, result);
     } finally {
       if (mounted) setState(() => _isBroadcasting = false);
+    }
+  }
+
+  void _handlePreparedBroadcastResult(
+    WidgetRef callbackRef,
+    TransactionReviewState reviewed,
+    PreparedTransactionBroadcastResult result,
+  ) {
+    final loc = callbackRef.read(appLocalizationsProvider);
+    final toast = callbackRef.read(toastProvider.notifier);
+    switch (preparedTransactionReviewAction(result.disposition)) {
+      case PreparedTransactionReviewAction.markBroadcasted:
+        callbackRef.read(transactionReviewProvider.notifier).broadcast();
+        if (reviewed is DeleteMultisigTransaction) {
+          callbackRef
+              .read(multisigPendingStateProvider.notifier)
+              .pendingState();
+        }
+        toast.showEvent(description: loc.transaction_broadcast_message);
+      case PreparedTransactionReviewAction.retainForRetry:
+        toast.showFailure(
+          description: loc.transaction_broadcast_retry_message,
+          failure: result.failure!,
+        );
+      case PreparedTransactionReviewAction.resetAndClose:
+        callbackRef.read(transactionReviewProvider.notifier).reset();
+        toast.showFailure(
+          description: loc.transaction_broadcast_recreate_message,
+          failure: result.failure!,
+        );
+        context.pop();
+      case PreparedTransactionReviewAction.markBroadcastedNeedsResync:
+        callbackRef.read(transactionReviewProvider.notifier).broadcast();
+        if (reviewed is DeleteMultisigTransaction) {
+          callbackRef
+              .read(multisigPendingStateProvider.notifier)
+              .pendingState();
+        }
+        toast.showFailure(
+          description: loc.transaction_broadcast_resync_message,
+          failure: result.failure!,
+        );
     }
   }
 
@@ -180,25 +234,20 @@ class _TransactionReviewScreenState
     try {
       if (review case SignaturePending(:final request)) {
         final commands = ref.read(walletCommandsProvider);
-        final pendingHash = commands.getPendingMultisigRequestHash();
-        if (pendingHash != null && pendingHash != request.hash) {
-          talker.error('Cannot close a mismatched multisig review');
-          ref
-              .read(toastProvider.notifier)
-              .showError(description: ref.read(appLocalizationsProvider).oups);
-          return;
-        }
-        if (pendingHash == request.hash) {
-          final canceled = await commands.cancelPendingMultisigRequest(
-            txHash: request.hash,
-          );
-          if (!canceled) return;
-        }
+        final canceled = await commands.cancelPendingMultisigRequest(
+          request: request,
+          sessionIdentity: review.sessionIdentity,
+        );
+        if (!canceled) return;
       } else if (!review.isBroadcasted) {
-        final hash = _transactionHash(review);
-        if (hash != null) {
-          await ref.read(walletCommandsProvider).cancelTransaction(hash: hash);
-        }
+        final commands = ref.read(walletCommandsProvider);
+        final prepared = transactionReviewPrepared(review);
+        if (prepared == null) return;
+        final canceled = await commands.cancelPreparedTransaction(
+          transaction: prepared,
+          sessionIdentity: transactionReviewSessionIdentity(review)!,
+        );
+        if (!canceled) return;
       }
       if (!mounted) return;
       ref.read(transactionReviewProvider.notifier).reset();
@@ -213,10 +262,3 @@ class _TransactionReviewScreenState
     HomeRoute().go(context);
   }
 }
-
-String? _transactionHash(TransactionReviewState review) => switch (review) {
-  SingleTransferTransaction(:final txHash) ||
-  BurnTransaction(:final txHash) ||
-  DeleteMultisigTransaction(:final txHash) => txHash,
-  _ => null,
-};

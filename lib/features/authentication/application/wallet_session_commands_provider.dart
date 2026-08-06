@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
 import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/authentication/application/wallets_provider.dart';
@@ -18,11 +17,10 @@ import 'package:genesix/features/wallet/application/xswd_lifecycle_provider.dart
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/wallet_effect.dart';
+import 'package:genesix/shared/errors/app_failure_reporter.dart';
+import 'package:genesix/shared/models/app_failure.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
-import 'package:genesix/src/generated/rust_bridge/api/precomputed_tables.dart';
-import 'package:genesix/src/generated/rust_bridge/api/wallet.dart'
-    show updateTables;
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 import 'package:io/io.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -44,8 +42,35 @@ class WalletSessionCommands extends _$WalletSessionCommands {
   }) {
     return _runExclusive(() async {
       final loc = ref.read(appLocalizationsProvider);
+      if (hasAmbiguousWalletRecoverySources(
+        seed: seed,
+        privateKey: privateKey,
+      )) {
+        final failure = recordAppFailure(
+          ArgumentError('Seed and private key are mutually exclusive.'),
+          StackTrace.current,
+          operation: 'wallet.create',
+          applicationCode: 'wallet_recovery_source_ambiguous',
+          applicationCategory: AppFailureCategory.invalidInput,
+        );
+        _emitFailure(title: loc.error_when_creating_wallet, failure: failure);
+        return _commandFailure(failure);
+      }
       final settings = ref.read(settingsProvider);
-      final walletPath = await getWalletPath(settings.network, name);
+      final walletPathResult = await _resolveWalletPath(
+        network: settings.network,
+        name: name,
+      );
+      final walletPath = walletPathResult.path;
+      if (walletPath == null) {
+        _emitFailure(
+          title: loc.error_when_creating_wallet,
+          failure: walletPathResult.failure!,
+        );
+        return const WalletSessionCommandResult.failure(
+          WalletSessionFailure.invalidWalletFolder(),
+        );
+      }
       final walletExists = await _walletExists(walletPath);
       if (walletExists) {
         _emitError(
@@ -57,7 +82,14 @@ class WalletSessionCommands extends _$WalletSessionCommands {
         );
       }
 
-      await _closeActiveSession();
+      final closeFailure = await _closeActiveSession();
+      if (closeFailure != null) {
+        _emitFailure(
+          title: loc.error_when_creating_wallet,
+          failure: closeFailure,
+        );
+        return _commandFailure(closeFailure);
+      }
 
       final precomputedTablesPath = await _getPrecomputedTablesPath();
       final initialTableType = await _getInitialTableType();
@@ -103,24 +135,18 @@ class WalletSessionCommands extends _$WalletSessionCommands {
           name: name,
           seedToReveal: seedToReveal,
         );
-      } on AnyhowException catch (error) {
+      } catch (error, stackTrace) {
         await _disposeUnattachedRepository(repository);
-        talker.critical('Creating wallet failed: $error');
-        final message = _extractXelisMessage(error);
-        _emitError(title: loc.error_when_creating_wallet, description: message);
-        return WalletSessionCommandResult.failure(
-          WalletSessionFailure.xelis(message: message),
+        final failure = recordAppFailure(
+          error,
+          stackTrace,
+          operation: 'wallet.create',
+          applicationCode: 'wallet_create_failed',
+          contextBuilder: () =>
+              'network=${settings.network.name} path=$walletPath',
         );
-      } catch (error) {
-        await _disposeUnattachedRepository(repository);
-        talker.critical('Creating wallet failed: $error');
-        _emitError(
-          title: loc.error_when_creating_wallet,
-          description: error.toString(),
-        );
-        return WalletSessionCommandResult.failure(
-          WalletSessionFailure.unknown(message: error.toString()),
-        );
+        _emitFailure(title: loc.error_when_creating_wallet, failure: failure);
+        return _commandFailure(failure);
       }
     });
   }
@@ -129,17 +155,37 @@ class WalletSessionCommands extends _$WalletSessionCommands {
     return _runExclusive(() async {
       final loc = ref.read(appLocalizationsProvider);
       final settings = ref.read(settingsProvider);
-      final walletPath = await getWalletPath(settings.network, name);
+      final walletPathResult = await _resolveWalletPath(
+        network: settings.network,
+        name: name,
+      );
+      final walletPath = walletPathResult.path;
+      if (walletPath == null) {
+        _emitFailure(
+          title: loc.error_when_opening_wallet,
+          failure: walletPathResult.failure!,
+        );
+        return const WalletSessionCommandResult.failure(
+          WalletSessionFailure.invalidWalletFolder(),
+        );
+      }
       final walletExists = await _walletExists(walletPath);
       if (!walletExists) {
         final message = 'This wallet does not exist: $name';
         _emitError(title: loc.error_when_opening_wallet, description: message);
-        return WalletSessionCommandResult.failure(
-          WalletSessionFailure.walletNotFound(message: message),
+        return const WalletSessionCommandResult.failure(
+          WalletSessionFailure.walletNotFound(),
         );
       }
 
-      await _closeActiveSession();
+      final closeFailure = await _closeActiveSession();
+      if (closeFailure != null) {
+        _emitFailure(
+          title: loc.error_when_opening_wallet,
+          failure: closeFailure,
+        );
+        return _commandFailure(closeFailure);
+      }
 
       final precomputedTablesPath = await _getPrecomputedTablesPath();
       final initialTableType = await _getInitialTableType();
@@ -150,8 +196,9 @@ class WalletSessionCommands extends _$WalletSessionCommands {
 
       final dbName = walletPath.replaceFirst(localStorageDBPrefix, '');
 
+      NativeWalletRepository? repository;
       try {
-        final repository = await NativeWalletRepository.open(
+        repository = await NativeWalletRepository.open(
           dbName,
           password,
           settings.network,
@@ -170,6 +217,7 @@ class WalletSessionCommands extends _$WalletSessionCommands {
         ref
             .read(activeWalletSessionProvider.notifier)
             .setSession(WalletSession(name: name, repository: repository));
+        repository = null;
 
         _maybeUpgradePrecomputedTables(
           precomputedTablesPath: precomputedTablesPath,
@@ -177,22 +225,18 @@ class WalletSessionCommands extends _$WalletSessionCommands {
         );
 
         return WalletSessionCommandResult.success(name: name);
-      } on AnyhowException catch (error) {
-        talker.critical('Opening wallet failed: $error');
-        final message = _extractXelisMessage(error);
-        _emitError(title: loc.error_when_opening_wallet, description: message);
-        return WalletSessionCommandResult.failure(
-          WalletSessionFailure.xelis(message: message),
+      } catch (error, stackTrace) {
+        await _disposeUnattachedRepository(repository);
+        final failure = recordAppFailure(
+          error,
+          stackTrace,
+          operation: 'wallet.open',
+          applicationCode: 'wallet_open_failed',
+          contextBuilder: () =>
+              'network=${settings.network.name} path=$walletPath',
         );
-      } catch (error) {
-        talker.critical('Opening wallet failed: $error');
-        _emitError(
-          title: loc.error_when_opening_wallet,
-          description: error.toString(),
-        );
-        return WalletSessionCommandResult.failure(
-          WalletSessionFailure.unknown(message: error.toString()),
-        );
+        _emitFailure(title: loc.error_when_opening_wallet, failure: failure);
+        return _commandFailure(failure);
       }
     });
   }
@@ -205,7 +249,20 @@ class WalletSessionCommands extends _$WalletSessionCommands {
     return _runExclusive(() async {
       final loc = ref.read(appLocalizationsProvider);
       final network = ref.read(settingsProvider).network;
-      final targetPath = await getWalletPath(network, walletName);
+      final targetPathResult = await _resolveWalletPath(
+        network: network,
+        name: walletName,
+      );
+      final targetPath = targetPathResult.path;
+      if (targetPath == null) {
+        _emitFailure(
+          title: loc.error_when_opening_wallet,
+          failure: targetPathResult.failure!,
+        );
+        return const WalletSessionCommandResult.failure(
+          WalletSessionFailure.invalidWalletFolder(),
+        );
+      }
       final walletExists = await _walletExists(targetPath);
       if (walletExists) {
         _emitError(
@@ -217,7 +274,14 @@ class WalletSessionCommands extends _$WalletSessionCommands {
         );
       }
 
-      await _closeActiveSession();
+      final closeFailure = await _closeActiveSession();
+      if (closeFailure != null) {
+        _emitFailure(
+          title: loc.error_when_opening_wallet,
+          failure: closeFailure,
+        );
+        return _commandFailure(closeFailure);
+      }
 
       final precomputedTablesPath = await _getPrecomputedTablesPath();
       final initialTableType = await _getInitialTableType();
@@ -263,31 +327,29 @@ class WalletSessionCommands extends _$WalletSessionCommands {
           name: walletName,
           seedToReveal: seedToReveal,
         );
-      } on AnyhowException catch (error) {
+      } catch (error, stackTrace) {
         await _disposeUnattachedRepository(repository);
-        talker.critical('Opening imported wallet failed: $error');
-        final message = _extractXelisMessage(error);
-        _emitError(title: loc.error_when_opening_wallet, description: message);
-        return WalletSessionCommandResult.failure(
-          WalletSessionFailure.xelis(message: message),
+        final failure = recordAppFailure(
+          error,
+          stackTrace,
+          operation: 'wallet.import.open',
+          applicationCode: 'wallet_import_open_failed',
+          contextBuilder: () =>
+              'network=${network.name} targetPath=$targetPath',
         );
-      } catch (error) {
-        await _disposeUnattachedRepository(repository);
-        talker.critical('Opening imported wallet failed: $error');
-        _emitError(
-          title: loc.error_when_opening_wallet,
-          description: error.toString(),
-        );
-        return WalletSessionCommandResult.failure(
-          WalletSessionFailure.unknown(message: error.toString()),
-        );
+        _emitFailure(title: loc.error_when_opening_wallet, failure: failure);
+        return _commandFailure(failure);
       }
     });
   }
 
-  Future<void> logout() {
+  Future<AppFailure?> logout() {
     return _runExclusive(() async {
-      await _closeActiveSession();
+      final failure = await _closeActiveSession();
+      if (failure != null) {
+        _emitFailure(failure: failure);
+      }
+      return failure;
     });
   }
 
@@ -315,19 +377,66 @@ class WalletSessionCommands extends _$WalletSessionCommands {
 
     try {
       await repository.close();
-    } catch (error) {
-      talker.warning('Failed to close unattached wallet repository: $error');
+    } catch (error, stackTrace) {
+      recordAppFailure(
+        error,
+        stackTrace,
+        operation: 'wallet.repository.unattached.close',
+        applicationCode: 'wallet_unattached_close_failed',
+        contextBuilder: () => 'network=${repository.network.name}',
+      );
     } finally {
-      repository.dispose();
+      try {
+        repository.dispose();
+      } catch (error, stackTrace) {
+        recordAppFailure(
+          error,
+          stackTrace,
+          operation: 'wallet.repository.unattached.dispose',
+          applicationCode: 'wallet_unattached_dispose_failed',
+          contextBuilder: () => 'network=${repository.network.name}',
+        );
+      }
     }
+  }
+
+  Future<({AppFailure? failure, String? path})> _resolveWalletPath({
+    required XelisNetwork network,
+    required String name,
+  }) async {
+    try {
+      return (path: await getWalletPath(network, name), failure: null);
+    } catch (error, stackTrace) {
+      final invalidName = error is InvalidWalletNameException;
+      final failure = recordAppFailure(
+        error,
+        stackTrace,
+        operation: 'wallet.path.resolve',
+        applicationCode: invalidName
+            ? 'wallet_name_invalid'
+            : 'wallet_path_resolution_failed',
+        applicationCategory: invalidName
+            ? AppFailureCategory.invalidInput
+            : AppFailureCategory.storageFailure,
+        contextBuilder: () => 'network=${network.name}',
+      );
+      return (path: null, failure: failure);
+    }
+  }
+
+  WalletSessionCommandResult _commandFailure(AppFailure failure) {
+    final sessionFailure = failure.source == 'genesix'
+        ? const WalletSessionFailure.unknown()
+        : const WalletSessionFailure.xelis();
+    return WalletSessionCommandResult.failure(sessionFailure);
   }
 
   Future<NativeWalletRepository> _createRepository({
     required String dbName,
     required String password,
-    required Network network,
+    required XelisNetwork network,
     required String precomputedTablesPath,
-    required PrecomputedTableType initialTableType,
+    required XelisPrecomputedTableType initialTableType,
     String? seed,
     String? privateKey,
   }) {
@@ -363,7 +472,7 @@ class WalletSessionCommands extends _$WalletSessionCommands {
   Future<void> _persistOpenedWallet({
     required String name,
     required String password,
-    required Network network,
+    required XelisNetwork network,
     required NativeWalletRepository repository,
     required bool writePasswordIfMissingOnly,
   }) async {
@@ -388,7 +497,7 @@ class WalletSessionCommands extends _$WalletSessionCommands {
 
   Future<void> _syncWalletBiometricSetting({
     required String name,
-    required Network network,
+    required XelisNetwork network,
   }) async {
     if (kIsWeb) {
       ref
@@ -406,7 +515,7 @@ class WalletSessionCommands extends _$WalletSessionCommands {
 
   Future<bool> _shouldPersistPassword({
     required String walletName,
-    required Network network,
+    required XelisNetwork network,
   }) async {
     if (kIsWeb) {
       return false;
@@ -416,34 +525,41 @@ class WalletSessionCommands extends _$WalletSessionCommands {
     return ref.read(secureStorageProvider).containsKey(key: key);
   }
 
-  void _setLastWalletUsed(Network network, String name) {
+  void _setLastWalletUsed(XelisNetwork network, String name) {
     final settingsNotifier = ref.read(settingsProvider.notifier);
     switch (network) {
-      case Network.mainnet:
+      case XelisNetwork.mainnet:
         settingsNotifier.setLastMainnetWalletUsed(name);
-      case Network.testnet:
+      case XelisNetwork.testnet:
         settingsNotifier.setLastTestnetWalletUsed(name);
-      case Network.devnet:
+      case XelisNetwork.devnet:
         settingsNotifier.setLastDevnetWalletUsed(name);
-      case Network.stagenet:
+      case XelisNetwork.stagenet:
         settingsNotifier.setLastStagenetWalletUsed(name);
     }
   }
 
-  Future<void> _closeActiveSession() async {
+  Future<AppFailure?> _closeActiveSession() async {
     final activeSession = ref.read(activeWalletSessionProvider);
     if (activeSession == null) {
       ref.read(xswdRequestProvider.notifier).clearRequest();
       ref.invalidate(xswdApplicationsProvider);
-      return;
+      return null;
     }
 
-    talker.info('Closing active wallet session for ${activeSession.name}');
+    logDiagnostic(
+      () => 'Closing active wallet session: name=${activeSession.name}',
+    );
 
     try {
       await ref.read(xswdLifecycleProvider.notifier).stop();
-    } catch (error) {
-      talker.warning('Failed to stop XSWD before closing wallet: $error');
+    } catch (error, stackTrace) {
+      recordAppFailure(
+        error,
+        stackTrace,
+        operation: 'wallet.session.xswd.stop',
+        applicationCode: 'wallet_xswd_stop_failed',
+      );
     }
 
     ref.read(xswdRequestProvider.notifier).clearRequest();
@@ -451,31 +567,62 @@ class WalletSessionCommands extends _$WalletSessionCommands {
 
     try {
       await ref.read(walletRuntimeProvider.notifier).prepareForClose();
-    } catch (error) {
-      talker.warning('Failed to prepare wallet runtime close: $error');
+    } catch (error, stackTrace) {
+      recordAppFailure(
+        error,
+        stackTrace,
+        operation: 'wallet.session.runtime.prepare_close',
+        applicationCode: 'wallet_runtime_prepare_close_failed',
+      );
     }
 
+    AppFailure? terminalFailure;
     try {
       await activeSession.repository.close();
-    } catch (error) {
-      talker.warning('Failed to close wallet repository: $error');
+    } catch (error, stackTrace) {
+      terminalFailure = recordAppFailure(
+        error,
+        stackTrace,
+        operation: 'wallet.session.repository.close',
+        applicationCode: 'wallet_close_failed',
+        contextBuilder: () =>
+            'network=${activeSession.repository.network.name}',
+      );
     }
 
     try {
       await ref.read(walletRuntimeProvider.notifier).clearSession();
-    } catch (error) {
-      talker.warning('Failed to clear wallet runtime session state: $error');
+    } catch (error, stackTrace) {
+      recordAppFailure(
+        error,
+        stackTrace,
+        operation: 'wallet.session.runtime.clear',
+        applicationCode: 'wallet_runtime_clear_failed',
+      );
     } finally {
       ref.read(activeWalletSessionProvider.notifier).clearSession();
-      activeSession.repository.dispose();
+      try {
+        activeSession.repository.dispose();
+      } catch (error, stackTrace) {
+        terminalFailure ??= recordAppFailure(
+          error,
+          stackTrace,
+          operation: 'wallet.session.repository.dispose',
+          applicationCode: 'wallet_dispose_failed',
+          contextBuilder: () =>
+              'network=${activeSession.repository.network.name}',
+        );
+      }
     }
+    return terminalFailure;
   }
 
   Future<bool> _walletExists(String walletPath) async {
     if (kIsWeb) {
       return localStorage.getItem(walletPath) != null;
     }
-    return Directory(walletPath).exists();
+    final type = await FileSystemEntity.type(walletPath, followLinks: false);
+    return type == FileSystemEntityType.directory;
   }
 
   void _emitInfo(String title) {
@@ -490,13 +637,15 @@ class WalletSessionCommands extends _$WalletSessionCommands {
         .emit(WalletEffect.error(title: title, description: description));
   }
 
-  String _extractXelisMessage(AnyhowException error) {
-    return error.message.split('\n').first;
+  void _emitFailure({String? title, required AppFailure failure}) {
+    ref
+        .read(walletEffectBusProvider.notifier)
+        .emit(WalletEffect.failure(title: title, failure: failure));
   }
 
   void _maybeUpgradePrecomputedTables({
     required String precomputedTablesPath,
-    required PrecomputedTableType expectedTableType,
+    required XelisPrecomputedTableType expectedTableType,
   }) {
     if (kIsWeb) {
       return;
@@ -512,11 +661,11 @@ class WalletSessionCommands extends _$WalletSessionCommands {
 
   Future<void> _runPrecomputedTableUpgrade({
     required String precomputedTablesPath,
-    required PrecomputedTableType expectedTableType,
+    required XelisPrecomputedTableType expectedTableType,
   }) async {
-    final tablesExist = await arePrecomputedTablesAvailable(
-      precomputedTablesPath: precomputedTablesPath,
-      precomputedTableType: expectedTableType,
+    final tablesExist = await XelisWalletFlutter.hasPrecomputedTables(
+      path: precomputedTablesPath,
+      type: expectedTableType,
     );
     if (tablesExist) {
       return;
@@ -526,13 +675,13 @@ class WalletSessionCommands extends _$WalletSessionCommands {
       'Generating the final precomputed tables, this may take a while...',
     );
     try {
-      await updateTables(
-        precomputedTablesPath: precomputedTablesPath,
-        precomputedTableType: expectedTableType,
+      await XelisWalletFlutter.updatePrecomputedTables(
+        path: precomputedTablesPath,
+        type: expectedTableType,
       );
       _emitInfo('Precomputed tables updated.');
     } catch (error) {
-      talker.warning('Precomputed table upgrade failed: $error');
+      logDiagnosticError('wallet.precomputed_tables.upgrade', error);
     }
   }
 
@@ -544,25 +693,32 @@ class WalletSessionCommands extends _$WalletSessionCommands {
     return '$dir/';
   }
 
-  Future<PrecomputedTableType> _getInitialTableType() async {
+  Future<XelisPrecomputedTableType> _getInitialTableType() async {
     final expectedTableType = _getExpectedTableType();
-    final tablesExist = await arePrecomputedTablesAvailable(
-      precomputedTablesPath: await _getPrecomputedTablesPath(),
-      precomputedTableType: expectedTableType,
+    final tablesExist = await XelisWalletFlutter.hasPrecomputedTables(
+      path: await _getPrecomputedTablesPath(),
+      type: expectedTableType,
     );
     if (tablesExist) {
       return expectedTableType;
     }
-    return PrecomputedTableType.l1Low();
+    return const XelisPrecomputedTableType.l1Low();
   }
 
-  PrecomputedTableType _getExpectedTableType() {
+  XelisPrecomputedTableType _getExpectedTableType() {
     if (isDesktopDevice) {
-      return PrecomputedTableType.l1Full();
+      return const XelisPrecomputedTableType.l1Full();
     }
     if (isMobileDevice) {
-      return PrecomputedTableType.custom(BigInt.from(24));
+      return const XelisPrecomputedTableType.custom(24);
     }
-    return PrecomputedTableType.l1Medium();
+    return const XelisPrecomputedTableType.l1Medium();
   }
+}
+
+bool hasAmbiguousWalletRecoverySources({
+  required String? seed,
+  required String? privateKey,
+}) {
+  return seed != null && privateKey != null;
 }

@@ -10,12 +10,13 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/wallet/application/xswd_lifecycle_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
+import 'package:genesix/shared/errors/app_failure_reporter.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 
 import 'xswd_relayer.dart';
-import 'package:genesix/features/wallet/application/xswd_controller_provider.dart';
 
 class XswdQRScannerScreen extends ConsumerStatefulWidget {
   const XswdQRScannerScreen({super.key});
@@ -61,7 +62,7 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
               placeholderBuilder: (context) =>
                   const Center(child: FCircularProgress()),
               errorBuilder: (context, error) => _ScannerErrorView(
-                message: _scannerMessage(error),
+                message: loc.oups,
                 retryLabel: loc.try_again,
                 onRetry: _restartScanner,
               ),
@@ -109,23 +110,15 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
     return (shortest * 0.62).clamp(180.0, 320.0);
   }
 
-  String _scannerMessage(MobileScannerException error) {
-    final detail = error.errorDetails?.message?.trim();
-    if (detail != null && detail.isNotEmpty) {
-      return detail;
-    }
-    return error.errorCode.message;
-  }
-
   void _onDetectError(Object error, StackTrace stackTrace) {
-    talker.error('XSWD barcode detect stream error', error, stackTrace);
+    logDiagnosticError('xswd.qr.detect', error, stackTrace: stackTrace);
   }
 
   Future<void> _toggleTorch() async {
     try {
       await _cameraController.toggleTorch();
     } catch (e, st) {
-      talker.error('XSWD torch toggle failed', e, st);
+      logDiagnosticError('xswd.qr.torch.toggle', e, stackTrace: st);
     }
   }
 
@@ -133,9 +126,14 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
     try {
       await _cameraController.start();
     } catch (e, st) {
-      talker.error('XSWD scanner restart failed', e, st);
+      final failure = recordAppFailure(
+        e,
+        st,
+        operation: 'xswd.qr.scanner.restart',
+        applicationCode: 'xswd_qr_scanner_restart_failed',
+      );
       if (!mounted) return;
-      ref.read(toastProvider.notifier).showError(description: e.toString());
+      ref.read(toastProvider.notifier).showFailure(failure: failure);
     }
   }
 
@@ -145,7 +143,11 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
         Object error,
         StackTrace stackTrace,
       ) {
-        talker.error('XSWD scanner pause failed', error, stackTrace);
+        logDiagnosticError(
+          'xswd.qr.scanner.pause',
+          error,
+          stackTrace: stackTrace,
+        );
       }),
     );
   }
@@ -156,7 +158,11 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
         Object error,
         StackTrace stackTrace,
       ) {
-        talker.error('XSWD scanner resume failed', error, stackTrace);
+        logDiagnosticError(
+          'xswd.qr.scanner.resume',
+          error,
+          stackTrace: stackTrace,
+        );
       }),
     );
   }
@@ -170,8 +176,7 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
         .trim();
     if (raw.isEmpty) return;
 
-    talker.info('=== XSWD QR SCANNED ===');
-    talker.info(raw);
+    logDiagnostic(() => 'XSWD QR payload detected (length=${raw.length})');
 
     setState(() => _isProcessing = true);
     _pauseScanner();
@@ -185,11 +190,11 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
       final json = jsonDecode(raw) as Map<String, dynamic>;
       final session = RelaySessionData.fromJson(json);
 
-      final relayerData = session.toApplicationDataRelayer();
+      final relayerData = session.toXelisXswdRelayer();
 
       final connected = await ref
-          .read(xswdControllerProvider)
-          .addXswdRelayer(relayerData);
+          .read(xswdLifecycleProvider.notifier)
+          .addRelayer(relayerData);
       if (!connected) {
         if (!mounted) return;
         setState(() {
@@ -216,7 +221,11 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
           .read(toastProvider.notifier)
           .showEvent(description: loc.app_connected_title(relayerData.name));
     } catch (e, st) {
-      talker.error('XSWD QR processing failed', e, st);
+      logSupportEvent(
+        AppSupportEvent.xswdQrPayloadRejected,
+        diagnosticContext: 'errorType=${e.runtimeType}',
+        stackTrace: st,
+      );
 
       if (!mounted) return;
 

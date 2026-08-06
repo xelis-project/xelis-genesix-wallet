@@ -1,4 +1,33 @@
 {
+  "@multisig_setup_participant_count": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "@multisig_setup_threshold_summary": {
+    "placeholders": {
+      "threshold": {"type": "int"},
+      "participants": {"type": "int"}
+    }
+  },
+  "@multisig_signing_current_wallet_participant": {
+    "placeholders": {
+      "participantId": {"type": "int"}
+    }
+  },
+  "@support_reference": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "@xswd_fee_atomic_units": {
+    "placeholders": {"amount": {"type": "int"}}
+  },
+  "@xswd_fee_multiplier": {
+    "placeholders": {"multiplier": {"type": "double"}}
+  },
   "node_url_hint": "https://node.xelis.io",
   "node_name_hint": "Мой узел",
   "node_name": "Имя узла",
@@ -19,6 +48,7 @@
   "hide_transactions_zero_value": "Скрывать транзакции с переводами нулевого баланса.",
   "hide_extra_data_description": "Скрывать дополнительные данные в деталях транзакции.",
   "select_contract": "Выберите контракт",
+  "select_contact": "Выбрать контакт",
   "select_asset": "Выберите актив",
   "category_burn_subtitle": "Транзакции, в которых вы сожгли активы.",
   "category_coinbase_subtitle": "Транзакции, в которых вы получили награды.",
@@ -225,7 +255,23 @@
   "search": "Поиск",
   "destination": "Направление",
   "integrated_address_detected": "Интегрированная адреса обнаружена",
-  "payment_id": "ИД платежа",
+  "attached_data": "Прикреплённые данные",
+  "attached_data_badge": "Данные",
+  "attached_data_included": "Включены",
+  "attached_data_encrypted": "Зашифрованы",
+  "attached_data_not_encrypted": "Не зашифрованы",
+  "view_attached_data": "Просмотреть прикреплённые данные",
+  "attached_data_source": "Источник",
+  "attached_data_source_integrated_address": "Интегрированный адрес",
+  "attached_data_source_explicit": "Отдельные прикреплённые данные",
+  "receive_advanced_payment_request": "Расширенный запрос на оплату",
+  "receive_advanced_payment_request_description": "Добавьте текст к своему адресу, если отправителю нужно указать идентификатор.",
+  "receive_attached_text_label": "Прикреплённый текст",
+  "receive_attached_text_hint": "Идентификатор заказа или депозита",
+  "receive_create_integrated_address": "Создать адрес с прикреплёнными данными",
+  "receive_integrated_address_data_visible": "Видны в адресе",
+  "receive_integrated_address_data_visible_description": "Любой, кто получит этот адрес, сможет прочитать прикреплённый текст.",
+  "receive_integrated_address_invalid_data": "Этот текст нельзя добавить к адресу. Сократите его и повторите попытку.",
   "reset_preferences": "Сбросить настройки",
   "reset_preferences_dialog": "Вы собираетесь сбросить все настройки, язык, тему и список узлов.",
   "do_you_want_to_continue": "Хотите продолжить?",
@@ -334,6 +380,7 @@
   "please_authenticate_delete_wallet": "Пожалуйста, авторизуйтесь, чтобы удалить этот кошелек",
   "please_authenticate_view_seed": "Пожалуйста, авторизуйтесь, чтобы просмотреть свою фразу восстановления",
   "biometric_not_available_warning": "Биометрическая аутентификация недоступна, пожалуйста, проверьте настройки вашего устройства",
+  "biometric_auth_temporarily_locked": "Биометрическая аутентификация временно заблокирована. Повторите попытку позже.",
   "password_not_found": "Пароль не найден",
   "filters": "Фильтры",
   "no_transactions_found": "Нет найденных транзакций",
@@ -391,6 +438,15 @@
   "item_count": "{count} элементов",
   "entry_count": "{count} записей",
   "xswd_channel_title": "XSWD",
+  "xswd_transaction_review_title": "Проверка транзакции",
+  "xswd_transaction_review_warning": "Проверьте все детали транзакции перед однократным разрешением. Это решение нельзя запомнить.",
+  "xswd_allow_once": "Разрешить один раз",
+  "xswd_transaction_nonce": "Nonce",
+  "xswd_transaction_version": "Версия транзакции",
+  "xswd_response_as_hex": "Ответ в hex",
+  "xswd_fee_automatic": "Рассчитывается автоматически",
+  "xswd_fee_atomic_units": "{amount} атомарных единиц",
+  "xswd_fee_multiplier": "{multiplier}× базовая комиссия",
   "xswd_relayer_channel_title": "Ретранслятор XSWD",
   "cannot_start_xswd": "Не удалось запустить подключенные приложения",
   "cannot_close_xswd_connection": "Не удалось закрыть подключение приложения",
@@ -463,15 +519,7 @@
   "copied_to_clipboard": "Скопировано в буфер обмена",
   "edit_button": "Редактировать",
   "tx_contract_transfer": "Перевод контракта",
-  "contract_logs": "Логи контракта",
   "chunk_id": "ID фрагмента",
-  "log_transfer": "Перевод",
-  "log_transfer_to_contract": "Перевод в контракт",
-  "log_mint": "Выпуск",
-  "log_gas_refund": "Возврат gas",
-  "log_exit_code": "Код выхода",
-  "log_new_asset": "Новый актив",
-  "log_failed": "Сбой",
   "received": "Получено",
   "constructor": "Конструктор",
   "to_address": "Кому: {address}",
@@ -509,5 +557,15 @@
   "paste_signature_share": "Вставить часть подписи",
   "invalid_multisig_signature_share": "Эта часть подписи недействительна или относится к другой транзакции.",
   "duplicate_multisig_signature_share": "Этот участник уже предоставил подпись.",
-  "remove_signature_share": "Удалить долю подписи"
+  "remove_signature_share": "Удалить долю подписи",
+  "wallet_failure_generic": "Кошельку не удалось выполнить этот запрос.",
+  "wallet_failure_invalid_input": "Проверьте указанные данные и повторите попытку.",
+  "wallet_failure_authentication_or_corrupt_data": "Пароль неверен или данные кошелька невозможно прочитать.",
+  "wallet_failure_network": "Сеть недоступна. Проверьте подключение или узел и повторите попытку.",
+  "wallet_failure_daemon_rejected": "Узел отклонил этот запрос.",
+  "wallet_failure_insufficient_funds": "Доступного баланса недостаточно.",
+  "password_changed_biometric_disabled": "Новый пароль активен. Биометрическая разблокировка отключена; используйте новый пароль.",
+  "password_changed_biometric_cleanup_failed": "Новый пароль активен. Биометрическая разблокировка отключена, но некоторые сохранённые данные доступа удалить не удалось. Не включайте биометрический доступ и используйте новый пароль.",
+  "password_change_native_state_indeterminate": "Не удалось подтвердить обновление пароля. Сохраните старый и новый пароли, не повторяйте попытку и обратитесь в службу поддержки, указав этот идентификатор.",
+  "support_reference": "Идентификатор для поддержки: {reference}"
 }

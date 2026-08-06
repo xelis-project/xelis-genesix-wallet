@@ -1,21 +1,25 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'package:genesix/features/authentication/application/secure_storage_provider.dart';
 import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/authentication/domain/biometric_wallet_key.dart';
-import 'package:genesix/features/logger/logger.dart';
+import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/features/wallet/application/prepared_transaction_broadcast_policy.dart';
 import 'package:genesix/features/wallet/application/wallet_effect_bus_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_node_action_guard.dart';
+import 'package:genesix/features/wallet/application/wallet_password_change_coordinator.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
 import 'package:genesix/features/wallet/domain/transaction_broadcast_result.dart';
-import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/features/wallet/domain/wallet_effect.dart';
+import 'package:genesix/features/wallet/domain/wallet_password_change_result.dart';
 import 'package:genesix/features/wallet/domain/wallet_runtime_state.dart';
-import 'package:genesix/shared/resources/app_resources.dart';
+import 'package:genesix/shared/errors/app_failure_reporter.dart';
+import 'package:genesix/shared/models/app_failure.dart';
+import 'package:path/path.dart' as p;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart'
+    as wallet_flutter;
 
 part 'wallet_commands_provider.g.dart';
 
@@ -29,10 +33,18 @@ class WalletCommandsController {
 
   final Ref ref;
 
-  Future<(TransactionSummary?, MultisigSigningRequest?)> send({
-    required double amount,
+  Future<
+    (
+      wallet_flutter.XelisWalletPreparedTransaction?,
+      wallet_flutter.XelisWalletMultisigSigningRequest?,
+    )
+  >
+  send({
+    required BigInt amountAtomic,
     required String destination,
     required String asset,
+    wallet_flutter.XelisWalletFeePolicy feePolicy =
+        wallet_flutter.XelisWalletFeePolicy.automatic,
   }) async {
     final repository = _repository;
     if (repository == null) {
@@ -43,32 +55,57 @@ class WalletCommandsController {
     }
 
     try {
-      if (_runtimeState.multisigState.isSetup) {
+      if (_runtimeState.multisigState != null) {
         final signingRequest = await repository
             .createMultisigTransferTransaction(
-              amount: amount,
+              amountAtomic: amountAtomic,
               address: destination,
               assetHash: asset,
+              feePolicy: feePolicy,
             );
+        if (!_isRepositoryActive(repository)) {
+          await _cancelStaleMultisigRequest(repository, signingRequest);
+          return (null, null);
+        }
         return (null, signingRequest);
       }
 
-      final transactionSummary = await repository.createTransferTransaction(
-        amount: amount,
+      final prepared = await repository.prepareTransferTransaction(
+        amountAtomic: amountAtomic,
         address: destination,
         assetHash: asset,
+        feePolicy: feePolicy,
       );
-      return (transactionSummary, null);
-    } catch (_) {
-      _emitGenericCommandError(title: 'Cannot create transaction');
+      if (!_isRepositoryActive(repository)) {
+        await _discardStalePrepared(repository, prepared);
+        return (null, null);
+      }
+      return (prepared, null);
+    } catch (error, stackTrace) {
+      if (!_isRepositoryActive(repository)) return (null, null);
+      _emitStructuredCommandError(
+        title: 'Cannot create transaction',
+        operation: 'wallet.transaction.transfers.prepare',
+        applicationCode: 'transaction_prepare_failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
 
     return (null, null);
   }
 
-  Future<(TransactionSummary?, MultisigSigningRequest?)> sendAll({
+  Future<
+    (
+      wallet_flutter.XelisWalletPreparedTransaction?,
+      wallet_flutter.XelisWalletMultisigSigningRequest?,
+    )
+  >
+  sendAll({
     required String destination,
     required String asset,
+    wallet_flutter.XelisWalletFeePolicy feePolicy =
+        wallet_flutter.XelisWalletFeePolicy.automatic,
   }) async {
     final repository = _repository;
     if (repository == null) {
@@ -79,30 +116,55 @@ class WalletCommandsController {
     }
 
     try {
-      if (_runtimeState.multisigState.isSetup) {
+      if (_runtimeState.multisigState != null) {
         final signingRequest = await repository
             .createMultisigTransferTransaction(
               address: destination,
               assetHash: asset,
+              feePolicy: feePolicy,
             );
+        if (!_isRepositoryActive(repository)) {
+          await _cancelStaleMultisigRequest(repository, signingRequest);
+          return (null, null);
+        }
         return (null, signingRequest);
       }
 
-      final transactionSummary = await repository.createTransferTransaction(
+      final prepared = await repository.prepareTransferAll(
         address: destination,
         assetHash: asset,
+        feePolicy: feePolicy,
       );
-      return (transactionSummary, null);
-    } catch (_) {
-      _emitGenericCommandError(title: 'Cannot create transaction');
+      if (!_isRepositoryActive(repository)) {
+        await _discardStalePrepared(repository, prepared);
+        return (null, null);
+      }
+      return (prepared, null);
+    } catch (error, stackTrace) {
+      if (!_isRepositoryActive(repository)) return (null, null);
+      _emitStructuredCommandError(
+        title: 'Cannot create transaction',
+        operation: 'wallet.transaction.transfer_all.prepare',
+        applicationCode: 'transaction_prepare_failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
 
     return (null, null);
   }
 
-  Future<(TransactionSummary?, MultisigSigningRequest?)> burn({
-    required double amount,
+  Future<
+    (
+      wallet_flutter.XelisWalletPreparedTransaction?,
+      wallet_flutter.XelisWalletMultisigSigningRequest?,
+    )
+  >
+  burn({
+    required BigInt amountAtomic,
     required String asset,
+    wallet_flutter.XelisWalletFeePolicy feePolicy =
+        wallet_flutter.XelisWalletFeePolicy.automatic,
   }) async {
     final repository = _repository;
     if (repository == null) {
@@ -113,28 +175,53 @@ class WalletCommandsController {
     }
 
     try {
-      if (_runtimeState.multisigState.isSetup) {
+      if (_runtimeState.multisigState != null) {
         final signingRequest = await repository.createMultisigBurnTransaction(
-          amount: amount,
+          amountAtomic: amountAtomic,
           assetHash: asset,
+          feePolicy: feePolicy,
         );
+        if (!_isRepositoryActive(repository)) {
+          await _cancelStaleMultisigRequest(repository, signingRequest);
+          return (null, null);
+        }
         return (null, signingRequest);
       }
 
-      final transactionSummary = await repository.createBurnTransaction(
-        amount: amount,
+      final prepared = await repository.prepareBurnTransaction(
+        amountAtomic: amountAtomic,
         assetHash: asset,
+        feePolicy: feePolicy,
       );
-      return (transactionSummary, null);
-    } catch (_) {
-      _emitGenericCommandError(title: 'Cannot create transaction');
+      if (!_isRepositoryActive(repository)) {
+        await _discardStalePrepared(repository, prepared);
+        return (null, null);
+      }
+      return (prepared, null);
+    } catch (error, stackTrace) {
+      if (!_isRepositoryActive(repository)) return (null, null);
+      _emitStructuredCommandError(
+        title: 'Cannot create transaction',
+        operation: 'wallet.transaction.burn.prepare',
+        applicationCode: 'transaction_prepare_failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
 
     return (null, null);
   }
 
-  Future<(TransactionSummary?, MultisigSigningRequest?)> burnAll({
+  Future<
+    (
+      wallet_flutter.XelisWalletPreparedTransaction?,
+      wallet_flutter.XelisWalletMultisigSigningRequest?,
+    )
+  >
+  burnAll({
     required String asset,
+    wallet_flutter.XelisWalletFeePolicy feePolicy =
+        wallet_flutter.XelisWalletFeePolicy.automatic,
   }) async {
     final repository = _repository;
     if (repository == null) {
@@ -145,119 +232,237 @@ class WalletCommandsController {
     }
 
     try {
-      if (_runtimeState.multisigState.isSetup) {
+      if (_runtimeState.multisigState != null) {
         final signingRequest = await repository.createMultisigBurnTransaction(
           assetHash: asset,
+          feePolicy: feePolicy,
         );
+        if (!_isRepositoryActive(repository)) {
+          await _cancelStaleMultisigRequest(repository, signingRequest);
+          return (null, null);
+        }
         return (null, signingRequest);
       }
 
-      final transactionSummary = await repository.createBurnTransaction(
+      final prepared = await repository.prepareBurnAll(
         assetHash: asset,
+        feePolicy: feePolicy,
       );
-      return (transactionSummary, null);
-    } catch (_) {
-      _emitGenericCommandError(title: 'Cannot create transaction');
+      if (!_isRepositoryActive(repository)) {
+        await _discardStalePrepared(repository, prepared);
+        return (null, null);
+      }
+      return (prepared, null);
+    } catch (error, stackTrace) {
+      if (!_isRepositoryActive(repository)) return (null, null);
+      _emitStructuredCommandError(
+        title: 'Cannot create transaction',
+        operation: 'wallet.transaction.burn_all.prepare',
+        applicationCode: 'transaction_prepare_failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
 
     return (null, null);
   }
 
-  Future<bool> cancelTransaction({required String hash}) async {
-    final repository = _repository;
-    if (repository == null) return false;
+  Future<bool> cancelPreparedTransaction({
+    required wallet_flutter.XelisWalletPreparedTransaction transaction,
+    required Object sessionIdentity,
+  }) async {
+    if (sessionIdentity is! NativeWalletRepository) return false;
+    final repository = sessionIdentity;
 
     try {
-      await repository.clearTransaction(hash);
+      await repository.discardPreparedTransaction(transaction);
       return true;
-    } catch (error) {
-      talker.warning('Cannot clear pending transaction: $error');
+    } catch (error, stackTrace) {
+      _emitStructuredCommandError(
+        title: 'Cannot cancel transaction',
+        operation: 'wallet.transaction.prepared.cancel',
+        applicationCode: 'prepared_transaction_cancel_failed',
+        error: error,
+        stackTrace: stackTrace,
+        contextBuilder: () => 'transactionHash=${transaction.hash}',
+      );
       return false;
     }
   }
 
-  Future<TransactionBroadcastResult?> broadcastTx({
-    required String hash,
+  Future<PreparedTransactionBroadcastResult?> broadcastPreparedTx({
+    required wallet_flutter.XelisWalletPreparedTransaction transaction,
+    required Object sessionIdentity,
   }) async {
-    final repository = _repository;
-    if (repository == null) {
+    if (sessionIdentity is! NativeWalletRepository) {
       return null;
     }
+    final repository = sessionIdentity;
+    if (!_isRepositoryActive(repository)) return null;
     if (!_nodeActionGuard.ensureNodeAvailable()) {
       return null;
     }
 
     try {
-      final result = await repository.broadcastTransaction(hash);
-      if (result == TransactionBroadcastResult.submittedNeedsResync) {
-        await ref.read(walletRuntimeProvider.notifier).rescan();
-      }
-      return result;
-    } catch (_) {
-      _emitGenericCommandError(title: 'Cannot broadcast transaction');
+      final packageResult = await repository.broadcastPreparedTransaction(
+        transaction,
+      );
+      final result = projectPreparedTransactionBroadcastResult(
+        packageResult,
+        recordFailure: (failure) =>
+            _recordPreparedBroadcastFailure(failure, transaction),
+      );
+      if (!_isRepositoryActive(repository)) return null;
+      return reconcilePreparedTransactionBroadcastResult(
+        result,
+        rescan: () => ref.read(walletRuntimeProvider.notifier).rescan(),
+        onRescanFailure: (error, stackTrace) {
+          _emitStructuredCommandError(
+            title: 'Rescan failed',
+            operation: 'wallet.rescan',
+            applicationCode: 'wallet_rescan_failed',
+            error: error,
+            stackTrace: stackTrace,
+          );
+        },
+      );
+    } catch (error, stackTrace) {
+      _emitStructuredCommandError(
+        title: 'Cannot broadcast transaction',
+        operation: 'wallet.transaction.broadcast',
+        applicationCode: 'transaction_broadcast_failed',
+        error: error,
+        stackTrace: stackTrace,
+        contextBuilder: () => 'transactionHash=${transaction.hash}',
+      );
       return null;
     }
   }
 
-  Future<String> estimateFees({
-    required double amount,
+  Future<BigInt> estimateFees({
+    required BigInt amountAtomic,
     required String destination,
     required String asset,
+    wallet_flutter.XelisWalletFeePolicy feePolicy =
+        wallet_flutter.XelisWalletFeePolicy.automatic,
   }) async {
     final repository = _repository;
     if (repository == null) {
-      return AppResources.zeroBalance;
+      return BigInt.zero;
     }
     if (!_nodeActionGuard.ensureNodeAvailable(notify: false)) {
-      return AppResources.zeroBalance;
+      return BigInt.zero;
     }
 
-    return repository.estimateFees([
-      Transfer(floatAmount: amount, strAddress: destination, assetHash: asset),
-    ]);
-  }
-
-  Future<void> exportCsv(String path, HistoryPageFilter filter) async {
-    final repository = _repository;
-    if (repository != null) {
-      await repository.exportTransactionsToCsvFile(
-        '$path/genesix_transactions.csv',
-        filter,
+    try {
+      return repository.estimateTransferFees([
+        wallet_flutter.XelisWalletTransferRequest(
+          destination: destination,
+          asset: asset,
+          amountAtomic: amountAtomic,
+        ),
+      ], feePolicy: feePolicy);
+    } catch (error, stackTrace) {
+      _emitStructuredCommandError(
+        title: 'Cannot estimate transaction fees',
+        operation: 'wallet.transaction.fees.estimate',
+        applicationCode: 'transaction_fee_estimate_failed',
+        error: error,
+        stackTrace: stackTrace,
       );
+      return BigInt.zero;
     }
   }
 
-  Future<String?> exportCsvForWeb(HistoryPageFilter filter) async {
+  Future<void> exportCsv(
+    String directoryPath,
+    wallet_flutter.XelisWalletHistoryFilter filter,
+  ) async {
     final repository = _repository;
     if (repository == null) {
-      return null;
+      throw StateError('No active wallet session.');
+    }
+    await repository.exportTransactionsToCsvFile(
+      p.join(directoryPath, 'genesix_transactions.csv'),
+      filter,
+    );
+  }
+
+  Future<String> exportCsvForWeb(
+    wallet_flutter.XelisWalletHistoryFilter filter,
+  ) async {
+    final repository = _repository;
+    if (repository == null) {
+      throw StateError('No active wallet session.');
     }
     return repository.convertTransactionsToCsv(filter);
   }
 
-  Future<void> changePassword(String oldPassword, String newPassword) async {
-    final repository = _repository;
-    if (repository == null) {
-      return;
+  Future<WalletPasswordChangeResult> changePassword(
+    String oldPassword,
+    String newPassword,
+  ) async {
+    final session = ref.read(activeWalletSessionProvider);
+    if (session == null) {
+      final failure = recordAppFailure(
+        StateError('No active wallet session.'),
+        StackTrace.current,
+        operation: 'wallet.password.change',
+        applicationCode: 'wallet_session_missing',
+        applicationCategory: AppFailureCategory.operationFailure,
+      );
+      return WalletPasswordChangeFailure(failure);
     }
 
-    await repository.changePassword(
-      oldPassword: oldPassword,
-      newPassword: newPassword,
+    final secureStorage = kIsWeb ? null : ref.read(secureStorageProvider);
+    final passwordKey = walletPasswordKey(
+      network: session.network,
+      walletName: session.name,
     );
-
-    if (!kIsWeb) {
-      final runtimeState = _runtimeState;
-      await ref
-          .read(secureStorageProvider)
-          .write(
-            key: walletPasswordKey(
-              network: runtimeState.network,
-              walletName: runtimeState.name,
-            ),
-            value: newPassword,
-          );
+    final biometricKey = biometricWalletKey(
+      network: session.network,
+      walletName: session.name,
+    );
+    bool isCapturedSessionActive() {
+      final activeSession = ref.read(activeWalletSessionProvider);
+      return activeSession != null &&
+          identical(activeSession.repository, session.repository) &&
+          activeSession.name == session.name &&
+          activeSession.network == session.network;
     }
+
+    return WalletPasswordChangeCoordinator(
+      synchronizeBiometricCredential: !kIsWeb,
+      changeNativePassword: (oldValue, newValue) => session.repository
+          .changePassword(oldPassword: oldValue, newPassword: newValue),
+      isBiometricCredentialEnabled: () async {
+        if (!isCapturedSessionActive()) {
+          throw StateError('The active wallet session changed.');
+        }
+        return secureStorage!.containsKey(key: biometricKey);
+      },
+      persistBiometricCredential: (password) async {
+        if (!isCapturedSessionActive() ||
+            !await secureStorage!.containsKey(key: biometricKey)) {
+          throw StateError('Biometric credential synchronization changed.');
+        }
+
+        await secureStorage.write(key: passwordKey, value: password);
+
+        if (!isCapturedSessionActive() ||
+            !await secureStorage.containsKey(key: biometricKey)) {
+          await secureStorage.delete(key: passwordKey);
+          throw StateError('Biometric credential synchronization changed.');
+        }
+      },
+      disableBiometricCredential: () => ref
+          .read(settingsProvider.notifier)
+          .disableBiometricAuthForWallet(
+            network: session.network,
+            walletName: session.name,
+            updateActiveSettings: isCapturedSessionActive(),
+          ),
+    ).change(oldPassword: oldPassword, newPassword: newPassword);
   }
 
   Future<List<String>> getSeed(MnemonicLanguage language) async {
@@ -266,11 +471,11 @@ class WalletCommandsController {
       return [];
     }
 
-    final seed = await repository.getSeed(languageIndex: language.rustIndex);
+    final seed = await repository.getSeed(language: language.seedLanguage);
     return seed.split(' ');
   }
 
-  Future<TransactionSummary?> setupMultisig({
+  Future<wallet_flutter.XelisWalletPreparedTransaction?> setupMultisig({
     required List<String> participants,
     required int threshold,
   }) async {
@@ -283,12 +488,26 @@ class WalletCommandsController {
     }
 
     try {
-      return await repository.setupMultisig(
+      final prepared = await repository.setupMultisig(
         participants: participants,
         threshold: threshold,
       );
-    } catch (_) {
-      _emitGenericCommandError(title: 'Cannot setup multisig');
+      if (!_isRepositoryActive(repository)) {
+        await _discardStalePrepared(repository, prepared);
+        return null;
+      }
+      return prepared;
+    } catch (error, stackTrace) {
+      if (!_isRepositoryActive(repository)) return null;
+      _emitStructuredCommandError(
+        title: 'Cannot setup multisig',
+        operation: 'wallet.multisig.setup.prepare',
+        applicationCode: 'multisig_setup_prepare_failed',
+        error: error,
+        stackTrace: stackTrace,
+        contextBuilder: () =>
+            'threshold=$threshold participantCount=${participants.length}',
+      );
     }
 
     return null;
@@ -302,7 +521,8 @@ class WalletCommandsController {
     return repository.isAddressValidForMultisig(address);
   }
 
-  Future<MultisigSigningRequest?> startDeleteMultisig() async {
+  Future<wallet_flutter.XelisWalletMultisigSigningRequest?>
+  startDeleteMultisig() async {
     final repository = _repository;
     if (repository == null) {
       return null;
@@ -312,58 +532,92 @@ class WalletCommandsController {
     }
 
     try {
-      return await repository.initDeleteMultisig();
-    } catch (_) {
-      _emitGenericCommandError(title: 'Cannot start delete multisig');
+      final request = await repository.initDeleteMultisig();
+      if (!_isRepositoryActive(repository)) {
+        await _cancelStaleMultisigRequest(repository, request);
+        return null;
+      }
+      return request;
+    } catch (error, stackTrace) {
+      if (!_isRepositoryActive(repository)) return null;
+      _emitStructuredCommandError(
+        title: 'Cannot start delete multisig',
+        operation: 'wallet.multisig.delete.prepare',
+        applicationCode: 'multisig_delete_prepare_failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
 
     return null;
   }
 
-  Future<TransactionSummary?> finalizeMultisigTransaction({
-    required String txHash,
-    required List<String> signatureShares,
+  Future<wallet_flutter.XelisWalletPreparedTransaction?>
+  finalizeMultisigTransaction({
+    required wallet_flutter.XelisWalletMultisigSigningRequest request,
+    required List<wallet_flutter.XelisWalletMultisigSignatureShare> shares,
+    required Object sessionIdentity,
   }) async {
-    final repository = _repository;
-    if (repository == null) {
+    if (sessionIdentity is! NativeWalletRepository) {
       return null;
     }
+    final repository = sessionIdentity;
+    if (!_isRepositoryActive(repository)) return null;
 
     try {
-      return await repository.finalizeMultisigTransaction(
-        txHash: txHash,
-        signatureShares: signatureShares,
+      final prepared = await repository.finalizeMultisigTransaction(
+        request: request,
+        shares: shares,
       );
-    } catch (_) {
-      _emitGenericCommandError(title: 'Cannot finalize multisig transaction');
+      if (!_isRepositoryActive(repository)) {
+        await _discardStalePrepared(repository, prepared);
+        return null;
+      }
+      return prepared;
+    } catch (error, stackTrace) {
+      if (!_isRepositoryActive(repository)) return null;
+      _emitStructuredCommandError(
+        title: 'Cannot finalize multisig transaction',
+        operation: 'wallet.multisig.finalize',
+        applicationCode: 'multisig_finalize_failed',
+        error: error,
+        stackTrace: stackTrace,
+        contextBuilder: () =>
+            'signingHash=${request.signingHash} shareCount=${shares.length}',
+      );
     }
 
     return null;
   }
 
-  String? getPendingMultisigRequestHash() {
-    return _repository?.getPendingMultisigRequestHash();
-  }
-
-  Future<bool> cancelPendingMultisigRequest({required String txHash}) async {
-    final repository = _repository;
-    if (repository == null) {
+  Future<bool> cancelPendingMultisigRequest({
+    required wallet_flutter.XelisWalletMultisigSigningRequest request,
+    required Object sessionIdentity,
+  }) async {
+    if (sessionIdentity is! NativeWalletRepository) {
       return false;
     }
+    final repository = sessionIdentity;
 
     try {
-      repository.cancelPendingMultisigRequest(txHash);
+      await repository.cancelPendingMultisigRequest(request);
       return true;
-    } catch (_) {
-      _emitGenericCommandError(title: 'Cannot cancel multisig request');
+    } catch (error, stackTrace) {
+      _emitStructuredCommandError(
+        title: 'Cannot cancel multisig request',
+        operation: 'wallet.multisig.request.cancel',
+        applicationCode: 'multisig_request_cancel_failed',
+        error: error,
+        stackTrace: stackTrace,
+        contextBuilder: () => 'signingHash=${request.signingHash}',
+      );
     }
 
     return false;
   }
 
-  Future<MultisigSigningRequest?> inspectMultisigSigningRequest(
-    String encoded,
-  ) async {
+  Future<wallet_flutter.XelisWalletMultisigSigningRequest?>
+  inspectMultisigSigningRequest(String encoded) async {
     final repository = _repository;
     if (repository == null) {
       return null;
@@ -374,15 +628,22 @@ class WalletCommandsController {
 
     try {
       return await repository.inspectMultisigSigningRequest(encoded);
-    } catch (_) {
-      _emitGenericCommandError(title: 'Cannot inspect multisig request');
+    } catch (error, stackTrace) {
+      _emitStructuredCommandError(
+        title: 'Cannot inspect multisig request',
+        operation: 'wallet.multisig.request.inspect',
+        applicationCode: 'multisig_request_inspect_failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
 
     return null;
   }
 
-  Future<MultisigSignatureShare?> signMultisigSigningRequest(
-    String encoded,
+  Future<wallet_flutter.XelisWalletMultisigSignatureShare?>
+  signMultisigSigningRequest(
+    wallet_flutter.XelisWalletMultisigSigningRequest request,
   ) async {
     final repository = _repository;
     if (repository == null) {
@@ -393,16 +654,23 @@ class WalletCommandsController {
     }
 
     try {
-      return await repository.signMultisigSigningRequest(encoded);
-    } catch (_) {
-      _emitGenericCommandError(title: 'Cannot sign multisig request');
+      return await repository.signMultisigSigningRequest(request);
+    } catch (error, stackTrace) {
+      _emitStructuredCommandError(
+        title: 'Cannot sign multisig request',
+        operation: 'wallet.multisig.request.sign',
+        applicationCode: 'multisig_request_sign_failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
 
     return null;
   }
 
-  Future<MultisigSignatureShare?> inspectMultisigSignatureShare({
-    required String txHash,
+  Future<wallet_flutter.XelisWalletMultisigSignatureShare?>
+  inspectMultisigSignatureShare({
+    required wallet_flutter.XelisWalletMultisigSigningRequest request,
     required String encoded,
   }) async {
     final repository = _repository;
@@ -412,12 +680,19 @@ class WalletCommandsController {
 
     try {
       return await repository.inspectMultisigSignatureShare(
-        txHash: txHash,
+        request: request,
         encoded: encoded,
       );
-    } catch (_) {
+    } catch (error, stackTrace) {
       // Invalid clipboard input is rendered as a field error. Do not log the
-      // raw share or emit a global wallet error for this expected failure.
+      // raw share. Preserve the structured failure for support diagnostics.
+      recordAppFailure(
+        error,
+        stackTrace,
+        operation: 'wallet.multisig.share.inspect',
+        applicationCode: 'multisig_share_inspect_failed',
+        contextBuilder: () => 'signingHash=${request.signingHash}',
+      );
       return null;
     }
   }
@@ -433,17 +708,14 @@ class WalletCommandsController {
 
     try {
       await repository.trackAsset(assetHash);
-    } on AnyhowException catch (error) {
-      _emitCommandError(
+    } catch (error, stackTrace) {
+      _emitStructuredCommandError(
         title: 'Cannot track asset',
-        description: _extractXelisMessage(error),
-        logMessage: 'Cannot track asset: $error',
-      );
-    } catch (error) {
-      _emitCommandError(
-        title: 'Cannot track asset',
-        description: error.toString(),
-        logMessage: 'Cannot track asset: $error',
+        operation: 'wallet.asset.track',
+        applicationCode: 'asset_track_failed',
+        error: error,
+        stackTrace: stackTrace,
+        contextBuilder: () => 'asset=$assetHash',
       );
     }
   }
@@ -456,23 +728,58 @@ class WalletCommandsController {
 
     try {
       await repository.untrackAsset(assetHash);
-    } on AnyhowException catch (error) {
-      _emitCommandError(
+    } catch (error, stackTrace) {
+      _emitStructuredCommandError(
         title: 'Cannot untrack asset',
-        description: _extractXelisMessage(error),
-        logMessage: 'Cannot untrack asset: $error',
-      );
-    } catch (error) {
-      _emitCommandError(
-        title: 'Cannot untrack asset',
-        description: error.toString(),
-        logMessage: 'Cannot untrack asset: $error',
+        operation: 'wallet.asset.untrack',
+        applicationCode: 'asset_untrack_failed',
+        error: error,
+        stackTrace: stackTrace,
+        contextBuilder: () => 'asset=$assetHash',
       );
     }
   }
 
   NativeWalletRepository? get _repository {
     return ref.read(activeWalletRepositoryProvider);
+  }
+
+  bool _isRepositoryActive(NativeWalletRepository repository) {
+    return identical(_repository, repository);
+  }
+
+  Future<void> _discardStalePrepared(
+    NativeWalletRepository repository,
+    wallet_flutter.XelisWalletPreparedTransaction transaction,
+  ) async {
+    try {
+      await repository.discardPreparedTransaction(transaction);
+    } catch (error, stackTrace) {
+      recordAppFailure(
+        error,
+        stackTrace,
+        operation: 'wallet.transaction.prepared.stale_discard',
+        applicationCode: 'prepared_transaction_stale_discard_failed',
+        contextBuilder: () => 'transactionHash=${transaction.hash}',
+      );
+    }
+  }
+
+  Future<void> _cancelStaleMultisigRequest(
+    NativeWalletRepository repository,
+    wallet_flutter.XelisWalletMultisigSigningRequest request,
+  ) async {
+    try {
+      await repository.cancelPendingMultisigRequest(request);
+    } catch (error, stackTrace) {
+      recordAppFailure(
+        error,
+        stackTrace,
+        operation: 'wallet.multisig.request.stale_cancel',
+        applicationCode: 'multisig_request_stale_cancel_failed',
+        contextBuilder: () => 'signingHash=${request.signingHash}',
+      );
+    }
   }
 
   WalletRuntimeState get _runtimeState {
@@ -483,26 +790,36 @@ class WalletCommandsController {
     return WalletNodeActionGuard(ref);
   }
 
-  void _emitCommandError({
-    required String title,
-    required String description,
-    required String logMessage,
-  }) {
-    talker.error(logMessage);
-    ref
-        .read(walletEffectBusProvider.notifier)
-        .emit(WalletEffect.error(title: title, description: description));
-  }
-
-  void _emitGenericCommandError({required String title}) {
-    _emitCommandError(
-      title: title,
-      description: 'The request could not be completed.',
-      logMessage: title,
+  AppFailure _recordPreparedBroadcastFailure(
+    wallet_flutter.XelisWalletException failure,
+    wallet_flutter.XelisWalletPreparedTransaction transaction,
+  ) {
+    return recordAppFailure(
+      failure,
+      StackTrace.current,
+      operation: 'wallet.transaction.broadcast',
+      applicationCode: 'transaction_broadcast_failed',
+      contextBuilder: () => 'transactionHash=${transaction.hash}',
     );
   }
 
-  String _extractXelisMessage(AnyhowException error) {
-    return error.message.split('\n').first;
+  void _emitStructuredCommandError({
+    required String title,
+    required String operation,
+    required String applicationCode,
+    required Object error,
+    required StackTrace stackTrace,
+    String Function()? contextBuilder,
+  }) {
+    final failure = recordAppFailure(
+      error,
+      stackTrace,
+      operation: operation,
+      applicationCode: applicationCode,
+      contextBuilder: contextBuilder,
+    );
+    ref
+        .read(walletEffectBusProvider.notifier)
+        .emit(WalletEffect.failure(title: title, failure: failure));
   }
 }

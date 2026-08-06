@@ -7,12 +7,13 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_controller_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
+import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/widgets/components/body_layout_builder.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -27,7 +28,7 @@ class XswdAppDetail extends ConsumerStatefulWidget {
 
 class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
   bool _isClosing = false;
-  AppInfo? _cachedApp;
+  XelisXswdApplication? _cachedApp;
 
   @override
   Widget build(BuildContext context) {
@@ -81,21 +82,20 @@ class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
                 );
               },
               loading: () => const Center(child: FCircularProgress()),
-              error: (error, stack) => Center(
-                child: Text('${loc.error_loading_applications}: $error'),
-              ),
+              error: (_, _) =>
+                  Center(child: Text(loc.error_loading_applications)),
             ),
     );
   }
 
   Future<void> _handlePermissionChange(
     WidgetRef ref,
-    AppInfo app,
+    XelisXswdApplication app,
     String permissionName,
-    PermissionPolicy newPolicy,
+    XelisXswdPermissionPolicy newPolicy,
   ) async {
     try {
-      final updatedPermissions = Map<String, PermissionPolicy>.from(
+      final updatedPermissions = Map<String, XelisXswdPermissionPolicy>.from(
         app.permissions,
       );
       updatedPermissions[permissionName] = newPolicy;
@@ -111,7 +111,7 @@ class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
   Future<void> _handleDisconnectApp(
     BuildContext context,
     AppLocalizations loc,
-    AppInfo app,
+    XelisXswdApplication app,
   ) async {
     final confirmed = await showAppDialog<bool>(
       context: context,
@@ -250,10 +250,13 @@ class _XswdAppDetailContent extends StatelessWidget {
     required this.onDisconnect,
   });
 
-  final AppInfo app;
+  final XelisXswdApplication app;
   final AppLocalizations loc;
   final ValueChanged<String> onOpenUrl;
-  final Future<void> Function(String permission, PermissionPolicy policy)
+  final Future<void> Function(
+    String permission,
+    XelisXswdPermissionPolicy policy,
+  )
   onPermissionChange;
   final VoidCallback onDisconnect;
 
@@ -298,7 +301,7 @@ class _XswdAppInfoCard extends StatelessWidget {
     required this.onOpenUrl,
   });
 
-  final AppInfo app;
+  final XelisXswdApplication app;
   final AppLocalizations loc;
   final ValueChanged<String> onOpenUrl;
 
@@ -382,9 +385,12 @@ class _XswdPermissionsSection extends StatelessWidget {
     required this.onPermissionChange,
   });
 
-  final AppInfo app;
+  final XelisXswdApplication app;
   final AppLocalizations loc;
-  final Future<void> Function(String permission, PermissionPolicy policy)
+  final Future<void> Function(
+    String permission,
+    XelisXswdPermissionPolicy policy,
+  )
   onPermissionChange;
 
   @override
@@ -443,13 +449,23 @@ class _XswdPermissionCard extends StatelessWidget {
   });
 
   final String permissionName;
-  final PermissionPolicy currentPolicy;
+  final XelisXswdPermissionPolicy currentPolicy;
   final AppLocalizations loc;
-  final Future<void> Function(String permission, PermissionPolicy policy)
+  final Future<void> Function(
+    String permission,
+    XelisXswdPermissionPolicy policy,
+  )
   onChange;
 
   @override
   Widget build(BuildContext context) {
+    final isHighRiskPermission = isXswdHighRiskMethodKey(permissionName);
+    final effectivePolicy =
+        isHighRiskPermission &&
+            currentPolicy == XelisXswdPermissionPolicy.accept
+        ? XelisXswdPermissionPolicy.ask
+        : currentPolicy;
+
     return FCard(
       clipBehavior: Clip.antiAlias,
       child: Container(
@@ -481,7 +497,8 @@ class _XswdPermissionCard extends StatelessWidget {
             const SizedBox(width: Spaces.small),
             _XswdPolicySelector(
               loc: loc,
-              currentPolicy: currentPolicy,
+              currentPolicy: effectivePolicy,
+              allowAccept: !isHighRiskPermission,
               onChange: (policy) => onChange(permissionName, policy),
             ),
           ],
@@ -495,12 +512,14 @@ class _XswdPolicySelector extends StatelessWidget {
   const _XswdPolicySelector({
     required this.loc,
     required this.currentPolicy,
+    required this.allowAccept,
     required this.onChange,
   });
 
   final AppLocalizations loc;
-  final PermissionPolicy currentPolicy;
-  final ValueChanged<PermissionPolicy> onChange;
+  final XelisXswdPermissionPolicy currentPolicy;
+  final bool allowAccept;
+  final ValueChanged<XelisXswdPermissionPolicy> onChange;
 
   @override
   Widget build(BuildContext context) {
@@ -509,23 +528,24 @@ class _XswdPolicySelector extends StatelessWidget {
       runSpacing: Spaces.extraSmall,
       children: [
         _XswdPolicyButton(
-          policy: PermissionPolicy.reject,
+          policy: XelisXswdPermissionPolicy.reject,
           currentPolicy: currentPolicy,
           label: loc.deny,
           onPress: onChange,
         ),
         _XswdPolicyButton(
-          policy: PermissionPolicy.ask,
+          policy: XelisXswdPermissionPolicy.ask,
           currentPolicy: currentPolicy,
           label: loc.ask,
           onPress: onChange,
         ),
-        _XswdPolicyButton(
-          policy: PermissionPolicy.accept,
-          currentPolicy: currentPolicy,
-          label: loc.allow,
-          onPress: onChange,
-        ),
+        if (allowAccept)
+          _XswdPolicyButton(
+            policy: XelisXswdPermissionPolicy.accept,
+            currentPolicy: currentPolicy,
+            label: loc.allow,
+            onPress: onChange,
+          ),
       ],
     );
   }
@@ -539,20 +559,20 @@ class _XswdPolicyButton extends StatelessWidget {
     required this.onPress,
   });
 
-  final PermissionPolicy policy;
-  final PermissionPolicy currentPolicy;
+  final XelisXswdPermissionPolicy policy;
+  final XelisXswdPermissionPolicy currentPolicy;
   final String label;
-  final ValueChanged<PermissionPolicy> onPress;
+  final ValueChanged<XelisXswdPermissionPolicy> onPress;
 
   @override
   Widget build(BuildContext context) {
     final isSelected = currentPolicy == policy;
     final styleVariant = switch (policy) {
-      PermissionPolicy.reject =>
+      XelisXswdPermissionPolicy.reject =>
         isSelected ? FButtonVariant.destructive : FButtonVariant.outline,
-      PermissionPolicy.ask =>
+      XelisXswdPermissionPolicy.ask =>
         isSelected ? FButtonVariant.secondary : FButtonVariant.outline,
-      PermissionPolicy.accept =>
+      XelisXswdPermissionPolicy.accept =>
         isSelected ? FButtonVariant.primary : FButtonVariant.outline,
     };
 

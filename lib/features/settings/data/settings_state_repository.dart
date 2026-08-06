@@ -30,8 +30,8 @@ class SettingsStateRepository extends PersistentState<SettingsState> {
       }
 
       return SettingsState.fromJson(value);
-    } catch (e) {
-      talker.critical('SettingsStateRepository: $e');
+    } catch (error) {
+      logDiagnosticError('settings.load', error);
       return SettingsState(locale: locale);
     }
   }

@@ -10,10 +10,12 @@ import 'package:forui/forui.dart';
 
 class InvokeContractBuilderWidget extends ConsumerStatefulWidget {
   final InvokeContractBuilder invokeContractBuilder;
+  final List<ParsedValue> parsedParameters;
 
   const InvokeContractBuilderWidget({
     super.key,
     required this.invokeContractBuilder,
+    required this.parsedParameters,
   });
 
   @override
@@ -52,6 +54,7 @@ class _InvokeContractBuilderWidgetState
           entryId: widget.invokeContractBuilder.entryId,
           deposits: widget.invokeContractBuilder.deposits,
           parameters: widget.invokeContractBuilder.parameters,
+          parsedParameters: widget.parsedParameters,
         ),
       ],
     );

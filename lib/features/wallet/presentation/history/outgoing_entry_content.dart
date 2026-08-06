@@ -8,12 +8,17 @@ import 'package:genesix/features/wallet/domain/transfer_entry_row.dart';
 import 'package:genesix/features/wallet/presentation/history/transfers_view.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class OutgoingEntryContent extends ConsumerWidget {
-  const OutgoingEntryContent(this.outgoingEntry, {super.key});
+  const OutgoingEntryContent(
+    this.outgoingEntry, {
+    this.exactDestinations = const [],
+    super.key,
+  });
 
-  final OutgoingEntry outgoingEntry;
+  final XelisWalletOutgoingEntry outgoingEntry;
+  final List<XelisAddressBookEntry?> exactDestinations;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -34,6 +39,7 @@ class OutgoingEntryContent extends ConsumerWidget {
       outgoingEntry,
       knownAssets,
       hideZeroTransfer,
+      exactDestinations: exactDestinations,
     );
 
     return FCard(

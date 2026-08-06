@@ -13,7 +13,7 @@ import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:genesix/shared/widgets/components/labeled_value.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class TransfersView extends StatelessWidget {
   const TransfersView.incoming({
@@ -108,7 +108,7 @@ class _NarrowList extends ConsumerWidget {
                       Expanded(
                         child: LabeledValue.child(
                           loc.destination,
-                          AddressWidget(row.destination!),
+                          _DestinationValue(row: row),
                         ),
                       ),
                   ],
@@ -238,12 +238,7 @@ class _WideTable extends ConsumerWidget {
                     DataCell(
                       SizedBox(
                         width: 280,
-                        child: AddressWidget(
-                          row.destination!,
-                          displayHashicon: false,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          compact: true,
-                        ),
+                        child: _DestinationValue(row: row, compact: true),
                       ),
                     ),
                     DataCell(
@@ -282,10 +277,41 @@ class _WideTable extends ConsumerWidget {
   }
 }
 
+class _DestinationValue extends StatelessWidget {
+  const _DestinationValue({required this.row, this.compact = false});
+
+  final TransferEntryRow row;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final destination = row.destination!;
+    if (row.extra != null && !row.destinationIsExactMatch) {
+      return FTooltip(
+        tipBuilder: (context, controller) => SelectableText(destination),
+        child: SelectableText(
+          compact ? truncateText(destination, maxLength: 18) : destination,
+          maxLines: compact ? 1 : null,
+          style: context.theme.typography.body.md,
+        ),
+      );
+    }
+
+    return AddressWidget(
+      destination,
+      displayHashicon: !compact,
+      mainAxisAlignment: compact
+          ? MainAxisAlignment.center
+          : MainAxisAlignment.spaceBetween,
+      compact: compact,
+    );
+  }
+}
+
 void _openExtraSheet(
   BuildContext context,
   AppLocalizations loc,
-  ExtraData extra,
+  XelisWalletExtraData extra,
 ) {
   showFSheet<void>(
     context: context,

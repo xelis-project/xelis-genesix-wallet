@@ -4,11 +4,12 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
+import 'package:genesix/shared/errors/app_failure_reporter.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/sheet_content.dart';
-import 'package:genesix/src/generated/rust_bridge/api/utils.dart';
 import 'package:go_router/go_router.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class AddContactSheet extends ConsumerStatefulWidget {
   const AddContactSheet({super.key, this.address});
@@ -23,6 +24,7 @@ class _AddContactSheetState extends ConsumerState<AddContactSheet> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late String _name;
   late String _address;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -71,32 +73,7 @@ class _AddContactSheetState extends ConsumerState<AddContactSheet> {
             ),
             const SizedBox(height: Spaces.large),
             FButton(
-              onPress: () {
-                if (_formKey.currentState?.validate() ?? false) {
-                  final name = _name.trim();
-                  final address = _address.trim();
-                  try {
-                    ref
-                        .read(addressBookProvider.notifier)
-                        .upsert(address, name, null);
-
-                    ref
-                        .read(toastProvider.notifier)
-                        .showEvent(
-                          description: '${loc.added_to_address_book} $name',
-                        );
-
-                    context.pop(); // Close the sheet after adding the contact
-                  } catch (e) {
-                    ref
-                        .read(toastProvider.notifier)
-                        .showError(
-                          title: loc.failed_to_add_contact,
-                          description: e.toString(),
-                        );
-                  }
-                }
-              },
+              onPress: _isSaving ? null : _saveContact,
               child: Text(loc.add_contact),
             ),
           ],
@@ -114,16 +91,56 @@ class _AddContactSheetState extends ConsumerState<AddContactSheet> {
 
     final network = ref.read(settingsProvider.select((state) => state.network));
 
-    if (!isAddressValid(strAddress: value.trim(), network: network)) {
+    if (!XelisWalletFlutter.isAddressValid(
+      address: value.trim(),
+      network: network,
+    )) {
       return loc.invalid_address_format_error;
     }
 
-    if (widget.address == null) {
-      final addressBook = ref.read(addressBookProvider).value ?? {};
-      if (addressBook.containsKey(value.trim())) {
-        return loc.contact_already_exists;
-      }
-    }
     return null;
+  }
+
+  Future<void> _saveContact() async {
+    if (_isSaving || !(_formKey.currentState?.validate() ?? false)) return;
+
+    final loc = ref.read(appLocalizationsProvider);
+    final name = _name.trim();
+    final address = _address.trim();
+
+    setState(() => _isSaving = true);
+    try {
+      final addressBook = ref.read(addressBookProvider.notifier);
+      if (await addressBook.containsExactAddress(address)) {
+        if (!mounted) return;
+        ref
+            .read(toastProvider.notifier)
+            .showError(description: loc.contact_already_exists);
+        return;
+      }
+
+      if (!mounted) return;
+      await addressBook.upsert(address: address, displayName: name);
+
+      if (!mounted) return;
+      ref
+          .read(toastProvider.notifier)
+          .showEvent(description: '${loc.added_to_address_book} $name');
+
+      context.pop();
+    } catch (error, stackTrace) {
+      final failure = recordAppFailure(
+        error,
+        stackTrace,
+        operation: 'wallet.address_book.create',
+        applicationCode: 'wallet_address_book_create_failed',
+      );
+      if (!mounted) return;
+      ref
+          .read(toastProvider.notifier)
+          .showFailure(title: loc.failed_to_add_contact, failure: failure);
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 }

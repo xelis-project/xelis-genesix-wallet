@@ -3,21 +3,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/wallet/domain/xelis_wallet_asset_metadata_extensions.dart';
 import 'package:genesix/features/wallet/presentation/assets/asset_name_widget.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:genesix/shared/widgets/components/labeled_value.dart';
 import 'package:go_router/go_router.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 
 class TrackedAssetDetails extends ConsumerStatefulWidget {
   const TrackedAssetDetails(this.hash, this.asset, this.balance, {super.key});
 
   final String hash;
-  final sdk.AssetData asset;
-  final String balance;
+  final XelisWalletAssetMetadata asset;
+  final BigInt balance;
 
   @override
   ConsumerState createState() => _TrackedAssetDetailsState();
@@ -35,6 +36,9 @@ class _TrackedAssetDetailsState extends ConsumerState<TrackedAssetDetails> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
+    final maxSupply = widget.asset.maxSupply.amountOrNull;
+    final originContract = widget.asset.owner.originContractOrNull;
+    final originId = widget.asset.owner.originIdOrNull;
 
     return AppDialog(
       clipBehavior: Clip.antiAlias,
@@ -72,35 +76,39 @@ class _TrackedAssetDetailsState extends ConsumerState<TrackedAssetDetails> {
                   loc.decimals,
                   widget.asset.decimals.toString(),
                 ),
-                if (widget.asset.maxSupply.getMax() != null)
+                if (maxSupply != null)
                   LabeledValue.child(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     loc.max_supply,
                     Text(
                       formatCoin(
-                        widget.asset.maxSupply.getMax()!,
+                        maxSupply,
                         widget.asset.decimals,
                         widget.asset.ticker,
                       ),
                       style: context.theme.typography.body.md,
                     ),
                   ),
-                if (!widget.asset.owner.isNone) ...[
+                if (originContract != null && originId != null) ...[
                   LabeledValue.text(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     loc.contract,
-                    widget.asset.owner.originContract!,
+                    originContract,
                   ),
                   LabeledValue.text(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     loc.id,
-                    widget.asset.owner.id.toString(),
+                    originId.toString(),
                   ),
                 ],
                 LabeledValue.text(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   loc.balance.capitalize(),
-                  '${widget.balance} ${widget.asset.ticker}',
+                  formatCoin(
+                    widget.balance,
+                    widget.asset.decimals,
+                    widget.asset.ticker,
+                  ),
                 ),
               ],
             ),

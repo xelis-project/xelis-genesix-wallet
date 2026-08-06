@@ -6,6 +6,7 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/authentication/application/wallets_provider.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
+import 'package:genesix/shared/errors/app_failure_reporter.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
@@ -168,13 +169,21 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
         final walletsNotifier = ref.read(walletsProvider.notifier);
         final loc = ref.read(appLocalizationsProvider);
 
-        await walletsNotifier.renameWallet(walletName, newName);
+        final renamed = await walletsNotifier.renameWallet(walletName, newName);
+        if (!renamed) return;
 
         ref
             .read(toastProvider.notifier)
             .showEvent(description: loc.wallet_renamed);
-      } catch (e) {
-        ref.read(toastProvider.notifier).showError(description: e.toString());
+      } catch (error, stackTrace) {
+        final failure = recordAppFailure(
+          error,
+          stackTrace,
+          operation: 'wallet.rename',
+          applicationCode: 'wallet_rename_failed',
+        );
+        if (!mounted) return;
+        ref.read(toastProvider.notifier).showFailure(failure: failure);
       }
 
       setState(() {

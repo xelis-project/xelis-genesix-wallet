@@ -54,12 +54,85 @@ The signing envelope must not serialize plaintext `extra_data`. Cosigners can
 verify and display its presence and the public destination, but encrypted
 contents remain private to the sender and destination.
 
-Source: `rust/src/api/multisig.rs`.
+Source: the multisig contract owned by `xelis_wallet_flutter` and
+`docs/multisig-signing.md` in Genesix.
 
 Invalidation:
 
 - Re-evaluate this rule if the upstream transaction proof format or ciphertext
   transcript changes.
+
+## Shared Wallet Package Transition
+
+### 2026-08-06 - Lossless XSWD transaction review on Web
+
+`xelis_dart_sdk 0.35.1` models XSWD transaction amounts, explicit fees, and
+nonces as Dart `int`. Native targets preserve the full integer range, but the
+JavaScript Web target cannot safely review values beyond `2^53 - 1`. Genesix
+therefore rejects `build_transaction` permission requests on Web before they
+reach the approval UI. Do not relax this fail-closed boundary or reconstruct
+authority from rounded values.
+
+Invalidation:
+
+- Remove this restriction only after the authored `xelis_wallet_flutter`
+  contract exposes a lossless typed XSWD transaction projection using
+  `BigInt`, and validate the complete Web approval flow above `2^53`.
+
+### 2026-08-03 - Integrated destination identity and disclosure
+
+AddressBook entries use the package-owned v2 store and opaque entry ID. The
+complete canonical destination is the only send/copy authority. Several
+integrated destinations may share one base address, especially exchange deposit
+references; never key, deduplicate, filter, or choose them by base alone.
+AddressBook-to-transfer navigation carries only the opaque entry ID; the
+transfer screen resolves the complete destination in memory. Do not place the
+complete integrated address in router extras, route arguments, or URLs because
+restoration and debug observers may serialize or log it.
+
+History lists and passive events expose attached-data metadata only. A contact
+history filter passes the parsed complete destination so native Rust compares
+base plus canonical `DataElement` before pagination. A transaction detail may
+then fetch its typed payload by hash and use only an exact AddressBook match.
+Base-only and ambiguous results must not silently name or replace a destination.
+
+Integrated-address content and prepared attached data are revealed only after
+an explicit user action. The former is visibly embedded in the address and has
+no transaction plaintext flag. The latter is read only through the exact
+prepared-object capability. Neither payload belongs in route persistence,
+standard logs, analytics, crash reports, or support-reference metadata.
+
+Invalidation:
+
+- Re-evaluate the scan cost if upstream wallet storage gains a native
+  integrated-data index or filtered cursor. Do not weaken exact semantics while
+  optimizing it.
+- Remove the non-destructive legacy AddressBook tree only in a separately
+  reviewed storage migration after real wallet backups and rollback are proven.
+
+### 2026-08-02 - Prepared transaction ownership
+
+Transfer, burn, and multisig transaction flows use the authored
+`xelis_wallet_flutter` contract. The exact prepared object is a single-attempt
+capability and must remain attached to the Genesix review state; its hash is not
+sufficient authority to broadcast or discard it. Broadcast recovery and the
+five package outcomes are documented in `docs/error-handling.md`.
+
+### 2026-08-02 - Apple lock regeneration
+
+Genesix no longer owns a Rust crate or Flutter Rust Bridge codegen. Native
+wallet code, generated bindings, and native build tooling are owned by
+`xelis_wallet_flutter`.
+
+The existing iOS and macOS `Podfile.lock` files still contain the historical
+`rust_builder` pod. Do not hand-edit CocoaPods checksums. Regenerate both locks
+with `pod install` on macOS after `flutter pub get`, then verify that they contain
+`xelis_wallet_flutter` and no `rust_builder` before the next Apple distribution.
+
+Invalidation:
+
+- Remove this entry after both Apple locks have been regenerated and validated
+  on macOS.
 
 ## Secure Storage
 

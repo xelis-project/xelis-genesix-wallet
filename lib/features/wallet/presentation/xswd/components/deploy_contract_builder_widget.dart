@@ -46,8 +46,16 @@ class _DeployContractBuilderWidgetState
           loc.contract.capitalize(),
           widget.deployContractBuilder.module,
         ),
+        buildLabeledText(
+          context,
+          loc.xswd_transaction_version,
+          widget.deployContractBuilder.contractVersion,
+        ),
         if (widget.deployContractBuilder.invoke != null)
-          InvokeWidget(maxGas: widget.deployContractBuilder.invoke!.maxGas),
+          InvokeWidget(
+            maxGas: widget.deployContractBuilder.invoke!.maxGas,
+            deposits: widget.deployContractBuilder.invoke!.deposits,
+          ),
       ],
     );
   }

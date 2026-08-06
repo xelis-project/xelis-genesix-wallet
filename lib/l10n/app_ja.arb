@@ -1,4 +1,33 @@
 {
+  "@multisig_setup_participant_count": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "@multisig_setup_threshold_summary": {
+    "placeholders": {
+      "threshold": {"type": "int"},
+      "participants": {"type": "int"}
+    }
+  },
+  "@multisig_signing_current_wallet_participant": {
+    "placeholders": {
+      "participantId": {"type": "int"}
+    }
+  },
+  "@support_reference": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "@xswd_fee_atomic_units": {
+    "placeholders": {"amount": {"type": "int"}}
+  },
+  "@xswd_fee_multiplier": {
+    "placeholders": {"multiplier": {"type": "double"}}
+  },
   "node_url_hint": "https://node.xelis.io",
   "node_name_hint": "マイノード",
   "node_name": "ノード名",
@@ -19,6 +48,7 @@
   "hide_transactions_zero_value": "残高ゼロの転送を含むトランザクションを非表示にします。",
   "hide_extra_data_description": "トランザクション詳細の追加データを非表示にします。",
   "select_contract": "コントラクトを選択",
+  "select_contact": "連絡先を選択",
   "select_asset": "アセットを選択",
   "category_burn_subtitle": "アセットをバーンしたトランザクション。",
   "category_coinbase_subtitle": "報酬を受け取ったトランザクション。",
@@ -225,7 +255,23 @@
   "search": "検索",
   "destination": "宛先",
   "integrated_address_detected": "統合アドレス検出",
-  "payment_id": "決済ID",
+  "attached_data": "添付データ",
+  "attached_data_badge": "データ",
+  "attached_data_included": "含まれています",
+  "attached_data_encrypted": "暗号化済み",
+  "attached_data_not_encrypted": "暗号化されていません",
+  "view_attached_data": "添付データを表示",
+  "attached_data_source": "ソース",
+  "attached_data_source_integrated_address": "統合アドレス",
+  "attached_data_source_explicit": "個別の添付データ",
+  "receive_advanced_payment_request": "高度な支払いリクエスト",
+  "receive_advanced_payment_request_description": "送信者が参照情報を含める必要がある場合は、アドレスにテキストを添付します。",
+  "receive_attached_text_label": "添付テキスト",
+  "receive_attached_text_hint": "注文または入金の参照情報",
+  "receive_create_integrated_address": "添付データ付きのアドレスを作成",
+  "receive_integrated_address_data_visible": "アドレスに表示",
+  "receive_integrated_address_data_visible_description": "このアドレスを受け取った人は誰でも、添付テキストを読めます。",
+  "receive_integrated_address_invalid_data": "このテキストはアドレスに追加できません。短くして、もう一度お試しください。",
   "reset_preferences": "設定をリセットする",
   "reset_preferences_dialog": "すべての設定、言語、テーマ、およびノードリストをリセットする準備ができています。",
   "do_you_want_to_continue": "続行しますか？",
@@ -334,6 +380,7 @@
   "please_authenticate_delete_wallet": "削除するために認証してください",
   "please_authenticate_view_seed": "認証して復元フレーズを表示してください",
   "biometric_not_available_warning": "バイオメトリック認証は使用できません。デバイスの設定を確認してください",
+  "biometric_auth_temporarily_locked": "生体認証は一時的にロックされています。しばらくしてからもう一度お試しください。",
   "password_not_found": "パスワードが見つかりません",
   "filters": "フィルター",
   "no_transactions_found": "取引が見つかりません",
@@ -391,6 +438,15 @@
   "item_count": "{count} items",
   "entry_count": "{count} entries",
   "xswd_channel_title": "XSWD",
+  "xswd_transaction_review_title": "トランザクションを確認",
+  "xswd_transaction_review_warning": "この一回限りの要求を許可する前に、すべてのトランザクション詳細を確認してください。この判断は保存されません。",
+  "xswd_allow_once": "今回のみ許可",
+  "xswd_transaction_nonce": "Nonce",
+  "xswd_transaction_version": "トランザクションバージョン",
+  "xswd_response_as_hex": "16進数レスポンス",
+  "xswd_fee_automatic": "自動計算",
+  "xswd_fee_atomic_units": "{amount} アトミック単位",
+  "xswd_fee_multiplier": "基本手数料の {multiplier} 倍",
   "xswd_relayer_channel_title": "XSWD Relayer",
   "cannot_start_xswd": "接続済みアプリを起動できません",
   "cannot_close_xswd_connection": "接続済みアプリの接続を閉じられません",
@@ -463,15 +519,7 @@
   "copied_to_clipboard": "クリップボードにコピーしました",
   "edit_button": "編集",
   "tx_contract_transfer": "コントラクト転送",
-  "contract_logs": "コントラクトログ",
   "chunk_id": "チャンクID",
-  "log_transfer": "転送",
-  "log_transfer_to_contract": "コントラクトへ転送",
-  "log_mint": "ミント",
-  "log_gas_refund": "ガス返金",
-  "log_exit_code": "終了コード",
-  "log_new_asset": "新しい資産",
-  "log_failed": "失敗",
   "received": "受信済み",
   "constructor": "コンストラクター",
   "to_address": "宛先: {address}",
@@ -509,5 +557,15 @@
   "paste_signature_share": "署名シェアを貼り付け",
   "invalid_multisig_signature_share": "この署名シェアは無効か、別のトランザクションに属しています。",
   "duplicate_multisig_signature_share": "この参加者はすでに署名を提供しています。",
-  "remove_signature_share": "署名シェアを削除"
+  "remove_signature_share": "署名シェアを削除",
+  "wallet_failure_generic": "ウォレットはこのリクエストを完了できませんでした。",
+  "wallet_failure_invalid_input": "入力した情報を確認して、もう一度お試しください。",
+  "wallet_failure_authentication_or_corrupt_data": "パスワードが正しくないか、ウォレットデータを読み取れません。",
+  "wallet_failure_network": "ネットワークを利用できません。接続またはノードを確認して、もう一度お試しください。",
+  "wallet_failure_daemon_rejected": "ノードがこのリクエストを拒否しました。",
+  "wallet_failure_insufficient_funds": "利用可能な残高が不足しています。",
+  "password_changed_biometric_disabled": "新しいパスワードは有効です。生体認証によるロック解除は無効になりました。新しいパスワードを使用してください。",
+  "password_changed_biometric_cleanup_failed": "新しいパスワードは有効です。生体認証によるロック解除は無効になりましたが、保存済みの一部のアクセスデータを削除できませんでした。生体認証を無効のままにして、新しいパスワードを使用してください。",
+  "password_change_native_state_indeterminate": "パスワードの更新を確認できませんでした。古いパスワードと新しいパスワードの両方を保管し、再試行せず、この参照番号を添えてサポートにお問い合わせください。",
+  "support_reference": "サポート参照番号: {reference}"
 }

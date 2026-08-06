@@ -22,11 +22,12 @@ Use this skill to validate the relevant changed surface and determine whether th
 ## Common Commands
 
 - Dart analysis: `dart analyze`
+- Flutter tests: `flutter test`
 - Dart generators: `dart run build_runner build -d`
-- Rust check: `cd rust && cargo check`
-- Rust formatting when appropriate: `cd rust && cargo fmt`
 - Flutter/Dart formatting when appropriate: `dart format .`
-- FFI regeneration: `flutter_rust_bridge_codegen generate`
+- Shared wallet contract changes: run generation, Rust checks, analysis, and
+  tests from the `xelis-wallet-flutter` repository before Genesix checks
+- Native integration: `flutter build <platform>` for a relevant consumer target
 
 ## Delivery
 

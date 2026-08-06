@@ -1,5 +1,5 @@
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class WalletSession {
   const WalletSession({required this.name, required this.repository});
@@ -8,5 +8,5 @@ class WalletSession {
   final NativeWalletRepository repository;
 
   String get address => repository.address;
-  Network get network => repository.network;
+  XelisNetwork get network => repository.network;
 }

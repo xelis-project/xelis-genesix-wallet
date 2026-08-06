@@ -13,8 +13,8 @@ import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
-import 'package:genesix/src/generated/rust_bridge/api/models/network.dart'
-    as rust;
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart'
+    as wallet_flutter;
 import 'package:forui/forui.dart';
 
 class InvokeWidget extends ConsumerStatefulWidget {
@@ -23,6 +23,7 @@ class InvokeWidget extends ConsumerStatefulWidget {
     this.entryId,
     this.deposits,
     this.parameters,
+    this.parsedParameters,
     super.key,
   });
 
@@ -30,6 +31,7 @@ class InvokeWidget extends ConsumerStatefulWidget {
   final int? entryId;
   final Map<String, sdk.ContractDepositBuilder>? deposits;
   final List<dynamic>? parameters;
+  final List<sdk.ParsedValue>? parsedParameters;
 
   @override
   ConsumerState<InvokeWidget> createState() => _InvokeState();
@@ -78,7 +80,11 @@ class _InvokeState extends ConsumerState<InvokeWidget>
             ),
           ),
           const SizedBox(height: Spaces.extraSmall),
-          _buildParametersList(loc, widget.parameters!),
+          _buildParametersList(
+            loc,
+            widget.parameters!,
+            widget.parsedParameters!,
+          ),
         ],
       ],
     );
@@ -87,8 +93,8 @@ class _InvokeState extends ConsumerState<InvokeWidget>
   Widget _buildDepositsList(
     AppLocalizations loc,
     Map<String, sdk.ContractDepositBuilder> deposits,
-    Map<String, sdk.AssetData> knownAssets,
-    rust.Network network,
+    Map<String, wallet_flutter.XelisWalletAssetMetadata> knownAssets,
+    wallet_flutter.XelisNetwork network,
   ) {
     return Wrap(
       spacing: Spaces.small,
@@ -109,7 +115,9 @@ class _InvokeState extends ConsumerState<InvokeWidget>
           );
         } else {
           // Unknown asset - use hash prefix as ticker
-          ticker = entry.key.substring(0, 8);
+          ticker = entry.key.length <= 8
+              ? entry.key
+              : entry.key.substring(0, 8);
           amount = entry.value.amount.toString();
         }
 
@@ -202,7 +210,11 @@ class _InvokeState extends ConsumerState<InvokeWidget>
     );
   }
 
-  Widget _buildParametersList(AppLocalizations loc, List<dynamic> data) {
+  Widget _buildParametersList(
+    AppLocalizations loc,
+    List<dynamic> data,
+    List<sdk.ParsedValue> parsedParameters,
+  ) {
     return Wrap(
       spacing: Spaces.small,
       runSpacing: Spaces.small,
@@ -210,8 +222,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
         final index = entry.key;
         final param = entry.value;
 
-        // Deserialize to structured ParsedValue
-        final parsed = sdk.deserializeValueCell(param);
+        final parsed = parsedParameters[index];
 
         // Format for display
         final formatted = _formatParsedValue(loc, parsed);

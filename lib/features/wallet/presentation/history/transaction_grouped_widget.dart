@@ -8,9 +8,8 @@ import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart
 import 'package:genesix/features/wallet/presentation/components/transaction_view_utils.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
 import 'package:go_router/go_router.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class TransactionGroupedWidget extends ConsumerStatefulWidget {
   const TransactionGroupedWidget(
@@ -19,8 +18,8 @@ class TransactionGroupedWidget extends ConsumerStatefulWidget {
     super.key,
   });
 
-  final MapEntry<DateTime, List<TransactionEntry>> transactionGroup;
-  final Map<String, ContactDetails> addressBook;
+  final MapEntry<DateTime, List<XelisWalletTransactionEntry>> transactionGroup;
+  final Map<String, XelisAddressBookEntry> addressBook;
 
   @override
   ConsumerState createState() => _TransactionGroupedWidgetState();
@@ -79,7 +78,7 @@ class _TransactionGroupedWidgetState
             final info = parseTxInfo(
               loc,
               network,
-              tx.txEntryType,
+              tx.entry,
               knownAssets,
               widget.addressBook,
             );
@@ -141,7 +140,7 @@ class _TransactionGroupedWidgetState
     );
   }
 
-  void _showTransactionEntry(TransactionEntry transactionEntry) {
+  void _showTransactionEntry(XelisWalletTransactionEntry transactionEntry) {
     context.push(
       AuthAppScreen.transactionEntry.toPath,
       extra: transactionEntry,

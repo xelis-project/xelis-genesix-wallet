@@ -4,7 +4,9 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
+import 'package:genesix/features/wallet/application/transaction_entry_detail_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
+import 'package:genesix/features/wallet/domain/transaction_entry_detail.dart';
 import 'package:genesix/features/wallet/presentation/components/transaction_view_utils.dart';
 import 'package:genesix/features/wallet/presentation/history/base_transaction_entry_card.dart';
 import 'package:genesix/features/wallet/presentation/history/blob_entry_content.dart';
@@ -15,21 +17,20 @@ import 'package:genesix/features/wallet/presentation/history/multisig_entry_cont
 import 'package:genesix/features/wallet/presentation/history/outgoing_entry_content.dart';
 import 'package:genesix/features/wallet/presentation/history/incoming_entry_content.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
+import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/body_layout_builder.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
-import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 import 'package:genesix/features/wallet/presentation/history/coinbase_entry_content.dart';
 import 'package:genesix/features/wallet/presentation/history/incoming_contract_entry_content.dart';
 
 class TransactionEntryScreen extends ConsumerStatefulWidget {
-  const TransactionEntryScreen({super.key});
+  const TransactionEntryScreen({required this.routeEntry, super.key});
+
+  final Object? routeEntry;
 
   @override
   ConsumerState createState() => _TransactionEntryScreenState();
@@ -43,10 +44,12 @@ class _TransactionEntryScreenState extends ConsumerState<TransactionEntryScreen>
   late final Animation<Offset> _slideBase;
   late final Animation<double> _fadeContent;
   late final Animation<Offset> _slideContent;
+  late final TransactionEntryDetailRequest _request;
 
   @override
   void initState() {
     super.initState();
+    _request = TransactionEntryDetail.fromRouteExtra(widget.routeEntry).request;
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -90,15 +93,51 @@ class _TransactionEntryScreenState extends ConsumerState<TransactionEntryScreen>
     final knownAssets = ref.watch(
       walletRuntimeProvider.select((state) => state.knownAssets),
     );
-    final addressBookAsync = ref.watch(addressBookProvider);
-    final Map<String, ContactDetails> addressBook = switch (addressBookAsync) {
-      AsyncData(:final value) => value,
-      _ => const <String, ContactDetails>{},
-    };
+    final addressBookAsync = ref.watch(addressBookByAddressProvider);
+    final Map<String, XelisAddressBookEntry> addressBook =
+        switch (addressBookAsync) {
+          AsyncData(:final value) => value,
+          _ => const <String, XelisAddressBookEntry>{},
+        };
 
-    final transactionEntry =
-        context.goRouterState.extra as sdk.TransactionEntry;
-    final entryType = transactionEntry.txEntryType;
+    final detailAsync = ref.watch(transactionEntryDetailProvider(_request));
+    if (detailAsync case AsyncLoading()) {
+      return _buildStatusScaffold(
+        context,
+        loc,
+        child: Center(child: FCircularProgress.loader()),
+      );
+    }
+    if (detailAsync case AsyncError()) {
+      return _buildStatusScaffold(
+        context,
+        loc,
+        child: Row(
+          spacing: Spaces.small,
+          children: [
+            Expanded(child: Text(loc.oups)),
+            FButton(
+              variant: .outline,
+              onPress: () {
+                ref.invalidate(transactionEntryDetailProvider(_request));
+                ref.invalidate(transactionExactDestinationsProvider(_request));
+              },
+              child: Text(loc.refresh),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final detail = detailAsync.requireValue;
+    final exactDestinationsAsync = ref.watch(
+      transactionExactDestinationsProvider(_request),
+    );
+    final exactDestinations = switch (exactDestinationsAsync) {
+      AsyncData(:final value) => value,
+      _ => const <XelisAddressBookEntry?>[],
+    };
+    final entryType = detail.entry;
 
     // Use parseTxInfo to get icon, color, label (avoids duplication)
     final txInfo = parseTxInfo(
@@ -107,64 +146,69 @@ class _TransactionEntryScreenState extends ConsumerState<TransactionEntryScreen>
       entryType,
       knownAssets,
       addressBook,
+      exactDestinations: exactDestinations,
     );
 
     // Entry-specific data that parseTxInfo doesn't handle
-    int? nonce;
+    BigInt? nonce;
     String hashPath = 'tx/';
     late Widget transactionTypeContent;
     switch (entryType) {
-      case sdk.CoinbaseEntry():
+      case XelisWalletCoinbaseEntry():
         hashPath = 'block/';
         transactionTypeContent = CoinbaseEntryContent(entryType);
-      case sdk.BurnEntry():
+      case XelisWalletBurnEntry():
         nonce = entryType.nonce;
         transactionTypeContent = BurnEntryContent(entryType);
-      case sdk.IncomingEntry():
+      case XelisWalletIncomingEntry():
         transactionTypeContent = IncomingEntryContent(entryType);
-      case sdk.OutgoingEntry():
+      case XelisWalletOutgoingEntry():
         nonce = entryType.nonce;
-        transactionTypeContent = OutgoingEntryContent(entryType);
-      case sdk.MultisigEntry():
+        transactionTypeContent = OutgoingEntryContent(
+          entryType,
+          exactDestinations: exactDestinations,
+        );
+      case XelisWalletMultisigEntry():
         nonce = entryType.nonce;
         transactionTypeContent = MultisigEntryContent(entryType);
-      case sdk.InvokeContractEntry():
+      case XelisWalletInvokeContractEntry():
         nonce = entryType.nonce;
-        transactionTypeContent = InvokeContractEntryContent(
-          entryType,
-          transactionEntry,
-        );
-      case sdk.DeployContractEntry():
+        transactionTypeContent = InvokeContractEntryContent(entryType);
+      case XelisWalletDeployContractEntry():
         nonce = entryType.nonce;
         transactionTypeContent = DeployContractEntryContent(entryType);
-      case sdk.IncomingContractEntry():
+      case XelisWalletIncomingContractEntry():
         transactionTypeContent = IncomingContractEntryContent(entryType);
-      case sdk.IncomingBlobEntry():
+      case XelisWalletIncomingBlobEntry():
         transactionTypeContent = BlobEntryContent.incoming(entryType);
-      case sdk.OutgoingBlobEntry():
+      case XelisWalletOutgoingBlobEntry():
         nonce = entryType.nonce;
-        transactionTypeContent = BlobEntryContent.outgoing(entryType);
-    }
-
-    Uri url;
-    switch (network) {
-      case Network.mainnet:
-        url = Uri.parse(
-          '${AppResources.explorerMainnetUrl}$hashPath${transactionEntry.hash}',
-        );
-      case Network.testnet || Network.devnet || Network.stagenet:
-        url = Uri.parse(
-          '${AppResources.explorerTestnetUrl}$hashPath${transactionEntry.hash}',
+        transactionTypeContent = BlobEntryContent.outgoing(
+          entryType,
+          exactDestinations: exactDestinations,
         );
     }
 
-    final displayTimestamp = transactionEntry.timestamp != null
-        ? formatPrettyTimestamp(transactionEntry.timestamp!, locale)
-        : loc.not_available;
+    final url = detail.isPending
+        ? null
+        : switch (network) {
+            XelisNetwork.mainnet => Uri.parse(
+              '${AppResources.explorerMainnetUrl}$hashPath${detail.hash}',
+            ),
+            XelisNetwork.testnet ||
+            XelisNetwork.devnet ||
+            XelisNetwork.stagenet => Uri.parse(
+              '${AppResources.explorerTestnetUrl}$hashPath${detail.hash}',
+            ),
+          };
 
-    final displayTopoheight = NumberFormat().format(
-      transactionEntry.topoheight,
+    final displayTimestamp = formatPrettyTimestamp(
+      walletTimestampToDateTime(detail.timestampMillis),
+      locale,
     );
+    final displayTopoheight = detail.topoheight == null
+        ? null
+        : formatBigInt(detail.topoheight!);
 
     return FScaffold(
       header: FHeader.nested(
@@ -198,13 +242,14 @@ class _TransactionEntryScreenState extends ConsumerState<TransactionEntryScreen>
                       child: FadeTransition(
                         opacity: _fadeBase,
                         child: BaseTransactionEntryCard(
-                          transactionEntry: transactionEntry,
+                          hash: detail.hash,
                           type: txInfo.label,
                           color: txInfo.color,
                           icon: txInfo.icon,
                           timestamp: displayTimestamp,
                           topoheight: displayTopoheight,
                           url: url,
+                          isPending: detail.isPending,
                           nonce: nonce,
                         ),
                       ),
@@ -221,6 +266,34 @@ class _TransactionEntryScreenState extends ConsumerState<TransactionEntryScreen>
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusScaffold(
+    BuildContext context,
+    AppLocalizations loc, {
+    required Widget child,
+  }) {
+    return FScaffold(
+      header: FHeader.nested(
+        title: Text(loc.transaction),
+        prefixes: [
+          Padding(
+            padding: const EdgeInsets.all(Spaces.small),
+            child: FHeaderAction(
+              icon: const Icon(FLucideIcons.arrowLeft),
+              onPress: () => context.pop(),
+            ),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.all(Spaces.medium),
+          child: child,
         ),
       ),
     );

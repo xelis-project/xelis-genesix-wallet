@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/authentication/application/biometric_auth_provider.dart';
 import 'package:genesix/features/router/route_utils.dart';
@@ -8,7 +9,6 @@ import 'package:genesix/features/wallet/application/multisig_pending_state_provi
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/domain/transaction_broadcast_result.dart';
-import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/features/wallet/presentation/multisig/components/setup/multisig_setup_complete.dart';
 import 'package:genesix/features/wallet/presentation/multisig/components/setup/multisig_setup_configuration.dart';
 import 'package:genesix/features/wallet/presentation/multisig/components/setup/multisig_setup_review.dart';
@@ -16,6 +16,7 @@ import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:go_router/go_router.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class SetupMultisig extends ConsumerStatefulWidget {
   const SetupMultisig({super.key});
@@ -28,7 +29,8 @@ class _SetupMultisigState extends ConsumerState<SetupMultisig> {
   List<String> _participants = [];
   int _threshold = 1;
 
-  TransactionSummary? _transaction;
+  XelisWalletPreparedTransaction? _transaction;
+  Object? _transactionSessionIdentity;
   bool _confirmed = false;
   bool _isPreparing = false;
   bool _isBroadcasting = false;
@@ -62,7 +64,7 @@ class _SetupMultisigState extends ConsumerState<SetupMultisig> {
         key: const ValueKey('multisig-review'),
         loc: loc,
         hash: transaction.hash,
-        fee: formatXelis(transaction.fee, network),
+        fee: formatXelis(transaction.feeAtomic, network),
         threshold: _threshold,
         participants: _participants,
         confirmed: _confirmed,
@@ -166,6 +168,8 @@ class _SetupMultisigState extends ConsumerState<SetupMultisig> {
     final participants = List.of(_participants, growable: false);
     final threshold = _threshold;
     final commands = ref.read(walletCommandsProvider);
+    final sessionIdentity = ref.read(activeWalletRepositoryProvider);
+    if (sessionIdentity == null) return;
     setState(() => _isPreparing = true);
     try {
       final transaction = await commands.setupMultisig(
@@ -174,45 +178,98 @@ class _SetupMultisigState extends ConsumerState<SetupMultisig> {
       );
       if (transaction == null) return;
       if (!mounted) {
-        await commands.cancelTransaction(hash: transaction.hash);
+        await commands.cancelPreparedTransaction(
+          transaction: transaction,
+          sessionIdentity: sessionIdentity,
+        );
         return;
       }
-      setState(() => _transaction = transaction);
+      if (!identical(
+        ref.read(activeWalletRepositoryProvider),
+        sessionIdentity,
+      )) {
+        await commands.cancelPreparedTransaction(
+          transaction: transaction,
+          sessionIdentity: sessionIdentity,
+        );
+        return;
+      }
+      setState(() {
+        _transaction = transaction;
+        _transactionSessionIdentity = sessionIdentity;
+      });
     } finally {
       if (mounted) setState(() => _isPreparing = false);
     }
   }
 
   Future<void> _broadcast(WidgetRef ref) async {
-    if (_isBroadcasting) return;
+    final transaction = _transaction;
+    final sessionIdentity = _transactionSessionIdentity;
+    if (_isBroadcasting ||
+        transaction == null ||
+        sessionIdentity == null ||
+        !_confirmed) {
+      return;
+    }
     setState(() => _isBroadcasting = true);
     try {
       final broadcasted = await ref
           .read(walletCommandsProvider)
-          .broadcastTx(hash: _transaction!.hash);
-      if (!mounted || broadcasted == null) return;
+          .broadcastPreparedTx(
+            transaction: transaction,
+            sessionIdentity: sessionIdentity,
+          );
+      if (!mounted ||
+          broadcasted == null ||
+          !identical(_transaction, transaction) ||
+          !_confirmed) {
+        return;
+      }
 
       final loc = ref.read(appLocalizationsProvider);
       final toast = ref.read(toastProvider.notifier);
       switch (broadcasted) {
-        case TransactionBroadcastResult.submitted:
+        case PreparedTransactionBroadcastResult(
+          disposition: TransactionBroadcastDisposition.submitted,
+        ):
           ref.read(multisigPendingStateProvider.notifier).pendingState();
           toast.showEvent(description: loc.transaction_broadcast_message);
           setState(() => _isComplete = true);
-        case TransactionBroadcastResult.retryable:
-          toast.showWarning(title: loc.transaction_broadcast_retry_message);
-        case TransactionBroadcastResult.rejected:
-        case TransactionBroadcastResult.localFailure:
-          toast.showError(
+        case PreparedTransactionBroadcastResult(
+          disposition: TransactionBroadcastDisposition.retryable,
+          :final failure,
+        ):
+          toast.showFailure(
+            description: loc.transaction_broadcast_retry_message,
+            failure: failure!,
+          );
+        case PreparedTransactionBroadcastResult(
+              disposition: TransactionBroadcastDisposition.rejected,
+              :final failure,
+            ) ||
+            PreparedTransactionBroadcastResult(
+              disposition: TransactionBroadcastDisposition.localFailure,
+              :final failure,
+            ):
+          toast.showFailure(
             description: loc.transaction_broadcast_recreate_message,
+            failure: failure!,
           );
           setState(() {
             _transaction = null;
+            _transactionSessionIdentity = null;
             _confirmed = false;
           });
-        case TransactionBroadcastResult.submittedNeedsResync:
+        case PreparedTransactionBroadcastResult(
+          disposition: TransactionBroadcastDisposition.submittedNeedsResync,
+          :final failure,
+        ):
           ref.read(multisigPendingStateProvider.notifier).pendingState();
-          toast.showWarning(title: loc.transaction_broadcast_resync_message);
+          toast.showFailure(
+            description: loc.transaction_broadcast_resync_message,
+            failure: failure!,
+          );
           setState(() => _isComplete = true);
       }
     } finally {
@@ -222,14 +279,19 @@ class _SetupMultisigState extends ConsumerState<SetupMultisig> {
 
   Future<void> _editConfiguration() async {
     final transaction = _transaction;
-    if (transaction != null) {
+    final sessionIdentity = _transactionSessionIdentity;
+    if (transaction != null && sessionIdentity != null) {
       await ref
           .read(walletCommandsProvider)
-          .cancelTransaction(hash: transaction.hash);
+          .cancelPreparedTransaction(
+            transaction: transaction,
+            sessionIdentity: sessionIdentity,
+          );
     }
     if (!mounted) return;
     setState(() {
       _transaction = null;
+      _transactionSessionIdentity = null;
       _confirmed = false;
     });
   }

@@ -1,4 +1,33 @@
 {
+  "@multisig_setup_participant_count": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "@multisig_setup_threshold_summary": {
+    "placeholders": {
+      "threshold": {"type": "int"},
+      "participants": {"type": "int"}
+    }
+  },
+  "@multisig_signing_current_wallet_participant": {
+    "placeholders": {
+      "participantId": {"type": "int"}
+    }
+  },
+  "@support_reference": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "@xswd_fee_atomic_units": {
+    "placeholders": {"amount": {"type": "int"}}
+  },
+  "@xswd_fee_multiplier": {
+    "placeholders": {"multiplier": {"type": "double"}}
+  },
   "node_url_hint": "https://node.xelis.io",
   "node_name_hint": "मेरा नोड",
   "node_name": "नोड का नाम",
@@ -19,6 +48,7 @@
   "hide_transactions_zero_value": "शून्य बैलेंस ट्रांसफर वाले लेन-देन छिपाएँ।",
   "hide_extra_data_description": "लेन-देन विवरण में अतिरिक्त डेटा छिपाएँ।",
   "select_contract": "कॉन्ट्रैक्ट चुनें",
+  "select_contact": "संपर्क चुनें",
   "select_asset": "एसेट चुनें",
   "category_burn_subtitle": "वे लेन-देन जिनमें आपने एसेट जलाए।",
   "category_coinbase_subtitle": "वे लेन-देन जिनमें आपको रिवार्ड मिले।",
@@ -225,7 +255,23 @@
   "search": "खोजें",
   "destination": "गंतव्यस्थान",
   "integrated_address_detected": "एकीकृत पता पहचाना गया",
-  "payment_id": "भुगतान ID",
+  "attached_data": "संलग्न डेटा",
+  "attached_data_badge": "डेटा",
+  "attached_data_included": "शामिल",
+  "attached_data_encrypted": "एन्क्रिप्टेड",
+  "attached_data_not_encrypted": "एन्क्रिप्टेड नहीं",
+  "view_attached_data": "संलग्न डेटा देखें",
+  "attached_data_source": "स्रोत",
+  "attached_data_source_integrated_address": "एकीकृत पता",
+  "attached_data_source_explicit": "अलग संलग्न डेटा",
+  "receive_advanced_payment_request": "उन्नत भुगतान अनुरोध",
+  "receive_advanced_payment_request_description": "जब प्रेषक को संदर्भ शामिल करना हो, तो अपने पते में टेक्स्ट संलग्न करें।",
+  "receive_attached_text_label": "संलग्न टेक्स्ट",
+  "receive_attached_text_hint": "ऑर्डर या जमा संदर्भ",
+  "receive_create_integrated_address": "संलग्न डेटा वाला पता बनाएँ",
+  "receive_integrated_address_data_visible": "पते में दिखाई देता है",
+  "receive_integrated_address_data_visible_description": "इस पते को प्राप्त करने वाला कोई भी व्यक्ति संलग्न टेक्स्ट पढ़ सकता है।",
+  "receive_integrated_address_invalid_data": "इस टेक्स्ट को पते में जोड़ा नहीं जा सकता। इसे छोटा करें और फिर प्रयास करें।",
   "reset_preferences": "पसंदों को रीसेट करें",
   "reset_preferences_dialog": "आप सभी सेटिंग्स, भाषा, थीम और नोड्स की सूची को रीसेट करने वाले हैं।",
   "do_you_want_to_continue": "क्या आप जारी रखना चाहते हैं?",
@@ -334,6 +380,7 @@
   "please_authenticate_delete_wallet": "कृपया इस वॉलेट को डिलीट करने के लिए स्वयं की पहचान करें",
   "please_authenticate_view_seed": "कृपया अपने रिकवरी फ्रेज़ को देखने के लिए स्वयं की पहचान करें",
   "biometric_not_available_warning": "बायोमेट्रिक प्रमाणीकरण उपलब्ध नहीं है, कृपया अपने डिवाइस सेटिंग्स जांच लें",
+  "biometric_auth_temporarily_locked": "बायोमेट्रिक प्रमाणीकरण अस्थायी रूप से लॉक है। कृपया बाद में पुनः प्रयास करें।",
   "password_not_found": "पासवर्ड नहीं मिला",
   "filters": "फ़िल्टर",
   "no_transactions_found": "कोई लेनदेन नहीं मिला",
@@ -391,6 +438,15 @@
   "item_count": "{count} items",
   "entry_count": "{count} entries",
   "xswd_channel_title": "XSWD",
+  "xswd_transaction_review_title": "लेनदेन की समीक्षा करें",
+  "xswd_transaction_review_warning": "इस एकबारगी अनुरोध को अनुमति देने से पहले लेनदेन का हर विवरण जाँचें। यह निर्णय याद नहीं रखा जा सकता।",
+  "xswd_allow_once": "एक बार अनुमति दें",
+  "xswd_transaction_nonce": "Nonce",
+  "xswd_transaction_version": "लेनदेन संस्करण",
+  "xswd_response_as_hex": "हेक्स प्रतिक्रिया",
+  "xswd_fee_automatic": "स्वचालित रूप से गणना",
+  "xswd_fee_atomic_units": "{amount} परमाणु इकाइयाँ",
+  "xswd_fee_multiplier": "{multiplier}× आधार शुल्क",
   "xswd_relayer_channel_title": "XSWD Relayer",
   "cannot_start_xswd": "कनेक्टेड ऐप्स शुरू नहीं किए जा सकते",
   "cannot_close_xswd_connection": "कनेक्टेड ऐप कनेक्शन बंद नहीं किया जा सकता",
@@ -463,15 +519,7 @@
   "copied_to_clipboard": "क्लिपबोर्ड पर कॉपी किया गया",
   "edit_button": "संपादित करें",
   "tx_contract_transfer": "कॉन्ट्रैक्ट ट्रांसफर",
-  "contract_logs": "कॉन्ट्रैक्ट लॉग",
   "chunk_id": "चंक ID",
-  "log_transfer": "ट्रांसफर",
-  "log_transfer_to_contract": "कॉन्ट्रैक्ट को ट्रांसफर",
-  "log_mint": "मिंट",
-  "log_gas_refund": "गैस रिफंड",
-  "log_exit_code": "एग्जिट कोड",
-  "log_new_asset": "नई संपत्ति",
-  "log_failed": "विफल",
   "received": "प्राप्त",
   "constructor": "कंस्ट्रक्टर",
   "to_address": "प्रति: {address}",
@@ -509,5 +557,15 @@
   "paste_signature_share": "हस्ताक्षर हिस्सा पेस्ट करें",
   "invalid_multisig_signature_share": "यह हस्ताक्षर हिस्सा अमान्य है या किसी अन्य लेन-देन से संबंधित है।",
   "duplicate_multisig_signature_share": "यह प्रतिभागी पहले ही हस्ताक्षर दे चुका है।",
-  "remove_signature_share": "हस्ताक्षर अंश हटाएँ"
+  "remove_signature_share": "हस्ताक्षर अंश हटाएँ",
+  "wallet_failure_generic": "वॉलेट इस अनुरोध को पूरा नहीं कर सका।",
+  "wallet_failure_invalid_input": "दी गई जानकारी जाँचें और फिर से प्रयास करें।",
+  "wallet_failure_authentication_or_corrupt_data": "पासवर्ड गलत है या वॉलेट डेटा पढ़ा नहीं जा सकता।",
+  "wallet_failure_network": "नेटवर्क उपलब्ध नहीं है। अपना कनेक्शन या नोड जाँचें और फिर से प्रयास करें।",
+  "wallet_failure_daemon_rejected": "नोड ने इस अनुरोध को अस्वीकार कर दिया।",
+  "wallet_failure_insufficient_funds": "उपलब्ध बैलेंस पर्याप्त नहीं है।",
+  "password_changed_biometric_disabled": "आपका नया पासवर्ड सक्रिय है। बायोमेट्रिक अनलॉक अक्षम कर दिया गया है; नए पासवर्ड का उपयोग करें।",
+  "password_changed_biometric_cleanup_failed": "आपका नया पासवर्ड सक्रिय है। बायोमेट्रिक अनलॉक अक्षम कर दिया गया है, लेकिन सहेजे गए कुछ एक्सेस डेटा को हटाया नहीं जा सका। बायोमेट्रिक एक्सेस अक्षम रखें और नए पासवर्ड का उपयोग करें।",
+  "password_change_native_state_indeterminate": "पासवर्ड अपडेट की पुष्टि नहीं हो सकी। पुराना और नया दोनों पासवर्ड सुरक्षित रखें, दोबारा प्रयास न करें और यह संदर्भ देकर सहायता से संपर्क करें।",
+  "support_reference": "सहायता संदर्भ: {reference}"
 }

@@ -29,20 +29,49 @@ Status labels:
 - **XSWD** (`current`): the domain term for connections between external
   applications and the wallet. In Genesix, distinguish the local XSWD server,
   relay connections, and application lifecycle state; verify current platform
-  and feature support from source. Sources:
+  and feature support from the package contract and local source. Sources:
   [Dart lifecycle](../../lib/features/wallet/application/xswd_lifecycle_provider.dart),
-  [Rust routing](../../rust/src/api/xswd/mod.rs).
+  [native adapter](../../lib/features/wallet/data/native_wallet_repository.dart).
 - **Network / node / daemon** (`current`): network selects the XELIS chain
   environment; node is the configured name and URL; daemon is the service at
   that URL. Do not use the three terms interchangeably. Sources:
   [node model](../../lib/features/wallet/domain/node_address.dart),
   [runtime connection](../../lib/features/wallet/application/wallet_runtime_provider.dart).
-- **Native wallet repository / Rust bridge** (`current`):
-  `NativeWalletRepository` is the authored Dart adapter; `rust/src/api/**` is the
-  authored Rust API; `flutter_rust_bridge` output under `lib/src/generated/**`
-  and `rust/src/frb_generated.rs` is generated. Sources:
-  [repository](../../lib/features/wallet/data/native_wallet_repository.dart),
-  [Rust entry](../../rust/src/lib.rs).
+- **Native wallet repository / shared wallet package** (`current`):
+  `NativeWalletRepository` is the Genesix adapter for the authored
+  `xelis_wallet_flutter` API. The package repository owns the Rust wallet
+  integration, generated bridge, stable Dart contracts, and native build
+  tooling; Genesix owns application orchestration and projections. Source:
+  [repository](../../lib/features/wallet/data/native_wallet_repository.dart).
+- **Atomic amount** (`current`): an integer count of an asset's smallest unit.
+  Standard transfer and burn amounts and fees use `BigInt` end to end; decimal
+  strings and localized display values exist only at input and presentation
+  boundaries. Source:
+  [parser](../../lib/shared/utils/atomic_amount.dart).
+- **Prepared transaction** (`current`): the exact authored
+  `XelisWalletPreparedTransaction` returned by `xelis_wallet_flutter`. For a
+  standard transfer or burn it is an opaque, single-attempt capability owned by
+  the review flow until broadcast or discard. Its hash identifies what is
+  reviewed but cannot replace or reconstruct the capability. Sources:
+  [review state](../../lib/features/wallet/domain/transaction_review_state.dart),
+  [commands](../../lib/features/wallet/application/wallet_commands_provider.dart).
+- **Complete destination / base address** (`current`): the complete destination
+  is the canonical standard or integrated address used for send and copy. A
+  base address identifies the same public key after removing integrated data;
+  it is grouping metadata and cannot replace the complete destination. Source:
+  [AddressBook provider](../../lib/features/wallet/application/address_book_provider.dart).
+- **Integrated address** (`current`): a complete XELIS destination that embeds a
+  typed `DataElement`. The embedded value is visible to anyone holding the
+  address; it is not secret and is not synonymous with a payment ID. User copy
+  describes the value as **attached data**. Sources:
+  [Receive UI](../../lib/features/wallet/presentation/home/receive_address_dialog.dart),
+  [typed presentation](../../lib/features/wallet/domain/parsed_extra_data.dart).
+- **Exact destination match** (`current`): equality of the base public key and
+  canonical typed data. It is distinct from a base-only match and from an
+  ambiguous set of saved destinations sharing the base. Only an exact match can
+  assert a saved contact identity. Sources:
+  [detail provider](../../lib/features/wallet/application/transaction_entry_detail_provider.dart),
+  [history filter](../../lib/features/wallet/application/contact_history_providers.dart).
 - **Multisig signing request** (`current`): a canonical, source-attested envelope
   containing an unsigned transaction, its network, and review metadata. Rust
   reparses the transaction, recomputes its multisig hash, verifies public fields,
@@ -50,17 +79,11 @@ Status labels:
   node before signing. Confidential transfer amounts remain source-attested because
   they cannot be independently derived from the public transaction payload.
   Sources: [flow and security model](../../docs/multisig-signing.md),
-  [Rust contract](../../rust/src/api/multisig.rs),
   [Dart adapter](../../lib/features/wallet/data/native_wallet_repository.dart).
+  The canonical wire contract and Rust verification live in the
+  `xelis_wallet_flutter` package.
 - **Storage** (`current`): qualify the surface instead of saying only “storage”:
   native wallet data, wallet metadata/path persistence, secure storage, or
   non-secret preferences. These surfaces have different migration constraints.
   Sources: [wallet metadata](../../lib/features/authentication/application/wallets_provider.dart),
   [secure storage](../../lib/shared/storage/secure_storage/secure_storage_repository.dart).
-
-## Historical Aliases
-
-- **WalletSnapshot** (`historical`): former name associated with the wallet state
-  projection, now represented by `WalletRuntimeState`. Do not introduce this name
-  in new code. Treat remaining `walletSnapshot` identifiers as migration relics,
-  not evidence of a current `WalletSnapshot` type.

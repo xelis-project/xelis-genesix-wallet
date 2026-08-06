@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:genesix/shared/models/app_failure.dart';
 
 part 'wallet_effect.freezed.dart';
 
@@ -15,6 +16,11 @@ sealed class WalletEffect with _$WalletEffect {
     String? title,
     required String description,
   }) = WalletErrorEffect;
+
+  const factory WalletEffect.failure({
+    String? title,
+    required AppFailure failure,
+  }) = WalletFailureEffect;
 
   const factory WalletEffect.event({
     String? title,

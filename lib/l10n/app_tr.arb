@@ -1,4 +1,33 @@
 {
+  "@multisig_setup_participant_count": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "@multisig_setup_threshold_summary": {
+    "placeholders": {
+      "threshold": {"type": "int"},
+      "participants": {"type": "int"}
+    }
+  },
+  "@multisig_signing_current_wallet_participant": {
+    "placeholders": {
+      "participantId": {"type": "int"}
+    }
+  },
+  "@support_reference": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "@xswd_fee_atomic_units": {
+    "placeholders": {"amount": {"type": "int"}}
+  },
+  "@xswd_fee_multiplier": {
+    "placeholders": {"multiplier": {"type": "double"}}
+  },
   "node_url_hint": "https://node.xelis.io",
   "node_name_hint": "Düğümüm",
   "node_name": "Düğüm adı",
@@ -19,6 +48,7 @@
   "hide_transactions_zero_value": "Sıfır bakiye transferleri olan işlemleri gizle.",
   "hide_extra_data_description": "İşlem ayrıntılarındaki ek verileri gizle.",
   "select_contract": "Bir sözleşme seç",
+  "select_contact": "Bir kişi seçin",
   "select_asset": "Bir varlık seç",
   "category_burn_subtitle": "Varlık yaktığınız işlemler.",
   "category_coinbase_subtitle": "Ödül aldığınız işlemler.",
@@ -225,7 +255,23 @@
   "search": "Ara",
   "destination": "Hedef",
   "integrated_address_detected": "Entegre adres tanımlanıyor",
-  "payment_id": "Ödeme kimliği",
+  "attached_data": "Ekli veriler",
+  "attached_data_badge": "Veri",
+  "attached_data_included": "Dahil",
+  "attached_data_encrypted": "Şifreli",
+  "attached_data_not_encrypted": "Şifrelenmemiş",
+  "view_attached_data": "Ekli verileri görüntüle",
+  "attached_data_source": "Kaynak",
+  "attached_data_source_integrated_address": "Entegre adres",
+  "attached_data_source_explicit": "Ayrı ekli veriler",
+  "receive_advanced_payment_request": "Gelişmiş ödeme isteği",
+  "receive_advanced_payment_request_description": "Gönderenin bir referans eklemesi gerektiğinde adresinize metin ekleyin.",
+  "receive_attached_text_label": "Ekli metin",
+  "receive_attached_text_hint": "Sipariş veya para yatırma referansı",
+  "receive_create_integrated_address": "Ekli verilerle adres oluştur",
+  "receive_integrated_address_data_visible": "Adreste görünür",
+  "receive_integrated_address_data_visible_description": "Bu adresi alan herkes ekli metni okuyabilir.",
+  "receive_integrated_address_invalid_data": "Bu metin adrese eklenemiyor. Metni kısaltıp tekrar deneyin.",
   "reset_preferences": "Tercihleri sıfırla",
   "reset_preferences_dialog": "Tüm ayarları, dili, temasını ve düğüm listesini sıfırlamaya hazırlanıyorsunuz.",
   "do_you_want_to_continue": "Devam etmek ister misiniz?",
@@ -334,6 +380,7 @@
   "please_authenticate_delete_wallet": "Lütfen kimliğinizi doğrulayarak bu cüzdanı silmek için",
   "please_authenticate_view_seed": "Lütfen kimliğinizi doğrulayarak kurtarma ifadenizi görünmek için",
   "biometric_not_available_warning": "Biyometrik kimlik doğrulaması mevcut değil, lütfen cihaz ayarlarınızı kontrol edin",
+  "biometric_auth_temporarily_locked": "Biyometrik kimlik doğrulama geçici olarak kilitlendi. Lütfen daha sonra tekrar deneyin.",
   "password_not_found": "Şifre bulunamadı",
   "filters": "Filtren",
   "no_transactions_found": "İşlem bulunamadı",
@@ -391,6 +438,15 @@
   "item_count": "{count} items",
   "entry_count": "{count} entries",
   "xswd_channel_title": "XSWD",
+  "xswd_transaction_review_title": "İşlemi incele",
+  "xswd_transaction_review_warning": "Bu tek seferlik isteğe izin vermeden önce tüm işlem ayrıntılarını inceleyin. Bu karar hatırlanamaz.",
+  "xswd_allow_once": "Bir kez izin ver",
+  "xswd_transaction_nonce": "Nonce",
+  "xswd_transaction_version": "İşlem sürümü",
+  "xswd_response_as_hex": "Hex yanıt",
+  "xswd_fee_automatic": "Otomatik hesaplanır",
+  "xswd_fee_atomic_units": "{amount} atomik birim",
+  "xswd_fee_multiplier": "{multiplier}× temel ücret",
   "xswd_relayer_channel_title": "XSWD Relayer",
   "cannot_start_xswd": "Bağlı Uygulamalar başlatılamıyor",
   "cannot_close_xswd_connection": "Bağlı uygulama bağlantısı kapatılamıyor",
@@ -463,15 +519,7 @@
   "copied_to_clipboard": "Panoya kopyalandı",
   "edit_button": "Düzenle",
   "tx_contract_transfer": "Kontrat transferi",
-  "contract_logs": "Kontrat logları",
   "chunk_id": "Chunk ID",
-  "log_transfer": "Transfer",
-  "log_transfer_to_contract": "Kontrata transfer",
-  "log_mint": "Mint",
-  "log_gas_refund": "Gas iadesi",
-  "log_exit_code": "Çıkış kodu",
-  "log_new_asset": "Yeni varlık",
-  "log_failed": "Başarısız",
   "received": "Alındı",
   "constructor": "Constructor",
   "to_address": "Alıcı: {address}",
@@ -509,5 +557,15 @@
   "paste_signature_share": "İmza payını yapıştır",
   "invalid_multisig_signature_share": "Bu imza payı geçersiz veya başka bir işleme ait.",
   "duplicate_multisig_signature_share": "Bu katılımcı zaten bir imza sağladı.",
-  "remove_signature_share": "İmza payını kaldır"
+  "remove_signature_share": "İmza payını kaldır",
+  "wallet_failure_generic": "Cüzdan bu isteği tamamlayamadı.",
+  "wallet_failure_invalid_input": "Sağlanan bilgileri kontrol edip tekrar deneyin.",
+  "wallet_failure_authentication_or_corrupt_data": "Parola yanlış veya cüzdan verileri okunamıyor.",
+  "wallet_failure_network": "Ağ kullanılamıyor. Bağlantınızı veya düğümü kontrol edip tekrar deneyin.",
+  "wallet_failure_daemon_rejected": "Düğüm bu isteği reddetti.",
+  "wallet_failure_insufficient_funds": "Kullanılabilir bakiye yetersiz.",
+  "password_changed_biometric_disabled": "Yeni parolanız etkin. Biyometrik kilit açma devre dışı bırakıldı; yeni parolayı kullanın.",
+  "password_changed_biometric_cleanup_failed": "Yeni parolanız etkin. Biyometrik kilit açma devre dışı bırakıldı, ancak kayıtlı bazı erişim verileri kaldırılamadı. Biyometrik erişimi devre dışı tutun ve yeni parolayı kullanın.",
+  "password_change_native_state_indeterminate": "Parola güncellemesi doğrulanamadı. Eski ve yeni parolayı saklayın, yeniden denemeyin ve bu referansı belirterek destek ekibiyle iletişime geçin.",
+  "support_reference": "Destek referansı: {reference}"
 }

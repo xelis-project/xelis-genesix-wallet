@@ -3,17 +3,18 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
-import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 import 'package:genesix/features/wallet/domain/history_filter_state.dart';
 import 'package:genesix/features/wallet/presentation/history/filters_dialog.dart';
+import 'package:genesix/shared/errors/app_failure_reporter.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart'
+    as wallet_flutter;
 
 class ExportButton extends ConsumerStatefulWidget {
   const ExportButton({super.key});
@@ -63,14 +64,18 @@ class _ExportButtonState extends ConsumerState<ExportButton> {
     final loc = ref.read(appLocalizationsProvider);
     final walletCommands = ref.read(walletCommandsProvider);
     final toast = ref.read(toastProvider.notifier);
-    toast.showEvent(description: 'Exporting wallet transactions...');
+    String? exportDirectory;
 
     try {
-      final historyPageFilter = HistoryPageFilter(
-        page: BigInt.from(1),
+      final historyFilter = wallet_flutter.XelisWalletHistoryFilter(
+        page: BigInt.one,
         limit: null, // Export all transactions
         assetHash: filterState.asset,
-        address: filterState.address,
+        destination: filterState.address == null
+            ? null
+            : wallet_flutter.XelisWalletFlutter.parseAddress(
+                address: filterState.address!,
+              ),
         minTopoheight: null,
         maxTopoheight: null,
         acceptIncoming: filterState.showIncoming,
@@ -78,35 +83,37 @@ class _ExportButtonState extends ConsumerState<ExportButton> {
         acceptCoinbase: filterState.showCoinbase,
         acceptBurn: filterState.showBurn,
         acceptBlob: filterState.showBlob,
-        minTimestamp: filterState.minTimestamp != null
+        minTimestampMillis: filterState.minTimestamp != null
             ? BigInt.from(filterState.minTimestamp!.millisecondsSinceEpoch)
             : null,
-        maxTimestamp: filterState.maxTimestamp != null
+        maxTimestampMillis: filterState.maxTimestamp != null
             ? BigInt.from(filterState.maxTimestamp!.millisecondsSinceEpoch)
             : null,
       );
 
       if (kIsWeb) {
-        final csv = await walletCommands.exportCsvForWeb(historyPageFilter);
-        if (csv != null) {
-          saveTextFile(csv, 'genesix_transactions.csv');
-          toast.showInformation(title: loc.csv_exported_successfully);
-        } else {
-          toast.showError(description: loc.error_exporting_csv);
-        }
+        final csv = await walletCommands.exportCsvForWeb(historyFilter);
+        saveTextFile(csv, 'genesix_transactions.csv');
       } else {
-        var path = await FilePicker.getDirectoryPath();
-        if (path != null) {
-          await walletCommands.exportCsv(path, historyPageFilter);
-          toast.showInformation(title: loc.csv_exported_successfully);
-        }
+        exportDirectory = await FilePicker.getDirectoryPath();
+        if (exportDirectory == null) return;
+        await walletCommands.exportCsv(exportDirectory, historyFilter);
       }
-    } catch (e, stack) {
-      talker.handle(e, stack);
-      toast.showError(
-        title: loc.error_exporting_csv,
-        description: e.toString(),
+
+      if (!mounted) return;
+      toast.showInformation(title: loc.csv_exported_successfully);
+    } catch (error, stackTrace) {
+      final failure = recordAppFailure(
+        error,
+        stackTrace,
+        operation: 'wallet.history.csv.export',
+        applicationCode: 'wallet_history_csv_export_failed',
+        contextBuilder: exportDirectory == null
+            ? null
+            : () => 'exportDirectory=$exportDirectory',
       );
+      if (!mounted) return;
+      toast.showFailure(title: loc.error_exporting_csv, failure: failure);
     }
   }
 }

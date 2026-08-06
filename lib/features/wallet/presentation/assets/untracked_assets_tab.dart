@@ -6,7 +6,7 @@ import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart
 import 'package:genesix/features/wallet/presentation/assets/untracked_asset_details.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 
 class UntrackedAssetsTab extends ConsumerStatefulWidget {
@@ -104,7 +104,7 @@ class _UntrackedAssetsTabState extends ConsumerState<UntrackedAssetsTab> {
     }
   }
 
-  void _showDetails(String hash, sdk.AssetData assetData) {
+  void _showDetails(String hash, XelisWalletAssetMetadata assetData) {
     showAppDialog<void>(
       context: context,
       builder: (context, style, animation) => UntrackedAssetDetails(

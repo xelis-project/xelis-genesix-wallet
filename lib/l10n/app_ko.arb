@@ -1,4 +1,33 @@
 {
+  "@multisig_setup_participant_count": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "@multisig_setup_threshold_summary": {
+    "placeholders": {
+      "threshold": {"type": "int"},
+      "participants": {"type": "int"}
+    }
+  },
+  "@multisig_signing_current_wallet_participant": {
+    "placeholders": {
+      "participantId": {"type": "int"}
+    }
+  },
+  "@support_reference": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "@xswd_fee_atomic_units": {
+    "placeholders": {"amount": {"type": "int"}}
+  },
+  "@xswd_fee_multiplier": {
+    "placeholders": {"multiplier": {"type": "double"}}
+  },
   "node_url_hint": "https://node.xelis.io",
   "node_name_hint": "내 노드",
   "node_name": "노드 이름",
@@ -19,6 +48,7 @@
   "hide_transactions_zero_value": "잔액이 0인 전송이 있는 트랜잭션을 숨깁니다.",
   "hide_extra_data_description": "트랜잭션 세부 정보의 추가 데이터를 숨깁니다.",
   "select_contract": "계약 선택",
+  "select_contact": "연락처 선택",
   "select_asset": "자산 선택",
   "category_burn_subtitle": "자산을 소각한 트랜잭션입니다.",
   "category_coinbase_subtitle": "보상을 받은 트랜잭션입니다.",
@@ -225,7 +255,23 @@
   "search": "검색",
   "destination": "목적지",
   "integrated_address_detected": "통합 주소 검출됨",
-  "payment_id": "결제ID",
+  "attached_data": "첨부 데이터",
+  "attached_data_badge": "데이터",
+  "attached_data_included": "포함됨",
+  "attached_data_encrypted": "암호화됨",
+  "attached_data_not_encrypted": "암호화되지 않음",
+  "view_attached_data": "첨부 데이터 보기",
+  "attached_data_source": "출처",
+  "attached_data_source_integrated_address": "통합 주소",
+  "attached_data_source_explicit": "별도의 첨부 데이터",
+  "receive_advanced_payment_request": "고급 결제 요청",
+  "receive_advanced_payment_request_description": "보내는 사람이 참조 정보를 포함해야 하는 경우 주소에 텍스트를 첨부하세요.",
+  "receive_attached_text_label": "첨부 텍스트",
+  "receive_attached_text_hint": "주문 또는 입금 참조",
+  "receive_create_integrated_address": "첨부 데이터가 포함된 주소 만들기",
+  "receive_integrated_address_data_visible": "주소에 표시됨",
+  "receive_integrated_address_data_visible_description": "이 주소를 받은 사람은 누구나 첨부된 텍스트를 읽을 수 있습니다.",
+  "receive_integrated_address_invalid_data": "이 텍스트는 주소에 추가할 수 없습니다. 텍스트를 줄인 후 다시 시도하세요.",
   "reset_preferences": "설정을 초기화합니다",
   "reset_preferences_dialog": "모든 설정, 언어, 테마 및 노드 목록을 초기화하려고 합니다.",
   "do_you_want_to_continue": "계속하시겠습니까?",
@@ -334,6 +380,7 @@
   "please_authenticate_delete_wallet": "이 지갑을 삭제하려면 인증하십시오.",
   "please_authenticate_view_seed": "이 복구 문구를 보려면 인증하십시오.",
   "biometric_not_available_warning": "생체 인식 인증이 사용 가능하지 않습니다. 기기 설정을 확인하십시오.",
+  "biometric_auth_temporarily_locked": "생체 인증이 일시적으로 잠겼습니다. 나중에 다시 시도해 주세요.",
   "password_not_found": "비밀번호가 없습니다.",
   "filters": "필터",
   "no_transactions_found": "거래가 없습니다",
@@ -391,6 +438,15 @@
   "item_count": "{count} items",
   "entry_count": "{count} entries",
   "xswd_channel_title": "XSWD",
+  "xswd_transaction_review_title": "트랜잭션 검토",
+  "xswd_transaction_review_warning": "이 일회성 요청을 허용하기 전에 모든 트랜잭션 세부 정보를 확인하세요. 이 결정은 저장되지 않습니다.",
+  "xswd_allow_once": "한 번만 허용",
+  "xswd_transaction_nonce": "Nonce",
+  "xswd_transaction_version": "트랜잭션 버전",
+  "xswd_response_as_hex": "16진수 응답",
+  "xswd_fee_automatic": "자동 계산",
+  "xswd_fee_atomic_units": "{amount} 원자 단위",
+  "xswd_fee_multiplier": "기본 수수료의 {multiplier}배",
   "xswd_relayer_channel_title": "XSWD Relayer",
   "cannot_start_xswd": "연결된 앱을 시작할 수 없습니다",
   "cannot_close_xswd_connection": "연결된 앱 연결을 닫을 수 없습니다",
@@ -463,15 +519,7 @@
   "copied_to_clipboard": "클립보드에 복사됨",
   "edit_button": "편집",
   "tx_contract_transfer": "컨트랙트 전송",
-  "contract_logs": "컨트랙트 로그",
   "chunk_id": "청크 ID",
-  "log_transfer": "전송",
-  "log_transfer_to_contract": "컨트랙트로 전송",
-  "log_mint": "민트",
-  "log_gas_refund": "가스 환불",
-  "log_exit_code": "종료 코드",
-  "log_new_asset": "새 자산",
-  "log_failed": "실패",
   "received": "받음",
   "constructor": "생성자",
   "to_address": "받는 주소: {address}",
@@ -509,5 +557,15 @@
   "paste_signature_share": "서명 공유 붙여넣기",
   "invalid_multisig_signature_share": "이 서명 공유가 유효하지 않거나 다른 트랜잭션에 속합니다.",
   "duplicate_multisig_signature_share": "이 참가자는 이미 서명을 제공했습니다.",
-  "remove_signature_share": "서명 공유 제거"
+  "remove_signature_share": "서명 공유 제거",
+  "wallet_failure_generic": "지갑에서 이 요청을 완료할 수 없습니다.",
+  "wallet_failure_invalid_input": "입력한 정보를 확인하고 다시 시도하세요.",
+  "wallet_failure_authentication_or_corrupt_data": "비밀번호가 올바르지 않거나 지갑 데이터를 읽을 수 없습니다.",
+  "wallet_failure_network": "네트워크를 사용할 수 없습니다. 연결 또는 노드를 확인하고 다시 시도하세요.",
+  "wallet_failure_daemon_rejected": "노드가 이 요청을 거부했습니다.",
+  "wallet_failure_insufficient_funds": "사용 가능한 잔액이 부족합니다.",
+  "password_changed_biometric_disabled": "새 비밀번호가 활성화되었습니다. 생체 인식 잠금 해제가 비활성화되었으므로 새 비밀번호를 사용하세요.",
+  "password_changed_biometric_cleanup_failed": "새 비밀번호가 활성화되었습니다. 생체 인식 잠금 해제가 비활성화되었지만 저장된 일부 액세스 데이터를 삭제할 수 없습니다. 생체 인식 액세스를 비활성화된 상태로 유지하고 새 비밀번호를 사용하세요.",
+  "password_change_native_state_indeterminate": "비밀번호 업데이트를 확인할 수 없습니다. 이전 비밀번호와 새 비밀번호를 모두 보관하고, 다시 시도하지 말고, 이 참조 번호와 함께 지원팀에 문의하세요.",
+  "support_reference": "지원 참조: {reference}"
 }

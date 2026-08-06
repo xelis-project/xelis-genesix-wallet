@@ -12,6 +12,8 @@ import 'package:genesix/features/settings/domain/display_currency.dart';
 import 'package:genesix/features/settings/presentation/components/network_select_menu_tile.dart';
 import 'package:genesix/features/settings/presentation/components/offline_mode_toggle_tile.dart';
 import 'package:genesix/features/settings/presentation/components/reset_preference_button.dart';
+import 'package:genesix/shared/errors/app_failure_reporter.dart';
+import 'package:genesix/shared/models/app_failure.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
@@ -254,6 +256,7 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
     BuildContext context,
     bool enabled,
   ) async {
+    final loc = ref.read(appLocalizationsProvider);
     if (!enabled) {
       ref.read(settingsProvider.notifier).setActivateBiometricAuth(false);
       return;
@@ -277,7 +280,20 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
 
             try {
               await wallet.isValidPassword(password);
+            } catch (error, stackTrace) {
+              final failure = recordAppFailure(
+                error,
+                stackTrace,
+                operation: 'wallet.password.verify',
+                applicationCode: 'wallet_password_verify_failed',
+              );
+              ref
+                  .read(toastProvider.notifier)
+                  .showFailure(title: loc.authentication, failure: failure);
+              return;
+            }
 
+            try {
               await ref
                   .read(secureStorageProvider)
                   .write(key: authState.name, value: password);
@@ -289,10 +305,17 @@ class _SettingsContentState extends ConsumerState<SettingsContent>
               if (dialogContext.mounted) {
                 dialogContext.pop();
               }
-            } catch (e) {
+            } catch (error, stackTrace) {
+              final failure = recordAppFailure(
+                error,
+                stackTrace,
+                operation: 'biometric.credentials.persist',
+                applicationCode: 'biometric_credentials_persist_failed',
+                applicationCategory: AppFailureCategory.storageFailure,
+              );
               ref
                   .read(toastProvider.notifier)
-                  .showError(description: e.toString());
+                  .showFailure(title: loc.authentication, failure: failure);
             }
           },
         );

@@ -70,7 +70,9 @@ GoRouter router(Ref ref) {
     },
     debugLogDiagnostics: true,
     routes: $appRoutes,
-    extraCodec: const ExtraCodec(adapters: [TransactionEntryAdapter()]),
+    extraCodec: const ExtraCodec(
+      adapters: [TransactionEntryAdapter(), PendingTransactionEntryAdapter()],
+    ),
   );
 
   ref.onDispose(router.dispose);

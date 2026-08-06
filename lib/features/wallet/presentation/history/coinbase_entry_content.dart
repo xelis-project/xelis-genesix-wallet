@@ -6,12 +6,12 @@ import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/labeled_value.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class CoinbaseEntryContent extends ConsumerWidget {
   const CoinbaseEntryContent(this.coinbaseEntry, {super.key});
 
-  final CoinbaseEntry coinbaseEntry;
+  final XelisWalletCoinbaseEntry coinbaseEntry;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

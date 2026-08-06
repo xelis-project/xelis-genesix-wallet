@@ -236,7 +236,7 @@ class ContactDetailsRoute extends GoRouteData with $ContactDetailsRoute {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
-      ContactDetailsScreen(contactAddress: $extra),
+      ContactDetailsScreen(contactId: $extra),
       state.pageKey,
       state.fullPath,
       state.extra,
@@ -249,12 +249,16 @@ class ContactDetailsRoute extends GoRouteData with $ContactDetailsRoute {
 class TransferRoute extends GoRouteData with $TransferRoute {
   const TransferRoute({this.$extra});
 
+  /// Opaque address-book entry identifier.
+  ///
+  /// The complete destination is resolved in memory by [TransferScreen] so an
+  /// integrated address is never persisted in router state or route logs.
   final String? $extra;
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
-      TransferScreen(recipientAddress: $extra),
+      TransferScreen(recipientContactId: $extra),
       state.pageKey,
       state.fullPath,
       state.extra,
@@ -289,7 +293,7 @@ class TransactionEntryRoute extends GoRouteData with $TransactionEntryRoute {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
-      TransactionEntryScreen(),
+      TransactionEntryScreen(routeEntry: state.extra),
       state.pageKey,
       state.fullPath,
       state.extra,

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
+import 'package:genesix/shared/errors/app_failure_reporter.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -23,17 +24,31 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
   @override
   void initState() {
     super.initState();
-    final loc = ref.read(appLocalizationsProvider);
+    _loadSeed(MnemonicLanguage.english);
+  }
 
-    ref.read(walletCommandsProvider).getSeed(MnemonicLanguage.english).then(
-      (words) {
-        setState(() {
-          _seedWords = words;
-        });
-      },
-      onError: (_, _) =>
-          ref.read(toastProvider.notifier).showError(description: loc.oups),
-    );
+  void _loadSeed(MnemonicLanguage language) {
+    ref
+        .read(walletCommandsProvider)
+        .getSeed(language)
+        .then(
+          (words) {
+            if (!mounted) return;
+            setState(() {
+              _seedWords = words;
+            });
+          },
+          onError: (Object error, StackTrace stackTrace) {
+            final failure = recordAppFailure(
+              error,
+              stackTrace,
+              operation: 'wallet.seed.read',
+              applicationCode: 'wallet_seed_read_failed',
+            );
+            if (!mounted) return;
+            ref.read(toastProvider.notifier).showFailure(failure: failure);
+          },
+        );
   }
 
   @override
@@ -98,19 +113,7 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
                         onChange: (values) {
                           final selected = values.isEmpty ? null : values.first;
                           if (selected == null) return;
-                          ref
-                              .read(walletCommandsProvider)
-                              .getSeed(selected)
-                              .then(
-                                (words) {
-                                  setState(() {
-                                    _seedWords = words;
-                                  });
-                                },
-                                onError: (_, _) => ref
-                                    .read(toastProvider.notifier)
-                                    .showError(description: loc.oups),
-                              );
+                          _loadSeed(selected);
                         },
                       ),
                       detailsBuilder: (context, values, _) =>

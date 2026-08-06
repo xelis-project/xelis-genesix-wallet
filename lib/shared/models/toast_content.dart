@@ -28,6 +28,7 @@ sealed class ToastContent with _$ToastContent {
   const factory ToastContent.error({
     required String title,
     required String description,
+    String? supportReference,
     @Default(false) bool sticky,
     @Default(true) bool dismissible,
   }) = ErrorToastContent;
@@ -61,6 +62,11 @@ sealed class ToastContent with _$ToastContent {
     ErrorToastContent(:final description) => description,
     EventToastContent(:final description) => description,
     XswdToastContent(:final description) => description,
+  };
+
+  String? get supportReference => switch (this) {
+    ErrorToastContent(:final supportReference) => supportReference,
+    _ => null,
   };
 
   List<ToastAction> get actions => switch (this) {

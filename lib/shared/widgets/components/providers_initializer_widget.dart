@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
+import 'package:genesix/features/authentication/domain/wallet_session.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_effect_bus_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
@@ -10,6 +11,7 @@ import 'package:genesix/features/wallet/application/xswd_lifecycle_provider.dart
 import 'package:genesix/features/wallet/application/xswd_notification_service.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/domain/wallet_effect.dart';
+import 'package:genesix/shared/errors/app_failure_reporter.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 
 class ProvidersInitializerWidget extends ConsumerWidget {
@@ -29,11 +31,14 @@ class ProvidersInitializerWidget extends ConsumerWidget {
       }
 
       final walletRuntime = ref.read(walletRuntimeProvider.notifier);
-      if (next == null) {
-        unawaited(walletRuntime.clearSession());
-      } else {
-        unawaited(walletRuntime.attachSession(next));
-      }
+      final walletEffectBus = ref.read(walletEffectBusProvider.notifier);
+      unawaited(
+        _synchronizeWalletRuntime(
+          walletRuntime: walletRuntime,
+          walletEffectBus: walletEffectBus,
+          session: next,
+        ),
+      );
 
       if (sessionChanged) {
         ref.invalidate(xswdApplicationsProvider);
@@ -66,6 +71,8 @@ class ProvidersInitializerWidget extends ConsumerWidget {
           toastNotifier.showWarning(title: title, description: description);
         case WalletErrorEffect(:final title, :final description):
           toastNotifier.showError(title: title, description: description);
+        case WalletFailureEffect(:final title, :final failure):
+          toastNotifier.showFailure(title: title, failure: failure);
         case WalletEventEffect(:final title, :final description):
           toastNotifier.showEvent(title: title, description: description);
         case WalletXswdEffect(
@@ -87,4 +94,31 @@ class ProvidersInitializerWidget extends ConsumerWidget {
 
 Future<void> _applyOfflineMode(WidgetRef ref, bool enabled) async {
   await ref.read(walletRuntimeProvider.notifier).setOfflineMode(enabled);
+}
+
+Future<void> _synchronizeWalletRuntime({
+  required WalletRuntime walletRuntime,
+  required WalletEffectBus walletEffectBus,
+  required WalletSession? session,
+}) async {
+  try {
+    if (session == null) {
+      await walletRuntime.clearSession();
+    } else {
+      await walletRuntime.attachSession(session);
+    }
+  } catch (error, stackTrace) {
+    final attaching = session != null;
+    final failure = recordAppFailure(
+      error,
+      stackTrace,
+      operation: attaching
+          ? 'wallet.session.runtime.attach'
+          : 'wallet.session.runtime.clear',
+      applicationCode: attaching
+          ? 'wallet_runtime_attach_failed'
+          : 'wallet_runtime_clear_failed',
+    );
+    walletEffectBus.emit(WalletEffect.failure(failure: failure));
+  }
 }

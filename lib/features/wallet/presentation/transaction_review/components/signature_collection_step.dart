@@ -11,7 +11,7 @@ import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/app_card.dart';
 import 'package:genesix/shared/widgets/components/async_f_button.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 const _maxMultisigSignatureShareLength = 1024;
 const _multisigSignatureInspectionDelay = Duration(milliseconds: 500);
@@ -32,9 +32,10 @@ class SignatureCollectionStep extends ConsumerStatefulWidget {
     super.key,
   });
 
-  final MultisigSigningRequest request;
+  final XelisWalletMultisigSigningRequest request;
   final bool isFinalizing;
-  final Future<void> Function(List<String>) onFinalize;
+  final Future<void> Function(List<XelisWalletMultisigSignatureShare>)
+  onFinalize;
 
   @override
   ConsumerState<SignatureCollectionStep> createState() =>
@@ -45,7 +46,7 @@ class _SignatureCollectionStepState
     extends ConsumerState<SignatureCollectionStep> {
   final _controller = TextEditingController();
   final _signatureListKey = GlobalKey<AnimatedListState>();
-  final List<MultisigSignatureShare> _verifiedShares = [];
+  final List<XelisWalletMultisigSignatureShare> _verifiedShares = [];
   Timer? _inspectionTimer;
   _SignatureShareInputError? _inputError;
   bool _isInspecting = false;
@@ -192,25 +193,25 @@ class _SignatureCollectionStepState
       _isInspecting = false;
     });
     if (encoded.isEmpty) return;
-    final requestHash = widget.request.hash;
+    final signingHash = widget.request.signingHash;
     if (immediately) {
-      unawaited(_inspectShare(encoded, generation, requestHash));
+      unawaited(_inspectShare(encoded, generation, signingHash));
       return;
     }
     _inspectionTimer = Timer(
       _multisigSignatureInspectionDelay,
-      () => unawaited(_inspectShare(encoded, generation, requestHash)),
+      () => unawaited(_inspectShare(encoded, generation, signingHash)),
     );
   }
 
   Future<void> _inspectShare(
     String encoded,
     int generation,
-    String requestHash,
+    String signingHash,
   ) async {
     if (!mounted ||
         generation != _inspectionGeneration ||
-        requestHash != widget.request.hash ||
+        signingHash != widget.request.signingHash ||
         _controller.text.trim() != encoded) {
       return;
     }
@@ -218,10 +219,13 @@ class _SignatureCollectionStepState
     setState(() => _isInspecting = true);
     final share = await ref
         .read(walletCommandsProvider)
-        .inspectMultisigSignatureShare(txHash: requestHash, encoded: encoded);
+        .inspectMultisigSignatureShare(
+          request: widget.request,
+          encoded: encoded,
+        );
     if (!mounted ||
         generation != _inspectionGeneration ||
-        requestHash != widget.request.hash ||
+        signingHash != widget.request.signingHash ||
         _controller.text.trim() != encoded) {
       return;
     }
@@ -232,7 +236,9 @@ class _SignatureCollectionStepState
       });
       return;
     }
-    if (_verifiedShares.any((item) => item.signerId == share.signerId)) {
+    if (_verifiedShares.any(
+      (item) => item.participantId == share.participantId,
+    )) {
       setState(() {
         _inputError = _SignatureShareInputError.duplicate;
         _isInspecting = false;
@@ -278,9 +284,9 @@ class _SignatureCollectionStepState
     _scheduleInspection(encoded, immediately: true);
   }
 
-  void _removeShare(MultisigSignatureShare share) {
+  void _removeShare(XelisWalletMultisigSignatureShare share) {
     final index = _verifiedShares.indexWhere(
-      (item) => item.signerId == share.signerId,
+      (item) => item.participantId == share.participantId,
     );
     if (index < 0) return;
 
@@ -304,7 +310,7 @@ class _SignatureCollectionStepState
       index,
       (context, animation) => AnimatedVerifiedParticipant(
         animation: animation,
-        signerId: removedShare.signerId,
+        signerId: removedShare.participantId,
         participant: participant,
         onRemove: null,
       ),
@@ -409,10 +415,12 @@ class _SignatureCollectionStepState
   bool _isCurrentPresentation(int generation) =>
       mounted && generation == _presentationGeneration;
 
-  ParticipantDartPayload? _participantFor(MultisigSignatureShare? share) {
+  XelisWalletMultisigParticipant? _participantFor(
+    XelisWalletMultisigSignatureShare? share,
+  ) {
     if (share == null) return null;
     for (final participant in widget.request.participants) {
-      if (participant.id == share.signerId) return participant;
+      if (participant.id == share.participantId) return participant;
     }
     return null;
   }
@@ -426,9 +434,7 @@ class _SignatureCollectionStepState
 
   Future<void> _submit() async {
     if (!_canFinalize) return;
-    await widget.onFinalize(
-      _verifiedShares.map((share) => share.encoded).toList(growable: false),
-    );
+    await widget.onFinalize(List.unmodifiable(_verifiedShares));
   }
 }
 

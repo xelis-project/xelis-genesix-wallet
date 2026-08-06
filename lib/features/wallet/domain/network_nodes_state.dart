@@ -1,7 +1,7 @@
 // ignore_for_file: invalid_annotation_target
 
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
 
 part 'network_nodes_state.freezed.dart';
@@ -33,33 +33,33 @@ abstract class NetworkNodesState with _$NetworkNodesState {
     List<NodeAddress> stagenetNodes,
   }) = _NetworkNodesState;
 
-  bool nodeExists(Network network, NodeAddress nodeAddress) {
+  bool nodeExists(XelisNetwork network, NodeAddress nodeAddress) {
     var nodes = getNodes(network);
     return nodes.contains(nodeAddress);
   }
 
-  List<NodeAddress> getNodes(Network network) {
+  List<NodeAddress> getNodes(XelisNetwork network) {
     switch (network) {
-      case Network.mainnet:
+      case XelisNetwork.mainnet:
         return mainnetNodes;
-      case Network.testnet:
+      case XelisNetwork.testnet:
         return testnetNodes;
-      case Network.devnet:
+      case XelisNetwork.devnet:
         return devnetNodes;
-      case Network.stagenet:
+      case XelisNetwork.stagenet:
         return stagenetNodes;
     }
   }
 
-  NodeAddress getNodeAddress(Network network) {
+  NodeAddress getNodeAddress(XelisNetwork network) {
     switch (network) {
-      case Network.mainnet:
+      case XelisNetwork.mainnet:
         return mainnetAddress;
-      case Network.testnet:
+      case XelisNetwork.testnet:
         return testnetAddress;
-      case Network.devnet:
+      case XelisNetwork.devnet:
         return devnetAddress;
-      case Network.stagenet:
+      case XelisNetwork.stagenet:
         return stagenetAddress;
     }
   }
@@ -69,28 +69,28 @@ abstract class NetworkNodesState with _$NetworkNodesState {
 }
 
 extension NetworkNodesStateExtension on NetworkNodesState {
-  List<NodeAddress> nodesFor(Network network) {
+  List<NodeAddress> nodesFor(XelisNetwork network) {
     switch (network) {
-      case Network.mainnet:
+      case XelisNetwork.mainnet:
         return mainnetNodes;
-      case Network.testnet:
+      case XelisNetwork.testnet:
         return testnetNodes;
-      case Network.devnet:
+      case XelisNetwork.devnet:
         return devnetNodes;
-      case Network.stagenet:
+      case XelisNetwork.stagenet:
         return stagenetNodes;
     }
   }
 
-  NodeAddress addressFor(Network network) {
+  NodeAddress addressFor(XelisNetwork network) {
     switch (network) {
-      case Network.mainnet:
+      case XelisNetwork.mainnet:
         return mainnetAddress;
-      case Network.testnet:
+      case XelisNetwork.testnet:
         return testnetAddress;
-      case Network.devnet:
+      case XelisNetwork.devnet:
         return devnetAddress;
-      case Network.stagenet:
+      case XelisNetwork.stagenet:
         return stagenetAddress;
     }
   }

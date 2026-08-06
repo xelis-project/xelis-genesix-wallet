@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
-import 'package:genesix/features/wallet/domain/transaction_summary.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
@@ -14,7 +13,7 @@ import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/async_f_button.dart';
 import 'package:go_router/go_router.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 
 class BurnScreen extends ConsumerStatefulWidget {
@@ -29,20 +28,21 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
 
-  late final FSelectController<MapEntry<String, AssetData>> _assetController;
+  late final FSelectController<MapEntry<String, XelisWalletAssetMetadata>>
+  _assetController;
 
   String? _selectedAsset;
-  String _selectedAssetBalance = AppResources.zeroBalance;
+  BigInt _selectedAssetBalance = BigInt.zero;
   var _isReviewing = false;
 
   @override
   void initState() {
     super.initState();
 
-    final Map<String, String> balances = ref.read(
+    final Map<String, BigInt> balances = ref.read(
       walletRuntimeProvider.select((value) => value.trackedBalances),
     );
-    final Map<String, AssetData> assets = ref.read(
+    final Map<String, XelisWalletAssetMetadata> assets = ref.read(
       walletRuntimeProvider.select((value) => value.knownAssets),
     );
 
@@ -50,7 +50,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
         .where((entry) => assets.containsKey(entry.key))
         .firstOrNull;
 
-    MapEntry<String, AssetData>? initialAssetEntry;
+    MapEntry<String, XelisWalletAssetMetadata>? initialAssetEntry;
     if (firstValidBalance != null) {
       initialAssetEntry = MapEntry(
         firstValidBalance.key,
@@ -60,9 +60,10 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
       _selectedAssetBalance = firstValidBalance.value;
     }
 
-    _assetController = FSelectController<MapEntry<String, AssetData>>(
-      value: initialAssetEntry,
-    );
+    _assetController =
+        FSelectController<MapEntry<String, XelisWalletAssetMetadata>>(
+          value: initialAssetEntry,
+        );
   }
 
   @override
@@ -76,10 +77,10 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
 
-    final Map<String, String> balances = ref.watch(
+    final Map<String, BigInt> balances = ref.watch(
       walletRuntimeProvider.select((value) => value.trackedBalances),
     );
-    final Map<String, AssetData> assets = ref.watch(
+    final Map<String, XelisWalletAssetMetadata> assets = ref.watch(
       walletRuntimeProvider.select((value) => value.knownAssets),
     );
 
@@ -152,11 +153,16 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
                                   if (value == null || value.trim().isEmpty) {
                                     return loc.field_required_error;
                                   }
-                                  final parsed = double.tryParse(value.trim());
-                                  if (parsed == null) {
-                                    return loc.must_be_numeric_error;
+                                  final selectedAsset = _assetController.value;
+                                  if (selectedAsset == null) {
+                                    return loc.field_required_error;
                                   }
-                                  if (!parsed.isFinite || parsed <= 0) {
+                                  try {
+                                    parseAtomicAmount(
+                                      value.trim(),
+                                      selectedAsset.value.decimals,
+                                    );
+                                  } on FormatException {
                                     return loc.invalid_amount_error;
                                   }
                                   return null;
@@ -176,10 +182,15 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
                                       _selectedAsset = selected.key;
                                       _selectedAssetBalance =
                                           balances[_selectedAsset] ??
-                                          AppResources.zeroBalance;
+                                          BigInt.zero;
                                     }
-                                    _amountController.text =
-                                        _selectedAssetBalance;
+                                    if (selected != null) {
+                                      _amountController.text =
+                                          formatAtomicAmount(
+                                            _selectedAssetBalance,
+                                            selected.value.decimals,
+                                          );
+                                    }
                                   },
                                   child: Text(loc.max),
                                 ),
@@ -198,7 +209,9 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
                         const SizedBox(height: Spaces.small),
 
                         // Asset select
-                        FSelect<MapEntry<String, AssetData>>.rich(
+                        FSelect<
+                          MapEntry<String, XelisWalletAssetMetadata>
+                        >.rich(
                           control: .managed(
                             controller: _assetController,
                             onChange: (entry) {
@@ -206,8 +219,7 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
                                 setState(() {
                                   _selectedAsset = entry.key;
                                   _selectedAssetBalance =
-                                      balances[_selectedAsset] ??
-                                      AppResources.zeroBalance;
+                                      balances[_selectedAsset] ?? BigInt.zero;
                                 });
                               }
                             },
@@ -219,12 +231,19 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
                           format: (entry) => entry.value.name,
                           children: validAssets.map((entry) {
                             final assetData = assets[entry.key]!;
-                            final balance =
-                                balances[entry.key] ?? AppResources.zeroBalance;
-                            return FSelectItem<MapEntry<String, AssetData>>(
+                            final balance = balances[entry.key] ?? BigInt.zero;
+                            return FSelectItem<
+                              MapEntry<String, XelisWalletAssetMetadata>
+                            >(
                               value: MapEntry(entry.key, assetData),
                               title: Text(assetData.name),
-                              subtitle: Text('$balance ${assetData.ticker}'),
+                              subtitle: Text(
+                                formatCoin(
+                                  balance,
+                                  assetData.decimals,
+                                  assetData.ticker,
+                                ),
+                              ),
                             );
                           }).toList(),
                           validator: (value) {
@@ -278,8 +297,11 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
     }
 
     _selectedAsset = selectedEntry.key;
+    _selectedAssetBalance =
+        ref.read(walletRuntimeProvider).trackedBalances[_selectedAsset] ??
+        BigInt.zero;
 
-    if (_selectedAssetBalance == AppResources.zeroBalance) {
+    if (_selectedAssetBalance == BigInt.zero) {
       ref
           .read(toastProvider.notifier)
           .showWarning(title: loc.no_balance_to_burn);
@@ -290,20 +312,28 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
       return;
     }
 
-    final amountText = _amountController.text.trim();
+    final amountAtomic = parseAtomicAmount(
+      _amountController.text.trim(),
+      selectedEntry.value.decimals,
+    );
     final asset = _selectedAsset!;
     final commands = ref.read(walletCommandsProvider);
+    final sessionIdentity = ref.read(activeWalletRepositoryProvider);
+    if (sessionIdentity == null) return;
+    const feePolicy = XelisWalletFeePolicy.automatic;
 
     setState(() => _isReviewing = true);
 
-    late (TransactionSummary?, MultisigSigningRequest?) record;
+    late (XelisWalletPreparedTransaction?, XelisWalletMultisigSigningRequest?)
+    record;
     try {
-      if (amountText == _selectedAssetBalance) {
-        record = await commands.burnAll(asset: asset);
+      if (amountAtomic == _selectedAssetBalance) {
+        record = await commands.burnAll(asset: asset, feePolicy: feePolicy);
       } else {
         record = await commands.burn(
-          amount: double.parse(amountText),
+          amountAtomic: amountAtomic,
           asset: asset,
+          feePolicy: feePolicy,
         );
       }
     } finally {
@@ -314,19 +344,45 @@ class _BurnScreenState extends ConsumerState<BurnScreen>
 
     if (!mounted) {
       if (record.$2 case final request?) {
-        await commands.cancelPendingMultisigRequest(txHash: request.hash);
+        await commands.cancelPendingMultisigRequest(
+          request: request,
+          sessionIdentity: sessionIdentity,
+        );
       } else if (record.$1 case final transaction?) {
-        await commands.cancelTransaction(hash: transaction.hash);
+        await commands.cancelPreparedTransaction(
+          transaction: transaction,
+          sessionIdentity: sessionIdentity,
+        );
+      }
+      return;
+    }
+
+    if (!identical(ref.read(activeWalletRepositoryProvider), sessionIdentity)) {
+      if (record.$2 case final request?) {
+        await commands.cancelPendingMultisigRequest(
+          request: request,
+          sessionIdentity: sessionIdentity,
+        );
+      } else if (record.$1 case final transaction?) {
+        await commands.cancelPreparedTransaction(
+          transaction: transaction,
+          sessionIdentity: sessionIdentity,
+        );
       }
       return;
     }
 
     if (record.$2 != null) {
-      ref.read(transactionReviewProvider.notifier).signaturePending(record.$2!);
+      ref
+          .read(transactionReviewProvider.notifier)
+          .signaturePending(record.$2!, sessionIdentity: sessionIdentity);
     } else if (record.$1 != null) {
       ref
           .read(transactionReviewProvider.notifier)
-          .setBurnTransaction(record.$1!);
+          .setPreparedBurnTransaction(
+            record.$1!,
+            sessionIdentity: sessionIdentity,
+          );
     } else {
       return;
     }

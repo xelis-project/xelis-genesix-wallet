@@ -7,29 +7,30 @@ import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/labeled_value.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class BaseTransactionEntryCard extends ConsumerStatefulWidget {
   const BaseTransactionEntryCard({
     super.key,
-    required this.transactionEntry,
+    required this.hash,
     required this.type,
     required this.color,
     required this.icon,
     required this.timestamp,
-    required this.topoheight,
-    required this.url,
+    this.topoheight,
+    this.url,
+    this.isPending = false,
     this.nonce,
   });
 
-  final TransactionEntry transactionEntry;
+  final String hash;
   final String type;
   final Color color;
   final IconData icon;
   final String timestamp;
-  final String topoheight;
-  final Uri url;
-  final int? nonce;
+  final String? topoheight;
+  final Uri? url;
+  final bool isPending;
+  final BigInt? nonce;
 
   @override
   ConsumerState<BaseTransactionEntryCard> createState() =>
@@ -85,18 +86,24 @@ class _BaseTransactionEntryCardState
                                 color: theme.colors.mutedForeground,
                               ),
                             ),
+                          if (widget.isPending)
+                            FBadge(
+                              variant: .secondary,
+                              child: Text(loc.pending),
+                            ),
                         ],
                       ),
                     ),
-                    FTooltip(
-                      tipBuilder: (context, controller) {
-                        return Text(loc.open_explorer);
-                      },
-                      child: FButton.icon(
-                        onPress: () => _launchUrl(widget.url),
-                        child: const Icon(FLucideIcons.externalLink),
+                    if (widget.url case final url?)
+                      FTooltip(
+                        tipBuilder: (context, controller) {
+                          return Text(loc.open_explorer);
+                        },
+                        child: FButton.icon(
+                          onPress: () => _launchUrl(url),
+                          child: const Icon(FLucideIcons.externalLink),
+                        ),
                       ),
-                    ),
                   ],
                 ),
                 FDivider(style: .delta(padding: .add(.zero))),
@@ -106,13 +113,14 @@ class _BaseTransactionEntryCardState
                     Expanded(
                       child: LabeledValue.text(loc.timestamp, widget.timestamp),
                     ),
-                    Expanded(
-                      child: LabeledValue.text(
-                        loc.topoheight,
-                        widget.topoheight,
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                    if (widget.topoheight case final topoheight?)
+                      Expanded(
+                        child: LabeledValue.text(
+                          loc.topoheight,
+                          topoheight,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                        ),
                       ),
-                    ),
                   ],
                 ),
                 LabeledValue.child(
@@ -123,12 +131,9 @@ class _BaseTransactionEntryCardState
                       Expanded(
                         child: FTooltip(
                           tipBuilder: (context, controller) =>
-                              SelectableText(widget.transactionEntry.hash),
+                              SelectableText(widget.hash),
                           child: Text(
-                            truncateText(
-                              widget.transactionEntry.hash,
-                              maxLength: 20,
-                            ),
+                            truncateText(widget.hash, maxLength: 20),
                             style: theme.typography.body.md,
                           ),
                         ),
@@ -136,11 +141,8 @@ class _BaseTransactionEntryCardState
                       FTooltip(
                         tipBuilder: (context, controller) => Text(loc.copy),
                         child: FButton.icon(
-                          onPress: () => copyToClipboard(
-                            widget.transactionEntry.hash,
-                            ref,
-                            loc.copied,
-                          ),
+                          onPress: () =>
+                              copyToClipboard(widget.hash, ref, loc.copied),
                           child: const Icon(FLucideIcons.copy, size: 16),
                         ),
                       ),

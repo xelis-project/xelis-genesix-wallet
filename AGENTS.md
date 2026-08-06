@@ -13,23 +13,33 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 
 ## Repository Context
 
-- Genesix is a Flutter wallet application with Rust wallet logic exposed through `flutter_rust_bridge`.
+- Genesix is a Flutter wallet application consuming the native wallet through
+  the `xelis_wallet_flutter` package.
 - Flutter feature code lives under `lib/features/<feature>/...`.
 - Shared services, storage adapters, utilities, and reusable UI primitives live under `lib/shared/...`.
-- Rust bridge-facing wallet code lives under `rust/src/api/**`; `rust/src/lib.rs` stays focused on public bridge exports.
 - Main integration points:
   - Flutter entrypoint: `lib/main.dart`
   - Routing: `lib/features/router/routes.dart`, `lib/features/router/router.dart`
   - Native wallet repository: `lib/features/wallet/data/native_wallet_repository.dart`
-  - Rust FFI entry: `rust/src/lib.rs`
 - Source of truth for dependency versions:
   - Dart/Flutter: `pubspec.yaml`
-  - Rust: `Cargo.toml`
+  - Shared native wallet package: the resolved `xelis_wallet_flutter`
+    dependency; its Rust, generated bridge, and public-contract sources belong
+    to that package repository.
+- Application failure ownership, stable identifier authoring, support logging,
+  and UI policy live in `docs/error-handling.md`. Read it before changing a
+  catch boundary, `AppFailure`, `recordAppFailure`, or failure presentation.
+- Typed wallet event ownership, connection rotation, lag reconciliation, and
+  stream termination policy live in `docs/runtime-events.md`. Read it before
+  changing wallet runtime events or connection lifecycle behavior.
 - Generated files must be regenerated, not patched manually:
   - `**/*.g.dart`
   - `**/*.freezed.dart`
-  - `lib/src/generated/**`
-  - `rust/src/frb_generated.rs`
+  - `lib/src/generated/l10n/**`
+- Genesix must not contain or regenerate a local Rust crate or Flutter Rust
+  Bridge output. Make Rust/FFI changes in `xelis-wallet-flutter`, follow that
+  repository's `AGENTS.md`, regenerate there, then validate Genesix as a
+  consumer through the package's authored public API.
 - Stable domain terminology for agents lives in
   `.agents/knowledge/DOMAIN_VOCABULARY.md`. Read it when a task crosses layers
   or uses ambiguous wallet, runtime, node, daemon, storage, transaction, FFI,
@@ -46,6 +56,42 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 - Do not invent APIs, symbols, file paths, or dependency behavior; verify them from source first.
 - Preserve backward compatibility unless the task explicitly allows a breaking change.
 - Update documentation when behavior, workflow, architecture, or AI guidance changes.
+- Preserve `XelisWalletException` source, operation, code, and support ID
+  unchanged. For unrelated application failures, author the fallback operation
+  and code at the boundary that owns recovery: use a stable dot-delimited action
+  for the operation and a stable lower-snake-case cause/result for the code.
+  Reuse existing identifiers when the semantics match; never derive either
+  identifier from exception text, exception type names, routes, or localized UI
+  copy. New or changed identifiers require focused contract tests.
+- Treat the typed `xelis-wallet-flutter` runtime subscription as the sole
+  authority for connection, synchronization, topoheight, rescan, and history
+  lifecycle events. Treat its separate typed business subscription as the sole
+  event authority for transactions, pending transactions, balances, and assets.
+  Never reintroduce the removed JSON event stream or local event union.
+- Preserve authored Rust `u64` values as `BigInt`. Standard transfer and burn
+  amounts and fees stay atomic `BigInt` values from input parsing through
+  preparation, review, and presentation; fee multipliers use integer basis
+  points. Never pass a `BigInt` directly to the pinned `intl 0.20.2` `NumberFormat`,
+  which throws at runtime, and never convert values beyond JavaScript's safe
+  integer range to `int`. Use `parseAtomicAmount` for decimal input and the
+  shared `formatBigInt` helper for localized UI grouping, and revalidate this
+  rule when `intl` is upgraded.
+- Rotate runtime subscriptions in this order: invalidate the consumer, cancel
+  and await the old subscription, await `setOffline`, listen to a fresh
+  subscription, then call `setOnline`. Recheck repository, request, subscription,
+  and generation after every asynchronous boundary.
+- Treat runtime and business lag as non-terminal and coalesce authoritative
+  reconciliation per channel. Runtime close is connection-terminal; business
+  close must preserve its XWF reference without changing network phase.
+  Deduplicate each typed close, stream error, and completion. Expected
+  cancellation must stay silent.
+- Keep the business subscription session-scoped and active across connect,
+  reconnect, disconnect, and offline mode. Cancel and await it only when the
+  wallet session is replaced, cleared, disposed, or prepared for close.
+- Keep session replacement and network transitions on separate monotonic
+  identities. A newer session may supersede older cleanup, but clear,
+  `prepareForClose`, and disposal must block reconnect, disconnect, offline-mode,
+  and automatic-retry intents until a newer session is installed.
 - Do not declare named functions inside other functions in Dart or Rust. Use private file-level helpers, private methods, or small private widgets/classes instead.
 - Anonymous closures are acceptable only for short callback glue. Extract non-trivial or reused logic.
 - Before using a third-party package or crate API, read the installed version from `pubspec.yaml` or `Cargo.toml` and use compatible APIs.
@@ -81,18 +127,54 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 - When Forui API behavior is unclear, run `dart run tool/sync_forui_docs.dart` before relying on local snapshots; if network access is unavailable, state that and fall back to installed package source plus official changelog.
 - Reuse `lib/shared` components and utilities before creating variants.
 - When adding, renaming, modifying, or removing localization keys in `lib/l10n/*.arb`, update every locale ARB in the same change and keep key parity across all locales. Do not rely on generated fallback strings for missing locales.
+- In user-facing wallet copy, call the value embedded in or attached through a
+  XELIS address “attached data”. Use “integrated address” only for the complete
+  protocol destination. Do not call arbitrary attached data a payment ID unless
+  its application schema proves that meaning.
 - Preserve responsive behavior across desktop, mobile, web, and native targets.
 - Use modern Dart and Flutter idioms when they improve clarity and are supported by the installed SDK and package versions.
 
-## Rust And FFI
+## Shared Wallet Package And FFI
 
-- Read crate versions and enabled features from `Cargo.toml` before using third-party Rust APIs.
-- Keep Rust modules small, testable, and consistent with neighboring modules.
-- Respect cargo feature flags such as `network_handler` and `xswd`.
-- Keep wasm and native constraints explicit when changing dependencies or platform paths.
-- Return explicit error context and avoid opaque failures.
-- Avoid panics in FFI-facing paths unless the condition is unrecoverable.
-- Any Rust API or FFI signature change must be mirrored through regenerated bridge code and Dart call-site updates.
+- Treat the authored `xelis_wallet_flutter` public API as the only supported
+  native-wallet boundary in Genesix.
+- Never import `xelis_wallet_flutter/src/**` or introduce a local Rust/FRB copy.
+  Consume every native-wallet feature through the package-root authored API.
+- Verify the resolved package source and version before relying on its API.
+- Preserve native/Web constraints and authored `XelisWalletException`
+  metadata across repository and provider boundaries.
+- Standard transfer and burn flows must retain the exact authored
+  `XelisWalletPreparedTransaction` instance from preparation through review.
+  After authentication, require the same prepared object, the same hash, and
+  an active confirmation before broadcasting. The hash is metadata for review
+  and support, not authority to recover or reconstruct the capability.
+- Treat a saved destination's complete canonical address as the sole send/copy
+  authority. Its base address is lookup metadata only. AddressBook state is
+  keyed by the package-owned opaque entry ID; several integrated destinations
+  may share one base and must never be merged or substituted by list order.
+- Do not pass a complete integrated destination through `GoRouter.extra`, URL
+  parameters, or `RouteSettings.arguments`: router restoration and debug route
+  observers may serialize or log it. Navigate with the opaque AddressBook entry
+  ID and resolve the complete destination in memory at the transfer boundary.
+- Parse standard and integrated destinations through
+  `XelisWalletFlutter.parseAddress`. Contact-history filters must pass the
+  resulting full `XelisAddressDescriptor` so Rust compares base plus exact
+  `DataElement` before pagination. Only an exact AddressBook match may replace
+  an address with a contact identity; base-only and ambiguous matches are hints,
+  never identity.
+- Keep history, pending, home-card, and passive-event reads metadata-only.
+  Fetch a detailed transaction by hash only while its detail/reveal surface is
+  mounted. Do not persist typed payloads in route codecs, providers, analytics,
+  crash reports, or ordinary logs.
+- Reveal a prepared transfer's attached data only through
+  `inspectPreparedTransferExtraData` using the exact prepared object and transfer
+  index after an explicit user action. Keep passive reviews metadata-only and do
+  not synthesize transaction flags for integrated-address data.
+- Broadcast or discard a prepared transaction only through its exact authored
+  object. Follow the five-outcome recovery contract in `docs/error-handling.md`.
+- Make Rust, Cargo, generated bridge, and package public-contract changes in
+  the package repository, then run its validation matrix before consumer
+  validation here.
 
 ## Workflow
 
@@ -119,8 +201,8 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 | Dart/Flutter UI, state, repository, routing without generated output impact | Affected files and package versions if external APIs are involved; for Forui API questions, refreshed local Forui docs when network is available | `dart analyze` | `dart format .` |
 | Localization ARB changes | Every `lib/l10n/*.arb` file for key parity and generated localization output impact | `flutter gen-l10n`, `dart analyze` | A focused key-parity check across all ARB files |
 | Riverpod generators, Freezed models, JSON/build_runner annotations | Affected annotations, generated output impact, package versions | `dart run build_runner build -d`, `dart analyze` | `dart format .` |
-| Rust changes without FFI signature impact | Affected modules and crate dependencies if relevant | `cd rust && cargo check` | `cd rust && cargo fmt` |
-| Rust FFI signature or bridge contract changes | Rust API surface, generated bridge impact, Dart call sites | `flutter_rust_bridge_codegen generate`, `dart run build_runner build -d`, `cd rust && cargo check`, `dart analyze` | `cd rust && cargo fmt`, `dart format .` |
+| Shared wallet consumer integration | Resolved `xelis_wallet_flutter` contract and affected Dart call sites | `dart analyze`, `flutter test` | A relevant native or Web consumer build |
+| Cross-repository shared wallet contract change | Package `AGENTS.md`, Rust/API surface, generated bridge impact, and Genesix call sites | Package generation/checks/tests, then Genesix `dart analyze` and `flutter test` | Native and Web consumer builds |
 | Dependency version changes | Manifests, impacted docs, affected call sites; for Forui changes, run `dart run tool/sync_forui_docs.dart` and keep `.agents/references/forui/**` uncommitted | Relevant analyze/check/build command for impacted area | Formatting commands |
 | Security-sensitive wallet changes | Trust boundaries, sensitive-data handling, lifecycle ordering, storage/signing/FFI/XSWD/logging impact | Relevant analyze/check/build command for impacted area and the `wallet-security-review` workflow | Focused tests or security review subagent when risk justifies it |
 | AI guideline/docs-only changes | Instruction entrypoints and links | `dart tool/validate_ai_guidelines.dart` plus Markdown/readability review | No Dart/Rust checks unless code changed |
@@ -200,7 +282,8 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 
 - Use the `rust-ffi-change` skill.
 - Treat public Rust API and bridge signatures as cross-language contracts.
-- Regenerate bridge output and verify Dart call sites after signature changes.
+- Make and regenerate Rust/bridge changes only in `xelis-wallet-flutter`, then
+  verify Genesix call sites through the authored package API.
 
 ### AI Guidelines Maintenance
 

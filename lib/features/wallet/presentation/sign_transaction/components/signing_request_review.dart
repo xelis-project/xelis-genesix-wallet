@@ -13,7 +13,7 @@ import 'package:genesix/shared/widgets/components/async_f_button.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:genesix/shared/widgets/components/labeled_value.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class SigningRequestReview extends ConsumerWidget {
   const SigningRequestReview({
@@ -31,9 +31,9 @@ class SigningRequestReview extends ConsumerWidget {
     super.key,
   });
 
-  final MultisigSigningRequest request;
+  final XelisWalletMultisigSigningRequest request;
   final WalletRuntimeState runtime;
-  final ParticipantDartPayload? participant;
+  final XelisWalletMultisigParticipant? participant;
   final bool isNodeAvailable;
   final String nodeRequirementMessage;
   final bool deleteConfirmed;
@@ -43,8 +43,7 @@ class SigningRequestReview extends ConsumerWidget {
   final VoidCallback onEdit;
   final VoidCallback onSign;
 
-  bool get _isDelete =>
-      request.transaction is MultisigSigningTransaction_DeleteMultisig;
+  bool get _isDelete => request.transaction is XelisWalletMultisigDelete;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -163,7 +162,7 @@ class _VerifiedSignerPanel extends StatelessWidget {
   });
 
   final AppLocalizations loc;
-  final ParticipantDartPayload participant;
+  final XelisWalletMultisigParticipant participant;
   final WalletRuntimeState runtime;
 
   @override
@@ -315,26 +314,31 @@ class _OperationCard extends StatelessWidget {
     required this.loc,
   });
 
-  final MultisigSigningRequest request;
+  final XelisWalletMultisigSigningRequest request;
   final WalletRuntimeState runtime;
   final AppLocalizations loc;
 
   @override
   Widget build(BuildContext context) {
     final (icon, accent, title, details) = switch (request.transaction) {
-      MultisigSigningTransaction_Transfers(:final transfers) => (
+      XelisWalletMultisigTransfers(:final transfers) => (
         FLucideIcons.send,
         context.theme.colors.primary,
         loc.transfer,
         _TransferDetails(transfers: transfers, runtime: runtime, loc: loc),
       ),
-      MultisigSigningTransaction_Burn(:final asset, :final amount) => (
+      XelisWalletMultisigBurn(:final asset, :final amountAtomic) => (
         FLucideIcons.flame,
         context.theme.colors.primary,
         loc.burn,
-        _BurnDetails(asset: asset, amount: amount, runtime: runtime, loc: loc),
+        _BurnDetails(
+          asset: asset,
+          amount: amountAtomic,
+          runtime: runtime,
+          loc: loc,
+        ),
       ),
-      MultisigSigningTransaction_DeleteMultisig() => (
+      XelisWalletMultisigDelete() => (
         FLucideIcons.trash2,
         context.theme.colors.warningColor,
         loc.multisig_removal,
@@ -371,7 +375,7 @@ class _TransferDetails extends StatelessWidget {
     required this.loc,
   });
 
-  final List<MultisigSigningTransfer> transfers;
+  final List<XelisWalletMultisigSigningTransfer> transfers;
   final WalletRuntimeState runtime;
   final AppLocalizations loc;
 
@@ -393,7 +397,7 @@ class _TransferDetails extends StatelessWidget {
             runtime.knownAssets.containsKey(transfer.asset)
                 ? loc.amount
                 : loc.raw_amount,
-            _formatAmount(transfer.amount, transfer.asset, runtime),
+            _formatAmount(transfer.amountAtomic, transfer.asset, runtime),
           ),
           const SizedBox(height: Spaces.smallMedium),
           LabeledValue.child(
@@ -456,7 +460,7 @@ class _RequestDetailsCard extends StatelessWidget {
     required this.loc,
   });
 
-  final MultisigSigningRequest request;
+  final XelisWalletMultisigSigningRequest request;
   final WalletRuntimeState runtime;
   final AppLocalizations loc;
 
@@ -491,19 +495,22 @@ class _RequestDetailsCard extends StatelessWidget {
                         width: itemWidth,
                         child: LabeledValue.text(
                           loc.fee,
-                          formatXelis(request.fee, runtime.network),
+                          formatXelis(request.feeAtomic, runtime.network),
                         ),
                       ),
                       SizedBox(
                         width: itemWidth,
                         child: LabeledValue.text(
                           loc.fee_limit,
-                          formatXelis(request.feeLimit, runtime.network),
+                          formatXelis(request.feeLimitAtomic, runtime.network),
                         ),
                       ),
                       SizedBox(
                         width: itemWidth,
-                        child: LabeledValue.text(loc.network, request.network),
+                        child: LabeledValue.text(
+                          loc.network,
+                          request.network.name,
+                        ),
                       ),
                       SizedBox(
                         width: itemWidth,
@@ -541,7 +548,10 @@ class _RequestDetailsCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  LabeledValue.text(loc.transaction_id, request.hash),
+                  LabeledValue.text(
+                    loc.transaction_hash_to_sign,
+                    request.signingHash,
+                  ),
                 ],
               );
             },

@@ -15,8 +15,7 @@
 
 ## Areas touched
 - [ ] Flutter/Dart
-- [ ] Rust core
-- [ ] Flutter <-> Rust FFI surface
+- [ ] `xelis-wallet-flutter` integration
 - [ ] CI/Release workflow
 
 ## What changed
@@ -26,10 +25,12 @@
 ### Commands run
 - [ ] `dart analyze`
 - [ ] `dart format .`
-- [ ] `cd rust && cargo check`
-- [ ] `cd rust && cargo fmt`
-- [ ] `flutter_rust_bridge_codegen generate` (required if FFI surface changed)
+- [ ] `flutter test`
 - [ ] `dart run build_runner build -d` (required if generated Dart affected)
+- [ ] `flutter gen-l10n` (required if any ARB changed)
+- [ ] Shared package validation (required if its contract/source changed)
+- [ ] `flutter build <platform>` (required if native integration changed)
+- [ ] Consumer Web/native build (required if shared wallet integration changed)
 
 ### Result summary
 - 

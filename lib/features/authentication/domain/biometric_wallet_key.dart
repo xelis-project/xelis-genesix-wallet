@@ -1,14 +1,14 @@
-import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 String biometricWalletKey({
-  required Network network,
+  required XelisNetwork network,
   required String walletName,
 }) {
   return 'biometric_auth:${network.name}:$walletName';
 }
 
 String walletPasswordKey({
-  required Network network,
+  required XelisNetwork network,
   required String walletName,
 }) {
   return 'wallet_password:${network.name}:$walletName';

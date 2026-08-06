@@ -1,21 +1,22 @@
 import 'package:genesix/features/wallet/domain/mnemonic_languages.dart';
-import 'package:genesix/src/generated/rust_bridge/api/seed_search_engine.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class SeedSearchEngineRepository {
   SeedSearchEngineRepository._internal(this._searchEngine);
 
-  final SearchEngine _searchEngine;
+  final SeedSearchEngine _searchEngine;
 
   static final Map<MnemonicLanguage, SeedSearchEngineRepository> _cache =
       <MnemonicLanguage, SeedSearchEngineRepository>{};
 
   factory SeedSearchEngineRepository(MnemonicLanguage language) {
-    SearchEngine searchEngine = SearchEngine.init(
-      languageIndex: BigInt.from(language.rustIndex),
-    );
     return _cache.putIfAbsent(
       language,
-      () => SeedSearchEngineRepository._internal(searchEngine),
+      () => SeedSearchEngineRepository._internal(
+        XelisWalletFlutter.createSeedSearchEngine(
+          language: language.seedLanguage,
+        ),
+      ),
     );
   }
 
@@ -69,6 +70,6 @@ class SeedSearchEngineRepository {
 
   // Check if the seed is valid and return the list of invalid words
   List<String> checkSeed(List<String> seed) {
-    return _searchEngine.checkSeed(seed: seed);
+    return _searchEngine.findInvalidWords(words: seed);
   }
 }

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/wallet/application/xswd_lifecycle_provider.dart';
 
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
@@ -12,7 +13,6 @@ import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 
 import 'xswd_relayer.dart';
-import 'package:genesix/features/wallet/application/xswd_controller_provider.dart';
 
 class XswdPasteConnectionDialog extends ConsumerStatefulWidget {
   const XswdPasteConnectionDialog(this.animation, this.close, {super.key});
@@ -156,16 +156,13 @@ class _XswdPasteConnectionDialogState
       final json = jsonDecode(raw) as Map<String, dynamic>;
       final session = RelaySessionData.fromJson(json);
 
-      final relayerData = session.toApplicationDataRelayer();
+      final relayerData = session.toXelisXswdRelayer();
 
-      talker.info('=== XSWD PASTE CONNECT ===');
-      talker.info('Relayer WS URL: ${relayerData.relayer}');
-      talker.info('App name: ${relayerData.name}');
-      talker.info('Permissions: ${relayerData.permissions}');
+      logDiagnostic(() => 'XSWD pasted payload decoded (length=${raw.length})');
 
       final connected = await ref
-          .read(xswdControllerProvider)
-          .addXswdRelayer(relayerData);
+          .read(xswdLifecycleProvider.notifier)
+          .addRelayer(relayerData);
       if (!connected) {
         if (!mounted) return;
         setState(() {
@@ -191,7 +188,11 @@ class _XswdPasteConnectionDialogState
           .read(toastProvider.notifier)
           .showEvent(description: loc.app_connected_title(relayerData.name));
     } catch (e, st) {
-      talker.error('XSWD paste processing failed', e, st);
+      logSupportEvent(
+        AppSupportEvent.xswdPastedPayloadRejected,
+        diagnosticContext: 'errorType=${e.runtimeType}',
+        stackTrace: st,
+      );
 
       if (!mounted) return;
 

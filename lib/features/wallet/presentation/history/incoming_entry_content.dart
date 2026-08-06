@@ -7,12 +7,12 @@ import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart
 import 'package:genesix/features/wallet/domain/transfer_entry_row.dart';
 import 'package:genesix/features/wallet/presentation/history/transfers_view.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class IncomingEntryContent extends ConsumerWidget {
   const IncomingEntryContent(this.incomingEntry, {super.key});
 
-  final IncomingEntry incomingEntry;
+  final XelisWalletIncomingEntry incomingEntry;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

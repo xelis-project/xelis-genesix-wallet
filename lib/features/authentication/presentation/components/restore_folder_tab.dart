@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,6 +16,7 @@ import 'package:genesix/shared/widgets/components/async_f_button.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path/path.dart' as p;
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class RestoreFolderTab extends ConsumerStatefulWidget {
   const RestoreFolderTab({super.key});
@@ -118,7 +117,7 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
   void _importWalletFolder() async {
     final loc = ref.read(appLocalizationsProvider);
     final network = ref.read(settingsProvider).network;
-    final result = await _pickRestorableWalletFolder(network.name);
+    final result = await _pickRestorableWalletFolder(network);
     if (!mounted) return;
 
     switch (result) {
@@ -140,7 +139,7 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
   }
 
   Future<_RestoreFolderSelectionResult> _pickRestorableWalletFolder(
-    String networkName,
+    XelisNetwork network,
   ) async {
     final path = await FilePicker.getDirectoryPath();
     if (path == null) return const _RestoreFolderCancelled();
@@ -149,11 +148,15 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
       return const _RestoreFolderInvalid();
     }
 
-    final walletName = path.split(p.separator).last;
-    final walletsDir = await getAppWalletsDirPath();
-    final walletExists = await Directory(
-      p.join(walletsDir, networkName, walletName),
-    ).exists();
+    final walletName = p.basename(p.normalize(path));
+    if (!isValidWalletName(walletName)) {
+      return const _RestoreFolderInvalid();
+    }
+
+    final walletExists = await isWalletAlreadyExists(
+      network: network,
+      walletName: walletName,
+    );
 
     if (walletExists) return const _RestoreFolderAlreadyExists();
     return _RestoreFolderSelected(path: path, walletName: walletName);

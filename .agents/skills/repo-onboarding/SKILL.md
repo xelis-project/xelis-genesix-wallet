@@ -14,7 +14,8 @@ Use this skill to build accurate local context before planning or editing.
 3. Read `.agents/knowledge/PROJECT_NOTES.md` before dependency, storage, security, platform, or migration work; treat it as exceptional durable context, not a repository overview.
 4. For UI or provider work, classify the touched surface as legacy, transitional, or target architecture before using neighboring code as precedent.
 5. Inspect task-relevant files instead of relying on the knowledge documents as API references.
-6. Check dependency versions in `pubspec.yaml` or `Cargo.toml` before using third-party APIs.
+6. Check dependency versions in `pubspec.yaml`; when work crosses the native
+   wallet boundary, also inspect the resolved `xelis_wallet_flutter` package.
 7. Identify generated-file impact before proposing edits.
 8. Map the likely validation surface from the matrix in `AGENTS.md`.
 
@@ -24,9 +25,9 @@ Use this skill to build accurate local context before planning or editing.
 - Feature code: `lib/features/<feature>/...`
 - Shared code: `lib/shared/...`
 - Routing: `lib/features/router/**`
-- Rust bridge entry: `rust/src/lib.rs`
-- Rust API modules: `rust/src/api/**`
-- Generated bridge output: `lib/src/generated/**`
+- Native wallet adapter: `lib/features/wallet/data/native_wallet_repository.dart`
+- Native wallet and generated bridge owner: the `xelis_wallet_flutter`
+  dependency, outside the Genesix repository
 - Stable domain terms: `.agents/knowledge/DOMAIN_VOCABULARY.md`
 - Exceptional durable constraints: `.agents/knowledge/PROJECT_NOTES.md`
 

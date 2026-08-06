@@ -3,7 +3,7 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/wallet/presentation/assets/asset_name_widget.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class ContractAssetTransfers extends StatelessWidget {
   const ContractAssetTransfers({
@@ -15,8 +15,8 @@ class ContractAssetTransfers extends StatelessWidget {
   });
 
   final String title;
-  final Map<String, Map<String, int>> transfers;
-  final Map<String, AssetData> knownAssets;
+  final List<XelisWalletContractTransferGroup> transfers;
+  final Map<String, XelisWalletAssetMetadata> knownAssets;
   final AppLocalizations loc;
 
   @override
@@ -61,15 +61,15 @@ class ContractAssetTransfers extends StatelessWidget {
 }
 
 List<_ContractTransferRow> _flattenContractTransfers(
-  Map<String, Map<String, int>> transfers,
+  List<XelisWalletContractTransferGroup> transfers,
 ) {
   return [
-    for (final contractEntry in transfers.entries)
-      for (final assetEntry in contractEntry.value.entries)
+    for (final contractGroup in transfers)
+      for (final transfer in contractGroup.transfers)
         _ContractTransferRow(
-          contract: contractEntry.key,
-          asset: assetEntry.key,
-          amount: assetEntry.value,
+          contract: contractGroup.contract,
+          asset: transfer.asset,
+          amount: transfer.amount,
         ),
   ];
 }
@@ -83,5 +83,5 @@ class _ContractTransferRow {
 
   final String contract;
   final String asset;
-  final int amount;
+  final BigInt amount;
 }

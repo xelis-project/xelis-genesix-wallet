@@ -14,11 +14,9 @@ import 'package:genesix/features/wallet/presentation/components/transaction_view
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/network.dart'
-    as rust;
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart'
+    as wallet_flutter;
 import 'package:go_router/go_router.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class LastTransactionsCard extends ConsumerStatefulWidget {
   const LastTransactionsCard({super.key});
@@ -43,7 +41,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
 
     final lastTransactionsAsync = ref.watch(lastTransactionsProvider);
     final pendingTransactionsAsync = ref.watch(pendingTransactionsProvider);
-    final addressBookAsync = ref.watch(addressBookProvider);
+    final addressBookAsync = ref.watch(addressBookByAddressProvider);
 
     final content = addressBookAsync.when(
       data: (addressBook) => pendingTransactionsAsync.when(
@@ -101,11 +99,13 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
 
   Widget _buildTransactionList({
     required AppLocalizations loc,
-    required rust.Network network,
-    required LinkedHashMap<String, AssetData> knownAssets,
-    required Map<String, ContactDetails> addressBook,
-    required List<TransactionPending> pendingTransactions,
-    required List<TransactionEntry> lastTransactions,
+    required wallet_flutter.XelisNetwork network,
+    required LinkedHashMap<String, wallet_flutter.XelisWalletAssetMetadata>
+    knownAssets,
+    required Map<String, wallet_flutter.XelisAddressBookEntry> addressBook,
+    required List<wallet_flutter.XelisWalletPendingTransaction>
+    pendingTransactions,
+    required List<wallet_flutter.XelisWalletTransactionEntry> lastTransactions,
   }) {
     if (pendingTransactions.isEmpty && lastTransactions.isEmpty) {
       return Padding(
@@ -167,18 +167,13 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
 
   Widget _buildPendingTransactionItem({
     required AppLocalizations loc,
-    required rust.Network network,
-    required LinkedHashMap<String, AssetData> knownAssets,
-    required Map<String, ContactDetails> addressBook,
-    required TransactionPending tx,
+    required wallet_flutter.XelisNetwork network,
+    required LinkedHashMap<String, wallet_flutter.XelisWalletAssetMetadata>
+    knownAssets,
+    required Map<String, wallet_flutter.XelisAddressBookEntry> addressBook,
+    required wallet_flutter.XelisWalletPendingTransaction tx,
   }) {
-    final info = parseTxInfo(
-      loc,
-      network,
-      tx.txEntryType,
-      knownAssets,
-      addressBook,
-    );
+    final info = parseTxInfo(loc, network, tx.entry, knownAssets, addressBook);
     final animationKey = _pendingAnimationKey(tx.hash);
     final isNew = !_animatedHashes.contains(animationKey);
     if (isNew) {
@@ -196,35 +191,38 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
         prefix: Icon(info.icon, color: info.color, size: 18),
         title: Text(info.label, style: context.theme.typography.body.sm),
         subtitle: _transactionSubtitle(
-          txEntryType: tx.txEntryType,
+          txEntryType: tx.entry,
           info: info,
           fallbackText: '${loc.hash}: ${truncateText(tx.hash, maxLength: 8)}',
         ),
         details: Text(
-          tx.timestamp == null ? loc.pending : timeAgo(loc, tx.timestamp!),
+          timeAgo(loc, walletTimestampToDateTime(tx.timestampMillis)),
           style: context.theme.typography.body.xs.copyWith(
             color: context.theme.colors.mutedForeground,
           ),
         ),
-        suffix: FBadge(variant: .secondary, child: Text(loc.pending)),
+        suffix: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: Spaces.extraSmall,
+          children: [
+            if (info.hasAttachedData) TransactionAttachedDataBadge(info: info),
+            FBadge(variant: .secondary, child: Text(loc.pending)),
+          ],
+        ),
+        onPress: () => _showPendingTransactionEntry(tx),
       ),
     );
   }
 
   Widget _buildConfirmedTransactionItem({
     required AppLocalizations loc,
-    required rust.Network network,
-    required LinkedHashMap<String, AssetData> knownAssets,
-    required Map<String, ContactDetails> addressBook,
-    required TransactionEntry tx,
+    required wallet_flutter.XelisNetwork network,
+    required LinkedHashMap<String, wallet_flutter.XelisWalletAssetMetadata>
+    knownAssets,
+    required Map<String, wallet_flutter.XelisAddressBookEntry> addressBook,
+    required wallet_flutter.XelisWalletTransactionEntry tx,
   }) {
-    final info = parseTxInfo(
-      loc,
-      network,
-      tx.txEntryType,
-      knownAssets,
-      addressBook,
-    );
+    final info = parseTxInfo(loc, network, tx.entry, knownAssets, addressBook);
 
     final isNew = !_animatedHashes.contains(tx.hash);
     if (isNew) {
@@ -241,15 +239,13 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
       child: FItem(
         prefix: Icon(info.icon, color: info.color, size: 18),
         title: Text(info.label, style: context.theme.typography.body.sm),
-        subtitle: _transactionSubtitle(txEntryType: tx.txEntryType, info: info),
-        details: tx.timestamp == null
-            ? null
-            : Text(
-                timeAgo(loc, tx.timestamp!),
-                style: context.theme.typography.body.xs.copyWith(
-                  color: context.theme.colors.mutedForeground,
-                ),
-              ),
+        subtitle: _transactionSubtitle(txEntryType: tx.entry, info: info),
+        details: Text(
+          timeAgo(loc, walletTimestampToDateTime(tx.timestampMillis)),
+          style: context.theme.typography.body.xs.copyWith(
+            color: context.theme.colors.mutedForeground,
+          ),
+        ),
         suffix: TransactionInfoSuffix(info: info),
         onPress: () => _showTransactionEntry(tx),
       ),
@@ -272,7 +268,7 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
   }
 
   Widget? _transactionSubtitle({
-    required TransactionEntryType txEntryType,
+    required wallet_flutter.XelisWalletTransactionEntryData txEntryType,
     required TransactionDisplayInfo info,
     String? fallbackText,
   }) {
@@ -307,14 +303,14 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
   }
 
   String? _amountBadgeText(
-    TransactionEntryType txEntryType,
+    wallet_flutter.XelisWalletTransactionEntryData txEntryType,
     TransactionDisplayInfo info,
   ) {
     return switch (txEntryType) {
-      IncomingEntry() ||
-      OutgoingEntry() ||
-      CoinbaseEntry() ||
-      BurnEntry() => info.details,
+      wallet_flutter.XelisWalletIncomingEntry() ||
+      wallet_flutter.XelisWalletOutgoingEntry() ||
+      wallet_flutter.XelisWalletCoinbaseEntry() ||
+      wallet_flutter.XelisWalletBurnEntry() => info.details,
       _ => null,
     };
   }
@@ -331,7 +327,18 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
     });
   }
 
-  void _showTransactionEntry(TransactionEntry transactionEntry) {
+  void _showTransactionEntry(
+    wallet_flutter.XelisWalletTransactionEntry transactionEntry,
+  ) {
+    context.push(
+      AuthAppScreen.transactionEntry.toPath,
+      extra: transactionEntry,
+    );
+  }
+
+  void _showPendingTransactionEntry(
+    wallet_flutter.XelisWalletPendingTransaction transactionEntry,
+  ) {
     context.push(
       AuthAppScreen.transactionEntry.toPath,
       extra: transactionEntry,

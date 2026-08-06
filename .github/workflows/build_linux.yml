@@ -29,9 +29,6 @@ concurrency:
   group: build-linux-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  FRB_CODEGEN_VERSION: 2.12.0
-
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -62,14 +59,8 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Install Flutter Rust bridge
-        run: cargo install flutter_rust_bridge_codegen --version "$FRB_CODEGEN_VERSION" --locked
-
       - name: Install dependencies
         run: flutter pub get
-
-      - name: Generate bridge code
-        run: flutter_rust_bridge_codegen generate
 
       - name: Generate Dart code
         run: dart run build_runner build

@@ -10,9 +10,9 @@ import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart
 import 'package:genesix/features/wallet/domain/network_nodes_state.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/connection_indicator.dart';
 import 'package:genesix/shared/widgets/components/network_mismatch_widget.dart';
-import 'package:intl/intl.dart';
 
 class ConnectionStatusCard extends ConsumerWidget {
   const ConnectionStatusCard({super.key});
@@ -36,7 +36,7 @@ class ConnectionStatusCard extends ConsumerWidget {
       walletRuntimeProvider.select((state) => state.isRescanning),
     );
 
-    var displayedTopoheight = NumberFormat().format(topoheight);
+    final displayedTopoheight = formatBigInt(topoheight);
 
     return AppCard(
       clipBehavior: Clip.antiAlias,

@@ -4,12 +4,12 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/settings/domain/network_translate_name.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class NetworkSelectMenuTile extends ConsumerStatefulWidget {
   const NetworkSelectMenuTile({super.key, this.onSelected});
 
-  final ValueChanged<Network>? onSelected;
+  final ValueChanged<XelisNetwork>? onSelected;
 
   @override
   ConsumerState<NetworkSelectMenuTile> createState() =>
@@ -17,7 +17,7 @@ class NetworkSelectMenuTile extends ConsumerStatefulWidget {
 }
 
 class _NetworkSelectMenuTileState extends ConsumerState<NetworkSelectMenuTile> {
-  late final FMultiValueNotifier<Network> _controller;
+  late final FMultiValueNotifier<XelisNetwork> _controller;
 
   @override
   void initState() {
@@ -26,7 +26,7 @@ class _NetworkSelectMenuTileState extends ConsumerState<NetworkSelectMenuTile> {
       settingsProvider.select((state) => state.network),
     );
 
-    _controller = FMultiValueNotifier<Network>.radio(initialNetwork);
+    _controller = FMultiValueNotifier<XelisNetwork>.radio(initialNetwork);
   }
 
   @override
@@ -65,10 +65,10 @@ class _NetworkSelectMenuTileState extends ConsumerState<NetworkSelectMenuTile> {
         return Text(translateNetworkName(loc, selected));
       },
       menu: [
-        FSelectTile(title: Text(loc.mainnet), value: Network.mainnet),
-        FSelectTile(title: Text(loc.testnet), value: Network.testnet),
-        FSelectTile(title: Text(loc.stagenet), value: Network.stagenet),
-        FSelectTile(title: Text(loc.devnet), value: Network.devnet),
+        FSelectTile(title: Text(loc.mainnet), value: XelisNetwork.mainnet),
+        FSelectTile(title: Text(loc.testnet), value: XelisNetwork.testnet),
+        FSelectTile(title: Text(loc.stagenet), value: XelisNetwork.stagenet),
+        FSelectTile(title: Text(loc.devnet), value: XelisNetwork.devnet),
       ],
     );
   }

@@ -1,4 +1,33 @@
 {
+  "@multisig_setup_participant_count": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "@multisig_setup_threshold_summary": {
+    "placeholders": {
+      "threshold": {"type": "int"},
+      "participants": {"type": "int"}
+    }
+  },
+  "@multisig_signing_current_wallet_participant": {
+    "placeholders": {
+      "participantId": {"type": "int"}
+    }
+  },
+  "@support_reference": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "@xswd_fee_atomic_units": {
+    "placeholders": {"amount": {"type": "int"}}
+  },
+  "@xswd_fee_multiplier": {
+    "placeholders": {"multiplier": {"type": "double"}}
+  },
   "node_url_hint": "https://node.xelis.io",
   "node_name_hint": "Mój węzeł",
   "node_name": "Nazwa węzła",
@@ -19,6 +48,7 @@
   "hide_transactions_zero_value": "Ukryj transakcje z transferami o zerowym saldzie.",
   "hide_extra_data_description": "Ukryj dodatkowe dane w szczegółach transakcji.",
   "select_contract": "Wybierz kontrakt",
+  "select_contact": "Wybierz kontakt",
   "select_asset": "Wybierz aktywo",
   "category_burn_subtitle": "Transakcje, w których spalono aktywa.",
   "category_coinbase_subtitle": "Transakcje, w których otrzymano nagrody.",
@@ -225,7 +255,23 @@
   "search": "Szukaj",
   "destination": "Cel",
   "integrated_address_detected": "Zintegrowana adresa wykryta",
-  "payment_id": "Numer identyfikacji płatności",
+  "attached_data": "Dołączone dane",
+  "attached_data_badge": "Dane",
+  "attached_data_included": "Dołączone",
+  "attached_data_encrypted": "Zaszyfrowane",
+  "attached_data_not_encrypted": "Niezaszyfrowane",
+  "view_attached_data": "Wyświetl dołączone dane",
+  "attached_data_source": "Źródło",
+  "attached_data_source_integrated_address": "Zintegrowany adres",
+  "attached_data_source_explicit": "Oddzielne dołączone dane",
+  "receive_advanced_payment_request": "Zaawansowane żądanie płatności",
+  "receive_advanced_payment_request_description": "Dołącz tekst do swojego adresu, gdy nadawca musi podać numer referencyjny.",
+  "receive_attached_text_label": "Dołączony tekst",
+  "receive_attached_text_hint": "Numer referencyjny zamówienia lub wpłaty",
+  "receive_create_integrated_address": "Utwórz adres z dołączonymi danymi",
+  "receive_integrated_address_data_visible": "Widoczne w adresie",
+  "receive_integrated_address_data_visible_description": "Każda osoba, która otrzyma ten adres, może odczytać dołączony tekst.",
+  "receive_integrated_address_invalid_data": "Nie można dodać tego tekstu do adresu. Skróć go i spróbuj ponownie.",
   "reset_preferences": "Zresetować preferencje",
   "reset_preferences_dialog": "Jesteś w trakcie resetowania wszystkich ustawień, języka, motywu i listy węzłów.",
   "do_you_want_to_continue": "Czy chcesz kontynuować?",
@@ -334,6 +380,7 @@
   "please_authenticate_delete_wallet": "Prosimy o autoryzację, aby usunąć ten portfel",
   "please_authenticate_view_seed": "Prosimy o autoryzację, aby wyświetlić swój kod odzyskiwania",
   "biometric_not_available_warning": "Biometria nie jest dostępna, sprawdź ustawienia urządzenia",
+  "biometric_auth_temporarily_locked": "Uwierzytelnianie biometryczne jest tymczasowo zablokowane. Spróbuj ponownie później.",
   "password_not_found": "Hasło nie znaleziono",
   "filters": "Filtry",
   "no_transactions_found": "Nie znaleziono transakcji",
@@ -391,6 +438,15 @@
   "item_count": "{count} items",
   "entry_count": "{count} entries",
   "xswd_channel_title": "XSWD",
+  "xswd_transaction_review_title": "Sprawdź transakcję",
+  "xswd_transaction_review_warning": "Sprawdź wszystkie szczegóły transakcji przed jednorazowym zezwoleniem. Tej decyzji nie można zapamiętać.",
+  "xswd_allow_once": "Zezwól raz",
+  "xswd_transaction_nonce": "Nonce",
+  "xswd_transaction_version": "Wersja transakcji",
+  "xswd_response_as_hex": "Odpowiedź szesnastkowa",
+  "xswd_fee_automatic": "Obliczana automatycznie",
+  "xswd_fee_atomic_units": "{amount} jednostek atomowych",
+  "xswd_fee_multiplier": "{multiplier}× opłata bazowa",
   "xswd_relayer_channel_title": "XSWD Relayer",
   "cannot_start_xswd": "Nie można uruchomić połączonych aplikacji",
   "cannot_close_xswd_connection": "Nie można zamknąć połączenia połączonej aplikacji",
@@ -463,15 +519,7 @@
   "copied_to_clipboard": "Skopiowano do schowka",
   "edit_button": "Edytuj",
   "tx_contract_transfer": "Transfer kontraktu",
-  "contract_logs": "Logi kontraktu",
   "chunk_id": "ID fragmentu",
-  "log_transfer": "Transfer",
-  "log_transfer_to_contract": "Transfer do kontraktu",
-  "log_mint": "Mint",
-  "log_gas_refund": "Zwrot gas",
-  "log_exit_code": "Kod wyjścia",
-  "log_new_asset": "Nowy zasób",
-  "log_failed": "Niepowodzenie",
   "received": "Otrzymano",
   "constructor": "Konstruktor",
   "to_address": "Do: {address}",
@@ -509,5 +557,15 @@
   "paste_signature_share": "Wklej część podpisu",
   "invalid_multisig_signature_share": "Ta część podpisu jest nieprawidłowa lub należy do innej transakcji.",
   "duplicate_multisig_signature_share": "Ten uczestnik już dostarczył podpis.",
-  "remove_signature_share": "Usuń udział podpisu"
+  "remove_signature_share": "Usuń udział podpisu",
+  "wallet_failure_generic": "Portfel nie mógł zrealizować tego żądania.",
+  "wallet_failure_invalid_input": "Sprawdź podane informacje i spróbuj ponownie.",
+  "wallet_failure_authentication_or_corrupt_data": "Hasło jest nieprawidłowe lub nie można odczytać danych portfela.",
+  "wallet_failure_network": "Sieć jest niedostępna. Sprawdź połączenie lub węzeł i spróbuj ponownie.",
+  "wallet_failure_daemon_rejected": "Węzeł odrzucił to żądanie.",
+  "wallet_failure_insufficient_funds": "Dostępne saldo jest niewystarczające.",
+  "password_changed_biometric_disabled": "Nowe hasło jest aktywne. Odblokowywanie biometryczne zostało wyłączone; użyj nowego hasła.",
+  "password_changed_biometric_cleanup_failed": "Nowe hasło jest aktywne. Odblokowywanie biometryczne zostało wyłączone, ale nie udało się usunąć części zapisanych danych dostępu. Pozostaw dostęp biometryczny wyłączony i użyj nowego hasła.",
+  "password_change_native_state_indeterminate": "Nie udało się potwierdzić aktualizacji hasła. Zachowaj stare i nowe hasło, nie próbuj ponownie i skontaktuj się z pomocą techniczną, podając ten numer referencyjny.",
+  "support_reference": "Numer referencyjny pomocy: {reference}"
 }

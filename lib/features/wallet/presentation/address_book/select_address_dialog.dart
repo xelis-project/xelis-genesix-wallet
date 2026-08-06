@@ -85,11 +85,21 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
                   );
                 }
 
-                final filteredContacts = book.entries.where((entry) {
+                final filteredContacts = book.values.where((contact) {
                   if (_searchQuery.isEmpty) return true;
                   final lowerQuery = _searchQuery.toLowerCase();
-                  return entry.value.name.toLowerCase().contains(lowerQuery) ||
-                      entry.key.toLowerCase().contains(lowerQuery);
+                  return contact.displayName.toLowerCase().contains(
+                        lowerQuery,
+                      ) ||
+                      contact.destination.address.toLowerCase().contains(
+                        lowerQuery,
+                      ) ||
+                      (contact.destinationLabel?.toLowerCase().contains(
+                            lowerQuery,
+                          ) ??
+                          false) ||
+                      (contact.note?.toLowerCase().contains(lowerQuery) ??
+                          false);
                 }).toList();
 
                 if (filteredContacts.isEmpty) {
@@ -103,13 +113,11 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
                   shrinkWrap: true,
                   itemCount: filteredContacts.length,
                   itemBuilder: (context, index) {
-                    final entry = filteredContacts[index];
-                    final address = entry.key;
-                    final details = entry.value;
+                    final contact = filteredContacts[index];
                     return ContactListTile(
-                      contact: details,
+                      contact: contact,
                       localizations: loc,
-                      onOpen: () => context.pop(address),
+                      onOpen: () => context.pop(contact.destination.address),
                     );
                   },
                 );

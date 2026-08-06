@@ -4,7 +4,7 @@ import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class ContactListTile extends StatelessWidget {
   const ContactListTile({
@@ -17,7 +17,7 @@ class ContactListTile extends StatelessWidget {
     this.onDelete,
   });
 
-  final ContactDetails contact;
+  final XelisAddressBookEntry contact;
   final AppLocalizations localizations;
   final VoidCallback? onOpen;
   final VoidCallback? onSend;
@@ -34,12 +34,13 @@ class ContactListTile extends StatelessWidget {
           final compact = constraints.maxWidth < context.theme.breakpoints.sm;
           final identity = _ContactIdentityButton(
             contact: contact,
+            localizations: localizations,
             onOpen: onOpen,
             compact: compact,
           );
           final actions = _ContactActions(
             localizations: localizations,
-            name: contact.name,
+            name: contact.displayName,
             compact: compact,
             onSend: onSend,
             onEdit: onEdit,
@@ -64,11 +65,13 @@ class ContactListTile extends StatelessWidget {
 class _ContactIdentityButton extends StatefulWidget {
   const _ContactIdentityButton({
     required this.contact,
+    required this.localizations,
     required this.onOpen,
     required this.compact,
   });
 
-  final ContactDetails contact;
+  final XelisAddressBookEntry contact;
+  final AppLocalizations localizations;
   final VoidCallback? onOpen;
   final bool compact;
 
@@ -96,7 +99,7 @@ class _ContactIdentityButtonState extends State<_ContactIdentityButton> {
       child: Row(
         children: [
           HashiconWidget(
-            hash: widget.contact.address,
+            hash: widget.contact.destination.address,
             size: Size(widget.compact ? 32 : 38, widget.compact ? 32 : 38),
           ),
           const SizedBox(width: Spaces.small),
@@ -105,17 +108,30 @@ class _ContactIdentityButtonState extends State<_ContactIdentityButton> {
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: Spaces.extraSmall,
               children: [
-                Text(
-                  widget.contact.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.theme.typography.body.sm.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        widget.contact.displayName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.theme.typography.body.sm.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    if (widget.contact.destination.hasIntegratedData) ...[
+                      const SizedBox(width: Spaces.small),
+                      FBadge(
+                        variant: .secondary,
+                        child: Text(widget.localizations.attached_data_badge),
+                      ),
+                    ],
+                  ],
                 ),
                 Text(
                   truncateText(
-                    widget.contact.address,
+                    widget.contact.destination.address,
                     maxLength: widget.compact ? 18 : 28,
                   ),
                   maxLines: 1,

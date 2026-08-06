@@ -7,6 +7,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/presentation/side_bar/change_password_dialog.dart';
 import 'package:genesix/features/wallet/presentation/side_bar/wallet_name_widget.dart';
+import 'package:genesix/shared/errors/app_failure_reporter.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
@@ -79,6 +80,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
   void _showChangePasswordDialog() {
     showAppDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (context, style, animation) {
         return ChangePasswordDialog(animation);
       },
@@ -104,15 +106,22 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
                   wallets
                       .deleteWallet(walletRuntimeState.name)
                       .then(
-                        (value) {
+                        (deleted) {
+                          if (!deleted) return;
                           ref
                               .read(toastProvider.notifier)
                               .showEvent(description: loc.wallet_deleted);
                         },
-                        onError: (Object e) {
+                        onError: (Object error, StackTrace stackTrace) {
+                          final failure = recordAppFailure(
+                            error,
+                            stackTrace,
+                            operation: 'wallet.delete',
+                            applicationCode: 'wallet_delete_failed',
+                          );
                           ref
                               .read(toastProvider.notifier)
-                              .showError(description: e.toString());
+                              .showFailure(failure: failure);
                         },
                       );
                 },

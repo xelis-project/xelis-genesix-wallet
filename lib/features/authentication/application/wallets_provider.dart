@@ -13,14 +13,14 @@ import 'package:path/path.dart' as p;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 part 'wallets_provider.g.dart';
 
 @riverpod
 class Wallets extends _$Wallets {
   final String _addressFileName = "addr.txt";
-  late Network _network;
+  late XelisNetwork _network;
 
   @override
   Future<WalletsState> build() async {
@@ -33,28 +33,31 @@ class Wallets extends _$Wallets {
       settingsProvider.select((state) => state.lastWalletsUsed),
     );
 
-    final wallets = await _loadWallets();
+    final wallets = await _loadWallets(network);
 
     return WalletsState(wallets: wallets, lastWalletsUsed: lastWalletsUsed);
   }
 
-  Future<String> _getWalletDirPath() async {
+  Future<String> _getWalletDirPath(XelisNetwork network) async {
     final walletsPath = await getAppWalletsDirPath();
-    return p.join(walletsPath, _network.name);
+    return p.join(walletsPath, network.name);
   }
 
-  Future<Directory> _getWalletsDir() async {
-    final walletsPath = await _getWalletDirPath();
+  Future<Directory> _getWalletsDir(XelisNetwork network) async {
+    final walletsPath = await _getWalletDirPath(network);
     return Directory(walletsPath);
   }
 
-  Future<String> _getWalletAddressPath(String name) async {
-    final walletsDir = await _getWalletsDir();
-    return p.join(walletsDir.path, name, _addressFileName);
+  Future<String> _getWalletAddressPath(
+    XelisNetwork network,
+    String name,
+  ) async {
+    final walletPath = await getWalletPath(network, name);
+    return p.join(walletPath, _addressFileName);
   }
 
-  Future<String> _getWalletAddress(String name) async {
-    var walletAddressPath = await _getWalletAddressPath(name);
+  Future<String> _getWalletAddress(XelisNetwork network, String name) async {
+    var walletAddressPath = await _getWalletAddressPath(network, name);
 
     if (kIsWeb) {
       var addr = localStorage.getItem(walletAddressPath);
@@ -74,26 +77,30 @@ class Wallets extends _$Wallets {
     }
   }
 
-  Future<Map<String, String>> _loadWallets() async {
+  Future<Map<String, String>> _loadWallets(XelisNetwork network) async {
     Map<String, String> wallets = {};
 
     if (kIsWeb) {
-      final walletsPath = await _getWalletDirPath();
+      final walletsPath = await _getWalletDirPath(network);
 
       // not using SharedPreferences because it's loading all keys & values in cache
       // it's also using a prefix and we need to use allowList -_-
 
       for (int i = 0; i < localStorage.length; i++) {
-        var key = localStorage.key(i)!;
-        if (key.startsWith(walletsPath) && !key.endsWith(_addressFileName)) {
-          var name = p.basename(key);
+        final key = localStorage.key(i);
+        if (key == null || !p.isWithin(walletsPath, key)) continue;
 
-          var addr = await _getWalletAddress(name);
-          wallets[name] = addr;
-        }
+        final name = p.relative(key, from: walletsPath);
+        if (!isValidWalletName(name)) continue;
+
+        final walletPath = await getWalletPath(network, name);
+        if (p.normalize(key) != walletPath) continue;
+
+        final addr = await _getWalletAddress(network, name);
+        wallets[name] = addr;
       }
     } else {
-      final walletsDir = await _getWalletsDir();
+      final walletsDir = await _getWalletsDir(network);
       var exists = await walletsDir.exists();
       if (!exists) {
         return wallets;
@@ -101,10 +108,12 @@ class Wallets extends _$Wallets {
 
       final files = await walletsDir.list().toList();
       for (var file in files) {
-        var stats = await file.stat();
-        if (stats.type == FileSystemEntityType.directory) {
-          var name = p.basename(file.path);
-          var addr = await _getWalletAddress(name);
+        final type = await FileSystemEntity.type(file.path, followLinks: false);
+        if (type == FileSystemEntityType.directory) {
+          final name = p.basename(file.path);
+          if (!isValidWalletName(name)) continue;
+
+          final addr = await _getWalletAddress(network, name);
           wallets[name] = addr;
         }
       }
@@ -113,10 +122,12 @@ class Wallets extends _$Wallets {
     return wallets;
   }
 
-  Future<void> renameWallet(String name, String newName) async {
-    final walletsPath = await _getWalletDirPath();
-    final walletPath = p.join(walletsPath, name);
-    final newWalletPath = p.join(walletsPath, newName);
+  Future<bool> renameWallet(String name, String newName) async {
+    final network = _network;
+    final walletPath = await getWalletPath(network, name);
+    final newWalletPath = await getWalletPath(network, newName);
+    final walletAddressPath = await _getWalletAddressPath(network, name);
+    final newWalletAddressPath = await _getWalletAddressPath(network, newName);
     final loc = ref.read(appLocalizationsProvider);
     final activeSession = ref.read(activeWalletSessionProvider);
 
@@ -126,16 +137,28 @@ class Wallets extends _$Wallets {
         throw loc.wallet_name_already_exists;
       }
     } else {
-      final newDir = Directory(newWalletPath);
-      final exists = await newDir.exists();
-      if (exists) {
+      await _requireDirectWalletDirectory(walletPath);
+      final newPathType = await FileSystemEntity.type(
+        newWalletPath,
+        followLinks: false,
+      );
+      if (newPathType != FileSystemEntityType.notFound) {
         throw loc.wallet_name_already_exists;
       }
     }
 
     if (!kIsWeb && Platform.isWindows) {
-      if (activeSession?.name == name) {
-        await ref.read(walletSessionCommandsProvider.notifier).logout();
+      if (isSessionForWalletTarget(activeSession, network, name)) {
+        if (!isSameWalletSession(
+          ref.read(activeWalletSessionProvider),
+          activeSession,
+        )) {
+          throw StateError('The active wallet session changed.');
+        }
+        final closeFailure = await ref
+            .read(walletSessionCommandsProvider.notifier)
+            .logout();
+        if (closeFailure != null) return false;
       }
     }
 
@@ -143,20 +166,28 @@ class Wallets extends _$Wallets {
       final wallet = localStorage.getItem(walletPath);
       localStorage.setItem(newWalletPath, wallet!);
       localStorage.removeItem(walletPath);
+
+      final address = localStorage.getItem(walletAddressPath);
+      localStorage.removeItem(newWalletAddressPath);
+      if (address != null) {
+        localStorage.setItem(newWalletAddressPath, address);
+      }
+      localStorage.removeItem(walletAddressPath);
     } else {
+      await _requireDirectWalletDirectory(walletPath);
       await Directory(walletPath).rename(newWalletPath);
 
       final secureStorage = ref.read(secureStorageProvider);
       final password = await _readStoredWalletPassword(
         name: name,
-        network: _network,
+        network: network,
       );
       final oldBiometricKey = biometricWalletKey(
-        network: _network,
+        network: network,
         walletName: name,
       );
       final newBiometricKey = biometricWalletKey(
-        network: _network,
+        network: network,
         walletName: newName,
       );
       final biometricEnabled = await secureStorage.containsKey(
@@ -167,31 +198,32 @@ class Wallets extends _$Wallets {
         await secureStorage.delete(key: oldBiometricKey);
         if (password != null) {
           await secureStorage.write(
-            key: walletPasswordKey(network: _network, walletName: newName),
+            key: walletPasswordKey(network: network, walletName: newName),
             value: password,
           );
         }
       }
       await secureStorage.delete(
-        key: walletPasswordKey(network: _network, walletName: name),
+        key: walletPasswordKey(network: network, walletName: name),
       );
-      await _deleteLegacyPasswordIfUnused(name: name, currentNetwork: _network);
+      await _deleteLegacyPasswordIfUnused(name: name, currentNetwork: network);
     }
 
     final settingsNotifier = ref.read(settingsProvider.notifier);
-    switch (_network) {
-      case Network.mainnet:
+    switch (network) {
+      case XelisNetwork.mainnet:
         settingsNotifier.setLastMainnetWalletUsed(newName);
-      case Network.testnet:
+      case XelisNetwork.testnet:
         settingsNotifier.setLastTestnetWalletUsed(newName);
-      case Network.devnet:
+      case XelisNetwork.devnet:
         settingsNotifier.setLastDevnetWalletUsed(newName);
-      case Network.stagenet:
+      case XelisNetwork.stagenet:
         settingsNotifier.setLastStagenetWalletUsed(newName);
     }
 
     final currentSession = ref.read(activeWalletSessionProvider);
-    if (currentSession?.name == name) {
+    if (isSessionForWalletTarget(activeSession, network, name) &&
+        isSameWalletSession(currentSession, activeSession)) {
       ref
           .read(activeWalletSessionProvider.notifier)
           .setSession(
@@ -201,14 +233,17 @@ class Wallets extends _$Wallets {
             ),
           );
     }
+    return true;
   }
 
   Future<void> setWalletAddress(String name, String address) async {
-    var walletAddressPath = await _getWalletAddressPath(name);
+    final network = _network;
+    var walletAddressPath = await _getWalletAddressPath(network, name);
 
     if (kIsWeb) {
       localStorage.setItem(walletAddressPath, address);
     } else {
+      await _requireDirectWalletDirectory(await getWalletPath(network, name));
       var file = File(walletAddressPath);
       var exists = await file.exists();
 
@@ -219,36 +254,59 @@ class Wallets extends _$Wallets {
     }
   }
 
-  Future<void> deleteWallet(String name) async {
-    final walletsPath = await _getWalletDirPath();
-    final walletPath = p.join(walletsPath, name);
+  Future<bool> deleteWallet(String name) async {
+    final network = _network;
+    final walletPath = await getWalletPath(network, name);
+    final walletAddressPath = await _getWalletAddressPath(network, name);
 
     final activeSession = ref.read(activeWalletSessionProvider);
-    if (activeSession?.name == name) {
-      await ref.read(walletSessionCommandsProvider.notifier).logout();
+    if (!kIsWeb) {
+      await _requireDirectWalletDirectory(walletPath);
+    }
+    if (isSessionForWalletTarget(activeSession, network, name)) {
+      if (!isSameWalletSession(
+        ref.read(activeWalletSessionProvider),
+        activeSession,
+      )) {
+        throw StateError('The active wallet session changed.');
+      }
+      final closeFailure = await ref
+          .read(walletSessionCommandsProvider.notifier)
+          .logout();
+      if (closeFailure != null) return false;
     }
 
     if (kIsWeb) {
       localStorage.removeItem(walletPath);
+      localStorage.removeItem(walletAddressPath);
     } else {
+      await _requireDirectWalletDirectory(walletPath);
       await Directory(walletPath).delete(recursive: true);
 
       final secureStorage = ref.read(secureStorageProvider);
       final biometricKey = biometricWalletKey(
-        network: _network,
+        network: network,
         walletName: name,
       );
       await secureStorage.delete(key: biometricKey);
       await secureStorage.delete(
-        key: walletPasswordKey(network: _network, walletName: name),
+        key: walletPasswordKey(network: network, walletName: name),
       );
-      await _deleteLegacyPasswordIfUnused(name: name, currentNetwork: _network);
+      await _deleteLegacyPasswordIfUnused(name: name, currentNetwork: network);
+    }
+    return true;
+  }
+
+  Future<void> _requireDirectWalletDirectory(String walletPath) async {
+    final type = await FileSystemEntity.type(walletPath, followLinks: false);
+    if (type != FileSystemEntityType.directory) {
+      throw const UnsafeWalletPathException();
     }
   }
 
   Future<String?> _readStoredWalletPassword({
     required String name,
-    required Network network,
+    required XelisNetwork network,
   }) async {
     final secureStorage = ref.read(secureStorageProvider);
     final password = await secureStorage.read(
@@ -260,10 +318,10 @@ class Wallets extends _$Wallets {
 
   Future<void> _deleteLegacyPasswordIfUnused({
     required String name,
-    required Network currentNetwork,
+    required XelisNetwork currentNetwork,
   }) async {
     final secureStorage = ref.read(secureStorageProvider);
-    for (final network in Network.values) {
+    for (final network in XelisNetwork.values) {
       if (network == currentNetwork) {
         continue;
       }
@@ -277,4 +335,19 @@ class Wallets extends _$Wallets {
 
     await secureStorage.delete(key: legacyWalletPasswordKey(walletName: name));
   }
+}
+
+bool isSessionForWalletTarget(
+  WalletSession? session,
+  XelisNetwork network,
+  String name,
+) {
+  return session != null && session.name == name && session.network == network;
+}
+
+bool isSameWalletSession(WalletSession? current, WalletSession? captured) {
+  if (current == null || captured == null) return current == captured;
+  return current.name == captured.name &&
+      current.network == captured.network &&
+      identical(current.repository, captured.repository);
 }

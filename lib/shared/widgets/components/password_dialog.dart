@@ -6,6 +6,8 @@ import 'package:forui/forui.dart';
 import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/shared/errors/app_failure_reporter.dart';
+import 'package:genesix/shared/models/app_failure.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
@@ -64,19 +66,37 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
     final wallet = ref.read(activeWalletRepositoryProvider);
     final loc = ref.read(appLocalizationsProvider);
 
-    try {
-      if (wallet == null) {
-        throw Exception(loc.oups);
-      }
+    if (wallet == null) {
+      final failure = recordAppFailure(
+        StateError('No active wallet repository.'),
+        StackTrace.current,
+        operation: 'wallet.password.verify',
+        applicationCode: 'wallet_session_missing',
+        applicationCategory: AppFailureCategory.operationFailure,
+      );
+      ref
+          .read(toastProvider.notifier)
+          .showFailure(title: loc.authentication, failure: failure);
+      return;
+    }
 
+    try {
       await wallet.isValidPassword(password);
       await widget.onValid?.call();
 
       if (widget.closeOnValid && mounted) {
         context.pop();
       }
-    } catch (e) {
-      ref.read(toastProvider.notifier).showError(description: e.toString());
+    } catch (error, stackTrace) {
+      final failure = recordAppFailure(
+        error,
+        stackTrace,
+        operation: 'wallet.password.verify',
+        applicationCode: 'wallet_password_verify_failed',
+      );
+      ref
+          .read(toastProvider.notifier)
+          .showFailure(title: loc.authentication, failure: failure);
     }
   }
 

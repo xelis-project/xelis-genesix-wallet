@@ -1,15 +1,15 @@
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
-String translateNetworkName(AppLocalizations loc, Network network) {
+String translateNetworkName(AppLocalizations loc, XelisNetwork network) {
   switch (network) {
-    case Network.devnet:
+    case XelisNetwork.devnet:
       return loc.devnet;
-    case Network.testnet:
+    case XelisNetwork.testnet:
       return loc.testnet;
-    case Network.mainnet:
+    case XelisNetwork.mainnet:
       return loc.mainnet;
-    case Network.stagenet:
+    case XelisNetwork.stagenet:
       return loc.stagenet;
   }
 }

@@ -12,7 +12,8 @@ import 'package:genesix/features/wallet/presentation/home/usd_balance_widget.dar
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
+import 'package:genesix/shared/utils/utils.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 import 'package:go_router/go_router.dart';
 
 class BalanceCard extends ConsumerStatefulWidget {
@@ -43,13 +44,16 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
       effectiveDisplayCurrencyProvider,
     );
 
-    var displayedBalance = walletState.xelisBalance;
+    var displayedBalance = formatXelis(
+      walletState.xelisBalance,
+      walletState.network,
+    );
 
     if (settings.hideBalance) {
       displayedBalance = hidden;
     }
 
-    final isMainnet = settings.network == Network.mainnet;
+    final isMainnet = settings.network == XelisNetwork.mainnet;
 
     return FCard(
       clipBehavior: Clip.antiAlias,
@@ -98,9 +102,10 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                       // Show converted balance only on mainnet
                       UsdBalanceWidget(
                         double.tryParse(
-                              walletState.trackedBalances[AppResources
-                                      .xelisHash] ??
-                                  AppResources.zeroBalance,
+                              formatAtomicAmount(
+                                walletState.xelisBalance,
+                                AppResources.xelisDecimals,
+                              ),
                             ) ??
                             0.0,
                       ),

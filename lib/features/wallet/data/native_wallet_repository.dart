@@ -1,799 +1,552 @@
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart'
+    as wallet_flutter;
 
-import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
-import 'package:genesix/features/wallet/domain/transaction_broadcast_result.dart';
-import 'package:genesix/features/wallet/domain/transaction_summary.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
-import 'package:genesix/src/generated/rust_bridge/api/precomputed_tables.dart'
-    as tables_api;
-import 'package:genesix/src/generated/rust_bridge/api/precomputed_tables.dart'
-    show arePrecomputedTablesAvailable;
-
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
-import 'package:genesix/features/wallet/domain/event.dart';
 import 'package:genesix/features/logger/logger.dart';
-import 'package:genesix/src/generated/rust_bridge/api/wallet.dart';
 
 class NativeWalletRepository {
-  NativeWalletRepository._internal(this._xelisWallet);
+  NativeWalletRepository._internal(this._wallet, this._network);
 
-  final XelisWallet _xelisWallet;
-
-  // Only one background upgrade at a time
-  static Completer<void>? _tableUpgradeCompleter;
+  final wallet_flutter.XelisWallet _wallet;
+  final wallet_flutter.XelisNetwork _network;
 
   static Future<NativeWalletRepository> create(
     String walletPath,
     String pwd,
-    Network network, {
+    wallet_flutter.XelisNetwork network, {
     String? precomputeTablesPath,
-    required tables_api.PrecomputedTableType precomputedTableType,
+    required wallet_flutter.XelisPrecomputedTableType precomputedTableType,
   }) async {
-    final xelisWallet = await createXelisWallet(
-      directory: walletPath,
-      name: "",
+    final xelisWallet = await wallet_flutter.XelisWalletFlutter.createWallet(
+      walletPath: walletPath,
       password: pwd,
       network: network,
       precomputedTablesPath: precomputeTablesPath,
       precomputedTableType: precomputedTableType,
     );
 
-    unawaited(
-      _maybeUpgradeTablesInBackground(
-        precomputeTablesPath: precomputeTablesPath,
-        desiredType: precomputedTableType,
-      ),
-    );
-
-    talker.info('new XELIS Wallet created: $walletPath');
-    return NativeWalletRepository._internal(xelisWallet);
+    logDiagnostic(() => 'New XELIS wallet created: path=$walletPath');
+    return NativeWalletRepository._internal(xelisWallet, network);
   }
 
   static Future<NativeWalletRepository> recoverFromSeed(
     String walletPath,
     String pwd,
-    Network network, {
+    wallet_flutter.XelisNetwork network, {
     required String seed,
     String? precomputeTablesPath,
-    required tables_api.PrecomputedTableType precomputedTableType,
+    required wallet_flutter.XelisPrecomputedTableType precomputedTableType,
   }) async {
-    final xelisWallet = await createXelisWallet(
-      directory: walletPath,
-      name: "",
-      password: pwd,
-      seed: seed,
-      network: network,
-      precomputedTablesPath: precomputeTablesPath,
-      precomputedTableType: precomputedTableType,
-    );
+    final xelisWallet =
+        await wallet_flutter.XelisWalletFlutter.recoverWalletFromSeed(
+          walletPath: walletPath,
+          password: pwd,
+          seed: seed,
+          network: network,
+          precomputedTablesPath: precomputeTablesPath,
+          precomputedTableType: precomputedTableType,
+        );
 
-    unawaited(
-      _maybeUpgradeTablesInBackground(
-        precomputeTablesPath: precomputeTablesPath,
-        desiredType: precomputedTableType,
-      ),
-    );
-
-    talker.info('XELIS Wallet recovered from seed: $walletPath');
-    return NativeWalletRepository._internal(xelisWallet);
+    logDiagnostic(() => 'XELIS wallet recovered from seed: path=$walletPath');
+    return NativeWalletRepository._internal(xelisWallet, network);
   }
 
   static Future<NativeWalletRepository> recoverFromPrivateKey(
     String walletPath,
     String pwd,
-    Network network, {
+    wallet_flutter.XelisNetwork network, {
     required String privateKey,
     String? precomputeTablesPath,
-    required tables_api.PrecomputedTableType precomputedTableType,
+    required wallet_flutter.XelisPrecomputedTableType precomputedTableType,
   }) async {
-    final xelisWallet = await createXelisWallet(
-      directory: walletPath,
-      name: "",
-      password: pwd,
-      privateKey: privateKey,
-      network: network,
-      precomputedTablesPath: precomputeTablesPath,
-      precomputedTableType: precomputedTableType,
-    );
+    final xelisWallet =
+        await wallet_flutter.XelisWalletFlutter.recoverWalletFromPrivateKey(
+          walletPath: walletPath,
+          password: pwd,
+          privateKey: privateKey,
+          network: network,
+          precomputedTablesPath: precomputeTablesPath,
+          precomputedTableType: precomputedTableType,
+        );
 
-    unawaited(
-      _maybeUpgradeTablesInBackground(
-        precomputeTablesPath: precomputeTablesPath,
-        desiredType: precomputedTableType,
-      ),
+    logDiagnostic(
+      () => 'XELIS wallet recovered from private key: path=$walletPath',
     );
-
-    talker.info('XELIS Wallet recovered from private key: $walletPath');
-    return NativeWalletRepository._internal(xelisWallet);
+    return NativeWalletRepository._internal(xelisWallet, network);
   }
 
   static Future<NativeWalletRepository> open(
     String walletPath,
     String pwd,
-    Network network, {
+    wallet_flutter.XelisNetwork network, {
     String? precomputeTablesPath,
-    required tables_api.PrecomputedTableType precomputedTableType,
+    required wallet_flutter.XelisPrecomputedTableType precomputedTableType,
   }) async {
-    final xelisWallet = await openXelisWallet(
-      directory: walletPath,
-      name: "",
+    final xelisWallet = await wallet_flutter.XelisWalletFlutter.openWallet(
+      walletPath: walletPath,
       password: pwd,
       network: network,
       precomputedTablesPath: precomputeTablesPath,
       precomputedTableType: precomputedTableType,
     );
 
-    unawaited(
-      _maybeUpgradeTablesInBackground(
-        precomputeTablesPath: precomputeTablesPath,
-        desiredType: precomputedTableType,
-      ),
-    );
-
-    talker.info('XELIS Wallet open: $walletPath');
-    return NativeWalletRepository._internal(xelisWallet);
-  }
-
-  static Future<void> _maybeUpgradeTablesInBackground({
-    required String? precomputeTablesPath,
-    required tables_api.PrecomputedTableType desiredType,
-  }) async {
-    if (precomputeTablesPath == null) return;
-    if (kIsWeb) return;
-
-    // If an upgrade is already running, just wait for it once.
-    if (_tableUpgradeCompleter != null) {
-      try {
-        await _tableUpgradeCompleter!.future;
-      } catch (_) {
-        // Previous attempt failed; allow caller to trigger another one later.
-      }
-      return;
-    }
-
-    final completer = Completer<void>();
-    _tableUpgradeCompleter = completer;
-
-    try {
-      final tablesExist = await arePrecomputedTablesAvailable(
-        precomputedTablesPath: precomputeTablesPath,
-        precomputedTableType: desiredType,
-      );
-
-      if (tablesExist) {
-        completer.complete();
-        return;
-      }
-
-      talker.info('XELIS: upgrading precomputed tables to $desiredType');
-
-      await updateTables(
-        precomputedTablesPath: precomputeTablesPath,
-        precomputedTableType: desiredType,
-      );
-
-      talker.info('XELIS: precomputed table upgrade complete');
-      completer.complete();
-    } catch (e, s) {
-      talker.error('XELIS: precomputed table upgrade failed', e, s);
-      completer.completeError(e);
-      // don't rethrow: this is best-effort background work
-    } finally {
-      _tableUpgradeCompleter = null;
-    }
-  }
-
-  Future<void> updatePrecomputedTables(
-    String precomputeTablesPath,
-    tables_api.PrecomputedTableType precomputedTableType,
-  ) async {
-    talker.info('Updating precomputed tables to type: $precomputedTableType');
-    await updateTables(
-      precomputedTablesPath: precomputeTablesPath,
-      precomputedTableType: precomputedTableType,
-    );
+    logDiagnostic(() => 'XELIS wallet opened: path=$walletPath');
+    return NativeWalletRepository._internal(xelisWallet, network);
   }
 
   Future<void> close() async {
-    talker.info('Closing Rust wallet');
-    await _xelisWallet.close();
-    talker.info('Rust wallet closed');
+    talker.info('Closing native XELIS wallet');
+    await _wallet.close();
+    talker.info('Native XELIS wallet closed');
   }
 
   void dispose() {
-    _xelisWallet.dispose();
-    if (_xelisWallet.isDisposed) talker.info('Rust Wallet disposed');
+    _wallet.dispose();
+    if (_wallet.isDisposed) talker.info('Native XELIS wallet disposed');
   }
 
-  XelisWallet get nativeWallet => _xelisWallet;
+  String get address => _wallet.address;
 
-  String get address => _xelisWallet.getAddressStr();
+  Future<bool> get isOnline => _wallet.isOnline();
 
-  Future<BigInt> get nonce => _xelisWallet.getNonce();
+  Future<bool> get isSyncing => _wallet.isSyncing();
 
-  Future<bool> get isOnline => _xelisWallet.isOnline();
-
-  Future<bool> get isSyncing => _xelisWallet.isSyncing();
-
-  Network get network => _xelisWallet.getNetwork();
+  wallet_flutter.XelisNetwork get network => _network;
 
   Future<void> setOnline({required String daemonAddress}) async {
-    await _xelisWallet.onlineMode(daemonAddress: daemonAddress);
-    talker.info('XELIS Wallet connected to: $daemonAddress');
+    await _wallet.setOnline(daemonAddress: daemonAddress);
+    logDiagnostic(
+      () =>
+          'XELIS wallet connected: '
+          'endpoint=${sanitizeEndpointForDiagnostics(daemonAddress)}',
+    );
   }
 
   Future<void> setOffline() async {
-    await _xelisWallet.offlineMode();
+    await _wallet.setOffline();
     talker.info('XELIS Wallet offline');
   }
 
-  Stream<Event> convertRawEvents() async* {
-    final rawEventStream = _xelisWallet.eventsStream();
+  Future<wallet_flutter.XelisWalletRuntimeEventSubscription>
+  subscribeRuntimeEvents() => _wallet.subscribeRuntimeEvents();
 
-    await for (final rawData in rawEventStream) {
-      final json = jsonDecode(rawData);
-      try {
-        final eventType = sdk.WalletEvent.fromStr(json['event'] as String);
-        switch (eventType) {
-          case sdk.WalletEvent.newTopoHeight:
-            final newTopoheight = Event.newTopoheight(
-              json['data']['topoheight'] as int,
-            );
-            yield newTopoheight;
-          case sdk.WalletEvent.newAsset:
-            final newAsset = Event.newAsset(
-              sdk.RPCAssetData.fromJson(json['data'] as Map<String, dynamic>),
-            );
-            yield newAsset;
-          case sdk.WalletEvent.newTransaction:
-            final newTransaction = Event.newTransaction(
-              sdk.TransactionEntry.fromJson(
-                json['data'] as Map<String, dynamic>,
-              ),
-            );
-            yield newTransaction;
-          case sdk.WalletEvent.newPendingTransaction:
-            final newPendingTransaction = Event.newPendingTransaction(
-              sdk.TransactionPending.fromJson(
-                json['data'] as Map<String, dynamic>,
-              ),
-            );
-            yield newPendingTransaction;
-          case sdk.WalletEvent.balanceChanged:
-            final balanceChanged = Event.balanceChanged(
-              sdk.BalanceChangedEvent.fromJson(
-                json['data'] as Map<String, dynamic>,
-              ),
-            );
-            yield balanceChanged;
-          case sdk.WalletEvent.rescan:
-            final rescan = Event.rescan(
-              json['data']['start_topoheight'] as int,
-            );
-            yield rescan;
-          case sdk.WalletEvent.online:
-            yield const Event.online();
-          case sdk.WalletEvent.offline:
-            yield const Event.offline();
-          case sdk.WalletEvent.historySynced:
-            final historySynced = Event.historySynced(
-              json['data']['topoheight'] as int,
-            );
-            yield historySynced;
-          case sdk.WalletEvent.syncError:
-            final syncError = Event.syncError(
-              json['data']['message'] as String,
-            );
-            yield syncError;
-          case sdk.WalletEvent.trackAsset:
-            final trackAsset = Event.trackAsset(
-              json['data']['asset'] as String,
-            );
-            yield trackAsset;
-          case sdk.WalletEvent.untrackAsset:
-            final untrackAsset = Event.untrackAsset(
-              json['data']['asset'] as String,
-            );
-            yield untrackAsset;
-        }
-      } catch (e) {
-        talker.error('Unknown event: ${json['event']}: $json');
-        continue;
-      }
-    }
-  }
-
-  Future<String> formatCoin(int amount, [String? assetHash]) async {
-    return _xelisWallet.formatCoin(
-      atomicAmount: BigInt.from(amount),
-      assetHash: assetHash,
-    );
-  }
+  Future<wallet_flutter.XelisWalletBusinessEventSubscription>
+  subscribeBusinessEvents() => _wallet.subscribeBusinessEvents();
 
   Future<void> changePassword({
     required String oldPassword,
     required String newPassword,
   }) async {
-    return _xelisWallet.changePassword(
+    return _wallet.changePassword(
       oldPassword: oldPassword,
       newPassword: newPassword,
     );
   }
 
-  Future<String> getSeed({int? languageIndex}) async {
-    return _xelisWallet.getSeed(
-      languageIndex: languageIndex == null ? null : BigInt.from(languageIndex),
-    );
+  Future<String> getSeed({
+    wallet_flutter.SeedLanguage language = wallet_flutter.SeedLanguage.english,
+  }) async {
+    return _wallet.getSeed(language: language);
   }
 
   Future<void> isValidPassword(String password) async {
-    return _xelisWallet.isValidPassword(password: password);
+    return _wallet.verifyPassword(password: password);
   }
 
   Future<BigInt> getXelisBalance() async {
-    return _xelisWallet.getXelisBalance();
+    return _wallet.getXelisBalance();
   }
 
-  Future<bool> hasAssetBalance(String assetHash) async {
-    return _xelisWallet.hasAssetBalance(asset: assetHash);
+  Future<Map<String, BigInt>> getTrackedBalances() async {
+    return _wallet.getTrackedBalances();
   }
 
-  Future<Map<String, String>> getTrackedBalances() async {
-    return _xelisWallet.getTrackedBalances();
-  }
-
-  Future<Map<String, sdk.AssetData>> getKnownAssets() async {
-    final rawData = await _xelisWallet.getKnownAssets();
-    final result = <String, sdk.AssetData>{};
-
-    for (final entry in rawData.entries) {
-      try {
-        final json = jsonDecode(entry.value) as Map<String, dynamic>;
-        final assetData = sdk.AssetData.fromJson(json);
-        result[entry.key] = assetData;
-      } catch (e, stack) {
-        talker.error(
-          'Failed to parse asset ${entry.key}: $e\n${entry.value}',
-          e,
-          stack,
-        );
-      }
-    }
-
-    return result;
+  Future<Map<String, wallet_flutter.XelisWalletAssetMetadata>>
+  getKnownAssets() async {
+    return _wallet.getKnownAssets();
   }
 
   Future<bool> trackAsset(String assetHash) async {
-    final result = await _xelisWallet.trackAsset(asset: assetHash);
-    return result;
+    return _wallet.trackAsset(asset: assetHash);
   }
 
   Future<bool> untrackAsset(String assetHash) async {
-    final result = await _xelisWallet.untrackAsset(asset: assetHash);
-    return result;
+    return _wallet.untrackAsset(asset: assetHash);
   }
 
-  Future<sdk.AssetData> getAssetMetadata(String assetHash) async {
-    final jsonStr = await _xelisWallet.getAssetMetadata(asset: assetHash);
-    final json = jsonDecode(jsonStr) as Map<String, dynamic>;
-    return sdk.AssetData.fromJson(json);
-  }
-
-  Future<List<Map<String, dynamic>>> getContractLogs(String txHash) async {
-    final jsonStr = await _xelisWallet.getContractLogs(txHash: txHash);
-    final json = jsonDecode(jsonStr) as List;
-    return json.cast<Map<String, dynamic>>();
-  }
-
-  Future<int> getHistoryCount() async {
-    final count = await _xelisWallet.getHistoryCount();
-    if (count.isValidInt) {
-      return count.toInt();
-    } else {
-      throw Exception('Invalid history count');
-    }
-  }
-
-  Future<List<sdk.TransactionEntry>> history(HistoryPageFilter filter) async {
-    final rawData = await _xelisWallet.history(filter: filter);
-    final List<sdk.TransactionEntry> entries = [];
-
-    for (final rawEntry in rawData) {
-      try {
-        final decoded = jsonDecode(rawEntry) as Map<String, dynamic>;
-
-        // Backwards compatibility: rename chunk_id to entry_id for old transactions
-        if (decoded.containsKey('invoke_contract')) {
-          final invokeContract =
-              decoded['invoke_contract'] as Map<String, dynamic>;
-          if (invokeContract.containsKey('chunk_id') &&
-              !invokeContract.containsKey('entry_id')) {
-            invokeContract['entry_id'] = invokeContract['chunk_id'];
-          }
-        }
-
-        final entry = sdk.TransactionEntry.fromJson(decoded);
-        entries.add(entry);
-      } catch (e) {
-        talker.error('Failed to parse transaction: $e');
-        talker.error('Raw JSON: $rawEntry');
-        // Skip this transaction instead of crashing
-        continue;
-      }
-    }
-
-    return entries;
-  }
-
-  Future<List<sdk.TransactionPending>> pendingTransactions() async {
-    final rawData = await _xelisWallet.getPendingTransactions();
-    final entries = <sdk.TransactionPending>[];
-
-    for (final rawEntry in rawData) {
-      try {
-        final decoded = jsonDecode(rawEntry) as Map<String, dynamic>;
-        entries.add(sdk.TransactionPending.fromJson(decoded));
-      } catch (e) {
-        talker.error('Failed to parse pending transaction: $e');
-        continue;
-      }
-    }
-
-    return entries;
-  }
-
-  Future<sdk.GetInfoResult> getDaemonInfo() async {
-    final rawData = await _xelisWallet.getDaemonInfo();
-    final json = jsonDecode(rawData);
-    return sdk.GetInfoResult.fromJson(json as Map<String, dynamic>);
-  }
-
-  Future<void> rescan({required int topoheight}) async {
-    return _xelisWallet.rescan(topoheight: BigInt.from(topoheight));
-  }
-
-  Future<String> estimateFees(List<Transfer> transfers) async {
-    return _xelisWallet.estimateFees(transfers: transfers);
-  }
-
-  Future<TransactionSummary> createTransferTransaction({
-    double? amount,
-    required String address,
-    required String assetHash,
-  }) async {
-    String rawTx;
-    if (amount != null) {
-      rawTx = await _xelisWallet.createTransfersTransaction(
-        transfers: [
-          Transfer(
-            floatAmount: amount,
-            strAddress: address,
-            assetHash: assetHash,
-          ),
-        ],
-      );
-    } else {
-      rawTx = await _xelisWallet.createTransferAllTransaction(
-        strAddress: address,
-        assetHash: assetHash,
-      );
-    }
-    final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
-    return TransactionSummary.fromJson(jsonTx);
-  }
-
-  Future<MultisigSigningRequest> createMultisigTransferTransaction({
-    double? amount,
-    required String address,
-    required String assetHash,
-  }) async {
-    if (amount != null) {
-      return _xelisWallet.createMultisigTransfersTransaction(
-        transfers: [
-          Transfer(
-            floatAmount: amount,
-            strAddress: address,
-            assetHash: assetHash,
-          ),
-        ],
-      );
-    } else {
-      return _xelisWallet.createMultisigTransferAllTransaction(
-        strAddress: address,
-        assetHash: assetHash,
-      );
-    }
-  }
-
-  Future<TransactionSummary> createTransfersTransaction(
-    List<Transfer> transfers,
+  Future<wallet_flutter.XelisWalletAssetMetadata> getAssetMetadata(
+    String assetHash,
   ) async {
-    final rawTx = await _xelisWallet.createTransfersTransaction(
-      transfers: transfers,
-    );
-    final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
-    return TransactionSummary.fromJson(jsonTx);
+    return _wallet.getAssetMetadata(asset: assetHash);
   }
 
-  Future<MultisigSigningRequest> createMultisigTransfersTransaction(
-    List<Transfer> transfers,
-  ) async {
-    return _xelisWallet.createMultisigTransfersTransaction(
+  Future<BigInt> getHistoryCount() => _wallet.getHistoryCount();
+
+  Future<List<wallet_flutter.XelisWalletTransactionEntry>> history({
+    required wallet_flutter.XelisWalletHistoryFilter filter,
+    wallet_flutter.XelisWalletExtraDataDisclosure extraDataDisclosure =
+        wallet_flutter.XelisWalletExtraDataDisclosure.metadata,
+  }) =>
+      _wallet.history(filter: filter, extraDataDisclosure: extraDataDisclosure);
+
+  Future<List<wallet_flutter.XelisWalletPendingTransaction>>
+  pendingTransactions({
+    wallet_flutter.XelisWalletExtraDataDisclosure extraDataDisclosure =
+        wallet_flutter.XelisWalletExtraDataDisclosure.metadata,
+  }) => _wallet.pendingTransactions(extraDataDisclosure: extraDataDisclosure);
+
+  Future<wallet_flutter.XelisWalletTransactionEntry> transactionByHash({
+    required String hash,
+    wallet_flutter.XelisWalletExtraDataDisclosure extraDataDisclosure =
+        wallet_flutter.XelisWalletExtraDataDisclosure.metadata,
+  }) => _wallet.transactionByHash(
+    hash: hash,
+    extraDataDisclosure: extraDataDisclosure,
+  );
+
+  Future<wallet_flutter.XelisWalletPendingTransaction>
+  pendingTransactionByHash({
+    required String hash,
+    wallet_flutter.XelisWalletExtraDataDisclosure extraDataDisclosure =
+        wallet_flutter.XelisWalletExtraDataDisclosure.metadata,
+  }) => _wallet.pendingTransactionByHash(
+    hash: hash,
+    extraDataDisclosure: extraDataDisclosure,
+  );
+
+  Future<wallet_flutter.XelisDaemonInfo> getDaemonInfo() =>
+      _wallet.getDaemonInfo();
+
+  Future<void> rescan({required BigInt topoheight}) async {
+    return _wallet.rescan(topoheight: topoheight);
+  }
+
+  Future<BigInt> estimateTransferFees(
+    List<wallet_flutter.XelisWalletTransferRequest> transfers, {
+    wallet_flutter.XelisWalletFeePolicy feePolicy =
+        wallet_flutter.XelisWalletFeePolicy.automatic,
+  }) {
+    return _wallet.estimateTransferFees(
       transfers: transfers,
+      feePolicy: feePolicy,
     );
   }
 
-  Future<TransactionSummary> createBurnTransaction({
-    double? amount,
+  Future<wallet_flutter.XelisWalletPreparedTransaction>
+  prepareTransferTransaction({
+    required BigInt amountAtomic,
+    required String address,
     required String assetHash,
-  }) async {
-    String rawTx;
-    if (amount == null) {
-      rawTx = await _xelisWallet.createBurnAllTransaction(assetHash: assetHash);
-    } else {
-      rawTx = await _xelisWallet.createBurnTransaction(
-        floatAmount: amount,
-        assetHash: assetHash,
-      );
-    }
-    final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
-    return TransactionSummary.fromJson(jsonTx);
+    String? extraData,
+    bool encryptExtraData = true,
+    wallet_flutter.XelisWalletFeePolicy feePolicy =
+        wallet_flutter.XelisWalletFeePolicy.automatic,
+  }) {
+    return _wallet.prepareTransfers(
+      transfers: [
+        wallet_flutter.XelisWalletTransferRequest(
+          destination: address,
+          asset: assetHash,
+          amountAtomic: amountAtomic,
+          extraData: extraData,
+          encryptExtraData: encryptExtraData,
+        ),
+      ],
+      feePolicy: feePolicy,
+    );
   }
 
-  Future<MultisigSigningRequest> createMultisigBurnTransaction({
-    double? amount,
+  Future<wallet_flutter.XelisWalletPreparedTransaction> prepareTransferAll({
+    required String address,
     required String assetHash,
+    String? extraData,
+    bool encryptExtraData = true,
+    wallet_flutter.XelisWalletFeePolicy feePolicy =
+        wallet_flutter.XelisWalletFeePolicy.automatic,
+  }) {
+    return _wallet.prepareTransferAll(
+      destination: address,
+      asset: assetHash,
+      extraData: extraData,
+      encryptExtraData: encryptExtraData,
+      feePolicy: feePolicy,
+    );
+  }
+
+  Future<wallet_flutter.XelisWalletPreparedTransferExtraData>
+  inspectPreparedTransferExtraData(
+    wallet_flutter.XelisWalletPreparedTransaction transaction, {
+    int transferIndex = 0,
+  }) {
+    return _wallet.inspectPreparedTransferExtraData(
+      transaction: transaction,
+      transferIndex: transferIndex,
+    );
+  }
+
+  Future<wallet_flutter.XelisWalletMultisigSigningRequest>
+  createMultisigTransferTransaction({
+    BigInt? amountAtomic,
+    required String address,
+    required String assetHash,
+    wallet_flutter.XelisWalletFeePolicy feePolicy =
+        wallet_flutter.XelisWalletFeePolicy.automatic,
   }) async {
-    if (amount == null) {
-      return await _xelisWallet.createMultisigBurnAllTransaction(
-        assetHash: assetHash,
+    if (amountAtomic != null) {
+      return _wallet.prepareMultisigTransfers(
+        transfers: [
+          wallet_flutter.XelisWalletTransferRequest(
+            amountAtomic: amountAtomic,
+            destination: address,
+            asset: assetHash,
+          ),
+        ],
+        feePolicy: feePolicy,
       );
     } else {
-      return await _xelisWallet.createMultisigBurnTransaction(
-        floatAmount: amount,
-        assetHash: assetHash,
+      return _wallet.prepareMultisigTransferAll(
+        destination: address,
+        asset: assetHash,
+        feePolicy: feePolicy,
       );
     }
   }
 
-  Future<TransactionBroadcastResult> broadcastTransaction(String hash) async {
-    final outcome = await _xelisWallet.broadcastTransaction(txHash: hash);
-    talker.info('Transaction broadcast completed: outcome=${outcome.name}');
-
-    return switch (outcome) {
-      BroadcastTransactionOutcome.submitted =>
-        TransactionBroadcastResult.submitted,
-      BroadcastTransactionOutcome.retryable =>
-        TransactionBroadcastResult.retryable,
-      BroadcastTransactionOutcome.rejected =>
-        TransactionBroadcastResult.rejected,
-      BroadcastTransactionOutcome.localFailure =>
-        TransactionBroadcastResult.localFailure,
-      BroadcastTransactionOutcome.submittedNeedsResync =>
-        TransactionBroadcastResult.submittedNeedsResync,
-    };
+  Future<wallet_flutter.XelisWalletMultisigSigningRequest>
+  createMultisigTransfersTransaction(
+    List<wallet_flutter.XelisWalletTransferRequest> transfers, {
+    wallet_flutter.XelisWalletFeePolicy feePolicy =
+        wallet_flutter.XelisWalletFeePolicy.automatic,
+  }) async {
+    return _wallet.prepareMultisigTransfers(
+      transfers: transfers,
+      feePolicy: feePolicy,
+    );
   }
 
-  Future<void> clearTransaction(String hash) async {
-    await _xelisWallet.clearTransaction(txHash: hash);
-    talker.info('Transaction canceled: $hash');
+  Future<wallet_flutter.XelisWalletPreparedTransaction> prepareBurnTransaction({
+    required BigInt amountAtomic,
+    required String assetHash,
+    wallet_flutter.XelisWalletFeePolicy feePolicy =
+        wallet_flutter.XelisWalletFeePolicy.automatic,
+  }) {
+    return _wallet.prepareBurn(
+      asset: assetHash,
+      amountAtomic: amountAtomic,
+      feePolicy: feePolicy,
+    );
   }
 
-  Future<MultisigState?> getMultisigState() async {
-    final rawData = await _xelisWallet.getMultisigState();
-    switch (rawData) {
-      case String():
-        final json = jsonDecode(rawData) as Map<String, dynamic>;
-        return MultisigState.fromJson(json);
-      case null:
-        return null;
+  Future<wallet_flutter.XelisWalletPreparedTransaction> prepareBurnAll({
+    required String assetHash,
+    wallet_flutter.XelisWalletFeePolicy feePolicy =
+        wallet_flutter.XelisWalletFeePolicy.automatic,
+  }) {
+    return _wallet.prepareBurnAll(asset: assetHash, feePolicy: feePolicy);
+  }
+
+  Future<wallet_flutter.XelisWalletMultisigSigningRequest>
+  createMultisigBurnTransaction({
+    BigInt? amountAtomic,
+    required String assetHash,
+    wallet_flutter.XelisWalletFeePolicy feePolicy =
+        wallet_flutter.XelisWalletFeePolicy.automatic,
+  }) async {
+    if (amountAtomic == null) {
+      return _wallet.prepareMultisigBurnAll(
+        asset: assetHash,
+        feePolicy: feePolicy,
+      );
+    } else {
+      return _wallet.prepareMultisigBurn(
+        amountAtomic: amountAtomic,
+        asset: assetHash,
+        feePolicy: feePolicy,
+      );
     }
   }
 
-  Future<MultisigSigningRequest> inspectMultisigSigningRequest(String encoded) {
-    return _xelisWallet.inspectMultisigSigningRequest(encoded: encoded);
+  Future<wallet_flutter.XelisWalletBroadcastResult>
+  broadcastPreparedTransaction(
+    wallet_flutter.XelisWalletPreparedTransaction transaction,
+  ) async {
+    final outcome = await _wallet.broadcastPreparedTransaction(
+      transaction: transaction,
+    );
+    talker.info(
+      'Prepared transaction broadcast completed: '
+      'outcome=${outcome.runtimeType}',
+    );
+    return outcome;
   }
 
-  Future<MultisigSignatureShare> signMultisigSigningRequest(String encoded) {
-    return _xelisWallet.signMultisigSigningRequest(encoded: encoded);
+  Future<void> discardPreparedTransaction(
+    wallet_flutter.XelisWalletPreparedTransaction transaction,
+  ) async {
+    await _wallet.discardPreparedTransaction(transaction: transaction);
+    logDiagnostic(
+      () => 'Prepared transaction canceled: hash=${transaction.hash}',
+    );
   }
 
-  Future<MultisigSignatureShare> inspectMultisigSignatureShare({
-    required String txHash,
+  Future<wallet_flutter.XelisWalletMultisigState?> getMultisigState() {
+    return _wallet.getMultisigState();
+  }
+
+  Future<wallet_flutter.XelisWalletMultisigSigningRequest>
+  inspectMultisigSigningRequest(String encoded) {
+    return _wallet.inspectMultisigSigningRequest(encoded: encoded);
+  }
+
+  Future<wallet_flutter.XelisWalletMultisigSignatureShare>
+  signMultisigSigningRequest(
+    wallet_flutter.XelisWalletMultisigSigningRequest request,
+  ) {
+    return _wallet.signMultisigSigningRequest(request: request);
+  }
+
+  Future<wallet_flutter.XelisWalletMultisigSignatureShare>
+  inspectMultisigSignatureShare({
+    required wallet_flutter.XelisWalletMultisigSigningRequest request,
     required String encoded,
   }) {
-    return _xelisWallet.inspectMultisigSignatureShare(
-      txHash: txHash,
+    return _wallet.inspectMultisigSignatureShare(
+      request: request,
       encoded: encoded,
     );
   }
 
-  Future<TransactionSummary?> setupMultisig({
+  Future<wallet_flutter.XelisWalletPreparedTransaction> setupMultisig({
     required List<String> participants,
     required int threshold,
-  }) async {
-    final rawTx = await _xelisWallet.multisigSetup(
+    wallet_flutter.XelisWalletFeePolicy feePolicy =
+        wallet_flutter.XelisWalletFeePolicy.automatic,
+  }) {
+    return _wallet.prepareMultisigSetup(
       threshold: threshold,
       participants: participants,
+      feePolicy: feePolicy,
     );
-    final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
-    return TransactionSummary.fromJson(jsonTx);
   }
 
   bool isAddressValidForMultisig(String address) {
-    return _xelisWallet.isAddressValidForMultisig(address: address);
+    return _wallet.isMultisigParticipantAddressValid(address: address);
   }
 
-  Future<MultisigSigningRequest> initDeleteMultisig() async {
-    return _xelisWallet.initDeleteMultisig();
+  Future<wallet_flutter.XelisWalletMultisigSigningRequest> initDeleteMultisig({
+    wallet_flutter.XelisWalletFeePolicy feePolicy =
+        wallet_flutter.XelisWalletFeePolicy.automatic,
+  }) {
+    return _wallet.prepareMultisigDeletion(feePolicy: feePolicy);
   }
 
-  Future<TransactionSummary?> finalizeMultisigTransaction({
-    required String txHash,
-    required List<String> signatureShares,
-  }) async {
-    final rawTx = await _xelisWallet.finalizeMultisigTransaction(
-      txHash: txHash,
-      signatureShares: signatureShares,
+  Future<wallet_flutter.XelisWalletPreparedTransaction>
+  finalizeMultisigTransaction({
+    required wallet_flutter.XelisWalletMultisigSigningRequest request,
+    required List<wallet_flutter.XelisWalletMultisigSignatureShare> shares,
+  }) {
+    return _wallet.finalizeMultisigTransaction(
+      request: request,
+      shares: shares,
     );
-    final jsonTx = jsonDecode(rawTx) as Map<String, dynamic>;
-    return TransactionSummary.fromJson(jsonTx);
   }
 
-  String? getPendingMultisigRequestHash() {
-    return _xelisWallet.getPendingMultisigRequestHash();
-  }
-
-  void cancelPendingMultisigRequest(String txHash) {
-    _xelisWallet.cancelPendingMultisigRequest(txHash: txHash);
+  Future<void> cancelPendingMultisigRequest(
+    wallet_flutter.XelisWalletMultisigSigningRequest request,
+  ) {
+    return _wallet.cancelMultisigSigningRequest(request: request);
   }
 
   Future<void> startXSWD({
-    required Future<void> Function(XswdRequestSummary) cancelRequestCallback,
-    required Future<UserPermissionDecision> Function(XswdRequestSummary)
-    requestApplicationCallback,
-    required Future<UserPermissionDecision> Function(XswdRequestSummary)
-    requestPermissionCallback,
-    required Future<UserPermissionDecision> Function(XswdRequestSummary)
-    requestPrefetchPermissionsCallback,
-    required Future<void> Function(XswdRequestSummary) appDisconnectCallback,
+    required wallet_flutter.XelisXswdCallbacks callbacks,
   }) async {
-    if (await _xelisWallet.isXswdRunning()) {
-      talker.warning('XSWD already running...');
-      return;
-    }
-    await _xelisWallet.startXswd(
-      cancelRequestDartCallback: cancelRequestCallback,
-      requestApplicationDartCallback: requestApplicationCallback,
-      requestPermissionDartCallback: requestPermissionCallback,
-      requestPrefetchPermissionsDartCallback:
-          requestPrefetchPermissionsCallback,
-      appDisconnectDartCallback: appDisconnectCallback,
-    );
+    await _wallet.startXswd(callbacks: callbacks);
   }
 
-  Future<void> stopXSWD() async {
-    if (!await _xelisWallet.isXswdRunning()) {
-      talker.warning('XSWD already stopped...');
-      return;
-    }
-    await _xelisWallet.stopXswd();
-  }
+  Future<void> stopXSWD() => _wallet.stopXswd();
 
-  Future<bool> isXswdRunning() async {
-    return await _xelisWallet.isXswdRunning();
-  }
+  Future<wallet_flutter.XelisXswdState> getXswdState() =>
+      _wallet.getXswdState();
 
-  Future<List<AppInfo>> getXswdState() async {
-    if (!await _xelisWallet.isXswdRunning()) {
-      talker.info('XSWD state not available, XSWD is not running');
-      return [];
-    }
-    return _xelisWallet.getApplicationPermissions();
-  }
-
-  Future<void> removeXswdApp(String appID) async {
-    await _xelisWallet.closeApplicationSession(id: appID);
-  }
+  Future<void> removeXswdApp(String appID) =>
+      _wallet.closeXswdApplicationSession(applicationId: appID);
 
   Future<void> addXswdRelayer({
-    required Future<void> Function(XswdRequestSummary) cancelRequestCallback,
-    required Future<UserPermissionDecision> Function(XswdRequestSummary)
-    requestApplicationCallback,
-    required Future<UserPermissionDecision> Function(XswdRequestSummary)
-    requestPermissionCallback,
-    required Future<UserPermissionDecision> Function(XswdRequestSummary)
-    requestPrefetchPermissionsCallback,
-    required Future<void> Function(XswdRequestSummary) appDisconnectCallback,
-    required ApplicationDataRelayer relayerData,
+    required wallet_flutter.XelisXswdCallbacks callbacks,
+    required wallet_flutter.XelisXswdRelayer relayerData,
   }) async {
-    await _xelisWallet.addXswdRelayer(
-      appData: relayerData,
-      cancelRequestDartCallback: cancelRequestCallback,
-      requestApplicationDartCallback: requestApplicationCallback,
-      requestPermissionDartCallback: requestPermissionCallback,
-      requestPrefetchPermissionsDartCallback:
-          requestPrefetchPermissionsCallback,
-      appDisconnectDartCallback: appDisconnectCallback,
-    );
+    await _wallet.addXswdRelayer(relayer: relayerData, callbacks: callbacks);
   }
 
   Future<void> modifyXSWDAppPermissions(
     String appID,
-    Map<String, PermissionPolicy> permissions,
+    Map<String, wallet_flutter.XelisXswdPermissionPolicy> permissions,
   ) async {
-    await _xelisWallet.modifyApplicationPermissions(
-      id: appID,
+    await _wallet.updateXswdApplicationPermissions(
+      applicationId: appID,
       permissions: permissions,
     );
   }
 
-  Future<AddressBookData> retrieveContacts({int? skip, int? take}) async {
-    return _xelisWallet.retrieveContacts(
-      skip: skip != null ? BigInt.from(skip) : null,
-      take: take != null ? BigInt.from(take) : null,
-    );
-  }
-
-  Future<int> countContacts() async {
-    final count = await _xelisWallet.countContacts();
-    return count.toInt();
-  }
-
-  Future<void> upsertContact({
-    required String name,
-    required String address,
-    String? note,
-  }) async {
-    await _xelisWallet.upsertContact(
-      entry: ContactDetails(name: name, address: address, note: note),
-    );
-  }
-
-  Future<void> removeContact(String address) async {
-    await _xelisWallet.removeContact(address: address);
-  }
-
-  Future<bool> isContactPresent(String address) async {
-    final isPresent = await _xelisWallet.isContactPresent(address: address);
-    return isPresent;
-  }
-
-  Future<ContactDetails> getContact(String address) async {
-    final contact = await _xelisWallet.findContactByAddress(address: address);
-    return contact;
-  }
-
-  Future<AddressBookData> findContactsByName(
-    String name, {
-    int? skip,
+  Future<wallet_flutter.XelisAddressBookPage> addressBookEntries({
+    String? query,
+    int skip = 0,
     int? take,
-  }) async {
-    final contacts = await _xelisWallet.findContactsByName(
-      name: name,
-      skip: skip != null ? BigInt.from(skip) : null,
-      take: take != null ? BigInt.from(take) : null,
+  }) {
+    return _wallet.addressBookEntries(query: query, skip: skip, take: take);
+  }
+
+  Future<wallet_flutter.XelisAddressBookEntry> upsertAddressBookEntry({
+    required String address,
+    required String displayName,
+    String? destinationLabel,
+    String? note,
+  }) {
+    return _wallet.upsertAddressBookEntry(
+      address: address,
+      displayName: displayName,
+      destinationLabel: destinationLabel,
+      note: note,
     );
-    return contacts;
+  }
+
+  Future<void> removeAddressBookEntry(String entryId) {
+    return _wallet.removeAddressBookEntry(entryId: entryId);
+  }
+
+  Future<wallet_flutter.XelisAddressBookEntry> addressBookEntry(
+    String entryId,
+  ) {
+    return _wallet.addressBookEntry(entryId: entryId);
+  }
+
+  Future<wallet_flutter.XelisAddressBookMatch> matchAddressBookAddress(
+    String address,
+  ) {
+    return _wallet.matchAddressBookAddress(address: address);
+  }
+
+  Future<wallet_flutter.XelisAddressBookMatch> matchAddressBookDestination({
+    required String baseAddress,
+    wallet_flutter.XelisDataElement? integratedData,
+  }) {
+    return _wallet.matchAddressBookDestination(
+      baseAddress: baseAddress,
+      integratedData: integratedData,
+    );
   }
 
   Future<void> exportTransactionsToCsvFile(
     String path,
-    HistoryPageFilter filter,
+    wallet_flutter.XelisWalletHistoryFilter filter,
   ) async {
-    await _xelisWallet.exportTransactionsToCsvFile(
-      filePath: path,
-      filter: filter,
-    );
+    await _wallet.exportTransactionsToCsvFile(filePath: path, filter: filter);
   }
 
-  Future<String> convertTransactionsToCsv(HistoryPageFilter filter) async {
-    return _xelisWallet.convertTransactionsToCsv(filter: filter);
+  Future<String> convertTransactionsToCsv(
+    wallet_flutter.XelisWalletHistoryFilter filter,
+  ) async {
+    return _wallet.convertTransactionsToCsv(filter: filter);
   }
 }

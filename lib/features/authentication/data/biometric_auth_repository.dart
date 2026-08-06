@@ -15,8 +15,8 @@ class BiometricAuthRepository {
         talker.warning('Local_Auth - Device not supported');
         return false;
       }
-    } catch (e) {
-      talker.error('Local_Auth - isDeviceSupported error: $e');
+    } catch (error) {
+      logDiagnosticError('biometric.device_support.check', error);
       return false;
     }
 

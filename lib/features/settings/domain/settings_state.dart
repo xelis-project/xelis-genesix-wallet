@@ -5,7 +5,7 @@ import 'dart:ui';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:genesix/features/settings/domain/last_wallets_used.dart';
 import 'package:genesix/features/wallet/domain/history_filter_state.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 import 'package:genesix/features/settings/domain/locale_json_converter.dart';
 
 part 'settings_state.freezed.dart';
@@ -35,7 +35,9 @@ abstract class SettingsState with _$SettingsState {
     @JsonKey(name: 'activate_biometric_auth')
     @Default(false)
     bool activateBiometricAuth,
-    @JsonKey(name: 'network') @Default(Network.mainnet) Network network,
+    @JsonKey(name: 'network')
+    @Default(XelisNetwork.mainnet)
+    XelisNetwork network,
     @JsonKey(name: 'theme') @Default(AppTheme.dark) AppTheme appTheme,
     @LocaleJsonConverter() required Locale locale,
     @JsonKey(name: 'last_wallets_used')

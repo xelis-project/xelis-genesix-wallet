@@ -10,7 +10,7 @@ import 'package:genesix/features/wallet/presentation/history/transaction_grouped
 import 'package:genesix/features/wallet/presentation/components/transaction_view_utils.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class HistoryContent extends ConsumerStatefulWidget {
   const HistoryContent({super.key});
@@ -25,16 +25,19 @@ class _HistoryContentState extends ConsumerState<HistoryContent> {
     final loc = ref.watch(appLocalizationsProvider);
     final pagingState = ref.watch(historyPagingStateProvider);
 
-    final addressBook = ref.watch(addressBookProvider);
+    final addressBook = ref.watch(addressBookByAddressProvider);
 
     return switch (addressBook) {
       AsyncData(:final value) =>
-        PagedListView<int, MapEntry<DateTime, List<TransactionEntry>>>(
+        PagedListView<
+          int,
+          MapEntry<DateTime, List<XelisWalletTransactionEntry>>
+        >(
           state: pagingState,
           fetchNextPage: _fetchPage,
           builderDelegate:
               PagedChildBuilderDelegate<
-                MapEntry<DateTime, List<TransactionEntry>>
+                MapEntry<DateTime, List<XelisWalletTransactionEntry>>
               >(
                 animateTransitions: true,
                 itemBuilder: (context, item, index) => TransactionGroupedWidget(
@@ -56,7 +59,8 @@ class _HistoryContentState extends ConsumerState<HistoryContent> {
                       FutureBuilder(
                         future: ref.read(historyCountProvider.future),
                         builder: (context, snapshot) {
-                          if (snapshot.data != null && snapshot.data! > 0) {
+                          if (snapshot.data != null &&
+                              snapshot.data! > BigInt.zero) {
                             return Text(
                               loc.try_changing_filter,
                               style: context.theme.typography.body.md.copyWith(
@@ -101,14 +105,18 @@ class _HistoryContentState extends ConsumerState<HistoryContent> {
 
     try {
       final newPage = (state.keys?.last ?? 0) + 1;
-      talker.info('Fetching page: $newPage');
+      logDiagnostic(() => 'operation=wallet.history.page.fetch page=$newPage');
       final transactions = await ref.read(historyProvider(newPage).future);
 
       final grouped = groupTransactionsByDateSorted2Levels(transactions);
 
       pagingNotifier.setNextPage(newPage, grouped.entries.toList());
-    } catch (error) {
-      talker.error('Error fetching page: $error');
+    } catch (error, stackTrace) {
+      logDiagnosticError(
+        'wallet.history.page.fetch',
+        error,
+        stackTrace: stackTrace,
+      );
       pagingNotifier.error(error);
     }
   }

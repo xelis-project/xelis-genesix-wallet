@@ -1,4 +1,33 @@
 {
+  "@multisig_setup_participant_count": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "@multisig_setup_threshold_summary": {
+    "placeholders": {
+      "threshold": {"type": "int"},
+      "participants": {"type": "int"}
+    }
+  },
+  "@multisig_signing_current_wallet_participant": {
+    "placeholders": {
+      "participantId": {"type": "int"}
+    }
+  },
+  "@support_reference": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "@xswd_fee_atomic_units": {
+    "placeholders": {"amount": {"type": "int"}}
+  },
+  "@xswd_fee_multiplier": {
+    "placeholders": {"multiplier": {"type": "double"}}
+  },
   "node_url_hint": "https://node.xelis.io",
   "node_name_hint": "Mon nœud",
   "node_name": "Nom du nœud",
@@ -19,6 +48,7 @@
   "hide_transactions_zero_value": "Masquer les transactions avec des transferts à solde nul.",
   "hide_extra_data_description": "Masquer les données supplémentaires dans les détails de transaction.",
   "select_contract": "Sélectionner un contrat",
+  "select_contact": "Sélectionner un contact",
   "select_asset": "Sélectionner un actif",
   "category_burn_subtitle": "Transactions où vous avez brûlé des actifs.",
   "category_coinbase_subtitle": "Transactions où vous avez reçu des récompenses.",
@@ -225,7 +255,23 @@
   "search": "Chercher",
   "destination": "Destination",
   "integrated_address_detected": "Adresse intégrée détectée",
-  "payment_id": "ID de paiement",
+  "attached_data": "Données jointes",
+  "attached_data_badge": "Données",
+  "attached_data_included": "Incluses",
+  "attached_data_encrypted": "Chiffrées",
+  "attached_data_not_encrypted": "Non chiffrées",
+  "view_attached_data": "Voir les données jointes",
+  "attached_data_source": "Source",
+  "attached_data_source_integrated_address": "Adresse intégrée",
+  "attached_data_source_explicit": "Données jointes séparées",
+  "receive_advanced_payment_request": "Demande de paiement avancée",
+  "receive_advanced_payment_request_description": "Joignez un texte à votre adresse lorsque l’expéditeur doit inclure une référence.",
+  "receive_attached_text_label": "Texte joint",
+  "receive_attached_text_hint": "Référence de commande ou de dépôt",
+  "receive_create_integrated_address": "Créer l’adresse avec données jointes",
+  "receive_integrated_address_data_visible": "Visibles dans l’adresse",
+  "receive_integrated_address_data_visible_description": "Toute personne qui reçoit cette adresse peut lire le texte joint.",
+  "receive_integrated_address_invalid_data": "Ce texte ne peut pas être ajouté à l’adresse. Raccourcissez-le puis réessayez.",
   "reset_preferences": "Réinitialiser les préférences",
   "reset_preferences_dialog": "Vous êtes sur le point de réinitialiser toutes vos configurations, langue, thème et liste de nœuds.",
   "do_you_want_to_continue": "Voulez-vous continuer ?",
@@ -334,6 +380,7 @@
   "please_authenticate_delete_wallet": "Veuillez vous authentifier pour supprimer ce portefeuille",
   "please_authenticate_view_seed": "Veuillez vous authentifier pour voir votre phrase de récupération",
   "biometric_not_available_warning": "L'authentification biométrique n'est pas disponible, veuillez vérifier les paramètres de votre appareil",
+  "biometric_auth_temporarily_locked": "L'authentification biométrique est temporairement verrouillée. Veuillez réessayer plus tard.",
   "password_not_found": "Mot de passe introuvable",
   "filters": "Filtres",
   "no_transactions_found": "Aucune transaction trouvée",
@@ -391,6 +438,15 @@
   "item_count": "{count} éléments",
   "entry_count": "{count} entrées",
   "xswd_channel_title": "XSWD",
+  "xswd_transaction_review_title": "Vérifier la transaction",
+  "xswd_transaction_review_warning": "Vérifiez chaque détail de la transaction avant d’autoriser cette demande ponctuelle. Cette décision ne peut pas être mémorisée.",
+  "xswd_allow_once": "Autoriser une fois",
+  "xswd_transaction_nonce": "Nonce",
+  "xswd_transaction_version": "Version de la transaction",
+  "xswd_response_as_hex": "Réponse hexadécimale",
+  "xswd_fee_automatic": "Calculés automatiquement",
+  "xswd_fee_atomic_units": "{amount} unités atomiques",
+  "xswd_fee_multiplier": "{multiplier}× frais de base",
   "xswd_relayer_channel_title": "Relais XSWD",
   "cannot_start_xswd": "Impossible de démarrer les applications connectées",
   "cannot_close_xswd_connection": "Impossible de fermer la connexion de l’application connectée",
@@ -463,15 +519,7 @@
   "copied_to_clipboard": "Copié dans le presse-papiers",
   "edit_button": "Modifier",
   "tx_contract_transfer": "Transfert de contrat",
-  "contract_logs": "Logs du contrat",
   "chunk_id": "Chunk ID",
-  "log_transfer": "Transfert",
-  "log_transfer_to_contract": "Transfert vers contrat",
-  "log_mint": "Création",
-  "log_gas_refund": "Remboursement de gas",
-  "log_exit_code": "Code de sortie",
-  "log_new_asset": "Nouvel actif",
-  "log_failed": "Échec",
   "received": "Reçu",
   "constructor": "Constructeur",
   "to_address": "Vers : {address}",
@@ -509,5 +557,15 @@
   "paste_signature_share": "Coller une part de signature",
   "invalid_multisig_signature_share": "Cette part de signature est invalide ou appartient à une autre transaction.",
   "duplicate_multisig_signature_share": "Ce participant a déjà fourni une signature.",
-  "remove_signature_share": "Retirer la part de signature"
+  "remove_signature_share": "Retirer la part de signature",
+  "wallet_failure_generic": "Le portefeuille n’a pas pu terminer cette requête.",
+  "wallet_failure_invalid_input": "Vérifiez les informations fournies et réessayez.",
+  "wallet_failure_authentication_or_corrupt_data": "Le mot de passe est incorrect ou les données du portefeuille sont illisibles.",
+  "wallet_failure_network": "Le réseau est indisponible. Vérifiez votre connexion ou le nœud, puis réessayez.",
+  "wallet_failure_daemon_rejected": "Le nœud a rejeté cette requête.",
+  "wallet_failure_insufficient_funds": "Le solde disponible est insuffisant.",
+  "password_changed_biometric_disabled": "Votre nouveau mot de passe est actif. Le déverrouillage biométrique a été désactivé ; utilisez le nouveau mot de passe.",
+  "password_changed_biometric_cleanup_failed": "Votre nouveau mot de passe est actif. Le déverrouillage biométrique a été désactivé, mais certaines données d’accès enregistrées n’ont pas pu être supprimées. Maintenez l’accès biométrique désactivé et utilisez le nouveau mot de passe.",
+  "password_change_native_state_indeterminate": "La mise à jour du mot de passe n’a pas pu être confirmée. Conservez l’ancien et le nouveau mot de passe, ne réessayez pas et contactez l’assistance en indiquant cette référence.",
+  "support_reference": "Référence d’assistance : {reference}"
 }

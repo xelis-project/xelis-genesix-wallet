@@ -7,17 +7,15 @@ sealed class WalletSessionFailure with _$WalletSessionFailure {
   const factory WalletSessionFailure.walletAlreadyExists() =
       WalletAlreadyExistsSessionFailure;
 
-  const factory WalletSessionFailure.walletNotFound({String? message}) =
+  const factory WalletSessionFailure.walletNotFound() =
       WalletNotFoundSessionFailure;
 
-  const factory WalletSessionFailure.invalidWalletFolder({String? message}) =
+  const factory WalletSessionFailure.invalidWalletFolder() =
       InvalidWalletFolderSessionFailure;
 
-  const factory WalletSessionFailure.xelis({required String message}) =
-      XelisWalletSessionFailure;
+  const factory WalletSessionFailure.xelis() = XelisWalletSessionFailure;
 
-  const factory WalletSessionFailure.unknown({String? message}) =
-      UnknownWalletSessionFailure;
+  const factory WalletSessionFailure.unknown() = UnknownWalletSessionFailure;
 }
 
 @freezed

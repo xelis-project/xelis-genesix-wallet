@@ -4,14 +4,14 @@
 /// {
 ///   "relayer": "wss://relay.xelis.io/ws/abc123",  // full URL, ready to connect
 ///   "endpoint": "wss://relay.xelis.io",           // base, informational
-///   "encryption_mode": { "mode": "aes", "key": "<hex 32 bytes>" },
+///   "encryption_mode": { "mode": "aes", "key": "`hex 32 bytes`" },
 ///   "app_data": { ... }
 /// }
 library;
 
 import 'dart:typed_data' show Uint8List;
 
-import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class RelaySessionData {
   final String relayer;
@@ -138,7 +138,7 @@ class RelaySessionData {
   ///
   /// - If key is absent/empty → returns null (unencrypted session)
   /// - Otherwise → must be valid hex of 64 chars, with a supported mode
-  EncryptionMode? decodeEncryptionMode() {
+  XelisXswdEncryption? decodeEncryptionMode() {
     final keyHex = _keyString;
     if (keyHex == null) return null;
 
@@ -151,9 +151,15 @@ class RelaySessionData {
     final mode = _modeString?.trim();
     switch (mode) {
       case 'aes':
-        return EncryptionMode.aes(key: keyBytes);
+        return XelisXswdEncryption(
+          algorithm: XelisXswdEncryptionAlgorithm.aes,
+          key: keyBytes,
+        );
       case 'chacha20poly1305':
-        return EncryptionMode.chacha20Poly1305(key: keyBytes);
+        return XelisXswdEncryption(
+          algorithm: XelisXswdEncryptionAlgorithm.chacha20Poly1305,
+          key: keyBytes,
+        );
       default:
         throw Exception('Unsupported encryption mode: $mode');
     }
@@ -201,20 +207,20 @@ class RelaySessionData {
     );
   }
 
-  ApplicationDataRelayer toApplicationDataRelayer() {
+  XelisXswdRelayer toXelisXswdRelayer() {
     throwIfInvalid();
 
     final enc = decodeEncryptionMode();
     final app = parseAppData();
 
-    return ApplicationDataRelayer(
+    return XelisXswdRelayer(
       id: app.id,
       name: app.name,
       description: app.description,
       url: app.url,
       permissions: app.permissions,
       relayer: buildRelayerWsUrl(),
-      encryptionMode: enc,
+      encryption: enc,
     );
   }
 }

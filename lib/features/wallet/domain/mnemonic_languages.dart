@@ -1,18 +1,21 @@
-enum MnemonicLanguage {
-  english(0, 'English'),
-  french(1, 'French'),
-  italian(2, 'Italian'),
-  spanish(3, 'Spanish'),
-  portuguese(4, 'Portuguese'),
-  japanese(5, 'Japanese'),
-  chineseSimplified(6, 'Chinese Simplified'),
-  russian(7, 'Russian'),
-  esperanto(8, 'Esperanto'),
-  dutch(9, 'Dutch'),
-  german(10, 'German');
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart'
+    show SeedLanguage;
 
-  final int rustIndex;
+enum MnemonicLanguage {
+  english(SeedLanguage.english, 'English'),
+  french(SeedLanguage.french, 'French'),
+  italian(SeedLanguage.italian, 'Italian'),
+  spanish(SeedLanguage.spanish, 'Spanish'),
+  portuguese(SeedLanguage.portuguese, 'Portuguese'),
+  japanese(SeedLanguage.japanese, 'Japanese'),
+  chineseSimplified(SeedLanguage.chineseSimplified, 'Chinese Simplified'),
+  russian(SeedLanguage.russian, 'Russian'),
+  esperanto(SeedLanguage.esperanto, 'Esperanto'),
+  dutch(SeedLanguage.dutch, 'Dutch'),
+  german(SeedLanguage.german, 'German');
+
+  final SeedLanguage seedLanguage;
   final String displayName;
 
-  const MnemonicLanguage(this.rustIndex, this.displayName);
+  const MnemonicLanguage(this.seedLanguage, this.displayName);
 }

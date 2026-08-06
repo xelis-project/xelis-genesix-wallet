@@ -61,8 +61,7 @@ class _AddNodeSheetState extends ConsumerState<AddNodeSheet> {
                 if (value == null || value.isEmpty || value.trim().isEmpty) {
                   return loc.field_required_error;
                 }
-                final uri = Uri.tryParse(value.trim());
-                if (uri == null || !uri.hasScheme) {
+                if (!isValidDaemonOrigin(value)) {
                   return loc.node_url_error;
                 }
                 return null;

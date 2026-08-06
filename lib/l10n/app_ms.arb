@@ -1,4 +1,33 @@
 {
+  "@multisig_setup_participant_count": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "@multisig_setup_threshold_summary": {
+    "placeholders": {
+      "threshold": {"type": "int"},
+      "participants": {"type": "int"}
+    }
+  },
+  "@multisig_signing_current_wallet_participant": {
+    "placeholders": {
+      "participantId": {"type": "int"}
+    }
+  },
+  "@support_reference": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "@xswd_fee_atomic_units": {
+    "placeholders": {"amount": {"type": "int"}}
+  },
+  "@xswd_fee_multiplier": {
+    "placeholders": {"multiplier": {"type": "double"}}
+  },
   "node_url_hint": "https://node.xelis.io",
   "node_name_hint": "Nod saya",
   "node_name": "Nama nod",
@@ -19,6 +48,7 @@
   "hide_transactions_zero_value": "Sembunyikan transaksi dengan pindahan baki sifar.",
   "hide_extra_data_description": "Sembunyikan data tambahan dalam butiran transaksi.",
   "select_contract": "Pilih kontrak",
+  "select_contact": "Pilih kenalan",
   "select_asset": "Pilih aset",
   "category_burn_subtitle": "Transaksi tempat anda membakar aset.",
   "category_coinbase_subtitle": "Transaksi tempat anda menerima ganjaran.",
@@ -225,7 +255,23 @@
   "search": "Cari",
   "destination": "Tujuan",
   "integrated_address_detected": "Alamat terintegrasi dikesan",
-  "payment_id": "ID Pembayaran",
+  "attached_data": "Data yang dilampirkan",
+  "attached_data_badge": "Data",
+  "attached_data_included": "Disertakan",
+  "attached_data_encrypted": "Disulitkan",
+  "attached_data_not_encrypted": "Tidak disulitkan",
+  "view_attached_data": "Lihat data yang dilampirkan",
+  "attached_data_source": "Sumber",
+  "attached_data_source_integrated_address": "Alamat terintegrasi",
+  "attached_data_source_explicit": "Data yang dilampirkan secara berasingan",
+  "receive_advanced_payment_request": "Permintaan pembayaran lanjutan",
+  "receive_advanced_payment_request_description": "Lampirkan teks pada alamat anda apabila pengirim perlu menyertakan rujukan.",
+  "receive_attached_text_label": "Teks yang dilampirkan",
+  "receive_attached_text_hint": "Rujukan pesanan atau deposit",
+  "receive_create_integrated_address": "Cipta alamat dengan data yang dilampirkan",
+  "receive_integrated_address_data_visible": "Kelihatan dalam alamat",
+  "receive_integrated_address_data_visible_description": "Sesiapa yang menerima alamat ini boleh membaca teks yang dilampirkan.",
+  "receive_integrated_address_invalid_data": "Teks ini tidak boleh ditambahkan pada alamat. Pendekkan teks dan cuba lagi.",
   "reset_preferences": "Tetapkan semula pilihan",
   "reset_preferences_dialog": "Anda akan memulakan semula semua tetapan, bahasa, tema dan senarai nod.",
   "do_you_want_to_continue": "Adakah anda ingin meneruskan?",
@@ -334,6 +380,7 @@
   "please_authenticate_delete_wallet": "Silahkan autentikasi untuk menghapus dompet ini",
   "please_authenticate_view_seed": "Silahkan autentikasi untuk melihat frasa pemulihan Anda",
   "biometric_not_available_warning": "Autentikasi biometrik tidak tersedia, periksa pengaturan perangkat Anda",
+  "biometric_auth_temporarily_locked": "Pengesahan biometrik dikunci buat sementara waktu. Sila cuba lagi kemudian.",
   "password_not_found": "Kata sandi tidak ditemukan",
   "filters": "Filter",
   "no_transactions_found": "Tidak ada transaksi yang ditemukan",
@@ -391,6 +438,15 @@
   "item_count": "{count} items",
   "entry_count": "{count} entries",
   "xswd_channel_title": "XSWD",
+  "xswd_transaction_review_title": "Semak transaksi",
+  "xswd_transaction_review_warning": "Semak setiap butiran transaksi sebelum membenarkan permintaan sekali ini. Keputusan ini tidak boleh diingati.",
+  "xswd_allow_once": "Benarkan sekali",
+  "xswd_transaction_nonce": "Nonce",
+  "xswd_transaction_version": "Versi transaksi",
+  "xswd_response_as_hex": "Respons heksadesimal",
+  "xswd_fee_automatic": "Dikira secara automatik",
+  "xswd_fee_atomic_units": "{amount} unit atom",
+  "xswd_fee_multiplier": "{multiplier}× yuran asas",
   "xswd_relayer_channel_title": "XSWD Relayer",
   "cannot_start_xswd": "Tidak dapat memulakan Aplikasi Bersambung",
   "cannot_close_xswd_connection": "Tidak dapat menutup sambungan aplikasi bersambung",
@@ -463,15 +519,7 @@
   "copied_to_clipboard": "Disalin ke papan klip",
   "edit_button": "Sunting",
   "tx_contract_transfer": "Pindahan kontrak",
-  "contract_logs": "Log kontrak",
   "chunk_id": "ID chunk",
-  "log_transfer": "Pindahan",
-  "log_transfer_to_contract": "Pindahan ke kontrak",
-  "log_mint": "Mint",
-  "log_gas_refund": "Bayaran balik gas",
-  "log_exit_code": "Kod keluar",
-  "log_new_asset": "Aset baharu",
-  "log_failed": "Gagal",
   "received": "Diterima",
   "constructor": "Pembina",
   "to_address": "Kepada: {address}",
@@ -509,5 +557,15 @@
   "paste_signature_share": "Tampal bahagian tandatangan",
   "invalid_multisig_signature_share": "Bahagian tandatangan ini tidak sah atau milik transaksi lain.",
   "duplicate_multisig_signature_share": "Peserta ini telah memberikan tandatangan.",
-  "remove_signature_share": "Alih keluar bahagian tandatangan"
+  "remove_signature_share": "Alih keluar bahagian tandatangan",
+  "wallet_failure_generic": "Dompet tidak dapat melengkapkan permintaan ini.",
+  "wallet_failure_invalid_input": "Semak maklumat yang diberikan dan cuba lagi.",
+  "wallet_failure_authentication_or_corrupt_data": "Kata laluan salah atau data dompet tidak dapat dibaca.",
+  "wallet_failure_network": "Rangkaian tidak tersedia. Semak sambungan atau nod anda dan cuba lagi.",
+  "wallet_failure_daemon_rejected": "Nod menolak permintaan ini.",
+  "wallet_failure_insufficient_funds": "Baki yang tersedia tidak mencukupi.",
+  "password_changed_biometric_disabled": "Kata laluan baharu anda telah aktif. Buka kunci biometrik telah dinyahdayakan; gunakan kata laluan baharu.",
+  "password_changed_biometric_cleanup_failed": "Kata laluan baharu anda telah aktif. Buka kunci biometrik telah dinyahdayakan, tetapi sesetengah data akses yang disimpan tidak dapat dipadamkan. Kekalkan akses biometrik dinyahdayakan dan gunakan kata laluan baharu.",
+  "password_change_native_state_indeterminate": "Kemas kini kata laluan tidak dapat disahkan. Simpan kedua-dua kata laluan lama dan baharu, jangan cuba lagi dan hubungi sokongan dengan memberikan rujukan ini.",
+  "support_reference": "Rujukan sokongan: {reference}"
 }

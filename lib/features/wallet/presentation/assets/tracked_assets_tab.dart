@@ -8,7 +8,7 @@ import 'package:genesix/features/wallet/presentation/assets/tracked_asset_detail
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class TrackedAssetsTab extends ConsumerStatefulWidget {
   const TrackedAssetsTab(this.maxHeight, {super.key});
@@ -72,7 +72,7 @@ class _TrackedAssetsTabState extends ConsumerState<TrackedAssetsTab> {
                 assetName: asset.name,
                 isXelis: isXelis(hash),
               ),
-              details: Text('$balance ${asset.ticker}'),
+              details: Text(formatCoin(balance, asset.decimals, asset.ticker)),
               suffix: Icon(FLucideIcons.chevronRight),
               onPress: () => _showDetails(hash, asset, balance),
             );
@@ -82,7 +82,11 @@ class _TrackedAssetsTabState extends ConsumerState<TrackedAssetsTab> {
     }
   }
 
-  void _showDetails(String hash, sdk.AssetData asset, String balance) {
+  void _showDetails(
+    String hash,
+    XelisWalletAssetMetadata asset,
+    BigInt balance,
+  ) {
     showAppDialog<void>(
       context: context,
       builder: (context, style, animation) =>

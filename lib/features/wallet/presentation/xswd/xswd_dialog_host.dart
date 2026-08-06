@@ -5,7 +5,7 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_dialog.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class XswdDialogHost extends ConsumerStatefulWidget {
   const XswdDialogHost({required this.child, super.key});
@@ -65,7 +65,7 @@ class _XswdDialogHostState extends ConsumerState<XswdDialogHost> {
         final xswdState = ref.read(xswdRequestProvider);
         final decision = xswdState.decision;
         if (decision != null && !decision.isCompleted) {
-          decision.complete(UserPermissionDecision.reject);
+          decision.complete(XelisXswdDecision.reject);
         }
 
         ref.read(xswdRequestProvider.notifier).clearRequest();

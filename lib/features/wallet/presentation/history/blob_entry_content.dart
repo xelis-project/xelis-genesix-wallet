@@ -14,25 +14,30 @@ import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/labeled_value.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class BlobEntryContent extends ConsumerWidget {
-  BlobEntryContent.incoming(IncomingBlobEntry blobEntry, {super.key})
+  BlobEntryContent.incoming(XelisWalletIncomingBlobEntry blobEntry, {super.key})
     : data = blobEntry.data,
       from = blobEntry.from,
       destinations = blobEntry.destinations,
-      fee = null;
+      fee = null,
+      exactDestinations = const [];
 
-  BlobEntryContent.outgoing(OutgoingBlobEntry blobEntry, {super.key})
-    : data = blobEntry.data,
-      from = null,
-      destinations = blobEntry.destinations,
-      fee = blobEntry.fee;
+  BlobEntryContent.outgoing(
+    XelisWalletOutgoingBlobEntry blobEntry, {
+    this.exactDestinations = const [],
+    super.key,
+  }) : data = blobEntry.data,
+       from = null,
+       destinations = blobEntry.destinations,
+       fee = blobEntry.fee;
 
-  final ExtraData data;
+  final XelisWalletExtraData data;
   final String? from;
   final List<String> destinations;
-  final int? fee;
+  final BigInt? fee;
+  final List<XelisAddressBookEntry?> exactDestinations;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -59,8 +64,16 @@ class BlobEntryContent extends ConsumerWidget {
               LabeledValue.text(loc.fee, formatXelis(fee!, network)),
             if (from != null)
               LabeledValue.child(loc.from, AddressWidget(from!)),
-            for (final destination in destinations)
-              LabeledValue.child(loc.destination, AddressWidget(destination)),
+            for (final item in destinations.indexed)
+              LabeledValue.child(
+                loc.destination,
+                _BlobDestinationValue(
+                  destination: item.$2,
+                  exactDestination: item.$1 < exactDestinations.length
+                      ? exactDestinations[item.$1]
+                      : null,
+                ),
+              ),
             Wrap(
               spacing: Spaces.small,
               runSpacing: Spaces.small,
@@ -68,13 +81,14 @@ class BlobEntryContent extends ConsumerWidget {
               children: [
                 ColoredBadge.flag(parsed.flag),
                 ColoredBadge.label(parsed.label),
-                Text(
-                  '• ${parsed.fmtSize}',
-                  style: context.theme.typography.body.sm.copyWith(
-                    color: context.theme.colors.mutedForeground,
-                    fontStyle: FontStyle.italic,
+                if (parsed.fmtSize case final size?)
+                  Text(
+                    '• $size',
+                    style: context.theme.typography.body.sm.copyWith(
+                      color: context.theme.colors.mutedForeground,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
-                ),
               ],
             ),
             LabeledValue.child(
@@ -87,9 +101,36 @@ class BlobEntryContent extends ConsumerWidget {
                     ),
               crossAxisAlignment: CrossAxisAlignment.center,
             ),
-            if (parsed.flag == Flag.failed) Text(loc.extra_data_decode_failed),
+            if (parsed.flag == XelisWalletExtraDataFlag.failed)
+              Text(loc.extra_data_decode_failed),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _BlobDestinationValue extends StatelessWidget {
+  const _BlobDestinationValue({
+    required this.destination,
+    required this.exactDestination,
+  });
+
+  final String destination;
+  final XelisAddressBookEntry? exactDestination;
+
+  @override
+  Widget build(BuildContext context) {
+    final canonicalDestination = exactDestination?.destination.address;
+    if (canonicalDestination != null) {
+      return AddressWidget(canonicalDestination);
+    }
+
+    return FTooltip(
+      tipBuilder: (context, controller) => SelectableText(destination),
+      child: SelectableText(
+        destination,
+        style: context.theme.typography.body.md,
       ),
     );
   }
@@ -98,7 +139,7 @@ class BlobEntryContent extends ConsumerWidget {
 void _openExtraSheet(
   BuildContext context,
   AppLocalizations loc,
-  ExtraData extra,
+  XelisWalletExtraData extra,
 ) {
   showFSheet<void>(
     context: context,

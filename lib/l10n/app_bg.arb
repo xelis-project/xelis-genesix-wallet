@@ -1,4 +1,33 @@
 {
+  "@multisig_setup_participant_count": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "@multisig_setup_threshold_summary": {
+    "placeholders": {
+      "threshold": {"type": "int"},
+      "participants": {"type": "int"}
+    }
+  },
+  "@multisig_signing_current_wallet_participant": {
+    "placeholders": {
+      "participantId": {"type": "int"}
+    }
+  },
+  "@support_reference": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "@xswd_fee_atomic_units": {
+    "placeholders": {"amount": {"type": "int"}}
+  },
+  "@xswd_fee_multiplier": {
+    "placeholders": {"multiplier": {"type": "double"}}
+  },
   "node_url_hint": "https://node.xelis.io",
   "node_name_hint": "Моят възел",
   "node_name": "Име на възел",
@@ -19,6 +48,7 @@
   "hide_transactions_zero_value": "Скриване на транзакции с преводи с нулев баланс.",
   "hide_extra_data_description": "Скриване на допълнителни данни в детайлите на транзакцията.",
   "select_contract": "Изберете контракт",
+  "select_contact": "Изберете контакт",
   "select_asset": "Изберете актив",
   "category_burn_subtitle": "Транзакции, при които сте изгорили активи.",
   "category_coinbase_subtitle": "Транзакции, при които сте получили награди.",
@@ -225,7 +255,23 @@
   "search": "Търси",
   "destination": "Дестинация",
   "integrated_address_detected": "Интегрирана адреса детектирана",
-  "payment_id": "ИД на плащение",
+  "attached_data": "Прикачени данни",
+  "attached_data_badge": "Данни",
+  "attached_data_included": "Включени",
+  "attached_data_encrypted": "Шифровани",
+  "attached_data_not_encrypted": "Нешифровани",
+  "view_attached_data": "Преглед на прикачените данни",
+  "attached_data_source": "Източник",
+  "attached_data_source_integrated_address": "Интегриран адрес",
+  "attached_data_source_explicit": "Отделни прикачени данни",
+  "receive_advanced_payment_request": "Разширена заявка за плащане",
+  "receive_advanced_payment_request_description": "Добавете текст към адреса си, когато подателят трябва да включи референция.",
+  "receive_attached_text_label": "Прикачен текст",
+  "receive_attached_text_hint": "Референция за поръчка или депозит",
+  "receive_create_integrated_address": "Създаване на адрес с прикачени данни",
+  "receive_integrated_address_data_visible": "Видими в адреса",
+  "receive_integrated_address_data_visible_description": "Всеки, който получи този адрес, може да прочете прикачения текст.",
+  "receive_integrated_address_invalid_data": "Този текст не може да бъде добавен към адреса. Съкратете го и опитайте отново.",
   "reset_preferences": "Рестартирай предпочитанията",
   "reset_preferences_dialog": "За да се нулират всички настройки, език, тема и списък с възела.",
   "do_you_want_to_continue": "Дали искате да продължите?",
@@ -334,6 +380,7 @@
   "please_authenticate_delete_wallet": "Моля, авторизирайте за да изтриете този портфейл",
   "please_authenticate_view_seed": "Моля, авторизирайте за да видите вашата възстановителна фраза",
   "biometric_not_available_warning": "Байометричната аутентификация не е налична, моля проверете настройки на вашето устройство",
+  "biometric_auth_temporarily_locked": "Биометричното удостоверяване е временно заключено. Моля, опитайте отново по-късно.",
   "password_not_found": "Парола не е намерена",
   "filters": "Филтри",
   "no_transactions_found": "Няма открити транзакции",
@@ -391,6 +438,15 @@
   "item_count": "{count} items",
   "entry_count": "{count} entries",
   "xswd_channel_title": "XSWD",
+  "xswd_transaction_review_title": "Преглед на транзакцията",
+  "xswd_transaction_review_warning": "Прегледайте всички детайли на транзакцията, преди да разрешите тази еднократна заявка. Решението не може да бъде запомнено.",
+  "xswd_allow_once": "Разреши веднъж",
+  "xswd_transaction_nonce": "Nonce",
+  "xswd_transaction_version": "Версия на транзакцията",
+  "xswd_response_as_hex": "Шестнадесетичен отговор",
+  "xswd_fee_automatic": "Изчислява се автоматично",
+  "xswd_fee_atomic_units": "{amount} атомни единици",
+  "xswd_fee_multiplier": "{multiplier}× базова такса",
   "xswd_relayer_channel_title": "XSWD Relayer",
   "cannot_start_xswd": "Свързаните приложения не могат да се стартират",
   "cannot_close_xswd_connection": "Връзката на свързаното приложение не може да се затвори",
@@ -463,15 +519,7 @@
   "copied_to_clipboard": "Копирано в клипборда",
   "edit_button": "Редактиране",
   "tx_contract_transfer": "Трансфер на договор",
-  "contract_logs": "Логове на договора",
   "chunk_id": "ID на chunk",
-  "log_transfer": "Трансфер",
-  "log_transfer_to_contract": "Трансфер към договор",
-  "log_mint": "Създаване",
-  "log_gas_refund": "Възстановяване на gas",
-  "log_exit_code": "Код за изход",
-  "log_new_asset": "Нов актив",
-  "log_failed": "Неуспешно",
   "received": "Получено",
   "constructor": "Конструктор",
   "to_address": "Към: {address}",
@@ -509,5 +557,15 @@
   "paste_signature_share": "Поставяне на дял от подпис",
   "invalid_multisig_signature_share": "Този дял от подпис е невалиден или принадлежи на друга транзакция.",
   "duplicate_multisig_signature_share": "Този участник вече е предоставил подпис.",
-  "remove_signature_share": "Премахване на дял от подпис"
+  "remove_signature_share": "Премахване на дял от подпис",
+  "wallet_failure_generic": "Портфейлът не можа да изпълни тази заявка.",
+  "wallet_failure_invalid_input": "Проверете предоставената информация и опитайте отново.",
+  "wallet_failure_authentication_or_corrupt_data": "Паролата е неправилна или данните на портфейла не могат да бъдат прочетени.",
+  "wallet_failure_network": "Мрежата не е достъпна. Проверете връзката или възела и опитайте отново.",
+  "wallet_failure_daemon_rejected": "Възелът отхвърли тази заявка.",
+  "wallet_failure_insufficient_funds": "Наличният баланс е недостатъчен.",
+  "password_changed_biometric_disabled": "Новата парола е активна. Биометричното отключване беше изключено; използвайте новата парола.",
+  "password_changed_biometric_cleanup_failed": "Новата парола е активна. Биометричното отключване беше изключено, но някои запазени данни за достъп не можаха да бъдат премахнати. Оставете биометричния достъп изключен и използвайте новата парола.",
+  "password_change_native_state_indeterminate": "Обновяването на паролата не можа да бъде потвърдено. Запазете старата и новата парола, не опитвайте отново и се свържете с поддръжката, като посочите тази референция.",
+  "support_reference": "Референция за поддръжка: {reference}"
 }

@@ -1,4 +1,33 @@
 {
+  "@multisig_setup_participant_count": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "@multisig_setup_threshold_summary": {
+    "placeholders": {
+      "threshold": {"type": "int"},
+      "participants": {"type": "int"}
+    }
+  },
+  "@multisig_signing_current_wallet_participant": {
+    "placeholders": {
+      "participantId": {"type": "int"}
+    }
+  },
+  "@support_reference": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "@xswd_fee_atomic_units": {
+    "placeholders": {"amount": {"type": "int"}}
+  },
+  "@xswd_fee_multiplier": {
+    "placeholders": {"multiplier": {"type": "double"}}
+  },
   "node_url_hint": "https://node.xelis.io",
   "node_name_hint": "Мій вузол",
   "node_name": "Назва вузла",
@@ -19,6 +48,7 @@
   "hide_transactions_zero_value": "Приховувати транзакції з переказами нульового балансу.",
   "hide_extra_data_description": "Приховувати додаткові дані в деталях транзакції.",
   "select_contract": "Виберіть контракт",
+  "select_contact": "Вибрати контакт",
   "select_asset": "Виберіть актив",
   "category_burn_subtitle": "Транзакції, у яких ви спалили активи.",
   "category_coinbase_subtitle": "Транзакції, у яких ви отримали винагороди.",
@@ -225,7 +255,23 @@
   "search": "Шукати",
   "destination": "Місце призначення",
   "integrated_address_detected": "Інтегрована адреса виявлена",
-  "payment_id": "ІД платіжі",
+  "attached_data": "Прикріплені дані",
+  "attached_data_badge": "Дані",
+  "attached_data_included": "Включено",
+  "attached_data_encrypted": "Зашифровано",
+  "attached_data_not_encrypted": "Не зашифровано",
+  "view_attached_data": "Переглянути прикріплені дані",
+  "attached_data_source": "Джерело",
+  "attached_data_source_integrated_address": "Інтегрована адреса",
+  "attached_data_source_explicit": "Окремі прикріплені дані",
+  "receive_advanced_payment_request": "Розширений платіжний запит",
+  "receive_advanced_payment_request_description": "Додайте текст до своєї адреси, коли відправник має вказати ідентифікатор.",
+  "receive_attached_text_label": "Прикріплений текст",
+  "receive_attached_text_hint": "Ідентифікатор замовлення або депозиту",
+  "receive_create_integrated_address": "Створити адресу з прикріпленими даними",
+  "receive_integrated_address_data_visible": "Видно в адресі",
+  "receive_integrated_address_data_visible_description": "Будь-хто, хто отримає цю адресу, зможе прочитати прикріплений текст.",
+  "receive_integrated_address_invalid_data": "Цей текст неможливо додати до адреси. Скоротіть його й спробуйте ще раз.",
   "reset_preferences": "Скинути налаштування",
   "reset_preferences_dialog": "Ви на шляху до скидання всіх налаштувань, мови, теми та списку вузлів.",
   "do_you_want_to_continue": "Чи хочете продовжити?",
@@ -334,6 +380,7 @@
   "please_authenticate_delete_wallet": "Підтвердіть свою особистість для видалення цього гаманця",
   "please_authenticate_view_seed": "Підтвердіть свою особистість для перегляду своєї фрази відновлення",
   "biometric_not_available_warning": "Біометрична автентифікація недоступна, будь ласка, перевірте налаштування вашого пристрою",
+  "biometric_auth_temporarily_locked": "Біометричну автентифікацію тимчасово заблоковано. Спробуйте ще раз пізніше.",
   "password_not_found": "Пароль не знайдено",
   "filters": "Фільтри",
   "no_transactions_found": "Не знайдено транзакцій",
@@ -391,6 +438,15 @@
   "item_count": "{count} items",
   "entry_count": "{count} entries",
   "xswd_channel_title": "XSWD",
+  "xswd_transaction_review_title": "Перевірка транзакції",
+  "xswd_transaction_review_warning": "Перевірте всі деталі транзакції перед одноразовим дозволом. Це рішення не можна запам’ятати.",
+  "xswd_allow_once": "Дозволити один раз",
+  "xswd_transaction_nonce": "Nonce",
+  "xswd_transaction_version": "Версія транзакції",
+  "xswd_response_as_hex": "Відповідь у hex",
+  "xswd_fee_automatic": "Розраховується автоматично",
+  "xswd_fee_atomic_units": "{amount} атомарних одиниць",
+  "xswd_fee_multiplier": "{multiplier}× базова комісія",
   "xswd_relayer_channel_title": "XSWD Relayer",
   "cannot_start_xswd": "Не вдалося запустити підключені застосунки",
   "cannot_close_xswd_connection": "Не вдалося закрити підключення застосунку",
@@ -463,15 +519,7 @@
   "copied_to_clipboard": "Скопійовано до буфера обміну",
   "edit_button": "Редагувати",
   "tx_contract_transfer": "Переказ контракту",
-  "contract_logs": "Логи контракту",
   "chunk_id": "ID фрагмента",
-  "log_transfer": "Переказ",
-  "log_transfer_to_contract": "Переказ до контракту",
-  "log_mint": "Випуск",
-  "log_gas_refund": "Повернення gas",
-  "log_exit_code": "Код виходу",
-  "log_new_asset": "Новий актив",
-  "log_failed": "Помилка",
   "received": "Отримано",
   "constructor": "Конструктор",
   "to_address": "Кому: {address}",
@@ -509,5 +557,15 @@
   "paste_signature_share": "Вставити частку підпису",
   "invalid_multisig_signature_share": "Ця частка підпису недійсна або належить іншій транзакції.",
   "duplicate_multisig_signature_share": "Цей учасник уже надав підпис.",
-  "remove_signature_share": "Видалити частку підпису"
+  "remove_signature_share": "Видалити частку підпису",
+  "wallet_failure_generic": "Гаманцю не вдалося виконати цей запит.",
+  "wallet_failure_invalid_input": "Перевірте вказані дані та спробуйте ще раз.",
+  "wallet_failure_authentication_or_corrupt_data": "Пароль неправильний або дані гаманця неможливо прочитати.",
+  "wallet_failure_network": "Мережа недоступна. Перевірте з’єднання або вузол і спробуйте ще раз.",
+  "wallet_failure_daemon_rejected": "Вузол відхилив цей запит.",
+  "wallet_failure_insufficient_funds": "Доступного балансу недостатньо.",
+  "password_changed_biometric_disabled": "Новий пароль активний. Біометричне розблокування вимкнено; використовуйте новий пароль.",
+  "password_changed_biometric_cleanup_failed": "Новий пароль активний. Біометричне розблокування вимкнено, але деякі збережені дані доступу видалити не вдалося. Не вмикайте біометричний доступ і використовуйте новий пароль.",
+  "password_change_native_state_indeterminate": "Не вдалося підтвердити оновлення пароля. Збережіть старий і новий паролі, не повторюйте спробу та зверніться до служби підтримки, вказавши цей ідентифікатор.",
+  "support_reference": "Ідентифікатор для підтримки: {reference}"
 }

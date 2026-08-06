@@ -27,8 +27,12 @@ class NetworkNodesStateRepository extends PersistentState<NetworkNodesState> {
         );
       }
       return NetworkNodesState.fromJson(value as Map<String, dynamic>);
-    } catch (e) {
-      talker.critical('NetworkNodesStateRepository: $e');
+    } catch (error, stackTrace) {
+      logDiagnosticError(
+        'settings.network_nodes.storage.read',
+        error,
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
   }

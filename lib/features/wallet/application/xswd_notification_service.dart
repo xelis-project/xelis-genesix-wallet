@@ -46,6 +46,8 @@ class XswdNotificationService with WidgetsBindingObserver {
       FlutterLocalNotificationsPlugin();
 
   Future<void>? _initializing;
+  Future<void> _approvalTail = Future.value();
+  Object? _approvalOwner;
   bool _initialized = false;
   bool _observingLifecycle = false;
   bool _foregroundServiceRunning = false;
@@ -66,8 +68,12 @@ class XswdNotificationService with WidgetsBindingObserver {
     _initializing = future;
     try {
       await future;
-    } catch (error) {
-      talker.warning('XSWD notification initialization failed: $error');
+    } catch (error, stackTrace) {
+      logDiagnosticError(
+        'xswd.notifications.initialize',
+        error,
+        stackTrace: stackTrace,
+      );
     } finally {
       _initializing = null;
     }
@@ -92,8 +98,12 @@ class XswdNotificationService with WidgetsBindingObserver {
       } else if (kIsWeb) {
         await _webNotifications?.requestNotificationsPermission();
       }
-    } catch (error) {
-      talker.warning('XSWD notification permission request failed: $error');
+    } catch (error, stackTrace) {
+      logDiagnosticError(
+        'xswd.notifications.permission.request',
+        error,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -115,8 +125,12 @@ class XswdNotificationService with WidgetsBindingObserver {
       }
 
       await _startAndroidForegroundService(title: title);
-    } catch (error) {
-      talker.warning('XSWD notification service sync failed: $error');
+    } catch (error, stackTrace) {
+      logDiagnosticError(
+        'xswd.notifications.sync',
+        error,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -124,13 +138,37 @@ class XswdNotificationService with WidgetsBindingObserver {
     required String title,
     required String appName,
     required String body,
+    required Object owner,
+  }) {
+    _approvalOwner = owner;
+    return _enqueueApproval(
+      () => _showPendingApproval(
+        title: title,
+        appName: appName,
+        body: body,
+        owner: owner,
+      ),
+    );
+  }
+
+  Future<void> _showPendingApproval({
+    required String title,
+    required String appName,
+    required String body,
+    required Object owner,
   }) async {
+    if (!identical(_approvalOwner, owner)) {
+      return;
+    }
     if (!_isSupportedPlatform || !_isAppBackgrounded) {
       return;
     }
 
     await initialize();
-    if (!_initialized || !await _canShowNotifications()) {
+    if (!identical(_approvalOwner, owner) ||
+        !_initialized ||
+        !await _canShowNotifications() ||
+        !identical(_approvalOwner, owner)) {
       return;
     }
 
@@ -155,21 +193,53 @@ class XswdNotificationService with WidgetsBindingObserver {
         notificationDetails: notificationDetails,
         payload: _approvalPayload,
       );
-    } catch (error) {
-      talker.warning('XSWD approval notification failed: $error');
+      if (!identical(_approvalOwner, owner)) {
+        await _notifications.cancel(id: _approvalNotificationId);
+      }
+    } catch (error, stackTrace) {
+      logDiagnosticError(
+        'xswd.notifications.approval.show',
+        error,
+        stackTrace: stackTrace,
+      );
     }
   }
 
-  Future<void> clearPendingApproval() async {
-    if (!_initialized) {
+  Future<void> clearPendingApproval({Object? owner}) {
+    return _enqueueApproval(() => _clearPendingApproval(owner: owner));
+  }
+
+  Future<void> _clearPendingApproval({Object? owner}) async {
+    if (owner != null && !identical(_approvalOwner, owner)) {
       return;
     }
 
     try {
-      await _notifications.cancel(id: _approvalNotificationId);
-    } catch (error) {
-      talker.warning('XSWD approval notification cleanup failed: $error');
+      if (_initialized) {
+        await _notifications.cancel(id: _approvalNotificationId);
+      }
+      if (owner == null || identical(_approvalOwner, owner)) {
+        _approvalOwner = null;
+      }
+    } catch (error, stackTrace) {
+      logDiagnosticError(
+        'xswd.notifications.approval.clear',
+        error,
+        stackTrace: stackTrace,
+      );
     }
+  }
+
+  Future<void> _enqueueApproval(Future<void> Function() operation) {
+    final next = _approvalTail.then((_) => operation());
+    _approvalTail = next.catchError((Object error, StackTrace stackTrace) {
+      logDiagnosticError(
+        'xswd.notifications.approval.queue',
+        error,
+        stackTrace: stackTrace,
+      );
+    });
+    return next;
   }
 
   void dispose() {
@@ -216,8 +286,12 @@ class XswdNotificationService with WidgetsBindingObserver {
   Future<void> _disposeAsync() async {
     try {
       await _stopAndroidForegroundService();
-    } catch (error) {
-      talker.warning('XSWD notification service cleanup failed: $error');
+    } catch (error, stackTrace) {
+      logDiagnosticError(
+        'xswd.notifications.dispose',
+        error,
+        stackTrace: stackTrace,
+      );
     }
   }
 

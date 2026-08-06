@@ -12,11 +12,11 @@ import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart
 import 'package:genesix/features/wallet/domain/history_filter_state.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
+import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class FiltersDialog extends ConsumerStatefulWidget {
   const FiltersDialog(
@@ -27,7 +27,7 @@ class FiltersDialog extends ConsumerStatefulWidget {
     this.persistToSettings = true,
   });
 
-  final Map<String, ContactDetails> addressBook;
+  final Map<String, XelisAddressBookEntry> addressBook;
   final String? title;
   final String? applyLabel;
   final bool persistToSettings;
@@ -42,8 +42,9 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
 
   final _formKey = GlobalKey<FormState>();
   late Set<TransactionCategory> _categoriesSelected;
-  late final FSelectController<MapEntry<String, AssetData>> _assetController;
-  late final FSelectController<ContactDetails> _contactController;
+  late final FSelectController<MapEntry<String, XelisWalletAssetMetadata>>
+  _assetController;
+  late final FSelectController<XelisAddressBookEntry> _contactController;
   final _scrollController = ScrollController();
   late bool _hideExtraData;
   late bool _hideZeroBalance;
@@ -60,7 +61,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
 
     final knownAssets = ref.read(walletRuntimeProvider).knownAssets;
 
-    MapEntry<String, AssetData>? initialAssetEntry;
+    MapEntry<String, XelisWalletAssetMetadata>? initialAssetEntry;
     if (filterState.asset != null) {
       final matches = knownAssets.entries.where(
         (e) => e.key == filterState.asset,
@@ -68,18 +69,19 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
       if (matches.isNotEmpty) initialAssetEntry = matches.first;
     }
 
-    ContactDetails? initialContact;
+    XelisAddressBookEntry? initialContact;
     if (filterState.address != null) {
       final matches = widget.addressBook.values.where(
-        (c) => c.address == filterState.address,
+        (entry) => entry.destination.address == filterState.address,
       );
       if (matches.isNotEmpty) initialContact = matches.first;
     }
 
-    _assetController = FSelectController<MapEntry<String, AssetData>>(
-      value: initialAssetEntry,
-    );
-    _contactController = FSelectController<ContactDetails>(
+    _assetController =
+        FSelectController<MapEntry<String, XelisWalletAssetMetadata>>(
+          value: initialAssetEntry,
+        );
+    _contactController = FSelectController<XelisAddressBookEntry>(
       value: initialContact,
     );
     _hideExtraData = filterState.hideExtraData;
@@ -102,7 +104,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
     final balances = ref.watch(
       walletRuntimeProvider.select((state) => state.trackedBalances),
     );
-    final Map<String, AssetData> assets = ref.watch(
+    final Map<String, XelisWalletAssetMetadata> assets = ref.watch(
       walletRuntimeProvider.select((value) => value.knownAssets),
     );
 
@@ -170,7 +172,9 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                     ],
                   ),
                   // Asset selection
-                  FSelect<MapEntry<String, AssetData>>.searchBuilder(
+                  FSelect<
+                    MapEntry<String, XelisWalletAssetMetadata>
+                  >.searchBuilder(
                     label: Text(loc.asset),
                     hint: loc.select_asset,
                     control: .managed(controller: _assetController),
@@ -187,7 +191,9 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                       return values
                           .map(
                             (assetEntry) =>
-                                FSelectItem<MapEntry<String, AssetData>>(
+                                FSelectItem<
+                                  MapEntry<String, XelisWalletAssetMetadata>
+                                >(
                                   title: Text(assetEntry.value.name),
                                   value: assetEntry,
                                 ),
@@ -196,11 +202,11 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                     },
                   ),
                   // Contact selection
-                  FSelect<ContactDetails>.searchBuilder(
+                  FSelect<XelisAddressBookEntry>.searchBuilder(
                     label: Text(loc.contact),
-                    hint: loc.select_contract,
+                    hint: loc.select_contact,
                     control: .managed(controller: _contactController),
-                    format: (contact) => contact.name,
+                    format: _contactFilterLabel,
                     clearable: true,
                     filter: (query) async {
                       if (query.isNotEmpty) {
@@ -214,8 +220,8 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                     contentBuilder: (context, style, data) {
                       return data
                           .map(
-                            (contact) => FSelectItem<ContactDetails>(
-                              title: Text(contact.name),
+                            (contact) => FSelectItem<XelisAddressBookEntry>(
+                              title: Text(_contactFilterLabel(contact)),
                               value: contact,
                             ),
                           )
@@ -363,7 +369,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
         showBurn: _categoriesSelected.contains(TransactionCategory.burn),
         showBlob: _categoriesSelected.contains(TransactionCategory.blob),
         asset: assetEntry?.key,
-        address: contact?.address,
+        address: contact?.destination.address,
         minTimestamp: _minTimestamp,
         maxTimestamp: _maxTimestamp,
       );
@@ -415,5 +421,13 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
   DateTime? _localEndOfDay(DateTime? value) {
     if (value == null) return null;
     return DateTime(value.year, value.month, value.day, 23, 59, 59, 999);
+  }
+
+  String _contactFilterLabel(XelisAddressBookEntry contact) {
+    final label = contact.destinationLabel?.trim();
+    final destination = label == null || label.isEmpty
+        ? truncateText(contact.destination.address, maxLength: 18)
+        : label;
+    return '${contact.displayName} · $destination';
   }
 }

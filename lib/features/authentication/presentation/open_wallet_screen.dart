@@ -14,7 +14,7 @@ import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jovial_svg/jovial_svg.dart';
 import 'package:genesix/features/authentication/application/wallets_provider.dart';
@@ -106,10 +106,13 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
                 builder: (context, snapshot) {
                   if (snapshot.hasData && snapshot.data!.wallets.isNotEmpty) {
                     final initialWallet = switch (network) {
-                      Network.mainnet => snapshot.data!.lastWalletsUsed.mainnet,
-                      Network.testnet => snapshot.data!.lastWalletsUsed.testnet,
-                      Network.devnet => snapshot.data!.lastWalletsUsed.devnet,
-                      Network.stagenet =>
+                      XelisNetwork.mainnet =>
+                        snapshot.data!.lastWalletsUsed.mainnet,
+                      XelisNetwork.testnet =>
+                        snapshot.data!.lastWalletsUsed.testnet,
+                      XelisNetwork.devnet =>
+                        snapshot.data!.lastWalletsUsed.devnet,
+                      XelisNetwork.stagenet =>
                         snapshot.data!.lastWalletsUsed.stagenet,
                     };
 

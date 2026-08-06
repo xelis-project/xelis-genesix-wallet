@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/router/route_utils.dart';
+import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/multisig_pending_state_provider.dart';
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
@@ -45,7 +46,7 @@ class _MultisigContentState extends ConsumerState<MultisigContent> {
         key: const ValueKey('multisig-pending'),
         message: loc.changes_in_progress,
       );
-    } else if (multisigState.isSetup) {
+    } else if (multisigState != null) {
       content = ConfiguredMultisigView(
         key: const ValueKey('multisig-configured'),
         loc: loc,
@@ -81,15 +82,35 @@ class _MultisigContentState extends ConsumerState<MultisigContent> {
 
     setState(() => _isPreparingDeletion = true);
     final commands = ref.read(walletCommandsProvider);
+    final sessionIdentity = ref.read(activeWalletRepositoryProvider);
+    if (sessionIdentity == null) {
+      setState(() => _isPreparingDeletion = false);
+      return;
+    }
     try {
       final request = await commands.startDeleteMultisig();
       if (request == null) return;
       if (!mounted) {
-        await commands.cancelPendingMultisigRequest(txHash: request.hash);
+        await commands.cancelPendingMultisigRequest(
+          request: request,
+          sessionIdentity: sessionIdentity,
+        );
+        return;
+      }
+      if (!identical(
+        ref.read(activeWalletRepositoryProvider),
+        sessionIdentity,
+      )) {
+        await commands.cancelPendingMultisigRequest(
+          request: request,
+          sessionIdentity: sessionIdentity,
+        );
         return;
       }
 
-      ref.read(transactionReviewProvider.notifier).signaturePending(request);
+      ref
+          .read(transactionReviewProvider.notifier)
+          .signaturePending(request, sessionIdentity: sessionIdentity);
       await context.push(AuthAppScreen.transactionReview.toPath);
     } finally {
       if (mounted) setState(() => _isPreparingDeletion = false);

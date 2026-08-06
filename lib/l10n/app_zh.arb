@@ -1,4 +1,33 @@
 {
+  "@multisig_setup_participant_count": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "@multisig_setup_threshold_summary": {
+    "placeholders": {
+      "threshold": {"type": "int"},
+      "participants": {"type": "int"}
+    }
+  },
+  "@multisig_signing_current_wallet_participant": {
+    "placeholders": {
+      "participantId": {"type": "int"}
+    }
+  },
+  "@support_reference": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "@xswd_fee_atomic_units": {
+    "placeholders": {"amount": {"type": "int"}}
+  },
+  "@xswd_fee_multiplier": {
+    "placeholders": {"multiplier": {"type": "double"}}
+  },
   "node_url_hint": "https://node.xelis.io",
   "node_name_hint": "我的节点",
   "node_name": "节点名称",
@@ -19,6 +48,7 @@
   "hide_transactions_zero_value": "隐藏包含零余额转账的交易。",
   "hide_extra_data_description": "隐藏交易详情中的额外数据。",
   "select_contract": "选择合约",
+  "select_contact": "选择联系人",
   "select_asset": "选择资产",
   "category_burn_subtitle": "您销毁资产的交易。",
   "category_coinbase_subtitle": "您收到奖励的交易。",
@@ -225,7 +255,23 @@
   "search": "搜索",
   "destination": "目的地",
   "integrated_address_detected": "整合地址检测到",
-  "payment_id": "支付ID",
+  "attached_data": "附加数据",
+  "attached_data_badge": "数据",
+  "attached_data_included": "已包含",
+  "attached_data_encrypted": "已加密",
+  "attached_data_not_encrypted": "未加密",
+  "view_attached_data": "查看附加数据",
+  "attached_data_source": "来源",
+  "attached_data_source_integrated_address": "集成地址",
+  "attached_data_source_explicit": "单独的附加数据",
+  "receive_advanced_payment_request": "高级付款请求",
+  "receive_advanced_payment_request_description": "当发送方需要包含参考信息时，请在您的地址中附加文本。",
+  "receive_attached_text_label": "附加文本",
+  "receive_attached_text_hint": "订单或存款参考信息",
+  "receive_create_integrated_address": "创建带附加数据的地址",
+  "receive_integrated_address_data_visible": "显示在地址中",
+  "receive_integrated_address_data_visible_description": "任何收到此地址的人都可以读取附加文本。",
+  "receive_integrated_address_invalid_data": "无法将此文本添加到地址。请缩短文本后重试。",
   "reset_preferences": "重置偏好",
   "reset_preferences_dialog": "你即将重置所有设置、语言、主题和节点列表。",
   "do_you_want_to_continue": "你想要继续吗？",
@@ -334,6 +380,7 @@
   "please_authenticate_delete_wallet": "请进行身份验证以删除此钱包",
   "please_authenticate_view_seed": "请进行身份验证以查看您的恢复短语",
   "biometric_not_available_warning": "生物识别验证不可用，请检查您的设备设置",
+  "biometric_auth_temporarily_locked": "生物识别身份验证已暂时锁定。请稍后重试。",
   "password_not_found": "密码未找到",
   "filters": "过滤器",
   "no_transactions_found": "未找到交易",
@@ -391,6 +438,15 @@
   "item_count": "{count} items",
   "entry_count": "{count} entries",
   "xswd_channel_title": "XSWD",
+  "xswd_transaction_review_title": "审核交易",
+  "xswd_transaction_review_warning": "允许此一次性请求前，请检查所有交易详情。此决定不会被记住。",
+  "xswd_allow_once": "仅允许一次",
+  "xswd_transaction_nonce": "Nonce",
+  "xswd_transaction_version": "交易版本",
+  "xswd_response_as_hex": "十六进制响应",
+  "xswd_fee_automatic": "自动计算",
+  "xswd_fee_atomic_units": "{amount} 个原子单位",
+  "xswd_fee_multiplier": "基础手续费的 {multiplier} 倍",
   "xswd_relayer_channel_title": "XSWD Relayer",
   "cannot_start_xswd": "无法启动已连接应用",
   "cannot_close_xswd_connection": "无法关闭已连接应用的连接",
@@ -463,15 +519,7 @@
   "copied_to_clipboard": "已复制到剪贴板",
   "edit_button": "编辑",
   "tx_contract_transfer": "合约转账",
-  "contract_logs": "合约日志",
   "chunk_id": "分块 ID",
-  "log_transfer": "转账",
-  "log_transfer_to_contract": "转账到合约",
-  "log_mint": "铸造",
-  "log_gas_refund": "Gas 退款",
-  "log_exit_code": "退出代码",
-  "log_new_asset": "新资产",
-  "log_failed": "失败",
   "received": "已接收",
   "constructor": "构造函数",
   "to_address": "至：{address}",
@@ -509,5 +557,15 @@
   "paste_signature_share": "粘贴签名份额",
   "invalid_multisig_signature_share": "此签名份额无效或属于其他交易。",
   "duplicate_multisig_signature_share": "此参与者已经提供了签名。",
-  "remove_signature_share": "移除签名份额"
+  "remove_signature_share": "移除签名份额",
+  "wallet_failure_generic": "钱包无法完成此请求。",
+  "wallet_failure_invalid_input": "请检查提供的信息并重试。",
+  "wallet_failure_authentication_or_corrupt_data": "密码不正确或无法读取钱包数据。",
+  "wallet_failure_network": "网络不可用。请检查您的连接或节点，然后重试。",
+  "wallet_failure_daemon_rejected": "节点拒绝了此请求。",
+  "wallet_failure_insufficient_funds": "可用余额不足。",
+  "password_changed_biometric_disabled": "新密码已生效。生物识别解锁已禁用；请使用新密码。",
+  "password_changed_biometric_cleanup_failed": "新密码已生效。生物识别解锁已禁用，但无法删除部分已保存的访问数据。请保持生物识别访问处于禁用状态，并使用新密码。",
+  "password_change_native_state_indeterminate": "无法确认密码更新。请保留旧密码和新密码，不要重试，并在联系支持时提供此参考号。",
+  "support_reference": "支持参考号：{reference}"
 }

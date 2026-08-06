@@ -9,6 +9,7 @@ import 'package:genesix/features/wallet/presentation/address_book/add_contact_sh
 import 'package:genesix/features/wallet/presentation/address_book/address_book_empty_state.dart';
 import 'package:genesix/features/wallet/presentation/address_book/contact_list_tile.dart';
 import 'package:genesix/features/wallet/presentation/address_book/edit_contact_sheet.dart';
+import 'package:genesix/shared/errors/app_failure_reporter.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
@@ -16,8 +17,8 @@ import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/widgets/components/confirm_dialog.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
 import 'package:go_router/go_router.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class AddressBookContent extends ConsumerStatefulWidget {
   const AddressBookContent({super.key});
@@ -73,12 +74,6 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
     final searchQuery = ref.watch(searchQueryProvider);
     final isSearching = searchQuery.isNotEmpty;
 
-    ref.listen(searchQueryProvider, (previous, next) {
-      if (previous != next) {
-        ref.read(addressBookProvider.notifier).reset();
-      }
-    });
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -103,14 +98,12 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
                       localizations: loc,
                       scrollController: _scrollController,
                       isLoadingMore: _isLoadingMore,
-                      onOpen: (contact) => context.push(
-                        '/contact_details',
-                        extra: contact.address,
-                      ),
-                      onSend: (contact) => _onSend(contact.address),
+                      onOpen: (contact) =>
+                          context.push('/contact_details', extra: contact.id),
+                      onSend: (contact) => _onSend(contact.id),
                       onEdit: _onEdit,
                       onDelete: (contact) =>
-                          _onDelete(contact.address, contact.name),
+                          _onDelete(contact.id, contact.displayName),
                     ),
             AsyncError() => _CenteredInfo(message: loc.oups),
             _ => const Center(child: FCircularProgress()),
@@ -120,11 +113,11 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
     );
   }
 
-  void _onSend(String address) {
-    context.push(AuthAppScreen.transfer.toPath, extra: address);
+  void _onSend(String contactId) {
+    context.push(AuthAppScreen.transfer.toPath, extra: contactId);
   }
 
-  void _onEdit(ContactDetails contactDetails) {
+  void _onEdit(XelisAddressBookEntry contactDetails) {
     showFSheet<void>(
       context: context,
       side: FLayout.btt,
@@ -144,7 +137,7 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
     );
   }
 
-  void _onDelete(String address, String name) {
+  void _onDelete(String entryId, String name) {
     final loc = ref.read(appLocalizationsProvider);
     showAppDialog<void>(
       context: context,
@@ -153,19 +146,30 @@ class _AddressBookContentState extends ConsumerState<AddressBookContent> {
           description: loc.contact_delete_confirm(name),
           style: style,
           animation: animation,
-          onConfirm: (bool yes) {
+          onConfirm: (bool yes) async {
             if (!yes) return;
             try {
-              ref.read(addressBookProvider.notifier).remove(address);
+              await ref.read(addressBookProvider.notifier).remove(entryId);
+              if (!mounted) return;
               ref
                   .read(toastProvider.notifier)
                   .showEvent(
                     description: '${loc.removed_from_address_book} $name',
                   );
-            } catch (e) {
+            } catch (error, stackTrace) {
+              final failure = recordAppFailure(
+                error,
+                stackTrace,
+                operation: 'wallet.address_book.remove',
+                applicationCode: 'wallet_address_book_remove_failed',
+              );
+              if (!mounted) return;
               ref
                   .read(toastProvider.notifier)
-                  .showError(description: '${loc.failed_to_remove_contact} $e');
+                  .showFailure(
+                    title: loc.failed_to_remove_contact,
+                    failure: failure,
+                  );
             }
           },
         );
@@ -259,14 +263,14 @@ class _ContactList extends StatelessWidget {
     required this.onDelete,
   });
 
-  final Map<String, ContactDetails> contacts;
+  final Map<String, XelisAddressBookEntry> contacts;
   final AppLocalizations localizations;
   final ScrollController scrollController;
   final bool isLoadingMore;
-  final ValueChanged<ContactDetails> onOpen;
-  final ValueChanged<ContactDetails> onSend;
-  final ValueChanged<ContactDetails> onEdit;
-  final ValueChanged<ContactDetails> onDelete;
+  final ValueChanged<XelisAddressBookEntry> onOpen;
+  final ValueChanged<XelisAddressBookEntry> onSend;
+  final ValueChanged<XelisAddressBookEntry> onEdit;
+  final ValueChanged<XelisAddressBookEntry> onDelete;
 
   @override
   Widget build(BuildContext context) {

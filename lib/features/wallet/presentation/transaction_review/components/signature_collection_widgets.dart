@@ -8,7 +8,7 @@ import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/app_card.dart';
 import 'package:genesix/shared/widgets/components/labeled_value.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 enum _SignatureRevealDirection { fromTop, fromEnd }
 
@@ -23,10 +23,10 @@ class AnimatedSignatureList extends StatelessWidget {
   });
 
   final GlobalKey<AnimatedListState> listKey;
-  final List<MultisigSignatureShare> shares;
-  final Map<int, ParticipantDartPayload> participants;
+  final List<XelisWalletMultisigSignatureShare> shares;
+  final Map<int, XelisWalletMultisigParticipant> participants;
   final bool canRemove;
-  final ValueChanged<MultisigSignatureShare> onRemove;
+  final ValueChanged<XelisWalletMultisigSignatureShare> onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -40,10 +40,10 @@ class AnimatedSignatureList extends StatelessWidget {
       itemBuilder: (context, index, animation) {
         final share = shares[index];
         return AnimatedVerifiedParticipant(
-          key: ValueKey(share.signerId),
+          key: ValueKey(share.participantId),
           animation: animation,
-          signerId: share.signerId,
-          participant: participants[share.signerId],
+          signerId: share.participantId,
+          participant: participants[share.participantId],
           onRemove: canRemove ? () => onRemove(share) : null,
         );
       },
@@ -87,7 +87,7 @@ class AnimatedVerifiedParticipant extends StatelessWidget {
 
   final Animation<double> animation;
   final int signerId;
-  final ParticipantDartPayload? participant;
+  final XelisWalletMultisigParticipant? participant;
   final VoidCallback? onRemove;
 
   @override
@@ -199,7 +199,7 @@ class _SignatureRevealTransition extends StatelessWidget {
 class SigningRequestCard extends ConsumerWidget {
   const SigningRequestCard({required this.request, super.key});
 
-  final MultisigSigningRequest request;
+  final XelisWalletMultisigSigningRequest request;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -261,8 +261,11 @@ class SigningRequestCard extends ConsumerWidget {
                     spacing: Spaces.medium,
                     children: [
                       LabeledValue.text(loc.wallet, request.source),
-                      LabeledValue.text(loc.network, request.network),
-                      LabeledValue.text(loc.hash, request.hash),
+                      LabeledValue.text(loc.network, request.network.name),
+                      LabeledValue.text(
+                        loc.transaction_hash_to_sign,
+                        request.signingHash,
+                      ),
                       LabeledValue.text(
                         loc.threshold,
                         '${request.threshold}/${request.participants.length}',
@@ -345,7 +348,7 @@ class _VerifiedParticipant extends ConsumerWidget {
   });
 
   final int signerId;
-  final ParticipantDartPayload? participant;
+  final XelisWalletMultisigParticipant? participant;
   final VoidCallback? onRemove;
 
   @override

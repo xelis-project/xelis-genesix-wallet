@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,6 +23,8 @@ class Genesix extends ConsumerStatefulWidget {
 }
 
 class _GenesixState extends ConsumerState<Genesix> with WindowListener {
+  bool _isClosing = false;
+
   @override
   void initState() {
     super.initState();
@@ -75,8 +79,35 @@ class _GenesixState extends ConsumerState<Genesix> with WindowListener {
   }
 
   @override
-  Future<void> onWindowClose() async {
-    await ref.read(walletSessionCommandsProvider.notifier).logout();
-    await disposeRustLogging();
+  void onWindowClose() {
+    if (_isClosing) return;
+    _isClosing = true;
+    unawaited(_closeWindow());
+  }
+
+  Future<void> _closeWindow() async {
+    try {
+      try {
+        await ref.read(walletSessionCommandsProvider.notifier).logout();
+      } catch (error, stackTrace) {
+        logSupportEvent(
+          AppSupportEvent.desktopShutdownFailed,
+          diagnosticContext: 'phase=logout errorType=${error.runtimeType}',
+          stackTrace: stackTrace,
+        );
+      }
+
+      try {
+        await disposeRustLogging();
+      } catch (error, stackTrace) {
+        logSupportEvent(
+          AppSupportEvent.desktopShutdownFailed,
+          diagnosticContext: 'phase=logging errorType=${error.runtimeType}',
+          stackTrace: stackTrace,
+        );
+      }
+    } finally {
+      await windowManager.destroy();
+    }
   }
 }

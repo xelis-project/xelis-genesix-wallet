@@ -13,7 +13,7 @@ import 'package:genesix/features/wallet/presentation/sign_transaction/components
 import 'package:genesix/features/wallet/presentation/sign_transaction/components/signature_share_ready.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 const _maxMultisigSigningRequestLength = 3 * 1024 * 1024;
 
@@ -34,8 +34,8 @@ class _SignTransactionContentState
   final _requestController = TextEditingController();
   final _scrollController = ScrollController();
 
-  MultisigSigningRequest? _request;
-  MultisigSignatureShare? _signatureShare;
+  XelisWalletMultisigSigningRequest? _request;
+  XelisWalletMultisigSignatureShare? _signatureShare;
   NativeWalletRepository? _requestRepository;
   _SigningRequestInputError? _inputError;
   String _observedInputText = '';
@@ -79,19 +79,19 @@ class _SignTransactionContentState
     final Widget content;
     if (_signatureShare case final share?) {
       content = SignatureShareReady(
-        key: ValueKey('signature-ready-${share.requestHash}'),
+        key: ValueKey('signature-ready-${share.signingHash}'),
         share: share,
-        participant: _participantFor(share.signerId),
+        participant: _participantFor(share.participantId),
         copied: _copied,
         onCopy: _copySignatureShare,
         onRestart: _restart,
       );
     } else if (_request case final request?) {
       content = SigningRequestReview(
-        key: ValueKey('signing-review-${request.hash}'),
+        key: ValueKey('signing-review-${request.signingHash}'),
         request: request,
         runtime: runtime,
-        participant: _participantFor(request.signerId),
+        participant: _participantFor(request.participantId),
         isNodeAvailable: isNodeAvailable,
         nodeRequirementMessage: nodeRequirementMessage,
         deleteConfirmed: _deleteConfirmed,
@@ -186,12 +186,12 @@ class _SignTransactionContentState
     );
   }
 
-  ParticipantDartPayload? _participantFor(int? signerId) {
-    if (signerId == null) return null;
+  XelisWalletMultisigParticipant? _participantFor(int? participantId) {
+    if (participantId == null) return null;
     final participants = _request?.participants;
     if (participants == null) return null;
     for (final participant in participants) {
-      if (participant.id == signerId) return participant;
+      if (participant.id == participantId) return participant;
     }
     return null;
   }
@@ -317,7 +317,7 @@ class _SignTransactionContentState
           ref.read(activeWalletRepositoryProvider),
           requestRepository,
         ) ||
-        request.signerId == null ||
+        request.participantId == null ||
         _isAuthenticating ||
         _isSigning) {
       return;
@@ -329,7 +329,7 @@ class _SignTransactionContentState
       await startWithBiometricAuth(
         ref,
         callback: (authenticatedRef) =>
-            _signRequest(authenticatedRef, request.hash, requestRepository),
+            _signRequest(authenticatedRef, request, requestRepository),
         reason: loc.please_authenticate_tx,
       );
     } finally {
@@ -339,18 +339,18 @@ class _SignTransactionContentState
 
   Future<void> _signRequest(
     WidgetRef authenticatedRef,
-    String expectedRequestHash,
+    XelisWalletMultisigSigningRequest expectedRequest,
     NativeWalletRepository expectedRepository,
   ) async {
     final request = _request;
     if (request == null ||
-        request.hash != expectedRequestHash ||
+        !identical(request, expectedRequest) ||
         !identical(
           authenticatedRef.read(activeWalletRepositoryProvider),
           expectedRepository,
         ) ||
-        request.signerId == null ||
-        (request.transaction is MultisigSigningTransaction_DeleteMultisig &&
+        request.participantId == null ||
+        (request.transaction is XelisWalletMultisigDelete &&
             !_deleteConfirmed) ||
         _isSigning) {
       return;
@@ -363,16 +363,16 @@ class _SignTransactionContentState
     try {
       final share = await authenticatedRef
           .read(walletCommandsProvider)
-          .signMultisigSigningRequest(request.encoded);
+          .signMultisigSigningRequest(request);
       if (!mounted ||
-          _request?.hash != request.hash ||
+          !identical(_request, request) ||
           !identical(
             authenticatedRef.read(activeWalletRepositoryProvider),
             expectedRepository,
           )) {
         return;
       }
-      if (share == null || share.requestHash != request.hash) {
+      if (share == null || share.signingHash != request.signingHash) {
         setState(() => _signingFailed = true);
         return;
       }

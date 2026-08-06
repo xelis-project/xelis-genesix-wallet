@@ -12,6 +12,7 @@ import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:genesix/features/wallet/domain/prefetch_permissions_rpc_request.dart';
 import 'package:genesix/features/wallet/domain/permission_rpc_request.dart';
 import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
+import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/burn_builder_widget.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/deploy_contract_builder_widget.dart';
@@ -23,7 +24,7 @@ import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
@@ -108,7 +109,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     final xswdState = ref.read(xswdRequestProvider);
     final decision = xswdState.decision;
     if (decision != null && !decision.isCompleted) {
-      decision.complete(UserPermissionDecision.reject);
+      decision.complete(XelisXswdDecision.reject);
     }
 
     // Clear the request state to prevent stuck spinners
@@ -168,12 +169,12 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     if (summary == null) return _ActionSet.okOnly;
 
     final isCancelOrDisconnect =
-        summary.isCancelRequest() || summary.isAppDisconnect();
+        summary.isCancelRequest || summary.isApplicationDisconnect;
 
     if (isCancelOrDisconnect) return _ActionSet.okOnly;
-    if (summary.isPermissionRequest()) return _ActionSet.permissionDecision;
-    if (summary.isApplicationRequest()) return _ActionSet.connectionDecision;
-    if (summary.isPrefetchPermissionsRequest()) {
+    if (summary.isPermissionRequest) return _ActionSet.permissionDecision;
+    if (summary.isApplicationRequest) return _ActionSet.connectionDecision;
+    if (summary.isPrefetchPermissionsRequest) {
       return _ActionSet.prefetchDecision;
     }
 
@@ -219,10 +220,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
   void dispose() {
     _closeDelayTimer?.cancel();
     _timer?.cancel();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _setSuppress(false);
-    });
+    _setSuppress(false);
 
     _scrollController.dispose();
 
@@ -254,7 +252,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
             onPress: () {
               final decision = xswdState.decision;
               if (decision != null && !decision.isCompleted) {
-                decision.complete(UserPermissionDecision.reject);
+                decision.complete(XelisXswdDecision.reject);
               }
               // Clear the request state
               ref.read(xswdRequestProvider.notifier).clearRequest();
@@ -267,6 +265,10 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     }
 
     final summary = xswdState.xswdEventSummary!;
+    final transactionReview =
+        xswdState.permissionReview?.isBuildTransaction == true
+        ? xswdState.permissionReview
+        : null;
     final currentHash = summary.hashCode;
 
     if (_awaitingNextRequest &&
@@ -290,21 +292,23 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     final actionSet = _computeActionSet(xswdState);
     _syncTimerWithState(actionSet);
 
-    final eventType = summary.eventType;
+    final eventType = summary.kind;
     final isCancelOrDisconnect =
-        summary.isCancelRequest() || summary.isAppDisconnect();
+        summary.isCancelRequest || summary.isApplicationDisconnect;
 
     String title;
     switch (eventType) {
-      case XswdRequestType_Application():
+      case XelisXswdRequestKind.application:
         title = loc.connection_request.capitalize();
-      case XswdRequestType_Permission():
-        title = loc.permission_request.capitalize();
-      case XswdRequestType_PrefetchPermissions():
+      case XelisXswdRequestKind.permission:
+        title = transactionReview != null
+            ? loc.xswd_transaction_review_title
+            : loc.permission_request.capitalize();
+      case XelisXswdRequestKind.prefetchPermissions:
         title = loc.prefetch_permissions_request.capitalize();
-      case XswdRequestType_CancelRequest():
+      case XelisXswdRequestKind.cancel:
         title = loc.cancellation_request.capitalize();
-      case XswdRequestType_AppDisconnect():
+      case XelisXswdRequestKind.applicationDisconnect:
         title = loc.app_disconnected.capitalize();
     }
 
@@ -362,9 +366,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                                   .read(xswdRequestProvider)
                                   .decision;
                               if (decision != null && !decision.isCompleted) {
-                                decision.complete(
-                                  UserPermissionDecision.reject,
-                                );
+                                decision.complete(XelisXswdDecision.reject);
                               }
 
                               // Clear the request state to prevent stuck spinners
@@ -393,17 +395,38 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _XswdApplicationInfoSection(
-                            appInfo: summary.applicationInfo,
-                            loc: loc,
-                          ),
-                          const SizedBox(height: Spaces.medium),
+                          if (transactionReview == null) ...[
+                            _XswdApplicationInfoSection(
+                              appInfo: summary.application,
+                              loc: loc,
+                            ),
+                            const SizedBox(height: Spaces.medium),
+                          ],
+                          if (transactionReview != null) ...[
+                            _XswdTransactionReviewSection(
+                              review: transactionReview,
+                              loc: loc,
+                            ),
+                            const SizedBox(height: Spaces.medium),
+                          ],
+                          if (xswdState.prefetchPermissionsRequest
+                              case final prefetchRequest?) ...[
+                            _XswdMinimalPrefetchDetailsSection(
+                              request: prefetchRequest,
+                              loc: loc,
+                            ),
+                            const SizedBox(height: Spaces.medium),
+                          ],
                           _XswdMoreDetailsAccordion(
                             expanded: _detailsExpanded,
-                            appInfo: summary.applicationInfo,
-                            permissionRequest: xswdState.permissionRpcRequest,
-                            prefetchRequest:
-                                xswdState.prefetchPermissionsRequest,
+                            appInfo: summary.application,
+                            includeApplicationInfo: transactionReview != null,
+                            permissionRequest: transactionReview == null
+                                ? xswdState.permissionRpcRequest
+                                : null,
+                            permissionReview: transactionReview == null
+                                ? xswdState.permissionReview
+                                : null,
                             loc: loc,
                             onExpandedChange: (expanded) {
                               setState(() {
@@ -428,6 +451,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
         actionSet: actionSet,
         busy: _awaitingNextRequest,
         rememberDecision: _rememberDecision,
+        canPersistPermission: xswdState.permissionReview?.canPersist ?? true,
         loc: loc,
         onRememberChanged: (value) {
           setState(() {
@@ -482,7 +506,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     );
   }
 
-  void _handleDecision(UserPermissionDecision decision) {
+  void _handleDecision(XelisXswdDecision decision) {
     _stopTimer();
 
     final xswdState = ref.read(xswdRequestProvider);
@@ -494,8 +518,8 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     }
 
     final rejected =
-        decision == UserPermissionDecision.reject ||
-        decision == UserPermissionDecision.alwaysReject;
+        decision == XelisXswdDecision.reject ||
+        decision == XelisXswdDecision.alwaysReject;
     if (rejected) {
       _cancelRapidFireWait();
       context.pop();
@@ -513,16 +537,16 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
 
   void _showAcceptedConnectionToast(
     XswdRequestState xswdState,
-    UserPermissionDecision decision,
+    XelisXswdDecision decision,
   ) {
     final summary = xswdState.xswdEventSummary;
-    if (summary == null || !summary.isApplicationRequest()) {
+    if (summary == null || !summary.isApplicationRequest) {
       return;
     }
 
     final accepted =
-        decision == UserPermissionDecision.accept ||
-        decision == UserPermissionDecision.alwaysAccept;
+        decision == XelisXswdDecision.accept ||
+        decision == XelisXswdDecision.alwaysAccept;
     if (!accepted) {
       return;
     }
@@ -531,7 +555,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     ref
         .read(toastProvider.notifier)
         .showInformation(
-          title: loc.app_connected_title(summary.applicationInfo.name),
+          title: loc.app_connected_title(summary.application.name),
         );
   }
 }
@@ -559,7 +583,7 @@ class _XswdInfoRow extends StatelessWidget {
 class _XswdApplicationInfoSection extends StatelessWidget {
   const _XswdApplicationInfoSection({required this.appInfo, required this.loc});
 
-  final AppInfo appInfo;
+  final XelisXswdApplication appInfo;
   final AppLocalizations loc;
 
   @override
@@ -612,21 +636,103 @@ class _XswdApplicationInfoSection extends StatelessWidget {
   }
 }
 
+class _XswdTransactionReviewSection extends StatelessWidget {
+  const _XswdTransactionReviewSection({
+    required this.review,
+    required this.loc,
+  });
+
+  final XswdPermissionReview review;
+  final AppLocalizations loc;
+
+  @override
+  Widget build(BuildContext context) {
+    final params = review.buildTransactionParams!;
+    final fee = params.feeBuilder;
+    final feeValue = switch ((fee?.value, fee?.multiplier)) {
+      (final value?, final multiplier?) =>
+        '${loc.xswd_fee_atomic_units(value)} / '
+            '${loc.xswd_fee_multiplier(multiplier)}',
+      (final value?, null) => loc.xswd_fee_atomic_units(value),
+      (null, final multiplier?) => loc.xswd_fee_multiplier(multiplier),
+      _ => loc.xswd_fee_automatic,
+    };
+
+    return Column(
+      key: const ValueKey('xswd-transaction-review'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        FAlert(
+          key: const ValueKey('xswd-transaction-security-warning'),
+          icon: const Icon(FLucideIcons.triangleAlert),
+          title: Text(loc.xswd_transaction_review_title),
+          subtitle: Text(loc.xswd_transaction_review_warning),
+        ),
+        const SizedBox(height: Spaces.medium),
+        Wrap(
+          spacing: Spaces.small,
+          runSpacing: Spaces.small,
+          children: [_XswdMinimalBadge(label: review.request.method)],
+        ),
+        const SizedBox(height: Spaces.small),
+        _XswdPermissionPayload(review: review, loc: loc, onAssetTap: (_) {}),
+        const SizedBox(height: Spaces.small),
+        _PermissionContentContainer(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _XswdInfoRow(label: loc.fee, value: feeValue),
+              if (params.nonce case final nonce?) ...[
+                const SizedBox(height: Spaces.small),
+                _XswdInfoRow(
+                  label: loc.xswd_transaction_nonce,
+                  value: nonce.toString(),
+                ),
+              ],
+              if (params.txVersion case final version?) ...[
+                const SizedBox(height: Spaces.small),
+                _XswdInfoRow(
+                  label: loc.xswd_transaction_version,
+                  value: version.toString(),
+                ),
+              ],
+              const SizedBox(height: Spaces.small),
+              _XswdInfoRow(
+                label: loc.broadcast,
+                value: (params.broadcast ?? true) ? loc.enabled : loc.disabled,
+              ),
+              if (params.txAsHex case final txAsHex?) ...[
+                const SizedBox(height: Spaces.small),
+                _XswdInfoRow(
+                  label: loc.xswd_response_as_hex,
+                  value: txAsHex ? loc.enabled : loc.disabled,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _XswdMoreDetailsAccordion extends StatelessWidget {
   const _XswdMoreDetailsAccordion({
     required this.expanded,
     required this.appInfo,
+    required this.includeApplicationInfo,
     required this.permissionRequest,
-    required this.prefetchRequest,
+    required this.permissionReview,
     required this.loc,
     required this.onExpandedChange,
     required this.onAssetTap,
   });
 
   final bool expanded;
-  final AppInfo appInfo;
+  final XelisXswdApplication appInfo;
+  final bool includeApplicationInfo;
   final PermissionRpcRequest? permissionRequest;
-  final PrefetchPermissionsRequest? prefetchRequest;
+  final XswdPermissionReview? permissionReview;
   final AppLocalizations loc;
   final ValueChanged<bool> onExpandedChange;
   final ValueChanged<String> onAssetTap;
@@ -635,12 +741,11 @@ class _XswdMoreDetailsAccordion extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasDescription = appInfo.description.isNotEmpty;
     final hasPermissionDetails = permissionRequest != null;
-    final hasPrefetchDetails = prefetchRequest != null;
     final hasFuturePermissions = appInfo.permissions.isNotEmpty;
 
-    if (!hasDescription &&
+    if (!includeApplicationInfo &&
+        !hasDescription &&
         !hasPermissionDetails &&
-        !hasPrefetchDetails &&
         !hasFuturePermissions) {
       return const SizedBox.shrink();
     }
@@ -660,6 +765,13 @@ class _XswdMoreDetailsAccordion extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (includeApplicationInfo) ...[
+                _XswdApplicationInfoSection(appInfo: appInfo, loc: loc),
+                if (hasDescription ||
+                    hasPermissionDetails ||
+                    hasFuturePermissions)
+                  const SizedBox(height: Spaces.medium),
+              ],
               if (hasDescription)
                 _XswdInfoRow(
                   label: loc.description.capitalize(),
@@ -669,22 +781,13 @@ class _XswdMoreDetailsAccordion extends StatelessWidget {
                 if (hasDescription) const SizedBox(height: Spaces.medium),
                 _XswdMinimalPermissionSection(
                   request: permissionRequest!,
+                  review: permissionReview!,
                   loc: loc,
                   onAssetTap: onAssetTap,
                 ),
               ],
-              if (hasPrefetchDetails) ...[
-                if (hasDescription || hasPermissionDetails)
-                  const SizedBox(height: Spaces.medium),
-                _XswdMinimalPrefetchDetailsSection(
-                  request: prefetchRequest!,
-                  loc: loc,
-                ),
-              ],
               if (hasFuturePermissions) ...[
-                if (hasDescription ||
-                    hasPermissionDetails ||
-                    hasPrefetchDetails)
+                if (hasDescription || hasPermissionDetails)
                   const SizedBox(height: Spaces.medium),
                 _XswdMinimalFuturePermissionsSection(
                   permissions: appInfo.permissions.keys,
@@ -702,11 +805,13 @@ class _XswdMoreDetailsAccordion extends StatelessWidget {
 class _XswdMinimalPermissionSection extends StatelessWidget {
   const _XswdMinimalPermissionSection({
     required this.request,
+    required this.review,
     required this.loc,
     required this.onAssetTap,
   });
 
   final PermissionRpcRequest request;
+  final XswdPermissionReview review;
   final AppLocalizations loc;
   final ValueChanged<String> onAssetTap;
 
@@ -732,7 +837,7 @@ class _XswdMinimalPermissionSection extends StatelessWidget {
           ),
           const SizedBox(height: Spaces.extraSmall),
           _XswdPermissionPayload(
-            request: request,
+            review: review,
             loc: loc,
             onAssetTap: onAssetTap,
           ),
@@ -825,25 +930,26 @@ class _XswdMinimalBadge extends StatelessWidget {
 
 class _XswdPermissionPayload extends StatelessWidget {
   const _XswdPermissionPayload({
-    required this.request,
+    required this.review,
     required this.loc,
     required this.onAssetTap,
   });
 
-  final PermissionRpcRequest request;
+  final XswdPermissionReview review;
   final AppLocalizations loc;
   final ValueChanged<String> onAssetTap;
 
   @override
   Widget build(BuildContext context) {
+    final request = review.request;
     Widget? builderWidget;
 
     if (request.params == null || request.params!.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    if (request.method == WalletMethod.buildTransaction.jsonKey) {
-      final params = BuildTransactionParams.fromJson(request.params!);
+    if (review.isBuildTransaction) {
+      final params = review.buildTransactionParams!;
       final builder = params.transactionTypeBuilder;
 
       if (builder is TransfersBuilder) {
@@ -855,6 +961,7 @@ class _XswdPermissionPayload extends StatelessWidget {
       } else if (builder is InvokeContractBuilder) {
         builderWidget = InvokeContractBuilderWidget(
           invokeContractBuilder: builder,
+          parsedParameters: review.parsedInvokeParameters,
         );
       } else if (builder is DeployContractBuilder) {
         builderWidget = DeployContractBuilderWidget(
@@ -878,6 +985,10 @@ class _XswdPermissionPayload extends StatelessWidget {
       );
     }
 
+    if (review.isBuildTransaction && builderWidget == null) {
+      return const SizedBox.shrink();
+    }
+
     final Widget content =
         builderWidget ??
         SelectableText(
@@ -896,6 +1007,7 @@ class _XswdActionFactory {
     required this.actionSet,
     required this.busy,
     required this.rememberDecision,
+    required this.canPersistPermission,
     required this.loc,
     required this.onRememberChanged,
     required this.onDecision,
@@ -904,9 +1016,10 @@ class _XswdActionFactory {
   final _ActionSet actionSet;
   final bool busy;
   final bool rememberDecision;
+  final bool canPersistPermission;
   final AppLocalizations loc;
   final ValueChanged<bool> onRememberChanged;
-  final ValueChanged<UserPermissionDecision> onDecision;
+  final ValueChanged<XelisXswdDecision> onDecision;
 
   List<Widget> build(BuildContext context) {
     switch (actionSet) {
@@ -925,11 +1038,21 @@ class _XswdActionFactory {
           busy: busy,
           denyLabel: loc.deny,
           allowLabel: loc.allow,
-          onDeny: () => onDecision(UserPermissionDecision.reject),
-          onAllow: () => onDecision(UserPermissionDecision.accept),
+          onDeny: () => onDecision(XelisXswdDecision.reject),
+          onAllow: () => onDecision(XelisXswdDecision.accept),
         );
 
       case _ActionSet.permissionDecision:
+        if (!canPersistPermission) {
+          return _buildBinaryDecisionActions(
+            context: context,
+            busy: busy,
+            denyLabel: loc.deny,
+            allowLabel: loc.xswd_allow_once,
+            onDeny: () => onDecision(XelisXswdDecision.reject),
+            onAllow: () => onDecision(XelisXswdDecision.accept),
+          );
+        }
         return [
           FSwitch(
             label: Text(loc.remember_my_decision),
@@ -944,14 +1067,14 @@ class _XswdActionFactory {
             allowLabel: loc.allow,
             onDeny: () {
               final decision = rememberDecision
-                  ? UserPermissionDecision.alwaysReject
-                  : UserPermissionDecision.reject;
+                  ? XelisXswdDecision.alwaysReject
+                  : XelisXswdDecision.reject;
               onDecision(decision);
             },
             onAllow: () {
               final decision = rememberDecision
-                  ? UserPermissionDecision.alwaysAccept
-                  : UserPermissionDecision.accept;
+                  ? XelisXswdDecision.alwaysAccept
+                  : XelisXswdDecision.accept;
               onDecision(decision);
             },
           ),
@@ -968,17 +1091,40 @@ class _XswdActionFactory {
     required VoidCallback onAllow,
   }) {
     return [
-      Row(
-        children: [
-          _XswdDecisionButton(
+      LayoutBuilder(
+        builder: (context, constraints) {
+          final stackActions =
+              constraints.maxWidth < 360 ||
+              MediaQuery.textScalerOf(context).scale(1) > 1.3;
+          final denyButton = _XswdDecisionButton(
             busy: busy,
             label: denyLabel,
             variant: .outline,
             onPress: onDeny,
-          ),
-          const SizedBox(width: Spaces.small),
-          _XswdDecisionButton(busy: busy, label: allowLabel, onPress: onAllow),
-        ],
+          );
+          final allowButton = _XswdDecisionButton(
+            busy: busy,
+            label: allowLabel,
+            onPress: onAllow,
+          );
+          if (stackActions) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                denyButton,
+                const SizedBox(height: Spaces.small),
+                allowButton,
+              ],
+            );
+          }
+          return Row(
+            children: [
+              Expanded(child: denyButton),
+              const SizedBox(width: Spaces.small),
+              Expanded(child: allowButton),
+            ],
+          );
+        },
       ),
     ];
   }
@@ -999,12 +1145,10 @@ class _XswdDecisionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: FButton(
-        variant: variant,
-        onPress: busy ? null : onPress,
-        child: Text(label),
-      ),
+    return FButton(
+      variant: variant,
+      onPress: busy ? null : onPress,
+      child: Text(label),
     );
   }
 }

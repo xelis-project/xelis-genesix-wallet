@@ -12,8 +12,8 @@ import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/network.dart'
-    as rust;
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart'
+    as wallet_flutter;
 import 'package:forui/forui.dart';
 
 class TransfersBuilderWidget extends ConsumerStatefulWidget {
@@ -66,8 +66,8 @@ class _TransfersBuilderWidgetState extends ConsumerState<TransfersBuilderWidget>
   Widget _buildTransfersList(
     AppLocalizations loc,
     List<TransferBuilder> transfers,
-    Map<String, AssetData> knownAssets,
-    rust.Network network,
+    Map<String, wallet_flutter.XelisWalletAssetMetadata> knownAssets,
+    wallet_flutter.XelisNetwork network,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,13 +114,20 @@ class _TransfersBuilderWidgetState extends ConsumerState<TransfersBuilderWidget>
               if (t.extraData != null) ...[
                 const SizedBox(height: Spaces.extraSmall),
                 Text(
-                  loc.extra_data,
+                  loc.attached_data,
                   style: context.bodyMedium!.copyWith(
                     fontWeight: FontWeight.bold,
                     color: context.theme.colors.mutedForeground,
                   ),
                 ),
                 SelectableText(extraData, style: context.bodySmall),
+                buildLabeledText(
+                  context,
+                  loc.privacy,
+                  t.encryptExtraData
+                      ? loc.attached_data_encrypted
+                      : loc.attached_data_not_encrypted,
+                ),
               ],
             ],
           ),

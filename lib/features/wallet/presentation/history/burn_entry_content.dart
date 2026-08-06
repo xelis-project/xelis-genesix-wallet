@@ -7,12 +7,12 @@ import 'package:genesix/features/wallet/presentation/assets/asset_name_widget.da
 import 'package:genesix/shared/widgets/components/labeled_value.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class BurnEntryContent extends ConsumerWidget {
   const BurnEntryContent(this.burnEntry, {super.key});
 
-  final BurnEntry burnEntry;
+  final XelisWalletBurnEntry burnEntry;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

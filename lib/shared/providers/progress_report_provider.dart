@@ -1,12 +1,11 @@
 import 'dart:async';
 
-import 'package:genesix/src/generated/rust_bridge/api/api.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:genesix/src/generated/rust_bridge/api/progress_report.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 part 'progress_report_provider.g.dart';
 
 @riverpod
 Stream<ProgressReport> progressReportStream(Ref ref) {
-  return createProgressReportStream();
+  return XelisWalletFlutter.createProgressReportStream();
 }

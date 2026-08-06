@@ -19,7 +19,7 @@ import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 import 'xswd_new_connection_dialog.dart';
 
@@ -121,9 +121,9 @@ class _XSWDContentState extends ConsumerState<XSWDContent> {
               key: ValueKey<String>('xswd-loading'),
               child: FCircularProgress(),
             ),
-            error: (error, stack) => Center(
+            error: (_, _) => Center(
               key: const ValueKey<String>('xswd-error'),
-              child: Text('${loc.error_loading_applications}: $error'),
+              child: Text(loc.error_loading_applications),
             ),
           )
         : _XswdStatePanel(
@@ -345,7 +345,7 @@ class _XswdAppsList extends ConsumerStatefulWidget {
   const _XswdAppsList({super.key, required this.loc, required this.apps});
 
   final AppLocalizations loc;
-  final List<AppInfo> apps;
+  final List<XelisXswdApplication> apps;
 
   @override
   ConsumerState<_XswdAppsList> createState() => _XswdAppsListState();
@@ -356,7 +356,7 @@ class _XswdAppsListState extends ConsumerState<_XswdAppsList> {
 
   bool get _isDisconnecting => _disconnectingAppId != null;
 
-  Future<void> _handleAppDisconnection(AppInfo app) async {
+  Future<void> _handleAppDisconnection(XelisXswdApplication app) async {
     try {
       await ref.read(xswdControllerProvider).closeXswdAppConnection(app);
     } catch (_) {
@@ -364,7 +364,10 @@ class _XswdAppsListState extends ConsumerState<_XswdAppsList> {
     }
   }
 
-  Future<void> _openAppDetails(BuildContext context, AppInfo app) async {
+  Future<void> _openAppDetails(
+    BuildContext context,
+    XelisXswdApplication app,
+  ) async {
     if (_isDisconnecting) return;
 
     final hasDisconnected = await XswdAppDetailRoute(

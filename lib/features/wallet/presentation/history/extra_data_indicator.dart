@@ -5,7 +5,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/wallet/domain/parsed_extra_data.dart';
 import 'package:genesix/features/wallet/presentation/components/colored_badge.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class ExtraDataIndicator extends ConsumerWidget {
   const ExtraDataIndicator({
@@ -15,7 +15,7 @@ class ExtraDataIndicator extends ConsumerWidget {
     this.dense = false,
   });
 
-  final ExtraData? extra;
+  final XelisWalletExtraData? extra;
   final VoidCallback onOpen;
   final bool dense;
 
@@ -28,8 +28,11 @@ class ExtraDataIndicator extends ConsumerWidget {
     final loc = ref.watch(appLocalizationsProvider);
     final parsed = ParsedExtraData.parse(loc, extra!);
     final color = flagColor(parsed.flag);
-    final tooltip =
-        '${parsed.flag.name.capitalize()} • ${parsed.label} • ${parsed.fmtSize}';
+    final tooltip = [
+      parsed.flag.name.capitalize(),
+      parsed.label,
+      ?parsed.fmtSize,
+    ].join(' • ');
 
     return FTooltip(
       tipBuilder: (_, _) => Text(

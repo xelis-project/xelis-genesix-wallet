@@ -35,10 +35,12 @@ class _AddressWidgetState extends ConsumerState<AddressWidget> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final contact = ref.watch(
-      addressBookProvider.select((state) => state.value?[widget.address]),
+      addressBookByAddressProvider.select(
+        (state) => state.value?[widget.address],
+      ),
     );
     final isRegistered = contact != null;
-    final value = contact?.name ?? widget.address;
+    final value = contact?.displayName ?? widget.address;
     final displayValue = widget.compact && !isRegistered
         ? truncateText(
             widget.address,

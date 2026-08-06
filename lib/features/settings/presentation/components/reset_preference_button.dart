@@ -6,6 +6,7 @@ import 'package:forui/forui.dart';
 import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/shared/errors/app_failure_reporter.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/storage/shared_preferences/shared_preferences_provider.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
@@ -38,8 +39,15 @@ class _ResetPreferenceButtonState extends ConsumerState<ResetPreferenceButton> {
       ref
           .read(toastProvider.notifier)
           .showEvent(description: loc.preferences_reset_snackbar);
-    } catch (e) {
-      ref.read(toastProvider.notifier).showError(description: e.toString());
+    } catch (error, stackTrace) {
+      final failure = recordAppFailure(
+        error,
+        stackTrace,
+        operation: 'settings.preferences.reset',
+        applicationCode: 'preferences_reset_failed',
+      );
+      if (!mounted) return;
+      ref.read(toastProvider.notifier).showFailure(failure: failure);
     }
   }
 

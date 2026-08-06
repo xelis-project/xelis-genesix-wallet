@@ -1,5 +1,7 @@
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/shared/models/app_failure.dart';
 import 'package:genesix/shared/models/toast_content.dart';
+import 'package:genesix/shared/utils/app_failure_presentation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'toast_provider.g.dart';
@@ -33,6 +35,22 @@ class Toast extends _$Toast {
     final loc = ref.read(appLocalizationsProvider);
     final errorDescription = title ?? loc.error;
     show(ToastContent.error(title: errorDescription, description: description));
+  }
+
+  void showFailure({
+    String? title,
+    String? description,
+    required AppFailure failure,
+  }) {
+    final loc = ref.read(appLocalizationsProvider);
+    show(
+      ToastContent.error(
+        title: title ?? loc.error,
+        description: description ?? appFailureDescription(loc, failure),
+        supportReference: failure.supportReference,
+        sticky: true,
+      ),
+    );
   }
 
   void showXswd({

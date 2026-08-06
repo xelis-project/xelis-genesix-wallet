@@ -1,5 +1,5 @@
 import 'package:genesix/features/news/domain/news_feed_contract.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class NewsFeed {
   const NewsFeed({required this.items});
@@ -89,7 +89,7 @@ class NewsItem {
 
   bool isVisibleFor({
     required String languageCode,
-    required Network network,
+    required XelisNetwork network,
     required String platform,
     required String appVersion,
     required Set<String> dismissedIds,

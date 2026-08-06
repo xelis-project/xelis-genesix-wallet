@@ -13,9 +13,6 @@ permissions:
   contents: read
   pull-requests: read
 
-env:
-  FRB_CODEGEN_VERSION: 2.12.0
-
 jobs:
   changes:
     name: Changes · Detect
@@ -24,8 +21,6 @@ jobs:
     outputs:
       ai: ${{ steps.detect.outputs.ai }}
       dart: ${{ steps.detect.outputs.dart }}
-      rust: ${{ steps.detect.outputs.rust }}
-      wallet_lifecycle: ${{ steps.detect.outputs.wallet_lifecycle }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -60,14 +55,10 @@ jobs:
           if [[ "$merged_pr" == "true" ]]; then
             ai=false
             dart=false
-            rust=false
-            wallet_lifecycle=false
             files="Merged pull request: checks already completed before merge"
           elif [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
             ai=true
             dart=true
-            rust=true
-            wallet_lifecycle=true
             files="Manual run: all checks enabled"
           else
             if [[ "$EVENT_NAME" == "pull_request" ]]; then
@@ -80,30 +71,17 @@ jobs:
 
             ai=false
             dart=false
-            rust=false
-            wallet_lifecycle=false
 
             while IFS= read -r file; do
               case "$file" in
                 .github/workflows/*|.github/actions/*)
                   ai=true
                   dart=true
-                  rust=true
-                  wallet_lifecycle=true
                   ;;
                 AGENTS.md|CLAUDE.md|.agents/*|.codex/*|.claude/*|.github/agents/*|.github/skills/*|.github/copilot-instructions.md|tool/validate_ai_guidelines.dart)
                   ai=true
                   ;;
-                rust/Cargo.toml|rust/Cargo.lock|rust/src/api/wallet/runtime.rs|rust/tests/wallet_lifecycle.rs)
-                  dart=true
-                  rust=true
-                  wallet_lifecycle=true
-                  ;;
-                rust/*)
-                  dart=true
-                  rust=true
-                  ;;
-                lib/*|tool/*|test/*|integration_test/*|rust_builder/*|pubspec.yaml|pubspec.lock|analysis_options.yaml|build.yaml|flutter_rust_bridge.yaml|l10n.yaml)
+                lib/*|tool/*|test/*|integration_test/*|pubspec.yaml|pubspec.lock|analysis_options.yaml|l10n.yaml)
                   dart=true
                   ;;
               esac
@@ -112,15 +90,11 @@ jobs:
 
           echo "ai=$ai" >> "$GITHUB_OUTPUT"
           echo "dart=$dart" >> "$GITHUB_OUTPUT"
-          echo "rust=$rust" >> "$GITHUB_OUTPUT"
-          echo "wallet_lifecycle=$wallet_lifecycle" >> "$GITHUB_OUTPUT"
 
           {
             echo "### Affected checks"
             echo "- AI guidelines: $ai"
             echo "- Dart: $dart"
-            echo "- Rust: $rust"
-            echo "- Wallet lifecycle smoke test: $wallet_lifecycle"
             echo ""
             echo "### Changed files"
             echo '```text'
@@ -161,12 +135,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Set up Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2
-
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -184,78 +152,12 @@ jobs:
         with:
           path: .dart_tool/build
           key: >-
-            ${{ runner.os }}-build-runner-${{ hashFiles('pubspec.lock', 'build.yaml', 'flutter_rust_bridge.yaml') }}-${{ github.run_id }}
+            ${{ runner.os }}-build-runner-${{ hashFiles('pubspec.lock') }}-${{ github.run_id }}
           restore-keys: |
-            ${{ runner.os }}-build-runner-${{ hashFiles('pubspec.lock', 'build.yaml', 'flutter_rust_bridge.yaml') }}-
-
-      - name: Cache Flutter Rust bridge codegen
-        id: cache-frb-codegen
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/bin/flutter_rust_bridge_codegen
-          key: ${{ runner.os }}-${{ runner.arch }}-frb-codegen-${{ env.FRB_CODEGEN_VERSION }}
-
-      - name: Install Flutter Rust bridge codegen
-        if: steps.cache-frb-codegen.outputs.cache-hit != 'true'
-        run: cargo install flutter_rust_bridge_codegen --version "$FRB_CODEGEN_VERSION" --locked
-
-      - name: Generate bridge code
-        run: flutter_rust_bridge_codegen generate
-
-      - name: Upload generated Rust bridge
-        if: needs.changes.outputs.rust == 'true'
-        uses: actions/upload-artifact@v7
-        with:
-          name: generated-rust-bridge
-          path: rust/src/frb_generated.rs
-          if-no-files-found: error
-          retention-days: 1
+            ${{ runner.os }}-build-runner-${{ hashFiles('pubspec.lock') }}-
 
       - name: Generate Dart code
         run: dart run build_runner build
 
       - name: Dart analyze
         run: dart analyze ${{ inputs.dart_analyze_args }}
-
-  rust-check:
-    name: Rust · Check & Test
-    needs:
-      - changes
-      - dart-analyze
-    if: >-
-      needs.changes.outputs.rust == 'true' &&
-      needs.dart-analyze.result == 'success'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Download generated Rust bridge
-        uses: actions/download-artifact@v8
-        with:
-          name: generated-rust-bridge
-          path: rust/src
-
-      - name: Set up Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2
-
-      - name: Check Rust formatting
-        working-directory: rust
-        run: cargo fmt --check
-
-      - name: Cargo check
-        working-directory: rust
-        run: cargo check --locked
-
-      - name: Cargo test
-        working-directory: rust
-        run: cargo test --locked
-
-      - name: Cargo test · Wallet lifecycle (slow)
-        if: needs.changes.outputs.wallet_lifecycle == 'true'
-        working-directory: rust
-        run: cargo test --locked --test wallet_lifecycle -- --ignored

@@ -14,6 +14,8 @@ It reuses the same [`xelis_wallet`](https://github.com/xelis-project/xelis-block
 - Cross-platform app for desktop and mobile environments.
 - Rust-backed wallet logic bridged to Flutter.
 - Focused UX for core wallet actions: create/import, send/receive, history, and balance.
+- Reusable standard and integrated destinations, with attached data disclosed
+  only in explicit review/detail flows.
 - Open source and community-driven.
 
 ## Platform Support
@@ -35,11 +37,10 @@ Download prebuilt artifacts from the [GitHub Releases page](https://github.com/x
 
 - [Flutter SDK](https://docs.flutter.dev/get-started/install)
 - [Rust toolchain](https://www.rust-lang.org/tools/install)
-- [flutter_rust_bridge](https://github.com/fzyzcjy/flutter_rust_bridge) :
 
-```bash
-cargo install flutter_rust_bridge_codegen
-```
+The Rust toolchain is used by the `xelis_wallet_flutter` dependency when it
+builds the native XELIS wallet library. Genesix itself no longer contains a Rust
+crate or generates Flutter Rust Bridge bindings.
 
 Linux build dependencies vary by distro. On Ubuntu/Debian, common packages include:
 
@@ -59,7 +60,6 @@ cd xelis-genesix-wallet
 
 ```bash
 flutter pub get
-flutter_rust_bridge_codegen generate
 dart run build_runner build -d
 ```
 
@@ -77,28 +77,35 @@ flutter build <platform>
 
 Examples: `flutter build windows`, `flutter build linux`, `flutter build apk`.
 
-## Optional `just` Shortcuts
+## Optional `just` Helpers
 
-If you use [just](https://just.systems/), helper commands are available:
+If you use [just](https://just.systems/), `just init` bootstraps the project,
+`just gen` regenerates Dart code, `just update` refreshes dependencies and
+generated code, and `just run_web` prepares the web wallet package before
+launching Chrome.
 
-- `just init`
-- `just gen`
-- `just update`
-- `just run_web`
-
-These are optional convenience commands, not required.
+These helpers are optional. `just run_web` uses the Web build executable from
+the resolved `xelis_wallet_flutter` dependency, then launches Chrome. It
+requires `wasm-pack`, Rust nightly, and the WebAssembly target. A local
+`pubspec_overrides.yaml` may select a local XWF checkout for cross-repository
+development and is intentionally ignored by Git.
 
 ## Architecture (Short Version)
 
 - Flutter app code: `lib/`
-- Rust wallet core and APIs: `rust/`
-- Generated Flutter/Rust bridge code: `lib/src/generated/`
+- Shared native XELIS wallet runtime, authored Flutter API, and private bridge:
+  the [`xelis_wallet_flutter`](https://github.com/xelis-project/xelis-wallet-flutter)
+  dependency
 - Multisig request and cosigning flow: [`docs/multisig-signing.md`](docs/multisig-signing.md)
+- Error, logging, localization, and support-reference flow: [`docs/error-handling.md`](docs/error-handling.md)
+- Typed wallet runtime and business-event lifecycles: [`docs/runtime-events.md`](docs/runtime-events.md)
 
 ## Security Notes
 
 - Back up your seed/recovery phrase before using real funds.
 - Never share your seed phrase with anyone.
+- Data embedded in an integrated address is visible to anyone who receives that
+  address; never put passwords, seeds, private keys, or authentication tokens in it.
 - Consider using a dedicated device profile for wallet operations.
 
 If you discover a vulnerability, report it privately via [GitHub Security Advisories](https://github.com/xelis-project/xelis-genesix-wallet/security/advisories/new).

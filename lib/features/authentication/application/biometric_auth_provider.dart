@@ -6,6 +6,7 @@ import 'package:genesix/features/authentication/data/biometric_auth_repository.d
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
+import 'package:genesix/shared/errors/app_failure_reporter.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/widgets/components/password_dialog.dart';
@@ -76,7 +77,7 @@ Future<bool> biometricAuthentication(Ref ref, String reason) async {
   ref.onDispose(() {
     unawaited(
       biometricAuthRepository.stopAuthentication().catchError((Object error) {
-        talker.warning('Failed to stop biometric authentication: $error');
+        logDiagnosticError('biometric.authentication.stop', error);
       }),
     );
   });
@@ -92,36 +93,43 @@ Future<bool> biometricAuthentication(Ref ref, String reason) async {
 
     try {
       return await biometricAuthRepository.authenticate(reason);
-    } on LocalAuthException catch (e) {
+    } on LocalAuthException catch (e, stackTrace) {
       if (!ref.mounted) return false;
 
       if (e.code == LocalAuthExceptionCode.noBiometricHardware) {
-        talker.warning('BiometricAuthentication', e);
+        logDiagnosticError('biometric.authentication.authenticate', e);
         ref
             .read(toastProvider.notifier)
             .showWarning(title: loc.biometric_not_available_warning);
       } else if (e.code == LocalAuthExceptionCode.temporaryLockout ||
           e.code == LocalAuthExceptionCode.biometricLockout) {
-        talker.warning('BiometricAuthentication', e);
+        logDiagnosticError('biometric.authentication.authenticate', e);
         ref
             .read(toastProvider.notifier)
-            .showWarning(
-              title:
-                  'Biometric authentication is temporarily locked. Please try again later.',
-            );
+            .showWarning(title: loc.biometric_auth_temporarily_locked);
       } else {
-        talker.warning('BiometricAuthentication', e);
+        final failure = recordAppFailure(
+          e,
+          stackTrace,
+          operation: 'biometric.authentication.authenticate',
+          applicationCode: 'biometric_authentication_failed',
+        );
         ref
             .read(toastProvider.notifier)
-            .showWarning(
-              title: e.description ?? 'Biometric authentication failed',
-            );
+            .showFailure(title: loc.authentication, failure: failure);
       }
-    } catch (e) {
+    } catch (error, stackTrace) {
       if (!ref.mounted) return false;
 
-      talker.error('BiometricAuthentication', e);
-      ref.read(toastProvider.notifier).showError(description: e.toString());
+      final failure = recordAppFailure(
+        error,
+        stackTrace,
+        operation: 'biometric.authentication.authenticate',
+        applicationCode: 'biometric_authentication_failed',
+      );
+      ref
+          .read(toastProvider.notifier)
+          .showFailure(title: loc.authentication, failure: failure);
     }
   } finally {
     keepAliveLink.close();

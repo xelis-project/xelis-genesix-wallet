@@ -1,11 +1,10 @@
 import 'dart:collection';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
 import 'package:genesix/features/wallet/domain/node_address.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/network.dart'
-    as rust;
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
+import 'package:genesix/shared/models/app_failure.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart'
+    as wallet_flutter;
 
 part 'wallet_runtime_state.freezed.dart';
 
@@ -26,15 +25,17 @@ abstract class WalletRuntimeState with _$WalletRuntimeState {
     @Default(false) bool isRescanning,
     @Default(WalletConnectionPhase.disconnected)
     WalletConnectionPhase connectionPhase,
-    @Default(0) int topoheight,
-    @Default('') String xelisBalance,
-    required LinkedHashMap<String, String> trackedBalances,
-    required LinkedHashMap<String, sdk.AssetData> knownAssets,
+    required BigInt topoheight,
+    required BigInt xelisBalance,
+    required LinkedHashMap<String, BigInt> trackedBalances,
+    required LinkedHashMap<String, wallet_flutter.XelisWalletAssetMetadata>
+    knownAssets,
     @Default('') String address,
     @Default('') String name,
-    @Default(MultisigState()) MultisigState multisigState,
-    @Default(rust.Network.mainnet) rust.Network network,
+    wallet_flutter.XelisWalletMultisigState? multisigState,
+    @Default(wallet_flutter.XelisNetwork.mainnet)
+    wallet_flutter.XelisNetwork network,
     NodeAddress? selectedNode,
-    String? lastConnectionError,
+    AppFailure? lastConnectionFailure,
   }) = _WalletRuntimeState;
 }

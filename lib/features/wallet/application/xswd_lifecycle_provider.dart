@@ -11,10 +11,12 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_controller_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_notification_service.dart';
+import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/wallet_runtime_state.dart';
 import 'package:genesix/features/wallet/domain/xswd_lifecycle_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 part 'xswd_lifecycle_provider.g.dart';
 
@@ -23,6 +25,7 @@ class XswdLifecycle extends _$XswdLifecycle {
   Future<void> _tail = Future.value();
   int _revision = 0;
   NativeWalletRepository? _activeRepository;
+  WalletSession? _activeSession;
 
   @override
   XswdLifecycleState build() {
@@ -67,6 +70,12 @@ class XswdLifecycle extends _$XswdLifecycle {
     });
   }
 
+  Future<bool> addRelayer(XelisXswdRelayer relayer) {
+    final target = _readTarget();
+    final revision = ++_revision;
+    return _enqueue(() => _addRelayer(target, revision, relayer));
+  }
+
   void _scheduleReconciliation() {
     if (!ref.mounted) {
       return;
@@ -85,6 +94,7 @@ class XswdLifecycle extends _$XswdLifecycle {
 
     return _XswdLifecycleTarget(
       desiredEnabled: settings.enableXswd && !settings.walletOfflineMode,
+      session: session,
       repository: session?.repository,
       canRun: session != null && runtime.isOnline && sessionRuntimeMatches,
     );
@@ -99,10 +109,17 @@ class XswdLifecycle extends _$XswdLifecycle {
         runtime.network == session.network;
   }
 
-  Future<void> _enqueue(Future<void> Function() operation) {
+  Future<T> _enqueue<T>(Future<T> Function() operation) {
     final future = _tail.then((_) => operation());
-    _tail = future.catchError((Object error, StackTrace stackTrace) {
-      talker.error('Unhandled XSWD lifecycle error', error, stackTrace);
+    _tail = future.then<void>((_) {}).catchError((
+      Object error,
+      StackTrace stackTrace,
+    ) {
+      logDiagnosticError(
+        'xswd.lifecycle.operation',
+        error,
+        stackTrace: stackTrace,
+      );
       if (ref.mounted) {
         state = state.copyWith(phase: XswdLifecyclePhase.failed, error: error);
       }
@@ -115,8 +132,9 @@ class XswdLifecycle extends _$XswdLifecycle {
       return;
     }
 
+    final sessionChanged = !identical(_activeSession, target.session);
     final repositoryChanged = !identical(_activeRepository, target.repository);
-    if (_activeRepository != null && repositoryChanged) {
+    if (_activeRepository != null && (repositoryChanged || sessionChanged)) {
       final stopped = await _stop(
         repository: _activeRepository,
         revision: revision,
@@ -138,6 +156,7 @@ class XswdLifecycle extends _$XswdLifecycle {
 
     if (!_supportsLocalServer) {
       _activeRepository = target.repository;
+      _activeSession = target.session;
       state = XswdLifecycleState(
         phase: XswdLifecyclePhase.running,
         desiredEnabled: true,
@@ -154,6 +173,7 @@ class XswdLifecycle extends _$XswdLifecycle {
         .startXSWD(target.repository!);
     if (started) {
       _activeRepository = target.repository;
+      _activeSession = target.session;
     }
 
     if (revision != _revision || !ref.mounted) {
@@ -175,6 +195,65 @@ class XswdLifecycle extends _$XswdLifecycle {
     );
   }
 
+  Future<bool> _addRelayer(
+    _XswdLifecycleTarget target,
+    int revision,
+    XelisXswdRelayer relayer,
+  ) async {
+    final repository = target.repository;
+    if (repository == null || !_isCurrentTarget(target, revision)) {
+      return false;
+    }
+
+    state = const XswdLifecycleState(
+      phase: XswdLifecyclePhase.starting,
+      desiredEnabled: true,
+    );
+    final added = await ref
+        .read(xswdControllerProvider)
+        .addXswdRelayer(repository, relayer);
+    if (!added) {
+      if (_isCurrentTarget(target, revision)) {
+        state = const XswdLifecycleState(
+          phase: XswdLifecyclePhase.failed,
+          desiredEnabled: true,
+        );
+      }
+      return false;
+    }
+
+    if (!_isCurrentTarget(target, revision)) {
+      await ref.read(xswdControllerProvider).stopXSWD(repository);
+      return false;
+    }
+
+    _activeRepository = repository;
+    _activeSession = target.session;
+    ref.invalidate(xswdApplicationsProvider);
+    await _syncNotifications(active: true);
+    if (!_isCurrentTarget(target, revision)) {
+      await ref.read(xswdControllerProvider).stopXSWD(repository);
+      return false;
+    }
+
+    state = const XswdLifecycleState(
+      phase: XswdLifecyclePhase.running,
+      desiredEnabled: true,
+    );
+    return true;
+  }
+
+  bool _isCurrentTarget(_XswdLifecycleTarget target, int revision) {
+    if (revision != _revision || !ref.mounted) {
+      return false;
+    }
+    final current = _readTarget();
+    return current.desiredEnabled &&
+        current.canRun &&
+        identical(current.session, target.session) &&
+        identical(current.repository, target.repository);
+  }
+
   Future<bool> _stop({
     required NativeWalletRepository? repository,
     required int revision,
@@ -182,6 +261,7 @@ class XswdLifecycle extends _$XswdLifecycle {
   }) async {
     if (repository == null) {
       _activeRepository = null;
+      _activeSession = null;
       if (revision == _revision && ref.mounted) {
         state = XswdLifecycleState(desiredEnabled: desiredEnabled);
       }
@@ -208,6 +288,7 @@ class XswdLifecycle extends _$XswdLifecycle {
     }
     if (identical(_activeRepository, repository)) {
       _activeRepository = null;
+      _activeSession = null;
     }
     await _syncNotifications(active: false);
 
@@ -232,11 +313,13 @@ class XswdLifecycle extends _$XswdLifecycle {
 class _XswdLifecycleTarget {
   const _XswdLifecycleTarget({
     required this.desiredEnabled,
+    required this.session,
     required this.repository,
     required this.canRun,
   });
 
   final bool desiredEnabled;
+  final WalletSession? session;
   final NativeWalletRepository? repository;
   final bool canRun;
 }

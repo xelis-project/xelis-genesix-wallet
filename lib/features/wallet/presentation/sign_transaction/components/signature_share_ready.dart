@@ -6,7 +6,7 @@ import 'package:genesix/features/wallet/presentation/address_book/address_widget
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/app_card.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class SignatureShareReady extends ConsumerWidget {
   const SignatureShareReady({
@@ -18,8 +18,8 @@ class SignatureShareReady extends ConsumerWidget {
     super.key,
   });
 
-  final MultisigSignatureShare share;
-  final ParticipantDartPayload? participant;
+  final XelisWalletMultisigSignatureShare share;
+  final XelisWalletMultisigParticipant? participant;
   final bool copied;
   final VoidCallback onCopy;
   final VoidCallback onRestart;
@@ -58,7 +58,7 @@ class SignatureShareReady extends ConsumerWidget {
                   ],
                 ),
                 _SignerIdentity(
-                  signerId: share.signerId,
+                  signerId: share.participantId,
                   participant: participant,
                   loc: loc,
                 ),
@@ -125,7 +125,7 @@ class _SignerIdentity extends StatelessWidget {
   });
 
   final int signerId;
-  final ParticipantDartPayload? participant;
+  final XelisWalletMultisigParticipant? participant;
   final AppLocalizations loc;
 
   @override

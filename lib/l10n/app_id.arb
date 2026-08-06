@@ -1,4 +1,33 @@
 {
+  "@multisig_setup_participant_count": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "@multisig_setup_threshold_summary": {
+    "placeholders": {
+      "threshold": {"type": "int"},
+      "participants": {"type": "int"}
+    }
+  },
+  "@multisig_signing_current_wallet_participant": {
+    "placeholders": {
+      "participantId": {"type": "int"}
+    }
+  },
+  "@support_reference": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "@xswd_fee_atomic_units": {
+    "placeholders": {"amount": {"type": "int"}}
+  },
+  "@xswd_fee_multiplier": {
+    "placeholders": {"multiplier": {"type": "double"}}
+  },
   "node_url_hint": "https://node.xelis.io",
   "node_name_hint": "Node Saya",
   "node_name": "Nama Node",
@@ -19,6 +48,7 @@
   "hide_transactions_zero_value": "Sembunyikan transaksi dengan transfer saldo nol.",
   "hide_extra_data_description": "Sembunyikan data tambahan dalam rincian transaksi.",
   "select_contract": "Pilih kontrak",
+  "select_contact": "Pilih kontak",
   "select_asset": "Pilih aset",
   "category_burn_subtitle": "Transaksi di mana Anda membakar (burn) aset.",
   "category_coinbase_subtitle": "Transaksi di mana Anda menerima hadiah (reward).",
@@ -225,7 +255,23 @@
   "search": "Cari",
   "destination": "Tujuan",
   "integrated_address_detected": "Alamat terintegrasi terdeteksi",
-  "payment_id": "ID Pembayaran",
+  "attached_data": "Data terlampir",
+  "attached_data_badge": "Data",
+  "attached_data_included": "Disertakan",
+  "attached_data_encrypted": "Terenkripsi",
+  "attached_data_not_encrypted": "Tidak terenkripsi",
+  "view_attached_data": "Lihat data terlampir",
+  "attached_data_source": "Sumber",
+  "attached_data_source_integrated_address": "Alamat terintegrasi",
+  "attached_data_source_explicit": "Data terlampir terpisah",
+  "receive_advanced_payment_request": "Permintaan pembayaran lanjutan",
+  "receive_advanced_payment_request_description": "Lampirkan teks ke alamat Anda saat pengirim harus menyertakan referensi.",
+  "receive_attached_text_label": "Teks terlampir",
+  "receive_attached_text_hint": "Referensi pesanan atau setoran",
+  "receive_create_integrated_address": "Buat alamat dengan data terlampir",
+  "receive_integrated_address_data_visible": "Terlihat di alamat",
+  "receive_integrated_address_data_visible_description": "Siapa pun yang menerima alamat ini dapat membaca teks terlampir.",
+  "receive_integrated_address_invalid_data": "Teks ini tidak dapat ditambahkan ke alamat. Persingkat teks lalu coba lagi.",
   "reset_preferences": "Atur ulang preferensi",
   "reset_preferences_dialog": "Anda akan mengatur ulang semua pengaturan, bahasa, tema, dan daftar node Anda.",
   "do_you_want_to_continue": "Apakah Anda ingin melanjutkan?",
@@ -334,6 +380,7 @@
   "please_authenticate_delete_wallet": "Silakan autentikasi untuk menghapus dompet ini",
   "please_authenticate_view_seed": "Silakan autentikasi untuk melihat frasa pemulihan Anda",
   "biometric_not_available_warning": "Autentikasi biometrik tidak tersedia, silakan periksa pengaturan perangkat Anda",
+  "biometric_auth_temporarily_locked": "Autentikasi biometrik terkunci sementara. Silakan coba lagi nanti.",
   "password_not_found": "Kata sandi tidak ditemukan",
   "filters": "Filter",
   "no_transactions_found": "Transaksi tidak ditemukan",
@@ -391,6 +438,15 @@
   "item_count": "{count} item",
   "entry_count": "{count} entri",
   "xswd_channel_title": "XSWD",
+  "xswd_transaction_review_title": "Tinjau transaksi",
+  "xswd_transaction_review_warning": "Tinjau setiap detail transaksi sebelum mengizinkan permintaan satu kali ini. Keputusan ini tidak dapat diingat.",
+  "xswd_allow_once": "Izinkan sekali",
+  "xswd_transaction_nonce": "Nonce",
+  "xswd_transaction_version": "Versi transaksi",
+  "xswd_response_as_hex": "Respons heksadesimal",
+  "xswd_fee_automatic": "Dihitung otomatis",
+  "xswd_fee_atomic_units": "{amount} unit atomik",
+  "xswd_fee_multiplier": "{multiplier}× biaya dasar",
   "xswd_relayer_channel_title": "XSWD Relayer",
   "cannot_start_xswd": "Tidak dapat memulai Aplikasi Terhubung",
   "cannot_close_xswd_connection": "Tidak dapat menutup koneksi Aplikasi Terhubung",
@@ -463,15 +519,7 @@
   "copied_to_clipboard": "Disalin ke papan klip",
   "edit_button": "Ubah",
   "tx_contract_transfer": "Transfer Kontrak",
-  "contract_logs": "Log Kontrak",
   "chunk_id": "ID Chunk",
-  "log_transfer": "Transfer",
-  "log_transfer_to_contract": "Transfer ke Kontrak",
-  "log_mint": "Mint",
-  "log_gas_refund": "Pengembalian Dana Gas",
-  "log_exit_code": "Kode Keluar",
-  "log_new_asset": "Aset Baru",
-  "log_failed": "Gagal",
   "received": "Diterima",
   "constructor": "Konstruktor",
   "to_address": "Ke: {address}",
@@ -509,5 +557,15 @@
   "paste_signature_share": "Tempel bagian tanda tangan",
   "invalid_multisig_signature_share": "Bagian tanda tangan ini tidak valid atau milik transaksi lain.",
   "duplicate_multisig_signature_share": "Peserta ini sudah memberikan tanda tangan.",
-  "remove_signature_share": "Hapus bagian tanda tangan"
+  "remove_signature_share": "Hapus bagian tanda tangan",
+  "wallet_failure_generic": "Dompet tidak dapat menyelesaikan permintaan ini.",
+  "wallet_failure_invalid_input": "Periksa informasi yang diberikan dan coba lagi.",
+  "wallet_failure_authentication_or_corrupt_data": "Kata sandi salah atau data dompet tidak dapat dibaca.",
+  "wallet_failure_network": "Jaringan tidak tersedia. Periksa koneksi atau node Anda dan coba lagi.",
+  "wallet_failure_daemon_rejected": "Node menolak permintaan ini.",
+  "wallet_failure_insufficient_funds": "Saldo yang tersedia tidak mencukupi.",
+  "password_changed_biometric_disabled": "Kata sandi baru Anda sudah aktif. Buka kunci biometrik telah dinonaktifkan; gunakan kata sandi baru.",
+  "password_changed_biometric_cleanup_failed": "Kata sandi baru Anda sudah aktif. Buka kunci biometrik telah dinonaktifkan, tetapi sebagian data akses tersimpan tidak dapat dihapus. Biarkan akses biometrik nonaktif dan gunakan kata sandi baru.",
+  "password_change_native_state_indeterminate": "Pembaruan kata sandi tidak dapat dikonfirmasi. Simpan kata sandi lama dan baru, jangan mencoba lagi, dan hubungi dukungan dengan menyertakan referensi ini.",
+  "support_reference": "Referensi dukungan: {reference}"
 }

@@ -10,7 +10,9 @@ import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/features/wallet/application/contact_history_providers.dart';
 import 'package:genesix/features/wallet/presentation/address_book/edit_contact_sheet.dart';
 import 'package:genesix/features/wallet/presentation/components/transaction_view_utils.dart';
+import 'package:genesix/features/wallet/presentation/history/extra_data_sheet.dart';
 import 'package:genesix/features/wallet/presentation/history/transaction_grouped_widget.dart';
+import 'package:genesix/shared/errors/app_failure_reporter.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -18,15 +20,14 @@ import 'package:genesix/shared/widgets/components/body_layout_builder.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:genesix/shared/widgets/components/hashicon_widget.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:go_router/go_router.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class ContactDetailsScreen extends ConsumerStatefulWidget {
-  const ContactDetailsScreen({super.key, required this.contactAddress});
+  const ContactDetailsScreen({super.key, required this.contactId});
 
-  final String contactAddress;
+  final String contactId;
 
   @override
   ConsumerState<ContactDetailsScreen> createState() =>
@@ -62,7 +63,7 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
       ),
       child: contactAsync.when(
         data: (contacts) {
-          final contact = contacts[widget.contactAddress];
+          final contact = contacts[widget.contactId];
           if (contact == null) {
             return _ContactNotFound(localizations: loc);
           }
@@ -86,9 +87,13 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
                             localizations: loc,
                             onSend: () => context.push(
                               AuthAppScreen.transfer.toPath,
-                              extra: contact.address,
+                              extra: contact.id,
                             ),
                             onEdit: () => _showEditContactSheet(contact),
+                            onViewAttachedData:
+                                contact.destination.hasIntegratedData
+                                ? () => _showIntegratedData(contact)
+                                : null,
                           ),
                           _ContactNotesCard(
                             contact: contact,
@@ -107,7 +112,7 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
                       Spaces.medium,
                     ),
                     sliver: _ContactHistorySliver(
-                      contactAddress: widget.contactAddress,
+                      contactAddress: contact.destination.address,
                     ),
                   ),
                 ],
@@ -116,12 +121,12 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
           );
         },
         loading: () => const Center(child: FCircularProgress()),
-        error: (error, stack) => Center(child: Text('${loc.error}: $error')),
+        error: (error, stack) => Center(child: Text(loc.oups)),
       ),
     );
   }
 
-  void _showEditContactSheet(ContactDetails contact) {
+  void _showEditContactSheet(XelisAddressBookEntry contact) {
     showFSheet<void>(
       context: context,
       side: FLayout.btt,
@@ -129,6 +134,37 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
       mainAxisMaxRatio: context.responsiveSheetMaxRatio,
       builder: (context) => EditContactSheet(contact),
     );
+  }
+
+  void _showIntegratedData(XelisAddressBookEntry contact) {
+    try {
+      final descriptor = XelisWalletFlutter.parseAddress(
+        address: contact.destination.address,
+      );
+      final integratedData = descriptor.integratedData;
+      if (integratedData == null ||
+          descriptor.encodedAddress != contact.destination.address ||
+          descriptor.baseAddress != contact.destination.baseAddress) {
+        throw StateError('The saved integrated destination is not canonical.');
+      }
+
+      showFSheet<void>(
+        context: context,
+        side: FLayout.btt,
+        useRootNavigator: true,
+        mainAxisMaxRatio: context.responsiveSheetMaxRatio,
+        builder: (context) =>
+            ExtraDataSheet.typed(data: integratedData, visibleInAddress: true),
+      );
+    } catch (error, stackTrace) {
+      final failure = recordAppFailure(
+        error,
+        stackTrace,
+        operation: 'wallet.address_book.integrated_data.reveal',
+        applicationCode: 'wallet_address_book_integrated_data_invariant_failed',
+      );
+      ref.read(toastProvider.notifier).showFailure(failure: failure);
+    }
   }
 }
 
@@ -169,12 +205,14 @@ class _ContactProfileCard extends ConsumerWidget {
     required this.localizations,
     required this.onSend,
     required this.onEdit,
+    required this.onViewAttachedData,
   });
 
-  final ContactDetails contact;
+  final XelisAddressBookEntry contact;
   final AppLocalizations localizations;
   final VoidCallback onSend;
   final VoidCallback onEdit;
+  final VoidCallback? onViewAttachedData;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -194,7 +232,7 @@ class _ContactProfileCard extends ConsumerWidget {
                 Row(
                   children: [
                     HashiconWidget(
-                      hash: contact.address,
+                      hash: contact.destination.address,
                       size: Size.square(hashiconSize),
                     ),
                     const SizedBox(width: Spaces.medium),
@@ -204,7 +242,7 @@ class _ContactProfileCard extends ConsumerWidget {
                         spacing: Spaces.extraSmall,
                         children: [
                           Text(
-                            contact.name,
+                            contact.displayName,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style:
@@ -219,13 +257,20 @@ class _ContactProfileCard extends ConsumerWidget {
                               color: context.theme.colors.mutedForeground,
                             ),
                           ),
+                          if (contact.destination.hasIntegratedData)
+                            FBadge(
+                              variant: .secondary,
+                              child: Text(
+                                localizations.integrated_address_detected,
+                              ),
+                            ),
                         ],
                       ),
                     ),
                   ],
                 ),
                 FTooltip(
-                  tipBuilder: (_, _) => Text(contact.address),
+                  tipBuilder: (_, _) => Text(contact.destination.address),
                   child: FButton(
                     variant: .outline,
                     semanticsLabel: localizations.copy,
@@ -233,7 +278,7 @@ class _ContactProfileCard extends ConsumerWidget {
                     suffix: const Icon(FLucideIcons.copy, size: 16),
                     builder: (_, _, textStyle, _, _, _) => Expanded(
                       child: Text(
-                        contact.address,
+                        contact.destination.address,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.start,
@@ -242,6 +287,13 @@ class _ContactProfileCard extends ConsumerWidget {
                     ),
                   ),
                 ),
+                if (onViewAttachedData case final onViewAttachedData?)
+                  FButton(
+                    variant: .outline,
+                    onPress: onViewAttachedData,
+                    prefix: const Icon(FLucideIcons.eye, size: 18),
+                    child: Text(localizations.view_attached_data),
+                  ),
                 _ContactActions(
                   localizations: localizations,
                   compact: compact,
@@ -256,8 +308,8 @@ class _ContactProfileCard extends ConsumerWidget {
     );
   }
 
-  void _copyAddress(WidgetRef ref) {
-    Clipboard.setData(ClipboardData(text: contact.address));
+  Future<void> _copyAddress(WidgetRef ref) async {
+    await Clipboard.setData(ClipboardData(text: contact.destination.address));
     ref
         .read(toastProvider.notifier)
         .showInformation(title: localizations.copied_to_clipboard);
@@ -312,7 +364,7 @@ class _ContactActions extends StatelessWidget {
 class _ContactNotesCard extends StatelessWidget {
   const _ContactNotesCard({required this.contact, required this.localizations});
 
-  final ContactDetails contact;
+  final XelisAddressBookEntry contact;
   final AppLocalizations localizations;
 
   @override
@@ -379,17 +431,20 @@ class _ContactHistorySliverState extends ConsumerState<_ContactHistorySliver> {
     final pagingState = ref.watch(
       contactHistoryPagingStateProvider(widget.contactAddress),
     );
-    final addressBook = ref.watch(addressBookProvider);
+    final addressBook = ref.watch(addressBookByAddressProvider);
 
     switch (addressBook) {
       case AsyncData(:final value):
-        return PagedSliverList<int, MapEntry<DateTime, List<TransactionEntry>>>(
+        return PagedSliverList<
+          int,
+          MapEntry<DateTime, List<XelisWalletTransactionEntry>>
+        >(
           state: pagingState,
           fetchNextPage: _fetchPage,
           shrinkWrapFirstPageIndicators: true,
           builderDelegate:
               PagedChildBuilderDelegate<
-                MapEntry<DateTime, List<TransactionEntry>>
+                MapEntry<DateTime, List<XelisWalletTransactionEntry>>
               >(
                 animateTransitions: true,
                 itemBuilder: (context, item, index) =>
@@ -452,7 +507,7 @@ class _ContactHistorySliverState extends ConsumerState<_ContactHistorySliver> {
 
     try {
       final newPage = (state.keys?.last ?? 0) + 1;
-      talker.info('Fetching contact history page: $newPage');
+      logDiagnostic(() => 'operation=contact.history.page.fetch page=$newPage');
       final transactions = await ref.read(
         contactHistoryProvider(widget.contactAddress, newPage).future,
       );
@@ -463,9 +518,17 @@ class _ContactHistorySliverState extends ConsumerState<_ContactHistorySliver> {
           .read(
             contactHistoryPagingStateProvider(widget.contactAddress).notifier,
           )
-          .setNextPage(newPage, grouped.entries.toList());
-    } catch (error) {
-      talker.error('Error fetching contact history page: $error');
+          .setNextPage(
+            newPage,
+            grouped.entries.toList(),
+            fetchedTransactionCount: transactions.length,
+          );
+    } catch (error, stackTrace) {
+      logDiagnosticError(
+        'contact.history.page.fetch',
+        error,
+        stackTrace: stackTrace,
+      );
       ref
           .read(
             contactHistoryPagingStateProvider(widget.contactAddress).notifier,

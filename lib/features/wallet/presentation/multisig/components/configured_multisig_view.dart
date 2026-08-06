@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import 'package:genesix/features/wallet/domain/multisig/multisig_participant.dart';
-import 'package:genesix/features/wallet/domain/multisig/multisig_state.dart';
 import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -10,7 +8,8 @@ import 'package:genesix/shared/widgets/components/async_f_button.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:genesix/shared/widgets/components/labeled_value.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
-import 'package:intl/intl.dart';
+import 'package:genesix/shared/utils/utils.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class ConfiguredMultisigView extends StatelessWidget {
   const ConfiguredMultisigView({
@@ -24,7 +23,7 @@ class ConfiguredMultisigView extends StatelessWidget {
   });
 
   final AppLocalizations loc;
-  final MultisigState state;
+  final XelisWalletMultisigState state;
   final ScrollController scrollController;
   final ValueChanged<String> onCopyParticipant;
   final bool isDeleting;
@@ -34,9 +33,7 @@ class ConfiguredMultisigView extends StatelessWidget {
   Widget build(BuildContext context) {
     final participants = state.participants.toList(growable: false)
       ..sort((a, b) => a.id.compareTo(b.id));
-    final formattedTopoheight = NumberFormat.decimalPattern().format(
-      state.topoheight,
-    );
+    final formattedTopoheight = formatBigInt(state.topoheight);
 
     return Padding(
       padding: const EdgeInsets.all(Spaces.medium),
@@ -283,7 +280,7 @@ class _MultisigParticipantList extends StatelessWidget {
   });
 
   final AppLocalizations loc;
-  final List<MultisigParticipant> participants;
+  final List<XelisWalletMultisigParticipant> participants;
   final ValueChanged<String> onCopyParticipant;
 
   @override
@@ -310,7 +307,7 @@ class _MultisigParticipantTile extends StatelessWidget {
     required this.onCopy,
   });
 
-  final MultisigParticipant participant;
+  final XelisWalletMultisigParticipant participant;
   final String copyLabel;
   final ValueChanged<String> onCopy;
 

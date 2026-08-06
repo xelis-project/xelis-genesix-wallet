@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/shared/utils/utils.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class ColoredBadge extends StatelessWidget {
-  ColoredBadge.flag(Flag flag, {super.key})
+  ColoredBadge.flag(XelisWalletExtraDataFlag flag, {super.key})
     : text = flag.name.capitalize(),
       color = flagColor(flag);
 
@@ -29,15 +29,15 @@ class ColoredBadge extends StatelessWidget {
   }
 }
 
-Color flagColor(Flag f) {
+Color flagColor(XelisWalletExtraDataFlag f) {
   switch (f) {
-    case Flag.private:
+    case XelisWalletExtraDataFlag.private:
       return Colors.indigo.shade400;
-    case Flag.public:
+    case XelisWalletExtraDataFlag.public:
       return Colors.cyan.shade400;
-    case Flag.proprietary:
+    case XelisWalletExtraDataFlag.proprietary:
       return Colors.pink.shade300;
-    case Flag.failed:
+    case XelisWalletExtraDataFlag.failed:
       return Colors.red.shade500;
   }
 }

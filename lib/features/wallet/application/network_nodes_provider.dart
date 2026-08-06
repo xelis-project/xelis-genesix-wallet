@@ -1,4 +1,4 @@
-import 'package:genesix/src/generated/rust_bridge/api/models/network.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:genesix/features/wallet/data/network_nodes_state_repository.dart';
 import 'package:genesix/features/wallet/domain/network_nodes_state.dart';
@@ -19,7 +19,7 @@ class NetworkNodes extends _$NetworkNodes {
     return networkNodesStateRepository.fromStorage();
   }
 
-  void setNodes(Network network, List<NodeAddress> nodes) {
+  void setNodes(XelisNetwork network, List<NodeAddress> nodes) {
     final prefs = ref.read(sharedPreferencesProvider);
     final networkNodesStateRepository = NetworkNodesStateRepository(
       GenesixSharedPreferences(prefs),
@@ -27,40 +27,40 @@ class NetworkNodes extends _$NetworkNodes {
     final nextNodes = List<NodeAddress>.of(nodes);
 
     switch (network) {
-      case Network.mainnet:
+      case XelisNetwork.mainnet:
         state = state.copyWith(mainnetNodes: nextNodes);
-      case Network.testnet:
+      case XelisNetwork.testnet:
         state = state.copyWith(testnetNodes: nextNodes);
-      case Network.devnet:
+      case XelisNetwork.devnet:
         state = state.copyWith(devnetNodes: nextNodes);
-      case Network.stagenet:
+      case XelisNetwork.stagenet:
         state = state.copyWith(stagenetNodes: nextNodes);
     }
 
     networkNodesStateRepository.localSave(state);
   }
 
-  void setNodeAddress(Network network, NodeAddress address) {
+  void setNodeAddress(XelisNetwork network, NodeAddress address) {
     final prefs = ref.read(sharedPreferencesProvider);
     final networkNodesStateRepository = NetworkNodesStateRepository(
       GenesixSharedPreferences(prefs),
     );
 
     switch (network) {
-      case Network.mainnet:
+      case XelisNetwork.mainnet:
         state = state.copyWith(mainnetAddress: address);
-      case Network.testnet:
+      case XelisNetwork.testnet:
         state = state.copyWith(testnetAddress: address);
-      case Network.devnet:
+      case XelisNetwork.devnet:
         state = state.copyWith(devnetAddress: address);
-      case Network.stagenet:
+      case XelisNetwork.stagenet:
         state = state.copyWith(stagenetAddress: address);
     }
 
     networkNodesStateRepository.localSave(state);
   }
 
-  void addNode(Network network, NodeAddress nodeAddress) {
+  void addNode(XelisNetwork network, NodeAddress nodeAddress) {
     if (!state.nodeExists(network, nodeAddress)) {
       final nodes = List<NodeAddress>.of(state.getNodes(network));
       nodes.add(nodeAddress);
@@ -69,7 +69,7 @@ class NetworkNodes extends _$NetworkNodes {
   }
 
   void updateNode(
-    Network network,
+    XelisNetwork network,
     NodeAddress oldNodeAddress,
     NodeAddress newNodeAddress,
   ) {
@@ -81,7 +81,7 @@ class NetworkNodes extends _$NetworkNodes {
     }
   }
 
-  void removeNode(Network network, NodeAddress nodeAddress) {
+  void removeNode(XelisNetwork network, NodeAddress nodeAddress) {
     if (state.nodeExists(network, nodeAddress)) {
       final nodes = List<NodeAddress>.of(state.getNodes(network));
       nodes.remove(nodeAddress);

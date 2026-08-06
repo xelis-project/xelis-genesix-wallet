@@ -1,6 +1,7 @@
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart'
+    as wallet_flutter;
 
 typedef ContactNameLookup = Future<String?> Function(String address);
 
@@ -12,10 +13,12 @@ class WalletEventMessageBuilder {
   });
 
   final AppLocalizations loc;
-  final Map<String, sdk.AssetData> knownAssets;
+  final Map<String, wallet_flutter.XelisWalletAssetMetadata> knownAssets;
   final ContactNameLookup contactNameForAddress;
 
-  Future<String> incomingTransaction(sdk.IncomingEntry txType) async {
+  Future<String> incomingTransaction(
+    wallet_flutter.XelisWalletIncomingEntry txType,
+  ) async {
     if (txType.isMultiTransfer()) {
       return loc.multiple_transfers_detected;
     }
@@ -34,7 +37,7 @@ class WalletEventMessageBuilder {
     return '${loc.asset}: $assetText\n${loc.amount}: +$amountText\n${loc.from}: $fromText';
   }
 
-  String burnTransaction(sdk.BurnEntry txType) {
+  String burnTransaction(wallet_flutter.XelisWalletBurnEntry txType) {
     final assetText = _assetNameOrHash(txType.asset);
     final amountText = _formatAmountOrAtomic(
       amount: txType.amount,
@@ -49,7 +52,7 @@ class WalletEventMessageBuilder {
   }
 
   String _formatAmountOrAtomic({
-    required int amount,
+    required BigInt amount,
     required String assetHash,
   }) {
     final asset = knownAssets[assetHash];
@@ -60,11 +63,14 @@ class WalletEventMessageBuilder {
   }
 }
 
-extension WalletEventTransactionUtils on sdk.TransactionEntryType {
+extension WalletEventTransactionUtils
+    on wallet_flutter.XelisWalletTransactionEntryData {
   bool isMultiTransfer() {
     return switch (this) {
-      sdk.IncomingEntry(:final transfers) => transfers.length > 1,
-      sdk.OutgoingEntry(:final transfers) => transfers.length > 1,
+      wallet_flutter.XelisWalletIncomingEntry(:final transfers) =>
+        transfers.length > 1,
+      wallet_flutter.XelisWalletOutgoingEntry(:final transfers) =>
+        transfers.length > 1,
       _ => false,
     };
   }

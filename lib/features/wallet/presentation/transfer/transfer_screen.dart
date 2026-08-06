@@ -1,32 +1,42 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
+import 'package:genesix/features/wallet/application/address_book_provider.dart';
 import 'package:genesix/shared/widgets/components/app_card.dart';
 import 'package:genesix/features/router/route_utils.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/transaction_review_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
-import 'package:genesix/features/wallet/domain/transaction_summary.dart';
 import 'package:genesix/features/wallet/presentation/address_book/select_address_dialog.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/wallet_dtos.dart';
-import 'package:genesix/src/generated/rust_bridge/api/utils.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
+import 'package:genesix/shared/errors/app_failure_reporter.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/async_f_button.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:recase/recase.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 // import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
 
-class TransferScreen extends ConsumerStatefulWidget {
-  const TransferScreen({super.key, this.recipientAddress});
+const _automaticFeeBasisPoints = XelisWalletFeePolicy.basisPointsScale;
+const _fastFeeBasisPoints = 15000;
+const _fastestFeeBasisPoints = 20000;
 
-  final String? recipientAddress;
+class TransferScreen extends ConsumerStatefulWidget {
+  const TransferScreen({super.key, this.recipientContactId});
+
+  /// Address-book entry ID resolved locally after navigation.
+  ///
+  /// Passing the complete destination through GoRouter would persist it in
+  /// route state and expose it to debug route observers.
+  final String? recipientContactId;
 
   @override
   ConsumerState<TransferScreen> createState() => _TransferScreenState();
@@ -38,15 +48,17 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
   final _scrollController = ScrollController();
   final _amountController = TextEditingController();
   final _addressController = TextEditingController();
-  late final FSelectController<MapEntry<String, AssetData>> _assetController;
-  late final FSelectController<double> _boostFeeController;
+  late final FSelectController<MapEntry<String, XelisWalletAssetMetadata>>
+  _assetController;
+  late final FSelectController<int> _boostFeeController;
 
   String? _selectedAsset;
-  String _selectedAssetBalance = AppResources.zeroBalance;
-  String _estimatedFee = AppResources.zeroBalance;
-  String _baseFee = AppResources.zeroBalance;
-  double _boostMultiplier = 1.0;
+  BigInt _selectedAssetBalance = BigInt.zero;
+  BigInt _estimatedFeeAtomic = BigInt.zero;
+  int _feeMultiplierBasisPoints = _automaticFeeBasisPoints;
+  var _feeEstimateGeneration = 0;
   var _isReviewing = false;
+  var _addressInputWasEdited = false;
 
   void _onFormInputChanged() {
     if (!mounted) return;
@@ -57,10 +69,10 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
   void initState() {
     super.initState();
 
-    final Map<String, String> balances = ref.read(
+    final Map<String, BigInt> balances = ref.read(
       walletRuntimeProvider.select((value) => value.trackedBalances),
     );
-    final Map<String, AssetData> assets = ref.read(
+    final Map<String, XelisWalletAssetMetadata> assets = ref.read(
       walletRuntimeProvider.select((value) => value.knownAssets),
     );
 
@@ -69,7 +81,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
         .where((balance) => assets.containsKey(balance.key))
         .firstOrNull;
 
-    MapEntry<String, AssetData>? initialAssetEntry;
+    MapEntry<String, XelisWalletAssetMetadata>? initialAssetEntry;
     if (firstValidBalance != null) {
       initialAssetEntry = MapEntry(
         firstValidBalance.key,
@@ -79,24 +91,34 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
       _selectedAssetBalance = firstValidBalance.value;
     }
 
-    _assetController = FSelectController<MapEntry<String, AssetData>>(
-      value: initialAssetEntry,
+    _assetController =
+        FSelectController<MapEntry<String, XelisWalletAssetMetadata>>(
+          value: initialAssetEntry,
+        );
+
+    _boostFeeController = FSelectController<int>(
+      value: _automaticFeeBasisPoints,
     );
+    _feeMultiplierBasisPoints =
+        _boostFeeController.value ?? _automaticFeeBasisPoints;
 
-    _boostFeeController = FSelectController<double>(value: 1.0);
-    _boostMultiplier = _boostFeeController.value ?? 1.0;
-
-    // Pre-fill address if provided
-    if (widget.recipientAddress != null) {
-      _addressController.text = widget.recipientAddress!;
-    }
+    ref.listenManual<bool>(
+      walletRuntimeProvider.select((state) => state.multisigState != null),
+      (previous, next) {
+        if (previous != next) {
+          _updateEstimatedFee();
+        }
+      },
+    );
 
     _amountController.addListener(_onFormInputChanged);
     _addressController.addListener(_onFormInputChanged);
+    unawaited(_prefillRecipientFromAddressBook());
   }
 
   @override
   void dispose() {
+    _feeEstimateGeneration++;
     _amountController.removeListener(_onFormInputChanged);
     _addressController.removeListener(_onFormInputChanged);
     _scrollController.dispose();
@@ -112,14 +134,17 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
     final loc = ref.watch(appLocalizationsProvider);
     const inputHeight = 40.0;
 
-    final Map<String, String> balances = ref.watch(
+    final Map<String, BigInt> balances = ref.watch(
       walletRuntimeProvider.select((value) => value.trackedBalances),
     );
-    final Map<String, AssetData> assets = ref.watch(
+    final Map<String, XelisWalletAssetMetadata> assets = ref.watch(
       walletRuntimeProvider.select((value) => value.knownAssets),
     );
     final network = ref.watch(
       walletRuntimeProvider.select((state) => state.network),
+    );
+    final isMultisig = ref.watch(
+      walletRuntimeProvider.select((state) => state.multisigState != null),
     );
 
     final validAssets = balances.entries
@@ -159,7 +184,9 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // Asset Selection
-                    FSelect<MapEntry<String, AssetData>>.searchBuilder(
+                    FSelect<
+                      MapEntry<String, XelisWalletAssetMetadata>
+                    >.searchBuilder(
                       label: Text(loc.asset.titleCase),
                       hint: validAssets.isEmpty
                           ? loc.no_balance_to_transfer
@@ -171,8 +198,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
                             setState(() {
                               _selectedAsset = assetEntry.key;
                               _selectedAssetBalance =
-                                  balances[_selectedAsset] ??
-                                  AppResources.zeroBalance;
+                                  balances[_selectedAsset] ?? BigInt.zero;
                             });
                             _updateEstimatedFee();
                           }
@@ -180,10 +206,13 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
                       ),
                       enabled: validAssets.isNotEmpty,
                       format: (assetEntry) {
-                        final balance =
-                            balances[assetEntry.key] ??
-                            AppResources.zeroBalance;
-                        return '${assetEntry.value.name} ($balance ${assetEntry.value.ticker})';
+                        final balance = balances[assetEntry.key] ?? BigInt.zero;
+                        final formattedBalance = formatCoin(
+                          balance,
+                          assetEntry.value.decimals,
+                          assetEntry.value.ticker,
+                        );
+                        return '${assetEntry.value.name} ($formattedBalance)';
                       },
                       filter: (query) {
                         final availableAssets = validAssets
@@ -212,14 +241,19 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
                       contentBuilder: (context, style, data) {
                         return data.map((assetEntry) {
                           final balance =
-                              balances[assetEntry.key] ??
-                              AppResources.zeroBalance;
-                          return FSelectItem<MapEntry<String, AssetData>>(
+                              balances[assetEntry.key] ?? BigInt.zero;
+                          return FSelectItem<
+                            MapEntry<String, XelisWalletAssetMetadata>
+                          >(
                             title: Text(
                               '${assetEntry.value.name} (${truncateText(assetEntry.key)})',
                             ),
                             subtitle: Text(
-                              '$balance ${assetEntry.value.ticker}',
+                              formatCoin(
+                                balance,
+                                assetEntry.value.decimals,
+                                assetEntry.value.ticker,
+                              ),
                             ),
                             value: assetEntry,
                           );
@@ -250,11 +284,16 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
                               if (value == null || value.isEmpty) {
                                 return loc.field_required_error;
                               }
-                              final amount = double.tryParse(value);
-                              if (amount == null) {
-                                return loc.must_be_numeric_error;
+                              final selectedAsset = _assetController.value;
+                              if (selectedAsset == null) {
+                                return loc.field_required_error;
                               }
-                              if (!amount.isFinite || amount <= 0) {
+                              try {
+                                parseAtomicAmount(
+                                  value.trim(),
+                                  selectedAsset.value.decimals,
+                                );
+                              } on FormatException {
                                 return loc.invalid_amount_error;
                               }
                               return null;
@@ -272,10 +311,14 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
                                 if (selectedAsset != null) {
                                   _selectedAsset = selectedAsset.key;
                                   _selectedAssetBalance =
-                                      balances[_selectedAsset] ??
-                                      AppResources.zeroBalance;
+                                      balances[_selectedAsset] ?? BigInt.zero;
                                 }
-                                _amountController.text = _selectedAssetBalance;
+                                if (selectedAsset != null) {
+                                  _amountController.text = formatAtomicAmount(
+                                    _selectedAssetBalance,
+                                    selectedAsset.value.decimals,
+                                  );
+                                }
                                 _updateEstimatedFee();
                               },
                               child: Text(loc.max),
@@ -297,7 +340,10 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
                               child: FTextFormField(
                                 control: .managed(
                                   controller: _addressController,
-                                  onChange: (_) => _updateEstimatedFee(),
+                                  onChange: (_) {
+                                    _addressInputWasEdited = true;
+                                    _updateEstimatedFee();
+                                  },
                                 ),
                                 label: Text(loc.destination.titleCase),
                                 hint: loc.receiver_address,
@@ -305,8 +351,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
                                   if (value == null || value.isEmpty) {
                                     return loc.field_required_error;
                                   }
-                                  if (!isAddressValid(
-                                    strAddress: value.trim(),
+                                  if (!XelisWalletFlutter.isAddressValid(
+                                    address: value.trim(),
                                     network: network,
                                   )) {
                                     return loc.invalid_address_format_error;
@@ -365,9 +411,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
                                   fit: BoxFit.scaleDown,
                                   alignment: Alignment.centerRight,
                                   child: Text(
-                                    _boostMultiplier != 1.0
-                                        ? '$_baseFee × ${_boostMultiplier}x = $_estimatedFee ${getXelisTicker(network)}'
-                                        : '$_estimatedFee ${getXelisTicker(network)}',
+                                    '${formatAtomicAmount(_estimatedFeeAtomic, AppResources.xelisDecimals)} '
+                                    '${getXelisTicker(network)}',
                                     style: context.theme.typography.body.md
                                         .copyWith(fontWeight: FontWeight.w600),
                                   ),
@@ -375,71 +420,70 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
                               ),
                             ],
                           ),
-                          FDivider(
-                            style: .delta(
-                              padding: .value(
-                                .symmetric(vertical: Spaces.small),
-                              ),
-                              color: context.theme.colors.primary,
-                              width: 1,
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            spacing: Spaces.extraSmall,
-                            children: [
-                              Text(
-                                loc.boost_fees_title,
-                                style: context.theme.typography.body.sm
-                                    .copyWith(fontWeight: FontWeight.w500),
-                              ),
-                              Text(
-                                loc.boost_fees_message,
-                                style: context.theme.typography.body.xs
-                                    .copyWith(
-                                      color:
-                                          context.theme.colors.mutedForeground,
-                                    ),
-                              ),
-                              const SizedBox(height: Spaces.extraSmall),
-                              FSelect<double>.rich(
-                                control: .managed(
-                                  controller: _boostFeeController,
-                                  onChange: (value) {
-                                    if (value != null) {
-                                      setState(() {
-                                        _boostMultiplier = value;
-                                      });
-                                      _updateEstimatedFee();
-                                    }
-                                  },
+                          if (!isMultisig) ...[
+                            FDivider(
+                              style: .delta(
+                                padding: .value(
+                                  .symmetric(vertical: Spaces.small),
                                 ),
-                                format: (value) {
-                                  if (value == 1.0) return 'Normal (1x)';
-                                  if (value == 1.5) return 'Fast (1.5x)';
-                                  if (value == 2.0) return 'Fastest (2x)';
-                                  return 'Normal (1x)';
-                                },
-                                children: const [
-                                  FSelectItem(
-                                    value: 1.0,
-                                    title: Text('Normal'),
-                                    subtitle: Text('1x fee'),
-                                  ),
-                                  FSelectItem(
-                                    value: 1.5,
-                                    title: Text('Fast'),
-                                    subtitle: Text('1.5x fee'),
-                                  ),
-                                  FSelectItem(
-                                    value: 2.0,
-                                    title: Text('Fastest'),
-                                    subtitle: Text('2x fee'),
-                                  ),
-                                ],
+                                color: context.theme.colors.primary,
+                                width: 1,
                               ),
-                            ],
-                          ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              spacing: Spaces.extraSmall,
+                              children: [
+                                Text(
+                                  loc.boost_fees_title,
+                                  style: context.theme.typography.body.sm
+                                      .copyWith(fontWeight: FontWeight.w500),
+                                ),
+                                Text(
+                                  loc.boost_fees_message,
+                                  style: context.theme.typography.body.xs
+                                      .copyWith(
+                                        color: context
+                                            .theme
+                                            .colors
+                                            .mutedForeground,
+                                      ),
+                                ),
+                                const SizedBox(height: Spaces.extraSmall),
+                                FSelect<int>.rich(
+                                  control: .managed(
+                                    controller: _boostFeeController,
+                                    onChange: (value) {
+                                      if (value != null) {
+                                        setState(() {
+                                          _feeMultiplierBasisPoints = value;
+                                        });
+                                        _updateEstimatedFee();
+                                      }
+                                    },
+                                  ),
+                                  format: _formatFeePolicy,
+                                  children: const [
+                                    FSelectItem(
+                                      value: _automaticFeeBasisPoints,
+                                      title: Text('Normal'),
+                                      subtitle: Text('1x fee'),
+                                    ),
+                                    FSelectItem(
+                                      value: _fastFeeBasisPoints,
+                                      title: Text('Fast'),
+                                      subtitle: Text('1.5x fee'),
+                                    ),
+                                    FSelectItem(
+                                      value: _fastestFeeBasisPoints,
+                                      title: Text('Fastest'),
+                                      subtitle: Text('2x fee'),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -484,6 +528,39 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
     }
   }
 
+  Future<void> _prefillRecipientFromAddressBook() async {
+    final contactId = widget.recipientContactId;
+    if (contactId == null) return;
+
+    try {
+      final contact = await ref
+          .read(addressBookProvider.notifier)
+          .getById(contactId);
+      if (!mounted || _addressInputWasEdited) return;
+
+      if (contact == null) {
+        ref
+            .read(toastProvider.notifier)
+            .showError(
+              description: ref.read(appLocalizationsProvider).contact_not_found,
+            );
+        return;
+      }
+
+      _addressController.text = contact.destination.address;
+      _updateEstimatedFee();
+    } catch (error, stackTrace) {
+      final failure = recordAppFailure(
+        error,
+        stackTrace,
+        operation: 'wallet.address_book.recipient.resolve',
+        applicationCode: 'wallet_address_book_recipient_resolve_failed',
+      );
+      if (!mounted || _addressInputWasEdited) return;
+      ref.read(toastProvider.notifier).showFailure(failure: failure);
+    }
+  }
+
   void _onBackPressed() {
     if (context.canPop()) {
       context.pop();
@@ -492,56 +569,63 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
     context.go(AuthAppScreen.home.toPath);
   }
 
-  void _updateEstimatedFee() {
+  Future<void> _updateEstimatedFee() async {
+    final generation = ++_feeEstimateGeneration;
     final selectedAsset = _assetController.value;
     if (selectedAsset != null) {
       _selectedAsset = selectedAsset.key;
     }
 
-    // Update boost multiplier
     final boostValue = _boostFeeController.value;
     if (boostValue != null) {
-      _boostMultiplier = boostValue;
+      _feeMultiplierBasisPoints = boostValue;
     }
 
     final address = _addressController.text.trim();
-    if (address.isNotEmpty &&
-        _amountController.text.trim().isNotEmpty &&
-        _selectedAsset != null) {
-      final amount = double.tryParse(_amountController.text);
-      ref
+    BigInt? amountAtomic;
+    if (selectedAsset != null) {
+      try {
+        amountAtomic = parseAtomicAmount(
+          _amountController.text.trim(),
+          selectedAsset.value.decimals,
+        );
+      } on FormatException {
+        amountAtomic = null;
+      }
+    }
+    if (address.isEmpty || amountAtomic == null || _selectedAsset == null) {
+      _setEstimatedFee(generation, BigInt.zero);
+      return;
+    }
+
+    try {
+      final estimatedFee = await ref
           .read(walletCommandsProvider)
           .estimateFees(
-            amount: amount ?? 0.0,
+            amountAtomic: amountAtomic,
             destination: address,
             asset: _selectedAsset!,
-          )
-          .then((value) {
-            if (mounted) {
-              setState(() {
-                final baseFee = double.parse(value);
-                _baseFee = baseFee.toStringAsFixed(AppResources.xelisDecimals);
-                final boostedFee = baseFee * _boostMultiplier;
-                _estimatedFee = boostedFee.toStringAsFixed(
-                  AppResources.xelisDecimals,
-                );
-              });
-            }
-          })
-          .catchError((_) {
-            if (mounted) {
-              setState(() {
-                _baseFee = AppResources.zeroBalance;
-                _estimatedFee = AppResources.zeroBalance;
-              });
-            }
-          });
-    } else {
-      setState(() {
-        _baseFee = AppResources.zeroBalance;
-        _estimatedFee = AppResources.zeroBalance;
-      });
+            feePolicy: _activeFeePolicy,
+          );
+      _setEstimatedFee(generation, estimatedFee);
+    } catch (_) {
+      _setEstimatedFee(generation, BigInt.zero);
     }
+  }
+
+  void _setEstimatedFee(int generation, BigInt feeAtomic) {
+    if (!mounted || generation != _feeEstimateGeneration) return;
+    setState(() => _estimatedFeeAtomic = feeAtomic);
+  }
+
+  XelisWalletFeePolicy get _activeFeePolicy {
+    if (ref.read(walletRuntimeProvider).multisigState != null ||
+        _feeMultiplierBasisPoints == _automaticFeeBasisPoints) {
+      return XelisWalletFeePolicy.automatic;
+    }
+    return XelisWalletFeePolicy.multiplier(
+      basisPoints: _feeMultiplierBasisPoints,
+    );
   }
 
   void _reviewTransfer() async {
@@ -551,11 +635,10 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
     final selectedAsset = _assetController.value;
     if (selectedAsset != null) {
       _selectedAsset = selectedAsset.key;
-      final Map<String, String> balances = ref.read(
+      final Map<String, BigInt> balances = ref.read(
         walletRuntimeProvider.select((value) => value.trackedBalances),
       );
-      _selectedAssetBalance =
-          balances[_selectedAsset] ?? AppResources.zeroBalance;
+      _selectedAssetBalance = balances[_selectedAsset] ?? BigInt.zero;
     }
 
     // Ensure an asset is selected
@@ -566,8 +649,18 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
           .showError(description: loc.field_required_error);
       return;
     }
+    final selectedAssetMetadata = ref
+        .read(walletRuntimeProvider)
+        .knownAssets[_selectedAsset];
+    if (selectedAssetMetadata == null) {
+      final loc = ref.read(appLocalizationsProvider);
+      ref
+          .read(toastProvider.notifier)
+          .showError(description: loc.field_required_error);
+      return;
+    }
 
-    if (_selectedAssetBalance == AppResources.zeroBalance) {
+    if (_selectedAssetBalance == BigInt.zero) {
       final loc = ref.read(appLocalizationsProvider);
       ref
           .read(toastProvider.notifier)
@@ -576,24 +669,33 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
     }
 
     if (_formKey.currentState?.validate() ?? false) {
-      final amount = _amountController.text.trim();
+      final amountAtomic = parseAtomicAmount(
+        _amountController.text.trim(),
+        selectedAssetMetadata.decimals,
+      );
       final address = _addressController.text.trim();
       final commands = ref.read(walletCommandsProvider);
+      final sessionIdentity = ref.read(activeWalletRepositoryProvider);
+      if (sessionIdentity == null) return;
+      final feePolicy = _activeFeePolicy;
 
       setState(() => _isReviewing = true);
 
-      late (TransactionSummary?, MultisigSigningRequest?) record;
+      late (XelisWalletPreparedTransaction?, XelisWalletMultisigSigningRequest?)
+      record;
       try {
-        if (amount == _selectedAssetBalance) {
+        if (amountAtomic == _selectedAssetBalance) {
           record = await commands.sendAll(
             destination: address,
             asset: _selectedAsset!,
+            feePolicy: feePolicy,
           );
         } else {
           record = await commands.send(
-            amount: double.parse(amount),
+            amountAtomic: amountAtomic,
             destination: address,
             asset: _selectedAsset!,
+            feePolicy: feePolicy,
           );
         }
       } finally {
@@ -604,9 +706,33 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
 
       if (!mounted) {
         if (record.$2 case final request?) {
-          await commands.cancelPendingMultisigRequest(txHash: request.hash);
+          await commands.cancelPendingMultisigRequest(
+            request: request,
+            sessionIdentity: sessionIdentity,
+          );
         } else if (record.$1 case final transaction?) {
-          await commands.cancelTransaction(hash: transaction.hash);
+          await commands.cancelPreparedTransaction(
+            transaction: transaction,
+            sessionIdentity: sessionIdentity,
+          );
+        }
+        return;
+      }
+
+      if (!identical(
+        ref.read(activeWalletRepositoryProvider),
+        sessionIdentity,
+      )) {
+        if (record.$2 case final request?) {
+          await commands.cancelPendingMultisigRequest(
+            request: request,
+            sessionIdentity: sessionIdentity,
+          );
+        } else if (record.$1 case final transaction?) {
+          await commands.cancelPreparedTransaction(
+            transaction: transaction,
+            sessionIdentity: sessionIdentity,
+          );
         }
         return;
       }
@@ -614,17 +740,20 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
       if (record.$2 != null) {
         ref
             .read(transactionReviewProvider.notifier)
-            .signaturePending(record.$2!);
+            .signaturePending(record.$2!, sessionIdentity: sessionIdentity);
 
         if (mounted) {
           await context.push(AuthAppScreen.transactionReview.toPath);
         }
       } else if (record.$1 != null) {
-        final txSummary = record.$1!;
+        final prepared = record.$1!;
 
         ref
             .read(transactionReviewProvider.notifier)
-            .setSingleTransferTransaction(txSummary);
+            .setPreparedSingleTransferTransaction(
+              prepared,
+              sessionIdentity: sessionIdentity,
+            );
 
         if (mounted) {
           await context.push(AuthAppScreen.transactionReview.toPath);
@@ -633,3 +762,10 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
     }
   }
 }
+
+String _formatFeePolicy(int basisPoints) => switch (basisPoints) {
+  _automaticFeeBasisPoints => 'Normal (1x)',
+  _fastFeeBasisPoints => 'Fast (1.5x)',
+  _fastestFeeBasisPoints => 'Fastest (2x)',
+  _ => 'Normal (1x)',
+};

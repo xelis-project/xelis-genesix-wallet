@@ -3,17 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/address_book_provider.dart';
+import 'package:genesix/shared/errors/app_failure_reporter.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/sheet_content.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
 import 'package:go_router/go_router.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class EditContactSheet extends ConsumerStatefulWidget {
   const EditContactSheet(this.contactDetails, {super.key});
 
-  // final String address;
-  final ContactDetails contactDetails;
+  final XelisAddressBookEntry contactDetails;
 
   @override
   ConsumerState createState() => _EditContactSheetState();
@@ -24,12 +24,13 @@ class _EditContactSheetState extends ConsumerState<EditContactSheet> {
   late String _name;
   late String _address;
   late String _note;
+  bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
-    _name = widget.contactDetails.name;
-    _address = widget.contactDetails.address;
+    _name = widget.contactDetails.displayName;
+    _address = widget.contactDetails.destination.address;
     _note = widget.contactDetails.note ?? '';
   }
 
@@ -77,7 +78,10 @@ class _EditContactSheetState extends ConsumerState<EditContactSheet> {
               maxLines: 4,
             ),
             const SizedBox(height: Spaces.large),
-            FButton(onPress: _saveContact, child: Text(loc.save)),
+            FButton(
+              onPress: _isSaving ? null : _saveContact,
+              child: Text(loc.save),
+            ),
           ],
         ),
       ),
@@ -85,32 +89,43 @@ class _EditContactSheetState extends ConsumerState<EditContactSheet> {
   }
 
   Future<void> _saveContact() async {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+    if (_isSaving || !(_formKey.currentState?.validate() ?? false)) return;
 
     final loc = ref.read(appLocalizationsProvider);
     final name = _name.trim();
     final address = _address.trim();
     final note = _note.trim();
 
+    setState(() => _isSaving = true);
     try {
       await ref
           .read(addressBookProvider.notifier)
-          .upsert(address, name, note.isEmpty ? null : note);
+          .upsert(
+            address: address,
+            displayName: name,
+            destinationLabel: widget.contactDetails.destinationLabel,
+            note: note.isEmpty ? null : note,
+          );
 
+      if (!mounted) return;
       ref
           .read(toastProvider.notifier)
           .showInformation(title: loc.contact_updated);
 
-      if (mounted) {
-        context.pop();
-      }
-    } catch (e) {
+      context.pop();
+    } catch (error, stackTrace) {
+      final failure = recordAppFailure(
+        error,
+        stackTrace,
+        operation: 'wallet.address_book.update',
+        applicationCode: 'wallet_address_book_update_failed',
+      );
+      if (!mounted) return;
       ref
           .read(toastProvider.notifier)
-          .showError(
-            title: loc.failed_to_update_contact,
-            description: e.toString(),
-          );
+          .showFailure(title: loc.failed_to_update_contact, failure: failure);
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 }

@@ -3,13 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/wallet/domain/xelis_wallet_asset_metadata_extensions.dart';
 import 'package:genesix/features/wallet/presentation/assets/asset_name_widget.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:genesix/shared/widgets/components/labeled_value.dart';
 import 'package:go_router/go_router.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as sdk;
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class UntrackedAssetDetails extends ConsumerStatefulWidget {
   const UntrackedAssetDetails(
@@ -21,7 +22,7 @@ class UntrackedAssetDetails extends ConsumerStatefulWidget {
   });
 
   final String hash;
-  final sdk.AssetData asset;
+  final XelisWalletAssetMetadata asset;
   final bool isTracking;
   final VoidCallback? onTrack;
 
@@ -41,6 +42,8 @@ class _UntrackedAssetDetailsState extends ConsumerState<UntrackedAssetDetails> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
+    final maxSupply = widget.asset.maxSupply.amountOrNull;
+    final originContract = widget.asset.owner.originContractOrNull;
 
     return AppDialog(
       clipBehavior: Clip.antiAlias,
@@ -90,24 +93,24 @@ class _UntrackedAssetDetailsState extends ConsumerState<UntrackedAssetDetails> {
                   loc.decimals,
                   widget.asset.decimals.toString(),
                 ),
-                if (widget.asset.maxSupply.getMax() != null)
+                if (maxSupply != null)
                   LabeledValue.child(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     loc.max_supply,
                     Text(
                       formatCoin(
-                        widget.asset.maxSupply.getMax()!,
+                        maxSupply,
                         widget.asset.decimals,
                         widget.asset.ticker,
                       ),
                       style: context.theme.typography.body.md,
                     ),
                   ),
-                if (!widget.asset.owner.isNone)
+                if (originContract != null)
                   LabeledValue.text(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     "Origin",
-                    widget.asset.owner.originContract!,
+                    originContract,
                   ),
               ],
             ),

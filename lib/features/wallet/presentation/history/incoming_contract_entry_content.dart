@@ -5,12 +5,12 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/presentation/history/contract_asset_transfers.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class IncomingContractEntryContent extends ConsumerWidget {
   const IncomingContractEntryContent(this.incomingContractEntry, {super.key});
 
-  final IncomingContractEntry incomingContractEntry;
+  final XelisWalletIncomingContractEntry incomingContractEntry;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

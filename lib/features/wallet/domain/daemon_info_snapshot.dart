@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart'
+    as wallet_flutter;
 
 part 'daemon_info_snapshot.freezed.dart';
 
@@ -16,9 +17,9 @@ abstract class DaemonInfoSnapshot with _$DaemonInfoSnapshot {
     @Default('') String emittedSupply,
     @Default('') String hashRate,
     @Default(Duration()) Duration averageBlockTime,
-    @Default(0) int mempoolSize,
+    required BigInt mempoolSize,
     @Default('') String blockReward,
     @Default('') String version,
-    Network? network,
+    wallet_flutter.XelisNetwork? network,
   }) = _DaemonInfoSnapshot;
 }

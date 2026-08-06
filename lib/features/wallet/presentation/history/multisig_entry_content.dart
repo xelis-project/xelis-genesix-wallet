@@ -7,12 +7,12 @@ import 'package:genesix/features/wallet/presentation/address_book/address_widget
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/labeled_value.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 class MultisigEntryContent extends ConsumerWidget {
   const MultisigEntryContent(this.multisigEntry, {super.key});
 
-  final MultisigEntry multisigEntry;
+  final XelisWalletMultisigEntry multisigEntry;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -5,17 +5,17 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/wallet/domain/parsed_extra_data.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/address_book_dtos.dart';
-import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
-import 'package:genesix/src/generated/rust_bridge/api/models/network.dart'
-    as rust;
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart'
+    as wallet_flutter;
 
-Map<DateTime, List<TransactionEntry>> groupTransactionsByDateSorted2Levels(
-  List<TransactionEntry> transactions, {
+Map<DateTime, List<wallet_flutter.XelisWalletTransactionEntry>>
+groupTransactionsByDateSorted2Levels(
+  List<wallet_flutter.XelisWalletTransactionEntry> transactions, {
   bool useUtc = false,
   bool assumeInputAlreadyDescByTime = false,
 }) {
-  final Map<DateTime, List<TransactionEntry>> grouped = {};
+  final Map<DateTime, List<wallet_flutter.XelisWalletTransactionEntry>>
+  grouped = {};
 
   DateTime dateOnly(DateTime dt) {
     // Avoid using toLocal() if already in local time; normalize to Y/M/D
@@ -25,11 +25,13 @@ Map<DateTime, List<TransactionEntry>> groupTransactionsByDateSorted2Levels(
 
   // Group transactions by date
   for (final tx in transactions) {
-    final ts = tx.timestamp;
-    if (ts == null) continue;
+    final ts = walletTimestampToDateTime(tx.timestampMillis);
 
     final key = dateOnly(ts);
-    final list = grouped.putIfAbsent(key, () => <TransactionEntry>[]);
+    final list = grouped.putIfAbsent(
+      key,
+      () => <wallet_flutter.XelisWalletTransactionEntry>[],
+    );
     list.add(tx);
   }
 
@@ -38,16 +40,7 @@ Map<DateTime, List<TransactionEntry>> groupTransactionsByDateSorted2Levels(
   if (!assumeInputAlreadyDescByTime) {
     for (final list in grouped.values) {
       list.sort((a, b) {
-        final ta = a.timestamp;
-        final tb = b.timestamp;
-        if (ta == null && tb == null) {
-          return b.topoheight.compareTo(a.topoheight);
-        } else if (ta == null) {
-          return 1; // nulls last
-        } else if (tb == null) {
-          return -1;
-        }
-        final cmp = tb.compareTo(ta); // desc
+        final cmp = b.timestampMillis.compareTo(a.timestampMillis);
         return (cmp != 0) ? cmp : b.topoheight.compareTo(a.topoheight);
       });
     }
@@ -57,7 +50,7 @@ Map<DateTime, List<TransactionEntry>> groupTransactionsByDateSorted2Levels(
   // Sort the dates in descending order
   final sortedKeys = grouped.keys.toList()..sort((a, b) => b.compareTo(a));
 
-  final out = <DateTime, List<TransactionEntry>>{};
+  final out = <DateTime, List<wallet_flutter.XelisWalletTransactionEntry>>{};
   for (final k in sortedKeys) {
     out[k] = grouped[k]!;
   }
@@ -67,20 +60,21 @@ Map<DateTime, List<TransactionEntry>> groupTransactionsByDateSorted2Levels(
 
 TransactionDisplayInfo parseTxInfo(
   AppLocalizations loc,
-  rust.Network network,
-  TransactionEntryType type,
-  LinkedHashMap<String, AssetData> knownAssets,
-  Map<String, ContactDetails> addressBook,
-) {
+  wallet_flutter.XelisNetwork network,
+  wallet_flutter.XelisWalletTransactionEntryData type,
+  LinkedHashMap<String, wallet_flutter.XelisWalletAssetMetadata> knownAssets,
+  Map<String, wallet_flutter.XelisAddressBookEntry> addressBook, {
+  List<wallet_flutter.XelisAddressBookEntry?> exactDestinations = const [],
+}) {
   switch (type) {
-    case CoinbaseEntry():
+    case wallet_flutter.XelisWalletCoinbaseEntry():
       return TransactionDisplayInfo(
         icon: FLucideIcons.star,
         color: Colors.amber,
         label: loc.coinbase,
         details: '+${formatXelis(type.reward, network)}',
       );
-    case BurnEntry():
+    case wallet_flutter.XelisWalletBurnEntry():
       final asset = knownAssets[type.asset];
       return TransactionDisplayInfo(
         icon: FLucideIcons.flame,
@@ -91,11 +85,14 @@ TransactionDisplayInfo parseTxInfo(
             ? '-${formatCoin(type.amount, asset.decimals, asset.ticker)}'
             : loc.unknown_asset,
       );
-    case IncomingEntry():
+    case wallet_flutter.XelisWalletIncomingEntry():
       String? subtitle;
       String? detailsMessage;
       String? badgeLabel;
       String? badgeSemanticLabel;
+      final hasAttachedData = type.transfers.any(
+        (transfer) => transfer.extraData != null,
+      );
       if (type.transfers.isEmpty) {
         detailsMessage = loc.no_transfers_found;
       } else {
@@ -125,12 +122,19 @@ TransactionDisplayInfo parseTxInfo(
         details: detailsMessage,
         badgeLabel: badgeLabel,
         badgeSemanticLabel: badgeSemanticLabel,
+        attachedDataBadgeLabel: hasAttachedData
+            ? loc.attached_data_badge
+            : null,
+        attachedDataSemanticLabel: hasAttachedData ? loc.attached_data : null,
       );
-    case OutgoingEntry():
+    case wallet_flutter.XelisWalletOutgoingEntry():
       String? subtitle;
       String? detailsMessage;
       String? badgeLabel;
       String? badgeSemanticLabel;
+      final hasAttachedData = type.transfers.any(
+        (transfer) => transfer.extraData != null,
+      );
       if (type.transfers.isEmpty) {
         subtitle = loc.no_transfers_found;
       } else {
@@ -138,8 +142,14 @@ TransactionDisplayInfo parseTxInfo(
           subtitle = loc.multiple_transfers_sent;
         } else {
           final transfer = type.transfers.first;
+          final exactDestination = exactDestinations.isEmpty
+              ? null
+              : exactDestinations.first;
           subtitle = loc.transfer_to(
-            getAddressLabel(transfer.destination, addressBook),
+            exactDestination?.displayName ??
+                (transfer.extraData == null
+                    ? getAddressLabel(transfer.destination, addressBook)
+                    : truncateText(transfer.destination, maxLength: 8)),
           );
         }
         final summary = _summarizeTransfers(
@@ -168,41 +178,45 @@ TransactionDisplayInfo parseTxInfo(
         details: detailsMessage,
         badgeLabel: badgeLabel,
         badgeSemanticLabel: badgeSemanticLabel,
+        attachedDataBadgeLabel: hasAttachedData
+            ? loc.attached_data_badge
+            : null,
+        attachedDataSemanticLabel: hasAttachedData ? loc.attached_data : null,
       );
-    case MultisigEntry():
+    case wallet_flutter.XelisWalletMultisigEntry():
       return TransactionDisplayInfo(
         icon: FLucideIcons.users,
         color: Colors.blueAccent.shade200,
         label: loc.multisig,
         subtitle: type.participants.isEmpty ? loc.disabled : loc.enabled,
       );
-    case InvokeContractEntry():
+    case wallet_flutter.XelisWalletInvokeContractEntry():
       return TransactionDisplayInfo(
         icon: FLucideIcons.squareCode,
         color: Colors.deepPurple,
         label: loc.tx_contract_invocation,
         subtitle: truncateText(type.contract, maxLength: 16),
       );
-    case DeployContractEntry():
+    case wallet_flutter.XelisWalletDeployContractEntry():
       return TransactionDisplayInfo(
         icon: FLucideIcons.scrollText,
         color: Colors.teal,
         label: loc.tx_contract_deployment,
       );
-    case IncomingContractEntry():
+    case wallet_flutter.XelisWalletIncomingContractEntry():
       return TransactionDisplayInfo(
         icon: FLucideIcons.arrowDownToLine,
         color: Colors.purple.shade300,
         label: loc.tx_contract_transfer,
       );
-    case IncomingBlobEntry():
+    case wallet_flutter.XelisWalletIncomingBlobEntry():
       return _blobDisplayInfo(
         loc,
         type.data,
         direction: loc.incoming,
         icon: FLucideIcons.arrowDownLeft,
       );
-    case OutgoingBlobEntry():
+    case wallet_flutter.XelisWalletOutgoingBlobEntry():
       return _blobDisplayInfo(
         loc,
         type.data,
@@ -214,28 +228,32 @@ TransactionDisplayInfo parseTxInfo(
 
 TransactionDisplayInfo _blobDisplayInfo(
   AppLocalizations loc,
-  ExtraData data, {
+  wallet_flutter.XelisWalletExtraData data, {
   required String direction,
   required IconData icon,
 }) {
   final parsed = ParsedExtraData.parse(loc, data);
+  final details = [
+    parsed.flag.name.capitalize(),
+    parsed.label,
+    ?parsed.fmtSize,
+  ].join(' • ');
 
   return TransactionDisplayInfo(
     icon: icon,
     color: Colors.cyan.shade400,
     label: loc.blob,
     subtitle: direction,
-    details:
-        '${parsed.flag.name.capitalize()} • ${parsed.label} • ${parsed.fmtSize}',
+    details: details,
   );
 }
 
 _TransferSummary _summarizeTransfers(
-  Map<String, AssetData> knownAssets,
+  Map<String, wallet_flutter.XelisWalletAssetMetadata> knownAssets,
   Iterable<_TransferAmount> transfers, {
   required String sign,
 }) {
-  final amountsByAsset = <String, int>{};
+  final amountsByAsset = <String, BigInt>{};
   for (final transfer in transfers) {
     amountsByAsset.update(
       transfer.assetHash,
@@ -269,11 +287,11 @@ String? _additionalAssetsSemanticLabel(AppLocalizations loc, int count) {
 
 String getAddressLabel(
   String address,
-  Map<String, ContactDetails> addressBook,
+  Map<String, wallet_flutter.XelisAddressBookEntry> addressBook,
 ) {
   final contact = addressBook[address];
-  if (contact != null && contact.name.isNotEmpty) {
-    return contact.name;
+  if (contact != null && contact.displayName.isNotEmpty) {
+    return contact.displayName;
   } else {
     return truncateText(address, maxLength: 8);
   }
@@ -287,6 +305,8 @@ class TransactionDisplayInfo {
   final String? details;
   final String? badgeLabel;
   final String? badgeSemanticLabel;
+  final String? attachedDataBadgeLabel;
+  final String? attachedDataSemanticLabel;
 
   TransactionDisplayInfo({
     required this.icon,
@@ -296,7 +316,34 @@ class TransactionDisplayInfo {
     this.details,
     this.badgeLabel,
     this.badgeSemanticLabel,
+    this.attachedDataBadgeLabel,
+    this.attachedDataSemanticLabel,
   });
+
+  bool get hasAttachedData => attachedDataBadgeLabel != null;
+}
+
+class TransactionAttachedDataBadge extends StatelessWidget {
+  const TransactionAttachedDataBadge({required this.info, super.key});
+
+  final TransactionDisplayInfo info;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = info.attachedDataBadgeLabel;
+    if (label == null) {
+      return const SizedBox.shrink();
+    }
+
+    return FTooltip(
+      tipBuilder: (context, controller) =>
+          Text(info.attachedDataSemanticLabel ?? label),
+      child: Semantics(
+        label: info.attachedDataSemanticLabel,
+        child: FBadge(variant: .secondary, child: Text(label)),
+      ),
+    );
+  }
 }
 
 class TransactionInfoSuffix extends StatelessWidget {
@@ -310,6 +357,7 @@ class TransactionInfoSuffix extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       spacing: 8,
       children: [
+        if (info.hasAttachedData) TransactionAttachedDataBadge(info: info),
         if (info.badgeLabel != null)
           FTooltip(
             tipBuilder: (context, controller) =>
@@ -329,7 +377,21 @@ class _TransferAmount {
   const _TransferAmount({required this.assetHash, required this.amount});
 
   final String assetHash;
-  final int amount;
+  final BigInt amount;
+}
+
+/// Converts native wallet milliseconds at the presentation boundary.
+DateTime walletTimestampToDateTime(BigInt timestampMillis) {
+  final minMillis = BigInt.from(-8640000000000000);
+  final maxMillis = BigInt.from(8640000000000000);
+  if (timestampMillis < minMillis || timestampMillis > maxMillis) {
+    throw ArgumentError.value(
+      timestampMillis,
+      'timestampMillis',
+      'Must fit in Dart DateTime milliseconds',
+    );
+  }
+  return DateTime.fromMillisecondsSinceEpoch(timestampMillis.toInt());
 }
 
 class _TransferSummary {
