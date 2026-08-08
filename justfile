@@ -13,7 +13,7 @@ flutter_get:
     flutter pub get
 
 gen_flutter:
-    dart run build_runner build -d
+    dart run build_runner build
 
 format:
     dart format lib test integration_test tool
