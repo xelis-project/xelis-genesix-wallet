@@ -169,6 +169,8 @@
   "cache_directory": "Каталог кешу",
   "wallets_directory": "Каталог гаманців",
   "balance": "Баланс",
+  "show_balance": "Показати баланс",
+  "hide_balance": "Приховати баланс",
   "send": "Надіслати",
   "receive": "Отримати",
   "topoheight": "Висота над рівнем моря",

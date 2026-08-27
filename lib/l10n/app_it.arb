@@ -169,6 +169,8 @@
   "cache_directory": "Cartella della cache",
   "wallets_directory": "Cartella dei portafogli",
   "balance": "Saldo",
+  "show_balance": "Mostra saldo",
+  "hide_balance": "Nascondi saldo",
   "send": "Invia",
   "receive": "Ricevi",
   "topoheight": "Altezza Topologica",

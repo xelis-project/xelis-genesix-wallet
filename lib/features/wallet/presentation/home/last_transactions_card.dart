@@ -80,8 +80,9 @@ class _LastTransactionsCardState extends ConsumerState<LastTransactionsCard> {
                 ),
               ),
               FTooltip(
-                tipBuilder: (context, controller) => Text('refresh'),
+                tipBuilder: (context, controller) => Text(loc.refresh),
                 child: FButton.icon(
+                  semanticsTooltip: loc.refresh,
                   child: const Icon(FLucideIcons.refreshCcw),
                   onPress: () {
                     ref.invalidate(pendingTransactionsProvider);

@@ -79,13 +79,11 @@ class _UntrackedAssetsTabState extends ConsumerState<UntrackedAssetsTab> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       ),
                     )
-                  : InkWell(
-                      borderRadius: BorderRadius.circular(999),
-                      onTap: () => _trackAssetDirect(hash),
-                      child: const Padding(
-                        padding: EdgeInsets.all(8),
-                        child: Icon(FLucideIcons.plus),
-                      ),
+                  : FButton.icon(
+                      variant: .ghost,
+                      semanticsTooltip: loc.track_asset_dialog_message,
+                      onPress: () => _trackAssetDirect(hash),
+                      child: const Icon(FLucideIcons.plus),
                     ),
             );
           },

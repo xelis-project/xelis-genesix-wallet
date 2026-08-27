@@ -82,10 +82,12 @@ class _AddressWidgetState extends ConsumerState<AddressWidget> {
                   child: widget.compact
                       ? FButton.icon(
                           variant: .ghost,
+                          semanticsTooltip: loc.add_to_address_book_tooltip,
                           onPress: _onAddAddress,
                           child: const Icon(FLucideIcons.plus, size: 16),
                         )
                       : FButton.icon(
+                          semanticsTooltip: loc.add_to_address_book_tooltip,
                           onPress: _onAddAddress,
                           child: const Icon(FLucideIcons.plus, size: 18),
                         ),

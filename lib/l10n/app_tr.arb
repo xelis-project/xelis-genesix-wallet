@@ -169,6 +169,8 @@
   "cache_directory": "Önbellek Dizini",
   "wallets_directory": "Cüzdanlar Dizini",
   "balance": "Bakiye",
+  "show_balance": "Bakiyeyi göster",
+  "hide_balance": "Bakiyeyi gizle",
   "send": "Gönder",
   "receive": "Al",
   "topoheight": "Topoheight",

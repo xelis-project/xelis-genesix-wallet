@@ -51,6 +51,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
               FTooltip(
                 tipBuilder: (context, controller) => Text(loc.copy),
                 child: FButton.icon(
+                  semanticsTooltip: loc.copy,
                   onPress: () =>
                       copyToClipboard(walletAddress, ref, loc.copied),
                   child: const Icon(FLucideIcons.copy),

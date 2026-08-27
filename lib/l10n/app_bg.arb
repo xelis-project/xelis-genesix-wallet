@@ -169,6 +169,8 @@
   "cache_directory": "Директория за кеш",
   "wallets_directory": "Директория за портфейли",
   "balance": "Баланс",
+  "show_balance": "Показване на баланса",
+  "hide_balance": "Скриване на баланса",
   "send": "Изпрати",
   "receive": "Получаване на",
   "topoheight": "Топовисочина",

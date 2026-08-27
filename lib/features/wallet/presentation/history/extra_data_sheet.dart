@@ -133,6 +133,7 @@ class _ExtraDataSheetState extends ConsumerState<ExtraDataSheet> {
                   FTooltip(
                     tipBuilder: (context, controller) => Text(loc.copy),
                     child: FButton.icon(
+                      semanticsTooltip: loc.copy,
                       onPress: () => copyToClipboard(copyText, ref, loc.copied),
                       child: const Icon(FLucideIcons.copy),
                     ),

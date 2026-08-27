@@ -59,6 +59,14 @@ class BroadcastReviewStep extends ConsumerWidget {
           alignment: Alignment.centerRight,
           child: AsyncFButton(
             isLoading: isBroadcasting,
+            onDisabledPress: review.isConfirmed
+                ? null
+                : () => ref
+                      .read(toastProvider.notifier)
+                      .showWarning(
+                        title: loc.confirm_button,
+                        description: confirmationLabel,
+                      ),
             onPress: !review.isConfirmed || isBroadcasting
                 ? null
                 : () => startWithBiometricAuth(

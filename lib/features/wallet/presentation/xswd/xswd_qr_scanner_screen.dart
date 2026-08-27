@@ -269,6 +269,7 @@ class _TorchAction extends StatelessWidget {
           tipBuilder: (context, controller) =>
               Text(torchOn ? turnOffLabel : turnOnLabel),
           child: FHeaderAction(
+            semanticsTooltip: torchOn ? turnOffLabel : turnOnLabel,
             icon: Icon(
               torchOn ? FLucideIcons.flashlightOff : FLucideIcons.flashlight,
             ),

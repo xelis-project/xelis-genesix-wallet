@@ -169,6 +169,8 @@
   "cache_directory": "Cache-map",
   "wallets_directory": "Portemonnees",
   "balance": "Balans",
+  "show_balance": "Saldo tonen",
+  "hide_balance": "Saldo verbergen",
   "send": "Verzenden",
   "receive": "Ontvangen",
   "topoheight": "Topohoogte",

@@ -44,6 +44,7 @@ class ExtraDataIndicator extends ConsumerWidget {
         children: [
           FButton.icon(
             variant: .outline,
+            semanticsTooltip: loc.view_extra_data,
             onPress: onOpen,
             child: const Icon(FLucideIcons.fileText, size: 18),
           ),

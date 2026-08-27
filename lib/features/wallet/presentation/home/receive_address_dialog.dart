@@ -91,6 +91,8 @@ class _ReceiveAddressDialogState extends ConsumerState<ReceiveAddressDialog> {
                     ),
                     FButton.icon(
                       variant: .ghost,
+                      semanticsLabel: loc.close,
+                      semanticsTooltip: loc.close,
                       onPress: () => context.pop(),
                       child: const Icon(FLucideIcons.x, size: 22),
                     ),

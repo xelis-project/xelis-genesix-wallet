@@ -45,6 +45,7 @@ class _RecoveryPhraseDialogState extends ConsumerState<RecoveryPhraseDialog> {
           FTooltip(
             tipBuilder: (context, controller) => Text(loc.copy_recovery_phrase),
             child: FButton.icon(
+              semanticsTooltip: loc.copy_recovery_phrase,
               onPress: () => copyToClipboard(widget.seed, ref, loc.copied),
               child: Icon(FLucideIcons.copy),
             ),

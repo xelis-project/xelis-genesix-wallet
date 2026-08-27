@@ -169,6 +169,8 @@
   "cache_directory": "Diretório de cache",
   "wallets_directory": "Diretório de carteiras",
   "balance": "Equilíbrio",
+  "show_balance": "Mostrar saldo",
+  "hide_balance": "Ocultar saldo",
   "send": "Enviar",
   "receive": "Receber",
   "topoheight": "Altura do topo",

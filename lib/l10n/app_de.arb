@@ -169,6 +169,8 @@
   "cache_directory": "Cache-Verzeichnis",
   "wallets_directory": "Wallet-Verzeichnis",
   "balance": "Guthaben",
+  "show_balance": "Guthaben anzeigen",
+  "hide_balance": "Guthaben ausblenden",
   "send": "Senden",
   "receive": "Empfangen",
   "topoheight": "Topoheight",

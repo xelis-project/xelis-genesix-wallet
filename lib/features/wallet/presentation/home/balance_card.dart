@@ -54,6 +54,9 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
     }
 
     final isMainnet = settings.network == XelisNetwork.mainnet;
+    final balanceVisibilityLabel = settings.hideBalance
+        ? loc.show_balance
+        : loc.hide_balance;
 
     return FCard(
       clipBehavior: Clip.antiAlias,
@@ -71,13 +74,17 @@ class _BalanceCardState extends ConsumerState<BalanceCard> {
                     color: context.theme.colors.primary,
                   ),
                 ),
-                FButton.icon(
-                  onPress: () => ref
-                      .read(settingsProvider.notifier)
-                      .setHideBalance(!settings.hideBalance),
-                  child: settings.hideBalance
-                      ? const Icon(FLucideIcons.eye)
-                      : const Icon(FLucideIcons.eyeOff),
+                FTooltip(
+                  tipBuilder: (_, _) => Text(balanceVisibilityLabel),
+                  child: FButton.icon(
+                    semanticsTooltip: balanceVisibilityLabel,
+                    onPress: () => ref
+                        .read(settingsProvider.notifier)
+                        .setHideBalance(!settings.hideBalance),
+                    child: settings.hideBalance
+                        ? const Icon(FLucideIcons.eye)
+                        : const Icon(FLucideIcons.eyeOff),
+                  ),
                 ),
               ],
             ),

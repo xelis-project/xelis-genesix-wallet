@@ -331,6 +331,7 @@ class _MultisigParticipantTile extends StatelessWidget {
             tipBuilder: (context, controller) => Text(copyLabel),
             child: FButton.icon(
               variant: .ghost,
+              semanticsTooltip: copyLabel,
               onPress: () => onCopy(participant.address),
               child: const Icon(FLucideIcons.copy, size: 18),
             ),

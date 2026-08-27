@@ -169,6 +169,8 @@
   "cache_directory": "Katalog cache",
   "wallets_directory": "Katalog portfeli",
   "balance": "Saldo",
+  "show_balance": "Pokaż saldo",
+  "hide_balance": "Ukryj saldo",
   "send": "Wyślij",
   "receive": "Odbierz",
   "topoheight": "Topoheight",

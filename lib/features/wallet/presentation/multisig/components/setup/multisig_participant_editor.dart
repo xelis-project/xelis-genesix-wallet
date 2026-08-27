@@ -381,6 +381,7 @@ class _ParticipantInputActions extends StatelessWidget {
           child: FButton.icon(
             variant: .outline,
             semanticsLabel: loc.multisig_setup_paste_address,
+            semanticsTooltip: loc.multisig_setup_paste_address,
             onPress: enabled ? onPaste : null,
             child: const Icon(FLucideIcons.clipboardPaste),
           ),
@@ -390,6 +391,7 @@ class _ParticipantInputActions extends StatelessWidget {
           child: FButton.icon(
             variant: .outline,
             semanticsLabel: loc.address_book,
+            semanticsTooltip: loc.address_book,
             onPress: enabled ? onAddressBook : null,
             child: const Icon(FLucideIcons.bookUser),
           ),
@@ -532,6 +534,7 @@ class _ParticipantTile extends StatelessWidget {
           variant: .destructive,
           onPress: onRemove,
           semanticsLabel: removeLabel,
+          semanticsTooltip: removeLabel,
           child: const Icon(FLucideIcons.trash2, size: 18),
         ),
       ],

@@ -52,24 +52,23 @@ class _RestoreFolderTabState extends ConsumerState<RestoreFolderTab> {
       child: Column(
         children: [
           const SizedBox(height: Spaces.medium),
-          FTooltip(
-            tipBuilder: (context, controller) =>
-                Text(loc.select_wallet_folder_restore),
-            childAnchor: Alignment.bottomCenter,
-            child: MouseRegion(
-              cursor: _isOpening
-                  ? SystemMouseCursors.basic
-                  : SystemMouseCursors.click,
-              child: GestureDetector(
-                onTap: _isOpening ? null : _importWalletFolder,
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 200,
-                  child: Container(
-                    color: Colors.transparent,
-                    child: Icon(FLucideIcons.download, size: 30),
+          FButton.raw(
+            variant: .outline,
+            semanticsTooltip: loc.select_wallet_folder_restore,
+            onPress: _isOpening ? null : _importWalletFolder,
+            child: SizedBox(
+              width: double.infinity,
+              height: 200,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: Spaces.small,
+                children: [
+                  const Icon(FLucideIcons.download, size: 30),
+                  Text(
+                    loc.select_wallet_folder_restore,
+                    textAlign: TextAlign.center,
                   ),
-                ),
+                ],
               ),
             ),
           ),

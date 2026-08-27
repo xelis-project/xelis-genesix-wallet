@@ -6,6 +6,7 @@ class AsyncFButton extends StatelessWidget {
     required this.isLoading,
     required this.onPress,
     required this.child,
+    this.onDisabledPress,
     this.variant = FButtonVariant.primary,
     this.size = FButtonSizeVariant.md,
     this.style = const FButtonStyleDelta.context(),
@@ -17,6 +18,7 @@ class AsyncFButton extends StatelessWidget {
 
   final bool isLoading;
   final VoidCallback? onPress;
+  final VoidCallback? onDisabledPress;
   final Widget child;
   final FButtonVariant variant;
   final FButtonSizeVariant size;
@@ -35,6 +37,7 @@ class AsyncFButton extends StatelessWidget {
       prefix: isLoading ? const FCircularProgress.loader() : prefix,
       suffix: suffix,
       onPress: isLoading ? null : onPress,
+      onDisabledPress: isLoading ? null : onDisabledPress,
       child: child,
     );
   }

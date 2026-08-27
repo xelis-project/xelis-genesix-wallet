@@ -10,10 +10,65 @@ import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
 import 'package:genesix/features/wallet/presentation/transaction_review/components/broadcast_review_step.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/theme.dart';
+import 'package:genesix/shared/widgets/components/async_f_button.dart';
 import 'package:genesix/src/generated/l10n/app_localizations_en.dart';
 import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 void main() {
+  testWidgets('explains an unconfirmed broadcast without broadcasting', (
+    tester,
+  ) async {
+    var broadcastCount = 0;
+    final container = await _pumpReview(
+      tester,
+      _review(hasExtraData: false, extraDataEncrypted: false),
+      onBroadcast: (_) async {
+        broadcastCount++;
+      },
+    );
+    final toastSubscription = container.listen(
+      toastProvider,
+      (_, _) {},
+      fireImmediately: true,
+    );
+    addTearDown(toastSubscription.close);
+
+    final broadcastButton = find.widgetWithText(AsyncFButton, 'Broadcast');
+    final foruiButton = tester.widget<FButton>(
+      find.descendant(of: broadcastButton, matching: find.byType(FButton)),
+    );
+    foruiButton.onDisabledPress!();
+
+    final toast = container.read(toastProvider);
+    expect(toast?.title, 'Confirm');
+    expect(toast?.description, contains('reviewed the transaction details'));
+    expect(broadcastCount, 0);
+  });
+
+  testWidgets('keeps broadcast feedback inert while broadcasting', (
+    tester,
+  ) async {
+    var broadcastCount = 0;
+    final container = await _pumpReview(
+      tester,
+      _review(hasExtraData: false, extraDataEncrypted: false),
+      isBroadcasting: true,
+      onBroadcast: (_) async {
+        broadcastCount++;
+      },
+    );
+
+    final broadcastButton = find.widgetWithText(AsyncFButton, 'Broadcast');
+    final foruiButton = tester.widget<FButton>(
+      find.descendant(of: broadcastButton, matching: find.byType(FButton)),
+    );
+    expect(foruiButton.onPress, isNull);
+    expect(foruiButton.onDisabledPress, isNull);
+
+    expect(container.read(toastProvider), isNull);
+    expect(broadcastCount, 0);
+  });
+
   testWidgets('shows encrypted attached-data metadata from prepared details', (
     tester,
   ) async {
@@ -139,6 +194,8 @@ Future<ProviderContainer> _pumpReview(
   WidgetTester tester,
   SingleTransferTransaction review, {
   NativeWalletRepository? repository,
+  bool isBroadcasting = false,
+  Future<void> Function(WidgetRef)? onBroadcast,
 }) async {
   final container = ProviderContainer(
     overrides: [
@@ -160,15 +217,19 @@ Future<ProviderContainer> _pumpReview(
           body: SingleChildScrollView(
             child: BroadcastReviewStep(
               review: review,
-              isBroadcasting: false,
-              onBroadcast: (_) async {},
+              isBroadcasting: isBroadcasting,
+              onBroadcast: onBroadcast ?? (_) async {},
             ),
           ),
         ),
       ),
     ),
   );
-  await tester.pumpAndSettle();
+  if (isBroadcasting) {
+    await tester.pump(const Duration(milliseconds: 250));
+  } else {
+    await tester.pumpAndSettle();
+  }
   return container;
 }
 

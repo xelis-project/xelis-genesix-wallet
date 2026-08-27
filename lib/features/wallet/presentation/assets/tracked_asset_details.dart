@@ -63,12 +63,25 @@ class _TrackedAssetDetailsState extends ConsumerState<TrackedAssetDetails> {
                 LabeledValue.child(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   loc.hash.capitalize(),
-                  InkWell(
+                  FTappable(
+                    semanticsTooltip: loc.copy,
+                    onPress: () =>
+                        copyToClipboard(widget.hash, ref, loc.copied),
+                    builder: (context, states, child) => DecoratedBox(
+                      decoration: BoxDecoration(
+                        color:
+                            states.contains(FTappableVariant.hovered) ||
+                                states.contains(FTappableVariant.pressed)
+                            ? context.theme.colors.secondary
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: child,
+                    ),
                     child: Text(
                       widget.hash,
                       style: context.theme.typography.body.md,
                     ),
-                    onTap: () => copyToClipboard(widget.hash, ref, loc.copied),
                   ),
                 ),
                 LabeledValue.text(

@@ -100,6 +100,7 @@ class _BaseTransactionEntryCardState
                           return Text(loc.open_explorer);
                         },
                         child: FButton.icon(
+                          semanticsTooltip: loc.open_explorer,
                           onPress: () => _launchUrl(url),
                           child: const Icon(FLucideIcons.externalLink),
                         ),
@@ -141,6 +142,7 @@ class _BaseTransactionEntryCardState
                       FTooltip(
                         tipBuilder: (context, controller) => Text(loc.copy),
                         child: FButton.icon(
+                          semanticsTooltip: loc.copy,
                           onPress: () =>
                               copyToClipboard(widget.hash, ref, loc.copied),
                           child: const Icon(FLucideIcons.copy, size: 16),

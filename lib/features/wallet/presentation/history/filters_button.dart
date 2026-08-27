@@ -25,6 +25,7 @@ class _FiltersButtonState extends ConsumerState<FiltersButton> {
       child: FTooltip(
         tipBuilder: (context, controller) => Text(loc.filters),
         child: FHeaderAction(
+          semanticsTooltip: loc.filters,
           onPress: _showFilterDialog,
           icon: Icon(FLucideIcons.listFilter),
         ),

@@ -27,6 +27,8 @@ class ContactListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FItem.raw(
+      semanticsTooltip: onOpen == null ? null : localizations.open_button,
+      onPress: onOpen,
       child: LayoutBuilder(
         builder: (context, constraints) {
           final showActions =
@@ -62,7 +64,7 @@ class ContactListTile extends StatelessWidget {
   }
 }
 
-class _ContactIdentityButton extends StatefulWidget {
+class _ContactIdentityButton extends StatelessWidget {
   const _ContactIdentityButton({
     required this.contact,
     required this.localizations,
@@ -76,21 +78,7 @@ class _ContactIdentityButton extends StatefulWidget {
   final bool compact;
 
   @override
-  State<_ContactIdentityButton> createState() => _ContactIdentityButtonState();
-}
-
-class _ContactIdentityButtonState extends State<_ContactIdentityButton> {
-  bool _hovered = false;
-  bool _pressed = false;
-
-  @override
   Widget build(BuildContext context) {
-    final backgroundColor = _pressed
-        ? context.theme.colors.muted.withValues(alpha: 0.55)
-        : _hovered
-        ? context.theme.colors.muted.withValues(alpha: 0.35)
-        : const Color(0x00000000);
-
     final content = Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: Spaces.extraSmall,
@@ -99,8 +87,8 @@ class _ContactIdentityButtonState extends State<_ContactIdentityButton> {
       child: Row(
         children: [
           HashiconWidget(
-            hash: widget.contact.destination.address,
-            size: Size(widget.compact ? 32 : 38, widget.compact ? 32 : 38),
+            hash: contact.destination.address,
+            size: Size(compact ? 32 : 38, compact ? 32 : 38),
           ),
           const SizedBox(width: Spaces.small),
           Expanded(
@@ -112,7 +100,7 @@ class _ContactIdentityButtonState extends State<_ContactIdentityButton> {
                   children: [
                     Flexible(
                       child: Text(
-                        widget.contact.displayName,
+                        contact.displayName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: context.theme.typography.body.sm.copyWith(
@@ -120,19 +108,19 @@ class _ContactIdentityButtonState extends State<_ContactIdentityButton> {
                         ),
                       ),
                     ),
-                    if (widget.contact.destination.hasIntegratedData) ...[
+                    if (contact.destination.hasIntegratedData) ...[
                       const SizedBox(width: Spaces.small),
                       FBadge(
                         variant: .secondary,
-                        child: Text(widget.localizations.attached_data_badge),
+                        child: Text(localizations.attached_data_badge),
                       ),
                     ],
                   ],
                 ),
                 Text(
                   truncateText(
-                    widget.contact.destination.address,
-                    maxLength: widget.compact ? 18 : 28,
+                    contact.destination.address,
+                    maxLength: compact ? 18 : 28,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -140,9 +128,9 @@ class _ContactIdentityButtonState extends State<_ContactIdentityButton> {
                     color: context.theme.colors.mutedForeground,
                   ),
                 ),
-                if (widget.contact.note?.isNotEmpty ?? false)
+                if (contact.note?.isNotEmpty ?? false)
                   Text(
-                    widget.contact.note!,
+                    contact.note!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: context.theme.typography.body.xs.copyWith(
@@ -152,7 +140,7 @@ class _ContactIdentityButtonState extends State<_ContactIdentityButton> {
               ],
             ),
           ),
-          if (widget.onOpen != null) ...[
+          if (onOpen != null) ...[
             const SizedBox(width: Spaces.small),
             Icon(
               FLucideIcons.chevronRight,
@@ -164,39 +152,7 @@ class _ContactIdentityButtonState extends State<_ContactIdentityButton> {
       ),
     );
 
-    final decoratedContent = AnimatedContainer(
-      duration: const Duration(milliseconds: 120),
-      curve: Curves.easeOut,
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: content,
-    );
-
-    if (widget.onOpen == null) return decoratedContent;
-
-    return Semantics(
-      button: true,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: widget.onOpen,
-        onTapDown: (_) => setState(() => _pressed = true),
-        onTapCancel: () => setState(() => _pressed = false),
-        onTapUp: (_) => setState(() => _pressed = false),
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          onEnter: (_) => setState(() => _hovered = true),
-          onExit: (_) {
-            setState(() {
-              _hovered = false;
-              _pressed = false;
-            });
-          },
-          child: decoratedContent,
-        ),
-      ),
-    );
+    return content;
   }
 }
 
@@ -227,6 +183,7 @@ class _ContactActions extends StatelessWidget {
           FTooltip(
             tipBuilder: (_, _) => Text(localizations.transfer_to_contact(name)),
             child: FButton.icon(
+              semanticsTooltip: localizations.transfer_to_contact(name),
               onPress: onSend,
               child: Icon(
                 FLucideIcons.send,
@@ -264,6 +221,7 @@ class _ContactActions extends StatelessWidget {
                 tipBuilder: (_, _) => Text(localizations.more_actions),
                 child: FButton.icon(
                   semanticsLabel: localizations.more_actions,
+                  semanticsTooltip: localizations.more_actions,
                   onPress: controller.toggle,
                   child: const Icon(FLucideIcons.ellipsis, size: 18),
                 ),
@@ -274,6 +232,7 @@ class _ContactActions extends StatelessWidget {
             FTooltip(
               tipBuilder: (_, _) => Text(localizations.edit_contact),
               child: FButton.icon(
+                semanticsTooltip: localizations.edit_contact,
                 onPress: onEdit,
                 child: const Icon(FLucideIcons.pencil, size: 18),
               ),
@@ -282,6 +241,7 @@ class _ContactActions extends StatelessWidget {
             FTooltip(
               tipBuilder: (_, _) => Text(localizations.remove_contact),
               child: FButton.icon(
+                semanticsTooltip: localizations.remove_contact,
                 onPress: onDelete,
                 child: Icon(
                   FLucideIcons.trash,

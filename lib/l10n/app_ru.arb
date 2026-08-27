@@ -169,6 +169,8 @@
   "cache_directory": "Каталог кэша",
   "wallets_directory": "Каталог кошельков",
   "balance": "Баланс",
+  "show_balance": "Показать баланс",
+  "hide_balance": "Скрыть баланс",
   "send": "Отправить",
   "receive": "Получить",
   "topoheight": "Топографическая высота",

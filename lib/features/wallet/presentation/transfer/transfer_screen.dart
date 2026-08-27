@@ -23,6 +23,7 @@ import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:recase/recase.dart';
 import 'package:go_router/go_router.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
+
 // import 'package:genesix/features/wallet/domain/transaction_review_state.dart';
 
 const _automaticFeeBasisPoints = XelisWalletFeePolicy.basisPointsScale;
@@ -194,14 +195,13 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
                       control: .managed(
                         controller: _assetController,
                         onChange: (assetEntry) {
-                          if (assetEntry != null) {
-                            setState(() {
-                              _selectedAsset = assetEntry.key;
-                              _selectedAssetBalance =
-                                  balances[_selectedAsset] ?? BigInt.zero;
-                            });
-                            _updateEstimatedFee();
-                          }
+                          setState(() {
+                            _selectedAsset = assetEntry?.key;
+                            _selectedAssetBalance = assetEntry == null
+                                ? BigInt.zero
+                                : balances[assetEntry.key] ?? BigInt.zero;
+                          });
+                          _updateEstimatedFee();
                         },
                       ),
                       enabled: validAssets.isNotEmpty,
@@ -372,6 +372,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
                                   );
                                 },
                                 child: FButton.icon(
+                                  semanticsTooltip: loc.address_book,
                                   variant: .outline,
                                   onPress: _onAddressBookClicked,
                                   child: const Icon(
@@ -493,8 +494,10 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
                     // Review Button
                     AsyncFButton(
                       isLoading: _isReviewing,
+                      onDisabledPress: _handleDisabledReviewPress,
                       onPress:
                           validAssets.isEmpty ||
+                              _assetController.value == null ||
                               _selectedAsset == null ||
                               _addressController.text.trim().isEmpty ||
                               _amountController.text.trim().isEmpty
@@ -628,18 +631,40 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
     );
   }
 
+  void _handleDisabledReviewPress() {
+    if (_isReviewing) return;
+
+    final loc = ref.read(appLocalizationsProvider);
+    final runtime = ref.read(walletRuntimeProvider);
+    final hasValidAsset = runtime.trackedBalances.keys.any(
+      runtime.knownAssets.containsKey,
+    );
+    if (!hasValidAsset) {
+      ref
+          .read(toastProvider.notifier)
+          .showWarning(title: loc.no_balance_to_transfer);
+      return;
+    }
+    if (_assetController.value == null || _selectedAsset == null) {
+      ref.read(toastProvider.notifier).showWarning(title: loc.select_asset);
+      return;
+    }
+
+    _formKey.currentState?.validate();
+  }
+
   void _reviewTransfer() async {
     if (_isReviewing) return;
 
     // Update selected asset from controller
     final selectedAsset = _assetController.value;
-    if (selectedAsset != null) {
-      _selectedAsset = selectedAsset.key;
-      final Map<String, BigInt> balances = ref.read(
-        walletRuntimeProvider.select((value) => value.trackedBalances),
-      );
-      _selectedAssetBalance = balances[_selectedAsset] ?? BigInt.zero;
-    }
+    _selectedAsset = selectedAsset?.key;
+    final Map<String, BigInt> balances = ref.read(
+      walletRuntimeProvider.select((value) => value.trackedBalances),
+    );
+    _selectedAssetBalance = selectedAsset == null
+        ? BigInt.zero
+        : balances[selectedAsset.key] ?? BigInt.zero;
 
     // Ensure an asset is selected
     if (_selectedAsset == null) {

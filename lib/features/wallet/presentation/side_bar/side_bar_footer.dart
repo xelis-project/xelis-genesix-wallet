@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/presentation/side_bar/account_sheet.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -18,55 +19,56 @@ class SideBarFooter extends ConsumerStatefulWidget {
 class _SideBarFooterState extends ConsumerState<SideBarFooter> {
   @override
   Widget build(BuildContext context) {
+    final loc = ref.watch(appLocalizationsProvider);
     final walletState = ref.watch(walletRuntimeProvider);
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: showAccountSheet,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Spaces.medium),
-          child: FCard(
-            clipBehavior: Clip.antiAlias,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              child: Row(
-                spacing: 10,
-                children: [
-                  FAvatar.raw(
-                    style: .delta(
-                      backgroundColor: context.theme.colors.background,
-                    ),
-                    child: HashiconWidget(
-                      hash: walletState.address,
-                      size: const Size(25, 25),
-                    ),
+    return FTappable(
+      semanticsLabel: loc.account,
+      semanticsHint: walletState.name,
+      onPress: showAccountSheet,
+      builder: (context, states, child) => child!,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Spaces.medium),
+        child: FCard(
+          clipBehavior: Clip.antiAlias,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            child: Row(
+              spacing: 10,
+              children: [
+                FAvatar.raw(
+                  style: .delta(
+                    backgroundColor: context.theme.colors.background,
                   ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 2,
-                      children: [
-                        Text(
-                          walletState.name,
-                          style: context.theme.typography.body.sm.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: context.theme.colors.foreground,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          truncateText(walletState.address, maxLength: 16),
-                          style: context.theme.typography.body.xs.copyWith(
-                            color: context.theme.colors.mutedForeground,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
+                  child: HashiconWidget(
+                    hash: walletState.address,
+                    size: const Size(25, 25),
                   ),
-                ],
-              ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 2,
+                    children: [
+                      Text(
+                        walletState.name,
+                        style: context.theme.typography.body.sm.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: context.theme.colors.foreground,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        truncateText(walletState.address, maxLength: 16),
+                        style: context.theme.typography.body.xs.copyWith(
+                          color: context.theme.colors.mutedForeground,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ),

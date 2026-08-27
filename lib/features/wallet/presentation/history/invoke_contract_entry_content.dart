@@ -108,6 +108,7 @@ class _InvokeContractEntryContentState
                   FTooltip(
                     tipBuilder: (context, controller) => Text(loc.copy),
                     child: FButton.icon(
+                      semanticsTooltip: loc.copy,
                       onPress: () => copyToClipboard(
                         widget.invokeContractEntry.contract,
                         ref,

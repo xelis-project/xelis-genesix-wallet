@@ -75,6 +75,8 @@ class _XswdPasteConnectionDialogState
                 const Expanded(child: _DialogTitle()),
                 FButton.icon(
                   variant: .ghost,
+                  semanticsLabel: loc.close,
+                  semanticsTooltip: loc.close,
                   onPress: _isProcessing ? null : () => widget.close(),
                   child: const Icon(FLucideIcons.x, size: 22),
                 ),

@@ -128,8 +128,9 @@ class _InvokeState extends ConsumerState<InvokeWidget>
         final displayText =
             '${amount.trim()} $ticker${entry.value.private ? ' (${loc.private})' : ''}';
 
-        return InkWell(
-          onTap: () => _showDepositDetails(
+        return FTappable(
+          semanticsTooltip: loc.more_details,
+          onPress: () => _showDepositDetails(
             context,
             loc,
             fullAssetHash,
@@ -137,7 +138,17 @@ class _InvokeState extends ConsumerState<InvokeWidget>
             entry.value,
             amount.trim(),
           ),
-          borderRadius: BorderRadius.circular(8),
+          builder: (context, states, child) => DecoratedBox(
+            decoration: BoxDecoration(
+              color:
+                  states.contains(FTappableVariant.hovered) ||
+                      states.contains(FTappableVariant.pressed)
+                  ? context.theme.colors.secondary
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: child,
+          ),
           child: Chip(
             label: Text(displayText, style: context.bodySmall),
             avatar: const Icon(FLucideIcons.coins, size: 16),
@@ -228,9 +239,20 @@ class _InvokeState extends ConsumerState<InvokeWidget>
         final formatted = _formatParsedValue(loc, parsed);
         final isTruncated = _isTruncatedValue(parsed);
 
-        return InkWell(
-          onTap: () => _showParameterDetails(context, index, param, parsed),
-          borderRadius: BorderRadius.circular(8),
+        return FTappable(
+          semanticsTooltip: loc.more_details,
+          onPress: () => _showParameterDetails(context, index, param, parsed),
+          builder: (context, states, child) => DecoratedBox(
+            decoration: BoxDecoration(
+              color:
+                  states.contains(FTappableVariant.hovered) ||
+                      states.contains(FTappableVariant.pressed)
+                  ? context.theme.colors.secondary
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: child,
+          ),
           child: Chip(
             label: Row(
               mainAxisSize: MainAxisSize.min,

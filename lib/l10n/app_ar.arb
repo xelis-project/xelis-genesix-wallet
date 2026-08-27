@@ -169,6 +169,8 @@
   "cache_directory": "مجلد التخزين المؤقت",
   "wallets_directory": "مجلد المحافظ",
   "balance": "رصيد",
+  "show_balance": "إظهار الرصيد",
+  "hide_balance": "إخفاء الرصيد",
   "send": "إرسال",
   "receive": "استقبال",
   "topoheight": "ارتفاع التوبو",

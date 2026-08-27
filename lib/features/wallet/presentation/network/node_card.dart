@@ -111,6 +111,7 @@ class _NodeCardState extends ConsumerState<NodeCard> {
                     FTooltip(
                       tipBuilder: (context, controller) => Text(loc.add_node),
                       child: FButton.icon(
+                        semanticsTooltip: loc.add_node,
                         onPress: () => showAddNodeSheet(context),
                         child: Icon(FLucideIcons.plus),
                       ),
@@ -118,6 +119,7 @@ class _NodeCardState extends ConsumerState<NodeCard> {
                     FTooltip(
                       tipBuilder: (context, controller) => Text(loc.edit_node),
                       child: FButton.icon(
+                        semanticsTooltip: loc.edit_node,
                         onPress: () => showEditNodeSheet(context, nodeAddress),
                         child: Icon(FLucideIcons.pencil),
                       ),
@@ -126,6 +128,7 @@ class _NodeCardState extends ConsumerState<NodeCard> {
                       tipBuilder: (context, controller) =>
                           Text(loc.connect_node),
                       child: FButton.icon(
+                        semanticsTooltip: loc.connect_node,
                         onPress:
                             !walletOfflineMode && !isOnline && !isConnecting
                             ? () => unawaited(

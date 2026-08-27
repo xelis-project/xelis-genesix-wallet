@@ -169,6 +169,8 @@
   "cache_directory": "Direktori cache",
   "wallets_directory": "Direktori dompet",
   "balance": "Baki",
+  "show_balance": "Tunjukkan baki",
+  "hide_balance": "Sembunyikan baki",
   "send": "Hantar",
   "receive": "Terima",
   "topoheight": "Ketinggian atas",

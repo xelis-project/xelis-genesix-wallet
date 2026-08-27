@@ -378,6 +378,7 @@ class _VerifiedParticipant extends ConsumerWidget {
           variant: .destructive,
           onPress: onRemove,
           semanticsLabel: loc.remove_signature_share,
+          semanticsTooltip: loc.remove_signature_share,
           child: const Icon(FLucideIcons.trash2, size: 18),
         ),
       ],

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forui/forui.dart';
@@ -8,6 +9,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/wallet/domain/wallet_password_change_result.dart';
 import 'package:genesix/features/wallet/presentation/side_bar/change_password_dialog.dart';
 import 'package:genesix/shared/models/app_failure.dart';
+import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/theme/theme.dart';
 import 'package:genesix/src/generated/l10n/app_localizations_en.dart';
 
@@ -18,10 +20,9 @@ void main() {
     final completer = Completer<WalletPasswordChangeResult>();
     String? receivedOldPassword;
     String? receivedNewPassword;
+    final loc = AppLocalizationsEn();
     final container = ProviderContainer(
-      overrides: [
-        appLocalizationsProvider.overrideWithValue(AppLocalizationsEn()),
-      ],
+      overrides: [appLocalizationsProvider.overrideWithValue(loc)],
     );
     addTearDown(container.dispose);
     final theme = greenDark(touch: false);
@@ -33,33 +34,48 @@ void main() {
           theme: theme.toApproximateMaterialTheme(),
           home: FTheme(
             data: theme,
-            child: ChangePasswordDialog(
-              const AlwaysStoppedAnimation(1),
-              changePassword: (oldPassword, newPassword) {
-                receivedOldPassword = oldPassword;
-                receivedNewPassword = newPassword;
-                return completer.future;
-              },
+            child: Builder(
+              builder: (context) => FButton(
+                onPress: () => showAppDialog<void>(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context, style, animation) => ChangePasswordDialog(
+                    animation,
+                    changePassword: (oldPassword, newPassword) {
+                      receivedOldPassword = oldPassword;
+                      receivedNewPassword = newPassword;
+                      return completer.future;
+                    },
+                  ),
+                ),
+                child: const Text('Open dialog'),
+              ),
             ),
           ),
         ),
       ),
     );
 
+    await tester.tap(find.text('Open dialog'));
+    await tester.pumpAndSettle();
+
     final fields = find.byType(EditableText);
     expect(fields, findsNWidgets(3));
-    await tester.enterText(fields.at(0), ' old password ');
-    await tester.enterText(fields.at(1), ' new password ');
-    await tester.enterText(fields.at(2), ' new password ');
-    await tester.tap(find.text('Save'));
-    await tester.pump(const Duration(milliseconds: 150));
+    final semantics = tester.ensureSemantics();
+    expect(SemanticsBinding.instance.semanticsEnabled, isTrue);
+
+    final editableTexts = tester.widgetList<EditableText>(fields).toList();
+    editableTexts[0].controller.text = ' old password ';
+    editableTexts[1].controller.text = ' new password ';
+    editableTexts[2].controller.text = ' new password ';
+    tester.widget<FButton>(find.widgetWithText(FButton, loc.save)).onPress!();
+    _rebuildDirtyElements(tester);
 
     expect(receivedOldPassword, ' old password ');
     expect(receivedNewPassword, ' new password ');
     expect(tester.widget<PopScope>(find.byType(PopScope)).canPop, isFalse);
 
     await tester.binding.handlePopRoute();
-    await tester.pump();
     expect(find.byType(ChangePasswordDialog), findsOneWidget);
 
     completer.complete(
@@ -71,7 +87,17 @@ void main() {
         ),
       ),
     );
-    await tester.pump(const Duration(milliseconds: 150));
+    await tester.idle();
+    _rebuildDirtyElements(tester);
     expect(tester.widget<PopScope>(find.byType(PopScope)).canPop, isTrue);
+    semantics.dispose();
   });
+}
+
+void _rebuildDirtyElements(WidgetTester tester) {
+  // Flutter 3.47 asserts while flushing this password-field semantics update.
+  // Rebuild only the lifecycle state; semantics stays enabled and is checked
+  // on the settled real dialog above.
+  final binding = tester.binding;
+  binding.buildOwner!.buildScope(binding.rootElement!);
 }

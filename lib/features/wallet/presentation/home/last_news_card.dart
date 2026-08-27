@@ -38,6 +38,7 @@ class LastNewsCard extends ConsumerWidget {
               FTooltip(
                 tipBuilder: (context, controller) => Text(loc.refresh),
                 child: FButton.icon(
+                  semanticsTooltip: loc.refresh,
                   child: const Icon(FLucideIcons.refreshCcw),
                   onPress: () => ref.invalidate(visibleNewsProvider),
                 ),
@@ -248,13 +249,16 @@ class _DismissBackground extends StatelessWidget {
   }
 }
 
-class _DialogCloseButton extends StatelessWidget {
+class _DialogCloseButton extends ConsumerWidget {
   const _DialogCloseButton();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = ref.watch(appLocalizationsProvider);
     return FButton.icon(
       variant: .ghost,
+      semanticsLabel: loc.close,
+      semanticsTooltip: loc.close,
       child: const Icon(FLucideIcons.x),
       onPress: () => Navigator.of(context, rootNavigator: true).pop(),
     );

@@ -130,6 +130,7 @@ class _RecoveryPhraseContentState extends ConsumerState<RecoveryPhraseContent> {
                       return Text(loc.copy_recovery_phrase);
                     },
                     child: FButton.icon(
+                      semanticsTooltip: loc.copy_recovery_phrase,
                       onPress: () => copyToClipboard(
                         _seedWords.join(" "),
                         ref,

@@ -169,6 +169,8 @@
   "cache_directory": "Répertoire de cache",
   "wallets_directory": "Répertoire des portefeuilles",
   "balance": "Solde",
+  "show_balance": "Afficher le solde",
+  "hide_balance": "Masquer le solde",
   "send": "Envoyer",
   "receive": "Recevoir",
   "topoheight": "Topoheight",

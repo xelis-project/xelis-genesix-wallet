@@ -7,6 +7,7 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_commands_provider.dart';
 import 'package:genesix/features/wallet/presentation/transaction_review/components/signature_collection_widgets.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/widgets/components/app_card.dart';
 import 'package:genesix/shared/widgets/components/async_f_button.dart';
@@ -166,6 +167,18 @@ class _SignatureCollectionStepState
           alignment: Alignment.centerRight,
           child: AsyncFButton(
             isLoading: widget.isFinalizing,
+            onDisabledPress:
+                !_isInspecting && !_isSettlingShare && !_hasRequiredShares
+                ? () => ref
+                      .read(toastProvider.notifier)
+                      .showWarning(
+                        title: loc.minimum_signatures_required,
+                        description: loc.multisig_setup_threshold_summary(
+                          widget.request.threshold,
+                          widget.request.participants.length,
+                        ),
+                      )
+                : null,
             onPress: !_canFinalize || widget.isFinalizing ? null : _submit,
             prefix: const Icon(FLucideIcons.shieldCheck, size: 18),
             child: Text(loc.review),

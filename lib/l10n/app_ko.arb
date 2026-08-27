@@ -169,6 +169,8 @@
   "cache_directory": "캐시 디렉터리",
   "wallets_directory": "지갑 디렉토리",
   "balance": "잔액",
+  "show_balance": "잔액 표시",
+  "hide_balance": "잔액 숨기기",
   "send": "보내기",
   "receive": "수신",
   "topoheight": "토포높이",

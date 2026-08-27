@@ -169,6 +169,8 @@
   "cache_directory": "缓存目录",
   "wallets_directory": "钱包目录",
   "balance": "余额",
+  "show_balance": "显示余额",
+  "hide_balance": "隐藏余额",
   "send": "发送",
   "receive": "接收",
   "topoheight": "地形高度",

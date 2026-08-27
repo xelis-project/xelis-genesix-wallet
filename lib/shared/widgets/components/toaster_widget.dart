@@ -84,6 +84,7 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
   }
 
   void _showStandardToast(BuildContext toastCtx, ToastContent toast) {
+    final loc = ref.read(appLocalizationsProvider);
     final spec = _visualSpec(toastCtx, toast);
     final supportReference = toast.supportReference;
     final style = _standardToastStyle(
@@ -116,6 +117,8 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
         suffix: _showStandardDismiss(toast)
             ? FButton.icon(
                 variant: .ghost,
+                semanticsLabel: loc.close,
+                semanticsTooltip: loc.close,
                 onPress: entry.dismiss,
                 child: const Icon(FLucideIcons.x, size: 16),
               )
@@ -569,6 +572,7 @@ class _StructuredFailureToastCardState
                 variant: .ghost,
                 size: .sm,
                 semanticsLabel: widget.localizations.close,
+                semanticsTooltip: widget.localizations.close,
                 onPress: widget.onDismiss,
                 child: const Icon(FLucideIcons.x, size: 16),
               ),
@@ -746,6 +750,7 @@ class _XswdToastCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final colors = context.theme.colors;
     final requestSurface = spec.accent.withValues(
       alpha: colors.brightness == Brightness.light ? 0.08 : 0.14,
@@ -826,6 +831,8 @@ class _XswdToastCard extends StatelessWidget {
               FButton.icon(
                 variant: .ghost,
                 size: .sm,
+                semanticsLabel: loc.close,
+                semanticsTooltip: loc.close,
                 onPress: onDismiss,
                 child: const Icon(FLucideIcons.x, size: 16),
               ),

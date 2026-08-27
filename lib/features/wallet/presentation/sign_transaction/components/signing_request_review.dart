@@ -4,6 +4,7 @@ import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/domain/wallet_runtime_state.dart';
 import 'package:genesix/features/wallet/presentation/address_book/address_widget.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/more_colors.dart';
@@ -53,6 +54,17 @@ class SigningRequestReview extends ConsumerWidget {
         isNodeAvailable &&
         (!_isDelete || deleteConfirmed) &&
         !isSigning;
+    final disabledSignDescription = switch ((
+      participant,
+      isNodeAvailable,
+      _isDelete,
+      deleteConfirmed,
+    )) {
+      (null, _, _, _) => loc.wallet_not_multisig_participant,
+      (_, false, _, _) => nodeRequirementMessage,
+      (_, _, true, false) => loc.multisig_signing_delete_confirmation,
+      _ => null,
+    };
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -121,6 +133,14 @@ class SigningRequestReview extends ConsumerWidget {
           expand: context.isCompactLayout,
           onEdit: onEdit,
           onSign: onSign,
+          onDisabledSignPress: disabledSignDescription == null
+              ? null
+              : () => ref
+                    .read(toastProvider.notifier)
+                    .showWarning(
+                      title: loc.not_available,
+                      description: disabledSignDescription,
+                    ),
         ),
       ],
     );
@@ -606,6 +626,7 @@ class _ReviewActions extends StatelessWidget {
     required this.expand,
     required this.onEdit,
     required this.onSign,
+    required this.onDisabledSignPress,
   });
 
   final AppLocalizations loc;
@@ -614,6 +635,7 @@ class _ReviewActions extends StatelessWidget {
   final bool expand;
   final VoidCallback onEdit;
   final VoidCallback onSign;
+  final VoidCallback? onDisabledSignPress;
 
   @override
   Widget build(BuildContext context) {
@@ -625,6 +647,7 @@ class _ReviewActions extends StatelessWidget {
     final sign = AsyncFButton(
       isLoading: isSigning,
       onPress: canSign ? onSign : null,
+      onDisabledPress: onDisabledSignPress,
       prefix: const Icon(FLucideIcons.penLine, size: 18),
       child: Text(loc.sign_multisig_request_action),
     );

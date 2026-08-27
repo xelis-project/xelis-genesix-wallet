@@ -23,6 +23,7 @@ class ThemeModeSwitcher extends ConsumerWidget {
         tipBuilder: (context, controller) =>
             Text(loc.switch_theme_mode(futureAppTheme.name)),
         child: FHeaderAction(
+          semanticsTooltip: loc.switch_theme_mode(futureAppTheme.name),
           icon: AnimatedSwitcher(
             duration: Duration(milliseconds: AppDurations.animFast),
             key: ValueKey(isDarkMode),

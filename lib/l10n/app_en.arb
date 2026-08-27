@@ -140,6 +140,8 @@
   "cache_directory": "Cache directory",
   "wallets_directory": "Wallets directory",
   "balance": "Balance",
+  "show_balance": "Show balance",
+  "hide_balance": "Hide balance",
   "send": "Send",
   "receive": "Receive",
   "topoheight": "Topoheight",

@@ -169,6 +169,8 @@
   "cache_directory": "キャッシュディレクトリ",
   "wallets_directory": "財布ディレクトリ",
   "balance": "残高",
+  "show_balance": "残高を表示",
+  "hide_balance": "残高を非表示",
   "send": "送信",
   "receive": "受け取る",
   "topoheight": "トポハイト",

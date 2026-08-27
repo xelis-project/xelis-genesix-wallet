@@ -322,8 +322,20 @@ class _XswdAppInfoCard extends StatelessWidget {
                 Icon(FLucideIcons.link, size: 16, color: muted),
                 const SizedBox(width: Spaces.extraSmall),
                 Expanded(
-                  child: GestureDetector(
-                    onTap: () => onOpenUrl(app.url!),
+                  child: FTappable(
+                    semanticsTooltip: loc.open_button,
+                    onPress: () => onOpenUrl(app.url!),
+                    builder: (context, states, child) => DecoratedBox(
+                      decoration: BoxDecoration(
+                        color:
+                            states.contains(FTappableVariant.hovered) ||
+                                states.contains(FTappableVariant.pressed)
+                            ? context.theme.colors.secondary
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: child,
+                    ),
                     child: Text(
                       app.url!,
                       style: context.theme.typography.body.sm.copyWith(

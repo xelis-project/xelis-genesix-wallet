@@ -124,6 +124,7 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
               ? FTooltip(
                   tipBuilder: (context, controller) => Text(loc.save),
                   child: FButton.icon(
+                    semanticsTooltip: loc.save,
                     onPress: () {
                       _onSave(_nameController.text.trim());
                     },
@@ -134,6 +135,7 @@ class _WalletNameWidgetState extends ConsumerState<WalletNameWidget> {
                   tipBuilder: (context, controller) =>
                       Text(loc.edit_wallet_name),
                   child: FButton.icon(
+                    semanticsTooltip: loc.edit_wallet_name,
                     onPress: _onEdit,
                     child: const Icon(FLucideIcons.pencil),
                   ),

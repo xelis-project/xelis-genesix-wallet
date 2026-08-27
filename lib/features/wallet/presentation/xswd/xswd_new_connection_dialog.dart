@@ -53,6 +53,7 @@ class XswdNewConnectionDialog extends ConsumerWidget {
                       tipBuilder: (context, controller) => Text(loc.close),
                       child: FButton.icon(
                         variant: .ghost,
+                        semanticsTooltip: loc.close,
                         onPress: () => context.pop(),
                         child: const Icon(FLucideIcons.x, size: 22),
                       ),

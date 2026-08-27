@@ -44,6 +44,8 @@ class _SelectAddressDialogState extends ConsumerState<SelectAddressDialog> {
                 style: context.theme.typography.display.xl2,
               ),
               FButton.icon(
+                semanticsLabel: loc.close,
+                semanticsTooltip: loc.close,
                 onPress: () => context.pop(),
                 child: const Icon(FLucideIcons.x, size: 20),
               ),

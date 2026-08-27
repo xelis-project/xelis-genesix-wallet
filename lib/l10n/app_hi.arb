@@ -169,6 +169,8 @@
   "cache_directory": "कैश निर्देशिका",
   "wallets_directory": "वॉलेट निर्देशिका",
   "balance": "संतुलन",
+  "show_balance": "बैलेंस दिखाएँ",
+  "hide_balance": "बैलेंस छिपाएँ",
   "send": "भेजना",
   "receive": "प्राप्त करें",
   "topoheight": "टोपोहाइट",

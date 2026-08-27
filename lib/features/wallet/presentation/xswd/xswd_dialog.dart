@@ -357,6 +357,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                           tipBuilder: (context, controller) => Text(loc.close),
                           child: FButton.icon(
                             variant: .ghost,
+                            semanticsTooltip: loc.close,
                             onPress: () {
                               _stopTimer();
                               _cancelRapidFireWait();
@@ -979,6 +980,7 @@ class _XswdPermissionPayload extends StatelessWidget {
           _AssetPermissionBadge(
             asset: asset,
             assetLabel: loc.asset,
+            actionLabel: loc.more_details,
             onTap: () => onAssetTap(asset),
           ),
         ],
@@ -1233,11 +1235,13 @@ class _AssetPermissionBadge extends StatelessWidget {
   const _AssetPermissionBadge({
     required this.asset,
     required this.assetLabel,
+    required this.actionLabel,
     required this.onTap,
   });
 
   final String asset;
   final String assetLabel;
+  final String actionLabel;
   final VoidCallback onTap;
 
   @override
@@ -1246,8 +1250,20 @@ class _AssetPermissionBadge extends StatelessWidget {
         ? '${asset.substring(0, 8)}...${asset.substring(asset.length - 6)}'
         : asset;
 
-    return GestureDetector(
-      onTap: onTap,
+    return FTappable(
+      semanticsTooltip: actionLabel,
+      onPress: onTap,
+      builder: (context, states, child) => DecoratedBox(
+        decoration: BoxDecoration(
+          color:
+              states.contains(FTappableVariant.hovered) ||
+                  states.contains(FTappableVariant.pressed)
+              ? context.theme.colors.secondary
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: child,
+      ),
       child: _XswdIconBadge(
         variant: .outline,
         icon: FLucideIcons.coins,

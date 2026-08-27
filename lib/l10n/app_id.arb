@@ -169,6 +169,8 @@
   "cache_directory": "Direktori cache",
   "wallets_directory": "Direktori dompet",
   "balance": "Saldo",
+  "show_balance": "Tampilkan saldo",
+  "hide_balance": "Sembunyikan saldo",
   "send": "Kirim",
   "receive": "Terima",
   "topoheight": "Topoheight",
