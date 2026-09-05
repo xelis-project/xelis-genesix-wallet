@@ -138,7 +138,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          flutter-version: 3.47.1
           cache: true
 
       - name: Install dependencies
@@ -161,3 +161,65 @@ jobs:
 
       - name: Dart analyze
         run: dart analyze ${{ inputs.dart_analyze_args }}
+
+  xswd-web-test:
+    name: XSWD · Lossless Web review
+    needs: changes
+    if: needs.changes.outputs.dart == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@1.94.1
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.1
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate Dart contracts for the Web review test
+        run: dart run build_runner build
+
+      - name: Verify exact Web transaction integers and bounds
+        run: >-
+          flutter test --platform chrome
+          test/xswd_web_permission_review_test.dart
+
+  flutter-tests:
+    name: Flutter · VM and native contracts
+    needs: changes
+    if: needs.changes.outputs.dart == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: dtolnay/rust-toolchain@1.94.1
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.1
+          cache: true
+
+      - name: Install native build prerequisites
+        run: sudo apt-get update && sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev
+
+      - name: Resolve dependencies and generate localizations
+        run: flutter pub get
+
+      - name: Generate Dart contracts
+        run: dart run build_runner build
+
+      - name: Run Flutter tests
+        # FRB's Linux test loader needs the assets built by Flutter's hook.
+        # Do not substitute a separately compiled rust/target library.
+        env:
+          FRB_DART_LOAD_EXTERNAL_LIBRARY_NATIVE_LIB_DIR: ${{ github.workspace }}/build/native_assets/linux
+        run: flutter test

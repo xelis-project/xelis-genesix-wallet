@@ -1,0 +1,55 @@
+name: XSWD Web integration
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  xswd-web-relay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v6
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.1
+          cache: true
+      - uses: dtolnay/rust-toolchain@1.94.1
+      - name: Install Rust Web prerequisites
+        run: |
+          rustup toolchain install nightly --profile minimal
+          rustup component add rust-src --toolchain nightly
+          rustup target add wasm32-unknown-unknown --toolchain nightly
+          cargo install wasm-pack --version 0.13.1 --locked
+      - uses: browser-actions/setup-chrome@v2
+        id: chrome
+        with:
+          chrome-version: 145.0.7632.117
+          install-chromedriver: true
+          install-dependencies: true
+      - name: Resolve dependencies and generate Dart contracts
+        run: |
+          flutter pub get
+          flutter gen-l10n
+          dart run build_runner build
+      - name: Exercise real Rust/WASM relay, review and decisions
+        env:
+          CHROME_EXECUTABLE: ${{ steps.chrome.outputs.chrome-path }}
+          CHROMEDRIVER_EXECUTABLE: ${{ steps.chrome.outputs.chromedriver-path }}
+          CHROMEDRIVER_PORT: '4444'
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$CHROMEDRIVER_EXECUTABLE" --port="$CHROMEDRIVER_PORT" --allowed-ips=127.0.0.1 &
+          driver_pid=$!
+          trap 'kill "$driver_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent "http://127.0.0.1:$CHROMEDRIVER_PORT/status" | jq -e '.value.ready == true' >/dev/null; then
+              break
+            fi
+            kill -0 "$driver_pid"
+            sleep 1
+          done
+          dart --packages=.dart_tool/package_config.json tool/run_xswd_web_e2e.dart
