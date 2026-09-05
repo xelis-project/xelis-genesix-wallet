@@ -62,19 +62,15 @@ Invalidation:
 - Re-evaluate this rule if the upstream transaction proof format or ciphertext
   transcript changes.
 
-## Shared Wallet Package Transition
+## Shared Wallet Integration
 
 ### 2026-09-05 - Lossless XSWD transaction review on Web
 
 XWF 0.3 delivers an immutable typed XSWD tree with exact `BigInt` integers.
 Genesix adapts it directly to SDK 0.36 without `jsonEncode`/`jsonDecode`.
-Under XWF 0.2 the JSON string retained the digits, but Genesix's ordinary JSON
-decoder could lose numeric precision before SDK parsing. The former Web guard
-is removed with positive Chrome tests and the real Rust/WASM relayer-to-review
-test in `integration_test/xswd_web_relayer_test.dart`: exact wide integers,
-allow reaching the offline handler, reject, replacement and exact-session
-closure. This is not proof of network broadcast or immediate peer-only close
-observation. The canonical policy and evidence limits are in `docs/xswd.md`.
+Do not introduce ordinary JSON decoding between these layers: on Web it can
+round wide numeric tokens before SDK parsing. The canonical policy, regression
+tests and evidence limits are in [the XSWD policy](../../docs/xswd.md).
 
 Invalidation:
 

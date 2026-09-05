@@ -183,9 +183,10 @@ following `onDone` paths share one claim so support logging and UI presentation
 happen at most once. Expected cancellation is silent. The complete lifecycle is
 documented in [`runtime-events.md`](runtime-events.md).
 
-`WalletEffect.error` and `ToastProvider.showError` remain available for
-explicitly authored, localized validation messages while legacy producers are
-migrated. They must not receive strings obtained from caught exceptions.
+`WalletEffect.error` and `ToastProvider.showError` are reserved for explicitly
+authored validation messages, not caught failures. Their user-facing text must
+use the application localizations. They must not receive strings obtained from
+caught exceptions; use `recordAppFailure` and failure presentation for those.
 
 ## Prepared transaction broadcast outcomes
 

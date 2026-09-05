@@ -25,22 +25,28 @@ It reuses the same [`xelis_wallet`](https://github.com/xelis-project/xelis-block
 | Android | Yes | Yes |
 | Windows | Yes | Yes |
 | Linux | Yes | Yes |
-| macOS | Yes | Not in current release draft pipeline |
-| iOS | Yes | Not in current release draft pipeline |
+| macOS | Yes (Apple lock regeneration required; see below) | Not in current release draft pipeline |
+| iOS | Yes (Apple lock regeneration required; see below) | Not in current release draft pipeline |
 | Web | Yes (special build flow) | No |
 
 Download prebuilt artifacts from the [GitHub Releases page](https://github.com/xelis-project/xelis-genesix-wallet/releases).
+
+Platform support is not evidence that the current Genesix revision has passed
+release validation. See [Native release validation](#native-release-validation)
+for packaging checks and the outstanding Apple lock regeneration.
 
 ## Quick Start (Developers)
 
 ### Prerequisites
 
-- [Flutter SDK](https://docs.flutter.dev/get-started/install)
-- [Rust toolchain](https://www.rust-lang.org/tools/install)
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) 3.47 or later,
+  with Dart 3.13 or later, within the constraints in `pubspec.yaml`.
+- [Rustup](https://www.rust-lang.org/tools/install) to install the Rust
+  toolchain selected by the resolved wallet package (Rust 1.94.1 for XWF 0.3).
 
 The Rust toolchain is used by the `xelis_wallet_flutter` dependency when it
-builds the native XELIS wallet library. Genesix itself no longer contains a Rust
-crate or generates Flutter Rust Bridge bindings.
+builds the native XELIS wallet library through Flutter Native Assets. Rust
+sources and Flutter Rust Bridge generation belong to that package, not Genesix.
 
 Linux build dependencies vary by distro. On Ubuntu/Debian, common packages include:
 
@@ -120,6 +126,20 @@ flutter build <platform>
 ```
 
 Examples: `flutter build windows`, `flutter build linux`, `flutter build apk`.
+
+### Native release validation
+
+Before distributing a native build, validate the target's actual Genesix release
+artifact, including its packaged wallet library. Dependency resolution and XWF's
+own consumer checks do not prove Genesix packaging; this also applies to Linux
+and Apple targets.
+
+The iOS and macOS `Podfile.lock` files still reference the historical
+`rust_builder` pod. On macOS, run `flutter pub get`, then `pod install` in each
+of `ios/` and `macos/`. Review the regenerated locks and confirm that
+`rust_builder` is absent before building and validating both Apple targets.
+Do not hand-edit CocoaPods checksums or add a replacement XWF pod: XWF 0.3 uses
+Native Assets. Keep this warning until both locks and Apple builds are validated.
 
 ## Optional `just` Helpers
 

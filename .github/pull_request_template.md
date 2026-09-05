@@ -22,15 +22,21 @@
 - 
 
 ## Validation
+
+Use the validation matrix in [AGENTS.md](../AGENTS.md) to select required checks
+for the changed surface. Record skipped or inapplicable checks and their reasons
+in the result summary; unchecked boxes alone do not describe validation coverage.
+
 ### Commands run
+
 - [ ] `dart analyze`
 - [ ] `dart format .`
 - [ ] `flutter test`
 - [ ] `dart run build_runner build` (required if generated Dart affected)
 - [ ] `flutter gen-l10n` (required if any ARB changed)
 - [ ] Shared package validation (required if its contract/source changed)
-- [ ] `flutter build <platform>` (required if native integration changed)
-- [ ] Consumer Web/native build (required if shared wallet integration changed)
+- [ ] Relevant native or Web consumer build (recommended for shared wallet integration; record target and command below)
+- [ ] `dart tool/validate_ai_guidelines.dart` (required for AI guideline/docs-only changes)
 
 ### Result summary
 - 

@@ -126,32 +126,25 @@ is never used as a fallback authority.
 ## Lossless Web transaction review
 
 XWF 0.3 provides an immutable typed XSWD tree with exact `BigInt` integers.
-Genesix adapts this tree directly to SDK 0.36, without JSON reparsing. Under
-XWF 0.2 the JSON string retained the digits, but ordinary JSON decoding in
-Genesix could round wide numeric values on Web before SDK conversion.
+Genesix adapts this tree directly to SDK 0.36, without JSON reparsing, so Web
+review must preserve exact numeric values above `2^53 - 1` through `u64::MAX`.
 
-The former platform guard is removed together with positive Chrome tests and
-the real relayer integration in `integration_test/xswd_web_relayer_test.dart`.
-The harness sends numeric tokens above `2^53 - 1` through a loopback WebSocket,
-Rust/WASM, the authored XWF tree, and the actual Genesix review UI. It checks
-exact amounts, gas, nonces, fees and limits through `u64::MAX`, explicit reject,
-allow reaching the real offline wallet handler, wallet replacement, explicit
-application closure, and closure of a malformed session without pending consent.
-The malformed-request controller test separately proves `Reject` before cleanup
-I/O; the browser test does not require that response to reach the relayer before
-the concurrent transport close.
+Regression coverage combines the [Chrome review tests](../test/xswd_web_permission_review_test.dart)
+with the [real relayer integration](../integration_test/xswd_web_relayer_test.dart).
+Keep the latter in validation after XWF, SDK, FRB or Flutter changes affecting
+numeric projection, review binding or lifecycle; typed DTO tests alone do not
+exercise the Rust/WASM-to-review boundary. See the [test instructions](../README.md#test).
 
-The wallets stay offline and unfunded: allow is proved by the handler's
-`NOT_ONLINE_MODE` response, not by a network broadcast. Explicit close and
-replacement cancel pending consent; this does not prove immediate observation
-of a peer-only socket close. Upstream can defer reading that close while a
-permission callback is pending. XWF bounds callback waits and closes the exact
-transport on application-requested shutdown; completion of that operation,
-not the initial click, is the transport-closed guarantee.
+The integration uses offline, unfunded wallets and covers Flutter Web JavaScript
+plus Rust/WASM in Chrome, not network broadcast, Flutter `--wasm`, or every
+browser. Malformed-session cleanup does not guarantee delivery of the rejection
+response to the relayer before transport closure.
 
-This evidence covers Flutter Web JavaScript plus Rust/WASM in Chrome, not
-Flutter `--wasm` or every browser. Re-run the real path after XWF, SDK, FRB or
-Flutter changes that affect numeric projection, review binding or lifecycle.
+Immediate peer-only socket close detection is not guaranteed: upstream can
+defer reading that close while a permission callback is pending. XWF bounds
+callback waits and closes the exact transport on application-requested shutdown;
+completion of that operation, not the initial click, is the transport-closed
+guarantee.
 
 ## Deferred work register
 
@@ -167,8 +160,11 @@ must change first; it does not assign a delivery date.
 | Explicit signers | Reject non-empty signers; avoids revealing or handling structures that can contain private-key material. | Upstream must provide a public, non-secret signer projection; Genesix needs a documented authority model. | Fixtures proving no private material reaches UI/logs plus signer-authority tests. |
 | Advanced inter-contract permissions | Reject every permission except `NoInterContractPermission`; avoids opaque `all`, `specific`, or `exclude` authority. | SDK must expose semantics sufficient for review; Genesix needs a contract/target scope UI. | Exhaustive variant tests, semantic rendering tests, and a security review. |
 | Persistent non-standard authorization | Normalize stored `Accept` to `Ask` and deny prefetch for dedicated-review, unsupported, and unknown methods; avoids durable or silent approval without matching review semantics. | Intentional product/security decision, new threat model, revocation and migration design. | Explicitly approved security design and regression tests; this is not a routine TODO. |
-| Full Forui modernization | Keep the XSWD surface transitional; avoids broad UI churn during a contract/security migration. | Genesix UX workstream, independent of XSWD contract support. | Separate UX plan, accessibility checks, and platform visual QA. |
-| Apple/Linux native release validation | Do not claim release support merely from dependency resolution; avoids unverified native packaging. | Platform CI/runners and XWF Native Assets tooling. | Successful release builds; Apple Pod locks regenerated on macOS without the historical `rust_builder` pod. XWF uses Native Assets and does not require a replacement XWF pod. |
+| Full Forui modernization | Keep the XSWD surface transitional; preserve permission and review behaviour when changing UI components. | Genesix UX workstream, independent of XSWD contract support. | Separate UX plan, accessibility checks, and platform visual QA. |
+
+Native packaging and Apple lock regeneration are tracked in the
+[native release validation instructions](../README.md#native-release-validation),
+not as deferred XSWD capabilities.
 
 ## Maintenance
 

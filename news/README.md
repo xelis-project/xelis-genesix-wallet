@@ -50,8 +50,10 @@ Allowed severities are:
 info warning critical
 ```
 
-Critical news must define `expiresAt`; it cannot be dismissed in the app and
-will disappear only after expiration.
+Critical news must define `expiresAt` and cannot be dismissed by the user.
+It remains subject to feed membership, targeting, expiration, offline-mode
+visibility, and the home card's three-item limit; critical severity does not
+guarantee continuous display until expiration.
 
 ## Item identity and revisions
 

@@ -84,8 +84,9 @@ Status labels:
   containing an unsigned transaction, its network, and review metadata. Rust
   reparses the transaction, recomputes its multisig hash, verifies public fields,
   and resolves the latest active participant configuration from the connected
-  node before signing. Confidential transfer amounts remain source-attested because
-  they cannot be independently derived from the public transaction payload.
+  node before signing. Each confidential transfer amount is verified with a
+  canonical `BalanceProof` binding it to the exact sender ciphertext and source
+  public key; source attestation alone is not sufficient for amount review.
   Sources: [flow and security model](../../docs/multisig-signing.md),
   [Dart adapter](../../lib/features/wallet/data/native_wallet_repository.dart).
   The canonical wire contract and Rust verification live in the
