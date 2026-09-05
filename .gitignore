@@ -67,3 +67,6 @@ precomputed_tables_26.bin
 
 # Web wallet wasm
 web/pkg
+
+# Local review reports (not project documentation)
+/.local/audits/

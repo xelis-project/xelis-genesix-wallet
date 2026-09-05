@@ -12,7 +12,7 @@ Use this skill before changing Flutter application code.
 1. Read relevant local files and neighboring patterns.
 2. Identify the affected state, provider, routing, repository, model, serializer, and widget boundaries.
 3. Check `pubspec.yaml` before using third-party package APIs.
-4. Identify whether annotations require `dart run build_runner build -d`.
+4. Identify whether annotations require `dart run build_runner build`.
 5. Reuse patterns aligned with the target architecture; treat nearby legacy providers or Material-era code as behavior evidence, not automatic precedent.
 6. Keep widgets presentation-focused; move business decisions out of UI.
 
@@ -25,4 +25,4 @@ Use this skill before changing Flutter application code.
 
 ## Validation
 
-Run checks from `AGENTS.md` based on the changed surface. Use `dart run build_runner build -d` before `dart analyze` when generator annotations changed.
+Run checks from `AGENTS.md` based on the changed surface. Use `dart run build_runner build` before `dart analyze` when generator annotations changed.

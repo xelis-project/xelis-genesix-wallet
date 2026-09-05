@@ -60,7 +60,7 @@ cd xelis-genesix-wallet
 
 ```bash
 flutter pub get
-dart run build_runner build -d
+dart run build_runner build
 ```
 
 ### Run
@@ -68,6 +68,50 @@ dart run build_runner build -d
 ```bash
 flutter run
 ```
+
+### Test
+
+```bash
+flutter test
+flutter test --platform chrome test/xswd_web_permission_review_test.dart
+```
+
+On Linux, point FRB's host-test loader at the native assets built by Flutter:
+
+```bash
+FRB_DART_LOAD_EXTERNAL_LIBRARY_NATIVE_LIB_DIR="$PWD/build/native_assets/linux" flutter test
+```
+
+This uses the default build directory and requires no separate Cargo build.
+The override is for Linux host tests only, not application packaging or Web.
+
+The dedicated Chrome test verifies exact XSWD transaction amounts, gas, fees,
+nonces and limits above JavaScript's safe integer range, plus fail-closed bounds.
+With Flutter 3.47.1, run that short browser suite on Linux CI: the Windows test
+host fails to serve CanvasKit because its path check mixes native separators
+and URL slashes. The real `flutter drive` harness below passes on Windows and
+does not require a Flutter SDK patch or relaxed browser isolation.
+
+The real relayer integration harness is separate from the default unit suite:
+
+```bash
+# Start a ChromeDriver matching the installed Chrome (loopback connections only).
+chromedriver --port=4444 --allowed-ips=127.0.0.1
+# In another terminal, after resolving dependencies and generating Dart sources:
+dart --packages=.dart_tool/package_config.json tool/run_xswd_web_e2e.dart
+```
+
+Set `CHROMEDRIVER_PORT` if the driver uses another port and `CHROME_EXECUTABLE`
+to select a matching browser binary. The harness builds the
+resolved XWF package's Rust/WASM bundle into `web/pkg`, then runs the official
+Flutter Web integration driver with COOP/COEP isolation headers. It requires
+the same Rust nightly and `wasm-pack` setup as a Web build. Two ephemeral wallets
+remain offline and never receive funds; a loopback relayer exercises real typed
+requests and Genesix decisions, including reject, allow reaching the offline
+handler, session replacement, explicit close and malformed-session cleanup.
+It does not broadcast or prove immediate peer-only close detection. The driver
+is started and stopped by the caller, not by this script. The manual **XSWD Web
+integration** workflow reproduces this path from the resolved dependency.
 
 ### Build
 
@@ -99,6 +143,7 @@ development and is intentionally ignored by Git.
 - Multisig request and cosigning flow: [`docs/multisig-signing.md`](docs/multisig-signing.md)
 - Error, logging, localization, and support-reference flow: [`docs/error-handling.md`](docs/error-handling.md)
 - Typed wallet runtime and business-event lifecycles: [`docs/runtime-events.md`](docs/runtime-events.md)
+- XSWD support, security policy, and deferred-work register: [`docs/xswd.md`](docs/xswd.md)
 
 ## Security Notes
 

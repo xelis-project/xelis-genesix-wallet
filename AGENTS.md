@@ -32,6 +32,10 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 - Typed wallet event ownership, connection rotation, lag reconciliation, and
   stream termination policy live in `docs/runtime-events.md`. Read it before
   changing wallet runtime events or connection lifecycle behavior.
+- XSWD platform support, permission review, Web restrictions, and deferred
+  capability policy live in `docs/xswd.md`. Read it before changing XSWD
+  callbacks, permission policy, review UI, relayer handling, or its package
+  contract.
 - Generated files must be regenerated, not patched manually:
   - `**/*.g.dart`
   - `**/*.freezed.dart`
@@ -71,7 +75,7 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 - Preserve authored Rust `u64` values as `BigInt`. Standard transfer and burn
   amounts and fees stay atomic `BigInt` values from input parsing through
   preparation, review, and presentation; fee multipliers use integer basis
-  points. Never pass a `BigInt` directly to the pinned `intl 0.20.2` `NumberFormat`,
+  points. Never pass a `BigInt` directly to the pinned `intl 0.20.3` `NumberFormat`,
   which throws at runtime, and never convert values beyond JavaScript's safe
   integer range to `int`. Use `parseAtomicAmount` for decimal input and the
   shared `formatBigInt` helper for localized UI grouping, and revalidate this
@@ -143,6 +147,13 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 - Verify the resolved package source and version before relying on its API.
 - Preserve native/Web constraints and authored `XelisWalletException`
   metadata across repository and provider boundaries.
+- Bind XSWD permission changes, cancellation, and connection closure to the
+  package-owned opaque session reference and the originating wallet. An
+  application ID is metadata, never session authority: local and relayed
+  connections may share it. Resolve the current authored application for that
+  exact session before acting; never fall back to an ID match. Navigation may
+  carry the opaque reference in memory, but route serialization must discard
+  its authority and restore only a detached, non-operable reference.
 - Standard transfer and burn flows must retain the exact authored
   `XelisWalletPreparedTransaction` instance from preparation through review.
   After authentication, require the same prepared object, the same hash, and
@@ -200,7 +211,7 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 | --- | --- | --- | --- |
 | Dart/Flutter UI, state, repository, routing without generated output impact | Affected files and package versions if external APIs are involved; for Forui API questions, refreshed local Forui docs when network is available | `dart analyze` | `dart format .` |
 | Localization ARB changes | Every `lib/l10n/*.arb` file for key parity and generated localization output impact | `flutter gen-l10n`, `dart analyze` | A focused key-parity check across all ARB files |
-| Riverpod generators, Freezed models, JSON/build_runner annotations | Affected annotations, generated output impact, package versions | `dart run build_runner build -d`, `dart analyze` | `dart format .` |
+| Riverpod generators, Freezed models, JSON/build_runner annotations | Affected annotations, generated output impact, package versions | `dart run build_runner build`, `dart analyze` | `dart format .` |
 | Shared wallet consumer integration | Resolved `xelis_wallet_flutter` contract and affected Dart call sites | `dart analyze`, `flutter test` | A relevant native or Web consumer build |
 | Cross-repository shared wallet contract change | Package `AGENTS.md`, Rust/API surface, generated bridge impact, and Genesix call sites | Package generation/checks/tests, then Genesix `dart analyze` and `flutter test` | Native and Web consumer builds |
 | Dependency version changes | Manifests, impacted docs, affected call sites; for Forui changes, run `dart run tool/sync_forui_docs.dart` and keep `.agents/references/forui/**` uncommitted | Relevant analyze/check/build command for impacted area | Formatting commands |

@@ -53,6 +53,10 @@ Every connect or reconnect uses this order:
 6. hydrate authoritative wallet state and confirm native online status.
 
 The subscription starts before `setOnline`, so no early native event is lost.
+Genesix uses XWF's application-managed reconnection default. Its retry policy
+must not be combined with `upstreamManagedExperimental`; adopting that option
+requires a separate application lifecycle change. XWF's connection deadline
+does not authorize abandoning an in-progress native shutdown.
 An `Online` event received before `setOnline` succeeds is not allowed to mark
 Genesix connected; the post-call online check completes that transition.
 
@@ -91,7 +95,7 @@ automatic-retry intents remain blocked until a newer session is installed.
 | `XelisWalletBusinessEventStreamClosed` | Preserve its XWF reference once and degrade business notifications without marking the connection failed. |
 
 Lossless runtime and business integers displayed in the UI must use the shared
-`formatBigInt` helper. The pinned `intl 0.20.2` `NumberFormat` throws when
+`formatBigInt` helper. The pinned `intl 0.20.3` `NumberFormat` throws when
 given a `BigInt` directly, while converting values beyond JavaScript's safe
 integer range to `int` would make the Web representation lossy. Revalidate
 this constraint when `intl` is upgraded.

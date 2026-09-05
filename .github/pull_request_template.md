@@ -26,7 +26,7 @@
 - [ ] `dart analyze`
 - [ ] `dart format .`
 - [ ] `flutter test`
-- [ ] `dart run build_runner build -d` (required if generated Dart affected)
+- [ ] `dart run build_runner build` (required if generated Dart affected)
 - [ ] `flutter gen-l10n` (required if any ARB changed)
 - [ ] Shared package validation (required if its contract/source changed)
 - [ ] `flutter build <platform>` (required if native integration changed)

@@ -23,7 +23,7 @@ Use this skill to validate the relevant changed surface and determine whether th
 
 - Dart analysis: `dart analyze`
 - Flutter tests: `flutter test`
-- Dart generators: `dart run build_runner build -d`
+- Dart generators: `dart run build_runner build`
 - Flutter/Dart formatting when appropriate: `dart format .`
 - Shared wallet contract changes: run generation, Rust checks, analysis, and
   tests from the `xelis-wallet-flutter` repository before Genesix checks

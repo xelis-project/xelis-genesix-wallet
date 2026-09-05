@@ -64,20 +64,23 @@ Invalidation:
 
 ## Shared Wallet Package Transition
 
-### 2026-08-06 - Lossless XSWD transaction review on Web
+### 2026-09-05 - Lossless XSWD transaction review on Web
 
-`xelis_dart_sdk 0.35.1` models XSWD transaction amounts, explicit fees, and
-nonces as Dart `int`. Native targets preserve the full integer range, but the
-JavaScript Web target cannot safely review values beyond `2^53 - 1`. Genesix
-therefore rejects `build_transaction` permission requests on Web before they
-reach the approval UI. Do not relax this fail-closed boundary or reconstruct
-authority from rounded values.
+XWF 0.3 delivers an immutable typed XSWD tree with exact `BigInt` integers.
+Genesix adapts it directly to SDK 0.36 without `jsonEncode`/`jsonDecode`.
+Under XWF 0.2 the JSON string retained the digits, but Genesix's ordinary JSON
+decoder could lose numeric precision before SDK parsing. The former Web guard
+is removed with positive Chrome tests and the real Rust/WASM relayer-to-review
+test in `integration_test/xswd_web_relayer_test.dart`: exact wide integers,
+allow reaching the offline handler, reject, replacement and exact-session
+closure. This is not proof of network broadcast or immediate peer-only close
+observation. The canonical policy and evidence limits are in `docs/xswd.md`.
 
 Invalidation:
 
-- Remove this restriction only after the authored `xelis_wallet_flutter`
-  contract exposes a lossless typed XSWD transaction projection using
-  `BigInt`, and validate the complete Web approval flow above `2^53`.
+- Revalidate this path when XWF, SDK, FRB or Flutter changes affect projection,
+  review binding or lifecycle. Typed DTO tests alone cannot replace the real
+  browser integration; the proof targets Flutter JavaScript plus Rust/WASM.
 
 ### 2026-08-03 - Integrated destination identity and disclosure
 
@@ -126,8 +129,11 @@ wallet code, generated bindings, and native build tooling are owned by
 
 The existing iOS and macOS `Podfile.lock` files still contain the historical
 `rust_builder` pod. Do not hand-edit CocoaPods checksums. Regenerate both locks
-with `pod install` on macOS after `flutter pub get`, then verify that they contain
-`xelis_wallet_flutter` and no `rust_builder` before the next Apple distribution.
+with `pod install` on macOS after `flutter pub get`, then verify that they no
+longer contain `rust_builder` before the next Apple distribution. XWF 0.3 uses
+Native Assets, not a CocoaPods FFI plugin: do not require an
+`xelis_wallet_flutter` pod or add one manually. Verify its native library in a
+real Apple consumer build instead.
 
 Invalidation:
 

@@ -254,10 +254,10 @@ never be silently conflated.
 ## Session and authentication lifecycle
 
 Create, seed recovery, private-key recovery, open, address read, seed read,
-password verification, close, and dispose use the authored wallet handle. The
-generated wallet delegate remains private to `NativeWalletRepository` only for
-feature groups that have not yet migrated; it must never be used to close or
-dispose the wallet or recreate the removed JSON business-event stream.
+password verification, close, and dispose use the authored wallet handle.
+`NativeWalletRepository` consumes only the package-root authored API; generated
+delegates remain private to XWF and are never imported by Genesix. The removed
+JSON business-event stream must not be recreated.
 
 Session replacement always follows this order:
 
@@ -286,18 +286,24 @@ presentation flows do not catch and re-record a native failure. Background
 state reads use the same rule and return an empty projection after emitting the
 structured failure, so widgets never interpolate caught exception text.
 
-Permission and prefetch request JSON remains an opaque, potentially sensitive
-RPC payload interpreted by Genesix and `xelis-dart-sdk`. Complete QR, paste,
+Permission and prefetch requests use XWF's immutable `XelisXswdValue` tree.
+Genesix adapts it to the SDK without JSON reparsing, keeping integers as
+`BigInt` and narrowing only explicitly bounded SDK fields. The original RPC
+correlation ID and execution remain owned by XWF. Complete QR, paste,
 deep-link, request, and encryption-key payloads never enter standard logs,
 support references, analytics, crash reports, or toasts. Callback failures and
-timeouts fail closed at the package boundary and do not cross into Rust or
-native diagnostics.
+timeouts fail closed with static package errors; arbitrary Dart exception
+messages never cross into Rust or native diagnostics.
 
 `build_transaction` is accepted only after a complete structured review and
-only for the current request. Transaction and signing methods without a
-dedicated lossless review are rejected. They cannot be prefetched, persisted as
-`Accept`, or restored as a durable authorization; stored legacy `Accept`
-policies for those methods are normalized to `Ask` before XSWD activation.
+only for the current request. One exhaustive method policy controls review,
+prefetch, persistence and permission editing. Proofs, decryptions, wallet
+control and other transaction/signing methods without a dedicated review are
+rejected. Unknown and non-persistable stored `Accept` policies become `Ask`
+before XSWD activation and when edited. Persistable wallet reads and isolated
+application storage remain available with explicit impact and persistence copy.
+The canonical XSWD support matrix, Web validation boundary, and deferred-work register
+are in [`xswd.md`](xswd.md).
 
 Wallet names are validated as portable path leaves and resolved below the
 selected network directory before filesystem or web-storage access. Invalid

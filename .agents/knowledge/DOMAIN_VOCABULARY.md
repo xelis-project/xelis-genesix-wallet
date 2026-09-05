@@ -32,6 +32,14 @@ Status labels:
   and feature support from the package contract and local source. Sources:
   [Dart lifecycle](../../lib/features/wallet/application/xswd_lifecycle_provider.dart),
   [native adapter](../../lib/features/wallet/data/native_wallet_repository.dart).
+- **XSWD session reference / application ID** (`current`): a session reference
+  is the package-owned opaque identity of one native XSWD application session
+  within its originating wallet. An application ID is declared metadata and may be shared
+  by distinct local or relayed connections. It cannot replace the session
+  reference for permission changes, cancellation, or closure. Reconstructed
+  references and restored navigation data carry no live authority. Source:
+  [XSWD policy](../../docs/xswd.md). Revisit when the package's session contract
+  changes.
 - **Network / node / daemon** (`current`): network selects the XELIS chain
   environment; node is the configured name and URL; daemon is the service at
   that URL. Do not use the three terms interchangeably. Sources:
