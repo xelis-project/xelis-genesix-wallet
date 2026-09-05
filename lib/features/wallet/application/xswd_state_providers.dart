@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
@@ -8,6 +7,7 @@ import 'package:genesix/features/wallet/domain/permission_rpc_request.dart';
 import 'package:genesix/features/wallet/domain/prefetch_permissions_rpc_request.dart';
 import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
 import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
+import 'package:genesix/features/wallet/domain/xswd_payload.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_effect_bus_provider.dart';
 import 'package:genesix/features/wallet/domain/wallet_effect.dart';
@@ -56,12 +56,11 @@ class XswdRequest extends _$XswdRequest {
     final decisionCompleter = Completer<XelisXswdDecision>();
 
     if (xswdEventSummary.isPermissionRequest) {
-      final jsonString = xswdEventSummary.payloadJson;
-      if (jsonString == null) {
-        throw Exception('Permission request JSON is null');
+      final data = decodeXswdPayload(xswdEventSummary.payload);
+      if (data['jsonrpc'] != '2.0') {
+        throw const FormatException('Invalid XSWD JSON-RPC version.');
       }
-
-      final data = jsonDecode(jsonString) as Map<String, dynamic>;
+      normalizeXswdBuildTransactionFields(data);
 
       final permissionRequest = PermissionRpcRequest.fromJson(data);
       final permissionReview = XswdPermissionReview.parse(permissionRequest);
@@ -75,12 +74,7 @@ class XswdRequest extends _$XswdRequest {
         prefetchPermissionsRequest: null,
       );
     } else if (xswdEventSummary.isPrefetchPermissionsRequest) {
-      final jsonString = xswdEventSummary.payloadJson;
-      if (jsonString == null) {
-        throw Exception('Prefetch permissions request JSON is null');
-      }
-
-      final data = jsonDecode(jsonString) as Map<String, dynamic>;
+      final data = decodeXswdPayload(xswdEventSummary.payload);
 
       final prefetchRequest = PrefetchPermissionsRequest.fromJson(data);
       resolveXswdPrefetchPermissions(prefetchRequest);

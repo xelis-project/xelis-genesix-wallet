@@ -147,6 +147,8 @@ Future<_ReviewHarness> _pumpReview(
   final container = ProviderContainer(
     overrides: [appLocalizationsProvider.overrideWithValue(loc)],
   );
+  final toastSubscription = container.listen(toastProvider, (_, _) {});
+  addTearDown(toastSubscription.close);
   addTearDown(container.dispose);
   final theme = greenDark(touch: false);
 

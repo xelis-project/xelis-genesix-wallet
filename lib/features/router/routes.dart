@@ -31,6 +31,7 @@ import 'package:go_router/go_router.dart';
 import 'package:genesix/features/authentication/presentation/open_wallet_screen.dart';
 import 'package:genesix/features/settings/presentation/light_settings_screen.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 part 'routes.g.dart';
 
@@ -366,12 +367,12 @@ class XswdQRScannerRoute extends GoRouteData with $XswdQRScannerRoute {
 class XswdAppDetailRoute extends GoRouteData with $XswdAppDetailRoute {
   const XswdAppDetailRoute({required this.$extra});
 
-  final String $extra;
+  final XelisXswdSessionReference $extra;
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return pageTransition(
-      XswdAppDetail(appId: $extra),
+      XswdAppDetail(sessionReference: $extra),
       state.pageKey,
       state.fullPath,
       state.extra,

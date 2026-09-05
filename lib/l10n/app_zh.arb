@@ -1,4 +1,9 @@
 {
+  "xswd_permission_unsupported_impact": "Genesix 无法审查此操作。即使设置为询问，请求也会被拒绝。",
+  "xswd_permission_public_impact": "访问公开信息、费用估算和验证工具。",
+  "xswd_permission_wallet_data_impact": "读取此权限涵盖的钱包数据。",
+  "xswd_permission_app_storage_impact": "读取和更新为此应用保留的存储空间。",
+  "xswd_permission_persistent_impact": "允许今后对此权限的请求，无需再次确认。",
   "@multisig_setup_participant_count": {
     "placeholders": {
       "count": {"type": "int"}
@@ -23,7 +28,7 @@
     }
   },
   "@xswd_fee_atomic_units": {
-    "placeholders": {"amount": {"type": "int"}}
+    "placeholders": {"amount": {"type": "String"}}
   },
   "@xswd_fee_multiplier": {
     "placeholders": {"multiplier": {"type": "double"}}
@@ -447,6 +452,7 @@
   "xswd_transaction_version": "交易版本",
   "xswd_response_as_hex": "十六进制响应",
   "xswd_fee_automatic": "自动计算",
+  "xswd_base_fee": "基础费用",
   "xswd_fee_atomic_units": "{amount} 个原子单位",
   "xswd_fee_multiplier": "基础手续费的 {multiplier} 倍",
   "xswd_relayer_channel_title": "XSWD Relayer",

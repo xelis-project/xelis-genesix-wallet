@@ -1,4 +1,9 @@
 {
+  "xswd_permission_unsupported_impact": "Genesix tidak dapat meninjau operasi ini. Permintaan ditolak, termasuk saat diatur ke Tanya.",
+  "xswd_permission_public_impact": "Mengakses informasi publik, perkiraan biaya, dan alat verifikasi.",
+  "xswd_permission_wallet_data_impact": "Membaca data dompet yang dicakup oleh izin ini.",
+  "xswd_permission_app_storage_impact": "Membaca dan memperbarui penyimpanan yang disediakan untuk aplikasi ini.",
+  "xswd_permission_persistent_impact": "Mengizinkan permintaan berikutnya untuk izin ini tanpa bertanya lagi.",
   "@multisig_setup_participant_count": {
     "placeholders": {
       "count": {"type": "int"}
@@ -23,7 +28,7 @@
     }
   },
   "@xswd_fee_atomic_units": {
-    "placeholders": {"amount": {"type": "int"}}
+    "placeholders": {"amount": {"type": "String"}}
   },
   "@xswd_fee_multiplier": {
     "placeholders": {"multiplier": {"type": "double"}}
@@ -447,6 +452,7 @@
   "xswd_transaction_version": "Versi transaksi",
   "xswd_response_as_hex": "Respons heksadesimal",
   "xswd_fee_automatic": "Dihitung otomatis",
+  "xswd_base_fee": "Biaya dasar",
   "xswd_fee_atomic_units": "{amount} unit atomik",
   "xswd_fee_multiplier": "{multiplier}× biaya dasar",
   "xswd_relayer_channel_title": "XSWD Relayer",

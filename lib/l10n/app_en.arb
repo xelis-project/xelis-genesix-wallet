@@ -1,4 +1,9 @@
 {
+  "xswd_permission_unsupported_impact": "Genesix cannot review this operation. Requests are rejected, including when set to Ask.",
+  "xswd_permission_public_impact": "Access public information, fee estimates and verification tools.",
+  "xswd_permission_wallet_data_impact": "Read the wallet data covered by this permission.",
+  "xswd_permission_app_storage_impact": "Read and update storage reserved for this application.",
+  "xswd_permission_persistent_impact": "Allows future requests for this permission without asking again.",
   "node_url_hint": "https://node.xelis.io",
   "node_name_hint": "My Node",
   "node_name": "Node Name",
@@ -429,9 +434,10 @@
   "xswd_transaction_version": "Transaction version",
   "xswd_response_as_hex": "Hex response",
   "xswd_fee_automatic": "Calculated automatically",
+  "xswd_base_fee": "Base fee",
   "xswd_fee_atomic_units": "{amount} atomic units",
   "@xswd_fee_atomic_units": {
-    "placeholders": {"amount": {"type": "int"}}
+    "placeholders": {"amount": {"type": "String"}}
   },
   "xswd_fee_multiplier": "{multiplier}× base fee",
   "@xswd_fee_multiplier": {

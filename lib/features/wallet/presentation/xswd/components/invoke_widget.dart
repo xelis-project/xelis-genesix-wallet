@@ -1,10 +1,10 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/transaction_builder_mixin.dart';
+import 'package:genesix/features/wallet/presentation/xswd/components/xswd_full_value_view.dart';
+import 'package:genesix/features/wallet/presentation/xswd/components/xswd_value_presentation.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
@@ -23,15 +23,13 @@ class InvokeWidget extends ConsumerStatefulWidget {
     this.entryId,
     this.deposits,
     this.parameters,
-    this.parsedParameters,
     super.key,
   });
 
-  final int maxGas;
+  final BigInt maxGas;
   final int? entryId;
   final Map<String, sdk.ContractDepositBuilder>? deposits;
-  final List<dynamic>? parameters;
-  final List<sdk.ParsedValue>? parsedParameters;
+  final List<sdk.RpcValueCell>? parameters;
 
   @override
   ConsumerState<InvokeWidget> createState() => _InvokeState();
@@ -39,6 +37,8 @@ class InvokeWidget extends ConsumerStatefulWidget {
 
 class _InvokeState extends ConsumerState<InvokeWidget>
     with TransactionBuilderMixin {
+  static const _visibleParameterLimit = 24;
+
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
@@ -55,7 +55,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
         buildLabeledText(
           context,
           loc.max_gas,
-          formatXelis(widget.maxGas, network),
+          formatBigInt(widget.maxGas, locale: loc.localeName),
         ),
         if (widget.entryId != null) ...[
           buildLabeledText(context, loc.entry_id, widget.entryId.toString()),
@@ -80,11 +80,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
             ),
           ),
           const SizedBox(height: Spaces.extraSmall),
-          _buildParametersList(
-            loc,
-            widget.parameters!,
-            widget.parsedParameters!,
-          ),
+          _buildParametersList(loc, widget.parameters!),
         ],
       ],
     );
@@ -102,7 +98,7 @@ class _InvokeState extends ConsumerState<InvokeWidget>
       children: deposits.entries.map((entry) {
         String ticker;
         String amount;
-        String fullAssetHash = entry.key;
+        final fullAssetHash = entry.key;
 
         // Get asset data - check known assets first (includes native asset with correct ticker)
         if (knownAssets.containsKey(entry.key)) {
@@ -114,10 +110,8 @@ class _InvokeState extends ConsumerState<InvokeWidget>
             assetData.ticker,
           );
         } else {
-          // Unknown asset - use hash prefix as ticker
-          ticker = entry.key.length <= 8
-              ? entry.key
-              : entry.key.substring(0, 8);
+          // Keep an unknown asset unambiguous while bounding the chip width.
+          ticker = xswdAbbreviateIdentifier(entry.key);
           amount = entry.value.amount.toString();
         }
 
@@ -125,8 +119,11 @@ class _InvokeState extends ConsumerState<InvokeWidget>
         final tickerPattern = RegExp('\\s+${RegExp.escape(ticker)}\$');
         amount = amount.replaceAll(tickerPattern, '');
 
+        final assetLabel = knownAssets.containsKey(entry.key)
+            ? ticker
+            : '$ticker (${loc.unknown_asset})';
         final displayText =
-            '${amount.trim()} $ticker${entry.value.private ? ' (${loc.private})' : ''}';
+            '${amount.trim()} $assetLabel${entry.value.private ? ' (${loc.private})' : ''}';
 
         return FTappable(
           semanticsTooltip: loc.more_details,
@@ -223,283 +220,293 @@ class _InvokeState extends ConsumerState<InvokeWidget>
 
   Widget _buildParametersList(
     AppLocalizations loc,
-    List<dynamic> data,
-    List<sdk.ParsedValue> parsedParameters,
+    List<sdk.RpcValueCell> parameters,
   ) {
+    final visibleCount = parameters.length.clamp(0, _visibleParameterLimit);
     return Wrap(
       spacing: Spaces.small,
       runSpacing: Spaces.small,
-      children: data.asMap().entries.map((entry) {
-        final index = entry.key;
-        final param = entry.value;
-
-        final parsed = parsedParameters[index];
-
-        // Format for display
-        final formatted = _formatParsedValue(loc, parsed);
-        final isTruncated = _isTruncatedValue(parsed);
-
-        return FTappable(
-          semanticsTooltip: loc.more_details,
-          onPress: () => _showParameterDetails(context, index, param, parsed),
-          builder: (context, states, child) => DecoratedBox(
-            decoration: BoxDecoration(
-              color:
-                  states.contains(FTappableVariant.hovered) ||
-                      states.contains(FTappableVariant.pressed)
-                  ? context.theme.colors.secondary
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(8),
+      children: [
+        for (var index = 0; index < visibleCount; index++)
+          _buildParameterChip(loc, index, parameters[index]),
+        if (parameters.length > visibleCount)
+          FButton(
+            key: const ValueKey('xswd-all-parameters'),
+            onPress: () => _showAllParameters(context, loc, parameters),
+            child: Text(
+              '${loc.more_details} '
+              '(${loc.item_count(parameters.length - visibleCount)})',
             ),
-            child: child,
           ),
-          child: Chip(
-            label: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Column(
+      ],
+    );
+  }
+
+  Widget _buildParameterChip(
+    AppLocalizations loc,
+    int index,
+    sdk.RpcValueCell parameter,
+  ) {
+    final preview = xswdRpcValuePreview(loc, parameter);
+    return FTappable(
+      semanticsTooltip: loc.more_details,
+      onPress: () => _showParameterDetails(context, index, parameter),
+      builder: (context, states, child) => DecoratedBox(
+        decoration: BoxDecoration(
+          color:
+              states.contains(FTappableVariant.hovered) ||
+                  states.contains(FTappableVariant.pressed)
+              ? context.theme.colors.secondary
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: child,
+      ),
+      child: Chip(
+        key: ValueKey('xswd-parameter-$index'),
+        label: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 240),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      _getTypeDisplay(parsed),
+                      preview.type,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: context.bodySmall?.copyWith(
                         color: context.theme.colors.mutedForeground,
                         fontSize: 11,
                       ),
                     ),
-                    Text(formatted, style: context.bodySmall),
+                    Text(
+                      preview.text,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.bodySmall,
+                    ),
                   ],
                 ),
-                if (isTruncated) ...[
-                  const SizedBox(width: Spaces.extraSmall),
-                  Icon(
-                    FLucideIcons.info,
-                    size: 14,
-                    color: context.theme.colors.mutedForeground,
-                  ),
-                ],
-              ],
-            ),
-            avatar: const Icon(FLucideIcons.squareCode, size: 16),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  String _formatParsedValue(AppLocalizations loc, sdk.ParsedValue parsed) {
-    // Handle option
-    if (parsed is sdk.ParsedOption) {
-      if (parsed.isNone) return 'None';
-      return 'Some(${_formatParsedValue(loc, parsed.unwrap())})';
-    }
-
-    // Handle array
-    if (parsed is sdk.ParsedArray) {
-      if (parsed.length == 0) return '[]';
-      if (parsed.length <= 3) {
-        final items = parsed.items
-            .map((item) => _formatParsedValue(loc, item))
-            .join(', ');
-        return '[$items]';
-      }
-      return '[${loc.item_count(parsed.length)}]';
-    }
-
-    // Handle map
-    if (parsed is sdk.ParsedMap) {
-      if (parsed.length == 0) return '{}';
-      if (parsed.length == 1) {
-        final entry = parsed.entries.entries.first;
-        return '{${_formatValue(loc, entry.key)}: ${_formatValue(loc, entry.value)}}';
-      }
-      return '{${loc.entry_count(parsed.length)}}';
-    }
-
-    // Handle primitives
-    if (parsed is sdk.ParsedPrimitive) {
-      final value = parsed.value;
-
-      if (parsed.isString) {
-        final str = value.toString();
-        if (str.length > 30) {
-          return '"${str.substring(0, 30)}..."';
-        }
-        return '"$str"';
-      }
-
-      if (parsed.isHash || parsed.isAddress) {
-        final str = value.toString();
-        if (str.length > 16) {
-          return '${str.substring(0, 8)}...${str.substring(str.length - 6)}';
-        }
-        return str;
-      }
-
-      if (parsed.type == 'u128' || parsed.type == 'u256') {
-        final str = value.toString();
-        if (str.length > 20) {
-          return '${str.substring(0, 20)}...';
-        }
-        return str;
-      }
-
-      return value.toString();
-    }
-
-    return parsed.value.toString();
-  }
-
-  String _formatValue(AppLocalizations loc, dynamic value) {
-    if (value is sdk.ParsedValue) {
-      return _formatParsedValue(loc, value);
-    }
-    return value.toString();
-  }
-
-  bool _isTruncatedValue(sdk.ParsedValue parsed) {
-    // Handle option
-    if (parsed is sdk.ParsedOption) {
-      if (parsed.isNone) return false;
-      return _isTruncatedValue(parsed.unwrap());
-    }
-
-    // Handle array
-    if (parsed is sdk.ParsedArray) {
-      return parsed.length > 3;
-    }
-
-    // Handle map
-    if (parsed is sdk.ParsedMap) {
-      return parsed.length > 1;
-    }
-
-    // Handle primitives
-    if (parsed is sdk.ParsedPrimitive) {
-      final value = parsed.value;
-
-      if (parsed.isString) {
-        return value.toString().length > 30;
-      }
-
-      if (parsed.isHash || parsed.isAddress) {
-        return value.toString().length > 16;
-      }
-
-      if (parsed.type == 'u128' || parsed.type == 'u256') {
-        return value.toString().length > 20;
-      }
-    }
-
-    return false;
-  }
-
-  void _showParameterDetails(
-    BuildContext context,
-    int index,
-    dynamic param,
-    sdk.ParsedValue parsed,
-  ) {
-    final loc = ref.read(appLocalizationsProvider);
-    const encoder = JsonEncoder.withIndent('  ');
-    final jsonString = encoder.convert(param);
-
-    showAppDialog<void>(
-      context: context,
-      builder: (context, style, animation) => AppDialog(
-        style: style,
-        animation: animation,
-        direction: Axis.horizontal,
-        title: Row(
-          children: [
-            const Icon(FLucideIcons.squareCode),
-            const SizedBox(width: Spaces.small),
-            Text(loc.parameter_number(index + 1)),
-          ],
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildDetailRow(loc.type, _getTypeDisplay(parsed)),
-              const SizedBox(height: Spaces.small),
-              _buildDetailRow(loc.value, _getFullValueDisplay(parsed)),
-              const SizedBox(height: Spaces.medium),
-              Text(
-                loc.raw_json,
-                style: context.bodySmall?.copyWith(
-                  fontWeight: FontWeight.bold,
+              ),
+              if (preview.isTruncated) ...[
+                const SizedBox(width: Spaces.extraSmall),
+                Icon(
+                  FLucideIcons.info,
+                  size: 14,
                   color: context.theme.colors.mutedForeground,
                 ),
-              ),
-              const SizedBox(height: Spaces.extraSmall),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(Spaces.small),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(Spaces.small),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.1),
-                  ),
-                ),
-                child: SelectableText(
-                  jsonString,
-                  style: context.bodySmall?.copyWith(fontFamily: 'monospace'),
-                ),
-              ),
+              ],
             ],
           ),
         ),
+        avatar: const Icon(FLucideIcons.squareCode, size: 16),
+      ),
+    );
+  }
+
+  void _showAllParameters(
+    BuildContext context,
+    AppLocalizations loc,
+    List<sdk.RpcValueCell> parameters,
+  ) {
+    showAppDialog<void>(
+      context: context,
+      builder: (dialogContext, style, animation) => AppDialog(
+        style: style,
+        animation: animation,
+        direction: Axis.horizontal,
+        title: Text('${loc.parameters} (${parameters.length})'),
+        body: SizedBox(
+          width: double.infinity,
+          height: MediaQuery.sizeOf(dialogContext).height * 0.55,
+          child: ListView.separated(
+            itemCount: parameters.length,
+            separatorBuilder: (_, _) => const SizedBox(height: Spaces.small),
+            itemBuilder: (_, index) {
+              final parameter = parameters[index];
+              final preview = xswdRpcValuePreview(loc, parameter);
+              return FTappable(
+                semanticsTooltip: loc.more_details,
+                onPress: () {
+                  Navigator.of(dialogContext).pop();
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) {
+                      _showParameterDetails(this.context, index, parameter);
+                    }
+                  });
+                },
+                builder: (context, states, child) => DecoratedBox(
+                  decoration: BoxDecoration(
+                    color:
+                        states.contains(FTappableVariant.hovered) ||
+                            states.contains(FTappableVariant.pressed)
+                        ? context.theme.colors.secondary
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(Spaces.small),
+                  ),
+                  child: child,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(Spaces.small),
+                  child: Row(
+                    children: [
+                      Text('${index + 1}.', style: context.bodySmall),
+                      const SizedBox(width: Spaces.small),
+                      Expanded(
+                        child: Text(
+                          '${preview.type}: ${preview.text}',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.bodySmall,
+                        ),
+                      ),
+                      const Icon(FLucideIcons.chevronRight, size: 16),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
         actions: [
-          FButton(onPress: () => context.pop(), child: Text(loc.close)),
+          FButton(
+            onPress: () => Navigator.of(dialogContext).pop(),
+            child: Text(loc.close),
+          ),
         ],
       ),
     );
   }
 
-  String _getTypeDisplay(sdk.ParsedValue parsed) {
-    if (parsed is sdk.ParsedMap) {
-      return 'map<${parsed.keyType}, ${parsed.valueType}>';
-    }
-    return parsed.type;
+  void _showParameterDetails(
+    BuildContext context,
+    int index,
+    sdk.RpcValueCell parameter,
+  ) {
+    final loc = ref.read(appLocalizationsProvider);
+    final preview = xswdRpcValuePreview(loc, parameter);
+
+    showAppDialog<void>(
+      context: context,
+      builder: (context, style, animation) => _ParameterDetailsDialog(
+        style: style,
+        animation: animation,
+        loc: loc,
+        index: index,
+        type: preview.type,
+        parameter: parameter,
+      ),
+    );
   }
+}
 
-  String _getFullValueDisplay(sdk.ParsedValue parsed) {
-    if (parsed is sdk.ParsedOption) {
-      if (parsed.isNone) return 'None';
-      return 'Some(${_getFullValueDisplay(parsed.unwrap())})';
-    }
+class _ParameterDetailsDialog extends StatefulWidget {
+  const _ParameterDetailsDialog({
+    required this.style,
+    required this.animation,
+    required this.loc,
+    required this.index,
+    required this.type,
+    required this.parameter,
+  });
 
-    if (parsed is sdk.ParsedArray) {
-      if (parsed.length == 0) return '[]';
-      final items = parsed.items.map(_getFullValueDisplay).join(', ');
-      return '[$items]';
-    }
+  final FDialogStyleDelta style;
+  final Animation<double> animation;
+  final AppLocalizations loc;
+  final int index;
+  final String type;
+  final sdk.RpcValueCell parameter;
 
-    if (parsed is sdk.ParsedMap) {
-      if (parsed.length == 0) return '{}';
-      final entries = parsed.entries.entries
-          .map((e) {
-            final key = e.key;
-            final val = e.value is sdk.ParsedValue
-                ? _getFullValueDisplay(e.value as sdk.ParsedValue)
-                : e.value.toString();
-            return '$key: $val';
-          })
-          .join(', ');
-      return '{$entries}';
-    }
+  @override
+  State<_ParameterDetailsDialog> createState() =>
+      _ParameterDetailsDialogState();
+}
 
-    if (parsed is sdk.ParsedPrimitive) {
-      if (parsed.isString) {
-        return '"${parsed.value}"';
-      }
-      return parsed.value.toString();
-    }
+class _ParameterDetailsDialogState extends State<_ParameterDetailsDialog> {
+  bool _showRawJson = false;
 
-    return parsed.value.toString();
+  @override
+  Widget build(BuildContext context) {
+    final content = _showRawJson
+        ? xswdSerializeRpcValue(widget.parameter)
+        : xswdFormatRpcValue(widget.parameter);
+    return AppDialog(
+      style: widget.style,
+      animation: widget.animation,
+      direction: Axis.horizontal,
+      title: Row(
+        children: [
+          const Icon(FLucideIcons.squareCode),
+          const SizedBox(width: Spaces.small),
+          Text(widget.loc.parameter_number(widget.index + 1)),
+        ],
+      ),
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _DetailRow(label: widget.loc.type, value: widget.type),
+          const SizedBox(height: Spaces.small),
+          Text(
+            _showRawJson ? widget.loc.raw_json : widget.loc.value,
+            style: context.bodySmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: context.theme.colors.mutedForeground,
+            ),
+          ),
+          const SizedBox(height: Spaces.extraSmall),
+          SizedBox(
+            width: double.infinity,
+            height: MediaQuery.sizeOf(context).height * 0.45,
+            child: XswdFullValueView(
+              value: content,
+              key: const ValueKey('xswd-parameter-full-value'),
+              chunkKeyPrefix: _showRawJson
+                  ? 'xswd-parameter-raw'
+                  : 'xswd-parameter-value',
+              monospace: _showRawJson,
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        FButton(
+          key: const ValueKey('xswd-parameter-format-toggle'),
+          onPress: () => setState(() => _showRawJson = !_showRawJson),
+          child: Text(_showRawJson ? widget.loc.value : widget.loc.raw_json),
+        ),
+        FButton(
+          onPress: () => Navigator.of(context).pop(),
+          child: Text(widget.loc.close),
+        ),
+      ],
+    );
   }
+}
+
+class _DetailRow extends StatelessWidget {
+  const _DetailRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: context.bodySmall?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: context.theme.colors.mutedForeground,
+        ),
+      ),
+      const SizedBox(height: Spaces.extraSmall),
+      SelectableText(value, style: context.bodySmall),
+    ],
+  );
 }

@@ -627,7 +627,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen>
       return XelisWalletFeePolicy.automatic;
     }
     return XelisWalletFeePolicy.multiplier(
-      basisPoints: _feeMultiplierBasisPoints,
+      basisPoints: BigInt.from(_feeMultiplierBasisPoints),
     );
   }
 

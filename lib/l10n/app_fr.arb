@@ -1,4 +1,9 @@
 {
+  "xswd_permission_unsupported_impact": "Genesix ne peut pas examiner cette opération. Les demandes sont refusées, même avec l’option Demander.",
+  "xswd_permission_public_impact": "Accéder aux informations publiques, aux estimations de frais et aux outils de vérification.",
+  "xswd_permission_wallet_data_impact": "Lire les données du portefeuille couvertes par cette permission.",
+  "xswd_permission_app_storage_impact": "Lire et modifier le stockage réservé à cette application.",
+  "xswd_permission_persistent_impact": "Autorise les futures demandes de cette permission sans nouvelle confirmation.",
   "@multisig_setup_participant_count": {
     "placeholders": {
       "count": {"type": "int"}
@@ -23,7 +28,7 @@
     }
   },
   "@xswd_fee_atomic_units": {
-    "placeholders": {"amount": {"type": "int"}}
+    "placeholders": {"amount": {"type": "String"}}
   },
   "@xswd_fee_multiplier": {
     "placeholders": {"multiplier": {"type": "double"}}
@@ -447,6 +452,7 @@
   "xswd_transaction_version": "Version de la transaction",
   "xswd_response_as_hex": "Réponse hexadécimale",
   "xswd_fee_automatic": "Calculés automatiquement",
+  "xswd_base_fee": "Frais de base",
   "xswd_fee_atomic_units": "{amount} unités atomiques",
   "xswd_fee_multiplier": "{multiplier}× frais de base",
   "xswd_relayer_channel_title": "Relais XSWD",

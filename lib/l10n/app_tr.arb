@@ -1,4 +1,9 @@
 {
+  "xswd_permission_unsupported_impact": "Genesix bu işlemi inceleyemiyor. Sor seçili olsa bile istekler reddedilir.",
+  "xswd_permission_public_impact": "Genel bilgilere, ücret tahminlerine ve doğrulama araçlarına erişir.",
+  "xswd_permission_wallet_data_impact": "Bu iznin kapsadığı cüzdan verilerini okur.",
+  "xswd_permission_app_storage_impact": "Bu uygulamaya ayrılmış depolama alanını okur ve günceller.",
+  "xswd_permission_persistent_impact": "Bu izin için gelecekteki isteklere tekrar sormadan izin verir.",
   "@multisig_setup_participant_count": {
     "placeholders": {
       "count": {"type": "int"}
@@ -23,7 +28,7 @@
     }
   },
   "@xswd_fee_atomic_units": {
-    "placeholders": {"amount": {"type": "int"}}
+    "placeholders": {"amount": {"type": "String"}}
   },
   "@xswd_fee_multiplier": {
     "placeholders": {"multiplier": {"type": "double"}}
@@ -447,6 +452,7 @@
   "xswd_transaction_version": "İşlem sürümü",
   "xswd_response_as_hex": "Hex yanıt",
   "xswd_fee_automatic": "Otomatik hesaplanır",
+  "xswd_base_fee": "Temel ücret",
   "xswd_fee_atomic_units": "{amount} atomik birim",
   "xswd_fee_multiplier": "{multiplier}× temel ücret",
   "xswd_relayer_channel_title": "XSWD Relayer",

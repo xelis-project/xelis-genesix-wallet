@@ -7,7 +7,8 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_controller_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
-import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
+import 'package:genesix/features/wallet/domain/xswd_method_policy.dart';
+import 'package:genesix/features/wallet/presentation/xswd/xswd_permission_copy.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
@@ -18,18 +19,15 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class XswdAppDetail extends ConsumerStatefulWidget {
-  const XswdAppDetail({required this.appId, super.key});
+  const XswdAppDetail({required this.sessionReference, super.key});
 
-  final String appId;
+  final XelisXswdSessionReference sessionReference;
 
   @override
   ConsumerState<XswdAppDetail> createState() => _XswdAppDetailState();
 }
 
 class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
-  bool _isClosing = false;
-  XelisXswdApplication? _cachedApp;
-
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
@@ -53,32 +51,27 @@ class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
           : appsAsync.when(
               data: (apps) {
                 final liveApp = apps
-                    .where((a) => a.id == widget.appId)
+                    .where(
+                      (app) => app.sessionReference == widget.sessionReference,
+                    )
                     .firstOrNull;
-                if (liveApp != null) {
-                  _cachedApp = liveApp;
-                }
-                final app = liveApp ?? _cachedApp;
-
-                if (app == null) {
-                  if (_isClosing) {
-                    return const Center(child: FCircularProgress());
-                  }
+                if (liveApp == null) {
                   return _XswdAppNotFound(loc: loc);
                 }
                 return _XswdAppDetailContent(
-                  app: app,
+                  app: liveApp,
                   loc: loc,
                   onOpenUrl: (url) => _launchAppUrl(ref, url),
                   onPermissionChange: (permissionName, policy) {
                     return _handlePermissionChange(
                       ref,
-                      app,
+                      liveApp,
                       permissionName,
                       policy,
                     );
                   },
-                  onDisconnect: () => _handleDisconnectApp(context, loc, app),
+                  onDisconnect: () =>
+                      _handleDisconnectApp(context, loc, liveApp),
                 );
               },
               loading: () => const Center(child: FCircularProgress()),
@@ -102,7 +95,7 @@ class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
 
       await ref
           .read(xswdControllerProvider)
-          .editXswdAppPermission(app.id, updatedPermissions);
+          .editXswdAppPermission(app, updatedPermissions);
     } catch (_) {
       // Keep previous behavior: fail silently for now.
     }
@@ -129,10 +122,6 @@ class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
 
     if (confirmed != true) return;
     if (context.mounted) {
-      setState(() {
-        _isClosing = true;
-        _cachedApp = app;
-      });
       context.pop(true);
     }
   }
@@ -471,10 +460,13 @@ class _XswdPermissionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isHighRiskPermission = isXswdHighRiskMethodKey(permissionName);
+    final policy = tryXswdMethodPolicyForKey(permissionName);
+    final allowAccept = policy?.canPersist ?? false;
+    final impact = policy == null || !policy.isSupported
+        ? loc.xswd_permission_unsupported_impact
+        : xswdPermissionImpact(policy.effect, loc);
     final effectivePolicy =
-        isHighRiskPermission &&
-            currentPolicy == XelisXswdPermissionPolicy.accept
+        !allowAccept && currentPolicy == XelisXswdPermissionPolicy.accept
         ? XelisXswdPermissionPolicy.ask
         : currentPolicy;
 
@@ -490,27 +482,43 @@ class _XswdPermissionCard extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(
-              FLucideIcons.squareCode,
-              size: 16,
-              color: context.theme.colors.mutedForeground,
-            ),
-            const SizedBox(width: Spaces.small),
-            Expanded(
-              child: Text(
-                permissionName,
-                style: context.theme.typography.body.sm.copyWith(
-                  fontWeight: FontWeight.w500,
+            Row(
+              children: [
+                Icon(
+                  FLucideIcons.squareCode,
+                  size: 16,
+                  color: context.theme.colors.mutedForeground,
                 ),
-              ),
+                const SizedBox(width: Spaces.small),
+                Expanded(
+                  child: Text(
+                    permissionName,
+                    style: context.theme.typography.body.sm.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: Spaces.small),
+            if (impact != null) ...[
+              const SizedBox(height: Spaces.small),
+              Text(impact, style: context.theme.typography.body.sm),
+            ],
+            if (allowAccept) ...[
+              const SizedBox(height: Spaces.small),
+              Text(
+                '${loc.allow}: ${loc.xswd_permission_persistent_impact}',
+                style: context.theme.typography.body.sm,
+              ),
+            ],
+            const SizedBox(height: Spaces.small),
             _XswdPolicySelector(
               loc: loc,
               currentPolicy: effectivePolicy,
-              allowAccept: !isHighRiskPermission,
+              allowAccept: allowAccept,
               onChange: (policy) => onChange(permissionName, policy),
             ),
           ],

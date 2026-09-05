@@ -1,4 +1,9 @@
 {
+  "xswd_permission_unsupported_impact": "Genesix не может проверить эту операцию. Запросы отклоняются даже при выборе «Спрашивать».",
+  "xswd_permission_public_impact": "Доступ к общедоступной информации, оценкам комиссий и средствам проверки.",
+  "xswd_permission_wallet_data_impact": "Чтение данных кошелька, на которые распространяется это разрешение.",
+  "xswd_permission_app_storage_impact": "Чтение и изменение хранилища, выделенного этому приложению.",
+  "xswd_permission_persistent_impact": "Разрешает будущие запросы этого разрешения без повторного подтверждения.",
   "@multisig_setup_participant_count": {
     "placeholders": {
       "count": {"type": "int"}
@@ -23,7 +28,7 @@
     }
   },
   "@xswd_fee_atomic_units": {
-    "placeholders": {"amount": {"type": "int"}}
+    "placeholders": {"amount": {"type": "String"}}
   },
   "@xswd_fee_multiplier": {
     "placeholders": {"multiplier": {"type": "double"}}
@@ -447,6 +452,7 @@
   "xswd_transaction_version": "Версия транзакции",
   "xswd_response_as_hex": "Ответ в hex",
   "xswd_fee_automatic": "Рассчитывается автоматически",
+  "xswd_base_fee": "Базовая комиссия",
   "xswd_fee_atomic_units": "{amount} атомарных единиц",
   "xswd_fee_multiplier": "{multiplier}× базовая комиссия",
   "xswd_relayer_channel_title": "Ретранслятор XSWD",

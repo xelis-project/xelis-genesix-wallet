@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -13,12 +12,16 @@ import 'package:genesix/features/wallet/domain/prefetch_permissions_rpc_request.
 import 'package:genesix/features/wallet/domain/permission_rpc_request.dart';
 import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
 import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
+import 'package:genesix/features/wallet/domain/xswd_method_policy.dart';
+import 'package:genesix/features/wallet/presentation/xswd/xswd_permission_copy.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/burn_builder_widget.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/deploy_contract_builder_widget.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/invoke_contract_widget.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/multisig_builder_widget.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/transfer_builder_widget.dart';
+import 'package:genesix/features/wallet/presentation/xswd/components/xswd_json_parameters_view.dart';
+import 'package:genesix/features/wallet/presentation/xswd/components/xswd_review_text.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
@@ -410,6 +413,15 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                             ),
                             const SizedBox(height: Spaces.medium),
                           ],
+                          if (transactionReview == null)
+                            if (xswdState.permissionReview
+                                case final review?) ...[
+                              _XswdPermissionImpactSection(
+                                review: review,
+                                loc: loc,
+                              ),
+                              const SizedBox(height: Spaces.medium),
+                            ],
                           if (xswdState.prefetchPermissionsRequest
                               case final prefetchRequest?) ...[
                             _XswdMinimalPrefetchDetailsSection(
@@ -581,6 +593,27 @@ class _XswdInfoRow extends StatelessWidget {
   }
 }
 
+class _XswdPermissionImpactSection extends StatelessWidget {
+  const _XswdPermissionImpactSection({required this.review, required this.loc});
+
+  final XswdPermissionReview review;
+  final AppLocalizations loc;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    key: const ValueKey('xswd-permission-impact'),
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _XswdMinimalBadge(label: review.method.jsonKey),
+      if (xswdPermissionImpact(review.policy.effect, loc)
+          case final impact?) ...[
+        const SizedBox(height: Spaces.small),
+        Text(impact, style: context.bodyMedium),
+      ],
+    ],
+  );
+}
+
 class _XswdApplicationInfoSection extends StatelessWidget {
   const _XswdApplicationInfoSection({required this.appInfo, required this.loc});
 
@@ -649,15 +682,8 @@ class _XswdTransactionReviewSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final params = review.buildTransactionParams!;
-    final fee = params.feeBuilder;
-    final feeValue = switch ((fee?.value, fee?.multiplier)) {
-      (final value?, final multiplier?) =>
-        '${loc.xswd_fee_atomic_units(value)} / '
-            '${loc.xswd_fee_multiplier(multiplier)}',
-      (final value?, null) => loc.xswd_fee_atomic_units(value),
-      (null, final multiplier?) => loc.xswd_fee_multiplier(multiplier),
-      _ => loc.xswd_fee_automatic,
-    };
+    final feeValue = _formatXswdFee(params.fee, loc);
+    final baseFeeValue = _formatXswdBaseFee(params.baseFee, loc);
 
     return Column(
       key: const ValueKey('xswd-transaction-review'),
@@ -679,10 +705,20 @@ class _XswdTransactionReviewSection extends StatelessWidget {
         _XswdPermissionPayload(review: review, loc: loc, onAssetTap: (_) {}),
         const SizedBox(height: Spaces.small),
         _PermissionContentContainer(
+          maxHeight: null,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _XswdInfoRow(label: loc.fee, value: feeValue),
+              const SizedBox(height: Spaces.small),
+              _XswdInfoRow(label: loc.xswd_base_fee, value: baseFeeValue),
+              if (params.feeLimit case final feeLimit?) ...[
+                const SizedBox(height: Spaces.small),
+                _XswdInfoRow(
+                  label: loc.fee_limit,
+                  value: _formatXswdAtomicUnits(feeLimit, loc),
+                ),
+              ],
               if (params.nonce case final nonce?) ...[
                 const SizedBox(height: Spaces.small),
                 _XswdInfoRow(
@@ -700,21 +736,47 @@ class _XswdTransactionReviewSection extends StatelessWidget {
               const SizedBox(height: Spaces.small),
               _XswdInfoRow(
                 label: loc.broadcast,
-                value: (params.broadcast ?? true) ? loc.enabled : loc.disabled,
+                value: params.broadcast ? loc.enabled : loc.disabled,
               ),
-              if (params.txAsHex case final txAsHex?) ...[
-                const SizedBox(height: Spaces.small),
-                _XswdInfoRow(
-                  label: loc.xswd_response_as_hex,
-                  value: txAsHex ? loc.enabled : loc.disabled,
-                ),
-              ],
+              const SizedBox(height: Spaces.small),
+              _XswdInfoRow(
+                label: loc.xswd_response_as_hex,
+                value: params.txAsHex ? loc.enabled : loc.disabled,
+              ),
             ],
           ),
         ),
       ],
     );
   }
+}
+
+String _formatXswdFee(FeeBuilder fee, AppLocalizations loc) {
+  return switch (fee) {
+    FixedFeeBuilder(:final amount) => _formatXswdAtomicUnits(amount, loc),
+    ExtraFeeBuilder(:final mode) => switch (mode) {
+      NoExtraFee() => loc.xswd_fee_automatic,
+      TipExtraFee(:final amount) =>
+        '${loc.xswd_fee_automatic} + ${_formatXswdAtomicUnits(amount, loc)}',
+      MultiplierExtraFee(:final multiplier) => loc.xswd_fee_multiplier(
+        multiplier,
+      ),
+    },
+  };
+}
+
+String _formatXswdBaseFee(BaseFeeMode fee, AppLocalizations loc) {
+  return switch (fee) {
+    NoBaseFee() => loc.xswd_fee_automatic,
+    FixedBaseFee(:final amount) => _formatXswdAtomicUnits(amount, loc),
+    CappedBaseFee(:final amount) => '≤ ${_formatXswdAtomicUnits(amount, loc)}',
+  };
+}
+
+String _formatXswdAtomicUnits(BigInt amount, AppLocalizations loc) {
+  return loc.xswd_fee_atomic_units(
+    formatBigInt(amount, locale: loc.localeName),
+  );
 }
 
 class _XswdMoreDetailsAccordion extends StatelessWidget {
@@ -865,7 +927,7 @@ class _XswdMinimalPrefetchDetailsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (request.reason != null && request.reason!.isNotEmpty) ...[
-          _XswdInfoRow(label: loc.reason, value: request.reason!),
+          XswdReviewText(label: loc.reason, value: request.reason!, loc: loc),
           const SizedBox(height: Spaces.medium),
         ],
         Text(
@@ -880,9 +942,29 @@ class _XswdMinimalPrefetchDetailsSection extends StatelessWidget {
               .map((permission) => _XswdMinimalBadge(label: permission))
               .toList(),
         ),
+        for (final impact in _prefetchImpacts(request, loc)) ...[
+          const SizedBox(height: Spaces.small),
+          Text(impact, style: context.bodyMedium),
+        ],
+        const SizedBox(height: Spaces.small),
+        Text(loc.xswd_permission_persistent_impact, style: context.bodyMedium),
       ],
     );
   }
+}
+
+Set<String> _prefetchImpacts(
+  PrefetchPermissionsRequest request,
+  AppLocalizations loc,
+) {
+  final impacts = <String>{};
+  for (final permission in request.permissions) {
+    final policy = tryXswdMethodPolicyForKey(permission);
+    if (policy == null) continue;
+    final impact = xswdPermissionImpact(policy.effect, loc);
+    if (impact != null) impacts.add(impact);
+  }
+  return impacts;
 }
 
 class _XswdMinimalFuturePermissionsSection extends StatelessWidget {
@@ -954,7 +1036,10 @@ class _XswdPermissionPayload extends StatelessWidget {
       final builder = params.transactionTypeBuilder;
 
       if (builder is TransfersBuilder) {
-        builderWidget = TransfersBuilderWidget(transfersBuilder: builder);
+        builderWidget = TransfersBuilderWidget(
+          transfersBuilder: builder,
+          destinationDescriptors: review.transferDestinations,
+        );
       } else if (builder is BurnBuilder) {
         builderWidget = BurnBuilderWidget(burnBuilder: builder);
       } else if (builder is MultisigBuilder) {
@@ -993,10 +1078,7 @@ class _XswdPermissionPayload extends StatelessWidget {
 
     final Widget content =
         builderWidget ??
-        SelectableText(
-          const JsonEncoder.withIndent('  ').convert(request.params),
-          style: context.bodySmall?.copyWith(fontFamily: 'monospace'),
-        );
+        XswdJsonParametersView(parameters: request.params!, loc: loc);
 
     return _PermissionContentContainer(
       child: SingleChildScrollView(child: content),
@@ -1061,6 +1143,11 @@ class _XswdActionFactory {
             value: rememberDecision,
             onChange: busy ? null : onRememberChanged,
           ),
+          if (rememberDecision)
+            Text(
+              loc.xswd_permission_persistent_impact,
+              style: context.bodySmall,
+            ),
           const SizedBox(height: Spaces.extraSmall),
           ..._buildBinaryDecisionActions(
             context: context,
@@ -1300,14 +1387,20 @@ class _AssetPermissionBadge extends StatelessWidget {
 }
 
 class _PermissionContentContainer extends StatelessWidget {
-  const _PermissionContentContainer({required this.child});
+  const _PermissionContentContainer({
+    required this.child,
+    this.maxHeight = 300,
+  });
 
   final Widget child;
+  final double? maxHeight;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(maxHeight: 300),
+      constraints: maxHeight == null
+          ? null
+          : BoxConstraints(maxHeight: maxHeight!),
       padding: const EdgeInsets.all(Spaces.medium),
       decoration: BoxDecoration(
         color: context.theme.colors.secondary.withValues(alpha: 0.18),

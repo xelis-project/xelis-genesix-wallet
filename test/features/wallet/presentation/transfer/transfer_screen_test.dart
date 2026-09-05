@@ -122,6 +122,8 @@ Future<_TransferHarness> _pumpTransfer(
       walletRuntimeProvider.overrideWithValue(runtime),
     ],
   );
+  final toastSubscription = container.listen(toastProvider, (_, _) {});
+  addTearDown(toastSubscription.close);
   addTearDown(container.dispose);
   final theme = greenDark(touch: false);
 

@@ -250,7 +250,9 @@ final _rustLoggingController = _RustLoggingController(
         : diagnosticLoggingEnabled
         ? xelis.XelisLogLevel.debug
         : xelis.XelisLogLevel.warn,
-    diagnosticMode: diagnosticLoggingEnabled,
+    scope: diagnosticLoggingEnabled
+        ? xelis.XelisNativeLogScope.packageDiagnostic
+        : xelis.XelisNativeLogScope.standard,
   ),
   createLogStream: xelis.XelisWalletFlutter.createRustLogStream,
   onEntry: (entry) {

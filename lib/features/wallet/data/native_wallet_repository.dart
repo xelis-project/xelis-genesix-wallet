@@ -469,8 +469,8 @@ class NativeWalletRepository {
   Future<wallet_flutter.XelisXswdState> getXswdState() =>
       _wallet.getXswdState();
 
-  Future<void> removeXswdApp(String appID) =>
-      _wallet.closeXswdApplicationSession(applicationId: appID);
+  Future<void> removeXswdApp(wallet_flutter.XelisXswdApplication application) =>
+      _wallet.closeXswdApplicationSession(application: application);
 
   Future<void> addXswdRelayer({
     required wallet_flutter.XelisXswdCallbacks callbacks,
@@ -480,11 +480,11 @@ class NativeWalletRepository {
   }
 
   Future<void> modifyXSWDAppPermissions(
-    String appID,
+    wallet_flutter.XelisXswdApplication application,
     Map<String, wallet_flutter.XelisXswdPermissionPolicy> permissions,
   ) async {
     await _wallet.updateXswdApplicationPermissions(
-      applicationId: appID,
+      application: application,
       permissions: permissions,
     );
   }

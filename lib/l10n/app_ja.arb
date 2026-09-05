@@ -1,4 +1,9 @@
 {
+  "xswd_permission_unsupported_impact": "Genesix はこの操作を確認できません。「確認する」に設定してもリクエストは拒否されます。",
+  "xswd_permission_public_impact": "公開情報、手数料の見積もり、検証ツールにアクセスします。",
+  "xswd_permission_wallet_data_impact": "この権限の対象となるウォレットデータを読み取ります。",
+  "xswd_permission_app_storage_impact": "このアプリ専用のストレージを読み取り、更新します。",
+  "xswd_permission_persistent_impact": "この権限の今後のリクエストを、再確認せずに許可します。",
   "@multisig_setup_participant_count": {
     "placeholders": {
       "count": {"type": "int"}
@@ -23,7 +28,7 @@
     }
   },
   "@xswd_fee_atomic_units": {
-    "placeholders": {"amount": {"type": "int"}}
+    "placeholders": {"amount": {"type": "String"}}
   },
   "@xswd_fee_multiplier": {
     "placeholders": {"multiplier": {"type": "double"}}
@@ -447,6 +452,7 @@
   "xswd_transaction_version": "トランザクションバージョン",
   "xswd_response_as_hex": "16進数レスポンス",
   "xswd_fee_automatic": "自動計算",
+  "xswd_base_fee": "基本手数料",
   "xswd_fee_atomic_units": "{amount} アトミック単位",
   "xswd_fee_multiplier": "基本手数料の {multiplier} 倍",
   "xswd_relayer_channel_title": "XSWD Relayer",

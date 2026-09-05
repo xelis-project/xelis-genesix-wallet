@@ -1,4 +1,9 @@
 {
+  "xswd_permission_unsupported_impact": "لا يستطيع Genesix مراجعة هذه العملية. تُرفض الطلبات حتى عند اختيار «اسأل».",
+  "xswd_permission_public_impact": "الوصول إلى المعلومات العامة وتقديرات الرسوم وأدوات التحقق.",
+  "xswd_permission_wallet_data_impact": "قراءة بيانات المحفظة التي يشملها هذا الإذن.",
+  "xswd_permission_app_storage_impact": "قراءة وتحديث مساحة التخزين المخصصة لهذا التطبيق.",
+  "xswd_permission_persistent_impact": "يسمح بالطلبات المستقبلية لهذا الإذن دون السؤال مرة أخرى.",
   "@multisig_setup_participant_count": {
     "placeholders": {
       "count": {"type": "int"}
@@ -23,7 +28,7 @@
     }
   },
   "@xswd_fee_atomic_units": {
-    "placeholders": {"amount": {"type": "int"}}
+    "placeholders": {"amount": {"type": "String"}}
   },
   "@xswd_fee_multiplier": {
     "placeholders": {"multiplier": {"type": "double"}}
@@ -447,6 +452,7 @@
   "xswd_transaction_version": "إصدار المعاملة",
   "xswd_response_as_hex": "استجابة سداسية",
   "xswd_fee_automatic": "محسوبة تلقائيًا",
+  "xswd_base_fee": "الرسوم الأساسية",
   "xswd_fee_atomic_units": "{amount} وحدة ذرية",
   "xswd_fee_multiplier": "{multiplier}× الرسوم الأساسية",
   "xswd_relayer_channel_title": "XSWD Relayer",

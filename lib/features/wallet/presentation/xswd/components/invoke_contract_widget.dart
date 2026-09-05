@@ -10,7 +10,7 @@ import 'package:forui/forui.dart';
 
 class InvokeContractBuilderWidget extends ConsumerStatefulWidget {
   final InvokeContractBuilder invokeContractBuilder;
-  final List<ParsedValue> parsedParameters;
+  final List<RpcValueCell> parsedParameters;
 
   const InvokeContractBuilderWidget({
     super.key,
@@ -53,8 +53,7 @@ class _InvokeContractBuilderWidgetState
           maxGas: widget.invokeContractBuilder.maxGas,
           entryId: widget.invokeContractBuilder.entryId,
           deposits: widget.invokeContractBuilder.deposits,
-          parameters: widget.invokeContractBuilder.parameters,
-          parsedParameters: widget.parsedParameters,
+          parameters: widget.parsedParameters,
         ),
       ],
     );

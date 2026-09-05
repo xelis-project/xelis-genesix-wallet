@@ -11,6 +11,7 @@ import 'package:genesix/features/wallet/application/xswd_notification_service.da
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/wallet_effect.dart';
+import 'package:genesix/features/wallet/domain/xswd_method_policy.dart';
 import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
 import 'package:genesix/shared/errors/app_failure_reporter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -31,6 +32,13 @@ class XswdController {
   Object? _callbackSession;
   Object? _callbackLease;
   int _callbackGeneration = 0;
+  final _closingApplicationOperations =
+      Map<
+        NativeWalletRepository,
+        Map<XelisXswdSessionReference, Future<void>>
+      >.identity();
+  final _stoppingOperations =
+      Map<NativeWalletRepository, Future<bool>>.identity();
 
   bool ensureNodeAvailable() {
     return WalletNodeActionGuard(ref).ensureNodeAvailable();
@@ -48,7 +56,7 @@ class XswdController {
 
     final loc = ref.read(appLocalizationsProvider);
     try {
-      await _normalizePersistedTransactionPermissions(repository);
+      await _normalizePersistedXswdPermissions(repository);
       final callbacks = _buildXswdCallbacks(
         repository: repository,
         channelTitle: loc.xswd_channel_title,
@@ -69,27 +77,169 @@ class XswdController {
     return false;
   }
 
-  Future<bool> stopXSWD(NativeWalletRepository repository) async {
-    _invalidateXswdCallbacks(repository);
-    _resetXswdUiState();
-    return _stopXswdInternal(repository, emitErrors: true);
+  Future<bool> stopXSWD(NativeWalletRepository repository) {
+    final existing = _stoppingOperations[repository];
+    if (existing != null) return existing;
+
+    final completer = Completer<bool>();
+    _stoppingOperations[repository] = completer.future;
+    unawaited(_completeXswdStop(repository, completer));
+    return completer.future;
   }
 
-  Future<void> closeXswdAppConnection(XelisXswdApplication appInfo) async {
+  Future<void> closeXswdAppConnection(XelisXswdApplication appInfo) {
     final repository = ref.read(activeWalletRepositoryProvider);
-    final loc = ref.read(appLocalizationsProvider);
     if (repository == null) {
+      return Future.value();
+    }
+    return _closeXswdApplication(
+      repository: repository,
+      application: appInfo,
+      malformed: false,
+    );
+  }
+
+  Future<void> _closeXswdApplication({
+    required NativeWalletRepository repository,
+    required XelisXswdApplication application,
+    required bool malformed,
+  }) {
+    final stopping = _stoppingOperations[repository];
+    if (stopping != null) {
+      return _closeXswdApplicationAfterStop(
+        repository: repository,
+        application: application,
+        malformed: malformed,
+        stopping: stopping,
+      );
+    }
+    final operations = _closingApplicationOperations.putIfAbsent(
+      repository,
+      () => {},
+    );
+    final existing = operations[application.sessionReference];
+    if (existing != null) return existing;
+
+    final completer = Completer<void>();
+    operations[application.sessionReference] = completer.future;
+    unawaited(
+      _completeXswdApplicationClose(
+        repository: repository,
+        application: application,
+        malformed: malformed,
+        completer: completer,
+      ),
+    );
+    return completer.future;
+  }
+
+  Future<void> _closeXswdApplicationAfterStop({
+    required NativeWalletRepository repository,
+    required XelisXswdApplication application,
+    required bool malformed,
+    required Future<bool> stopping,
+  }) async {
+    if (await stopping) return;
+    await _closeXswdApplication(
+      repository: repository,
+      application: application,
+      malformed: malformed,
+    );
+  }
+
+  Future<void> _completeXswdApplicationClose({
+    required NativeWalletRepository repository,
+    required XelisXswdApplication application,
+    required bool malformed,
+    required Completer<void> completer,
+  }) async {
+    try {
+      await _performXswdApplicationClose(
+        repository: repository,
+        application: application,
+        malformed: malformed,
+      );
+      completer.complete();
+    } catch (error, stackTrace) {
+      completer.completeError(error, stackTrace);
+    } finally {
+      final operations = _closingApplicationOperations[repository];
+      if (identical(
+        operations?[application.sessionReference],
+        completer.future,
+      )) {
+        operations!.remove(application.sessionReference);
+        if (operations.isEmpty) {
+          _closingApplicationOperations.remove(repository);
+        }
+      }
+    }
+  }
+
+  Future<void> _performXswdApplicationClose({
+    required NativeWalletRepository repository,
+    required XelisXswdApplication application,
+    required bool malformed,
+  }) async {
+    final loc = ref.read(appLocalizationsProvider);
+    final session = ref.read(activeWalletSessionProvider);
+    final ownsActiveSession = identical(session?.repository, repository);
+    if (malformed) {
+      // Return the rejection to the native permission handler before reading
+      // state. Admission callback projections become operable only after a
+      // fresh authoritative state projection observes the same opaque session.
+      await Future<void>.delayed(Duration.zero);
+      try {
+        final xswdState = await repository.getXswdState();
+        XelisXswdApplication? connectedApplication;
+        for (final candidate in xswdState.applications) {
+          if (candidate.sessionReference == application.sessionReference) {
+            connectedApplication = candidate;
+            break;
+          }
+        }
+        if (connectedApplication == null) return;
+        await repository.removeXswdApp(connectedApplication);
+      } catch (error, stackTrace) {
+        if (!ownsActiveSession ||
+            !ref.mounted ||
+            !identical(ref.read(activeWalletSessionProvider), session)) {
+          return;
+        }
+        _emitFailure(
+          title: loc.cannot_close_xswd_connection,
+          operation: 'xswd.session.terminate',
+          applicationCode: 'xswd_session_close_failed',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }
       return;
     }
 
+    final pending = ref.read(xswdRequestProvider);
+    if (ownsActiveSession &&
+        pending.xswdEventSummary?.application.sessionReference ==
+            application.sessionReference) {
+      // Release the native permission callback before asking its transport to
+      // close. Another application's active approval must remain untouched.
+      ref.read(xswdRequestProvider.notifier).clearRequest();
+    }
     try {
-      await repository.removeXswdApp(appInfo.id);
+      await repository.removeXswdApp(application);
+      if (!ownsActiveSession ||
+          !ref.mounted ||
+          !identical(ref.read(activeWalletSessionProvider), session)) {
+        return;
+      }
       ref.invalidate(xswdApplicationsProvider);
-      unawaited(
-        ref.read(xswdNotificationServiceProvider).clearPendingApproval(),
-      );
-      _emitInfo(title: loc.app_disconnected_title(appInfo.name));
+      _emitInfo(title: loc.app_disconnected_title(application.name));
     } catch (error, stackTrace) {
+      if (!ownsActiveSession ||
+          !ref.mounted ||
+          !identical(ref.read(activeWalletSessionProvider), session)) {
+        return;
+      }
       _emitFailure(
         title: loc.cannot_close_xswd_connection,
         operation: 'xswd.app.disconnect',
@@ -110,7 +260,7 @@ class XswdController {
 
     final loc = ref.read(appLocalizationsProvider);
     try {
-      await _normalizePersistedTransactionPermissions(repository);
+      await _normalizePersistedXswdPermissions(repository);
       final callbacks = _buildXswdCallbacks(
         repository: repository,
         channelTitle: loc.xswd_relayer_channel_title,
@@ -134,7 +284,7 @@ class XswdController {
   }
 
   Future<void> editXswdAppPermission(
-    String appID,
+    XelisXswdApplication application,
     Map<String, XelisXswdPermissionPolicy> permissions,
   ) async {
     final repository = ref.read(activeWalletRepositoryProvider);
@@ -144,7 +294,7 @@ class XswdController {
 
     try {
       await repository.modifyXSWDAppPermissions(
-        appID,
+        application,
         normalizeXswdPermissionPolicies(permissions),
       );
       ref.invalidate(xswdApplicationsProvider);
@@ -185,16 +335,21 @@ class XswdController {
         final message = '$channelTitle: ${loc.request_cancelled_from(appName)}';
 
         talker.info(message);
-        ref
-            .read(xswdRequestProvider.notifier)
-            .newRequest(xswdEventSummary: request, message: message);
+        final protectsAnotherSession = _hasForeignPendingXswdDecision(request);
+        if (!protectsAnotherSession) {
+          ref
+              .read(xswdRequestProvider.notifier)
+              .newRequest(xswdEventSummary: request, message: message);
+        }
 
         if (!_isXswdToastSuppressed()) {
           _emitXswd(title: message, showOpen: false);
         }
-        unawaited(
-          ref.read(xswdNotificationServiceProvider).clearPendingApproval(),
-        );
+        if (!protectsAnotherSession) {
+          unawaited(
+            ref.read(xswdNotificationServiceProvider).clearPendingApproval(),
+          );
+        }
       },
       onApplicationRequest: (request) {
         if (!_isXswdCallbackCurrent(repository, generation)) {
@@ -255,22 +410,38 @@ class XswdController {
         final message = '$channelTitle: ${loc.app_disconnected_title(appName)}';
 
         talker.info(message);
-        ref
-            .read(xswdRequestProvider.notifier)
-            .newRequest(xswdEventSummary: request, message: message);
+        final protectsAnotherSession = _hasForeignPendingXswdDecision(request);
+        if (!protectsAnotherSession) {
+          ref
+              .read(xswdRequestProvider.notifier)
+              .newRequest(xswdEventSummary: request, message: message);
+        }
+        ref.invalidate(xswdApplicationsProvider);
 
         if (!_isXswdToastSuppressed()) {
           _emitXswd(title: message, showOpen: false);
         }
-        unawaited(
-          ref.read(xswdNotificationServiceProvider).clearPendingApproval(),
-        );
+        if (!protectsAnotherSession) {
+          unawaited(
+            ref.read(xswdNotificationServiceProvider).clearPendingApproval(),
+          );
+        }
       },
     );
   }
 
   bool _isXswdToastSuppressed() {
     return ref.read(xswdRequestProvider).suppressXswdToast;
+  }
+
+  bool _hasForeignPendingXswdDecision(XelisXswdRequest lifecycleRequest) {
+    final pending = ref.read(xswdRequestProvider);
+    final decision = pending.decision;
+    if (decision == null || decision.isCompleted) {
+      return false;
+    }
+    return pending.xswdEventSummary?.application.sessionReference !=
+        lifecycleRequest.application.sessionReference;
   }
 
   Future<XelisXswdDecision> _askXswdUserPermission({
@@ -282,6 +453,12 @@ class XswdController {
     required String notificationBody,
     required bool showOpen,
   }) async {
+    if (_closingApplicationOperations[repository]?.containsKey(
+          request.application.sessionReference,
+        ) ??
+        false) {
+      return XelisXswdDecision.reject;
+    }
     talker.info(message);
     final loc = ref.read(appLocalizationsProvider);
 
@@ -305,9 +482,11 @@ class XswdController {
         error: error,
         stackTrace: stackTrace,
       );
-      await _closeMalformedXswdSession(
-        repository: repository,
-        applicationId: request.application.id,
+      unawaited(
+        _closeMalformedXswdSessionAfterRejection(
+          repository: repository,
+          application: request.application,
+        ),
       );
       return XelisXswdDecision.reject;
     }
@@ -336,7 +515,7 @@ class XswdController {
     }
   }
 
-  Future<void> _normalizePersistedTransactionPermissions(
+  Future<void> _normalizePersistedXswdPermissions(
     NativeWalletRepository repository,
   ) async {
     final xswdState = await repository.getXswdState();
@@ -347,23 +526,34 @@ class XswdController {
       if (_samePermissionPolicies(application.permissions, normalized)) {
         continue;
       }
-      await repository.modifyXSWDAppPermissions(application.id, normalized);
+      await repository.modifyXSWDAppPermissions(application, normalized);
     }
   }
 
   Future<void> _closeMalformedXswdSession({
     required NativeWalletRepository repository,
-    required String applicationId,
+    required XelisXswdApplication application,
+  }) {
+    return _closeXswdApplication(
+      repository: repository,
+      application: application,
+      malformed: true,
+    );
+  }
+
+  Future<void> _closeMalformedXswdSessionAfterRejection({
+    required NativeWalletRepository repository,
+    required XelisXswdApplication application,
   }) async {
     try {
-      await repository.removeXswdApp(applicationId);
+      await _closeMalformedXswdSession(
+        repository: repository,
+        application: application,
+      );
     } catch (error, stackTrace) {
-      final loc = ref.read(appLocalizationsProvider);
-      _emitFailure(
-        title: loc.cannot_close_xswd_connection,
-        operation: 'xswd.session.terminate',
-        applicationCode: 'xswd_session_close_failed',
-        error: error,
+      logDiagnosticError(
+        'xswd.session.terminate',
+        error,
         stackTrace: stackTrace,
       );
     }
@@ -395,6 +585,29 @@ class XswdController {
             .read(xswdNotificationServiceProvider)
             .clearPendingApproval(owner: lease),
       );
+    }
+  }
+
+  Future<void> _completeXswdStop(
+    NativeWalletRepository repository,
+    Completer<bool> completer,
+  ) async {
+    try {
+      _invalidateXswdCallbacks(repository);
+      _resetXswdUiState();
+      final closing = List<Future<void>>.of(
+        _closingApplicationOperations[repository]?.values ?? const [],
+      );
+      if (closing.isNotEmpty) {
+        await Future.wait(closing);
+      }
+      completer.complete(await _stopXswdInternal(repository, emitErrors: true));
+    } catch (error, stackTrace) {
+      completer.completeError(error, stackTrace);
+    } finally {
+      if (identical(_stoppingOperations[repository], completer.future)) {
+        _stoppingOperations.remove(repository);
+      }
     }
   }
 
@@ -478,8 +691,9 @@ Map<String, XelisXswdPermissionPolicy> normalizeXswdPermissionPolicies(
 ) {
   final normalized = Map<String, XelisXswdPermissionPolicy>.from(permissions);
   for (final entry in normalized.entries.toList(growable: false)) {
-    if (isXswdHighRiskMethodKey(entry.key) &&
-        entry.value == XelisXswdPermissionPolicy.accept) {
+    final policy = tryXswdMethodPolicyForKey(entry.key);
+    if (entry.value == XelisXswdPermissionPolicy.accept &&
+        (policy == null || !policy.canPersist)) {
       normalized[entry.key] = XelisXswdPermissionPolicy.ask;
     }
   }

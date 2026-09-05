@@ -1,4 +1,9 @@
 {
+  "xswd_permission_unsupported_impact": "Genesix इस कार्रवाई की समीक्षा नहीं कर सकता। पूछें विकल्प चुने जाने पर भी अनुरोध अस्वीकार किए जाते हैं।",
+  "xswd_permission_public_impact": "सार्वजनिक जानकारी, शुल्क के अनुमान और सत्यापन टूल तक पहुँच।",
+  "xswd_permission_wallet_data_impact": "इस अनुमति के अंतर्गत आने वाला वॉलेट डेटा पढ़ना।",
+  "xswd_permission_app_storage_impact": "इस ऐप के लिए आरक्षित स्टोरेज को पढ़ना और अपडेट करना।",
+  "xswd_permission_persistent_impact": "इस अनुमति के भविष्य के अनुरोधों को दोबारा पूछे बिना स्वीकार करता है।",
   "@multisig_setup_participant_count": {
     "placeholders": {
       "count": {"type": "int"}
@@ -23,7 +28,7 @@
     }
   },
   "@xswd_fee_atomic_units": {
-    "placeholders": {"amount": {"type": "int"}}
+    "placeholders": {"amount": {"type": "String"}}
   },
   "@xswd_fee_multiplier": {
     "placeholders": {"multiplier": {"type": "double"}}
@@ -447,6 +452,7 @@
   "xswd_transaction_version": "लेनदेन संस्करण",
   "xswd_response_as_hex": "हेक्स प्रतिक्रिया",
   "xswd_fee_automatic": "स्वचालित रूप से गणना",
+  "xswd_base_fee": "आधार शुल्क",
   "xswd_fee_atomic_units": "{amount} परमाणु इकाइयाँ",
   "xswd_fee_multiplier": "{multiplier}× आधार शुल्क",
   "xswd_relayer_channel_title": "XSWD Relayer",

@@ -23,7 +23,9 @@ class BurnBuilderWidget extends ConsumerWidget with TransactionBuilderMixin {
     String asset;
     String amount;
     if (knownAssets.containsKey(burnBuilder.asset)) {
-      asset = knownAssets[burnBuilder.asset]!.name;
+      asset =
+          '${knownAssets[burnBuilder.asset]!.name} '
+          '(${burnBuilder.asset})';
       amount = formatCoin(
         burnBuilder.amount,
         knownAssets[burnBuilder.asset]!.decimals,

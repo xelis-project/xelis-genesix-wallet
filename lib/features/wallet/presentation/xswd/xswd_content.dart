@@ -371,7 +371,7 @@ class _XswdAppsListState extends ConsumerState<_XswdAppsList> {
     if (_isDisconnecting) return;
 
     final hasDisconnected = await XswdAppDetailRoute(
-      $extra: app.id,
+      $extra: app.sessionReference,
     ).push<bool>(context);
 
     if (hasDisconnected == true) {
