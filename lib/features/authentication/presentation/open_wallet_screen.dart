@@ -264,9 +264,8 @@ class _OpenWalletWidgetState extends ConsumerState<OpenWalletScreen>
     }
 
     final authenticated = await ref.read(
-      biometricAuthenticationProvider(
-        loc.please_authenticate_open_wallet,
-      ).future,
+      biometricAuthenticationProvider(loc.please_authenticate_open_wallet)
+          .future,
     );
 
     if (!authenticated) return false;

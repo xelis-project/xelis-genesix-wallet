@@ -234,9 +234,8 @@ Future<_ToastHarness> _pumpToaster(
       child: MaterialApp(
         theme: theme.toApproximateMaterialTheme(),
         builder: (context, child) => MediaQuery(
-          data: MediaQuery.of(
-            context,
-          ).copyWith(textScaler: TextScaler.linear(textScale)),
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: TextScaler.linear(textScale)),
           child: child!,
         ),
         home: FTheme(

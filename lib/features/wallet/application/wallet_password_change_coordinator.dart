@@ -3,15 +3,14 @@ import 'package:genesix/shared/models/app_failure.dart';
 import 'package:genesix/features/wallet/domain/wallet_password_change_result.dart';
 import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
-typedef WalletPasswordFailureRecorder =
-    AppFailure Function({
-      required Object error,
-      required StackTrace stackTrace,
-      required String operation,
-      required String applicationCode,
-      required AppFailureCategory category,
-      String Function()? contextBuilder,
-    });
+typedef WalletPasswordFailureRecorder = AppFailure Function({
+  required Object error,
+  required StackTrace stackTrace,
+  required String operation,
+  required String applicationCode,
+  required AppFailureCategory category,
+  String Function()? contextBuilder,
+});
 
 AppFailure _recordWalletPasswordFailure({
   required Object error,

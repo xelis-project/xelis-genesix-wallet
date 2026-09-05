@@ -5,8 +5,10 @@ typedef AssetMetadataLookup =
     Future<wallet_flutter.XelisWalletAssetMetadata> Function(String assetHash);
 typedef AssetKnownCheck = bool Function(String assetHash);
 typedef ActiveRepositoryCheck = bool Function();
-typedef AssetMetadataFetchErrorHandler =
-    void Function(String assetHash, Object error);
+typedef AssetMetadataFetchErrorHandler = void Function(
+  String assetHash,
+  Object error,
+);
 
 class WalletTransactionAssetResolver {
   const WalletTransactionAssetResolver({

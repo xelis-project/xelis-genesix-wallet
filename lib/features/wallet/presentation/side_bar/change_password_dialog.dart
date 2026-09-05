@@ -11,11 +11,10 @@ import 'package:genesix/features/wallet/application/wallet_commands_provider.dar
 import 'package:genesix/features/wallet/domain/wallet_password_change_result.dart';
 
 /// Drives a password change without coupling the dialog to a native wallet.
-typedef WalletPasswordChanger =
-    Future<WalletPasswordChangeResult> Function(
-      String oldPassword,
-      String newPassword,
-    );
+typedef WalletPasswordChanger = Future<WalletPasswordChangeResult> Function(
+  String oldPassword,
+  String newPassword,
+);
 
 class ChangePasswordDialog extends ConsumerStatefulWidget {
   final Animation<double> animation;

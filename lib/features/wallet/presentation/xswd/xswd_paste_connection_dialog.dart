@@ -86,8 +86,7 @@ class _XswdPasteConnectionDialogState
           FTextField(
             control: .managed(controller: _controller),
             label: Text(loc.parameters),
-            hint:
-                '{"relayer":"...","encryption_mode":{mode, key},"app_data":{...}}',
+            hint: '{"relayer":"...","encryption_mode":{mode, key},"app_data":{...}}',
             readOnly: _isProcessing,
             maxLines: 10,
             keyboardType: TextInputType.multiline,

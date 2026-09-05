@@ -1,8 +1,11 @@
 import 'dart:async';
 
 typedef DesktopShutdownAction = Future<void> Function();
-typedef DesktopShutdownFailureRecorder =
-    void Function(String phase, Object error, StackTrace stackTrace);
+typedef DesktopShutdownFailureRecorder = void Function(
+  String phase,
+  Object error,
+  StackTrace stackTrace,
+);
 
 final class DesktopShutdownCoordinator {
   DesktopShutdownCoordinator({

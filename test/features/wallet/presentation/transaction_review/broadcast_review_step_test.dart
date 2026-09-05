@@ -256,21 +256,20 @@ SingleTransferTransaction _review({
   );
 
   return TransactionReviewState.singleTransferTransaction(
-        asset: _asset,
-        name: 'XELIS',
-        ticker: 'XEL',
-        amount: '1 XEL',
-        fee: '0.00000001 XEL',
-        destination: _destination,
-        destinationAddress: DestinationAddress(
-          address: _destination,
-          data: legacyIntegratedData,
-        ),
-        txHash: prepared.hash,
-        prepared: prepared,
-        sessionIdentity: sessionIdentity ?? Object(),
-      )
-      as SingleTransferTransaction;
+    asset: _asset,
+    name: 'XELIS',
+    ticker: 'XEL',
+    amount: '1 XEL',
+    fee: '0.00000001 XEL',
+    destination: _destination,
+    destinationAddress: DestinationAddress(
+      address: _destination,
+      data: legacyIntegratedData,
+    ),
+    txHash: prepared.hash,
+    prepared: prepared,
+    sessionIdentity: sessionIdentity ?? Object(),
+  ) as SingleTransferTransaction;
 }
 
 const _destination = 'xel:prepared-review-destination';

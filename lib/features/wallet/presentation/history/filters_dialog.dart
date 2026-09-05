@@ -387,9 +387,8 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
       _minTimestamp = _localStartOfDay(value);
       if (_minTimestamp != null &&
           _maxTimestamp != null &&
-          _calendarDate(
-            _maxTimestamp,
-          )!.isBefore(_calendarDate(_minTimestamp)!)) {
+          _calendarDate(_maxTimestamp)!
+              .isBefore(_calendarDate(_minTimestamp)!)) {
         _maxTimestamp = null;
       }
     });

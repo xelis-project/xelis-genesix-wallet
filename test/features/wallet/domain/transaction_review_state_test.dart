@@ -8,22 +8,18 @@ void main() {
   group('TransactionReviewState prepared transaction binding', () {
     test('standard transfer retains the exact prepared object', () {
       final prepared = _preparedTransfer();
-      final state =
-          TransactionReviewState.singleTransferTransaction(
-                asset: _asset,
-                name: 'XELIS',
-                ticker: 'XEL',
-                amount: '90 071 992,54740993 XEL',
-                fee: '0,00000100 XEL',
-                destination: _destination,
-                destinationAddress: const DestinationAddress(
-                  address: _destination,
-                ),
-                txHash: prepared.hash,
-                prepared: prepared,
-                sessionIdentity: _sessionIdentity,
-              )
-              as SingleTransferTransaction;
+      final state = TransactionReviewState.singleTransferTransaction(
+        asset: _asset,
+        name: 'XELIS',
+        ticker: 'XEL',
+        amount: '90 071 992,54740993 XEL',
+        fee: '0,00000100 XEL',
+        destination: _destination,
+        destinationAddress: const DestinationAddress(address: _destination),
+        txHash: prepared.hash,
+        prepared: prepared,
+        sessionIdentity: _sessionIdentity,
+      ) as SingleTransferTransaction;
 
       expect(state.prepared, same(prepared));
       expect(state.txHash, prepared.hash);
@@ -35,18 +31,16 @@ void main() {
 
     test('standard burn retains the exact prepared object', () {
       final prepared = _preparedBurn();
-      final state =
-          TransactionReviewState.burnTransaction(
-                asset: _asset,
-                name: 'XELIS',
-                ticker: 'XEL',
-                amount: '90 071 992,54740993 XEL',
-                fee: '0,00000200 XEL',
-                txHash: prepared.hash,
-                prepared: prepared,
-                sessionIdentity: _sessionIdentity,
-              )
-              as BurnTransaction;
+      final state = TransactionReviewState.burnTransaction(
+        asset: _asset,
+        name: 'XELIS',
+        ticker: 'XEL',
+        amount: '90 071 992,54740993 XEL',
+        fee: '0,00000200 XEL',
+        txHash: prepared.hash,
+        prepared: prepared,
+        sessionIdentity: _sessionIdentity,
+      ) as BurnTransaction;
 
       expect(state.prepared, same(prepared));
       expect(state.txHash, prepared.hash);
@@ -58,14 +52,12 @@ void main() {
 
     test('multisig deletion retains the exact finalized capability', () {
       final prepared = _preparedMultisigDelete();
-      final state =
-          TransactionReviewState.deleteMultisigTransaction(
-                fee: '0,00000300 XEL',
-                txHash: prepared.hash,
-                prepared: prepared,
-                sessionIdentity: _sessionIdentity,
-              )
-              as DeleteMultisigTransaction;
+      final state = TransactionReviewState.deleteMultisigTransaction(
+        fee: '0,00000300 XEL',
+        txHash: prepared.hash,
+        prepared: prepared,
+        sessionIdentity: _sessionIdentity,
+      ) as DeleteMultisigTransaction;
 
       expect(state.prepared, same(prepared));
       expect(state.txHash, prepared.hash);

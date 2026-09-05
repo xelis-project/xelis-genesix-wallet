@@ -53,9 +53,8 @@ Future<void> main(List<String> args) async {
 
     _targetDirectory.createSync(recursive: true);
     for (final entry in fetched.entries) {
-      File(
-        '${_targetDirectory.path}/${entry.key}',
-      ).writeAsStringSync(entry.value.body);
+      File('${_targetDirectory.path}/${entry.key}')
+          .writeAsStringSync(entry.value.body);
     }
 
     _metadataFile.writeAsStringSync(
@@ -158,9 +157,8 @@ String? _foruiVersion() {
           return null;
         }
 
-        final match = RegExp(
-          r'^\s+version:\s+"?([^"]+)"?\s*$',
-        ).firstMatch(line);
+        final match = RegExp(r'^\s+version:\s+"?([^"]+)"?\s*$')
+            .firstMatch(line);
         if (match != null) {
           return match.group(1);
         }

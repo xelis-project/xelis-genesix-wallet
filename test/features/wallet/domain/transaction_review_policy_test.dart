@@ -114,19 +114,18 @@ SingleTransferTransaction _review({
   required bool isConfirmed,
 }) {
   return TransactionReviewState.singleTransferTransaction(
-        isConfirmed: isConfirmed,
-        asset: _asset,
-        name: 'XELIS',
-        ticker: 'XEL',
-        amount: '1 XEL',
-        fee: '0.000001 XEL',
-        destination: _destination,
-        destinationAddress: const DestinationAddress(address: _destination),
-        txHash: prepared.hash,
-        prepared: prepared,
-        sessionIdentity: _sessionIdentity,
-      )
-      as SingleTransferTransaction;
+    isConfirmed: isConfirmed,
+    asset: _asset,
+    name: 'XELIS',
+    ticker: 'XEL',
+    amount: '1 XEL',
+    fee: '0.000001 XEL',
+    destination: _destination,
+    destinationAddress: const DestinationAddress(address: _destination),
+    txHash: prepared.hash,
+    prepared: prepared,
+    sessionIdentity: _sessionIdentity,
+  ) as SingleTransferTransaction;
 }
 
 wallet_flutter.XelisWalletPreparedTransaction _preparedTransfer() {
@@ -152,13 +151,12 @@ DeleteMultisigTransaction _deleteReview({
   required bool isConfirmed,
 }) {
   return TransactionReviewState.deleteMultisigTransaction(
-        isConfirmed: isConfirmed,
-        fee: '0.000003 XEL',
-        txHash: prepared.hash,
-        prepared: prepared,
-        sessionIdentity: _sessionIdentity,
-      )
-      as DeleteMultisigTransaction;
+    isConfirmed: isConfirmed,
+    fee: '0.000003 XEL',
+    txHash: prepared.hash,
+    prepared: prepared,
+    sessionIdentity: _sessionIdentity,
+  ) as DeleteMultisigTransaction;
 }
 
 wallet_flutter.XelisWalletPreparedTransaction _preparedMultisigDelete() {

@@ -23,10 +23,8 @@ void main() {
     addTearDown(container.dispose);
 
     final detail = await container.read(
-      transactionEntryDetailProvider((
-        hash: 'confirmed-hash',
-        isPending: false,
-      )).future,
+      transactionEntryDetailProvider((hash: 'confirmed-hash', isPending: false))
+          .future,
     );
 
     expect(detail.hash, 'confirmed-hash');
@@ -49,10 +47,8 @@ void main() {
     addTearDown(container.dispose);
 
     final detail = await container.read(
-      transactionEntryDetailProvider((
-        hash: 'pending-hash',
-        isPending: true,
-      )).future,
+      transactionEntryDetailProvider((hash: 'pending-hash', isPending: true))
+          .future,
     );
 
     expect(detail.hash, 'pending-hash');
@@ -75,10 +71,8 @@ void main() {
         .setSession(WalletSession(name: 'wallet-a', repository: repositoryA));
 
     final staleDetail = container.read(
-      transactionEntryDetailProvider((
-        hash: 'confirmed-hash',
-        isPending: false,
-      )).future,
+      transactionEntryDetailProvider((hash: 'confirmed-hash', isPending: false))
+          .future,
     );
     container
         .read(activeWalletSessionProvider.notifier)

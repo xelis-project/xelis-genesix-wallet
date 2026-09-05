@@ -5,6 +5,7 @@ export 'wallet_path.dart';
 import 'dart:collection';
 import 'dart:io';
 import 'dart:ui';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/domain/settings_state.dart';

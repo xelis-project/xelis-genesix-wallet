@@ -148,9 +148,8 @@ _ParsedPayload _parseTypedValue(XelisDataValue value, AppLocalizations loc) =>
     };
 
 _ParsedPayload _parseTypedStructure(XelisDataElement payload) {
-  final formatted = const JsonEncoder.withIndent(
-    '  ',
-  ).convert(_taggedElement(payload));
+  final formatted = const JsonEncoder.withIndent('  ')
+      .convert(_taggedElement(payload));
   return _textPayload(
     formatted,
     label: 'JSON',

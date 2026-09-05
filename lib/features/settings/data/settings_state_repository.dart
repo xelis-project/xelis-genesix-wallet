@@ -15,9 +15,9 @@ class SettingsStateRepository extends PersistentState<SettingsState> {
   SettingsState fromStorage() {
     var locale = const Locale('en');
     try {
-      final value =
-          genesixSharedPreferences.get(key: storageKey)
-              as Map<String, dynamic>?;
+      final value = genesixSharedPreferences.get(
+        key: storageKey,
+      ) as Map<String, dynamic>?;
       if (value == null) {
         // check user system language and apply if available
         final languageCode =

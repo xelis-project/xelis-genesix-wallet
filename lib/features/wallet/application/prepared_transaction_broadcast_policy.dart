@@ -3,8 +3,9 @@ import 'package:genesix/shared/models/app_failure.dart';
 import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart'
     as wallet_flutter;
 
-typedef PreparedTransactionFailureRecorder =
-    AppFailure Function(wallet_flutter.XelisWalletException failure);
+typedef PreparedTransactionFailureRecorder = AppFailure Function(
+  wallet_flutter.XelisWalletException failure,
+);
 
 PreparedTransactionBroadcastResult projectPreparedTransactionBroadcastResult(
   wallet_flutter.XelisWalletBroadcastResult result, {
