@@ -24,12 +24,12 @@ class NewsRepository {
     try {
       final response = await client.get(indexUri);
       if (response.statusCode < 200 || response.statusCode >= 300) {
-        return _readCachedOrBundledFeed();
+        return await _readCachedOrBundledFeed();
       }
 
       final decoded = jsonDecode(response.body);
       if (decoded is! Map<String, dynamic>) {
-        return _readCachedOrBundledFeed();
+        return await _readCachedOrBundledFeed();
       }
 
       await storage.save(key: cacheStorageKey, value: decoded);

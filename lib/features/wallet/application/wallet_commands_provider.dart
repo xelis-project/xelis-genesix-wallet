@@ -313,7 +313,7 @@ class WalletCommandsController {
             _recordPreparedBroadcastFailure(failure, transaction),
       );
       if (!_isRepositoryActive(repository)) return null;
-      return reconcilePreparedTransactionBroadcastResult(
+      return await reconcilePreparedTransactionBroadcastResult(
         result,
         rescan: () => ref.read(walletRuntimeProvider.notifier).rescan(),
         onRescanFailure: (error, stackTrace) {
@@ -355,7 +355,7 @@ class WalletCommandsController {
     }
 
     try {
-      return repository.estimateTransferFees([
+      return await repository.estimateTransferFees([
         wallet_flutter.XelisWalletTransferRequest(
           destination: destination,
           asset: asset,
