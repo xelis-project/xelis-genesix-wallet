@@ -17,10 +17,21 @@ pluginManagement {
     }
 }
 
+// Load Kotlin alongside AGP before Flutter's included plugins can supply an
+// older Kotlin implementation through a parent classloader.
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.10")
+    }
+}
+
 plugins {
     id("dev.flutter.flutter-plugin-loader") version "1.0.0"
-    id("com.android.application") version "8.12.1" apply false
-    id("org.jetbrains.kotlin.android") version "2.2.20" apply false
+    id("com.android.application") version "9.1.0" apply false
 }
 
 include(":app")

@@ -50,6 +50,12 @@ jobs:
         with:
           ref: ${{ env.BUILD_REF }}
 
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
       - name: Set up Rust toolchain
         uses: dtolnay/rust-toolchain@1.94.1
 
@@ -61,6 +67,9 @@ jobs:
         with:
           flutter-version: 3.47.1
           cache: true
+
+      - name: Configure Flutter Java runtime
+        run: flutter config --jdk-dir="$JAVA_HOME"
 
       - name: Install dependencies
         run: flutter pub get

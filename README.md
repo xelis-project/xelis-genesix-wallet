@@ -26,7 +26,7 @@ It reuses the same [`xelis_wallet`](https://github.com/xelis-project/xelis-block
 | Windows | Yes | Yes |
 | Linux | Yes | Yes |
 | macOS | Yes (Apple lock regeneration required; see below) | Not in current release draft pipeline |
-| iOS | Yes (Apple lock regeneration required; see below) | Not in current release draft pipeline |
+| iOS 14+ | Yes (Apple lock regeneration required; see below) | Not in current release draft pipeline |
 | Web | Yes (special build flow) | No |
 
 Download prebuilt artifacts from the [GitHub Releases page](https://github.com/xelis-project/xelis-genesix-wallet/releases).
@@ -43,6 +43,8 @@ for packaging checks and the outstanding Apple lock regeneration.
   with Dart 3.13 or later, within the constraints in `pubspec.yaml`.
 - [Rustup](https://www.rust-lang.org/tools/install) to install the Rust
   toolchain selected by the resolved wallet package (Rust 1.94.1 for XWF 0.3).
+- For Android: JDK 21. Set `JAVA_HOME` and your IDE's Gradle runtime to the same
+  JDK, then run `flutter config --jdk-dir="<jdk-21-home>"`.
 
 The Rust toolchain is used by the `xelis_wallet_flutter` dependency when it
 builds the native XELIS wallet library through Flutter Native Assets. Rust
