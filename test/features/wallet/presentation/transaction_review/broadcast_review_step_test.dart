@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/theme/genesix_theme.dart';
 import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
@@ -212,7 +213,7 @@ Future<ProviderContainer> _pumpReview(
       container: container,
       child: MaterialApp(
         theme: theme.toApproximateMaterialTheme(),
-        builder: (context, child) => FTheme(data: theme, child: child!),
+        builder: (context, child) => GenesixTheme(data: theme, child: child!),
         home: Scaffold(
           body: SingleChildScrollView(
             child: BroadcastReviewStep(

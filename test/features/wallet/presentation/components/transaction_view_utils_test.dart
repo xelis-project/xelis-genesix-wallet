@@ -1,8 +1,8 @@
 import 'dart:collection';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:forui/forui.dart';
+import 'package:genesix/shared/theme/genesix_theme.dart';
 import 'package:genesix/features/wallet/presentation/components/transaction_view_utils.dart';
 import 'package:genesix/shared/theme/theme.dart';
 import 'package:genesix/src/generated/l10n/app_localizations_en.dart';
@@ -121,7 +121,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: theme.toApproximateMaterialTheme(),
-        home: FTheme(
+        home: GenesixTheme(
           data: theme,
           child: Scaffold(body: TransactionInfoSuffix(info: info)),
         ),

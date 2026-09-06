@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:forui/forui.dart';
+import 'package:genesix/shared/theme/genesix_theme.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/xswd_full_value_view.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/xswd_json_parameters_view.dart';
 import 'package:genesix/shared/theme/theme.dart';
@@ -92,7 +92,7 @@ Future<void> _pump(WidgetTester tester, Map<String, dynamic> parameters) async {
   await tester.pumpWidget(
     MaterialApp(
       theme: theme.toApproximateMaterialTheme(),
-      home: FTheme(
+      home: GenesixTheme(
         data: theme,
         child: Scaffold(
           body: SingleChildScrollView(

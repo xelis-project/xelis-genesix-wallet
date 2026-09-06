@@ -1,9 +1,10 @@
 import 'dart:collection';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/theme/genesix_theme.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/domain/wallet_runtime_state.dart';
@@ -132,7 +133,7 @@ Future<_TransferHarness> _pumpTransfer(
       container: container,
       child: MaterialApp(
         theme: theme.toApproximateMaterialTheme(),
-        home: FTheme(data: theme, child: const TransferScreen()),
+        home: GenesixTheme(data: theme, child: const TransferScreen()),
       ),
     ),
   );

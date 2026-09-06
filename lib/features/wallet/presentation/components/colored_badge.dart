@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';

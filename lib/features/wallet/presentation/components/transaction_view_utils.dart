@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/wallet/domain/parsed_extra_data.dart';
 import 'package:genesix/shared/utils/utils.dart';

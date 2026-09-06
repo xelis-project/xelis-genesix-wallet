@@ -121,9 +121,8 @@ If any tool adapter conflicts with this file, follow `AGENTS.md` and update the 
 - When model, provider, serializer, or route annotations change, regenerate builders and verify call sites.
 - Use typed GoRouter patterns already defined under `lib/features/router/**`.
 - Keep route extras and codecs consistent when adding transfer objects.
-- Genesix UI is transitioning from experimental Material-era patterns to a production-oriented Forui architecture. Classify touched UI as legacy, transitional, or target architecture before copying nearby patterns.
-- Prefer Forui and current shared wrappers for new or materially refactored UI. Treat adjacent legacy Material code as evidence of current behavior, not automatically as the target pattern.
-- Keep Material-to-Forui migration scoped to the request; preserving legacy code temporarily is preferable to an unrelated broad rewrite.
+- Prefer Forui and current shared wrappers for new or materially refactored UI. Keep UI migrations scoped to the request; existing Material widgets may remain until their surface is migrated.
+- Use `package:material_ui/material_ui.dart` for Material widgets and `package:flutter/widgets.dart` for shared Flutter primitives. Temporary third-party compatibility and localization constraints live in `.agents/knowledge/PROJECT_NOTES.md`.
 - For Forui API details and migration work, use the local-only snapshots under `.agents/references/forui/`.
 - Do not commit `.agents/references/forui/**`; these files are an ignored local cache of upstream Forui documentation.
 - Before any Forui dependency migration, review the [official Forui changelog](https://pub.dev/packages/forui/changelog) for breaking changes and migration notes.

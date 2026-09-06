@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:forui/forui.dart';
+import 'package:genesix/shared/theme/genesix_theme.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/settings/domain/settings_state.dart';
@@ -56,7 +56,7 @@ void main() {
             container: container,
             child: MaterialApp(
               theme: theme.toApproximateMaterialTheme(),
-              home: FTheme(
+              home: GenesixTheme(
                 data: theme,
                 child: XswdAppDetail(
                   sessionReference: application.sessionReference,

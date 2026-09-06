@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/features/settings/presentation/components/theme_mode_switcher.dart';
 import 'package:genesix/features/settings/presentation/settings_content.dart';

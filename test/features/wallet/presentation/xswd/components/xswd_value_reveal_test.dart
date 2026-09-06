@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:forui/forui.dart';
+import 'package:genesix/shared/theme/genesix_theme.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/invoke_widget.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/transfer_builder_widget.dart';
@@ -169,7 +169,7 @@ Future<void> _pump(WidgetTester tester, Widget child) async {
       container: container,
       child: MaterialApp(
         theme: theme.toApproximateMaterialTheme(),
-        home: FTheme(
+        home: GenesixTheme(
           data: theme,
           child: Scaffold(body: SingleChildScrollView(child: child)),
         ),

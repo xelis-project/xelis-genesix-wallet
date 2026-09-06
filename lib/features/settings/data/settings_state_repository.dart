@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:genesix/features/settings/domain/settings_state.dart';
 import 'package:genesix/shared/storage/persistent_state.dart';
 import 'package:genesix/features/logger/logger.dart';

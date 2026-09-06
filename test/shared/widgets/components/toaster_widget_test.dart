@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/theme/genesix_theme.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/shared/models/toast_content.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
@@ -238,7 +239,7 @@ Future<_ToastHarness> _pumpToaster(
               .copyWith(textScaler: TextScaler.linear(textScale)),
           child: child!,
         ),
-        home: FTheme(
+        home: GenesixTheme(
           data: theme,
           child: const ToasterWidget(child: SizedBox.expand()),
         ),

@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/theme/genesix_theme.dart';
 import 'package:genesix/features/wallet/presentation/address_book/contact_list_tile.dart';
 import 'package:genesix/shared/theme/theme.dart';
 import 'package:genesix/src/generated/l10n/app_localizations_en.dart';
@@ -77,7 +78,7 @@ Future<void> _pumpTile(
   await tester.pumpWidget(
     MaterialApp(
       theme: theme.toApproximateMaterialTheme(),
-      home: FTheme(
+      home: GenesixTheme(
         data: theme,
         child: Scaffold(
           body: Align(

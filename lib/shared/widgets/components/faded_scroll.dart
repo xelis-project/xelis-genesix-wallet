@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Fades the edges of a scrollable child and auto-hides fades
 /// at start/end using only a ScrollController.

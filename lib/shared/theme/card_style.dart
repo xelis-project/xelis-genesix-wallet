@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 
 /// Genesix card tokens based on the Forui CLI 0.24 card style.

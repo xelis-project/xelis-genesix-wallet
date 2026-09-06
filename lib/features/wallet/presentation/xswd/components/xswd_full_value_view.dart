@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 
 /// Lazily lays out a complete revealed XSWD value in bounded text chunks.

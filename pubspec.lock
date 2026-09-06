@@ -543,26 +543,26 @@ packages:
     dependency: "direct main"
     description:
       name: forui
-      sha256: bf2a76293044ec8fbe8869032a67e79b6dfb12a471c9c3ecacb45626e69744d2
+      sha256: a00251e8db89430f388990049ea30ec62f7d1c9270f1fe6ab0d316b1a9415a72
       url: "https://pub.dev"
     source: hosted
-    version: "0.25.0"
-  forui_assets:
-    dependency: transitive
-    description:
-      name: forui_assets
-      sha256: "43b219f28399786b8ac51c01048f583b3155c0e39ac163845b1e73c959240139"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.25.0"
+    version: "0.26.0"
   forui_cli:
     dependency: "direct dev"
     description:
       name: forui_cli
-      sha256: e5d39be13de8c02e9cde6ad02d057455129f3dcf4b4a165c6a4ee8aad4276e66
+      sha256: "91769964c515edef30923a62474fc8b164d358debb17e690ffa9367a6efd3b22"
       url: "https://pub.dev"
     source: hosted
-    version: "0.25.0"
+    version: "0.26.0"
+  forui_lucide:
+    dependency: transitive
+    description:
+      name: forui_lucide
+      sha256: "5c797b7455b4c491504fc0f76c3d2d6eebe7cb49aeac1d5c02026f06ae1d2607"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.26.1"
   freezed:
     dependency: "direct dev"
     description:
@@ -894,7 +894,7 @@ packages:
     source: hosted
     version: "0.13.0"
   material_ui:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: material_ui
       sha256: "9c0156b0cf8b3f56d365c8ffe051a720be3cae9eec55119f01e01b986ffb7101"

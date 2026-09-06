@@ -1,9 +1,10 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:genesix/shared/theme/genesix_theme.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/shared/lifecycle/desktop_shutdown_coordinator.dart';
 import 'package:genesix/shared/theme/theme.dart';
@@ -14,6 +15,7 @@ import 'package:genesix/features/router/router.dart';
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/settings/domain/settings_state.dart';
 import 'package:genesix/shared/resources/app_resources.dart';
+import 'package:genesix/shared/resources/localizations.dart';
 import 'package:genesix/shared/widgets/app_initializer.dart';
 
 class Genesix extends ConsumerStatefulWidget {
@@ -76,10 +78,10 @@ class _GenesixState extends ConsumerState<Genesix> with WindowListener {
       // themeMode: ThemeMode.light,
       theme: themeData.toApproximateMaterialTheme(),
       routerConfig: router,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      localizationsDelegates: genesixLocalizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       builder: (context, child) {
-        return FTheme(
+        return GenesixTheme(
           data: themeData,
           child: AppInitializer(child: child!),
         );

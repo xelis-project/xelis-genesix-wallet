@@ -3,10 +3,10 @@ import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:forui/forui.dart';
+import 'package:genesix/shared/theme/genesix_theme.dart';
 import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/authentication/domain/wallet_session.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -361,7 +361,7 @@ Future<void> _pumpDialog(
       child: MaterialApp.router(
         routerConfig: router,
         theme: theme.toApproximateMaterialTheme(),
-        builder: (_, child) => FTheme(data: theme, child: child!),
+        builder: (_, child) => GenesixTheme(data: theme, child: child!),
       ),
     ),
   );

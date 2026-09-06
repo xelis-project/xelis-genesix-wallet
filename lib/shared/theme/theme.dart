@@ -1,5 +1,5 @@
 import 'package:forui/forui.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:genesix/shared/theme/card_style.dart';
 import 'package:genesix/shared/theme/theme_colors.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';

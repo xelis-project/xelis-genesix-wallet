@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:forui/forui.dart';
+import 'package:genesix/shared/theme/genesix_theme.dart';
 import 'package:genesix/shared/theme/theme.dart';
 import 'package:genesix/shared/widgets/components/async_f_button.dart';
 
@@ -70,7 +70,7 @@ Future<void> _pumpButton(
   await tester.pumpWidget(
     MaterialApp(
       theme: theme.toApproximateMaterialTheme(),
-      home: FTheme(
+      home: GenesixTheme(
         data: theme,
         child: Center(
           child: AsyncFButton(

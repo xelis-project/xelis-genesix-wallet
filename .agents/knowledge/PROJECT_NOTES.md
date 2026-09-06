@@ -17,29 +17,25 @@ workflow rules in `AGENTS.md` or the relevant skill.
 - Add an entry only when rediscovering the fact would be costly or risky.
 - Remove or update entries when the underlying constraint no longer applies.
 
-## Architecture Transition
+## UI Compatibility
 
-### 2026-07-18 - Material-to-Forui modernization
+### 2026-09-06 - Material dependency and localization boundaries
 
-Genesix is actively moving from an experimental Material-era UI and provider
-architecture toward a production-oriented Forui architecture.
+`GenesixTheme` retains the official `MaterialUiCompatibilityBridge` for
+dependencies that still consume Flutter's original Material types, including
+skeletonizer, infinite_scroll_pagination and pretty_qr_code. Keep its deprecation
+suppression at this shared boundary. Remove the bridge once those dependencies
+have migrated and their rendered flows have been verified.
 
-Guidance:
+When configuring localization delegates in app roots or widget harnesses, use
+`genesixLocalizationsDelegates`. The
+generated `AppLocalizations.localizationsDelegates` currently supplies the old
+Material/Cupertino types, which do not satisfy Material UI and Forui lookups.
+Re-evaluate this workaround when Flutter's localization generator migrates.
 
-- Classify a touched surface as legacy, transitional, or aligned with the target
-  architecture before treating nearby code as precedent.
-- Existing Material code documents current behavior but is not automatically the
-  preferred pattern for new or materially refactored UI.
-- Prefer Forui and current shared wrappers for new work while keeping migrations
-  scoped to the requested surface. Do not turn a focused change into an
-  unrelated application-wide rewrite.
-- Preserve behavior, accessibility, localization, and mobile/desktop/web/native
-  constraints while modernizing a surface.
-
-Invalidation:
-
-- Update or remove this note when the Material-era migration is complete and
-  the target UI architecture is consistently represented across the repository.
+Sources: [theme boundary](../../lib/shared/theme/genesix_theme.dart),
+[localization delegates](../../lib/shared/resources/localizations.dart), and
+[compatibility tests](../../test/shared/theme/genesix_theme_test.dart).
 
 ## Multisig
 
