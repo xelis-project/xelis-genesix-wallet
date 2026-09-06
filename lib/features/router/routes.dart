@@ -1,6 +1,5 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:genesix/features/authentication/presentation/create_wallet_screen.dart';
 import 'package:genesix/features/authentication/presentation/import_wallet_screen.dart';
 import 'package:genesix/features/router/route_utils.dart';
@@ -399,6 +398,8 @@ CustomTransitionPage<T> pageTransition<T>(
       animation: animation,
       secondaryAnimation: secondaryAnimation,
       transitionType: SharedAxisTransitionType.horizontal,
+      // animations uses material_ui, while Genesix still owns a Flutter theme.
+      fillColor: Theme.of(context).canvasColor,
       child: child,
     );
   },

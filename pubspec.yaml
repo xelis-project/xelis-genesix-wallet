@@ -42,7 +42,7 @@ dependencies:
   web: ^1.1.1
   infinite_scroll_pagination: ^5.1.1
   forui: ^0.25.0
-  animations: ^2.2.0
+  animations: ^3.0.0
   jovial_svg: ^1.1.30
   fl_chart: ^1.2.0
   skeletonizer: ^2.1.3
