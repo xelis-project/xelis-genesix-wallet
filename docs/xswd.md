@@ -1,7 +1,7 @@
 # XSWD policy and support matrix
 
-This document is the canonical Genesix policy for XSWD (XELIS Wallet
-Standardized Daemon) connections, permission requests, transaction review, and
+This document is the canonical Genesix policy for XSWD (XELIS Secure WebSocket
+DApp) connections, permission requests, transaction review, and
 deferred XSWD capabilities. It describes the behaviour that the application
 must enforce; it is not a protocol specification or a product roadmap.
 
