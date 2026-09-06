@@ -8,7 +8,6 @@ import 'dart:ui';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:genesix/features/settings/domain/settings_state.dart';
 import 'package:genesix/features/wallet/domain/destination_address.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
@@ -50,15 +49,6 @@ bool get isDesktopDevice {
 
 bool isXelis(String assetHash) {
   return assetHash == sdk.xelisAsset;
-}
-
-// Usage: formatUsd(1234.5) -> $1,234.50
-String formatUsd(num value, {bool withSymbol = true}) {
-  final format = NumberFormat.currency(
-    symbol: withSymbol ? '\$' : null,
-    decimalDigits: 2,
-  );
-  return format.format(value);
 }
 
 // Usage: formatCurrency(1234.5, '€') -> €1,234.50
@@ -269,17 +259,6 @@ extension StringExtension on String {
               : '';
         })
         .join(' ');
-  }
-}
-
-String translateThemeName(AppLocalizations loc, AppTheme theme) {
-  switch (theme) {
-    case AppTheme.dark:
-      return loc.dark;
-    case AppTheme.light:
-      return loc.light;
-    case AppTheme.xelis: // Keep for compatibility
-      return 'XELIS';
   }
 }
 

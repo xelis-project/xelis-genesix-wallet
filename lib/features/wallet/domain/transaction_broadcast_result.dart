@@ -1,14 +1,5 @@
 import 'package:genesix/shared/models/app_failure.dart';
 
-/// Legacy hash-only broadcast result retained for multisig migration paths.
-enum TransactionBroadcastResult {
-  submitted,
-  retryable,
-  rejected,
-  localFailure,
-  submittedNeedsResync,
-}
-
 /// Disposition of an authored prepared-transaction broadcast attempt.
 enum TransactionBroadcastDisposition {
   submitted,
