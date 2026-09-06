@@ -1,6 +1,2 @@
 *.freezed.dart linguist-generated=true
 *.g.dart linguist-generated=true
-lib/bridge_definitions.dart linguist-generated=true
-lib/bridge_generated.dart linguist-generated=true
-native/src/bridge_generated.io.rs linguist-generated=true
-native/src/bridge_generated.rs linguist-generated=true
