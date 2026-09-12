@@ -51,6 +51,7 @@ class _GenesixState extends ConsumerState<Genesix> with WindowListener {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
+    final locale = ref.watch(settingsProvider.select((state) => state.locale));
     final appTheme = ref.watch(
       settingsProvider.select((state) => state.appTheme),
     );
@@ -78,6 +79,7 @@ class _GenesixState extends ConsumerState<Genesix> with WindowListener {
       // themeMode: ThemeMode.light,
       theme: themeData.toApproximateMaterialTheme(),
       routerConfig: router,
+      locale: locale,
       localizationsDelegates: genesixLocalizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       builder: (context, child) {

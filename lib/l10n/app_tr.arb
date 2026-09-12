@@ -1,4 +1,13 @@
 {
+  "xswd_connection_approved": "Bağlantı onaylandı: {appName}",
+  "@xswd_connection_approved": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "xswd_permission_request_rejected": "Bu uygulama geçersiz veya desteklenmeyen bir izin isteği gönderdi. Genesix isteği reddetti ve bağlantıyı kapatıyor.",
   "xswd_permission_unsupported_impact": "Genesix bu işlemi inceleyemiyor. Sor seçili olsa bile istekler reddedilir.",
   "xswd_permission_public_impact": "Genel bilgilere, ücret tahminlerine ve doğrulama araçlarına erişir.",
   "xswd_permission_wallet_data_impact": "Bu iznin kapsadığı cüzdan verilerini okur.",

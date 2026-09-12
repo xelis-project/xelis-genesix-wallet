@@ -52,23 +52,4 @@ class Toast extends _$Toast {
       ),
     );
   }
-
-  void showXswd({
-    required String title,
-    String? description,
-    bool showOpen = true,
-  }) {
-    final loc = ref.read(appLocalizationsProvider);
-
-    show(
-      ToastContent.xswd(
-        title: title,
-        description: description,
-        dismissible: true,
-        actions: showOpen
-            ? [ToastAction(label: loc.open_button, isPrimary: true)]
-            : const [],
-      ),
-    );
-  }
 }

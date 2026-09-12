@@ -15,11 +15,12 @@ final xswdNotificationServiceProvider = Provider<XswdNotificationService>((
       if (!ref.mounted) {
         return;
       }
-      final decision = ref.read(xswdRequestProvider).decision;
-      if (decision == null || decision.isCompleted) {
+      final pending = ref.read(xswdRequestProvider);
+      final token = pending.token;
+      if (token == null || !pending.pending) {
         return;
       }
-      ref.read(xswdRequestProvider.notifier).requestOpenDialog();
+      ref.read(xswdRequestProvider.notifier).requestOpenIfCurrent(token);
     },
   );
   ref.onDispose(service.dispose);
@@ -319,8 +320,9 @@ class XswdNotificationService with WidgetsBindingObserver {
       return;
     }
 
+    final owner = _approvalOwner;
     _onApprovalOpen?.call();
-    unawaited(clearPendingApproval());
+    if (owner != null) unawaited(clearPendingApproval(owner: owner));
   }
 
   Future<void> _createAndroidChannels() async {

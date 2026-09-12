@@ -54,6 +54,7 @@ it again against the current wallet's application list.
 | Public information, verification, and estimates | Supported by the standard permission review. They may be prefetched and persisted after explicit approval. Permission names are the unprefixed `WalletMethod.jsonKey` values, such as `get_version`. |
 | Private wallet data | Balance, address, nonce, asset, transaction, and `network_info` reads are supported by the standard permission review. The latter includes the connected daemon endpoint, which is not necessarily public. These methods may be prefetched and persisted only after the UI identifies their wallet-data effect. |
 | Application storage | The XSWD application's isolated database reads and writes are supported, prefetchable, and persistable after explicit approval. |
+| Wallet event subscriptions | `subscribe` / `unsubscribe` are valid upstream XSWD methods, but Genesix currently rejects them because its review catalogue covers only SDK `WalletMethod` entries. This is a consumer compatibility gap, not an invalid protocol request. |
 | `build_transaction` | A one-time, structured, lossless review only. It cannot be prefetched or persisted as `Accept`; legacy persisted `Accept` policies are normalized to `Ask`. |
 | Supported builders | Transfer, burn, multisig, contract invocation, and contract deployment, only when every field is rendered and validated. |
 | Unsupported builders/fields | Blob builder, explicit signers, and non-`NoInterContractPermission` permissions are rejected. |
@@ -122,6 +123,34 @@ If a permission payload cannot be parsed, Genesix returns `Reject` first, then
 performs that fresh state read and closes only the matching opaque session.
 An absent match is treated as an already disconnected session; application ID
 is never used as a fallback authority.
+
+## Approval notifications and dialog identity
+
+`XswdToastHost` owns the approval card; `ToasterWidget` owns ordinary messages
+and structured failures. Approval text comes from an immutable request snapshot,
+without a native application, session capability, or payload.
+
+Every request has a fresh in-memory token bound to its active wallet and opaque
+XSWD session. Only its notifier can complete the decision. Buttons, system
+notification clicks, timers and dialog closure act on the request actually
+presented; stale actions cannot affect a successor, even in the same session.
+Wallet replacement and teardown reject pending decisions. Request authority is
+never serialized in notifications or routes.
+
+The persistent card has **Open** and **Deny**, with no implicit rejection by
+dismissal or swipe. It disappears only after the corresponding dialog opens;
+an unavailable navigator leaves it available for another attempt. The dialog
+briefly waits for a following request after acceptance, resetting its local
+state for each request. Temporary notification suppression must not strand an
+unseen successor. Cancellation and disconnection messages are independent,
+expiring notices; only the matching session can terminate an active approval.
+
+Accepting admission approves the connection, not future permissions. Each
+request still needs validation and review. A validation failure currently
+rejects the request and closes its exact session with a localized explanation;
+the support reference created for that failure reaches the toast unchanged.
+This includes unsupported prefetch batches. Rejecting preauthorization while
+retaining `Ask` and keeping the session open is not yet implemented.
 
 ## Lossless Web transaction review
 

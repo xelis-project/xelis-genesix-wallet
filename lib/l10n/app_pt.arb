@@ -1,4 +1,13 @@
 {
+  "xswd_connection_approved": "Conexão aprovada: {appName}",
+  "@xswd_connection_approved": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "xswd_permission_request_rejected": "Esta aplicação enviou um pedido de permissão inválido ou não suportado. O Genesix rejeitou o pedido e está a fechar a conexão.",
   "xswd_permission_unsupported_impact": "O Genesix não pode analisar esta operação. Os pedidos são recusados mesmo com a opção Perguntar.",
   "xswd_permission_public_impact": "Aceder a informações públicas, estimativas de taxas e ferramentas de verificação.",
   "xswd_permission_wallet_data_impact": "Ler os dados da carteira abrangidos por esta permissão.",

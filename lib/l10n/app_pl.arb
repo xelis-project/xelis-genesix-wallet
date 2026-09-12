@@ -1,4 +1,13 @@
 {
+  "xswd_connection_approved": "Połączenie zatwierdzone: {appName}",
+  "@xswd_connection_approved": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "xswd_permission_request_rejected": "Ta aplikacja wysłała nieprawidłowe lub nieobsługiwane żądanie uprawnień. Genesix je odrzucił i zamyka połączenie.",
   "xswd_permission_unsupported_impact": "Genesix nie może sprawdzić tej operacji. Żądania są odrzucane również przy ustawieniu Pytaj.",
   "xswd_permission_public_impact": "Dostęp do informacji publicznych, szacunków opłat i narzędzi weryfikacji.",
   "xswd_permission_wallet_data_impact": "Odczyt danych portfela objętych tym uprawnieniem.",

@@ -1,4 +1,13 @@
 {
+  "xswd_connection_approved": "Sambungan diluluskan: {appName}",
+  "@xswd_connection_approved": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "xswd_permission_request_rejected": "Aplikasi ini menghantar permintaan kebenaran yang tidak sah atau tidak disokong. Genesix menolaknya dan sedang menutup sambungan.",
   "xswd_permission_unsupported_impact": "Genesix tidak dapat menyemak operasi ini. Permintaan ditolak, termasuk apabila ditetapkan kepada Tanya.",
   "xswd_permission_public_impact": "Mengakses maklumat awam, anggaran yuran dan alat pengesahan.",
   "xswd_permission_wallet_data_impact": "Membaca data dompet yang diliputi oleh kebenaran ini.",

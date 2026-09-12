@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/shared/theme/genesix_theme.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
-import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/shared/models/toast_content.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/resources/localizations.dart';
@@ -19,76 +18,6 @@ const _supportReference =
     'wallet.authentication_or_corrupt_data';
 
 void main() {
-  testWidgets('replaces XSWD toasts emitted before the next frame safely', (
-    tester,
-  ) async {
-    final harness = await _pumpToaster(tester);
-    _showError(
-      harness,
-      description: 'Invalid permission request.',
-      supportReference: _supportReference,
-    );
-    final toasts = harness.container.read(toastProvider.notifier);
-    toasts.showXswd(title: 'Request cancelled', showOpen: false);
-    toasts.showXswd(title: 'Application disconnected', showOpen: false);
-
-    await tester.pumpAndSettle();
-
-    expect(find.text('Request cancelled'), findsNothing);
-    expect(find.text('Application disconnected'), findsOneWidget);
-    expect(find.text('Invalid permission request.'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('dismisses an unmounted XSWD toast when its dialog opens', (
-    tester,
-  ) async {
-    final harness = await _pumpToaster(tester);
-    harness.container
-        .read(toastProvider.notifier)
-        .showXswd(title: 'Pending permission');
-    // The post-frame callback creates the entry; its widget has not mounted.
-    await tester.pump();
-
-    harness.container
-        .read(xswdDialogCoordinatorProvider.notifier)
-        .requestOpen();
-    await tester.pumpAndSettle();
-
-    expect(find.text('Pending permission'), findsNothing);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('replaces an already mounted XSWD toast safely', (tester) async {
-    final harness = await _pumpToaster(tester);
-    final toasts = harness.container.read(toastProvider.notifier);
-    toasts.showXswd(title: 'Request cancelled', showOpen: false);
-    await tester.pumpAndSettle();
-    expect(find.text('Request cancelled'), findsOneWidget);
-
-    toasts.showXswd(title: 'Application disconnected', showOpen: false);
-    await tester.pumpAndSettle();
-
-    expect(find.text('Request cancelled'), findsNothing);
-    expect(find.text('Application disconnected'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('can unmount with an XSWD toast dismissal pending', (
-    tester,
-  ) async {
-    final harness = await _pumpToaster(tester);
-    final toasts = harness.container.read(toastProvider.notifier);
-    toasts.showXswd(title: 'Request cancelled', showOpen: false);
-    toasts.showXswd(title: 'Application disconnected', showOpen: false);
-    await tester.pump();
-
-    await tester.pumpWidget(const SizedBox.shrink());
-    await tester.pump();
-
-    expect(tester.takeException(), isNull);
-  });
-
   testWidgets('renders the complete structured failure hierarchy', (
     tester,
   ) async {
@@ -256,13 +185,11 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('keeps legacy raw errors bounded pending their migration', (
-    tester,
-  ) async {
+  testWidgets('keeps ordinary validation messages compact', (tester) async {
     final harness = await _pumpToaster(tester, size: const Size(320, 480));
     final description = List.filled(
       10,
-      'Legacy native diagnostic that is not support-safe.',
+      'A long localized validation message.',
     ).join(' ');
 
     _showError(harness, description: description);

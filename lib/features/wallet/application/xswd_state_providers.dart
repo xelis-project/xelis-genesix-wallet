@@ -6,6 +6,8 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/wallet/domain/permission_rpc_request.dart';
 import 'package:genesix/features/wallet/domain/prefetch_permissions_rpc_request.dart';
 import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
+import 'package:genesix/features/wallet/domain/xswd_notice.dart';
+import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
 import 'package:genesix/features/wallet/domain/xswd_payload.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
@@ -19,125 +21,214 @@ part 'xswd_state_providers.g.dart';
 
 @Riverpod(keepAlive: true)
 class XswdDialogCoordinator extends _$XswdDialogCoordinator {
+  int _sequence = 0;
   int _lastClaimedSignal = 0;
 
   @override
-  int build() {
-    return 0;
+  XswdDialogState build() => const XswdDialogState();
+
+  void requestOpen(Object token) {
+    if (!ref.mounted) return;
+    state = XswdDialogState(
+      intent: XswdOpenIntent(sequence: ++_sequence, token: token),
+      presentedToken: state.presentedToken,
+    );
   }
 
-  void requestOpen() {
-    state++;
-  }
-
-  bool claimOpenRequest(int signal) {
-    if (signal <= _lastClaimedSignal) {
+  bool claimOpenRequest(XswdOpenIntent intent) {
+    if (!ref.mounted) return false;
+    if (intent.sequence <= _lastClaimedSignal ||
+        !identical(state.intent, intent) ||
+        !ref.read(xswdRequestProvider.notifier).isCurrent(intent.token)) {
       return false;
     }
-
-    _lastClaimedSignal = signal;
+    _lastClaimedSignal = intent.sequence;
     return true;
+  }
+
+  void markPresented(Object token) {
+    if (!ref.mounted) return;
+    if (!ref.read(xswdRequestProvider.notifier).isCurrent(token)) return;
+    state = XswdDialogState(intent: state.intent, presentedToken: token);
+  }
+
+  void clearPresented(Object token) {
+    if (!ref.mounted) return;
+    if (!identical(state.presentedToken, token)) return;
+    state = XswdDialogState(intent: state.intent);
   }
 }
 
 @Riverpod(keepAlive: true)
 class XswdRequest extends _$XswdRequest {
+  _OwnedXswdRequest? _request;
+
   @override
   XswdRequestState build() {
-    return const XswdRequestState(message: '', snackBarVisible: false);
+    ref.onDispose(_completePendingDecision);
+    ref.listen(activeWalletSessionProvider, (previous, next) {
+      if (!identical(previous, next)) clearRequest();
+    });
+    ref.listen(activeWalletRepositoryProvider, (previous, next) {
+      if (!identical(previous, next)) clearRequest();
+    });
+    return const XswdRequestState();
   }
 
-  Completer<XelisXswdDecision> newRequest({
+  Future<XelisXswdDecision>? get pendingDecision =>
+      state.pending ? _request?.decision.future : null;
+
+  XswdNotice? get currentNotice {
+    final request = state.xswdEventSummary;
+    final token = state.token;
+    if (request == null ||
+        token == null ||
+        !state.pending ||
+        !isCurrent(token)) {
+      return null;
+    }
+    return _request?.notice;
+  }
+
+  Future<XelisXswdDecision> newRequest({
     required XelisXswdRequest xswdEventSummary,
     required String message,
+    required NativeWalletRepository repository,
   }) {
-    _completePendingDecision();
-
-    final decisionCompleter = Completer<XelisXswdDecision>();
-
+    if (!identical(ref.read(activeWalletRepositoryProvider), repository)) {
+      return Future.value(XelisXswdDecision.reject);
+    }
+    PermissionRpcRequest? permissionRequest;
+    XswdPermissionReview? permissionReview;
+    PrefetchPermissionsRequest? prefetchRequest;
     if (xswdEventSummary.isPermissionRequest) {
       final data = decodeXswdPayload(xswdEventSummary.payload);
       if (data['jsonrpc'] != '2.0') {
         throw const FormatException('Invalid XSWD JSON-RPC version.');
       }
       normalizeXswdBuildTransactionFields(data);
-
-      final permissionRequest = PermissionRpcRequest.fromJson(data);
-      final permissionReview = XswdPermissionReview.parse(permissionRequest);
-
-      state = state.copyWith(
-        xswdEventSummary: xswdEventSummary,
-        message: message,
-        decision: decisionCompleter,
-        permissionRpcRequest: permissionRequest,
-        permissionReview: permissionReview,
-        prefetchPermissionsRequest: null,
-      );
+      permissionRequest = PermissionRpcRequest.fromJson(data);
+      permissionReview = XswdPermissionReview.parse(permissionRequest);
     } else if (xswdEventSummary.isPrefetchPermissionsRequest) {
       final data = decodeXswdPayload(xswdEventSummary.payload);
-
-      final prefetchRequest = PrefetchPermissionsRequest.fromJson(data);
+      prefetchRequest = PrefetchPermissionsRequest.fromJson(data);
       resolveXswdPrefetchPermissions(prefetchRequest);
-
-      state = state.copyWith(
-        xswdEventSummary: xswdEventSummary,
-        message: message,
-        decision: decisionCompleter,
-        permissionRpcRequest: null,
-        permissionReview: null,
-        prefetchPermissionsRequest: prefetchRequest,
-      );
-    } else if (xswdEventSummary.isApplicationDisconnect ||
-        xswdEventSummary.isCancelRequest) {
-      state = state.copyWith(
-        xswdEventSummary: xswdEventSummary,
-        message: message,
-        decision: null,
-        permissionRpcRequest: null,
-        permissionReview: null,
-        prefetchPermissionsRequest: null,
-      );
-    } else {
-      state = state.copyWith(
-        xswdEventSummary: xswdEventSummary,
-        message: message,
-        decision: decisionCompleter,
-        permissionRpcRequest: null,
-        permissionReview: null,
-        prefetchPermissionsRequest: null,
-      );
+    } else if (!xswdEventSummary.isApplicationRequest) {
+      throw const FormatException('Expected an XSWD approval request.');
     }
 
-    return decisionCompleter;
+    // Validate before replacing an unrelated, already reviewable request.
+    _completePendingDecision();
+    final request = _OwnedXswdRequest(
+      notice: XswdNotice(
+        token: Object(),
+        applicationName: xswdEventSummary.application.name,
+        kind: xswdEventSummary.isPermissionRequest
+            ? XswdNoticeKind.permission
+            : xswdEventSummary.isPrefetchPermissionsRequest
+            ? XswdNoticeKind.prefetch
+            : XswdNoticeKind.application,
+        method: permissionRequest?.method,
+        permissionCount: prefetchRequest?.permissions.length,
+      ),
+      repository: repository,
+      walletSession: ref.read(activeWalletSessionProvider),
+      sessionReference: xswdEventSummary.application.sessionReference,
+    );
+    _request = request;
+    state = XswdRequestState(
+      token: request.token,
+      pending: true,
+      xswdEventSummary: xswdEventSummary,
+      message: message,
+      permissionRpcRequest: permissionRequest,
+      permissionReview: permissionReview,
+      prefetchPermissionsRequest: prefetchRequest,
+      suppressXswdToast: state.suppressXswdToast,
+    );
+    return request.decision.future;
   }
 
-  void closeSnackBar() {
-    state.snackBarTimer?.cancel();
-    state = state.copyWith(snackBarVisible: false, snackBarTimer: null);
+  bool isCurrent(Object token) {
+    if (!ref.mounted) return false;
+    final request = _request;
+    return request != null &&
+        identical(request.token, token) &&
+        identical(state.token, token) &&
+        identical(
+          ref.read(activeWalletRepositoryProvider),
+          request.repository,
+        ) &&
+        identical(
+          ref.read(activeWalletSessionProvider),
+          request.walletSession,
+        ) &&
+        state.xswdEventSummary?.application.sessionReference ==
+            request.sessionReference;
   }
 
-  void setSuppressXswdToast(bool value) {
-    if (!ref.mounted) return;
-    if (state.suppressXswdToast == value) return;
+  bool requestOpenIfCurrent(Object token) {
+    if (!isCurrent(token) || !state.pending) return false;
+    ref.read(xswdDialogCoordinatorProvider.notifier).requestOpen(token);
+    return true;
+  }
+
+  bool resolveIfCurrent(Object token, XelisXswdDecision decision) {
+    if (!isCurrent(token) || !state.pending) return false;
+    _request!.decision.complete(decision);
+    state = state.copyWith(pending: false);
+    return true;
+  }
+
+  bool rejectIfCurrent(Object token) {
+    if (!isCurrent(token) || !state.pending) return false;
+    return clearIfCurrent(token);
+  }
+
+  bool clearIfCurrent(Object token) {
+    if (!isCurrent(token)) return false;
+    clearRequest();
+    return true;
+  }
+
+  void setSuppressXswdToast(bool value, {required Object token}) {
+    if (!isCurrent(token) || state.suppressXswdToast == value) return;
     state = state.copyWith(suppressXswdToast: value);
   }
 
-  void requestOpenDialog() {
-    ref.read(xswdDialogCoordinatorProvider.notifier).requestOpen();
-  }
-
+  /// Privileged wallet/session teardown. UI actions must use tokenized commands.
   void clearRequest() {
     _completePendingDecision();
-    state.snackBarTimer?.cancel();
-    state = const XswdRequestState(message: '', snackBarVisible: false);
+    final token = state.token;
+    _request = null;
+    state = const XswdRequestState();
+    if (token != null) {
+      ref.read(xswdDialogCoordinatorProvider.notifier).clearPresented(token);
+    }
   }
 
   void _completePendingDecision() {
-    final pendingDecision = state.decision;
-    if (pendingDecision != null && !pendingDecision.isCompleted) {
-      pendingDecision.complete(XelisXswdDecision.reject);
+    final decision = _request?.decision;
+    if (decision != null && !decision.isCompleted) {
+      decision.complete(XelisXswdDecision.reject);
     }
   }
+}
+
+final class _OwnedXswdRequest {
+  _OwnedXswdRequest({
+    required this.notice,
+    required this.repository,
+    required this.walletSession,
+    required this.sessionReference,
+  });
+
+  final XswdNotice notice;
+  Object get token => notice.token;
+  final NativeWalletRepository repository;
+  final Object? walletSession;
+  final XelisXswdSessionReference sessionReference;
+  final Completer<XelisXswdDecision> decision = Completer<XelisXswdDecision>();
 }
 
 @riverpod
@@ -162,16 +253,24 @@ Future<List<XelisXswdApplication>> xswdApplications(Ref ref) async {
     return [];
   }
 
-  final pendingDecision = ref.watch(
-    xswdRequestProvider.select((state) => state.decision),
+  final pending = ref.watch(
+    xswdRequestProvider.select((state) => (state.token, state.pending)),
   );
-  if (pendingDecision != null && !pendingDecision.isCompleted) {
-    await pendingDecision.future;
+  if (pending.$2) {
+    await ref.read(xswdRequestProvider.notifier).pendingDecision;
+    if (!ref.mounted ||
+        !identical(ref.read(activeWalletRepositoryProvider), nativeWallet)) {
+      return [];
+    }
   }
 
   try {
     return (await nativeWallet.getXswdState()).applications;
   } catch (error, stackTrace) {
+    if (!ref.mounted ||
+        !identical(ref.read(activeWalletRepositoryProvider), nativeWallet)) {
+      return [];
+    }
     final failure = recordAppFailure(
       error,
       stackTrace,

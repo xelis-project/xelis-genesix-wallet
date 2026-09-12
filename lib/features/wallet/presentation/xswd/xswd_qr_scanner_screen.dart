@@ -206,7 +206,7 @@ class _XswdQRScannerScreenState extends ConsumerState<XswdQRScannerScreen> {
 
       // Wait for all XSWD permission dialogs to fully complete.
       final waitDeadline = DateTime.now().add(const Duration(seconds: 12));
-      while (mounted && ref.read(xswdRequestProvider).decision != null) {
+      while (mounted && ref.read(xswdRequestProvider).token != null) {
         if (DateTime.now().isAfter(waitDeadline)) {
           break;
         }

@@ -1,4 +1,13 @@
 {
+  "xswd_connection_approved": "Връзката е одобрена: {appName}",
+  "@xswd_connection_approved": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "xswd_permission_request_rejected": "Това приложение изпрати невалидна или неподдържана заявка за разрешение. Genesix я отхвърли и затваря връзката.",
   "xswd_permission_unsupported_impact": "Genesix не може да прегледа тази операция. Заявките се отхвърлят дори при избрано „Питай“.",
   "xswd_permission_public_impact": "Достъп до публична информация, оценки на такси и инструменти за проверка.",
   "xswd_permission_wallet_data_impact": "Четене на данните на портфейла, обхванати от това разрешение.",

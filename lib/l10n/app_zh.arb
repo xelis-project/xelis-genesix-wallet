@@ -1,4 +1,13 @@
 {
+  "xswd_connection_approved": "已批准连接：{appName}",
+  "@xswd_connection_approved": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "xswd_permission_request_rejected": "此应用发送了无效或不受支持的权限请求。Genesix 已拒绝该请求，正在关闭连接。",
   "xswd_permission_unsupported_impact": "Genesix 无法审查此操作。即使设置为询问，请求也会被拒绝。",
   "xswd_permission_public_impact": "访问公开信息、费用估算和验证工具。",
   "xswd_permission_wallet_data_impact": "读取此权限涵盖的钱包数据。",

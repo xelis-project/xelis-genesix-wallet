@@ -32,16 +32,16 @@ import 'package:go_router/go_router.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class XswdDialog extends ConsumerStatefulWidget {
-  const XswdDialog(this.animation, {super.key});
+  const XswdDialog(this.animation, {this.onRequestPresented, super.key});
 
   final Animation<double> animation;
+  final ValueChanged<Object>? onRequestPresented;
 
   @override
   ConsumerState createState() => _XswdDialogState();
 }
 
 enum _ActionSet {
-  okOnly,
   permissionDecision, // Allow / Always allow / Always deny / Deny
   connectionDecision, // Allow / Deny
   prefetchDecision, // Allow / Deny
@@ -57,7 +57,8 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
 
   Timer? _closeDelayTimer;
   bool _awaitingNextRequest = false;
-  int? _awaitingRequestHash;
+  Object? _presentedRequestToken;
+  Object? _timerRequestToken;
 
   late final ScrollController _scrollController;
 
@@ -74,18 +75,28 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     _scrollController = ScrollController();
   }
 
-  void _setSuppress(bool value) {
-    _xswdRequestNotifier.setSuppressXswdToast(value);
+  void _setSuppress(bool value, Object token) {
+    _xswdRequestNotifier.setSuppressXswdToast(value, token: token);
   }
 
-  void _startTimer() {
+  void _startTimer(Object token) {
     _timer?.cancel();
+    _timerRequestToken = token;
     _millisecondsLeft = _requestLifetime;
     _progress = 1.0;
 
     _timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
       if (!mounted) {
         timer.cancel();
+        return;
+      }
+      if (!_xswdRequestNotifier.isCurrent(token)) {
+        timer.cancel();
+        if (identical(_timerRequestToken, token)) {
+          _timer = null;
+          _timerRequestToken = null;
+          _timerShouldRun = false;
+        }
         return;
       }
 
@@ -96,7 +107,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
 
       if (_millisecondsLeft <= 0) {
         timer.cancel();
-        _handleTimeout();
+        _handleTimeout(token);
       }
     });
   }
@@ -104,98 +115,69 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
   void _stopTimer() {
     _timer?.cancel();
     _timer = null;
+    _timerRequestToken = null;
   }
 
-  void _handleTimeout() {
-    _cancelRapidFireWait();
+  void _handleTimeout(Object token) {
+    if (!_xswdRequestNotifier.isCurrent(token)) return;
 
-    final xswdState = ref.read(xswdRequestProvider);
-    final decision = xswdState.decision;
-    if (decision != null && !decision.isCompleted) {
-      decision.complete(XelisXswdDecision.reject);
-    }
+    _cancelRapidFireWait(token);
+    _xswdRequestNotifier.rejectIfCurrent(token);
 
-    // Clear the request state to prevent stuck spinners
-    ref.read(xswdRequestProvider.notifier).clearRequest();
-
-    if (mounted) {
+    if (mounted && identical(_presentedRequestToken, token)) {
       context.pop();
     }
   }
 
-  void _cancelRapidFireWait() {
+  void _cancelRapidFireWait(Object token) {
     _closeDelayTimer?.cancel();
     _closeDelayTimer = null;
 
-    _setSuppress(false);
+    _setSuppress(false, token);
 
     _awaitingNextRequest = false;
-    _awaitingRequestHash = null;
   }
 
-  void _beginRapidFireWait({required int currentRequestHash}) {
+  void _beginRapidFireWait(Object token) {
     _closeDelayTimer?.cancel();
 
-    _setSuppress(true);
+    _setSuppress(true, token);
 
     setState(() {
       _awaitingNextRequest = true;
-      _awaitingRequestHash = currentRequestHash;
     });
 
     _closeDelayTimer = Timer(_rapidFireWindow, () {
       if (!mounted) return;
 
-      final latestHash = ref
-          .read(xswdRequestProvider)
-          .xswdEventSummary
-          ?.hashCode;
-
-      if (latestHash != null &&
-          _awaitingRequestHash != null &&
-          latestHash != _awaitingRequestHash) {
+      if (!_xswdRequestNotifier.isCurrent(token)) {
         setState(() {
           _awaitingNextRequest = false;
-          _awaitingRequestHash = null;
         });
-        _setSuppress(false);
         return;
       }
 
-      _setSuppress(false);
-      context.pop();
+      _setSuppress(false, token);
+      _xswdRequestNotifier.clearIfCurrent(token);
+      if (identical(_presentedRequestToken, token)) {
+        context.pop();
+      }
     });
   }
 
   _ActionSet _computeActionSet(XswdRequestState xswdState) {
     final summary = xswdState.xswdEventSummary;
-    if (summary == null) return _ActionSet.okOnly;
-
-    final isCancelOrDisconnect =
-        summary.isCancelRequest || summary.isApplicationDisconnect;
-
-    if (isCancelOrDisconnect) return _ActionSet.okOnly;
+    if (summary == null) return _ActionSet.connectionDecision;
     if (summary.isPermissionRequest) return _ActionSet.permissionDecision;
     if (summary.isApplicationRequest) return _ActionSet.connectionDecision;
     if (summary.isPrefetchPermissionsRequest) {
       return _ActionSet.prefetchDecision;
     }
 
-    return _ActionSet.okOnly;
+    return _ActionSet.connectionDecision;
   }
 
-  bool _shouldRunTimerForActionSet(_ActionSet set) {
-    switch (set) {
-      case _ActionSet.permissionDecision:
-      case _ActionSet.connectionDecision:
-      case _ActionSet.prefetchDecision:
-        return true;
-      case _ActionSet.okOnly:
-        return false;
-    }
-  }
-
-  void _syncTimerWithState(_ActionSet set) {
+  void _syncTimerWithState() {
     if (_awaitingNextRequest) {
       if (_timerShouldRun) {
         _timerShouldRun = false;
@@ -204,18 +186,12 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
       return;
     }
 
-    final shouldRun = _shouldRunTimerForActionSet(set);
-
-    if (shouldRun && !_timerShouldRun) {
+    if (!_timerShouldRun) {
       _timerShouldRun = true;
-      _startTimer();
-      return;
-    }
-
-    if (!shouldRun && _timerShouldRun) {
-      _timerShouldRun = false;
-      _stopTimer();
-      return;
+      final token = _presentedRequestToken;
+      if (token != null) {
+        _startTimer(token);
+      }
     }
   }
 
@@ -223,7 +199,13 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
   void dispose() {
     _closeDelayTimer?.cancel();
     _timer?.cancel();
-    _setSuppress(false);
+    final token = _presentedRequestToken;
+    if (token != null) {
+      final notifier = _xswdRequestNotifier;
+      Future<void>.microtask(
+        () => notifier.setSuppressXswdToast(false, token: token),
+      );
+    }
 
     _scrollController.dispose();
 
@@ -234,11 +216,18 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final xswdState = ref.watch(xswdRequestProvider);
+    // A popped route can still rebuild during its exit animation. It must not
+    // present or acknowledge a successor that belongs to the next dialog.
+    if (ModalRoute.of(context)?.isActive == false) {
+      return const SizedBox.shrink();
+    }
+    final token = xswdState.token;
 
-    if (xswdState.xswdEventSummary == null) {
-      _cancelRapidFireWait();
-      _syncTimerWithState(_ActionSet.okOnly);
-      _detailsExpanded = false;
+    if (xswdState.xswdEventSummary == null || token == null) {
+      final presentedToken = _presentedRequestToken;
+      if (presentedToken != null) {
+        _resetPresentation(presentedToken, nextToken: null);
+      }
 
       return AppDialog(
         clipBehavior: Clip.antiAlias,
@@ -253,13 +242,9 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
           FButton(
             variant: .ghost,
             onPress: () {
-              final decision = xswdState.decision;
-              if (decision != null && !decision.isCompleted) {
-                decision.complete(XelisXswdDecision.reject);
+              if (mounted && ref.read(xswdRequestProvider).token == null) {
+                context.pop();
               }
-              // Clear the request state
-              ref.read(xswdRequestProvider.notifier).clearRequest();
-              context.pop();
             },
             child: Text(loc.close),
           ),
@@ -272,32 +257,32 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
         xswdState.permissionReview?.isBuildTransaction == true
         ? xswdState.permissionReview
         : null;
-    final currentHash = summary.hashCode;
 
-    if (_awaitingNextRequest &&
-        _awaitingRequestHash != null &&
-        currentHash != _awaitingRequestHash) {
-      _closeDelayTimer?.cancel();
-      _closeDelayTimer = null;
-      _awaitingNextRequest = false;
-      _awaitingRequestHash = null;
-      _detailsExpanded = false;
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _setSuppress(false);
-      });
-
-      if (_scrollController.hasClients) {
-        _scrollController.jumpTo(0);
+    if (!identical(_presentedRequestToken, token)) {
+      final previousToken = _presentedRequestToken;
+      if (previousToken != null) {
+        _resetPresentation(previousToken, nextToken: token);
       }
+      _presentedRequestToken = token;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted ||
+            ModalRoute.of(context)?.isActive == false ||
+            !identical(_presentedRequestToken, token) ||
+            !_xswdRequestNotifier.isCurrent(token)) {
+          return;
+        }
+        widget.onRequestPresented?.call(token);
+        _setSuppress(false, token);
+        if (_scrollController.hasClients) {
+          _scrollController.jumpTo(0);
+        }
+      });
     }
 
     final actionSet = _computeActionSet(xswdState);
-    _syncTimerWithState(actionSet);
+    _syncTimerWithState();
 
     final eventType = summary.kind;
-    final isCancelOrDisconnect =
-        summary.isCancelRequest || summary.isApplicationDisconnect;
 
     String title;
     switch (eventType) {
@@ -310,9 +295,9 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
       case XelisXswdRequestKind.prefetchPermissions:
         title = loc.prefetch_permissions_request.capitalize();
       case XelisXswdRequestKind.cancel:
-        title = loc.cancellation_request.capitalize();
+        title = loc.unknown_request.capitalize();
       case XelisXswdRequestKind.applicationDisconnect:
-        title = loc.app_disconnected.capitalize();
+        title = loc.unknown_request.capitalize();
     }
 
     return AppDialog(
@@ -337,14 +322,12 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      if (!isCancelOrDisconnect) ...[
-                        _XswdCountdownIndicator(
-                          awaitingNextRequest: _awaitingNextRequest,
-                          millisecondsLeft: _millisecondsLeft,
-                          progress: _progress,
-                        ),
-                        const SizedBox(width: Spaces.medium),
-                      ],
+                      _XswdCountdownIndicator(
+                        awaitingNextRequest: _awaitingNextRequest,
+                        millisecondsLeft: _millisecondsLeft,
+                        progress: _progress,
+                      ),
+                      const SizedBox(width: Spaces.medium),
                       Expanded(
                         child: Text(
                           title,
@@ -353,37 +336,16 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                           maxLines: 1,
                         ),
                       ),
-                      if (!isCancelOrDisconnect) ...[
-                        const SizedBox(width: Spaces.medium),
-                        // X = explicit dismissal -> close immediately, no rapid-fire wait.
-                        FTooltip(
-                          tipBuilder: (context, controller) => Text(loc.close),
-                          child: FButton.icon(
-                            variant: .ghost,
-                            semanticsTooltip: loc.close,
-                            onPress: () {
-                              _stopTimer();
-                              _cancelRapidFireWait();
-
-                              // Complete decision as reject before closing
-                              final decision = ref
-                                  .read(xswdRequestProvider)
-                                  .decision;
-                              if (decision != null && !decision.isCompleted) {
-                                decision.complete(XelisXswdDecision.reject);
-                              }
-
-                              // Clear the request state to prevent stuck spinners
-                              ref
-                                  .read(xswdRequestProvider.notifier)
-                                  .clearRequest();
-
-                              context.pop();
-                            },
-                            child: const Icon(FLucideIcons.x, size: 22),
-                          ),
+                      const SizedBox(width: Spaces.medium),
+                      FTooltip(
+                        tipBuilder: (context, controller) => Text(loc.close),
+                        child: FButton.icon(
+                          variant: .ghost,
+                          semanticsTooltip: loc.close,
+                          onPress: () => _rejectAndClose(token),
+                          child: const Icon(FLucideIcons.x, size: 22),
                         ),
-                      ],
+                      ),
                     ],
                   ),
                 ),
@@ -471,9 +433,38 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
             _rememberDecision = value;
           });
         },
-        onDecision: _handleDecision,
+        onDecision: (decision) => _handleDecision(
+          token: token,
+          xswdState: xswdState,
+          decision: decision,
+        ),
       ).build(context),
     );
+  }
+
+  void _resetPresentation(Object previousToken, {required Object? nextToken}) {
+    _closeDelayTimer?.cancel();
+    _closeDelayTimer = null;
+    _stopTimer();
+    _timerShouldRun = false;
+    _awaitingNextRequest = false;
+    _millisecondsLeft = _requestLifetime;
+    _progress = 1.0;
+    _rememberDecision = false;
+    _detailsExpanded = false;
+    _setSuppress(false, previousToken);
+    _presentedRequestToken = nextToken;
+  }
+
+  void _rejectAndClose(Object token) {
+    if (!_xswdRequestNotifier.isCurrent(token)) return;
+    _stopTimer();
+    _cancelRapidFireWait(token);
+    if (_xswdRequestNotifier.rejectIfCurrent(token) &&
+        mounted &&
+        identical(_presentedRequestToken, token)) {
+      context.pop();
+    }
   }
 
   void _showAssetDetails(
@@ -519,33 +510,31 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     );
   }
 
-  void _handleDecision(XelisXswdDecision decision) {
+  void _handleDecision({
+    required Object token,
+    required XswdRequestState xswdState,
+    required XelisXswdDecision decision,
+  }) {
+    if (!_xswdRequestNotifier.isCurrent(token) || !xswdState.pending) return;
     _stopTimer();
-
-    final xswdState = ref.read(xswdRequestProvider);
-    _showAcceptedConnectionToast(xswdState, decision);
-
-    final decisionCompleter = xswdState.decision;
-    if (decisionCompleter != null && !decisionCompleter.isCompleted) {
-      decisionCompleter.complete(decision);
-    }
 
     final rejected =
         decision == XelisXswdDecision.reject ||
         decision == XelisXswdDecision.alwaysReject;
     if (rejected) {
-      _cancelRapidFireWait();
-      context.pop();
+      if (!_xswdRequestNotifier.resolveIfCurrent(token, decision)) return;
+      _cancelRapidFireWait(token);
+      _xswdRequestNotifier.clearIfCurrent(token);
+      if (mounted && identical(_presentedRequestToken, token)) {
+        context.pop();
+      }
       return;
     }
 
-    final currentHash = xswdState.xswdEventSummary?.hashCode;
-    if (currentHash != null) {
-      _beginRapidFireWait(currentRequestHash: currentHash);
-      return;
+    if (_xswdRequestNotifier.resolveIfCurrent(token, decision)) {
+      _showAcceptedConnectionToast(xswdState, decision);
+      _beginRapidFireWait(token);
     }
-
-    context.pop();
   }
 
   void _showAcceptedConnectionToast(
@@ -568,7 +557,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     ref
         .read(toastProvider.notifier)
         .showInformation(
-          title: loc.app_connected_title(summary.application.name),
+          title: loc.xswd_connection_approved(summary.application.name),
         );
   }
 }
@@ -1107,14 +1096,6 @@ class _XswdActionFactory {
 
   List<Widget> build(BuildContext context) {
     switch (actionSet) {
-      case _ActionSet.okOnly:
-        return [
-          FButton(
-            onPress: busy ? null : () => context.pop(),
-            child: Text(loc.ok_button),
-          ),
-        ];
-
       case _ActionSet.connectionDecision:
       case _ActionSet.prefetchDecision:
         return _buildBinaryDecisionActions(

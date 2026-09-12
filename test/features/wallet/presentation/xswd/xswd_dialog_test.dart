@@ -1,11 +1,15 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:forui/forui.dart';
 import 'package:genesix/shared/theme/genesix_theme.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
+import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
+import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/xswd_full_value_view.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_dialog.dart';
+import 'package:genesix/features/wallet/presentation/xswd/xswd_dialog_host.dart';
 import 'package:genesix/shared/theme/theme.dart';
 import 'package:genesix/src/generated/l10n/app_localizations_en.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
@@ -24,24 +28,20 @@ void main() {
       tester,
     ) async {
       final loc = AppLocalizationsEn();
-      final container = ProviderContainer(
-        overrides: [appLocalizationsProvider.overrideWithValue(loc)],
-      );
+      final harness = _XswdTestHarness(loc);
+      final container = harness.container;
       addTearDown(container.dispose);
-      final decision = container
-          .read(xswdRequestProvider.notifier)
-          .newRequest(
-            xswdEventSummary: XelisXswdRequest(
-              kind: XelisXswdRequestKind.permission,
-              application: _application,
-              payload: xswdTestPayload({
-                'id': 1,
-                'jsonrpc': '2.0',
-                'method': method,
-              }),
-            ),
-            message: 'Review request',
-          );
+      final decision = harness.newRequest(
+        XelisXswdRequest(
+          kind: XelisXswdRequestKind.permission,
+          application: _application,
+          payload: xswdTestPayload({
+            'id': 1,
+            'jsonrpc': '2.0',
+            'method': method,
+          }),
+        ),
+      );
       final theme = greenDark(touch: false);
       await tester.pumpWidget(
         UncontrolledProviderScope(
@@ -62,18 +62,18 @@ void main() {
       };
       expect(find.text(impact).hitTestable(), findsOneWidget);
       expect(find.text(loc.xswd_permission_persistent_impact), findsNothing);
-      expect(decision.isCompleted, isFalse);
+      expect(container.read(xswdRequestProvider).pending, isTrue);
       final remember = find.text(loc.remember_my_decision);
       await tester.ensureVisible(remember);
       await tester.tap(remember);
       await tester.pump(const Duration(milliseconds: 150));
       expect(find.text(loc.xswd_permission_persistent_impact), findsOneWidget);
-      expect(decision.isCompleted, isFalse);
+      expect(container.read(xswdRequestProvider).pending, isTrue);
       final allow = find.text(loc.allow);
       await tester.ensureVisible(allow);
       await tester.tap(allow);
       await tester.pump(const Duration(milliseconds: 150));
-      expect(await decision.future, XelisXswdDecision.alwaysAccept);
+      expect(await decision, XelisXswdDecision.alwaysAccept);
       container.read(xswdRequestProvider.notifier).clearRequest();
       await tester.pumpWidget(const SizedBox.shrink());
       expect(tester.takeException(), isNull);
@@ -93,41 +93,35 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      final container = ProviderContainer(
-        overrides: [
-          appLocalizationsProvider.overrideWithValue(AppLocalizationsEn()),
-        ],
-      );
+      final harness = _XswdTestHarness(AppLocalizationsEn());
+      final container = harness.container;
       addTearDown(container.dispose);
-      container
-          .read(xswdRequestProvider.notifier)
-          .newRequest(
-            xswdEventSummary: XelisXswdRequest(
-              kind: XelisXswdRequestKind.permission,
-              application: _application,
-              payload: xswdTestPayload({
-                'id': 1,
-                'jsonrpc': '2.0',
-                'method': WalletMethod.buildTransaction.jsonKey,
-                'params': {
-                  'transfers': [
-                    {
-                      'asset': 'asset-hash',
-                      'amount': BigInt.parse('9007199254740993'),
-                      'destination': _canonicalAddress,
-                      'extra_data': {'wide': BigInt.parse('9007199254740993')},
-                      'encrypt_extra_data': false,
-                    },
-                  ],
-                  'fee': {'fixed': 7},
-                  'base_fee': {'cap': 11},
-                  'fee_limit': 13,
-                  'broadcast': true,
+      harness.newRequest(
+        XelisXswdRequest(
+          kind: XelisXswdRequestKind.permission,
+          application: _application,
+          payload: xswdTestPayload({
+            'id': 1,
+            'jsonrpc': '2.0',
+            'method': WalletMethod.buildTransaction.jsonKey,
+            'params': {
+              'transfers': [
+                {
+                  'asset': 'asset-hash',
+                  'amount': BigInt.parse('9007199254740993'),
+                  'destination': _canonicalAddress,
+                  'extra_data': {'wide': BigInt.parse('9007199254740993')},
+                  'encrypt_extra_data': false,
                 },
-              }),
-            ),
-            message: 'Review request',
-          );
+              ],
+              'fee': {'fixed': 7},
+              'base_fee': {'cap': 11},
+              'fee_limit': 13,
+              'broadcast': true,
+            },
+          }),
+        ),
+      );
       final theme = greenDark(touch: viewport.size.width < 600);
 
       await tester.pumpWidget(
@@ -207,36 +201,30 @@ void main() {
         ),
       ),
     );
-    final container = ProviderContainer(
-      overrides: [
-        appLocalizationsProvider.overrideWithValue(AppLocalizationsEn()),
-      ],
-    );
+    final harness = _XswdTestHarness(AppLocalizationsEn());
+    final container = harness.container;
     addTearDown(container.dispose);
-    container
-        .read(xswdRequestProvider.notifier)
-        .newRequest(
-          xswdEventSummary: XelisXswdRequest(
-            kind: XelisXswdRequestKind.permission,
-            application: _application,
-            payload: xswdTestPayload({
-              'id': 1,
-              'jsonrpc': '2.0',
-              'method': WalletMethod.buildTransaction.jsonKey,
-              'params': {
-                'transfers': [
-                  {
-                    'asset': 'asset-hash',
-                    'amount': 1,
-                    'destination': integrated.encodedAddress,
-                    'encrypt_extra_data': false,
-                  },
-                ],
+    harness.newRequest(
+      XelisXswdRequest(
+        kind: XelisXswdRequestKind.permission,
+        application: _application,
+        payload: xswdTestPayload({
+          'id': 1,
+          'jsonrpc': '2.0',
+          'method': WalletMethod.buildTransaction.jsonKey,
+          'params': {
+            'transfers': [
+              {
+                'asset': 'asset-hash',
+                'amount': 1,
+                'destination': integrated.encodedAddress,
+                'encrypt_extra_data': false,
               },
-            }),
-          ),
-          message: 'Review request',
-        );
+            ],
+          },
+        }),
+      ),
+    );
     final theme = greenDark(touch: false);
 
     await tester.pumpWidget(
@@ -285,37 +273,31 @@ void main() {
   testWidgets('reveals the serialized contract module on explicit action', (
     tester,
   ) async {
-    final container = ProviderContainer(
-      overrides: [
-        appLocalizationsProvider.overrideWithValue(AppLocalizationsEn()),
-      ],
-    );
+    final harness = _XswdTestHarness(AppLocalizationsEn());
+    final container = harness.container;
     addTearDown(container.dispose);
-    container
-        .read(xswdRequestProvider.notifier)
-        .newRequest(
-          xswdEventSummary: XelisXswdRequest(
-            kind: XelisXswdRequestKind.permission,
-            application: _application,
-            payload: xswdTestPayload({
-              'id': 1,
-              'jsonrpc': '2.0',
-              'method': WalletMethod.buildTransaction.jsonKey,
-              'params': {
-                'deploy_contract': {
-                  'contract': '00aa',
-                  'invoke': {
-                    'max_gas': BigInt.parse('9007199254740993'),
-                    'deposits': {
-                      'asset-hash': {'amount': '7', 'private': true},
-                    },
-                  },
+    harness.newRequest(
+      XelisXswdRequest(
+        kind: XelisXswdRequestKind.permission,
+        application: _application,
+        payload: xswdTestPayload({
+          'id': 1,
+          'jsonrpc': '2.0',
+          'method': WalletMethod.buildTransaction.jsonKey,
+          'params': {
+            'deploy_contract': {
+              'contract': '00aa',
+              'invoke': {
+                'max_gas': BigInt.parse('9007199254740993'),
+                'deposits': {
+                  'asset-hash': {'amount': '7', 'private': true},
                 },
               },
-            }),
-          ),
-          message: 'Review request',
-        );
+            },
+          },
+        }),
+      ),
+    );
     final theme = greenDark(touch: false);
 
     await tester.pumpWidget(
@@ -389,30 +371,24 @@ void main() {
     ];
 
     for (final feeCase in cases) {
-      final container = ProviderContainer(
-        overrides: [
-          appLocalizationsProvider.overrideWithValue(AppLocalizationsEn()),
-        ],
-      );
+      final harness = _XswdTestHarness(AppLocalizationsEn());
+      final container = harness.container;
       containers.add(container);
-      container
-          .read(xswdRequestProvider.notifier)
-          .newRequest(
-            xswdEventSummary: XelisXswdRequest(
-              kind: XelisXswdRequestKind.permission,
-              application: _application,
-              payload: xswdTestPayload({
-                'id': 1,
-                'jsonrpc': '2.0',
-                'method': WalletMethod.buildTransaction.jsonKey,
-                'params': {
-                  'burn': {'asset': 'asset-hash', 'amount': '1'},
-                  ...feeCase.fields,
-                },
-              }),
-            ),
-            message: 'Review request',
-          );
+      harness.newRequest(
+        XelisXswdRequest(
+          kind: XelisXswdRequestKind.permission,
+          application: _application,
+          payload: xswdTestPayload({
+            'id': 1,
+            'jsonrpc': '2.0',
+            'method': WalletMethod.buildTransaction.jsonKey,
+            'params': {
+              'burn': {'asset': 'asset-hash', 'amount': '1'},
+              ...feeCase.fields,
+            },
+          }),
+        ),
+      );
       final theme = greenDark(touch: false);
       await tester.pumpWidget(
         UncontrolledProviderScope(
@@ -439,45 +415,39 @@ void main() {
   });
 
   testWidgets('renders nested RPC values and wide gas exactly', (tester) async {
-    final container = ProviderContainer(
-      overrides: [
-        appLocalizationsProvider.overrideWithValue(AppLocalizationsEn()),
-      ],
-    );
+    final harness = _XswdTestHarness(AppLocalizationsEn());
+    final container = harness.container;
     addTearDown(container.dispose);
-    container
-        .read(xswdRequestProvider.notifier)
-        .newRequest(
-          xswdEventSummary: XelisXswdRequest(
-            kind: XelisXswdRequestKind.permission,
-            application: _application,
-            payload: xswdTestPayload({
-              'id': 1,
-              'jsonrpc': '2.0',
-              'method': WalletMethod.buildTransaction.jsonKey,
-              'params': {
-                'invoke_contract': {
-                  'contract': 'contract-hash',
-                  'max_gas': BigInt.parse('9007199254740993'),
-                  'entry_id': 0,
-                  'parameters': [
+    harness.newRequest(
+      XelisXswdRequest(
+        kind: XelisXswdRequestKind.permission,
+        application: _application,
+        payload: xswdTestPayload({
+          'id': 1,
+          'jsonrpc': '2.0',
+          'method': WalletMethod.buildTransaction.jsonKey,
+          'params': {
+            'invoke_contract': {
+              'contract': 'contract-hash',
+              'max_gas': BigInt.parse('9007199254740993'),
+              'entry_id': 0,
+              'parameters': [
+                {
+                  'type': 'object',
+                  'value': [
                     {
-                      'type': 'object',
-                      'value': [
-                        {
-                          'type': 'primitive',
-                          'value': {'type': 'u64', 'value': '9007199254740993'},
-                        },
-                      ],
+                      'type': 'primitive',
+                      'value': {'type': 'u64', 'value': '9007199254740993'},
                     },
                   ],
-                  'permission': 'none',
                 },
-              },
-            }),
-          ),
-          message: 'Review request',
-        );
+              ],
+              'permission': 'none',
+            },
+          },
+        }),
+      ),
+    );
     final theme = greenDark(touch: false);
     await tester.pumpWidget(
       UncontrolledProviderScope(
@@ -506,25 +476,19 @@ void main() {
   testWidgets('shows validated prefetch permissions before Allow', (
     tester,
   ) async {
-    final container = ProviderContainer(
-      overrides: [
-        appLocalizationsProvider.overrideWithValue(AppLocalizationsEn()),
-      ],
-    );
+    final harness = _XswdTestHarness(AppLocalizationsEn());
+    final container = harness.container;
     addTearDown(container.dispose);
-    container
-        .read(xswdRequestProvider.notifier)
-        .newRequest(
-          xswdEventSummary: XelisXswdRequest(
-            kind: XelisXswdRequestKind.prefetchPermissions,
-            application: _application,
-            payload: xswdTestPayload({
-              'reason': 'Show balances',
-              'permissions': ['get_balance'],
-            }),
-          ),
-          message: 'Review request',
-        );
+    harness.newRequest(
+      XelisXswdRequest(
+        kind: XelisXswdRequestKind.prefetchPermissions,
+        application: _application,
+        payload: xswdTestPayload({
+          'reason': 'Show balances',
+          'permissions': ['get_balance'],
+        }),
+      ),
+    );
     final theme = greenDark(touch: false);
 
     await tester.pumpWidget(
@@ -554,6 +518,118 @@ void main() {
     container.read(xswdRequestProvider.notifier).clearRequest();
     await tester.pumpWidget(const SizedBox.shrink());
   });
+
+  testWidgets(
+    'stale actions and the old close timer cannot resolve a replacement',
+    (tester) async {
+      final loc = AppLocalizationsEn();
+      final harness = _XswdTestHarness(loc);
+      final container = harness.container;
+      addTearDown(container.dispose);
+      final presentedTokens = <Object>[];
+      final firstDecision = harness.newRequest(
+        _permissionRequest(id: 1, method: 'get_balance'),
+      );
+      final firstToken = container.read(xswdRequestProvider).token!;
+      final theme = greenDark(touch: false);
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            theme: theme.toApproximateMaterialTheme(),
+            home: GenesixTheme(
+              data: theme,
+              child: Scaffold(
+                body: XswdDialog(
+                  kAlwaysCompleteAnimation,
+                  onRequestPresented: presentedTokens.add,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(presentedTokens.single, same(firstToken));
+      await tester.tap(find.text(loc.remember_my_decision));
+      await tester.pump(const Duration(milliseconds: 150));
+      final oldAllowButton = tester.widget<FButton>(
+        find.widgetWithText(FButton, loc.allow),
+      );
+      oldAllowButton.onPress?.call();
+      await tester.pump();
+      expect(await firstDecision, XelisXswdDecision.alwaysAccept);
+
+      final secondDecision = harness.newRequest(
+        _permissionRequest(id: 2, method: 'get_version'),
+      );
+      final secondToken = container.read(xswdRequestProvider).token!;
+      expect(identical(firstToken, secondToken), isFalse);
+      await tester.pump();
+
+      expect(presentedTokens.last, same(secondToken));
+      expect(tester.widget<FSwitch>(find.byType(FSwitch)).value, isFalse);
+      expect(container.read(xswdRequestProvider).suppressXswdToast, isFalse);
+
+      oldAllowButton.onPress?.call();
+      await tester.pump(const Duration(milliseconds: 600));
+
+      final state = container.read(xswdRequestProvider);
+      expect(state.token, same(secondToken));
+      expect(state.pending, isTrue);
+      expect(find.byType(XswdDialog), findsOneWidget);
+
+      container.read(xswdRequestProvider.notifier).rejectIfCurrent(secondToken);
+      expect(await secondDecision, XelisXswdDecision.reject);
+      await tester.pumpWidget(const SizedBox.shrink());
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('keeps the approval pending when no navigator is available', (
+    tester,
+  ) async {
+    final harness = _XswdTestHarness(AppLocalizationsEn());
+    final container = harness.container;
+    addTearDown(container.dispose);
+    final decision = harness.newRequest(
+      _permissionRequest(id: 1, method: 'get_balance'),
+    );
+    final token = container.read(xswdRequestProvider).token!;
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const XswdDialogHost(child: SizedBox.shrink()),
+      ),
+    );
+    expect(
+      container.read(xswdRequestProvider.notifier).requestOpenIfCurrent(token),
+      isTrue,
+    );
+    await tester.pump();
+
+    expect(container.read(xswdRequestProvider).token, same(token));
+    expect(container.read(xswdRequestProvider).pending, isTrue);
+    expect(
+      container.read(xswdDialogCoordinatorProvider).presentedToken,
+      isNull,
+    );
+
+    container.read(xswdRequestProvider.notifier).rejectIfCurrent(token);
+    expect(await decision, XelisXswdDecision.reject);
+    await tester.pumpWidget(const SizedBox.shrink());
+    expect(tester.takeException(), isNull);
+  });
+}
+
+XelisXswdRequest _permissionRequest({required int id, required String method}) {
+  return XelisXswdRequest(
+    kind: XelisXswdRequestKind.permission,
+    application: _application,
+    payload: xswdTestPayload({'id': id, 'jsonrpc': '2.0', 'method': method}),
+  );
 }
 
 final _application = XelisXswdApplication(
@@ -564,3 +640,44 @@ final _application = XelisXswdApplication(
   permissions: const {},
   isRelayer: false,
 );
+
+final class _XswdTestHarness {
+  factory _XswdTestHarness(AppLocalizationsEn loc) {
+    final repository = _FakeNativeWalletRepository();
+    return _XswdTestHarness._(
+      repository,
+      ProviderContainer(
+        overrides: [
+          appLocalizationsProvider.overrideWithValue(loc),
+          activeWalletRepositoryProvider.overrideWithValue(repository),
+        ],
+      ),
+    );
+  }
+
+  const _XswdTestHarness._(this.repository, this.container);
+
+  final _FakeNativeWalletRepository repository;
+  final ProviderContainer container;
+
+  Future<XelisXswdDecision> newRequest(XelisXswdRequest request) {
+    return container
+        .read(xswdRequestProvider.notifier)
+        .newRequest(
+          xswdEventSummary: request,
+          message: 'Review request',
+          repository: repository,
+        );
+  }
+}
+
+final class _FakeNativeWalletRepository implements NativeWalletRepository {
+  @override
+  String get address => 'wallet-address';
+
+  @override
+  XelisNetwork get network => XelisNetwork.mainnet;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}

@@ -71,20 +71,21 @@ class ProvidersInitializerWidget extends ConsumerWidget {
           toastNotifier.showWarning(title: title, description: description);
         case WalletErrorEffect(:final title, :final description):
           toastNotifier.showError(title: title, description: description);
-        case WalletFailureEffect(:final title, :final failure):
-          toastNotifier.showFailure(title: title, failure: failure);
-        case WalletEventEffect(:final title, :final description):
-          toastNotifier.showEvent(title: title, description: description);
-        case WalletXswdEffect(
+        case WalletFailureEffect(
           :final title,
           :final description,
-          :final showOpen,
+          :final failure,
         ):
-          toastNotifier.showXswd(
+          toastNotifier.showFailure(
             title: title,
             description: description,
-            showOpen: showOpen,
+            failure: failure,
           );
+        case WalletEventEffect(:final title, :final description):
+          toastNotifier.showEvent(title: title, description: description);
+        case WalletXswdEffect():
+          // XSWD approval effects are owned by XswdToastHost.
+          break;
       }
     });
 

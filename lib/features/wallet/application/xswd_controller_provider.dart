@@ -8,6 +8,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/wallet/application/wallet_effect_bus_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_node_action_guard.dart';
 import 'package:genesix/features/wallet/application/xswd_notification_service.dart';
+import 'package:genesix/features/wallet/application/xswd_diagnostics.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/wallet_effect.dart';
@@ -30,7 +31,9 @@ class XswdController {
   final Ref ref;
   NativeWalletRepository? _callbackRepository;
   Object? _callbackSession;
-  Object? _callbackLease;
+  Object? _notificationOwner;
+  XswdDiagnosticRequest? _diagnosticRequest;
+  XelisXswdSessionReference? _diagnosticSession;
   int _callbackGeneration = 0;
   final _closingApplicationOperations =
       Map<
@@ -223,7 +226,10 @@ class XswdController {
             application.sessionReference) {
       // Release the native permission callback before asking its transport to
       // close. Another application's active approval must remain untouched.
-      ref.read(xswdRequestProvider.notifier).clearRequest();
+      final token = pending.token;
+      if (token != null) {
+        ref.read(xswdRequestProvider.notifier).clearIfCurrent(token);
+      }
     }
     try {
       await repository.removeXswdApp(application);
@@ -269,7 +275,7 @@ class XswdController {
         callbacks: callbacks,
         relayerData: relayerData,
       );
-      talker.info('XSWD relay connection added: ${relayerData.name}');
+      logDiagnostic(() => 'XSWD relay connection added');
       return true;
     } catch (error, stackTrace) {
       _emitFailure(
@@ -319,11 +325,9 @@ class XswdController {
         !identical(_callbackSession, session)) {
       _callbackRepository = repository;
       _callbackSession = session;
-      _callbackLease = Object();
       _callbackGeneration++;
     }
     final generation = _callbackGeneration;
-    final lease = _callbackLease!;
     final loc = ref.read(appLocalizationsProvider);
 
     return XelisXswdCallbacks(
@@ -334,20 +338,14 @@ class XswdController {
         final appName = request.application.name;
         final message = '$channelTitle: ${loc.request_cancelled_from(appName)}';
 
-        talker.info(message);
-        final protectsAnotherSession = _hasForeignPendingXswdDecision(request);
-        if (!protectsAnotherSession) {
-          ref
-              .read(xswdRequestProvider.notifier)
-              .newRequest(xswdEventSummary: request, message: message);
-        }
-
-        if (!_isXswdToastSuppressed()) {
-          _emitXswd(title: message, showOpen: false);
-        }
-        if (!protectsAnotherSession) {
+        _recordLifecycleDiagnostic(request);
+        final token = _clearSessionRequest(request);
+        _emitInfo(title: message);
+        if (token != null) {
           unawaited(
-            ref.read(xswdNotificationServiceProvider).clearPendingApproval(),
+            ref
+                .read(xswdNotificationServiceProvider)
+                .clearPendingApproval(owner: token),
           );
         }
       },
@@ -362,10 +360,8 @@ class XswdController {
           request: request,
           repository: repository,
           generation: generation,
-          lease: lease,
           message: message,
           notificationBody: loc.connection_request,
-          showOpen: true,
         );
       },
       onPermissionRequest: (request) {
@@ -379,10 +375,8 @@ class XswdController {
           request: request,
           repository: repository,
           generation: generation,
-          lease: lease,
           message: message,
           notificationBody: loc.permission_request,
-          showOpen: true,
         );
       },
       onPrefetchPermissionsRequest: (request) {
@@ -396,10 +390,8 @@ class XswdController {
           request: request,
           repository: repository,
           generation: generation,
-          lease: lease,
           message: message,
           notificationBody: loc.prefetch_permissions_request,
-          showOpen: true,
         );
       },
       onApplicationDisconnect: (request) async {
@@ -409,24 +401,31 @@ class XswdController {
         final appName = request.application.name;
         final message = '$channelTitle: ${loc.app_disconnected_title(appName)}';
 
-        talker.info(message);
-        final protectsAnotherSession = _hasForeignPendingXswdDecision(request);
-        if (!protectsAnotherSession) {
-          ref
-              .read(xswdRequestProvider.notifier)
-              .newRequest(xswdEventSummary: request, message: message);
-        }
+        _recordLifecycleDiagnostic(request);
+        final token = _clearSessionRequest(request);
         ref.invalidate(xswdApplicationsProvider);
-
-        if (!_isXswdToastSuppressed()) {
-          _emitXswd(title: message, showOpen: false);
-        }
-        if (!protectsAnotherSession) {
+        _emitInfo(title: message);
+        if (token != null) {
           unawaited(
-            ref.read(xswdNotificationServiceProvider).clearPendingApproval(),
+            ref
+                .read(xswdNotificationServiceProvider)
+                .clearPendingApproval(owner: token),
           );
         }
       },
+    );
+  }
+
+  void _recordLifecycleDiagnostic(XelisXswdRequest request) {
+    if (!diagnosticLoggingEnabled) return;
+    final diagnostic =
+        request.application.sessionReference == _diagnosticSession
+        ? _diagnosticRequest ?? XswdDiagnosticRequest.inspect(request)
+        : XswdDiagnosticRequest.inspect(request);
+    diagnostic.record(
+      request.isCancelRequest
+          ? XswdDiagnosticEvent.cancelled
+          : XswdDiagnosticEvent.disconnected,
     );
   }
 
@@ -434,50 +433,87 @@ class XswdController {
     return ref.read(xswdRequestProvider).suppressXswdToast;
   }
 
-  bool _hasForeignPendingXswdDecision(XelisXswdRequest lifecycleRequest) {
+  Object? _clearSessionRequest(XelisXswdRequest lifecycleRequest) {
     final pending = ref.read(xswdRequestProvider);
-    final decision = pending.decision;
-    if (decision == null || decision.isCompleted) {
-      return false;
+    final token = pending.token;
+    if (token == null ||
+        pending.xswdEventSummary?.application.sessionReference !=
+            lifecycleRequest.application.sessionReference) {
+      return null;
     }
-    return pending.xswdEventSummary?.application.sessionReference !=
-        lifecycleRequest.application.sessionReference;
+    return ref.read(xswdRequestProvider.notifier).clearIfCurrent(token)
+        ? token
+        : null;
   }
 
   Future<XelisXswdDecision> _askXswdUserPermission({
     required XelisXswdRequest request,
     required NativeWalletRepository repository,
     required int generation,
-    required Object lease,
     required String message,
     required String notificationBody,
-    required bool showOpen,
   }) async {
+    final diagnostic = diagnosticLoggingEnabled
+        ? XswdDiagnosticRequest.inspect(request)
+        : null;
+    diagnostic?.record(XswdDiagnosticEvent.received);
+    _diagnosticRequest = diagnostic;
+    _diagnosticSession = request.application.sessionReference;
     if (_closingApplicationOperations[repository]?.containsKey(
           request.application.sessionReference,
         ) ??
         false) {
+      diagnostic?.record(
+        XswdDiagnosticEvent.decision,
+        decision: XelisXswdDecision.reject,
+        disposition: XswdDiagnosticDisposition.sessionClosing,
+      );
       return XelisXswdDecision.reject;
     }
-    talker.info(message);
     final loc = ref.read(appLocalizationsProvider);
 
     if (!_isXswdCallbackCurrent(repository, generation)) {
+      diagnostic?.record(
+        XswdDiagnosticEvent.decision,
+        decision: XelisXswdDecision.reject,
+        disposition: XswdDiagnosticDisposition.superseded,
+      );
       return XelisXswdDecision.reject;
     }
 
-    late final Completer<XelisXswdDecision> decision;
+    late final Future<XelisXswdDecision> decision;
     XswdPermissionReview? permissionReview;
     try {
       decision = ref
           .read(xswdRequestProvider.notifier)
-          .newRequest(xswdEventSummary: request, message: message);
+          .newRequest(
+            xswdEventSummary: request,
+            message: message,
+            repository: repository,
+          );
       permissionReview = ref.read(xswdRequestProvider).permissionReview;
+      diagnostic?.record(
+        XswdDiagnosticEvent.validation,
+        validation: XswdDiagnosticValidation.passed,
+      );
     } catch (error, stackTrace) {
-      ref.read(xswdRequestProvider.notifier).clearRequest();
+      diagnostic?.record(
+        XswdDiagnosticEvent.validation,
+        validation: XswdDiagnosticValidation.failed,
+      );
+      diagnostic?.record(
+        XswdDiagnosticEvent.decision,
+        validation: XswdDiagnosticValidation.failed,
+        decision: XelisXswdDecision.reject,
+        disposition: XswdDiagnosticDisposition.validationFailed,
+      );
       _emitFailure(
-        title: loc.invalid_connection_data,
+        title: request.isPrefetchPermissionsRequest
+            ? loc.prefetch_permissions_request
+            : loc.permission_request,
+        description: loc.xswd_permission_request_rejected,
         operation: 'xswd.request.parse',
+        xswdCorrelation: diagnostic?.correlation,
         applicationCode: 'xswd_request_invalid',
         error: error,
         stackTrace: stackTrace,
@@ -491,9 +527,15 @@ class XswdController {
       return XelisXswdDecision.reject;
     }
 
+    final notice = ref.read(xswdRequestProvider.notifier).currentNotice;
+    if (notice == null) return XelisXswdDecision.reject;
     if (!_isXswdToastSuppressed()) {
-      _emitXswd(title: message, showOpen: showOpen);
+      ref
+          .read(walletEffectBusProvider.notifier)
+          .emit(WalletEffect.xswd(notice: notice));
     }
+    final notificationOwner = notice.token;
+    _notificationOwner = notificationOwner;
 
     final notificationService = ref.read(xswdNotificationServiceProvider);
     unawaited(
@@ -501,17 +543,29 @@ class XswdController {
         title: loc.connected_apps,
         appName: request.application.name,
         body: notificationBody,
-        owner: lease,
+        owner: notificationOwner,
       ),
     );
 
     try {
-      final result = await decision.future;
-      return _isXswdCallbackCurrent(repository, generation)
+      final result = await decision;
+      final current = _isXswdCallbackCurrent(repository, generation);
+      final normalized = current
           ? normalizeXswdDecision(result, permissionReview)
           : XelisXswdDecision.reject;
+      diagnostic?.record(
+        XswdDiagnosticEvent.decision,
+        validation: XswdDiagnosticValidation.passed,
+        decision: normalized,
+        disposition: current
+            ? XswdDiagnosticDisposition.completed
+            : XswdDiagnosticDisposition.superseded,
+      );
+      return normalized;
     } finally {
-      unawaited(notificationService.clearPendingApproval(owner: lease));
+      unawaited(
+        notificationService.clearPendingApproval(owner: notificationOwner),
+      );
     }
   }
 
@@ -576,14 +630,16 @@ class XswdController {
     }
     _callbackRepository = null;
     _callbackSession = null;
-    final lease = _callbackLease;
-    _callbackLease = null;
+    _diagnosticRequest = null;
+    _diagnosticSession = null;
+    final notificationOwner = _notificationOwner;
+    _notificationOwner = null;
     _callbackGeneration++;
-    if (lease != null) {
+    if (notificationOwner != null) {
       unawaited(
         ref
             .read(xswdNotificationServiceProvider)
-            .clearPendingApproval(owner: lease),
+            .clearPendingApproval(owner: notificationOwner),
       );
     }
   }
@@ -653,34 +709,29 @@ class XswdController {
 
   void _emitFailure({
     required String title,
+    String? description,
     required String operation,
     required String applicationCode,
     required Object error,
     required StackTrace stackTrace,
+    int? xswdCorrelation,
   }) {
     final failure = recordAppFailure(
       error,
       stackTrace,
       operation: operation,
       applicationCode: applicationCode,
+      contextBuilder: xswdCorrelation == null
+          ? null
+          : () => 'xswdRequest=$xswdCorrelation',
     );
     ref
         .read(walletEffectBusProvider.notifier)
-        .emit(WalletEffect.failure(title: title, failure: failure));
-  }
-
-  void _emitXswd({
-    required String title,
-    String? description,
-    required bool showOpen,
-  }) {
-    ref
-        .read(walletEffectBusProvider.notifier)
         .emit(
-          WalletEffect.xswd(
+          WalletEffect.failure(
             title: title,
             description: description,
-            showOpen: showOpen,
+            failure: failure,
           ),
         );
   }

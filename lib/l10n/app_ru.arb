@@ -1,4 +1,13 @@
 {
+  "xswd_connection_approved": "Подключение одобрено: {appName}",
+  "@xswd_connection_approved": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "xswd_permission_request_rejected": "Это приложение отправило некорректный или неподдерживаемый запрос разрешения. Genesix отклонил его и закрывает соединение.",
   "xswd_permission_unsupported_impact": "Genesix не может проверить эту операцию. Запросы отклоняются даже при выборе «Спрашивать».",
   "xswd_permission_public_impact": "Доступ к общедоступной информации, оценкам комиссий и средствам проверки.",
   "xswd_permission_wallet_data_impact": "Чтение данных кошелька, на которые распространяется это разрешение.",

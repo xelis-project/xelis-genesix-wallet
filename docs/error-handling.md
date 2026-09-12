@@ -141,9 +141,39 @@ package also redacts mnemonic validation details that could contain a word from
 the entered seed. Any future tool that exposes native diagnostics must remain a
 separate, deliberate support workflow with per-operation review and redaction.
 
+### XSWD diagnostics
+
+Debug builds enable `xswd-diagnostic` Talker records by default. Disable them
+with `--dart-define=GENESIX_DIAGNOSTICS=false`. The shared `kDebugMode` guard
+always excludes profile and release, regardless of that define.
+
+Records contain a local correlation number, request kind, lifecycle event,
+actual validation/decision result, and bounded method metadata. Correlation has
+no session authority; `xswdRequest` also links a parse failure's debug support
+record to its diagnostics. The reference generated for that failure is passed
+unchanged to the UI.
+
+Only top-level typed `method` or `permissions` fields are inspected. Exact
+policy lookup classifies methods as `unknown`, `unsupported` or `notPrefetchable`;
+this describes Genesix support, not protocol validity or an inferred exception
+cause. Each record is limited to 8 KiB of JSON and 64 method entries, with an
+omitted count. Names must match `[a-z][a-z0-9_.]*` and contain 1–64 ASCII
+characters; others become `[invalid-method]`. Parameters, payloads, free-form
+reasons, application names, URLs, opaque references and `diagnosticMessage` are
+excluded, even in debug.
+
+XWF retains native `debug` logging with `packageDiagnostic` scope.
+`--dart-define=GENESIX_RUST_TRACE=true` enables `trace` only with debug diagnostics.
+Changing either define requires a full restart; hot reload cannot reconfigure
+the native logger. Native verbosity does not automatically reveal permission
+names. No upstream diagnostic scope is enabled.
+
 ## UI and recovery
 
 `ToastProvider.showFailure` maps the application category to localized copy.
+An owning boundary may supply an authored localized `WalletEffect.failure`
+description for a specific explanation, such as XSWD request rejection.
+Overrides must never come from exception messages, method names or payloads.
 The native message and `error.toString()` are never fallback UI text. The
 support reference stays raw in `ToastContent`, is localized only while being
 rendered, and makes the toast sticky until dismissal. The main message is
@@ -296,15 +326,9 @@ support references, analytics, crash reports, or toasts. Callback failures and
 timeouts fail closed with static package errors; arbitrary Dart exception
 messages never cross into Rust or native diagnostics.
 
-`build_transaction` is accepted only after a complete structured review and
-only for the current request. One exhaustive method policy controls review,
-prefetch, persistence and permission editing. Proofs, decryptions, wallet
-control and other transaction/signing methods without a dedicated review are
-rejected. Unknown and non-persistable stored `Accept` policies become `Ask`
-before XSWD activation and when edited. Persistable wallet reads and isolated
-application storage remain available with explicit impact and persistence copy.
-The canonical XSWD support matrix, Web validation boundary, and deferred-work register
-are in [`xswd.md`](xswd.md).
+Permission review, prefetch, persistence and editing use the single method
+policy defined in [`xswd.md`](xswd.md), alongside the support matrix and deferred
+capabilities. Diagnostic logging never changes that policy.
 
 Wallet names are validated as portable path leaves and resolved below the
 selected network directory before filesystem or web-storage access. Invalid

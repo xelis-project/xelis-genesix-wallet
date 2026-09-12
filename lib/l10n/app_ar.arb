@@ -1,4 +1,13 @@
 {
+  "xswd_connection_approved": "تمت الموافقة على الاتصال: {appName}",
+  "@xswd_connection_approved": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "xswd_permission_request_rejected": "أرسل هذا التطبيق طلب إذن غير صالح أو غير مدعوم. رفضه Genesix ويجري إغلاق الاتصال.",
   "xswd_permission_unsupported_impact": "لا يستطيع Genesix مراجعة هذه العملية. تُرفض الطلبات حتى عند اختيار «اسأل».",
   "xswd_permission_public_impact": "الوصول إلى المعلومات العامة وتقديرات الرسوم وأدوات التحقق.",
   "xswd_permission_wallet_data_impact": "قراءة بيانات المحفظة التي يشملها هذا الإذن.",

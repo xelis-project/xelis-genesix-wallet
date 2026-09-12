@@ -1,4 +1,13 @@
 {
+  "xswd_connection_approved": "Verbinding goedgekeurd: {appName}",
+  "@xswd_connection_approved": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "xswd_permission_request_rejected": "Deze app heeft een ongeldig of niet-ondersteund machtigingsverzoek verzonden. Genesix heeft het geweigerd en sluit de verbinding.",
   "xswd_permission_unsupported_impact": "Genesix kan deze bewerking niet beoordelen. Verzoeken worden geweigerd, ook bij de instelling Vragen.",
   "xswd_permission_public_impact": "Openbare informatie, kostenramingen en verificatietools gebruiken.",
   "xswd_permission_wallet_data_impact": "De walletgegevens lezen waarop deze toestemming betrekking heeft.",

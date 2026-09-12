@@ -1,4 +1,13 @@
 {
+  "xswd_connection_approved": "연결 승인됨: {appName}",
+  "@xswd_connection_approved": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "xswd_permission_request_rejected": "이 앱이 유효하지 않거나 지원되지 않는 권한 요청을 보냈습니다. Genesix가 요청을 거부했으며 연결을 종료하고 있습니다.",
   "xswd_permission_unsupported_impact": "Genesix는 이 작업을 검토할 수 없습니다. 묻기로 설정해도 요청은 거부됩니다.",
   "xswd_permission_public_impact": "공개 정보, 수수료 예상치 및 검증 도구에 접근합니다.",
   "xswd_permission_wallet_data_impact": "이 권한에 해당하는 지갑 데이터를 읽습니다.",

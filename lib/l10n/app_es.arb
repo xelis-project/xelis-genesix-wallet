@@ -1,4 +1,13 @@
 {
+  "xswd_connection_approved": "Conexión aprobada: {appName}",
+  "@xswd_connection_approved": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "xswd_permission_request_rejected": "Esta aplicación envió una solicitud de permiso no válida o no compatible. Genesix la rechazó y está cerrando la conexión.",
   "xswd_permission_unsupported_impact": "Genesix no puede revisar esta operación. Las solicitudes se rechazan incluso al elegir Preguntar.",
   "xswd_permission_public_impact": "Acceder a información pública, estimaciones de comisiones y herramientas de verificación.",
   "xswd_permission_wallet_data_impact": "Leer los datos de la cartera incluidos en este permiso.",

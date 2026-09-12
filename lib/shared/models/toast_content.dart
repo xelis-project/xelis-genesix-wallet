@@ -3,14 +3,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'toast_content.freezed.dart';
 
 @freezed
-abstract class ToastAction with _$ToastAction {
-  const factory ToastAction({
-    required String label,
-    @Default(false) bool isPrimary,
-  }) = _ToastAction;
-}
-
-@freezed
 sealed class ToastContent with _$ToastContent {
   const ToastContent._();
 
@@ -40,20 +32,12 @@ sealed class ToastContent with _$ToastContent {
     @Default(true) bool dismissible,
   }) = EventToastContent;
 
-  const factory ToastContent.xswd({
-    required String title,
-    String? description,
-    @Default(<ToastAction>[]) List<ToastAction> actions,
-    @Default(true) bool dismissible,
-  }) = XswdToastContent;
-
   @override
   String get title => switch (this) {
     InformationToastContent(:final title) => title,
     WarningToastContent(:final title) => title,
     ErrorToastContent(:final title) => title,
     EventToastContent(:final title) => title,
-    XswdToastContent(:final title) => title,
   };
 
   String? get description => switch (this) {
@@ -61,7 +45,6 @@ sealed class ToastContent with _$ToastContent {
     WarningToastContent(:final description) => description,
     ErrorToastContent(:final description) => description,
     EventToastContent(:final description) => description,
-    XswdToastContent(:final description) => description,
   };
 
   String? get supportReference => switch (this) {
@@ -69,15 +52,9 @@ sealed class ToastContent with _$ToastContent {
     _ => null,
   };
 
-  List<ToastAction> get actions => switch (this) {
-    XswdToastContent(:final actions) => actions,
-    _ => const <ToastAction>[],
-  };
-
   bool get sticky => switch (this) {
     ErrorToastContent(:final sticky) => sticky,
     EventToastContent(:final sticky) => sticky,
-    XswdToastContent() => true,
     _ => false,
   };
 
@@ -87,11 +64,5 @@ sealed class ToastContent with _$ToastContent {
     WarningToastContent(:final dismissible) => dismissible,
     ErrorToastContent(:final dismissible) => dismissible,
     EventToastContent(:final dismissible) => dismissible,
-    XswdToastContent(:final dismissible) => dismissible,
-  };
-
-  bool get isXswd => switch (this) {
-    XswdToastContent() => true,
-    _ => false,
   };
 }

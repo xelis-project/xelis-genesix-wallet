@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:genesix/shared/models/app_failure.dart';
+import 'package:genesix/features/wallet/domain/xswd_notice.dart';
 
 part 'wallet_effect.freezed.dart';
 
@@ -19,6 +20,7 @@ sealed class WalletEffect with _$WalletEffect {
 
   const factory WalletEffect.failure({
     String? title,
+    String? description,
     required AppFailure failure,
   }) = WalletFailureEffect;
 
@@ -27,11 +29,8 @@ sealed class WalletEffect with _$WalletEffect {
     required String description,
   }) = WalletEventEffect;
 
-  const factory WalletEffect.xswd({
-    required String title,
-    String? description,
-    @Default(true) bool showOpen,
-  }) = WalletXswdEffect;
+  const factory WalletEffect.xswd({required XswdNotice notice}) =
+      WalletXswdEffect;
 }
 
 @freezed

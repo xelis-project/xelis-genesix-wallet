@@ -135,7 +135,9 @@ void main() {
       await control.send('replace-session');
       binding.reportData!['phase'] = 'replace_session';
       await _waitForBuildTransaction(tester, container);
-      final replacedDecision = container.read(xswdRequestProvider).decision!;
+      final replacedDecision = container
+          .read(xswdRequestProvider.notifier)
+          .pendingDecision!;
       container
           .read(activeWalletSessionProvider.notifier)
           .setSession(
@@ -143,7 +145,7 @@ void main() {
           );
       fixtureRuntime.useRepository(repositoryB);
       await _waitForNoPendingDecision(tester, container);
-      expect(await replacedDecision.future, XelisXswdDecision.reject);
+      expect(await replacedDecision, XelisXswdDecision.reject);
       await _waitForLifecycleRunning(tester, container);
       repositoryAStopped = true;
       final replaced = await control.waitForResponse(tester, 'replace-session');
@@ -172,7 +174,9 @@ void main() {
       binding.reportData!['phase'] = 'close_application';
       await _waitForBuildTransaction(tester, container);
       final pending = container.read(xswdRequestProvider);
-      final cancelledDecision = pending.decision!;
+      final cancelledDecision = container
+          .read(xswdRequestProvider.notifier)
+          .pendingDecision!;
       expect(
         application.sessionReference,
         pending.xswdEventSummary!.application.sessionReference,
@@ -182,13 +186,13 @@ void main() {
       // A peer-only close can still be observed late by the pinned upstream
       // relayer and is deliberately not claimed as an immediate guarantee.
       expect(
-        cancelledDecision.isCompleted,
-        isTrue,
+        container.read(xswdRequestProvider).pending,
+        isFalse,
         reason: 'Closing the application must reject before transport cleanup.',
       );
-      expect(await cancelledDecision.future, XelisXswdDecision.reject);
+      expect(await cancelledDecision, XelisXswdDecision.reject);
       await closeApplication.timeout(const Duration(seconds: 20));
-      expect(container.read(xswdRequestProvider).decision, isNull);
+      expect(container.read(xswdRequestProvider).token, isNull);
       await control.waitUntilDisconnected(tester);
 
       // Re-admit on wallet B without opening the application list. Automatic
@@ -205,7 +209,7 @@ void main() {
       await control.waitUntilRegistered(tester);
       await control.send('malformed-transfer');
       await control.waitUntilDisconnected(tester);
-      expect(container.read(xswdRequestProvider).decision, isNull);
+      expect(container.read(xswdRequestProvider).token, isNull);
       expect((await repositoryB.getXswdState()).applications, isEmpty);
 
       await lifecycle.stop();
@@ -386,7 +390,7 @@ Future<void> _waitForNoPendingDecision(
   for (var attempt = 0; attempt < 100; attempt++) {
     await _waitForExternalEvents(tester, const Duration(milliseconds: 20));
     final state = container.read(xswdRequestProvider);
-    if (state.decision == null && state.xswdEventSummary == null) {
+    if (!state.pending && state.xswdEventSummary == null) {
       return;
     }
   }

@@ -1,4 +1,13 @@
 {
+  "xswd_connection_approved": "कनेक्शन स्वीकृत: {appName}",
+  "@xswd_connection_approved": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "xswd_permission_request_rejected": "इस ऐप ने अमान्य या असमर्थित अनुमति अनुरोध भेजा है। Genesix ने इसे अस्वीकार कर दिया है और कनेक्शन बंद कर रहा है।",
   "xswd_permission_unsupported_impact": "Genesix इस कार्रवाई की समीक्षा नहीं कर सकता। पूछें विकल्प चुने जाने पर भी अनुरोध अस्वीकार किए जाते हैं।",
   "xswd_permission_public_impact": "सार्वजनिक जानकारी, शुल्क के अनुमान और सत्यापन टूल तक पहुँच।",
   "xswd_permission_wallet_data_impact": "इस अनुमति के अंतर्गत आने वाला वॉलेट डेटा पढ़ना।",
