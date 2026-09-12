@@ -78,8 +78,19 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
     _visibleXswdToastGeneration.value = 0;
     final entry = _xswdToastEntry;
     _xswdToastEntry = null;
-    if (entry?.showing ?? false) {
-      entry!.dismiss();
+    if (entry == null) return;
+
+    unawaited(_dismissXswdToastAfterRender(entry));
+  }
+
+  Future<void> _dismissXswdToastAfterRender(FToasterEntry entry) async {
+    // Forui 0.26 cannot dismiss before mounting or at zero entrance progress.
+    // Allow the entry to mount and its entrance animation to advance first.
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted) return;
+    await WidgetsBinding.instance.endOfFrame;
+    if (mounted && entry.showing) {
+      entry.dismiss();
     }
   }
 
