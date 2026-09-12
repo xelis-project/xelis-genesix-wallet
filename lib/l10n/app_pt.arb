@@ -689,5 +689,20 @@
   "xswd_recent_cancelled": "Cancelado",
   "xswd_observation_confirmed": "Regras de permissão lidas da carteira",
   "xswd_observation_timed_out": "A carteira não confirmou a alteração a tempo. Verifique a regra atual antes de tentar novamente.",
-  "xswd_permission_edit_not_confirmed": "A carteira não confirmou esta alteração. O editor permanece aberto para poder tentar novamente."
+  "xswd_permission_edit_not_confirmed": "A carteira não confirmou esta alteração. O editor permanece aberto para poder tentar novamente.",
+  "xswd_inter_contract_title": "Chamadas entre contratos",
+  "xswd_inter_contract_transaction_scope": "Esta autoridade aplica-se apenas a esta transação.",
+  "xswd_inter_contract_none_description": "As chamadas nomeadas entre contratos estão desativadas. Isto não garante que a transação esteja isenta de riscos nem que nenhum código delegado possa ser executado.",
+  "xswd_inter_contract_broad_warning": "Esta transação pode chamar outros contratos. A lógica deles pode afetar ativos ou posições existentes, mesmo sem novos depósitos.",
+  "xswd_inter_contract_specific_empty": "specific não contém contratos, portanto nenhuma chamada entre contratos é permitida.",
+  "xswd_inter_contract_exclude_empty": "exclude não contém contratos, portanto todas as chamadas entre contratos são permitidas.",
+  "xswd_inter_contract_unlisted_none": "Apenas os contratos listados podem ser chamados; os não listados não são permitidos.",
+  "xswd_inter_contract_unlisted_all": "Os contratos não listados podem ser chamados; os listados seguem as regras abaixo.",
+  "xswd_inter_contract_requested_selector": "Seletor solicitado",
+  "xswd_inter_contract_effective_scope": "Âmbito efetivo das funções",
+  "xswd_inter_contract_effective_all": "Todas as funções podem ser chamadas.",
+  "xswd_inter_contract_effective_none": "Nenhuma função pode ser chamada.",
+  "xswd_inter_contract_effective_only": "Apenas as funções listadas podem ser chamadas.",
+  "xswd_inter_contract_effective_except": "Todas as funções, exceto as listadas, podem ser chamadas.",
+  "xswd_inter_contract_function_ids": "IDs de função"
 }

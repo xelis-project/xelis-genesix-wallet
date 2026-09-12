@@ -1,3 +1,4 @@
+import 'package:genesix/features/wallet/domain/xswd_inter_contract_permission.dart';
 import 'package:genesix/features/wallet/domain/xswd_method_policy.dart';
 import 'package:genesix/features/wallet/domain/xswd_payload.dart';
 import 'package:genesix/features/wallet/domain/xswd_rpc_budget.dart';
@@ -119,11 +120,7 @@ final class XswdPermissionReview {
       transferDestinations.addAll(_parseTransferDestinations(builder));
     }
     if (builder is InvokeContractBuilder) {
-      if (builder.permission is! NoInterContractPermission) {
-        throw const FormatException(
-          'Unsupported invoke_contract permission field.',
-        );
-      }
+      validateXswdInterContractPermission(builder.permission);
       parsedInvokeParameters.addAll(builder.parameters);
       if (!_areReviewableValues(parsedInvokeParameters)) {
         throw const FormatException(
@@ -304,7 +301,7 @@ bool _isReviewableBuilder(TransactionTypeBuilder builder) {
       :final entryId,
       :final deposits,
     ) =>
-      contract.isNotEmpty &&
+      isXswdContractHash(contract) &&
           _isU64(maxGas) &&
           entryId >= 0 &&
           entryId <= 65535 &&
@@ -498,7 +495,9 @@ void _validateRawInvoke(Object? value) {
     'deposits',
     'permission',
   });
-  _requireNonEmptyString(invoke['contract']);
+  if (!isXswdContractHash(invoke['contract'])) {
+    throw const FormatException('Invalid invoke_contract contract hash.');
+  }
   _requireNonNegativeInteger(invoke['max_gas']);
   _requireBoundedInt(invoke['entry_id'], max: 65535);
   if (invoke['parameters'] is! List) {
@@ -508,11 +507,7 @@ void _validateRawInvoke(Object? value) {
   if (invoke.containsKey('deposits')) {
     _validateRawDeposits(invoke['deposits']);
   }
-  if (invoke.containsKey('permission') && invoke['permission'] != 'none') {
-    throw const FormatException(
-      'Unsupported invoke_contract permission field.',
-    );
-  }
+  validateRawXswdInterContractPermission(invoke['permission']);
 }
 
 void _validateRawDeployInvoke(Object? value) {

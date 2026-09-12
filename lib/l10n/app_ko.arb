@@ -689,5 +689,20 @@
   "xswd_recent_cancelled": "취소됨",
   "xswd_observation_confirmed": "지갑에서 권한 규칙을 읽음",
   "xswd_observation_timed_out": "지갑이 제시간에 변경 사항을 확인하지 못했습니다. 다시 시도하기 전에 현재 규칙을 확인하세요.",
-  "xswd_permission_edit_not_confirmed": "지갑이 이 변경을 확인하지 못했습니다. 다시 시도할 수 있도록 편집기를 열어 둡니다."
+  "xswd_permission_edit_not_confirmed": "지갑이 이 변경을 확인하지 못했습니다. 다시 시도할 수 있도록 편집기를 열어 둡니다.",
+  "xswd_inter_contract_title": "컨트랙트 간 호출",
+  "xswd_inter_contract_transaction_scope": "이 권한은 이 트랜잭션에만 적용됩니다.",
+  "xswd_inter_contract_none_description": "이름이 지정된 컨트랙트 간 호출이 비활성화됩니다. 트랜잭션에 위험이 없거나 위임된 코드가 실행되지 않음을 보장하지는 않습니다.",
+  "xswd_inter_contract_broad_warning": "이 트랜잭션은 다른 컨트랙트를 호출할 수 있습니다. 해당 로직은 새 예치금이 없어도 기존 자산이나 포지션에 영향을 줄 수 있습니다.",
+  "xswd_inter_contract_specific_empty": "specific에 컨트랙트가 없으므로 컨트랙트 간 호출이 허용되지 않습니다.",
+  "xswd_inter_contract_exclude_empty": "exclude에 컨트랙트가 없으므로 모든 컨트랙트 간 호출이 허용됩니다.",
+  "xswd_inter_contract_unlisted_none": "목록에 있는 컨트랙트만 호출할 수 있으며, 목록에 없는 컨트랙트는 허용되지 않습니다.",
+  "xswd_inter_contract_unlisted_all": "목록에 없는 컨트랙트를 호출할 수 있으며, 목록에 있는 컨트랙트에는 아래 규칙이 적용됩니다.",
+  "xswd_inter_contract_requested_selector": "요청된 선택자",
+  "xswd_inter_contract_effective_scope": "실제 함수 범위",
+  "xswd_inter_contract_effective_all": "모든 함수를 호출할 수 있습니다.",
+  "xswd_inter_contract_effective_none": "어떤 함수도 호출할 수 없습니다.",
+  "xswd_inter_contract_effective_only": "목록에 있는 함수만 호출할 수 있습니다.",
+  "xswd_inter_contract_effective_except": "목록에 있는 함수를 제외한 모든 함수를 호출할 수 있습니다.",
+  "xswd_inter_contract_function_ids": "함수 ID"
 }

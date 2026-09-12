@@ -689,5 +689,20 @@
   "xswd_recent_cancelled": "Отменено",
   "xswd_observation_confirmed": "Правила разрешений прочитаны из кошелька",
   "xswd_observation_timed_out": "Кошелёк не подтвердил изменение вовремя. Перед повторной попыткой проверьте текущее правило.",
-  "xswd_permission_edit_not_confirmed": "Кошелёк не подтвердил изменение. Редактор останется открытым для повторной попытки."
+  "xswd_permission_edit_not_confirmed": "Кошелёк не подтвердил изменение. Редактор останется открытым для повторной попытки.",
+  "xswd_inter_contract_title": "Вызовы между контрактами",
+  "xswd_inter_contract_transaction_scope": "Это разрешение действует только для этой транзакции.",
+  "xswd_inter_contract_none_description": "Именованные вызовы между контрактами отключены. Это не гарантирует отсутствие риска у транзакции или невозможность выполнения делегированного кода.",
+  "xswd_inter_contract_broad_warning": "Эта транзакция может вызывать другие контракты. Их логика может влиять на существующие активы или позиции даже без новых депозитов.",
+  "xswd_inter_contract_specific_empty": "specific не содержит контрактов, поэтому вызовы между контрактами запрещены.",
+  "xswd_inter_contract_exclude_empty": "exclude не содержит контрактов, поэтому разрешены все вызовы между контрактами.",
+  "xswd_inter_contract_unlisted_none": "Можно вызывать только указанные контракты; остальные запрещены.",
+  "xswd_inter_contract_unlisted_all": "Неуказанные контракты можно вызывать; для указанных действуют правила ниже.",
+  "xswd_inter_contract_requested_selector": "Запрошенный селектор",
+  "xswd_inter_contract_effective_scope": "Фактическая область функций",
+  "xswd_inter_contract_effective_all": "Можно вызывать все функции.",
+  "xswd_inter_contract_effective_none": "Нельзя вызывать ни одну функцию.",
+  "xswd_inter_contract_effective_only": "Можно вызывать только указанные функции.",
+  "xswd_inter_contract_effective_except": "Можно вызывать все функции, кроме указанных.",
+  "xswd_inter_contract_function_ids": "Идентификаторы функций"
 }

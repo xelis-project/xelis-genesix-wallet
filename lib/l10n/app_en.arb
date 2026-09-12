@@ -699,5 +699,20 @@
   "xswd_recent_cancelled": "Cancelled",
   "xswd_observation_confirmed": "Permission rules read from the wallet",
   "xswd_observation_timed_out": "The wallet did not confirm the permission change in time. Check the current rule before retrying.",
-  "xswd_permission_edit_not_confirmed": "The wallet did not confirm this change. The editor remains open so you can retry."
+  "xswd_permission_edit_not_confirmed": "The wallet did not confirm this change. The editor remains open so you can retry.",
+  "xswd_inter_contract_title": "Inter-contract calls",
+  "xswd_inter_contract_transaction_scope": "This authority applies only to this transaction.",
+  "xswd_inter_contract_none_description": "Named inter-contract calls are disabled. This does not guarantee that the transaction is risk-free or that no delegated code can run.",
+  "xswd_inter_contract_broad_warning": "This transaction can call other contracts. Their logic may affect existing assets or positions, even without new deposits.",
+  "xswd_inter_contract_specific_empty": "specific contains no contracts, so no inter-contract calls are allowed.",
+  "xswd_inter_contract_exclude_empty": "exclude contains no contracts, so all inter-contract calls are allowed.",
+  "xswd_inter_contract_unlisted_none": "Only listed contracts may be called; unlisted contracts are not allowed.",
+  "xswd_inter_contract_unlisted_all": "Unlisted contracts may be called; listed contracts follow the rules below.",
+  "xswd_inter_contract_requested_selector": "Requested selector",
+  "xswd_inter_contract_effective_scope": "Effective function scope",
+  "xswd_inter_contract_effective_all": "All functions may be called.",
+  "xswd_inter_contract_effective_none": "No functions may be called.",
+  "xswd_inter_contract_effective_only": "Only the listed functions may be called.",
+  "xswd_inter_contract_effective_except": "All functions except the listed functions may be called.",
+  "xswd_inter_contract_function_ids": "Function IDs"
 }

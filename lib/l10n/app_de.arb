@@ -689,5 +689,20 @@
   "xswd_recent_cancelled": "Abgebrochen",
   "xswd_observation_confirmed": "Berechtigungsregeln aus dem Wallet gelesen",
   "xswd_observation_timed_out": "Das Wallet hat die Änderung nicht rechtzeitig bestätigt. Prüfen Sie die aktuelle Regel vor einem neuen Versuch.",
-  "xswd_permission_edit_not_confirmed": "Das Wallet hat diese Änderung nicht bestätigt. Der Editor bleibt für einen neuen Versuch geöffnet."
+  "xswd_permission_edit_not_confirmed": "Das Wallet hat diese Änderung nicht bestätigt. Der Editor bleibt für einen neuen Versuch geöffnet.",
+  "xswd_inter_contract_title": "Inter-Contract-Aufrufe",
+  "xswd_inter_contract_transaction_scope": "Diese Berechtigung gilt nur für diese Transaktion.",
+  "xswd_inter_contract_none_description": "Benannte Inter-Contract-Aufrufe sind deaktiviert. Dies garantiert weder eine risikofreie Transaktion noch, dass kein delegierter Code ausgeführt werden kann.",
+  "xswd_inter_contract_broad_warning": "Diese Transaktion kann andere Contracts aufrufen. Deren Logik kann bestehende Vermögenswerte oder Positionen beeinflussen, auch ohne neue Einzahlungen.",
+  "xswd_inter_contract_specific_empty": "specific enthält keine Contracts, daher sind keine Inter-Contract-Aufrufe erlaubt.",
+  "xswd_inter_contract_exclude_empty": "exclude enthält keine Contracts, daher sind alle Inter-Contract-Aufrufe erlaubt.",
+  "xswd_inter_contract_unlisted_none": "Nur aufgeführte Contracts dürfen aufgerufen werden; nicht aufgeführte sind nicht erlaubt.",
+  "xswd_inter_contract_unlisted_all": "Nicht aufgeführte Contracts dürfen aufgerufen werden; für aufgeführte gelten die folgenden Regeln.",
+  "xswd_inter_contract_requested_selector": "Angeforderter Selektor",
+  "xswd_inter_contract_effective_scope": "Wirksamer Funktionsumfang",
+  "xswd_inter_contract_effective_all": "Alle Funktionen dürfen aufgerufen werden.",
+  "xswd_inter_contract_effective_none": "Keine Funktion darf aufgerufen werden.",
+  "xswd_inter_contract_effective_only": "Nur die aufgeführten Funktionen dürfen aufgerufen werden.",
+  "xswd_inter_contract_effective_except": "Alle Funktionen außer den aufgeführten dürfen aufgerufen werden.",
+  "xswd_inter_contract_function_ids": "Funktions-IDs"
 }

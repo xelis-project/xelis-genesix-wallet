@@ -689,5 +689,20 @@
   "xswd_recent_cancelled": "Anulowano",
   "xswd_observation_confirmed": "Reguły uprawnień odczytane z portfela",
   "xswd_observation_timed_out": "Portfel nie potwierdził zmiany na czas. Przed ponowieniem sprawdź bieżącą regułę.",
-  "xswd_permission_edit_not_confirmed": "Portfel nie potwierdził tej zmiany. Edytor pozostaje otwarty, aby można było spróbować ponownie."
+  "xswd_permission_edit_not_confirmed": "Portfel nie potwierdził tej zmiany. Edytor pozostaje otwarty, aby można było spróbować ponownie.",
+  "xswd_inter_contract_title": "Wywołania między kontraktami",
+  "xswd_inter_contract_transaction_scope": "To uprawnienie dotyczy wyłącznie tej transakcji.",
+  "xswd_inter_contract_none_description": "Nazwane wywołania między kontraktami są wyłączone. Nie gwarantuje to braku ryzyka transakcji ani tego, że kod delegowany nie zostanie uruchomiony.",
+  "xswd_inter_contract_broad_warning": "Ta transakcja może wywoływać inne kontrakty. Ich logika może wpływać na istniejące aktywa lub pozycje, nawet bez nowych depozytów.",
+  "xswd_inter_contract_specific_empty": "specific nie zawiera kontraktów, więc żadne wywołania między kontraktami nie są dozwolone.",
+  "xswd_inter_contract_exclude_empty": "exclude nie zawiera kontraktów, więc wszystkie wywołania między kontraktami są dozwolone.",
+  "xswd_inter_contract_unlisted_none": "Można wywoływać tylko wymienione kontrakty; niewymienione nie są dozwolone.",
+  "xswd_inter_contract_unlisted_all": "Niewymienione kontrakty mogą być wywoływane; wymienione podlegają poniższym regułom.",
+  "xswd_inter_contract_requested_selector": "Żądany selektor",
+  "xswd_inter_contract_effective_scope": "Efektywny zakres funkcji",
+  "xswd_inter_contract_effective_all": "Można wywoływać wszystkie funkcje.",
+  "xswd_inter_contract_effective_none": "Nie można wywołać żadnej funkcji.",
+  "xswd_inter_contract_effective_only": "Można wywoływać tylko wymienione funkcje.",
+  "xswd_inter_contract_effective_except": "Można wywoływać wszystkie funkcje poza wymienionymi.",
+  "xswd_inter_contract_function_ids": "Identyfikatory funkcji"
 }

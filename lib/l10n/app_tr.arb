@@ -689,5 +689,20 @@
   "xswd_recent_cancelled": "İptal edildi",
   "xswd_observation_confirmed": "İzin kuralları cüzdandan okundu",
   "xswd_observation_timed_out": "Cüzdan değişikliği zamanında doğrulamadı. Yeniden denemeden önce geçerli kuralı kontrol edin.",
-  "xswd_permission_edit_not_confirmed": "Cüzdan bu değişikliği doğrulamadı. Yeniden deneyebilmeniz için düzenleyici açık kalır."
+  "xswd_permission_edit_not_confirmed": "Cüzdan bu değişikliği doğrulamadı. Yeniden deneyebilmeniz için düzenleyici açık kalır.",
+  "xswd_inter_contract_title": "Sözleşmeler arası çağrılar",
+  "xswd_inter_contract_transaction_scope": "Bu yetki yalnızca bu işlem için geçerlidir.",
+  "xswd_inter_contract_none_description": "Adlandırılmış sözleşmeler arası çağrılar devre dışıdır. Bu, işlemin risksiz olduğunu veya devredilmiş kodun çalışamayacağını garanti etmez.",
+  "xswd_inter_contract_broad_warning": "Bu işlem başka sözleşmeleri çağırabilir. Bu sözleşmelerin mantığı, yeni yatırımlar olmasa bile mevcut varlıkları veya pozisyonları etkileyebilir.",
+  "xswd_inter_contract_specific_empty": "specific hiçbir sözleşme içermediğinden sözleşmeler arası çağrıya izin verilmez.",
+  "xswd_inter_contract_exclude_empty": "exclude hiçbir sözleşme içermediğinden tüm sözleşmeler arası çağrılara izin verilir.",
+  "xswd_inter_contract_unlisted_none": "Yalnızca listelenen sözleşmeler çağrılabilir; listelenmeyenlere izin verilmez.",
+  "xswd_inter_contract_unlisted_all": "Listelenmeyen sözleşmeler çağrılabilir; listelenenler aşağıdaki kurallara uyar.",
+  "xswd_inter_contract_requested_selector": "İstenen seçici",
+  "xswd_inter_contract_effective_scope": "Etkin işlev kapsamı",
+  "xswd_inter_contract_effective_all": "Tüm işlevler çağrılabilir.",
+  "xswd_inter_contract_effective_none": "Hiçbir işlev çağrılamaz.",
+  "xswd_inter_contract_effective_only": "Yalnızca listelenen işlevler çağrılabilir.",
+  "xswd_inter_contract_effective_except": "Listelenenler dışındaki tüm işlevler çağrılabilir.",
+  "xswd_inter_contract_function_ids": "İşlev kimlikleri"
 }

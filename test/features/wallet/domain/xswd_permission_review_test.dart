@@ -1,3 +1,5 @@
+import 'package:genesix/features/wallet/domain/xswd_inter_contract_permission.dart';
+
 import '../../../helpers/xswd_test_payload.dart';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -11,6 +13,265 @@ const _canonicalAddress =
 
 void main() {
   setUpAll(XelisWalletFlutter.initialize);
+
+  group('inter-contract permission boundaries', () {
+    test(
+      'retains every selector and renders the effective nested exclusion',
+      () {
+        for (final tag in ['specific', 'exclude']) {
+          for (final selector in <Object>[
+            'all',
+            {'specific': <int>[]},
+            {'exclude': <int>[]},
+            {
+              'specific': [0, 65535],
+            },
+            {
+              'exclude': [0, 65535],
+            },
+          ]) {
+            final raw = _contractPermission(tag, selector);
+            validateRawXswdInterContractPermission(raw);
+            final typed = InterContractPermission.fromJson(raw);
+            validateXswdInterContractPermission(typed);
+            expect(typed.toJson(), raw);
+            final request = _invokeRequest(
+              parameters: const [],
+              permission: raw,
+            );
+            final review = XswdPermissionReview.parse(request);
+            final builder =
+                review.buildTransactionParams!.transactionTypeBuilder
+                    as InvokeContractBuilder;
+            expect(builder.permission.toJson(), raw);
+            expect(review.request, same(request));
+            expect(review.canPersist, isFalse);
+          }
+        }
+        for (final raw in <Object>[
+          'none',
+          'all',
+          {'specific': <Object>[]},
+          {'exclude': <Object>[]},
+        ]) {
+          validateRawXswdInterContractPermission(raw);
+          validateXswdInterContractPermission(
+            InterContractPermission.fromJson(raw),
+          );
+          final review = XswdPermissionReview.parse(
+            _invokeRequest(parameters: const [], permission: raw),
+          );
+          expect(
+            (review.buildTransactionParams!.transactionTypeBuilder
+                    as InvokeContractBuilder)
+                .permission
+                .toJson(),
+            raw,
+          );
+        }
+        final expected =
+            <
+              ContractCallChunk,
+              (XswdContractFunctionScope, XswdContractFunctionScope)
+            >{
+              const ContractCallChunk.all(): (
+                XswdContractFunctionScope.all,
+                XswdContractFunctionScope.none,
+              ),
+              const ContractCallChunk.specific([]): (
+                XswdContractFunctionScope.none,
+                XswdContractFunctionScope.all,
+              ),
+              const ContractCallChunk.exclude([]): (
+                XswdContractFunctionScope.all,
+                XswdContractFunctionScope.none,
+              ),
+              const ContractCallChunk.specific([1, 2]): (
+                XswdContractFunctionScope.only,
+                XswdContractFunctionScope.except,
+              ),
+              const ContractCallChunk.exclude([1, 2]): (
+                XswdContractFunctionScope.except,
+                XswdContractFunctionScope.only,
+              ),
+            };
+        for (final entry in expected.entries) {
+          expect(
+            xswdContractFunctionScope(entry.key, excluded: false),
+            entry.value.$1,
+          );
+          expect(
+            xswdContractFunctionScope(entry.key, excluded: true),
+            entry.value.$2,
+          );
+        }
+      },
+    );
+
+    test(
+      'rejects unknown fields, ambiguous hashes and excessive collections',
+      () {
+        const hash =
+            'abababababababababababababababababababababababababababababababab';
+        for (final raw in <Object?>[
+          null,
+          'future',
+          {'all': <Object>[]},
+          {'specific': <Object>[], 'exclude': <Object>[]},
+          _contractPermission('specific', 'future'),
+          _contractPermission('specific', {
+            'specific': [65536],
+          }),
+          _contractPermission('specific', {
+            'specific': [-1],
+          }),
+          _contractPermission('specific', {
+            'specific': ['1'],
+          }),
+          _contractPermission('specific', {
+            'specific': [1, 1],
+          }),
+          _contractPermission('exclude', {
+            'exclude': List.generate(256, (index) => index),
+          }),
+          {
+            'specific': [
+              {'contract': hash, 'chunk': 'all', 'future': 'SENSITIVE'},
+            ],
+          },
+          {
+            'specific': [
+              {'contract': 'SENSITIVE-INVALID-HASH', 'chunk': 'all'},
+            ],
+          },
+          {
+            'specific': [
+              {'contract': hash, 'chunk': 'all'},
+              {
+                'contract': hash.toUpperCase(),
+                'chunk': {
+                  'specific': [1],
+                },
+              },
+            ],
+          },
+          {
+            'exclude': List.generate(
+              256,
+              (index) => {
+                'contract': index.toRadixString(16).padLeft(64, '0'),
+                'chunk': 'all',
+              },
+            ),
+          },
+        ]) {
+          expect(
+            () => validateRawXswdInterContractPermission(raw),
+            throwsA(
+              isA<FormatException>().having(
+                (error) => error.toString(),
+                'redacted',
+                isNot(contains('SENSITIVE')),
+              ),
+            ),
+          );
+        }
+        final maximum = {
+          'specific': List.generate(
+            255,
+            (index) => {
+              'contract': index.toRadixString(16).padLeft(64, '0'),
+              'chunk': {'specific': List.generate(255, (index) => index)},
+            },
+          ),
+        };
+        validateRawXswdInterContractPermission(maximum);
+        validateXswdInterContractPermission(
+          InterContractPermission.fromJson(maximum),
+        );
+      },
+    );
+
+    test('typed SDK construction cannot bypass the review restrictions', () {
+      const hash =
+          'abababababababababababababababababababababababababababababababab';
+      for (final permission in [
+        const InterContractPermission.unknown(
+          type: 'future',
+          wireValue: RpcJsonValue.nullValue(),
+        ),
+        const InterContractPermission.specific([
+          ContractCall(
+            contract: hash,
+            chunk: ContractCallChunk.unknown(
+              type: 'future',
+              wireValue: RpcJsonValue.nullValue(),
+            ),
+          ),
+        ]),
+        const InterContractPermission.exclude([
+          ContractCall(
+            contract: hash,
+            chunk: ContractCallChunk.specific([1, 1]),
+          ),
+        ]),
+        InterContractPermission.specific([
+          ContractCall.fromJson({
+            'contract': hash,
+            'chunk': 'all',
+            'future': true,
+          }),
+        ]),
+      ]) {
+        expect(
+          () => validateXswdInterContractPermission(permission),
+          throwsFormatException,
+        );
+      }
+    });
+
+    test('requires an explicit permission and a valid entry contract hash', () {
+      final invoke = <String, dynamic>{
+        'contract':
+            'abababababababababababababababababababababababababababababababab',
+        'max_gas': 1,
+        'entry_id': 0,
+        'parameters': <Object>[],
+      };
+      expect(
+        () => XswdPermissionReview.parse(
+          _request(
+            method: 'build_transaction',
+            params: {'invoke_contract': invoke},
+          ),
+        ),
+        throwsFormatException,
+      );
+      for (final hash in [
+        'contract',
+        'a' * 63,
+        'a' * 65,
+        'g' * 64,
+        '${'a' * 64}\n',
+      ]) {
+        expect(
+          () => XswdPermissionReview.parse(
+            _request(
+              method: 'build_transaction',
+              params: {
+                'invoke_contract': {
+                  ...invoke,
+                  'contract': hash,
+                  'permission': 'none',
+                },
+              },
+            ),
+          ),
+          throwsFormatException,
+        );
+      }
+    });
+  });
 
   group('XswdPermissionReview', () {
     test('keeps supported wallet-data permissions persistable', () {
@@ -406,21 +667,14 @@ void main() {
       });
     }
 
-    for (final permission in <Object>[
-      'all',
-      {'specific': <Object>[]},
-      {'exclude': <Object>[]},
-      'future_permission',
-    ]) {
-      test('rejects $permission invoke permission without a review', () {
-        expect(
-          () => XswdPermissionReview.parse(
-            _invokeRequest(parameters: const [], permission: permission),
-          ),
-          throwsA(isA<FormatException>()),
-        );
-      });
-    }
+    test('rejects an unknown invoke permission', () {
+      expect(
+        () => XswdPermissionReview.parse(
+          _invokeRequest(parameters: const [], permission: 'future_permission'),
+        ),
+        throwsA(isA<FormatException>()),
+      );
+    });
 
     test('accepts the serialized contract deployment shape', () {
       final review = XswdPermissionReview.parse(
@@ -471,7 +725,7 @@ void main() {
       },
       'negative invoke gas': {
         'invoke_contract': {
-          'contract': 'contract-hash',
+          'contract': 'abababababababababababababababababababababababababababababababab',
           'max_gas': -1,
           'entry_id': 0,
           'parameters': <Object>[],
@@ -514,7 +768,7 @@ void main() {
       },
       'invoke': {
         'invoke_contract': {
-          'contract': 'contract-hash',
+          'contract': 'abababababababababababababababababababababababababababababababab',
           'max_gas': 1,
           'entry_id': 0,
           'parameters': <Object>[],
@@ -523,7 +777,7 @@ void main() {
       },
       'invoke deposit': {
         'invoke_contract': {
-          'contract': 'contract-hash',
+          'contract': 'abababababababababababababababababababababababababababababababab',
           'max_gas': 1,
           'entry_id': 0,
           'parameters': <Object>[],
@@ -753,6 +1007,16 @@ void main() {
   });
 }
 
+Map<String, Object> _contractPermission(String tag, Object selector) => {
+  tag: [
+    {
+      'contract':
+          'abababababababababababababababababababababababababababababababab',
+      'chunk': selector,
+    },
+  ],
+};
+
 XelisXswdPermissionRequest _burnRequest({
   Map<String, dynamic> extraParams = const {},
 }) {
@@ -773,7 +1037,8 @@ XelisXswdPermissionRequest _invokeRequest({
     method: WalletMethod.buildTransaction.jsonKey,
     params: {
       'invoke_contract': {
-        'contract': 'contract-hash',
+        'contract':
+            'abababababababababababababababababababababababababababababababab',
         'max_gas': '9007199254740993',
         'entry_id': 0,
         'parameters': parameters,

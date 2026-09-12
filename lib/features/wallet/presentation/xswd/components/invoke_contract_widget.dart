@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/invoke_widget.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/transaction_builder_mixin.dart';
+import 'package:genesix/features/wallet/presentation/xswd/components/xswd_inter_contract_permission_review.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
@@ -32,16 +33,15 @@ class _InvokeContractBuilderWidgetState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              loc.invoke_contract,
-              style: context.bodyLarge!.copyWith(
-                color: context.theme.colors.mutedForeground,
-              ),
+        Align(
+          alignment: Alignment.center,
+          child: Text(
+            loc.invoke_contract,
+            textAlign: TextAlign.center,
+            style: context.bodyLarge!.copyWith(
+              color: context.theme.colors.mutedForeground,
             ),
-          ],
+          ),
         ),
         const SizedBox(height: Spaces.medium),
         buildLabeledText(
@@ -49,6 +49,12 @@ class _InvokeContractBuilderWidgetState
           loc.contract,
           widget.invokeContractBuilder.contract,
         ),
+        const SizedBox(height: Spaces.medium),
+        XswdInterContractPermissionReview(
+          permission: widget.invokeContractBuilder.permission,
+          loc: loc,
+        ),
+        const SizedBox(height: Spaces.medium),
         InvokeWidget(
           maxGas: widget.invokeContractBuilder.maxGas,
           entryId: widget.invokeContractBuilder.entryId,

@@ -11,6 +11,8 @@ const _applicationId =
     '1111111111111111111111111111111111111111111111111111111111111111';
 const _nativeAsset =
     '0000000000000000000000000000000000000000000000000000000000000000';
+const _secondaryContract =
+    'abababababababababababababababababababababababababababababababab';
 const _canonicalAddress =
     'xel:qcd39a5u8cscztamjuyr7hdj6hh2wh9nrmhp86ljx2sz6t99ndjqqm7wxj8';
 const _aboveJavaScriptSafeInteger = '9007199254740993';
@@ -24,6 +26,9 @@ const _requestIds = <String>{
   'unsubscribe',
   'reject-transfer',
   'approve-invoke',
+  'approve-invoke-all',
+  'approve-invoke-specific',
+  'approve-invoke-exclude',
   'replace-session',
   'cancel-transfer',
   'malformed-transfer',
@@ -84,6 +89,8 @@ Future<void> main(List<String> arguments) async {
       'GENESIX_XSWD_WEB_E2E_PASS '
       'partial_prefetch=true prefetched_request=true no_change_prefetch=true '
       'request_scope=true connection_scope=true subscriptions=true '
+      'inter_contract_review=none,all,specific,exclude '
+      'individual_transaction_callbacks=4 '
       'relay=true review=true approve=true reject=true app_close_reject=true '
       'session_replacement=true malformed_session_closed=true '
       'amount=$_aboveJavaScriptSafeInteger '
@@ -281,6 +288,12 @@ final class _XswdRelayFixture {
           await _sendScenario(request.response, 'reject-transfer');
         case ('GET', '/send/approve-invoke'):
           await _sendScenario(request.response, 'approve-invoke');
+        case ('GET', '/send/approve-invoke-all'):
+          await _sendScenario(request.response, 'approve-invoke-all');
+        case ('GET', '/send/approve-invoke-specific'):
+          await _sendScenario(request.response, 'approve-invoke-specific');
+        case ('GET', '/send/approve-invoke-exclude'):
+          await _sendScenario(request.response, 'approve-invoke-exclude');
         case ('GET', '/send/replace-session'):
           await _sendScenario(request.response, 'replace-session');
         case ('GET', '/send/cancel-transfer'):
@@ -374,7 +387,7 @@ final class _XswdRelayFixture {
       'partial-prefetch' || 'no-change-prefetch' => _prefetchRequest(id),
       'get-address' => _getAddressRequest(id),
       'subscribe' || 'unsubscribe' => _subscriptionRequest(id),
-      'approve-invoke' => _invokeRequest(id),
+      final value when value.startsWith('approve-invoke') => _invokeRequest(id),
       'malformed-transfer' => _malformedTransferRequest(id),
       _ => _transferRequest(id),
     };
@@ -464,7 +477,17 @@ String _getAddressRequest(String id) =>
 String _invokeRequest(String id) =>
     // The real fixture wallet is offline. Allow must reach build_transaction,
     // which deterministically returns NOT_ONLINE_MODE before any broadcast.
-    '''{"jsonrpc":"2.0","id":"$id","method":"wallet.build_transaction","params":{"invoke_contract":{"contract":"$_nativeAsset","max_gas":$_aboveJavaScriptSafeInteger,"entry_id":7,"parameters":[],"deposits":{"$_nativeAsset":{"amount":$_aboveJavaScriptSafeInteger,"private":false}},"permission":"none"},"fee":{"fixed":$_maximumUnsigned64},"fee_limit":$_maximumUnsigned64,"nonce":$_wideNonce,"tx_version":0,"broadcast":true,"tx_as_hex":true}}''';
+    '''{"jsonrpc":"2.0","id":"$id","method":"wallet.build_transaction","params":{"invoke_contract":{"contract":"$_nativeAsset","max_gas":$_aboveJavaScriptSafeInteger,"entry_id":7,"parameters":[],"deposits":{"$_nativeAsset":{"amount":$_aboveJavaScriptSafeInteger,"private":false}},"permission":${_invokePermission(id)}},"fee":{"fixed":$_maximumUnsigned64},"fee_limit":$_maximumUnsigned64,"nonce":$_wideNonce,"tx_version":0,"broadcast":true,"tx_as_hex":true}}''';
+
+String _invokePermission(String id) => switch (id) {
+  'approve-invoke' => '"none"',
+  'approve-invoke-all' => '"all"',
+  'approve-invoke-specific' =>
+    '{"specific":[{"contract":"$_secondaryContract","chunk":{"specific":[7,65535]}}]}',
+  'approve-invoke-exclude' =>
+    '{"exclude":[{"contract":"$_secondaryContract","chunk":{"exclude":[7]}}]}',
+  _ => throw ArgumentError.value(id, 'id', 'Unknown invoke scenario.'),
+};
 
 String _malformedTransferRequest(String id) =>
     '''{"jsonrpc":"2.0","id":"$id","method":"wallet.build_transaction","params":{"transfers":[],"unreviewed":true,"broadcast":false}}''';

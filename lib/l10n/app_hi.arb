@@ -689,5 +689,20 @@
   "xswd_recent_cancelled": "रद्द किया गया",
   "xswd_observation_confirmed": "अनुमति नियम वॉलेट से पढ़े गए",
   "xswd_observation_timed_out": "वॉलेट ने समय पर बदलाव की पुष्टि नहीं की। फिर से प्रयास करने से पहले मौजूदा नियम जाँचें।",
-  "xswd_permission_edit_not_confirmed": "वॉलेट ने इस बदलाव की पुष्टि नहीं की। दोबारा प्रयास करने के लिए संपादक खुला रहेगा।"
+  "xswd_permission_edit_not_confirmed": "वॉलेट ने इस बदलाव की पुष्टि नहीं की। दोबारा प्रयास करने के लिए संपादक खुला रहेगा।",
+  "xswd_inter_contract_title": "कॉन्ट्रैक्ट के बीच कॉल",
+  "xswd_inter_contract_transaction_scope": "यह अधिकार केवल इस ट्रांज़ैक्शन पर लागू होता है।",
+  "xswd_inter_contract_none_description": "नामित इंटर-कॉन्ट्रैक्ट कॉल अक्षम हैं। यह इस बात की गारंटी नहीं देता कि ट्रांज़ैक्शन जोखिम-मुक्त है या कोई डेलीगेटेड कोड नहीं चल सकता।",
+  "xswd_inter_contract_broad_warning": "यह ट्रांज़ैक्शन अन्य कॉन्ट्रैक्ट को कॉल कर सकता है। उनका लॉजिक बिना नई जमा राशि के भी मौजूदा एसेट या पोज़िशन को प्रभावित कर सकता है।",
+  "xswd_inter_contract_specific_empty": "specific में कोई कॉन्ट्रैक्ट नहीं है, इसलिए इंटर-कॉन्ट्रैक्ट कॉल की अनुमति नहीं है।",
+  "xswd_inter_contract_exclude_empty": "exclude में कोई कॉन्ट्रैक्ट नहीं है, इसलिए सभी इंटर-कॉन्ट्रैक्ट कॉल की अनुमति है।",
+  "xswd_inter_contract_unlisted_none": "केवल सूचीबद्ध कॉन्ट्रैक्ट को कॉल किया जा सकता है; गैर-सूचीबद्ध कॉन्ट्रैक्ट की अनुमति नहीं है।",
+  "xswd_inter_contract_unlisted_all": "गैर-सूचीबद्ध कॉन्ट्रैक्ट को कॉल किया जा सकता है; सूचीबद्ध कॉन्ट्रैक्ट नीचे दिए नियमों का पालन करते हैं।",
+  "xswd_inter_contract_requested_selector": "अनुरोधित सिलेक्टर",
+  "xswd_inter_contract_effective_scope": "प्रभावी फ़ंक्शन दायरा",
+  "xswd_inter_contract_effective_all": "सभी फ़ंक्शन कॉल किए जा सकते हैं।",
+  "xswd_inter_contract_effective_none": "कोई फ़ंक्शन कॉल नहीं किया जा सकता।",
+  "xswd_inter_contract_effective_only": "केवल सूचीबद्ध फ़ंक्शन कॉल किए जा सकते हैं।",
+  "xswd_inter_contract_effective_except": "सूचीबद्ध फ़ंक्शन को छोड़कर सभी फ़ंक्शन कॉल किए जा सकते हैं।",
+  "xswd_inter_contract_function_ids": "फ़ंक्शन आईडी"
 }

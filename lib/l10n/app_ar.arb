@@ -689,5 +689,20 @@
   "xswd_recent_cancelled": "أُلغي",
   "xswd_observation_confirmed": "تمت قراءة قواعد الأذونات من المحفظة",
   "xswd_observation_timed_out": "لم تؤكد المحفظة التغيير في الوقت المحدد. تحقق من القاعدة الحالية قبل إعادة المحاولة.",
-  "xswd_permission_edit_not_confirmed": "لم تؤكد المحفظة هذا التغيير. سيبقى المحرر مفتوحًا لتتمكن من إعادة المحاولة."
+  "xswd_permission_edit_not_confirmed": "لم تؤكد المحفظة هذا التغيير. سيبقى المحرر مفتوحًا لتتمكن من إعادة المحاولة.",
+  "xswd_inter_contract_title": "الاستدعاءات بين العقود",
+  "xswd_inter_contract_transaction_scope": "تنطبق هذه الصلاحية على هذه المعاملة فقط.",
+  "xswd_inter_contract_none_description": "الاستدعاءات المسماة بين العقود معطّلة. لا يضمن ذلك خلو المعاملة من المخاطر أو تعذّر تشغيل تعليمات برمجية مفوّضة.",
+  "xswd_inter_contract_broad_warning": "يمكن لهذه المعاملة استدعاء عقود أخرى. قد يؤثر منطقها في الأصول أو المراكز الحالية حتى من دون إيداعات جديدة.",
+  "xswd_inter_contract_specific_empty": "لا يحتوي specific على عقود، لذلك لا يُسمح بأي استدعاءات بين العقود.",
+  "xswd_inter_contract_exclude_empty": "لا يحتوي exclude على عقود، لذلك يُسمح بجميع الاستدعاءات بين العقود.",
+  "xswd_inter_contract_unlisted_none": "لا يمكن استدعاء سوى العقود المدرجة؛ أما العقود غير المدرجة فغير مسموح بها.",
+  "xswd_inter_contract_unlisted_all": "يمكن استدعاء العقود غير المدرجة؛ وتتبع العقود المدرجة القواعد أدناه.",
+  "xswd_inter_contract_requested_selector": "المحدِّد المطلوب",
+  "xswd_inter_contract_effective_scope": "النطاق الفعلي للدوال",
+  "xswd_inter_contract_effective_all": "يمكن استدعاء جميع الدوال.",
+  "xswd_inter_contract_effective_none": "لا يمكن استدعاء أي دالة.",
+  "xswd_inter_contract_effective_only": "لا يمكن استدعاء سوى الدوال المدرجة.",
+  "xswd_inter_contract_effective_except": "يمكن استدعاء جميع الدوال عدا الدوال المدرجة.",
+  "xswd_inter_contract_function_ids": "معرّفات الدوال"
 }

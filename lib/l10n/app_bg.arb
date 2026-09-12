@@ -689,5 +689,20 @@
   "xswd_recent_cancelled": "Отменено",
   "xswd_observation_confirmed": "Правилата за разрешения са прочетени от портфейла",
   "xswd_observation_timed_out": "Портфейлът не потвърди промяната навреме. Проверете текущото правило преди нов опит.",
-  "xswd_permission_edit_not_confirmed": "Портфейлът не потвърди промяната. Редакторът остава отворен за нов опит."
+  "xswd_permission_edit_not_confirmed": "Портфейлът не потвърди промяната. Редакторът остава отворен за нов опит.",
+  "xswd_inter_contract_title": "Извиквания между договори",
+  "xswd_inter_contract_transaction_scope": "Това правомощие важи само за тази транзакция.",
+  "xswd_inter_contract_none_description": "Именуваните извиквания между договори са изключени. Това не гарантира, че транзакцията е без риск или че не може да се изпълни делегиран код.",
+  "xswd_inter_contract_broad_warning": "Тази транзакция може да извиква други договори. Тяхната логика може да засегне съществуващи активи или позиции дори без нови депозити.",
+  "xswd_inter_contract_specific_empty": "specific не съдържа договори, затова не са разрешени извиквания между договори.",
+  "xswd_inter_contract_exclude_empty": "exclude не съдържа договори, затова са разрешени всички извиквания между договори.",
+  "xswd_inter_contract_unlisted_none": "Могат да се извикват само изброените договори; останалите не са разрешени.",
+  "xswd_inter_contract_unlisted_all": "Неизброените договори могат да се извикват; за изброените важат правилата по-долу.",
+  "xswd_inter_contract_requested_selector": "Заявен селектор",
+  "xswd_inter_contract_effective_scope": "Ефективен обхват на функциите",
+  "xswd_inter_contract_effective_all": "Всички функции могат да бъдат извиквани.",
+  "xswd_inter_contract_effective_none": "Нито една функция не може да бъде извиквана.",
+  "xswd_inter_contract_effective_only": "Могат да бъдат извиквани само изброените функции.",
+  "xswd_inter_contract_effective_except": "Могат да бъдат извиквани всички функции освен изброените.",
+  "xswd_inter_contract_function_ids": "Идентификатори на функции"
 }

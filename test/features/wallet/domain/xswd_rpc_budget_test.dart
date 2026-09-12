@@ -74,10 +74,11 @@ void main() {
           method: 'build_transaction',
           params: {
             'invoke_contract': {
-              'contract': 'contract',
+              'contract': 'abababababababababababababababababababababababababababababababab',
               'max_gas': BigInt.one,
               'entry_id': 0,
               'parameters': [_bytes(maxXswdRpcScalarBytes + 1)],
+              'permission': 'none',
             },
           },
         ),

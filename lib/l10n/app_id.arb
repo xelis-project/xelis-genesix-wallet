@@ -689,5 +689,20 @@
   "xswd_recent_cancelled": "Dibatalkan",
   "xswd_observation_confirmed": "Aturan izin dibaca dari dompet",
   "xswd_observation_timed_out": "Dompet tidak mengonfirmasi perubahan tepat waktu. Periksa aturan saat ini sebelum mencoba lagi.",
-  "xswd_permission_edit_not_confirmed": "Dompet tidak mengonfirmasi perubahan ini. Editor tetap terbuka agar Anda dapat mencoba lagi."
+  "xswd_permission_edit_not_confirmed": "Dompet tidak mengonfirmasi perubahan ini. Editor tetap terbuka agar Anda dapat mencoba lagi.",
+  "xswd_inter_contract_title": "Panggilan antar-kontrak",
+  "xswd_inter_contract_transaction_scope": "Wewenang ini hanya berlaku untuk transaksi ini.",
+  "xswd_inter_contract_none_description": "Panggilan bernama antar-kontrak dinonaktifkan. Hal ini tidak menjamin bahwa transaksi bebas risiko atau kode yang didelegasikan tidak dapat dijalankan.",
+  "xswd_inter_contract_broad_warning": "Transaksi ini dapat memanggil kontrak lain. Logikanya dapat memengaruhi aset atau posisi yang ada, bahkan tanpa setoran baru.",
+  "xswd_inter_contract_specific_empty": "specific tidak memuat kontrak, sehingga panggilan antar-kontrak tidak diizinkan.",
+  "xswd_inter_contract_exclude_empty": "exclude tidak memuat kontrak, sehingga semua panggilan antar-kontrak diizinkan.",
+  "xswd_inter_contract_unlisted_none": "Hanya kontrak yang tercantum yang dapat dipanggil; kontrak lain tidak diizinkan.",
+  "xswd_inter_contract_unlisted_all": "Kontrak yang tidak tercantum dapat dipanggil; kontrak yang tercantum mengikuti aturan di bawah.",
+  "xswd_inter_contract_requested_selector": "Selektor yang diminta",
+  "xswd_inter_contract_effective_scope": "Cakupan fungsi efektif",
+  "xswd_inter_contract_effective_all": "Semua fungsi dapat dipanggil.",
+  "xswd_inter_contract_effective_none": "Tidak ada fungsi yang dapat dipanggil.",
+  "xswd_inter_contract_effective_only": "Hanya fungsi yang tercantum yang dapat dipanggil.",
+  "xswd_inter_contract_effective_except": "Semua fungsi selain yang tercantum dapat dipanggil.",
+  "xswd_inter_contract_function_ids": "ID fungsi"
 }

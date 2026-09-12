@@ -689,5 +689,20 @@
   "xswd_recent_cancelled": "已取消",
   "xswd_observation_confirmed": "已从钱包读取权限规则",
   "xswd_observation_timed_out": "钱包未能及时确认更改。请先检查当前规则再重试。",
-  "xswd_permission_edit_not_confirmed": "钱包未确认此更改。编辑器将保持打开，您可以重试。"
+  "xswd_permission_edit_not_confirmed": "钱包未确认此更改。编辑器将保持打开，您可以重试。",
+  "xswd_inter_contract_title": "合约间调用",
+  "xswd_inter_contract_transaction_scope": "此权限仅适用于本次交易。",
+  "xswd_inter_contract_none_description": "已禁用具名合约间调用。这并不保证交易没有风险，也不保证不会执行委托代码。",
+  "xswd_inter_contract_broad_warning": "此交易可以调用其他合约。即使没有新存款，这些合约的逻辑也可能影响现有资产或头寸。",
+  "xswd_inter_contract_specific_empty": "specific 不包含合约，因此不允许任何合约间调用。",
+  "xswd_inter_contract_exclude_empty": "exclude 不包含合约，因此允许所有合约间调用。",
+  "xswd_inter_contract_unlisted_none": "只能调用列出的合约；不允许调用未列出的合约。",
+  "xswd_inter_contract_unlisted_all": "可以调用未列出的合约；列出的合约遵循以下规则。",
+  "xswd_inter_contract_requested_selector": "请求的选择器",
+  "xswd_inter_contract_effective_scope": "实际函数范围",
+  "xswd_inter_contract_effective_all": "可以调用所有函数。",
+  "xswd_inter_contract_effective_none": "不能调用任何函数。",
+  "xswd_inter_contract_effective_only": "只能调用列出的函数。",
+  "xswd_inter_contract_effective_except": "可以调用除列出函数之外的所有函数。",
+  "xswd_inter_contract_function_ids": "函数 ID"
 }

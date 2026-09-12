@@ -689,5 +689,20 @@
   "xswd_recent_cancelled": "Annulée",
   "xswd_observation_confirmed": "Règles d’autorisation lues depuis le wallet",
   "xswd_observation_timed_out": "Le wallet n’a pas confirmé la modification à temps. Vérifiez la règle actuelle avant de réessayer.",
-  "xswd_permission_edit_not_confirmed": "Le wallet n’a pas confirmé cette modification. L’éditeur reste ouvert pour vous permettre de réessayer."
+  "xswd_permission_edit_not_confirmed": "Le wallet n’a pas confirmé cette modification. L’éditeur reste ouvert pour vous permettre de réessayer.",
+  "xswd_inter_contract_title": "Appels inter-contrats",
+  "xswd_inter_contract_transaction_scope": "Cette autorité s’applique uniquement à cette transaction.",
+  "xswd_inter_contract_none_description": "Les appels inter-contrats nommés sont désactivés. Cela ne garantit pas que la transaction est sans risque ni qu’aucun code délégué ne peut s’exécuter.",
+  "xswd_inter_contract_broad_warning": "Cette transaction peut appeler d’autres contrats. Leur logique peut affecter des actifs ou positions existants, même sans nouveau dépôt.",
+  "xswd_inter_contract_specific_empty": "specific ne contient aucun contrat ; aucun appel inter-contrat n’est donc autorisé.",
+  "xswd_inter_contract_exclude_empty": "exclude ne contient aucun contrat ; tous les appels inter-contrats sont donc autorisés.",
+  "xswd_inter_contract_unlisted_none": "Seuls les contrats listés peuvent être appelés ; les autres ne sont pas autorisés.",
+  "xswd_inter_contract_unlisted_all": "Les contrats non listés peuvent être appelés ; les contrats listés suivent les règles ci-dessous.",
+  "xswd_inter_contract_requested_selector": "Sélecteur demandé",
+  "xswd_inter_contract_effective_scope": "Portée effective des fonctions",
+  "xswd_inter_contract_effective_all": "Toutes les fonctions peuvent être appelées.",
+  "xswd_inter_contract_effective_none": "Aucune fonction ne peut être appelée.",
+  "xswd_inter_contract_effective_only": "Seules les fonctions listées peuvent être appelées.",
+  "xswd_inter_contract_effective_except": "Toutes les fonctions sauf celles listées peuvent être appelées.",
+  "xswd_inter_contract_function_ids": "Identifiants de fonction"
 }

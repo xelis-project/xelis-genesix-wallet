@@ -689,5 +689,20 @@
   "xswd_recent_cancelled": "Geannuleerd",
   "xswd_observation_confirmed": "Machtigingsregels uit de wallet gelezen",
   "xswd_observation_timed_out": "De wallet heeft de wijziging niet op tijd bevestigd. Controleer de huidige regel voordat u het opnieuw probeert.",
-  "xswd_permission_edit_not_confirmed": "De wallet heeft deze wijziging niet bevestigd. De editor blijft open zodat u opnieuw kunt proberen."
+  "xswd_permission_edit_not_confirmed": "De wallet heeft deze wijziging niet bevestigd. De editor blijft open zodat u opnieuw kunt proberen.",
+  "xswd_inter_contract_title": "Aanroepen tussen contracten",
+  "xswd_inter_contract_transaction_scope": "Deze bevoegdheid geldt alleen voor deze transactie.",
+  "xswd_inter_contract_none_description": "Benoemde aanroepen tussen contracten zijn uitgeschakeld. Dit garandeert niet dat de transactie zonder risico is of dat er geen gedelegeerde code kan worden uitgevoerd.",
+  "xswd_inter_contract_broad_warning": "Deze transactie kan andere contracten aanroepen. Hun logica kan bestaande activa of posities beïnvloeden, ook zonder nieuwe stortingen.",
+  "xswd_inter_contract_specific_empty": "specific bevat geen contracten, dus aanroepen tussen contracten zijn niet toegestaan.",
+  "xswd_inter_contract_exclude_empty": "exclude bevat geen contracten, dus alle aanroepen tussen contracten zijn toegestaan.",
+  "xswd_inter_contract_unlisted_none": "Alleen vermelde contracten mogen worden aangeroepen; niet-vermelde contracten zijn niet toegestaan.",
+  "xswd_inter_contract_unlisted_all": "Niet-vermelde contracten mogen worden aangeroepen; voor vermelde contracten gelden de onderstaande regels.",
+  "xswd_inter_contract_requested_selector": "Gevraagde selector",
+  "xswd_inter_contract_effective_scope": "Effectief functiebereik",
+  "xswd_inter_contract_effective_all": "Alle functies mogen worden aangeroepen.",
+  "xswd_inter_contract_effective_none": "Geen enkele functie mag worden aangeroepen.",
+  "xswd_inter_contract_effective_only": "Alleen de vermelde functies mogen worden aangeroepen.",
+  "xswd_inter_contract_effective_except": "Alle functies behalve de vermelde mogen worden aangeroepen.",
+  "xswd_inter_contract_function_ids": "Functie-ID's"
 }

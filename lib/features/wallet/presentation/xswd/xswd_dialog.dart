@@ -736,6 +736,9 @@ class _XswdTransactionReviewSection extends StatelessWidget {
     final params = review.buildTransactionParams!;
     final feeValue = _formatXswdFee(params.fee, loc);
     final baseFeeValue = _formatXswdBaseFee(params.baseFee, loc);
+    final hasBroadInterContractAuthority = _hasBroadInterContractAuthority(
+      params.transactionTypeBuilder,
+    );
 
     return Column(
       key: const ValueKey('xswd-transaction-review'),
@@ -747,6 +750,15 @@ class _XswdTransactionReviewSection extends StatelessWidget {
           title: Text(loc.xswd_transaction_review_title),
           subtitle: Text(loc.xswd_transaction_review_warning),
         ),
+        if (hasBroadInterContractAuthority) ...[
+          const SizedBox(height: Spaces.medium),
+          FAlert(
+            key: const ValueKey('xswd-inter-contract-broad-warning'),
+            icon: const Icon(FLucideIcons.triangleAlert),
+            title: Text(loc.warning),
+            subtitle: Text(loc.xswd_inter_contract_broad_warning),
+          ),
+        ],
         const SizedBox(height: Spaces.medium),
         Wrap(
           spacing: Spaces.small,
@@ -801,6 +813,16 @@ class _XswdTransactionReviewSection extends StatelessWidget {
       ],
     );
   }
+}
+
+bool _hasBroadInterContractAuthority(TransactionTypeBuilder builder) {
+  if (builder is! InvokeContractBuilder) return false;
+  return switch (builder.permission) {
+    AllInterContractPermission() ||
+    ExcludedInterContractPermission() ||
+    UnknownInterContractPermission() => true,
+    NoInterContractPermission() || SpecificInterContractPermission() => false,
+  };
 }
 
 String _formatXswdFee(FeeBuilder fee, AppLocalizations loc) {
@@ -1249,6 +1271,7 @@ class _XswdPermissionPayload extends StatelessWidget {
         XswdJsonParametersView(parameters: parameters, loc: loc);
 
     return _PermissionContentContainer(
+      key: const ValueKey('xswd-permission-payload-container'),
       child: SingleChildScrollView(child: content),
     );
   }
@@ -1618,6 +1641,7 @@ class _PermissionContentContainer extends StatelessWidget {
   const _PermissionContentContainer({
     required this.child,
     this.maxHeight = 300,
+    super.key,
   });
 
   final Widget child;

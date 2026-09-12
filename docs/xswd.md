@@ -60,7 +60,8 @@ it again against the current wallet's application list.
 | Wallet event subscriptions | `subscribe` and `unsubscribe` are supported, prefetchable and persistable after explicit consent. A one-time request identifies its wallet event; persistent consent covers all events for that method, including private wallet activity. The two methods remain separate native permissions. |
 | `build_transaction` | A one-time, structured, lossless review only. It cannot be prefetched or persisted as `Accept`; legacy persisted `Accept` policies are normalized to `Ask`. |
 | Supported builders | Transfer, burn, multisig, contract invocation, and contract deployment, only when every field is rendered and validated. |
-| Unsupported builders/fields | Blob builder, explicit signers, and non-`NoInterContractPermission` permissions are rejected. |
+| Inter-contract permissions | `none`, `all`, `specific` and `exclude` are reviewed explicitly for each invocation, including nested function selectors. They never authorize later transactions. |
+| Unsupported builders/fields | Blob builder, explicit signers, and unknown or lossy fields are rejected. |
 | Unsupported wallet methods | Offline/unsigned transaction stages, signing, proofs, decryption, rescan/cache operations, network-mode changes, and asset tracking mutations are rejected because Genesix has no dedicated orchestration and review for their effects. They cannot be prefetched or persisted as `Accept`. |
 
 For `build_transaction`, all amounts, fees, gas values, nonces, and limits stay
@@ -192,6 +193,32 @@ source; a cancellation, disconnect or wallet change during the native state
 read prevents installation of a stale review. Every later transaction still
 requires its own confirmation.
 
+## Inter-contract transaction review
+
+The invocation review preserves the requested permission exactly. The entry
+contract and every listed contract must be 64 hexadecimal characters; duplicate
+hashes are compared by value, independent of case. Contract lists and nested
+function lists are bounded to 255 entries, function IDs to `u16`, and duplicate
+functions or unknown fields are rejected before SDK decoding. The `permission`
+field is mandatory in the XWF-pinned native contract (`b149b57`); Genesix never
+substitutes the SDK's default when the field is absent.
+
+The confirmation shows the entry contract/function, deposits, parameters,
+fee/gas limits and permission scope. `specific` permits only the listed
+contract/function combinations. `exclude` permits everything outside those
+combinations; its nested selector is negated as a whole. Thus `specific([])`
+permits no external calls, `exclude([])` permits all, and a nested `exclude`
+under outer `exclude` permits only the listed functions for that contract.
+The UI states this effective scope and makes full hashes and function IDs
+accessible without expanding every rule at once.
+
+`all` and `exclude` display a warning before confirmation: this transaction can
+call other contracts and affect assets or existing positions according to their
+logic, beyond any new deposits. `none` is not a guarantee of safety or absence
+of delegated code execution. Genesix neither narrows permissions automatically
+nor simulates contracts or predicts their economic effects. Every invocation
+still uses its original request and needs individual confirmation.
+
 ## Lossless Web transaction review
 
 XWF 0.3 provides an immutable typed XSWD tree with exact `BigInt` integers.
@@ -227,7 +254,6 @@ must change first; it does not assign a delivery date.
 | Data signing | Reject `sign_data`; avoids blind signatures without a canonical domain, content, and context presentation. | SDK/XWF must expose a canonical signing envelope; Genesix needs a dedicated signing UX and threat review. | Domain-separation, hostile-content, approve/reject, and no-sensitive-log tests. |
 | Blob transactions | Reject `BlobBuilder`; avoids approving content whose size, commitment, meaning, and consequences cannot be reviewed. | SDK/XWF must expose review-safe metadata and binding; Genesix needs a dedicated blob review. | Boundary-size, commitment mismatch, and full review-to-broadcast tests. |
 | Explicit signers | Reject non-empty signers; avoids revealing or handling structures that can contain private-key material. | Upstream must provide a public, non-secret signer projection; Genesix needs a documented authority model. | Fixtures proving no private material reaches UI/logs plus signer-authority tests. |
-| Advanced inter-contract permissions | Reject every permission except `NoInterContractPermission`; avoids opaque `all`, `specific`, or `exclude` authority. | SDK must expose semantics sufficient for review; Genesix needs a contract/target scope UI. | Exhaustive variant tests, semantic rendering tests, and a security review. |
 | Persistent non-standard authorization | Normalize stored `Accept` to `Ask` and deny prefetch for dedicated-review, unsupported, and unknown methods; avoids durable or silent approval without matching review semantics. | Intentional product/security decision, new threat model, revocation and migration design. | Explicitly approved security design and regression tests; this is not a routine TODO. |
 
 Native packaging and Apple lock regeneration are tracked in the

@@ -32,6 +32,28 @@ const _controlOrigin = String.fromEnvironment('GENESIX_XSWD_E2E_CONTROL');
 const _applicationId =
     '1111111111111111111111111111111111111111111111111111111111111111';
 const _applicationName = 'Genesix Web E2E';
+const _secondaryContract =
+    'abababababababababababababababababababababababababababababababab';
+const _specificPermission = <String, Object?>{
+  'specific': [
+    {
+      'contract': _secondaryContract,
+      'chunk': {
+        'specific': [7, 65535],
+      },
+    },
+  ],
+};
+const _excludePermission = <String, Object?>{
+  'exclude': [
+    {
+      'contract': _secondaryContract,
+      'chunk': {
+        'exclude': [7],
+      },
+    },
+  ],
+};
 final _aboveJavaScriptSafeInteger = BigInt.parse('9007199254740993');
 final _wideNonce = BigInt.parse('9007199254740995');
 final _maximumUnsigned64 = BigInt.parse('18446744073709551615');
@@ -212,26 +234,40 @@ void main() {
       expect(rejected.hasError, isTrue);
       expect(rejected.errorKind, 'PERMISSION_DENIED');
 
-      await control.send('approve-invoke');
-      final approvedReview = await _waitForBuildTransaction(tester, container);
-      _expectInvokeReview(approvedReview);
-      await _pumpDialog(tester, container);
-      expect(
-        find.textContaining('9,007,199,254,740,993', findRichText: true),
-        findsWidgets,
-      );
-      expect(
-        find.textContaining('18,446,744,073,709,551,615', findRichText: true),
-        findsWidgets,
-      );
-      await _tapDecision(tester, loc.xswd_allow_once);
-      final approved = await control.waitForResponse(tester, 'approve-invoke');
-      expect(approved.hasError, isTrue);
-      expect(
-        approved.errorKind,
-        'NOT_ONLINE_MODE',
-        reason: 'Allow must reach the offline native wallet RPC, not denial.',
-      );
+      for (final scenario in const <({String id, Object permission})>[
+        (id: 'approve-invoke', permission: 'none'),
+        (id: 'approve-invoke-all', permission: 'all'),
+        (id: 'approve-invoke-specific', permission: _specificPermission),
+        (id: 'approve-invoke-exclude', permission: _excludePermission),
+      ]) {
+        binding.reportData!['phase'] = scenario.id;
+        await control.send(scenario.id);
+        final approvedReview = await _waitForBuildTransaction(
+          tester,
+          container,
+        );
+        _expectInvokeReview(
+          approvedReview,
+          expectedPermission: scenario.permission,
+        );
+        await _pumpDialog(tester, container);
+        expect(
+          find.textContaining('9,007,199,254,740,993', findRichText: true),
+          findsWidgets,
+        );
+        expect(
+          find.textContaining('18,446,744,073,709,551,615', findRichText: true),
+          findsWidgets,
+        );
+        await _tapDecision(tester, loc.xswd_allow_once);
+        final approved = await control.waitForResponse(tester, scenario.id);
+        expect(approved.hasError, isTrue);
+        expect(
+          approved.errorKind,
+          'NOT_ONLINE_MODE',
+          reason: 'Each Allow must reach the offline native wallet RPC, not denial.',
+        );
+      }
 
       await control.send('replace-session');
       binding.reportData!['phase'] = 'replace_session';
@@ -426,11 +462,15 @@ void _expectTransferReview(XswdPermissionReview review) {
   expect(params.nonce, _wideNonce);
 }
 
-void _expectInvokeReview(XswdPermissionReview review) {
+void _expectInvokeReview(
+  XswdPermissionReview review, {
+  required Object expectedPermission,
+}) {
   final params = review.buildTransactionParams!;
   final builder = params.transactionTypeBuilder as InvokeContractBuilder;
   expect(builder.maxGas, _aboveJavaScriptSafeInteger);
   expect(builder.deposits.values.single.amount, _aboveJavaScriptSafeInteger);
+  expect(builder.permission.toJson(), expectedPermission);
   expect((params.fee as FixedFeeBuilder).amount, _maximumUnsigned64);
   expect(params.feeLimit, _maximumUnsigned64);
   expect(params.nonce, _wideNonce);

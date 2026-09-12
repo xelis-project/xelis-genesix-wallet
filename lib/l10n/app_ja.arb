@@ -689,5 +689,20 @@
   "xswd_recent_cancelled": "キャンセル済み",
   "xswd_observation_confirmed": "ウォレットから権限ルールを読み取りました",
   "xswd_observation_timed_out": "ウォレットが時間内に変更を確認できませんでした。再試行前に現在のルールを確認してください。",
-  "xswd_permission_edit_not_confirmed": "ウォレットがこの変更を確認できませんでした。再試行できるよう編集画面を開いたままにします。"
+  "xswd_permission_edit_not_confirmed": "ウォレットがこの変更を確認できませんでした。再試行できるよう編集画面を開いたままにします。",
+  "xswd_inter_contract_title": "コントラクト間呼び出し",
+  "xswd_inter_contract_transaction_scope": "この権限はこのトランザクションにのみ適用されます。",
+  "xswd_inter_contract_none_description": "名前付きのコントラクト間呼び出しは無効です。トランザクションにリスクがないことや、委任されたコードが実行されないことを保証するものではありません。",
+  "xswd_inter_contract_broad_warning": "このトランザクションは他のコントラクトを呼び出せます。そのロジックは、新しい入金がなくても既存の資産やポジションに影響する可能性があります。",
+  "xswd_inter_contract_specific_empty": "specific にコントラクトがないため、コントラクト間呼び出しは許可されません。",
+  "xswd_inter_contract_exclude_empty": "exclude にコントラクトがないため、すべてのコントラクト間呼び出しが許可されます。",
+  "xswd_inter_contract_unlisted_none": "一覧にあるコントラクトのみ呼び出せます。一覧にないコントラクトは許可されません。",
+  "xswd_inter_contract_unlisted_all": "一覧にないコントラクトを呼び出せます。一覧にあるコントラクトには以下のルールが適用されます。",
+  "xswd_inter_contract_requested_selector": "要求されたセレクター",
+  "xswd_inter_contract_effective_scope": "有効な関数範囲",
+  "xswd_inter_contract_effective_all": "すべての関数を呼び出せます。",
+  "xswd_inter_contract_effective_none": "関数を呼び出せません。",
+  "xswd_inter_contract_effective_only": "一覧にある関数のみ呼び出せます。",
+  "xswd_inter_contract_effective_except": "一覧にある関数を除くすべての関数を呼び出せます。",
+  "xswd_inter_contract_function_ids": "関数 ID"
 }

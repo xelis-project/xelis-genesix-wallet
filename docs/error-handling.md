@@ -340,6 +340,11 @@ messages never cross into Rust or native diagnostics.
 Permission review, prefetch, persistence and editing use the single method
 policy defined in [`xswd.md`](xswd.md), alongside the support matrix and deferred
 capabilities. Diagnostic logging never changes that policy.
+Malformed inter-contract permissions, missing permission fields and invalid
+contract hashes retain `xswd.request.parse` / `xswd_request_invalid`; neither
+the rejected selectors nor contract payloads enter the failure or diagnostics.
+Approving a valid permission scope records consent, not contract execution or
+an assessment of its economic effects.
 
 Wallet names are validated as portable path leaves and resolved below the
 selected network directory before filesystem or web-storage access. Invalid

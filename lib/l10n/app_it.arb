@@ -689,5 +689,20 @@
   "xswd_recent_cancelled": "Annullata",
   "xswd_observation_confirmed": "Regole delle autorizzazioni lette dal wallet",
   "xswd_observation_timed_out": "Il wallet non ha confermato la modifica in tempo. Controlla la regola attuale prima di riprovare.",
-  "xswd_permission_edit_not_confirmed": "Il wallet non ha confermato questa modifica. L’editor resta aperto per riprovare."
+  "xswd_permission_edit_not_confirmed": "Il wallet non ha confermato questa modifica. L’editor resta aperto per riprovare.",
+  "xswd_inter_contract_title": "Chiamate tra contratti",
+  "xswd_inter_contract_transaction_scope": "Questa autorità vale solo per questa transazione.",
+  "xswd_inter_contract_none_description": "Le chiamate tra contratti con nome sono disabilitate. Ciò non garantisce che la transazione sia priva di rischi o che non possa essere eseguito codice delegato.",
+  "xswd_inter_contract_broad_warning": "Questa transazione può chiamare altri contratti. La loro logica può influire su asset o posizioni esistenti, anche senza nuovi depositi.",
+  "xswd_inter_contract_specific_empty": "specific non contiene contratti, quindi non è consentita alcuna chiamata tra contratti.",
+  "xswd_inter_contract_exclude_empty": "exclude non contiene contratti, quindi sono consentite tutte le chiamate tra contratti.",
+  "xswd_inter_contract_unlisted_none": "Possono essere chiamati solo i contratti elencati; quelli non elencati non sono consentiti.",
+  "xswd_inter_contract_unlisted_all": "I contratti non elencati possono essere chiamati; quelli elencati seguono le regole seguenti.",
+  "xswd_inter_contract_requested_selector": "Selettore richiesto",
+  "xswd_inter_contract_effective_scope": "Ambito effettivo delle funzioni",
+  "xswd_inter_contract_effective_all": "Possono essere chiamate tutte le funzioni.",
+  "xswd_inter_contract_effective_none": "Non può essere chiamata alcuna funzione.",
+  "xswd_inter_contract_effective_only": "Possono essere chiamate solo le funzioni elencate.",
+  "xswd_inter_contract_effective_except": "Possono essere chiamate tutte le funzioni tranne quelle elencate.",
+  "xswd_inter_contract_function_ids": "ID funzione"
 }

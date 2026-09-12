@@ -689,5 +689,20 @@
   "xswd_recent_cancelled": "Скасовано",
   "xswd_observation_confirmed": "Правила дозволів прочитано з гаманця",
   "xswd_observation_timed_out": "Гаманець не підтвердив зміну вчасно. Перед повторною спробою перевірте поточне правило.",
-  "xswd_permission_edit_not_confirmed": "Гаманець не підтвердив цю зміну. Редактор залишиться відкритим для повторної спроби."
+  "xswd_permission_edit_not_confirmed": "Гаманець не підтвердив цю зміну. Редактор залишиться відкритим для повторної спроби.",
+  "xswd_inter_contract_title": "Виклики між контрактами",
+  "xswd_inter_contract_transaction_scope": "Цей дозвіл діє лише для цієї транзакції.",
+  "xswd_inter_contract_none_description": "Іменовані виклики між контрактами вимкнено. Це не гарантує відсутності ризику транзакції або неможливості виконання делегованого коду.",
+  "xswd_inter_contract_broad_warning": "Ця транзакція може викликати інші контракти. Їхня логіка може впливати на наявні активи чи позиції навіть без нових депозитів.",
+  "xswd_inter_contract_specific_empty": "specific не містить контрактів, тому виклики між контрактами заборонені.",
+  "xswd_inter_contract_exclude_empty": "exclude не містить контрактів, тому дозволені всі виклики між контрактами.",
+  "xswd_inter_contract_unlisted_none": "Можна викликати лише перелічені контракти; інші заборонені.",
+  "xswd_inter_contract_unlisted_all": "Неперелічені контракти можна викликати; для перелічених діють правила нижче.",
+  "xswd_inter_contract_requested_selector": "Запитаний селектор",
+  "xswd_inter_contract_effective_scope": "Фактична область функцій",
+  "xswd_inter_contract_effective_all": "Можна викликати всі функції.",
+  "xswd_inter_contract_effective_none": "Не можна викликати жодну функцію.",
+  "xswd_inter_contract_effective_only": "Можна викликати лише перелічені функції.",
+  "xswd_inter_contract_effective_except": "Можна викликати всі функції, крім перелічених.",
+  "xswd_inter_contract_function_ids": "Ідентифікатори функцій"
 }

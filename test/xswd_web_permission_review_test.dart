@@ -11,6 +11,8 @@ import 'helpers/xswd_test_payload.dart';
 
 final _wide = BigInt.parse('9007199254740993');
 final _maximum = BigInt.parse('18446744073709551615');
+const _contractA =
+    'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
 void main() {
   test('Web retains exact burn amount, fee, limit and nonce', () {
@@ -26,7 +28,8 @@ void main() {
   test('Web retains exact invocation gas and deposit', () {
     final params = _review({
       'invoke_contract': {
-        'contract': 'contract-hash',
+        'contract':
+            'abababababababababababababababababababababababababababababababab',
         'max_gas': _wide,
         'entry_id': 0,
         'deposits': {
@@ -48,6 +51,47 @@ void main() {
       }),
       throwsA(isA<FormatException>()),
     );
+  });
+
+  test('Web preserves supported inter-contract permission variants', () {
+    final permissions = <Object>[
+      'all',
+      {
+        'specific': [
+          {
+            'contract': _contractA,
+            'chunk': {
+              'specific': [1, 65535],
+            },
+          },
+        ],
+      },
+      {
+        'exclude': [
+          {
+            'contract': _contractA,
+            'chunk': {
+              'exclude': [2],
+            },
+          },
+        ],
+      },
+    ];
+
+    for (final permission in permissions) {
+      final params = _review({
+        'invoke_contract': {
+          'contract': _contractA,
+          'max_gas': _wide,
+          'entry_id': 0,
+          'deposits': <String, Object?>{},
+          'parameters': <Object?>[],
+          'permission': permission,
+        },
+      }).buildTransactionParams!;
+      final builder = params.transactionTypeBuilder as InvokeContractBuilder;
+      expect(builder.permission.toJson(), permission);
+    }
   });
 }
 

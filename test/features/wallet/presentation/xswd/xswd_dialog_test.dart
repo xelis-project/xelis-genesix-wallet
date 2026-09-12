@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forui/forui.dart';
 import 'package:genesix/shared/theme/genesix_theme.dart';
@@ -10,11 +11,14 @@ import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/xswd_method_policy.dart';
 import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/xswd_full_value_view.dart';
+import 'package:genesix/features/wallet/presentation/xswd/components/xswd_inter_contract_permission_review.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_dialog.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_dialog_host.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_permission_copy.dart';
 import 'package:genesix/shared/theme/theme.dart';
+import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:genesix/src/generated/l10n/app_localizations_en.dart';
+import 'package:genesix/src/generated/l10n/app_localizations_fr.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
@@ -22,6 +26,10 @@ import '../../../../helpers/xswd_test_payload.dart';
 
 const _canonicalAddress =
     'xel:qcd39a5u8cscztamjuyr7hdj6hh2wh9nrmhp86ljx2sz6t99ndjqqm7wxj8';
+const _contractHash =
+    '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
+const _calledContractHash =
+    'fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210';
 
 void main() {
   setUpAll(XelisWalletFlutter.initialize);
@@ -453,7 +461,7 @@ void main() {
           'method': WalletMethod.buildTransaction.jsonKey,
           'params': {
             'invoke_contract': {
-              'contract': 'contract-hash',
+              'contract': _contractHash,
               'max_gas': BigInt.parse('9007199254740993'),
               'entry_id': 0,
               'parameters': [
@@ -496,6 +504,324 @@ void main() {
 
     container.read(xswdRequestProvider.notifier).clearRequest();
     await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('renders the exact top-level inter-contract authority', (
+    tester,
+  ) async {
+    final loc = AppLocalizationsEn();
+    final cases =
+        <({String name, Object permission, String description, bool broad})>[
+          (
+            name: 'none',
+            permission: 'none',
+            description: loc.xswd_inter_contract_none_description,
+            broad: false,
+          ),
+          (
+            name: 'all',
+            permission: 'all',
+            description: loc.xswd_inter_contract_effective_all,
+            broad: true,
+          ),
+          (
+            name: 'specific',
+            permission: {'specific': <Object>[]},
+            description: loc.xswd_inter_contract_specific_empty,
+            broad: false,
+          ),
+          (
+            name: 'exclude',
+            permission: {'exclude': <Object>[]},
+            description: loc.xswd_inter_contract_exclude_empty,
+            broad: true,
+          ),
+        ];
+
+    for (final (index, reviewCase) in cases.indexed) {
+      final harness = _XswdTestHarness(loc);
+      final container = harness.container;
+      addTearDown(container.dispose);
+      final decision = harness.newRequest(
+        _invokePermissionRequest(
+          id: index + 1,
+          permission: reviewCase.permission,
+        ),
+      );
+      await _pumpXswdDialog(tester, container);
+
+      final permission = find.byKey(
+        const ValueKey('xswd-inter-contract-permission'),
+      );
+      final payload = find.byKey(
+        const ValueKey('xswd-permission-payload-container'),
+      );
+      expect(permission, findsOneWidget);
+      expect(find.text(reviewCase.name), findsOneWidget);
+      expect(find.text(reviewCase.description), findsOneWidget);
+      expect(
+        find.text(loc.xswd_inter_contract_transaction_scope),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: payload, matching: permission),
+        findsOneWidget,
+      );
+
+      final broadWarning = find.byKey(
+        const ValueKey('xswd-inter-contract-broad-warning'),
+      );
+      if (reviewCase.broad) {
+        expect(broadWarning, findsOneWidget);
+        expect(
+          find.text(loc.xswd_inter_contract_broad_warning),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(of: payload, matching: broadWarning),
+          findsNothing,
+        );
+        expect(
+          tester.getTopLeft(broadWarning).dy,
+          lessThan(tester.getTopLeft(payload).dy),
+        );
+      } else {
+        expect(broadWarning, findsNothing);
+      }
+
+      final token = container.read(xswdRequestProvider).token!;
+      container.read(xswdRequestProvider.notifier).rejectIfCurrent(token);
+      expect(await decision, XelisXswdDecision.reject);
+      await tester.pumpWidget(const SizedBox.shrink());
+    }
+  });
+
+  testWidgets('explains exact nested and inverted function selectors', (
+    tester,
+  ) async {
+    final loc = AppLocalizationsEn();
+    final cases =
+        <
+          ({
+            String name,
+            Object permission,
+            String selector,
+            String effective,
+            String? functions,
+          })
+        >[
+          (
+            name: 'specific all',
+            permission: _listedPermission(outer: 'specific', chunk: 'all'),
+            selector: 'all',
+            effective: loc.xswd_inter_contract_effective_all,
+            functions: null,
+          ),
+          (
+            name: 'specific only',
+            permission: _listedPermission(
+              outer: 'specific',
+              chunk: {
+                'specific': [1, 65535],
+              },
+            ),
+            selector: 'specific',
+            effective: loc.xswd_inter_contract_effective_only,
+            functions: '1, 65535',
+          ),
+          (
+            name: 'specific except',
+            permission: _listedPermission(
+              outer: 'specific',
+              chunk: {
+                'exclude': [1, 65535],
+              },
+            ),
+            selector: 'exclude',
+            effective: loc.xswd_inter_contract_effective_except,
+            functions: '1, 65535',
+          ),
+          (
+            name: 'exclude all becomes none',
+            permission: _listedPermission(outer: 'exclude', chunk: 'all'),
+            selector: 'all',
+            effective: loc.xswd_inter_contract_effective_none,
+            functions: null,
+          ),
+          (
+            name: 'exclude specific becomes except',
+            permission: _listedPermission(
+              outer: 'exclude',
+              chunk: {
+                'specific': [1, 65535],
+              },
+            ),
+            selector: 'specific',
+            effective: loc.xswd_inter_contract_effective_except,
+            functions: '1, 65535',
+          ),
+          (
+            name: 'double exclude becomes only',
+            permission: _listedPermission(
+              outer: 'exclude',
+              chunk: {
+                'exclude': [1, 65535],
+              },
+            ),
+            selector: 'exclude',
+            effective: loc.xswd_inter_contract_effective_only,
+            functions: '1, 65535',
+          ),
+        ];
+
+    for (final (index, reviewCase) in cases.indexed) {
+      final harness = _XswdTestHarness(loc);
+      final container = harness.container;
+      addTearDown(container.dispose);
+      final decision = harness.newRequest(
+        _invokePermissionRequest(
+          id: 100 + index,
+          permission: reviewCase.permission,
+        ),
+      );
+      await _pumpXswdDialog(tester, container);
+
+      final rule = find.byKey(const ValueKey('xswd-inter-contract-rule-0'));
+      expect(rule, findsOneWidget, reason: reviewCase.name);
+      await tester.ensureVisible(rule);
+      await tester.tap(rule);
+      await tester.pump(const Duration(milliseconds: 150));
+
+      final detailDialog = find.byKey(
+        const ValueKey('xswd-inter-contract-rule-dialog-0'),
+      );
+      expect(find.text(_calledContractHash), findsOneWidget);
+      expect(
+        find.descendant(
+          of: detailDialog,
+          matching: find.text(reviewCase.selector),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: detailDialog,
+          matching: find.text(reviewCase.effective),
+        ),
+        findsOneWidget,
+      );
+      if (reviewCase.functions case final functions?) {
+        expect(find.text(functions), findsOneWidget);
+      } else {
+        expect(
+          find.byKey(const ValueKey('xswd-inter-contract-functions-0')),
+          findsNothing,
+        );
+      }
+      expect(tester.takeException(), isNull);
+
+      await tester.tap(find.text(loc.close));
+      await tester.pump(const Duration(milliseconds: 150));
+      final token = container.read(xswdRequestProvider).token!;
+      container.read(xswdRequestProvider.notifier).rejectIfCurrent(token);
+      expect(await decision, XelisXswdDecision.reject);
+      await tester.pumpWidget(const SizedBox.shrink());
+    }
+  });
+
+  testWidgets('keeps permission review first and localized at narrow width', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 700);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final loc = AppLocalizationsEn();
+    final harness = _XswdTestHarness(loc);
+    final container = harness.container;
+    addTearDown(container.dispose);
+    final decision = harness.newRequest(
+      _invokePermissionRequest(
+        id: 200,
+        permission: _listedPermission(
+          outer: 'specific',
+          chunk: {
+            'exclude': [1, 65535],
+          },
+        ),
+        parameters: List.generate(
+          24,
+          (index) => {
+            'type': 'primitive',
+            'value': {'type': 'u16', 'value': index},
+          },
+        ),
+      ),
+    );
+    await _pumpXswdDialog(tester, container);
+
+    final permission = find.byKey(
+      const ValueKey('xswd-inter-contract-permission'),
+    );
+    final maxGas = find.textContaining(loc.max_gas, findRichText: true);
+    expect(find.text(loc.xswd_inter_contract_title), findsOneWidget);
+    expect(find.text(loc.xswd_inter_contract_unlisted_none), findsOneWidget);
+    expect(permission, findsOneWidget);
+    expect(maxGas, findsOneWidget);
+    expect(
+      tester.getTopLeft(permission).dy,
+      lessThan(tester.getTopLeft(maxGas).dy),
+    );
+    expect(tester.takeException(), isNull);
+
+    final token = container.read(xswdRequestProvider).token!;
+    container.read(xswdRequestProvider.notifier).rejectIfCurrent(token);
+    expect(await decision, XelisXswdDecision.reject);
+    await tester.pumpWidget(const SizedBox.shrink());
+
+    final translated = AppLocalizationsFr();
+    final theme = greenDark(touch: true);
+    await tester.pumpWidget(
+      MaterialApp(
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: const TextScaler.linear(2)),
+          child: child!,
+        ),
+        theme: theme.toApproximateMaterialTheme(),
+        home: GenesixTheme(
+          data: theme,
+          child: Scaffold(
+            body: SingleChildScrollView(
+              child: XswdInterContractPermissionReview(
+                permission: InterContractPermission.fromJson(
+                  _listedPermission(
+                    outer: 'specific',
+                    chunk: {
+                      'exclude': [1, 65535],
+                    },
+                  ),
+                ),
+                loc: translated,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(find.text(translated.xswd_inter_contract_title), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pump(const Duration(milliseconds: 150));
+    expect(
+      find.byKey(const ValueKey('xswd-inter-contract-rule-dialog-0')),
+      findsOneWidget,
+    );
+    expect(find.text(_calledContractHash), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('groups a mixed prefetch and grants only the selection', (
@@ -762,6 +1088,63 @@ XelisXswdRequest _permissionRequest({required int id, required String method}) {
   );
 }
 
+XelisXswdRequest _invokePermissionRequest({
+  required int id,
+  required Object permission,
+  List<Map<String, dynamic>> parameters = const [],
+}) => XelisXswdRequest(
+  kind: XelisXswdRequestKind.permission,
+  application: _application,
+  payload: xswdTestPayload({
+    'id': id,
+    'jsonrpc': '2.0',
+    'method': WalletMethod.buildTransaction.jsonKey,
+    'params': {
+      'invoke_contract': {
+        'contract': _contractHash,
+        'max_gas': 7,
+        'entry_id': 3,
+        'parameters': parameters,
+        'permission': permission,
+      },
+    },
+  }),
+);
+
+Map<String, Object> _listedPermission({
+  required String outer,
+  required Object chunk,
+}) => {
+  outer: [
+    {'contract': _calledContractHash, 'chunk': chunk},
+  ],
+};
+
+Future<void> _pumpXswdDialog(
+  WidgetTester tester,
+  ProviderContainer container, {
+  double textScale = 1,
+}) async {
+  final theme = greenDark(touch: tester.view.physicalSize.width < 600);
+  await tester.pumpWidget(
+    UncontrolledProviderScope(
+      container: container,
+      child: MaterialApp(
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: TextScaler.linear(textScale)),
+          child: child!,
+        ),
+        theme: theme.toApproximateMaterialTheme(),
+        home: GenesixTheme(
+          data: theme,
+          child: const Scaffold(body: XswdDialog(kAlwaysCompleteAnimation)),
+        ),
+      ),
+    ),
+  );
+}
+
 XelisXswdRequest _prefetchRequest({required List<String> permissions}) {
   return XelisXswdRequest(
     kind: XelisXswdRequestKind.prefetchPermissions,
@@ -783,7 +1166,7 @@ final _application = XelisXswdApplication(
 );
 
 final class _XswdTestHarness {
-  factory _XswdTestHarness(AppLocalizationsEn loc) {
+  factory _XswdTestHarness(AppLocalizations loc) {
     final repository = _FakeNativeWalletRepository();
     return _XswdTestHarness._(
       repository,
