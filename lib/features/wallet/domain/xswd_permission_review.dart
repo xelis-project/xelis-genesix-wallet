@@ -1,5 +1,3 @@
-import 'package:genesix/features/wallet/domain/permission_rpc_request.dart';
-import 'package:genesix/features/wallet/domain/prefetch_permissions_rpc_request.dart';
 import 'package:genesix/features/wallet/domain/xswd_method_policy.dart';
 import 'package:genesix/features/wallet/domain/xswd_payload.dart';
 import 'package:genesix/features/wallet/domain/xswd_rpc_budget.dart';
@@ -18,15 +16,20 @@ final class XswdPermissionReview {
     required this.request,
     required this.method,
     required this.policy,
+    this.parameters,
     this.subscriptionEvent,
     this.buildTransactionParams,
     this.parsedInvokeParameters = const [],
     this.transferDestinations = const [],
   });
 
-  factory XswdPermissionReview.parse(PermissionRpcRequest request) {
+  factory XswdPermissionReview.parse(XelisXswdPermissionRequest request) {
     final method = request.method;
     final policy = _resolveMethodPolicy(method);
+    final params = request.parameters == null
+        ? null
+        : decodeXswdPayload(request.parameters);
+    normalizeXswdBuildTransactionFields({'method': method, 'params': params});
     switch (policy.support) {
       case XswdMethodSupport.unsupported:
         throw const FormatException(
@@ -37,7 +40,8 @@ final class XswdPermissionReview {
           request: request,
           method: method,
           policy: policy,
-          subscriptionEvent: _resolveSubscriptionEvent(request),
+          parameters: params,
+          subscriptionEvent: _resolveSubscriptionEvent(method, params),
         );
       case XswdMethodSupport.dedicatedTransactionReview:
         break;
@@ -46,7 +50,6 @@ final class XswdPermissionReview {
       throw StateError('Invalid dedicated XSWD review policy.');
     }
 
-    final params = request.params;
     if (params == null || params.isEmpty) {
       throw const FormatException('Missing build_transaction parameters.');
     }
@@ -133,13 +136,15 @@ final class XswdPermissionReview {
       request: request,
       method: method,
       policy: policy,
+      parameters: params,
       buildTransactionParams: buildParams,
       parsedInvokeParameters: List.unmodifiable(parsedInvokeParameters),
       transferDestinations: List.unmodifiable(transferDestinations),
     );
   }
 
-  final PermissionRpcRequest request;
+  final XelisXswdPermissionRequest request;
+  final Map<String, dynamic>? parameters;
   final String method;
   final XswdMethodPolicy policy;
   final WalletEvent? subscriptionEvent;
@@ -153,11 +158,13 @@ final class XswdPermissionReview {
       method == WalletMethod.buildTransaction.jsonKey;
 }
 
-WalletEvent? _resolveSubscriptionEvent(PermissionRpcRequest request) {
-  if (request.method != 'subscribe' && request.method != 'unsubscribe') {
+WalletEvent? _resolveSubscriptionEvent(
+  String method,
+  Map<String, dynamic>? params,
+) {
+  if (method != 'subscribe' && method != 'unsubscribe') {
     return null;
   }
-  final params = request.params;
   if (params == null || params.length != 1 || params['notify'] is! String) {
     throw const FormatException('Invalid XSWD subscription parameters.');
   }
@@ -204,9 +211,7 @@ final class XswdPrefetchPreflight {
     if (!source.isPrefetchPermissionsRequest) {
       throw const FormatException('Expected an XSWD prefetch request.');
     }
-    final request = PrefetchPermissionsRequest.fromJson(
-      decodeXswdPayload(source.payload),
-    );
+    final request = source.prefetchPermissionsRequest!;
     return XswdPrefetchPreflight._(
       source,
       request,
@@ -215,13 +220,16 @@ final class XswdPrefetchPreflight {
   }
 
   final XelisXswdRequest source;
-  final PrefetchPermissionsRequest request;
+  final XelisXswdPrefetchPermissionsRequest request;
   final XswdPrefetchDisposition disposition;
 }
 
 XswdPrefetchDisposition classifyXswdPrefetchPermissions(
-  PrefetchPermissionsRequest request,
+  XelisXswdPrefetchPermissionsRequest request,
 ) {
+  if ((request.reason?.length ?? 0) > _maxXswdReviewStringCharacters) {
+    throw const FormatException('XSWD review text budget exceeded.');
+  }
   if (request.permissions.isEmpty ||
       request.permissions.length > xswdMethodCount) {
     throw const FormatException('Invalid prefetch permission count.');
@@ -230,12 +238,12 @@ XswdPrefetchDisposition classifyXswdPrefetchPermissions(
     throw const FormatException('Duplicate prefetch permission.');
   }
 
-  var grantable = true;
+  var grantable = false;
   for (final method in request.permissions) {
     // Resolve every entry before returning a policy refusal: a later unknown
     // method must still fail validation, regardless of list order.
     final policy = _resolveMethodPolicy(method);
-    grantable &= policy.canPrefetch;
+    grantable |= policy.canPrefetch;
   }
   return grantable
       ? XswdPrefetchDisposition.grantable

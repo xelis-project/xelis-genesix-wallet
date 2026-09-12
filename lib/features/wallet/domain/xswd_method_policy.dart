@@ -64,22 +64,23 @@ const _transactionReviewPolicy = XswdMethodPolicy(
   canPrefetch: false,
 );
 
-const _eventPolicies = {
-  'subscribe': XswdMethodPolicy(
-    support: XswdMethodSupport.standardReview,
-    effect: XswdMethodEffect.walletSubscription,
-    canPersist: true,
-    canPrefetch: true,
-  ),
-  'unsubscribe': XswdMethodPolicy(
-    support: XswdMethodSupport.standardReview,
-    effect: XswdMethodEffect.walletUnsubscription,
-    canPersist: true,
-    canPrefetch: true,
-  ),
-};
+XswdMethodPolicy _subscriptionPolicy(XelisSubscription method) =>
+    switch (method) {
+      XelisSubscription.subscribe => const XswdMethodPolicy(
+        support: XswdMethodSupport.standardReview,
+        effect: XswdMethodEffect.walletSubscription,
+        canPersist: true,
+        canPrefetch: true,
+      ),
+      XelisSubscription.unsubscribe => const XswdMethodPolicy(
+        support: XswdMethodSupport.standardReview,
+        effect: XswdMethodEffect.walletUnsubscription,
+        canPersist: true,
+        canPrefetch: true,
+      ),
+    };
 
-int get xswdMethodCount => WalletMethod.values.length + _eventPolicies.length;
+int get xswdMethodCount => XswdWalletMethodCatalog.values.length;
 
 const _unsupportedTransactionPolicy = XswdMethodPolicy(
   support: XswdMethodSupport.unsupported,
@@ -179,15 +180,14 @@ XswdMethodPolicy xswdMethodPolicy(WalletMethod method) => switch (method) {
 };
 
 WalletMethod? tryResolveXswdWalletMethod(String jsonKey) {
-  for (final method in WalletMethod.values) {
-    if (method.jsonKey == jsonKey) return method;
-  }
-  return null;
+  final method = XswdWalletMethodCatalog.tryFromStr(jsonKey);
+  return method is WalletMethod ? method : null;
 }
 
 XswdMethodPolicy? tryXswdMethodPolicyForKey(String jsonKey) {
-  final eventPolicy = _eventPolicies[jsonKey];
-  if (eventPolicy != null) return eventPolicy;
-  final method = tryResolveXswdWalletMethod(jsonKey);
-  return method == null ? null : xswdMethodPolicy(method);
+  return switch (XswdWalletMethodCatalog.tryFromStr(jsonKey)) {
+    WalletMethod method => xswdMethodPolicy(method),
+    XelisSubscription method => _subscriptionPolicy(method),
+    _ => null,
+  };
 }

@@ -156,9 +156,11 @@ unchanged to the UI.
 Only top-level typed `method` or `permissions` fields are inspected. Exact
 policy lookup classifies methods as `unknown`, `unsupported` or `notPrefetchable`;
 this describes Genesix support, not protocol validity or an inferred exception
-cause. A valid batch refused by policy records `validation=passed`, `reject` and
-`prefetchDeclined`; it emits an information notice, not an `AppFailure`, and
-leaves the session open. Each record is limited to 8 KiB of JSON and 64 method
+cause. A completed batch may add a `selected` boolean to its existing method
+entries, identifying explicit grants without logging any new free-form data.
+An unchanged batch records `validation=passed`, `reject` and `prefetchDeclined`;
+it is an expected outcome, not an `AppFailure`, and leaves the session open.
+Each record is limited to 8 KiB of JSON and 64 method
 entries, with an omitted count. Names must match `[a-z][a-z0-9_.]*` and contain 1–64 ASCII
 characters; others become `[invalid-method]`. Parameters, payloads, free-form
 reasons, application names, URLs, opaque references and `diagnosticMessage` are
@@ -169,6 +171,13 @@ XWF retains native `debug` logging with `packageDiagnostic` scope.
 Changing either define requires a full restart; hot reload cannot reconfigure
 the native logger. Native verbosity does not automatically reveal permission
 names. No upstream diagnostic scope is enabled.
+
+An XSWD permission edit succeeds in the UI only after its targeted native
+operation returns the expected rule for the same active session. Post-decision
+observations can instead expire or be superseded; neither is reported as a
+successful update. Observation read failures keep their authored XWF reference
+through the existing `xswd.state.read` boundary. Recent user choices are separate
+in-memory presentation records, never native acknowledgements or execution logs.
 
 ## UI and recovery
 

@@ -88,6 +88,7 @@ final class XswdDiagnosticRequest {
     XswdDiagnosticValidation? validation,
     XelisXswdDecision? decision,
     XswdDiagnosticDisposition? disposition,
+    Iterable<String>? grantedPermissions,
   }) {
     if (!diagnosticLoggingEnabled) return;
     talker.logCustom(
@@ -97,6 +98,7 @@ final class XswdDiagnosticRequest {
           validation: validation,
           decision: decision,
           disposition: disposition,
+          grantedPermissions: grantedPermissions,
         ),
         key: xswdDiagnosticLogKey,
         title: 'XSWD diagnostic',
@@ -112,8 +114,10 @@ final class XswdDiagnosticRequest {
     XswdDiagnosticValidation? validation,
     XelisXswdDecision? decision,
     XswdDiagnosticDisposition? disposition,
+    Iterable<String>? grantedPermissions,
   }) {
-    final renderedMethods = <Map<String, String>>[];
+    final selected = grantedPermissions?.take(_maxMethods).toSet();
+    final renderedMethods = <Map<String, Object>>[];
     final record = <String, Object>{
       'request': correlation,
       'kind': kind.name,
@@ -127,7 +131,11 @@ final class XswdDiagnosticRequest {
     };
     for (var index = 0; index < _methods.length; index++) {
       final method = _methods[index];
-      renderedMethods.add({'name': method.name, 'policy': method.policy});
+      renderedMethods.add({
+        'name': method.name,
+        'policy': method.policy,
+        if (selected != null) 'selected': selected.contains(method.name),
+      });
       // Include the omitted count in the budget, so truncation stays valid JSON.
       record['omitted'] = omitted + _methods.length - index - 1;
       if (utf8.encode(jsonEncode(record)).length > _maxRecordBytes) {

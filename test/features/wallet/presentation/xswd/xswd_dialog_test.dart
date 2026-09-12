@@ -7,6 +7,8 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
+import 'package:genesix/features/wallet/domain/xswd_method_policy.dart';
+import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/xswd_full_value_view.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_dialog.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_dialog_host.dart';
@@ -496,21 +498,32 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('shows validated prefetch permissions before Allow', (
+  testWidgets('groups a mixed prefetch and grants only the selection', (
     tester,
   ) async {
     final harness = _XswdTestHarness(AppLocalizationsEn());
     final container = harness.container;
     addTearDown(container.dispose);
-    harness.newRequest(
+    final decision = harness.newPrefetchRequest(
       XelisXswdRequest(
         kind: XelisXswdRequestKind.prefetchPermissions,
         application: _application,
         payload: xswdTestPayload({
           'reason': 'Show balances',
-          'permissions': ['get_balance', 'subscribe', 'unsubscribe'],
+          'permissions': [
+            'get_balance',
+            'network_info',
+            'store',
+            'build_transaction',
+          ],
         }),
       ),
+      currentPermissions: const {
+        'get_balance': XelisXswdPermissionPolicy.ask,
+        'network_info': XelisXswdPermissionPolicy.accept,
+        'store': XelisXswdPermissionPolicy.reject,
+        'build_transaction': XelisXswdPermissionPolicy.ask,
+      },
     );
     final theme = greenDark(touch: false);
 
@@ -526,27 +539,99 @@ void main() {
         ),
       ),
     );
+    expect(tester.takeException(), isNull);
 
-    expect(find.text('get_balance').hitTestable(), findsOneWidget);
-    expect(find.text('subscribe').hitTestable(), findsOneWidget);
-    expect(find.text('unsubscribe').hitTestable(), findsOneWidget);
+    expect(find.text('get_balance'), findsOneWidget);
     final loc = AppLocalizationsEn();
-    expect(find.text(loc.xswd_permission_wallet_data_impact), findsOneWidget);
-    expect(find.text(loc.xswd_permission_subscription_impact), findsOneWidget);
+    expect(find.text(loc.xswd_prefetch_already_allowed), findsOneWidget);
+    expect(find.text(loc.xswd_prefetch_requires_each_time), findsOneWidget);
+    expect(find.text(loc.xswd_prefetch_allow_selection), findsOneWidget);
     expect(
-      find.text(loc.xswd_permission_unsubscription_impact),
+      find.text(loc.xswd_prefetch_continue_without_new_permissions),
       findsOneWidget,
     );
-    expect(find.text(loc.xswd_permission_persistent_impact), findsOneWidget);
-    expect(find.text('Allow').hitTestable(), findsOneWidget);
+    final rejectedCopy = xswdPermissionCopy(
+      'store',
+      tryXswdMethodPolicyForKey('store'),
+      loc,
+    );
+    await tester.ensureVisible(find.text(rejectedCopy.title));
+    await tester.tap(find.text(rejectedCopy.title));
+    await tester.pump(const Duration(milliseconds: 150));
+    final allow = find.text(loc.xswd_prefetch_allow_selection);
+    await tester.ensureVisible(allow);
     expect(
       tester.getTopLeft(find.text('get_balance')).dy,
-      lessThan(tester.getTopLeft(find.text('Allow')).dy),
+      lessThan(tester.getTopLeft(allow).dy),
     );
+    await tester.tap(allow);
+    await tester.pump(const Duration(milliseconds: 150));
+    final result = await decision;
+    expect(result, isA<XelisXswdPrefetchGrant>());
+    expect((result as XelisXswdPrefetchGrant).permissions, [
+      'get_balance',
+      'store',
+    ]);
     expect(tester.takeException(), isNull);
 
     container.read(xswdRequestProvider.notifier).clearRequest();
     await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('a replacement batch resets selection for the captured rules', (
+    tester,
+  ) async {
+    final loc = AppLocalizationsEn();
+    final harness = _XswdTestHarness(loc);
+    final container = harness.container;
+    addTearDown(container.dispose);
+    final firstDecision = harness.newPrefetchRequest(
+      _prefetchRequest(permissions: const ['subscribe']),
+      currentPermissions: const {'subscribe': XelisXswdPermissionPolicy.ask},
+    );
+    final theme = greenDark(touch: false);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          theme: theme.toApproximateMaterialTheme(),
+          home: GenesixTheme(
+            data: theme,
+            child: const Scaffold(body: XswdDialog(kAlwaysCompleteAnimation)),
+          ),
+        ),
+      ),
+    );
+    final subscribeTitle = xswdPermissionCopy(
+      'subscribe',
+      tryXswdMethodPolicyForKey('subscribe'),
+      loc,
+    ).title;
+    expect(
+      tester
+          .widget<FCheckbox>(find.widgetWithText(FCheckbox, subscribeTitle))
+          .value,
+      isTrue,
+    );
+
+    final secondDecision = harness.newPrefetchRequest(
+      _prefetchRequest(permissions: const ['subscribe']),
+      currentPermissions: const {'subscribe': XelisXswdPermissionPolicy.reject},
+    );
+    await tester.pump();
+
+    expect(await firstDecision, isA<XelisXswdPrefetchNoChange>());
+    expect(
+      tester
+          .widget<FCheckbox>(find.widgetWithText(FCheckbox, subscribeTitle))
+          .value,
+      isFalse,
+    );
+    expect(find.text(loc.xswd_prefetch_previously_blocked), findsOneWidget);
+    container.read(xswdRequestProvider.notifier).clearRequest();
+    expect(await secondDecision, isA<XelisXswdPrefetchNoChange>());
+    await tester.pumpWidget(const SizedBox.shrink());
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets(
@@ -677,6 +762,17 @@ XelisXswdRequest _permissionRequest({required int id, required String method}) {
   );
 }
 
+XelisXswdRequest _prefetchRequest({required List<String> permissions}) {
+  return XelisXswdRequest(
+    kind: XelisXswdRequestKind.prefetchPermissions,
+    application: _application,
+    payload: xswdTestPayload({
+      'reason': 'Review wallet access',
+      'permissions': permissions,
+    }),
+  );
+}
+
 final _application = XelisXswdApplication(
   id: 'app-id',
   name: 'Test app',
@@ -712,6 +808,20 @@ final class _XswdTestHarness {
           xswdEventSummary: request,
           message: 'Review request',
           repository: repository,
+        );
+  }
+
+  Future<XelisXswdPrefetchDecision> newPrefetchRequest(
+    XelisXswdRequest request, {
+    Map<String, XelisXswdPermissionPolicy> currentPermissions = const {},
+  }) {
+    return container
+        .read(xswdRequestProvider.notifier)
+        .newPrefetchRequest(
+          preflight: XswdPrefetchPreflight.parse(request),
+          message: 'Review permissions',
+          repository: repository,
+          currentPermissions: currentPermissions,
         );
   }
 }

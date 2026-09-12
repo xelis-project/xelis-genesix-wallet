@@ -5,11 +5,206 @@ import 'package:genesix/features/authentication/domain/wallet_session.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
+import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
 import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 import '../../../helpers/xswd_test_payload.dart';
 
 void main() {
+  test(
+    'partial grants capture only the reviewed selection across handover',
+    () async {
+      final repository = _Repository();
+      final container = _container(repository);
+      addTearDown(container.dispose);
+      final notifier = container.read(xswdRequestProvider.notifier);
+      final source = xswdTestPrefetch(
+        permissions: [
+          'get_address',
+          'get_balance',
+          'subscribe',
+          'build_transaction',
+        ],
+      ).source;
+      const previous = {
+        'get_address': XelisXswdPermissionPolicy.accept,
+        'get_balance': XelisXswdPermissionPolicy.ask,
+        'subscribe': XelisXswdPermissionPolicy.reject,
+        'build_transaction': XelisXswdPermissionPolicy.ask,
+      };
+      final pending = notifier.newPrefetchRequest(
+        preflight: XswdPrefetchPreflight.parse(source),
+        repository: repository,
+        message: '',
+        currentPermissions: previous,
+      );
+      final token = container.read(xswdRequestProvider).token!;
+      for (final invalid in [
+        ['get_balance', 'build_transaction'],
+        ['get_balance', 'get_balance'],
+        ['get_balance', 'get_asset'],
+      ]) {
+        expect(notifier.resolvePrefetchIfCurrent(token, invalid), isFalse);
+        expect(container.read(xswdRequestProvider).pending, isTrue);
+        expect(container.read(xswdRecentChoicesProvider), isEmpty);
+      }
+      final selection = ['get_balance'];
+      expect(notifier.resolvePrefetchIfCurrent(token, selection), isTrue);
+      selection.add('subscribe');
+      final successor = notifier.newRequest(
+        xswdEventSummary: _request(),
+        message: '',
+        repository: repository,
+      );
+      final result = await pending as XelisXswdPrefetchGrant;
+      expect(result.permissions, ['get_balance']);
+      expect(notifier.resolvePrefetchIfCurrent(token, ['subscribe']), isFalse);
+      final choice = container.read(xswdRecentChoicesProvider).first;
+      expect(choice.grantedMethods, ['get_balance']);
+      expect(choice.scope, XswdChoiceScope.connection);
+      expect(previous['subscribe'], XelisXswdPermissionPolicy.reject);
+      notifier.clearRequest();
+      expect(await successor, XelisXswdDecision.reject);
+    },
+  );
+
+  test(
+    'observations ignore older sequences and lose authority with the wallet',
+    () {
+      final repository = _Repository();
+      final container = _container(repository);
+      addTearDown(container.dispose);
+      final notifier = container.read(
+        xswdApplicationObservationsProvider.notifier,
+      );
+      final application = _request().application;
+      final observed = XelisXswdApplicationStateObserved(application, 2);
+      expect(notifier.record(observed), isTrue);
+      expect(
+        notifier.record(XelisXswdApplicationStateStale(application, 1)),
+        isFalse,
+      );
+      expect(
+        container.read(xswdApplicationObservationsProvider).values.single,
+        same(observed),
+      );
+      expect(
+        notifier.record(XelisXswdApplicationStateTimedOut(application, 3)),
+        isTrue,
+      );
+      notifier.removeSession(application.sessionReference);
+      expect(
+        notifier.record(XelisXswdApplicationStateStale(application, 3)),
+        isFalse,
+      );
+      expect(container.read(xswdApplicationObservationsProvider), isEmpty);
+      notifier.record(XelisXswdApplicationStateObserved(application, 4));
+      container
+          .read(activeWalletSessionProvider.notifier)
+          .setSession(
+            WalletSession(name: 'replacement', repository: repository),
+          );
+      expect(container.read(xswdApplicationObservationsProvider), isEmpty);
+    },
+  );
+
+  test('once choices are recorded without changing connection rules', () async {
+    final repository = _Repository();
+    final container = _container(repository);
+    addTearDown(container.dispose);
+    final notifier = container.read(xswdRequestProvider.notifier);
+    final application = XelisXswdApplication(
+      id: 'sample',
+      name: 'Sample App',
+      description: '',
+      url: null,
+      permissions: const {'get_balance': XelisXswdPermissionPolicy.ask},
+      isRelayer: false,
+    );
+    for (final decision in [
+      XelisXswdDecision.accept,
+      XelisXswdDecision.reject,
+    ]) {
+      final pending = notifier.newRequest(
+        xswdEventSummary: XelisXswdRequest(
+          kind: XelisXswdRequestKind.permission,
+          application: application,
+          payload: xswdTestPayload({
+            'jsonrpc': '2.0',
+            'method': 'get_balance',
+            'params': {'asset': 'SENSITIVE-PARAMETER'},
+          }),
+        ),
+        message: '',
+        repository: repository,
+      );
+      final token = container.read(xswdRequestProvider).token!;
+      expect(notifier.resolveIfCurrent(token, decision), isTrue);
+      expect(await pending, decision);
+      expect(notifier.resolveIfCurrent(token, decision), isFalse);
+      final choice = container.read(xswdRecentChoicesProvider).first;
+      expect(choice.methods, ['get_balance']);
+      expect(choice.scope, XswdChoiceScope.request);
+      expect(
+        choice.outcome,
+        decision == XelisXswdDecision.accept
+            ? XswdChoiceOutcome.allowed
+            : XswdChoiceOutcome.refused,
+      );
+      expect(choice.toString(), isNot(contains('SENSITIVE-PARAMETER')));
+      expect(
+        application.permissions['get_balance'],
+        XelisXswdPermissionPolicy.ask,
+      );
+    }
+    expect(container.read(xswdRecentChoicesProvider), hasLength(2));
+  });
+
+  test(
+    'recent choices are bounded, session scoped and cleared with the wallet',
+    () async {
+      final repository = _Repository();
+      final container = _container(repository);
+      addTearDown(container.dispose);
+      final notifier = container.read(xswdRequestProvider.notifier);
+      final first = _request();
+      final second = _request(); // Identical declared ID, different connection.
+      for (var index = 0; index < 24; index++) {
+        final pending = notifier.newRequest(
+          xswdEventSummary: index.isEven ? first : second,
+          message: '',
+          repository: repository,
+        );
+        final token = container.read(xswdRequestProvider).token!;
+        notifier.rejectIfCurrent(token, expired: index == 23);
+        expect(await pending, XelisXswdDecision.reject);
+      }
+      final choices = container.read(xswdRecentChoicesProvider);
+      expect(choices, hasLength(20));
+      expect(choices.first.outcome, XswdChoiceOutcome.expired);
+      container
+          .read(xswdRecentChoicesProvider.notifier)
+          .removeSession(first.application.sessionReference);
+      expect(container.read(xswdRecentChoicesProvider), hasLength(10));
+      expect(
+        container
+            .read(xswdRecentChoicesProvider)
+            .every(
+              (choice) =>
+                  choice.sessionReference ==
+                  second.application.sessionReference,
+            ),
+        isTrue,
+      );
+      container
+          .read(activeWalletSessionProvider.notifier)
+          .setSession(
+            WalletSession(name: 'replacement', repository: repository),
+          );
+      expect(container.read(xswdRecentChoicesProvider), isEmpty);
+    },
+  );
+
   test(
     'stale actions cannot change a replacement in the same XSWD session',
     () async {

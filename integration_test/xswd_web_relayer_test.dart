@@ -103,43 +103,111 @@ void main() {
       expect(await connectedA, isTrue);
       await control.waitUntilRegistered(tester);
 
-      binding.reportData!['phase'] = 'decline_prefetch_without_closing';
-      await control.send('decline-prefetch');
+      binding.reportData!['phase'] = 'grant_partial_prefetch';
+      await control.send('partial-prefetch');
+      await _waitForRequest(
+        tester,
+        container,
+        XelisXswdRequestKind.prefetchPermissions,
+      );
+      final prefetchRequest = container
+          .read(xswdRequestProvider)
+          .prefetchPermissionsRequest!;
+      expect(prefetchRequest.permissions, [
+        'get_address',
+        'subscribe',
+        'build_transaction',
+      ]);
+      await _pumpDialog(tester, container);
+      expect(find.bySemanticsLabel('get_address'), findsOneWidget);
+      expect(find.bySemanticsLabel('subscribe'), findsOneWidget);
+      expect(find.text(loc.xswd_prefetch_requires_each_time), findsOneWidget);
+      await tester.tap(find.bySemanticsLabel('subscribe'));
+      await tester.pump();
+      await _tapDecision(tester, loc.xswd_prefetch_allow_selection);
       final prefetch = await control.waitForResponse(
         tester,
-        'decline-prefetch',
+        'partial-prefetch',
       );
       expect(prefetch.hasResult, isTrue);
       expect(prefetch.hasError, isFalse);
       final postPrefetchApps = (await repositoryA.getXswdState()).applications;
       expect(postPrefetchApps.single.permissions, {
-        'get_address': XelisXswdPermissionPolicy.ask,
+        'get_address': XelisXswdPermissionPolicy.accept,
         'subscribe': XelisXswdPermissionPolicy.ask,
         'unsubscribe': XelisXswdPermissionPolicy.ask,
         'build_transaction': XelisXswdPermissionPolicy.ask,
       });
 
-      for (final method in ['subscribe', 'unsubscribe']) {
-        binding.reportData!['phase'] = method;
-        await control.send(method);
-        await _waitForRequest(
-          tester,
-          container,
-          XelisXswdRequestKind.permission,
-        );
-        final review = container.read(xswdRequestProvider).permissionReview!;
-        expect(review.method, method);
-        expect(review.subscriptionEvent, WalletEvent.balanceChanged);
-        await _decide(tester, container, label: loc.allow);
-        final response = await control.waitForResponse(tester, method);
-        expect(response.hasResult, isTrue);
-        expect(response.hasError, isFalse);
-      }
+      await control.send('get-address');
+      final prefetchedAddress = await control.waitForResponse(
+        tester,
+        'get-address',
+      );
+      expect(prefetchedAddress.hasResult, isTrue);
+      expect(prefetchedAddress.hasError, isFalse);
+      expect(container.read(xswdRequestProvider).pending, isFalse);
+
+      binding.reportData!['phase'] = 'no_change_prefetch';
+      await control.send('no-change-prefetch');
+      final noChange = await control.waitForResponse(
+        tester,
+        'no-change-prefetch',
+      );
+      expect(noChange.hasResult, isTrue);
+      expect(noChange.hasError, isFalse);
+      expect(container.read(xswdRequestProvider).pending, isFalse);
+
+      binding.reportData!['phase'] = 'subscribe_once';
+      await control.send('subscribe');
+      await _waitForRequest(tester, container, XelisXswdRequestKind.permission);
+      final subscribeReview = container
+          .read(xswdRequestProvider)
+          .permissionReview!;
+      expect(subscribeReview.method, 'subscribe');
+      expect(subscribeReview.subscriptionEvent, WalletEvent.balanceChanged);
+      await _pumpDialog(tester, container);
+      expect(find.text(loc.xswd_scope_once), findsOneWidget);
+      expect(find.text(loc.xswd_deny_once), findsOneWidget);
+      await _tapDecision(tester, loc.xswd_allow_once);
+      final subscribe = await control.waitForResponse(tester, 'subscribe');
+      expect(subscribe.hasResult, isTrue);
+      expect(subscribe.hasError, isFalse);
+      expect(
+        (await repositoryA.getXswdState())
+            .applications
+            .single
+            .permissions['subscribe'],
+        XelisXswdPermissionPolicy.ask,
+      );
+
+      binding.reportData!['phase'] = 'block_unsubscribe_for_connection';
+      await control.send('unsubscribe');
+      await _waitForRequest(tester, container, XelisXswdRequestKind.permission);
+      final unsubscribeReview = container
+          .read(xswdRequestProvider)
+          .permissionReview!;
+      expect(unsubscribeReview.method, 'unsubscribe');
+      expect(unsubscribeReview.subscriptionEvent, WalletEvent.balanceChanged);
+      await _pumpDialog(tester, container);
+      await tester.tap(find.text(loc.xswd_scope_connection));
+      await tester.pump();
+      await _tapDecision(tester, loc.xswd_block_for_connection);
+      final unsubscribe = await control.waitForResponse(tester, 'unsubscribe');
+      expect(unsubscribe.hasError, isTrue);
+      expect(unsubscribe.errorKind, 'PERMISSION_DENIED');
+      expect(
+        (await repositoryA.getXswdState())
+            .applications
+            .single
+            .permissions['unsubscribe'],
+        XelisXswdPermissionPolicy.reject,
+      );
 
       await control.send('reject-transfer');
       final rejectedReview = await _waitForBuildTransaction(tester, container);
       _expectTransferReview(rejectedReview);
-      await _decide(tester, container, label: loc.deny);
+      await _decide(tester, container, label: loc.xswd_deny_once);
       final rejected = await control.waitForResponse(tester, 'reject-transfer');
       expect(rejected.hasError, isTrue);
       expect(rejected.errorKind, 'PERMISSION_DENIED');
@@ -197,8 +265,7 @@ void main() {
       expect(await connectedB, isTrue);
       await control.waitUntilRegistered(tester);
 
-      // The list waits for active decisions. Read it after admission, before
-      // the next request, as the application-detail flow does.
+      // Resolve the exact admitted connection from native state.
       final applications = await container
           .read(xswdApplicationsProvider.future)
           .timeout(const Duration(seconds: 20));
@@ -342,10 +409,7 @@ Future<XswdPermissionReview> _waitForBuildTransaction(
 ) async {
   await _waitForRequest(tester, container, XelisXswdRequestKind.permission);
   final state = container.read(xswdRequestProvider);
-  expect(
-    state.permissionRpcRequest?.method,
-    WalletMethod.buildTransaction.jsonKey,
-  );
+  expect(state.permissionReview?.method, WalletMethod.buildTransaction.jsonKey);
   final review = state.permissionReview;
   expect(review, isNotNull);
   expect(review!.isBuildTransaction, isTrue);

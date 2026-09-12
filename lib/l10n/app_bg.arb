@@ -673,5 +673,21 @@
   "password_changed_biometric_disabled": "Новата парола е активна. Биометричното отключване беше изключено; използвайте новата парола.",
   "password_changed_biometric_cleanup_failed": "Новата парола е активна. Биометричното отключване беше изключено, но някои запазени данни за достъп не можаха да бъдат премахнати. Оставете биометричния достъп изключен и използвайте новата парола.",
   "password_change_native_state_indeterminate": "Обновяването на паролата не можа да бъде потвърдено. Запазете старата и новата парола, не опитвайте отново и се свържете с поддръжката, като посочите тази референция.",
-  "support_reference": "Референция за поддръжка: {reference}"
+  "support_reference": "Референция за поддръжка: {reference}",
+  "xswd_prefetch_selection_description": "Изберете разрешенията за тази връзка. Вече разрешените остават активни; блокираните трябва да бъдат избрани изрично.",
+  "xswd_prefetch_existing_rules": "Текущи правила и отделен преглед",
+  "xswd_prefetch_already_allowed": "Вече разрешено",
+  "xswd_prefetch_previously_blocked": "Блокирано преди",
+  "xswd_prefetch_requires_each_time": "Преглед на всяка заявка",
+  "xswd_prefetch_allow_selection": "Разрешаване на избраните",
+  "xswd_prefetch_continue_without_new_permissions": "Продължаване без нови разрешения",
+  "xswd_recent_choices_title": "Последни избори",
+  "xswd_recent_choices_empty": "Все още няма записани избори за тази връзка.",
+  "xswd_recent_choices_disclaimer": "Тези избори описват съгласието ви. Разрешаването не доказва, че заявената операция е изпълнена успешно.",
+  "xswd_recent_unchanged": "Няма променени правила за разрешения",
+  "xswd_recent_expired": "Заявката изтече",
+  "xswd_recent_cancelled": "Отменено",
+  "xswd_observation_confirmed": "Правилата за разрешения са прочетени от портфейла",
+  "xswd_observation_timed_out": "Портфейлът не потвърди промяната навреме. Проверете текущото правило преди нов опит.",
+  "xswd_permission_edit_not_confirmed": "Портфейлът не потвърди промяната. Редакторът остава отворен за нов опит."
 }

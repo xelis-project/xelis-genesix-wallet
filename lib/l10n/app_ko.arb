@@ -673,5 +673,21 @@
   "password_changed_biometric_disabled": "새 비밀번호가 활성화되었습니다. 생체 인식 잠금 해제가 비활성화되었으므로 새 비밀번호를 사용하세요.",
   "password_changed_biometric_cleanup_failed": "새 비밀번호가 활성화되었습니다. 생체 인식 잠금 해제가 비활성화되었지만 저장된 일부 액세스 데이터를 삭제할 수 없습니다. 생체 인식 액세스를 비활성화된 상태로 유지하고 새 비밀번호를 사용하세요.",
   "password_change_native_state_indeterminate": "비밀번호 업데이트를 확인할 수 없습니다. 이전 비밀번호와 새 비밀번호를 모두 보관하고, 다시 시도하지 말고, 이 참조 번호와 함께 지원팀에 문의하세요.",
-  "support_reference": "지원 참조: {reference}"
+  "support_reference": "지원 참조: {reference}",
+  "xswd_prefetch_selection_description": "이 연결에 허용할 권한을 선택하세요. 이미 허용한 권한은 유지되며 차단된 권한은 명시적으로 선택해야 합니다.",
+  "xswd_prefetch_existing_rules": "현재 규칙 및 개별 검토",
+  "xswd_prefetch_already_allowed": "이미 허용됨",
+  "xswd_prefetch_previously_blocked": "이전에 차단됨",
+  "xswd_prefetch_requires_each_time": "요청마다 검토",
+  "xswd_prefetch_allow_selection": "선택 항목 허용",
+  "xswd_prefetch_continue_without_new_permissions": "새 권한 없이 계속",
+  "xswd_recent_choices_title": "최근 선택",
+  "xswd_recent_choices_empty": "이 연결에 기록된 선택이 아직 없습니다.",
+  "xswd_recent_choices_disclaimer": "이 선택은 사용자의 동의를 설명합니다. 허용했다는 사실이 요청된 작업의 성공을 증명하지는 않습니다.",
+  "xswd_recent_unchanged": "권한 규칙이 변경되지 않음",
+  "xswd_recent_expired": "요청 만료됨",
+  "xswd_recent_cancelled": "취소됨",
+  "xswd_observation_confirmed": "지갑에서 권한 규칙을 읽음",
+  "xswd_observation_timed_out": "지갑이 제시간에 변경 사항을 확인하지 못했습니다. 다시 시도하기 전에 현재 규칙을 확인하세요.",
+  "xswd_permission_edit_not_confirmed": "지갑이 이 변경을 확인하지 못했습니다. 다시 시도할 수 있도록 편집기를 열어 둡니다."
 }

@@ -2,8 +2,6 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:genesix/features/wallet/domain/permission_rpc_request.dart';
-import 'package:genesix/features/wallet/domain/xswd_payload.dart';
 import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
@@ -54,11 +52,10 @@ void main() {
 }
 
 XswdPermissionReview _review(Map<String, Object?> builder) {
-  final decoded = decodeXswdPayload(
-    xswdTestPayload({
-      'jsonrpc': '2.0',
-      'method': 'build_transaction',
-      'params': {
+  return XswdPermissionReview.parse(
+    xswdTestPermission(
+      method: 'build_transaction',
+      params: {
         ...builder,
         'fee': {'fixed': _maximum},
         'fee_limit': _maximum,
@@ -67,8 +64,6 @@ XswdPermissionReview _review(Map<String, Object?> builder) {
         'broadcast': false,
         'tx_as_hex': true,
       },
-    }),
+    ),
   );
-  normalizeXswdBuildTransactionFields(decoded);
-  return XswdPermissionReview.parse(PermissionRpcRequest.fromJson(decoded));
 }

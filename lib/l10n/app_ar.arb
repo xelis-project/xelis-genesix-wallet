@@ -673,5 +673,21 @@
   "password_changed_biometric_disabled": "كلمة المرور الجديدة سارية. تم تعطيل فتح المحفظة بالمقاييس الحيوية؛ استخدم كلمة المرور الجديدة.",
   "password_changed_biometric_cleanup_failed": "كلمة المرور الجديدة سارية. تم تعطيل فتح المحفظة بالمقاييس الحيوية، ولكن تعذر حذف بعض بيانات الوصول المحفوظة. أبقِ الوصول البيومتري معطلاً واستخدم كلمة المرور الجديدة.",
   "password_change_native_state_indeterminate": "تعذر تأكيد تحديث كلمة المرور. احتفظ بكلمتي المرور القديمة والجديدة، ولا تحاول مرة أخرى، وتواصل مع الدعم باستخدام هذا المرجع.",
-  "support_reference": "مرجع الدعم: {reference}"
+  "support_reference": "مرجع الدعم: {reference}",
+  "xswd_prefetch_selection_description": "اختر الأذونات التي ستُمنح لهذا الاتصال. تبقى الأذونات المسموح بها سابقًا فعّالة، ويجب تحديد الأذونات المحظورة صراحةً.",
+  "xswd_prefetch_existing_rules": "القواعد الحالية والمراجعة الفردية",
+  "xswd_prefetch_already_allowed": "مسموح به بالفعل",
+  "xswd_prefetch_previously_blocked": "محظور سابقًا",
+  "xswd_prefetch_requires_each_time": "مراجعة كل طلب",
+  "xswd_prefetch_allow_selection": "السماح بالتحديد",
+  "xswd_prefetch_continue_without_new_permissions": "المتابعة دون أذونات جديدة",
+  "xswd_recent_choices_title": "الاختيارات الأخيرة",
+  "xswd_recent_choices_empty": "لم تُسجّل اختيارات لهذا الاتصال بعد.",
+  "xswd_recent_choices_disclaimer": "تصف هذه الاختيارات موافقتك. ولا يثبت السماح أن العملية المطلوبة نُفذت بنجاح.",
+  "xswd_recent_unchanged": "لم تتغير أي قاعدة أذونات",
+  "xswd_recent_expired": "انتهت صلاحية الطلب",
+  "xswd_recent_cancelled": "أُلغي",
+  "xswd_observation_confirmed": "تمت قراءة قواعد الأذونات من المحفظة",
+  "xswd_observation_timed_out": "لم تؤكد المحفظة التغيير في الوقت المحدد. تحقق من القاعدة الحالية قبل إعادة المحاولة.",
+  "xswd_permission_edit_not_confirmed": "لم تؤكد المحفظة هذا التغيير. سيبقى المحرر مفتوحًا لتتمكن من إعادة المحاولة."
 }

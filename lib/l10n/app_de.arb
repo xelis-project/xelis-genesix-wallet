@@ -673,5 +673,21 @@
   "password_changed_biometric_disabled": "Ihr neues Passwort ist aktiv. Die biometrische Entsperrung wurde deaktiviert; verwenden Sie das neue Passwort.",
   "password_changed_biometric_cleanup_failed": "Ihr neues Passwort ist aktiv. Die biometrische Entsperrung wurde deaktiviert, aber einige gespeicherte Zugangsdaten konnten nicht entfernt werden. Lassen Sie den biometrischen Zugriff deaktiviert und verwenden Sie das neue Passwort.",
   "password_change_native_state_indeterminate": "Die Passwortaktualisierung konnte nicht bestätigt werden. Bewahren Sie sowohl das alte als auch das neue Passwort auf, versuchen Sie es nicht erneut und kontaktieren Sie den Support unter Angabe dieser Referenz.",
-  "support_reference": "Support-Referenz: {reference}"
+  "support_reference": "Support-Referenz: {reference}",
+  "xswd_prefetch_selection_description": "Wählen Sie die Berechtigungen für diese Verbindung. Bereits erlaubte Berechtigungen bleiben erlaubt; blockierte Berechtigungen müssen ausdrücklich ausgewählt werden.",
+  "xswd_prefetch_existing_rules": "Aktuelle Regeln und Einzelprüfung",
+  "xswd_prefetch_already_allowed": "Bereits erlaubt",
+  "xswd_prefetch_previously_blocked": "Zuvor blockiert",
+  "xswd_prefetch_requires_each_time": "Jede Anfrage prüfen",
+  "xswd_prefetch_allow_selection": "Auswahl erlauben",
+  "xswd_prefetch_continue_without_new_permissions": "Ohne neue Berechtigungen fortfahren",
+  "xswd_recent_choices_title": "Letzte Entscheidungen",
+  "xswd_recent_choices_empty": "Für diese Verbindung wurden noch keine Entscheidungen erfasst.",
+  "xswd_recent_choices_disclaimer": "Diese Entscheidungen beschreiben Ihre Zustimmung. Eine Erlaubnis beweist nicht, dass der angeforderte Vorgang erfolgreich ausgeführt wurde.",
+  "xswd_recent_unchanged": "Keine Berechtigungsregel geändert",
+  "xswd_recent_expired": "Anfrage abgelaufen",
+  "xswd_recent_cancelled": "Abgebrochen",
+  "xswd_observation_confirmed": "Berechtigungsregeln aus dem Wallet gelesen",
+  "xswd_observation_timed_out": "Das Wallet hat die Änderung nicht rechtzeitig bestätigt. Prüfen Sie die aktuelle Regel vor einem neuen Versuch.",
+  "xswd_permission_edit_not_confirmed": "Das Wallet hat diese Änderung nicht bestätigt. Der Editor bleibt für einen neuen Versuch geöffnet."
 }

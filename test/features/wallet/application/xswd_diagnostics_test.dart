@@ -39,6 +39,14 @@ void main() {
         diagnostic.format(XswdDiagnosticEvent.received),
         isNot(contains('SENSITIVE')),
       );
+      final selected = diagnostic.format(
+        XswdDiagnosticEvent.decision,
+        grantedPermissions: ['get_balance', 'SENSITIVE_NOT_REQUESTED'],
+      );
+      final selectedMethods = (jsonDecode(selected) as Map)['methods'] as List;
+      expect(selectedMethods.first['selected'], isTrue);
+      expect(selectedMethods[1]['selected'], isFalse);
+      expect(selected, isNot(contains('SENSITIVE')));
     },
   );
 
@@ -55,6 +63,7 @@ void main() {
           validation: XswdDiagnosticValidation.failed,
           decision: XelisXswdDecision.alwaysReject,
           disposition: XswdDiagnosticDisposition.validationFailed,
+          grantedPermissions: names,
         );
         final record = jsonDecode(text) as Map<String, dynamic>;
         expect(utf8.encode(text).length, lessThanOrEqualTo(8192));

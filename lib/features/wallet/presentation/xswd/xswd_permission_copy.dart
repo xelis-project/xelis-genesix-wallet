@@ -166,6 +166,23 @@ String xswdPermissionImpact(XswdMethodEffect effect, AppLocalizations loc) =>
       XswdMethodEffect.proof => loc.xswd_permission_unsupported_impact,
     };
 
+String xswdPermissionEffectTitle(
+  XswdMethodEffect effect,
+  AppLocalizations loc,
+) => switch (effect) {
+  XswdMethodEffect.publicInformation => loc.xswd_permission_public_title,
+  XswdMethodEffect.walletData => loc.xswd_permission_wallet_data_title,
+  XswdMethodEffect.appStorage => loc.xswd_permission_app_storage_title,
+  XswdMethodEffect.walletSubscription => loc.xswd_permission_subscribe_title,
+  XswdMethodEffect.walletUnsubscription =>
+    loc.xswd_permission_unsubscribe_title,
+  XswdMethodEffect.transaction => loc.xswd_permission_transaction_title,
+  XswdMethodEffect.walletControl ||
+  XswdMethodEffect.decryption ||
+  XswdMethodEffect.signing ||
+  XswdMethodEffect.proof => loc.xswd_permission_unsupported_title,
+};
+
 String xswdWalletEventLabel(WalletEvent event, AppLocalizations loc) =>
     switch (event) {
       WalletEvent.newTopoheight => loc.xswd_event_new_topoheight,

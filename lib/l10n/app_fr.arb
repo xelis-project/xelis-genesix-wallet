@@ -673,5 +673,21 @@
   "password_changed_biometric_disabled": "Votre nouveau mot de passe est actif. Le déverrouillage biométrique a été désactivé ; utilisez le nouveau mot de passe.",
   "password_changed_biometric_cleanup_failed": "Votre nouveau mot de passe est actif. Le déverrouillage biométrique a été désactivé, mais certaines données d’accès enregistrées n’ont pas pu être supprimées. Maintenez l’accès biométrique désactivé et utilisez le nouveau mot de passe.",
   "password_change_native_state_indeterminate": "La mise à jour du mot de passe n’a pas pu être confirmée. Conservez l’ancien et le nouveau mot de passe, ne réessayez pas et contactez l’assistance en indiquant cette référence.",
-  "support_reference": "Référence d’assistance : {reference}"
+  "support_reference": "Référence d’assistance : {reference}",
+  "xswd_prefetch_selection_description": "Choisissez les autorisations à accorder pour cette connexion. Les autorisations déjà accordées restent actives ; une autorisation bloquée doit être sélectionnée explicitement.",
+  "xswd_prefetch_existing_rules": "Règles actuelles et examen individuel",
+  "xswd_prefetch_already_allowed": "Déjà autorisée",
+  "xswd_prefetch_previously_blocked": "Précédemment bloquée",
+  "xswd_prefetch_requires_each_time": "Examiner chaque demande",
+  "xswd_prefetch_allow_selection": "Autoriser la sélection",
+  "xswd_prefetch_continue_without_new_permissions": "Continuer sans nouvelle autorisation",
+  "xswd_recent_choices_title": "Choix récents",
+  "xswd_recent_choices_empty": "Aucun choix enregistré pour cette connexion.",
+  "xswd_recent_choices_disclaimer": "Ces choix décrivent votre consentement. Un choix autorisé ne prouve pas que l’opération demandée a réussi.",
+  "xswd_recent_unchanged": "Aucune règle d’autorisation modifiée",
+  "xswd_recent_expired": "Demande expirée",
+  "xswd_recent_cancelled": "Annulée",
+  "xswd_observation_confirmed": "Règles d’autorisation lues depuis le wallet",
+  "xswd_observation_timed_out": "Le wallet n’a pas confirmé la modification à temps. Vérifiez la règle actuelle avant de réessayer.",
+  "xswd_permission_edit_not_confirmed": "Le wallet n’a pas confirmé cette modification. L’éditeur reste ouvert pour vous permettre de réessayer."
 }

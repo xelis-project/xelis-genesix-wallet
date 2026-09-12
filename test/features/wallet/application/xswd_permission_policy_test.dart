@@ -1,6 +1,7 @@
+import '../../../helpers/xswd_test_payload.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genesix/features/wallet/application/xswd_controller_provider.dart';
-import 'package:genesix/features/wallet/domain/permission_rpc_request.dart';
 import 'package:genesix/features/wallet/domain/xswd_method_policy.dart';
 import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
@@ -43,8 +44,7 @@ void main() {
 
   test('transaction alwaysAccept is reduced to a one-time accept', () {
     final review = XswdPermissionReview.parse(
-      PermissionRpcRequest(
-        jsonrpc: '2.0',
+      xswdTestPermission(
         method: WalletMethod.buildTransaction.jsonKey,
         params: {
           'burn': {'asset': 'asset-hash', 'amount': 1},

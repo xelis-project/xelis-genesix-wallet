@@ -673,5 +673,21 @@
   "password_changed_biometric_disabled": "Kata sandi baru Anda sudah aktif. Buka kunci biometrik telah dinonaktifkan; gunakan kata sandi baru.",
   "password_changed_biometric_cleanup_failed": "Kata sandi baru Anda sudah aktif. Buka kunci biometrik telah dinonaktifkan, tetapi sebagian data akses tersimpan tidak dapat dihapus. Biarkan akses biometrik nonaktif dan gunakan kata sandi baru.",
   "password_change_native_state_indeterminate": "Pembaruan kata sandi tidak dapat dikonfirmasi. Simpan kata sandi lama dan baru, jangan mencoba lagi, dan hubungi dukungan dengan menyertakan referensi ini.",
-  "support_reference": "Referensi dukungan: {reference}"
+  "support_reference": "Referensi dukungan: {reference}",
+  "xswd_prefetch_selection_description": "Pilih izin yang akan diberikan untuk koneksi ini. Izin yang sudah diberikan tetap berlaku; izin yang diblokir harus dipilih secara tegas.",
+  "xswd_prefetch_existing_rules": "Aturan saat ini dan tinjauan per permintaan",
+  "xswd_prefetch_already_allowed": "Sudah diizinkan",
+  "xswd_prefetch_previously_blocked": "Sebelumnya diblokir",
+  "xswd_prefetch_requires_each_time": "Tinjau setiap permintaan",
+  "xswd_prefetch_allow_selection": "Izinkan pilihan",
+  "xswd_prefetch_continue_without_new_permissions": "Lanjutkan tanpa izin baru",
+  "xswd_recent_choices_title": "Pilihan terbaru",
+  "xswd_recent_choices_empty": "Belum ada pilihan yang dicatat untuk koneksi ini.",
+  "xswd_recent_choices_disclaimer": "Pilihan ini menjelaskan persetujuan Anda. Pilihan yang diizinkan tidak membuktikan bahwa operasi berhasil dijalankan.",
+  "xswd_recent_unchanged": "Tidak ada aturan izin yang diubah",
+  "xswd_recent_expired": "Permintaan kedaluwarsa",
+  "xswd_recent_cancelled": "Dibatalkan",
+  "xswd_observation_confirmed": "Aturan izin dibaca dari dompet",
+  "xswd_observation_timed_out": "Dompet tidak mengonfirmasi perubahan tepat waktu. Periksa aturan saat ini sebelum mencoba lagi.",
+  "xswd_permission_edit_not_confirmed": "Dompet tidak mengonfirmasi perubahan ini. Editor tetap terbuka agar Anda dapat mencoba lagi."
 }

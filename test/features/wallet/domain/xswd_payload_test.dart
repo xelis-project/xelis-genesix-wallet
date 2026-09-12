@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:genesix/features/wallet/domain/permission_rpc_request.dart';
 import 'package:genesix/features/wallet/domain/xswd_payload.dart';
 import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
@@ -77,12 +76,9 @@ void main() {
 
   test('correlation IDs stay owned by XWF and never require an int cast', () {
     for (final id in [null, 'opaque-id', (BigInt.one << 64) - BigInt.one]) {
-      final decoded = decodeXswdPayload(
-        xswdTestPayload({'id': id, 'jsonrpc': '2.0', 'method': 'get_balance'}),
-      );
-      final request = PermissionRpcRequest.fromJson(decoded);
+      final request = xswdTestPermission(id: id, method: 'get_balance');
       expect(request.method, 'get_balance');
-      expect(request.toString(), 'PermissionRpcRequest(<redacted>)');
+      expect(request.toString(), isNot(contains('get_balance')));
     }
   });
 
@@ -136,10 +132,14 @@ void main() {
         '"tx_version":3}}',
       ),
     );
-    final decoded = decodeXswdPayload(payload);
-    normalizeXswdBuildTransactionFields(decoded);
     final review = XswdPermissionReview.parse(
-      PermissionRpcRequest.fromJson(decoded),
+      XelisXswdRequest(
+        kind: XelisXswdRequestKind.permission,
+        application: xswdTestPermission(method: 'get_balance')
+            .source
+            .application,
+        payload: payload,
+      ).permissionRequest!,
     );
     final max = (BigInt.one << 64) - BigInt.one;
     expect(

@@ -673,5 +673,21 @@
   "password_changed_biometric_disabled": "新しいパスワードは有効です。生体認証によるロック解除は無効になりました。新しいパスワードを使用してください。",
   "password_changed_biometric_cleanup_failed": "新しいパスワードは有効です。生体認証によるロック解除は無効になりましたが、保存済みの一部のアクセスデータを削除できませんでした。生体認証を無効のままにして、新しいパスワードを使用してください。",
   "password_change_native_state_indeterminate": "パスワードの更新を確認できませんでした。古いパスワードと新しいパスワードの両方を保管し、再試行せず、この参照番号を添えてサポートにお問い合わせください。",
-  "support_reference": "サポート参照番号: {reference}"
+  "support_reference": "サポート参照番号: {reference}",
+  "xswd_prefetch_selection_description": "この接続で許可する権限を選択してください。すでに許可済みの権限は維持され、ブロック済みの権限は明示的な選択が必要です。",
+  "xswd_prefetch_existing_rules": "現在のルールと個別確認",
+  "xswd_prefetch_already_allowed": "許可済み",
+  "xswd_prefetch_previously_blocked": "以前にブロック",
+  "xswd_prefetch_requires_each_time": "要求ごとに確認",
+  "xswd_prefetch_allow_selection": "選択項目を許可",
+  "xswd_prefetch_continue_without_new_permissions": "新しい権限なしで続行",
+  "xswd_recent_choices_title": "最近の選択",
+  "xswd_recent_choices_empty": "この接続で記録された選択はまだありません。",
+  "xswd_recent_choices_disclaimer": "ここには同意内容が表示されます。許可したことは、要求された操作が成功した証明ではありません。",
+  "xswd_recent_unchanged": "権限ルールは変更されていません",
+  "xswd_recent_expired": "要求の期限切れ",
+  "xswd_recent_cancelled": "キャンセル済み",
+  "xswd_observation_confirmed": "ウォレットから権限ルールを読み取りました",
+  "xswd_observation_timed_out": "ウォレットが時間内に変更を確認できませんでした。再試行前に現在のルールを確認してください。",
+  "xswd_permission_edit_not_confirmed": "ウォレットがこの変更を確認できませんでした。再試行できるよう編集画面を開いたままにします。"
 }

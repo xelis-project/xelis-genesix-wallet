@@ -673,5 +673,21 @@
   "password_changed_biometric_disabled": "新密码已生效。生物识别解锁已禁用；请使用新密码。",
   "password_changed_biometric_cleanup_failed": "新密码已生效。生物识别解锁已禁用，但无法删除部分已保存的访问数据。请保持生物识别访问处于禁用状态，并使用新密码。",
   "password_change_native_state_indeterminate": "无法确认密码更新。请保留旧密码和新密码，不要重试，并在联系支持时提供此参考号。",
-  "support_reference": "支持参考号：{reference}"
+  "support_reference": "支持参考号：{reference}",
+  "xswd_prefetch_selection_description": "选择要为此连接授予的权限。已允许的权限会保持允许；已阻止的权限需要明确选择。",
+  "xswd_prefetch_existing_rules": "当前规则与逐项审核",
+  "xswd_prefetch_already_allowed": "已允许",
+  "xswd_prefetch_previously_blocked": "之前已阻止",
+  "xswd_prefetch_requires_each_time": "每次请求时审核",
+  "xswd_prefetch_allow_selection": "允许所选权限",
+  "xswd_prefetch_continue_without_new_permissions": "不授予新权限并继续",
+  "xswd_recent_choices_title": "最近的选择",
+  "xswd_recent_choices_empty": "此连接尚未记录任何选择。",
+  "xswd_recent_choices_disclaimer": "这些选择描述了您的同意。允许请求并不证明所请求的操作已成功执行。",
+  "xswd_recent_unchanged": "未更改任何权限规则",
+  "xswd_recent_expired": "请求已过期",
+  "xswd_recent_cancelled": "已取消",
+  "xswd_observation_confirmed": "已从钱包读取权限规则",
+  "xswd_observation_timed_out": "钱包未能及时确认更改。请先检查当前规则再重试。",
+  "xswd_permission_edit_not_confirmed": "钱包未确认此更改。编辑器将保持打开，您可以重试。"
 }

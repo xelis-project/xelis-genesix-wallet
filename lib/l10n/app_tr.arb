@@ -673,5 +673,21 @@
   "password_changed_biometric_disabled": "Yeni parolanız etkin. Biyometrik kilit açma devre dışı bırakıldı; yeni parolayı kullanın.",
   "password_changed_biometric_cleanup_failed": "Yeni parolanız etkin. Biyometrik kilit açma devre dışı bırakıldı, ancak kayıtlı bazı erişim verileri kaldırılamadı. Biyometrik erişimi devre dışı tutun ve yeni parolayı kullanın.",
   "password_change_native_state_indeterminate": "Parola güncellemesi doğrulanamadı. Eski ve yeni parolayı saklayın, yeniden denemeyin ve bu referansı belirterek destek ekibiyle iletişime geçin.",
-  "support_reference": "Destek referansı: {reference}"
+  "support_reference": "Destek referansı: {reference}",
+  "xswd_prefetch_selection_description": "Bu bağlantı için izin verilecek yetkileri seçin. Daha önce izin verilenler etkin kalır; engellenenler açıkça seçilmelidir.",
+  "xswd_prefetch_existing_rules": "Geçerli kurallar ve tek tek inceleme",
+  "xswd_prefetch_already_allowed": "Zaten izin verildi",
+  "xswd_prefetch_previously_blocked": "Daha önce engellendi",
+  "xswd_prefetch_requires_each_time": "Her isteği incele",
+  "xswd_prefetch_allow_selection": "Seçilenlere izin ver",
+  "xswd_prefetch_continue_without_new_permissions": "Yeni izin vermeden devam et",
+  "xswd_recent_choices_title": "Son seçimler",
+  "xswd_recent_choices_empty": "Bu bağlantı için henüz seçim kaydedilmedi.",
+  "xswd_recent_choices_disclaimer": "Bu seçimler onayınızı açıklar. İzin verilmesi, istenen işlemin başarıyla yürütüldüğünü kanıtlamaz.",
+  "xswd_recent_unchanged": "Hiçbir izin kuralı değiştirilmedi",
+  "xswd_recent_expired": "İsteğin süresi doldu",
+  "xswd_recent_cancelled": "İptal edildi",
+  "xswd_observation_confirmed": "İzin kuralları cüzdandan okundu",
+  "xswd_observation_timed_out": "Cüzdan değişikliği zamanında doğrulamadı. Yeniden denemeden önce geçerli kuralı kontrol edin.",
+  "xswd_permission_edit_not_confirmed": "Cüzdan bu değişikliği doğrulamadı. Yeniden deneyebilmeniz için düzenleyici açık kalır."
 }

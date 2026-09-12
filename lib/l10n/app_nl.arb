@@ -673,5 +673,21 @@
   "password_changed_biometric_disabled": "Uw nieuwe wachtwoord is actief. Biometrisch ontgrendelen is uitgeschakeld; gebruik het nieuwe wachtwoord.",
   "password_changed_biometric_cleanup_failed": "Uw nieuwe wachtwoord is actief. Biometrisch ontgrendelen is uitgeschakeld, maar sommige opgeslagen toegangsgegevens konden niet worden verwijderd. Houd biometrische toegang uitgeschakeld en gebruik het nieuwe wachtwoord.",
   "password_change_native_state_indeterminate": "De wachtwoordwijziging kon niet worden bevestigd. Bewaar zowel het oude als het nieuwe wachtwoord, probeer het niet opnieuw en neem contact op met support onder vermelding van deze referentie.",
-  "support_reference": "Supportreferentie: {reference}"
+  "support_reference": "Supportreferentie: {reference}",
+  "xswd_prefetch_selection_description": "Kies welke machtigingen voor deze verbinding worden toegestaan. Eerder toegestane machtigingen blijven actief; geblokkeerde machtigingen moeten expliciet worden geselecteerd.",
+  "xswd_prefetch_existing_rules": "Huidige regels en afzonderlijke beoordeling",
+  "xswd_prefetch_already_allowed": "Al toegestaan",
+  "xswd_prefetch_previously_blocked": "Eerder geblokkeerd",
+  "xswd_prefetch_requires_each_time": "Elke aanvraag beoordelen",
+  "xswd_prefetch_allow_selection": "Selectie toestaan",
+  "xswd_prefetch_continue_without_new_permissions": "Doorgaan zonder nieuwe machtigingen",
+  "xswd_recent_choices_title": "Recente keuzes",
+  "xswd_recent_choices_empty": "Voor deze verbinding zijn nog geen keuzes vastgelegd.",
+  "xswd_recent_choices_disclaimer": "Deze keuzes beschrijven uw toestemming. Een toegestane keuze bewijst niet dat de gevraagde bewerking is geslaagd.",
+  "xswd_recent_unchanged": "Geen machtigingsregel gewijzigd",
+  "xswd_recent_expired": "Aanvraag verlopen",
+  "xswd_recent_cancelled": "Geannuleerd",
+  "xswd_observation_confirmed": "Machtigingsregels uit de wallet gelezen",
+  "xswd_observation_timed_out": "De wallet heeft de wijziging niet op tijd bevestigd. Controleer de huidige regel voordat u het opnieuw probeert.",
+  "xswd_permission_edit_not_confirmed": "De wallet heeft deze wijziging niet bevestigd. De editor blijft open zodat u opnieuw kunt proberen."
 }

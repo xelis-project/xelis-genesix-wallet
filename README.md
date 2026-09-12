@@ -153,8 +153,20 @@ launching Chrome.
 These helpers are optional. `just run_web` uses the Web build executable from
 the resolved `xelis_wallet_flutter` dependency, then launches Chrome. It
 requires `wasm-pack`, Rust nightly, and the WebAssembly target. A local
-`pubspec_overrides.yaml` may select a local XWF checkout for cross-repository
-development and is intentionally ignored by Git.
+`pubspec_overrides.yaml` may select local package checkouts for cross-repository
+development and is intentionally ignored by Git:
+
+```yaml
+dependency_overrides:
+  xelis_wallet_flutter:
+    path: ../xelis-wallet-flutter
+  xelis_dart_sdk:
+    path: ../xelis-dart-sdk
+```
+
+Verify the resolved paths in `.dart_tool/package_config.json`. Keep path-only
+lockfile changes out of commits. Unpublished package APIs require these matching
+local checkouts until their released versions are adopted.
 
 ## Architecture (Short Version)
 

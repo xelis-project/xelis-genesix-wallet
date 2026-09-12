@@ -1,6 +1,6 @@
+import '../../../helpers/xswd_test_payload.dart';
+
 import 'package:flutter_test/flutter_test.dart';
-import 'package:genesix/features/wallet/domain/permission_rpc_request.dart';
-import 'package:genesix/features/wallet/domain/prefetch_permissions_rpc_request.dart';
 import 'package:genesix/features/wallet/domain/xswd_method_policy.dart';
 import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
@@ -696,7 +696,7 @@ void main() {
   group('classifyXswdPrefetchPermissions', () {
     test('accepts known non-signing permissions', () {
       final methods = classifyXswdPrefetchPermissions(
-        const PrefetchPermissionsRequest(
+        xswdTestPrefetch(
           permissions: [
             'get_balance',
             'get_address',
@@ -713,9 +713,7 @@ void main() {
       for (final count in [2, xswdMethodCount + 1, 4096]) {
         expect(
           () => classifyXswdPrefetchPermissions(
-            PrefetchPermissionsRequest(
-              permissions: List.filled(count, 'get_balance'),
-            ),
+            xswdTestPrefetch(permissions: List.filled(count, 'get_balance')),
           ),
           throwsFormatException,
         );
@@ -738,14 +736,14 @@ void main() {
             )) {
           expect(
             classifyXswdPrefetchPermissions(
-              PrefetchPermissionsRequest(permissions: permissions),
+              xswdTestPrefetch(permissions: permissions),
             ),
             XswdPrefetchDisposition.declined,
           );
         } else {
           expect(
             () => classifyXswdPrefetchPermissions(
-              PrefetchPermissionsRequest(permissions: permissions),
+              xswdTestPrefetch(permissions: permissions),
             ),
             throwsFormatException,
           );
@@ -755,7 +753,7 @@ void main() {
   });
 }
 
-PermissionRpcRequest _burnRequest({
+XelisXswdPermissionRequest _burnRequest({
   Map<String, dynamic> extraParams = const {},
 }) {
   return _request(
@@ -767,7 +765,7 @@ PermissionRpcRequest _burnRequest({
   );
 }
 
-PermissionRpcRequest _invokeRequest({
+XelisXswdPermissionRequest _invokeRequest({
   required List<Object?> parameters,
   Object permission = 'none',
 }) {
@@ -785,9 +783,9 @@ PermissionRpcRequest _invokeRequest({
   );
 }
 
-PermissionRpcRequest _request({
+XelisXswdPermissionRequest _request({
   required String method,
   Map<String, dynamic>? params,
 }) {
-  return PermissionRpcRequest(jsonrpc: '2.0', method: method, params: params);
+  return xswdTestPermission(method: method, params: params);
 }

@@ -673,5 +673,21 @@
   "password_changed_biometric_disabled": "Su nueva contraseña está activa. El desbloqueo biométrico se desactivó; use la nueva contraseña.",
   "password_changed_biometric_cleanup_failed": "Su nueva contraseña está activa. El desbloqueo biométrico se desactivó, pero no se pudieron eliminar algunos datos de acceso guardados. Mantenga desactivado el acceso biométrico y use la nueva contraseña.",
   "password_change_native_state_indeterminate": "No se pudo confirmar la actualización de la contraseña. Conserve tanto la contraseña anterior como la nueva, no vuelva a intentarlo y contacte con el soporte indicando esta referencia.",
-  "support_reference": "Referencia de soporte: {reference}"
+  "support_reference": "Referencia de soporte: {reference}",
+  "xswd_prefetch_selection_description": "Elige los permisos que se concederán para esta conexión. Los permisos ya concedidos permanecen activos; los bloqueados deben seleccionarse explícitamente.",
+  "xswd_prefetch_existing_rules": "Reglas actuales y revisión individual",
+  "xswd_prefetch_already_allowed": "Ya permitido",
+  "xswd_prefetch_previously_blocked": "Bloqueado anteriormente",
+  "xswd_prefetch_requires_each_time": "Revisar cada solicitud",
+  "xswd_prefetch_allow_selection": "Permitir selección",
+  "xswd_prefetch_continue_without_new_permissions": "Continuar sin permisos nuevos",
+  "xswd_recent_choices_title": "Decisiones recientes",
+  "xswd_recent_choices_empty": "Aún no hay decisiones registradas para esta conexión.",
+  "xswd_recent_choices_disclaimer": "Estas decisiones describen tu consentimiento. Permitir una solicitud no demuestra que la operación se ejecutara correctamente.",
+  "xswd_recent_unchanged": "No se cambió ninguna regla de permiso",
+  "xswd_recent_expired": "Solicitud caducada",
+  "xswd_recent_cancelled": "Cancelada",
+  "xswd_observation_confirmed": "Reglas de permisos leídas desde la cartera",
+  "xswd_observation_timed_out": "La cartera no confirmó el cambio a tiempo. Comprueba la regla actual antes de reintentarlo.",
+  "xswd_permission_edit_not_confirmed": "La cartera no confirmó este cambio. El editor permanece abierto para que puedas reintentarlo."
 }

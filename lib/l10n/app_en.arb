@@ -683,5 +683,21 @@
         "type": "String"
       }
     }
-  }
+  },
+  "xswd_prefetch_selection_description": "Choose the permissions to allow for this connection. Previously allowed permissions remain allowed; blocked permissions require an explicit selection.",
+  "xswd_prefetch_existing_rules": "Current rules and individual review",
+  "xswd_prefetch_already_allowed": "Already allowed",
+  "xswd_prefetch_previously_blocked": "Previously blocked",
+  "xswd_prefetch_requires_each_time": "Review each request",
+  "xswd_prefetch_allow_selection": "Allow selection",
+  "xswd_prefetch_continue_without_new_permissions": "Continue without new permissions",
+  "xswd_recent_choices_title": "Recent choices",
+  "xswd_recent_choices_empty": "No choices recorded for this connection yet.",
+  "xswd_recent_choices_disclaimer": "These choices describe your consent. An allowed choice does not prove that the requested operation ran successfully.",
+  "xswd_recent_unchanged": "No permission rule was changed",
+  "xswd_recent_expired": "Request expired",
+  "xswd_recent_cancelled": "Cancelled",
+  "xswd_observation_confirmed": "Permission rules read from the wallet",
+  "xswd_observation_timed_out": "The wallet did not confirm the permission change in time. Check the current rule before retrying.",
+  "xswd_permission_edit_not_confirmed": "The wallet did not confirm this change. The editor remains open so you can retry."
 }

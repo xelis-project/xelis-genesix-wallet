@@ -673,5 +673,21 @@
   "password_changed_biometric_disabled": "Новий пароль активний. Біометричне розблокування вимкнено; використовуйте новий пароль.",
   "password_changed_biometric_cleanup_failed": "Новий пароль активний. Біометричне розблокування вимкнено, але деякі збережені дані доступу видалити не вдалося. Не вмикайте біометричний доступ і використовуйте новий пароль.",
   "password_change_native_state_indeterminate": "Не вдалося підтвердити оновлення пароля. Збережіть старий і новий паролі, не повторюйте спробу та зверніться до служби підтримки, вказавши цей ідентифікатор.",
-  "support_reference": "Ідентифікатор для підтримки: {reference}"
+  "support_reference": "Ідентифікатор для підтримки: {reference}",
+  "xswd_prefetch_selection_description": "Виберіть дозволи для цього підключення. Раніше дозволені дії залишаться дозволеними; заблоковані потрібно вибрати явно.",
+  "xswd_prefetch_existing_rules": "Поточні правила й окрема перевірка",
+  "xswd_prefetch_already_allowed": "Уже дозволено",
+  "xswd_prefetch_previously_blocked": "Раніше заблоковано",
+  "xswd_prefetch_requires_each_time": "Перевіряти кожен запит",
+  "xswd_prefetch_allow_selection": "Дозволити вибране",
+  "xswd_prefetch_continue_without_new_permissions": "Продовжити без нових дозволів",
+  "xswd_recent_choices_title": "Нещодавні рішення",
+  "xswd_recent_choices_empty": "Для цього підключення рішень ще немає.",
+  "xswd_recent_choices_disclaimer": "Ці рішення описують вашу згоду. Дозвіл не доводить, що запитану операцію успішно виконано.",
+  "xswd_recent_unchanged": "Правила дозволів не змінено",
+  "xswd_recent_expired": "Термін запиту минув",
+  "xswd_recent_cancelled": "Скасовано",
+  "xswd_observation_confirmed": "Правила дозволів прочитано з гаманця",
+  "xswd_observation_timed_out": "Гаманець не підтвердив зміну вчасно. Перед повторною спробою перевірте поточне правило.",
+  "xswd_permission_edit_not_confirmed": "Гаманець не підтвердив цю зміну. Редактор залишиться відкритим для повторної спроби."
 }

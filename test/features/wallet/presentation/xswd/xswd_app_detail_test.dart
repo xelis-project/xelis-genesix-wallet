@@ -8,6 +8,8 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/settings/domain/settings_state.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/domain/xswd_method_policy.dart';
+import 'package:genesix/features/wallet/domain/xswd_notice.dart';
+import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_app_detail.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_permission_copy.dart';
 import 'package:genesix/shared/theme/theme.dart';
@@ -119,9 +121,142 @@ void main() {
             method == 'build_transaction' ? findsNothing : findsOneWidget,
           );
         }
+        if (method == 'get_balance' && width == 800) {
+          await tester.tap(
+            find.widgetWithText(FRadio, loc.xswd_permission_status_blocked),
+          );
+          await tester.pump(const Duration(milliseconds: 100));
+          await tester.tap(find.text(loc.save));
+          await tester.pump(const Duration(milliseconds: 150));
+          expect(
+            find.text(loc.xswd_permission_edit_not_confirmed),
+            findsOneWidget,
+          );
+          expect(
+            find.text(loc.xswd_edit_permission_title(copy.title)),
+            findsOneWidget,
+          );
+        }
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox.shrink());
       });
     }
   }
+
+  testWidgets('shows recent choices only for the exact connection', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final loc = AppLocalizationsEn();
+    final application = XelisXswdApplication(
+      id: 'shared-id',
+      name: 'Fictional vault',
+      description: '',
+      url: null,
+      permissions: const {'get_balance': XelisXswdPermissionPolicy.ask},
+      isRelayer: false,
+    );
+    final other = XelisXswdApplication(
+      id: application.id,
+      name: 'Other session',
+      description: '',
+      url: null,
+      permissions: const {},
+      isRelayer: true,
+    );
+    final container = ProviderContainer(
+      overrides: [
+        appLocalizationsProvider.overrideWithValue(loc),
+        settingsProvider.overrideWithValue(
+          const SettingsState(locale: Locale('en')),
+        ),
+        xswdApplicationsProvider.overrideWith((ref) async => [application]),
+      ],
+    );
+    addTearDown(container.dispose);
+    container
+        .read(xswdRecentChoicesProvider.notifier)
+        .record(
+          XswdRecentChoice(
+            sessionReference: application.sessionReference,
+            kind: XswdNoticeKind.prefetch,
+            outcome: XswdChoiceOutcome.allowed,
+            scope: XswdChoiceScope.connection,
+            methods: const ['get_balance', 'subscribe'],
+            grantedMethods: const ['get_balance'],
+          ),
+        );
+    container
+        .read(xswdApplicationObservationsProvider.notifier)
+        .record(XelisXswdApplicationStateObserved(application, 1));
+    container
+        .read(xswdRecentChoicesProvider.notifier)
+        .record(
+          XswdRecentChoice(
+            sessionReference: other.sessionReference,
+            kind: XswdNoticeKind.permission,
+            outcome: XswdChoiceOutcome.refused,
+            scope: XswdChoiceScope.request,
+            methods: const ['network_info'],
+          ),
+        );
+    final theme = greenDark(touch: false);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          theme: theme.toApproximateMaterialTheme(),
+          home: GenesixTheme(
+            data: theme,
+            child: XswdAppDetail(
+              sessionReference: application.sessionReference,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text(loc.xswd_observation_confirmed), findsOneWidget);
+    await tester.tap(find.text(loc.xswd_recent_choices_title));
+    await tester.pumpAndSettle();
+
+    expect(find.text(loc.prefetch_permissions_request), findsOneWidget);
+    final granted = find.byKey(const ValueKey('xswd-choice-granted-methods'));
+    final unchanged = find.byKey(
+      const ValueKey('xswd-choice-unchanged-methods'),
+    );
+    final balanceTitle = xswdPermissionCopy(
+      'get_balance',
+      tryXswdMethodPolicyForKey('get_balance'),
+      loc,
+    ).title;
+    final subscriptionTitle = xswdPermissionCopy(
+      'subscribe',
+      tryXswdMethodPolicyForKey('subscribe'),
+      loc,
+    ).title;
+    expect(
+      find.descendant(of: granted, matching: find.text(balanceTitle)),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: granted, matching: find.text(subscriptionTitle)),
+      findsNothing,
+    );
+    expect(
+      find.descendant(of: unchanged, matching: find.text(subscriptionTitle)),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: unchanged, matching: find.text(balanceTitle)),
+      findsNothing,
+    );
+    expect(find.text(loc.xswd_permission_status_allowed), findsNothing);
+    expect(find.textContaining('Network information'), findsNothing);
+    expect(find.text(loc.xswd_recent_choices_disclaimer), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

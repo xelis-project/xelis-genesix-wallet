@@ -18,8 +18,11 @@ validated the request and obtained the user's decision.
 Responsibilities are deliberately split:
 
 - `xelis_wallet_flutter` (XWF) owns the native transport, callback lifecycle,
-  structured XSWD failures, and the native wallet boundary.
-- `xelis_dart_sdk` owns the public RPC models and typed deserialization.
+  structural request projections, structured XSWD failures, and the native
+  wallet boundary.
+- `xelis_dart_sdk` owns the canonical RPC/subscription catalogue, public RPC
+  models and typed deserialization. Genesix uses exact catalogue resolution;
+  manifest compatibility rules do not normalize live permission requests.
 - Genesix owns platform policy, permission normalization, fail-closed request
   validation, review presentation, and the user decision.
 
@@ -71,6 +74,8 @@ persistence, prefetch, and effect classification. Subscription requests validate
 non-persistable and unknown methods are normalized to `Ask` before XSWD activation and when permissions are
 edited. Adding an SDK method must update this exhaustive classification before
 analysis can pass.
+If normalization fails, admission stops and Genesix attempts to close that
+exact connection; a native closure failure keeps its support reference.
 
 Permission rules belong to the current application connection; reconnecting
 does not retain them. Individual consent defaults to this request only and
@@ -79,8 +84,24 @@ refusing once does not change the future rule. Application details show those
 rules as explicit Allowed, Ask or Blocked states; editing a rule is a separate
 action. Transactions offer Ask or Blocked, never automatic approval.
 
+Permission edits target one method through XWF and return a fresh projection
+of the same opaque session. They never replace a complete map derived from an
+older Dart snapshot. XWF also observes admission and permission-changing
+decisions after their callbacks return, coalescing reads by session for at most
+two seconds. This is an observation, not an atomic protocol acknowledgement.
+Genesix ignores older observation sequences and distinguishes observed state,
+supersession, timeout and structured read failures. A decision callback must not
+wait for its own permissions to appear in native state.
+
+The **Recent choices** tab retains at most 20 decisions in memory across the
+wallet, filtered by the exact connection. It records method names, choice,
+scope and selected batch grants, without parameters, amounts, payloads or
+reasons. A one-time choice does not alter the native rule and an allowed choice
+does not prove RPC execution. Closing a connection purges its entries; closing
+or replacing the wallet purges all entries. Nothing is persisted or restored.
+
 Review parsing is also resource-bounded before the SDK or UI walks untrusted
-structures. Genesix rejects payloads above 3 MiB of cumulative text characters,
+structures. Genesix rejects reviewed parameter trees above 3 MiB of cumulative text characters,
 individual strings above 2 MiB, typed structures deeper than 64 levels or larger than
 300,000 nodes, transaction collections above the protocol's 255-entry bound,
 typed RPC graphs above 4,096 value cells, and requests containing more than 64
@@ -155,12 +176,21 @@ expiring notices; only the matching session can terminate an active approval.
 
 Accepting admission approves the connection, not future permissions. Malformed
 requests and unknown methods are rejected and close their exact session with a
-localized explanation and a support reference. A known prefetch batch containing
-a non-prefetchable method instead leaves the session and permissions unchanged,
-with an information notice. XWF 0.3 returns an empty policy update for this
-refusal: new permissions stay `Ask`, so later supported transactions require
-their own review. No partial grant is simulated. The immutable preflight is bound
-to its exact XWF request; a declined batch leaves any active approval untouched.
+localized explanation and a support reference. A known batch is reviewed once,
+grouped by effect. Prefetchable `Ask` entries start selected; existing `Accept`
+entries are identified and `Reject` entries require explicit reselection.
+Transactions and other non-prefetchable methods retain their applicable rule.
+XWF's optional typed callback grants only the selected, requested methods;
+omissions remain unchanged. Rust validates the whole result before mutation,
+including uniqueness, subset membership and active callback/session identity.
+Genesix alone decides which methods may be prefetched.
+
+Continuing without new grants returns `noChange` and preserves the connection.
+A known batch with no new grantable method also returns `noChange`, without
+replacing a foreign approval. The immutable preflight remains bound to its XWF
+source; a cancellation, disconnect or wallet change during the native state
+read prevents installation of a stale review. Every later transaction still
+requires its own confirmation.
 
 ## Lossless Web transaction review
 
@@ -199,7 +229,6 @@ must change first; it does not assign a delivery date.
 | Explicit signers | Reject non-empty signers; avoids revealing or handling structures that can contain private-key material. | Upstream must provide a public, non-secret signer projection; Genesix needs a documented authority model. | Fixtures proving no private material reaches UI/logs plus signer-authority tests. |
 | Advanced inter-contract permissions | Reject every permission except `NoInterContractPermission`; avoids opaque `all`, `specific`, or `exclude` authority. | SDK must expose semantics sufficient for review; Genesix needs a contract/target scope UI. | Exhaustive variant tests, semantic rendering tests, and a security review. |
 | Persistent non-standard authorization | Normalize stored `Accept` to `Ask` and deny prefetch for dedicated-review, unsupported, and unknown methods; avoids durable or silent approval without matching review semantics. | Intentional product/security decision, new threat model, revocation and migration design. | Explicitly approved security design and regression tests; this is not a routine TODO. |
-| Full Forui modernization | Keep the XSWD surface transitional; preserve permission and review behaviour when changing UI components. | Genesix UX workstream, independent of XSWD contract support. | Separate UX plan, accessibility checks, and platform visual QA. |
 
 Native packaging and Apple lock regeneration are tracked in the
 [native release validation instructions](../README.md#native-release-validation),

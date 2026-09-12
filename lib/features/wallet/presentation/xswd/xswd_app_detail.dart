@@ -8,6 +8,8 @@ import 'package:genesix/features/settings/application/settings_state_provider.da
 import 'package:genesix/features/wallet/application/xswd_controller_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/domain/xswd_method_policy.dart';
+import 'package:genesix/features/wallet/domain/xswd_notice.dart';
+import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_permission_copy.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
@@ -35,6 +37,15 @@ class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
       settingsProvider.select((settings) => settings.walletOfflineMode),
     );
     final appsAsync = ref.watch(xswdApplicationsProvider);
+    final recentChoices = ref
+        .watch(xswdRecentChoicesProvider)
+        .where((choice) => choice.sessionReference == widget.sessionReference)
+        .toList(growable: false);
+    final observation = ref.watch(
+      xswdApplicationObservationsProvider.select(
+        (observations) => observations[widget.sessionReference],
+      ),
+    );
 
     return FScaffold(
       header: FHeader.nested(
@@ -61,6 +72,8 @@ class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
                 return _XswdAppDetailContent(
                   app: liveApp,
                   loc: loc,
+                  recentChoices: recentChoices,
+                  observation: observation,
                   onOpenUrl: (url) => _launchAppUrl(ref, url),
                   onPermissionChange: (permissionName, policy) {
                     return _handlePermissionChange(
@@ -81,24 +94,15 @@ class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
     );
   }
 
-  Future<void> _handlePermissionChange(
+  Future<bool> _handlePermissionChange(
     WidgetRef ref,
     XelisXswdApplication app,
     String permissionName,
     XelisXswdPermissionPolicy newPolicy,
   ) async {
-    try {
-      final updatedPermissions = Map<String, XelisXswdPermissionPolicy>.from(
-        app.permissions,
-      );
-      updatedPermissions[permissionName] = newPolicy;
-
-      await ref
-          .read(xswdControllerProvider)
-          .editXswdAppPermission(app, updatedPermissions);
-    } catch (_) {
-      // Keep previous behavior: fail silently for now.
-    }
+    return ref
+        .read(xswdControllerProvider)
+        .editXswdAppPermission(app, permissionName, newPolicy);
   }
 
   Future<void> _handleDisconnectApp(
@@ -234,6 +238,8 @@ class _XswdAppDetailContent extends StatelessWidget {
   const _XswdAppDetailContent({
     required this.app,
     required this.loc,
+    required this.recentChoices,
+    required this.observation,
     required this.onOpenUrl,
     required this.onPermissionChange,
     required this.onDisconnect,
@@ -241,8 +247,10 @@ class _XswdAppDetailContent extends StatelessWidget {
 
   final XelisXswdApplication app;
   final AppLocalizations loc;
+  final List<XswdRecentChoice> recentChoices;
+  final XelisXswdApplicationStateObservation? observation;
   final ValueChanged<String> onOpenUrl;
-  final Future<void> Function(
+  final Future<bool> Function(
     String permission,
     XelisXswdPermissionPolicy policy,
   )
@@ -270,10 +278,31 @@ class _XswdAppDetailContent extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: Spaces.large),
-              _XswdPermissionsSection(
-                app: app,
-                loc: loc,
-                onPermissionChange: onPermissionChange,
+              FTabs(
+                children: [
+                  FTabEntry(
+                    label: Text(loc.permissions),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: Spaces.medium),
+                      child: _XswdPermissionsSection(
+                        app: app,
+                        loc: loc,
+                        observation: observation,
+                        onPermissionChange: onPermissionChange,
+                      ),
+                    ),
+                  ),
+                  FTabEntry(
+                    label: Text(loc.xswd_recent_choices_title),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: Spaces.medium),
+                      child: _XswdRecentChoicesSection(
+                        choices: recentChoices,
+                        loc: loc,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -365,12 +394,14 @@ class _XswdPermissionsSection extends StatelessWidget {
   const _XswdPermissionsSection({
     required this.app,
     required this.loc,
+    required this.observation,
     required this.onPermissionChange,
   });
 
   final XelisXswdApplication app;
   final AppLocalizations loc;
-  final Future<void> Function(
+  final XelisXswdApplicationStateObservation? observation;
+  final Future<bool> Function(
     String permission,
     XelisXswdPermissionPolicy policy,
   )
@@ -385,6 +416,19 @@ class _XswdPermissionsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (observation case XelisXswdApplicationStateObserved()) ...[
+          _XswdObservationNotice(
+            icon: FLucideIcons.shieldCheck,
+            message: loc.xswd_observation_confirmed,
+          ),
+          const SizedBox(height: Spaces.small),
+        ] else if (observation case XelisXswdApplicationStateTimedOut()) ...[
+          _XswdObservationNotice(
+            icon: FLucideIcons.triangleAlert,
+            message: loc.xswd_observation_timed_out,
+          ),
+          const SizedBox(height: Spaces.small),
+        ],
         if (sortedPermissions.isEmpty)
           AppCard(
             clipBehavior: Clip.antiAlias,
@@ -415,6 +459,177 @@ class _XswdPermissionsSection extends StatelessWidget {
   }
 }
 
+class _XswdObservationNotice extends StatelessWidget {
+  const _XswdObservationNotice({required this.icon, required this.message});
+
+  final IconData icon;
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return FTileGroup(
+      children: [FTile(prefix: Icon(icon), title: Text(message))],
+    );
+  }
+}
+
+class _XswdRecentChoicesSection extends StatelessWidget {
+  const _XswdRecentChoicesSection({required this.choices, required this.loc});
+
+  final List<XswdRecentChoice> choices;
+  final AppLocalizations loc;
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = context.theme.colors.mutedForeground;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          loc.xswd_recent_choices_disclaimer,
+          style: context.theme.typography.body.sm.copyWith(color: muted),
+        ),
+        const SizedBox(height: Spaces.medium),
+        if (choices.isEmpty)
+          FTileGroup(
+            children: [FTile(title: Text(loc.xswd_recent_choices_empty))],
+          )
+        else
+          FTileGroup(
+            children: [
+              for (final choice in choices)
+                _XswdRecentChoiceTile(choice: choice, loc: loc),
+            ],
+          ),
+      ],
+    );
+  }
+}
+
+class _XswdRecentChoiceTile extends StatelessWidget with FTileMixin {
+  const _XswdRecentChoiceTile({required this.choice, required this.loc});
+
+  final XswdRecentChoice choice;
+  final AppLocalizations loc;
+
+  @override
+  Widget build(BuildContext context) {
+    final grantedMethods = choice.grantedMethods.toSet();
+    final unchangedMethods = choice.methods
+        .where((method) => !grantedMethods.contains(method))
+        .toList(growable: false);
+    final title = switch (choice.kind) {
+      XswdNoticeKind.application => loc.connection_request,
+      XswdNoticeKind.prefetch => loc.prefetch_permissions_request,
+      XswdNoticeKind.permission =>
+        choice.methods.isEmpty
+            ? loc.permission_request
+            : _xswdChoiceMethodTitle(choice.methods.single, loc),
+    };
+    final outcome = switch (choice.outcome) {
+      XswdChoiceOutcome.allowed => loc.xswd_permission_status_allowed,
+      XswdChoiceOutcome.refused => loc.xswd_permission_status_blocked,
+      XswdChoiceOutcome.unchanged => loc.xswd_recent_unchanged,
+      XswdChoiceOutcome.expired => loc.xswd_recent_expired,
+      XswdChoiceOutcome.cancelled => loc.xswd_recent_cancelled,
+    };
+    final scope = switch (choice.scope) {
+      XswdChoiceScope.request => loc.xswd_scope_once,
+      XswdChoiceScope.connection => loc.xswd_scope_connection,
+    };
+    final isPrefetch = choice.kind == XswdNoticeKind.prefetch;
+
+    return FTile(
+      prefix: Icon(
+        choice.outcome == XswdChoiceOutcome.allowed
+            ? FLucideIcons.shieldCheck
+            : FLucideIcons.history,
+      ),
+      title: Text(title),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (isPrefetch && choice.grantedMethods.isNotEmpty) ...[
+            _XswdChoiceMethodList(
+              key: const ValueKey('xswd-choice-granted-methods'),
+              label: loc.xswd_prefetch_allow_selection,
+              methods: choice.grantedMethods,
+              loc: loc,
+            ),
+            const SizedBox(height: Spaces.small),
+          ],
+          if (isPrefetch && unchangedMethods.isNotEmpty) ...[
+            _XswdChoiceMethodList(
+              key: const ValueKey('xswd-choice-unchanged-methods'),
+              label: loc.xswd_recent_unchanged,
+              methods: unchangedMethods,
+              loc: loc,
+            ),
+            const SizedBox(height: Spaces.small),
+          ],
+          Wrap(
+            spacing: Spaces.extraSmall,
+            runSpacing: Spaces.extraSmall,
+            children: [
+              FBadge(variant: .outline, child: Text(scope)),
+              if (!isPrefetch ||
+                  (choice.outcome != XswdChoiceOutcome.allowed &&
+                      choice.outcome != XswdChoiceOutcome.unchanged))
+                FBadge(
+                  variant: choice.outcome == XswdChoiceOutcome.refused
+                      ? .destructive
+                      : .outline,
+                  child: Text(outcome),
+                ),
+            ],
+          ),
+        ],
+      ),
+      semanticsLabel: isPrefetch
+          ? '$title, $scope'
+          : '$title, $outcome, $scope',
+    );
+  }
+}
+
+class _XswdChoiceMethodList extends StatelessWidget {
+  const _XswdChoiceMethodList({
+    required this.label,
+    required this.methods,
+    required this.loc,
+    super.key,
+  });
+
+  final String label;
+  final List<String> methods;
+  final AppLocalizations loc;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label),
+        const SizedBox(height: Spaces.extraSmall),
+        Wrap(
+          spacing: Spaces.extraSmall,
+          runSpacing: Spaces.extraSmall,
+          children: [
+            for (final method in methods)
+              FBadge(
+                variant: .outline,
+                child: Text(_xswdChoiceMethodTitle(method, loc)),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+String _xswdChoiceMethodTitle(String method, AppLocalizations loc) =>
+    xswdPermissionCopy(method, tryXswdMethodPolicyForKey(method), loc).title;
+
 class _XswdPermissionTile extends StatelessWidget with FTileMixin {
   const _XswdPermissionTile({
     required this.permissionName,
@@ -426,7 +641,7 @@ class _XswdPermissionTile extends StatelessWidget with FTileMixin {
   final String permissionName;
   final XelisXswdPermissionPolicy currentPolicy;
   final AppLocalizations loc;
-  final Future<void> Function(
+  final Future<bool> Function(
     String permission,
     XelisXswdPermissionPolicy policy,
   )
@@ -528,7 +743,7 @@ class _XswdPermissionEditDialog extends StatefulWidget {
   final AppLocalizations loc;
   final FDialogStyle style;
   final Animation<double> animation;
-  final Future<void> Function(
+  final Future<bool> Function(
     String permission,
     XelisXswdPermissionPolicy policy,
   )
@@ -542,6 +757,7 @@ class _XswdPermissionEditDialog extends StatefulWidget {
 class _XswdPermissionEditDialogState extends State<_XswdPermissionEditDialog> {
   late XelisXswdPermissionPolicy _selectedPolicy;
   bool _busy = false;
+  String? _saveError;
 
   @override
   void initState() {
@@ -605,6 +821,15 @@ class _XswdPermissionEditDialogState extends State<_XswdPermissionEditDialog> {
                 ),
             ],
           ),
+          if (_saveError case final error?) ...[
+            const SizedBox(height: Spaces.small),
+            Text(
+              error,
+              style: context.theme.typography.body.sm.copyWith(
+                color: context.theme.colors.destructive,
+              ),
+            ),
+          ],
         ],
       ),
       actions: [
@@ -646,9 +871,23 @@ class _XswdPermissionEditDialogState extends State<_XswdPermissionEditDialog> {
   }
 
   Future<void> _save() async {
-    setState(() => _busy = true);
-    await widget.onChange(widget.permissionName, _selectedPolicy);
-    if (mounted) context.pop();
+    setState(() {
+      _busy = true;
+      _saveError = null;
+    });
+    final confirmed = await widget.onChange(
+      widget.permissionName,
+      _selectedPolicy,
+    );
+    if (!mounted) return;
+    if (confirmed) {
+      context.pop();
+      return;
+    }
+    setState(() {
+      _busy = false;
+      _saveError = widget.loc.xswd_permission_edit_not_confirmed;
+    });
   }
 }
 
@@ -693,39 +932,6 @@ class _DisconnectDialog extends StatelessWidget {
                 color: context.theme.colors.mutedForeground,
               ),
             ),
-            // const SizedBox(height: Spaces.medium),
-            // Container(
-            //   width: double.infinity,
-            //   padding: const EdgeInsets.symmetric(
-            //     horizontal: Spaces.medium,
-            //     vertical: Spaces.small,
-            //   ),
-            //   decoration: BoxDecoration(
-            //     color: context.theme.colors.secondary.withValues(alpha: 0.12),
-            //     borderRadius: BorderRadius.circular(8),
-            //     border: Border.all(
-            //       color: context.theme.colors.border.withValues(alpha: 0.6),
-            //     ),
-            //   ),
-            //   child: Column(
-            //     mainAxisSize: MainAxisSize.min,
-            //     children: [
-            //       Icon(
-            //         FLucideIcons.triangleAlert,
-            //         size: 20,
-            //         color: context.theme.colors.mutedForeground,
-            //       ),
-            //       const SizedBox(height: Spaces.small),
-            //       Text(
-            //         'The app will need to reconnect to request wallet access again.',
-            //         textAlign: TextAlign.center,
-            //         style: context.theme.typography.body.xs.copyWith(
-            //           color: context.theme.colors.mutedForeground,
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
           ],
         ),
       ),

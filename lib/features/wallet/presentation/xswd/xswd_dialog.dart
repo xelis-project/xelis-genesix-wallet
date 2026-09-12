@@ -8,8 +8,6 @@ import 'package:genesix/shared/widgets/components/app_dialog.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
-import 'package:genesix/features/wallet/domain/prefetch_permissions_rpc_request.dart';
-import 'package:genesix/features/wallet/domain/permission_rpc_request.dart';
 import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
 import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
 import 'package:genesix/features/wallet/domain/xswd_method_policy.dart';
@@ -67,6 +65,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
   bool _timerShouldRun = false;
   _PermissionDecisionScope _permissionDecisionScope =
       _PermissionDecisionScope.once;
+  Set<String> _selectedPrefetchMethods = const {};
   bool _detailsExpanded = false;
 
   late final XswdRequest _xswdRequestNotifier;
@@ -125,7 +124,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     if (!_xswdRequestNotifier.isCurrent(token)) return;
 
     _cancelRapidFireWait(token);
-    _xswdRequestNotifier.rejectIfCurrent(token);
+    _xswdRequestNotifier.rejectIfCurrent(token, expired: true);
 
     if (mounted && identical(_presentedRequestToken, token)) {
       context.pop();
@@ -267,6 +266,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
         _resetPresentation(previousToken, nextToken: token);
       }
       _presentedRequestToken = token;
+      _selectedPrefetchMethods = _initialPrefetchSelection(xswdState);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted ||
             ModalRoute.of(context)?.isActive == false ||
@@ -390,8 +390,20 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                           if (xswdState.prefetchPermissionsRequest
                               case final prefetchRequest?) ...[
                             _XswdMinimalPrefetchDetailsSection(
+                              key: ValueKey(token),
                               request: prefetchRequest,
+                              currentPermissions:
+                                  xswdState.prefetchCurrentPermissions,
+                              selectedMethods: _selectedPrefetchMethods,
                               loc: loc,
+                              onSelectionChanged: (methods) {
+                                if (!_xswdRequestNotifier.isCurrent(token)) {
+                                  return;
+                                }
+                                setState(() {
+                                  _selectedPrefetchMethods = methods;
+                                });
+                              },
                             ),
                             const SizedBox(height: Spaces.medium),
                           ],
@@ -399,9 +411,6 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                             expanded: _detailsExpanded,
                             appInfo: summary.application,
                             includeApplicationInfo: transactionReview != null,
-                            permissionRequest: transactionReview == null
-                                ? xswdState.permissionRpcRequest
-                                : null,
                             permissionReview: transactionReview == null
                                 ? xswdState.permissionReview
                                 : null,
@@ -425,24 +434,41 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
           );
         },
       ),
-      actions: _XswdActionFactory(
-        requestToken: token,
-        actionSet: actionSet,
-        busy: _awaitingNextRequest,
-        permissionDecisionScope: _permissionDecisionScope,
-        canPersistPermission: xswdState.permissionReview?.canPersist ?? true,
-        loc: loc,
-        onPermissionDecisionScopeChanged: (scope) {
-          setState(() {
-            _permissionDecisionScope = scope;
-          });
-        },
-        onDecision: (decision) => _handleDecision(
-          token: token,
-          xswdState: xswdState,
-          decision: decision,
-        ),
-      ).build(context),
+      actions: actionSet == _ActionSet.prefetchDecision
+          ? _buildPrefetchDecisionActions(
+              busy: _awaitingNextRequest,
+              hasSelection: _selectedPrefetchMethods.isNotEmpty,
+              loc: loc,
+              onContinue: () => _handlePrefetchDecision(
+                token: token,
+                xswdState: xswdState,
+                permissions: const {},
+              ),
+              onAllow: () => _handlePrefetchDecision(
+                token: token,
+                xswdState: xswdState,
+                permissions: _selectedPrefetchMethods,
+              ),
+            )
+          : _XswdActionFactory(
+              requestToken: token,
+              actionSet: actionSet,
+              busy: _awaitingNextRequest,
+              permissionDecisionScope: _permissionDecisionScope,
+              canPersistPermission:
+                  xswdState.permissionReview?.canPersist ?? true,
+              loc: loc,
+              onPermissionDecisionScopeChanged: (scope) {
+                setState(() {
+                  _permissionDecisionScope = scope;
+                });
+              },
+              onDecision: (decision) => _handleDecision(
+                token: token,
+                xswdState: xswdState,
+                decision: decision,
+              ),
+            ).build(context),
     );
   }
 
@@ -455,6 +481,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     _millisecondsLeft = _requestLifetime;
     _progress = 1.0;
     _permissionDecisionScope = _PermissionDecisionScope.once;
+    _selectedPrefetchMethods = const {};
     _detailsExpanded = false;
     _setSuppress(false, previousToken);
     _presentedRequestToken = nextToken;
@@ -537,6 +564,18 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
 
     if (_xswdRequestNotifier.resolveIfCurrent(token, decision)) {
       _showAcceptedConnectionToast(xswdState, decision);
+      _beginRapidFireWait(token);
+    }
+  }
+
+  void _handlePrefetchDecision({
+    required Object token,
+    required XswdRequestState xswdState,
+    required Iterable<String> permissions,
+  }) {
+    if (!_xswdRequestNotifier.isCurrent(token) || !xswdState.pending) return;
+    _stopTimer();
+    if (_xswdRequestNotifier.resolvePrefetchIfCurrent(token, permissions)) {
       _beginRapidFireWait(token);
     }
   }
@@ -797,7 +836,6 @@ class _XswdMoreDetailsAccordion extends StatelessWidget {
     required this.expanded,
     required this.appInfo,
     required this.includeApplicationInfo,
-    required this.permissionRequest,
     required this.permissionReview,
     required this.loc,
     required this.onExpandedChange,
@@ -807,7 +845,6 @@ class _XswdMoreDetailsAccordion extends StatelessWidget {
   final bool expanded;
   final XelisXswdApplication appInfo;
   final bool includeApplicationInfo;
-  final PermissionRpcRequest? permissionRequest;
   final XswdPermissionReview? permissionReview;
   final AppLocalizations loc;
   final ValueChanged<bool> onExpandedChange;
@@ -816,7 +853,7 @@ class _XswdMoreDetailsAccordion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasDescription = appInfo.description.isNotEmpty;
-    final hasPermissionDetails = permissionRequest != null;
+    final hasPermissionDetails = permissionReview != null;
     final hasFuturePermissions = appInfo.permissions.isNotEmpty;
 
     if (!includeApplicationInfo &&
@@ -856,7 +893,6 @@ class _XswdMoreDetailsAccordion extends StatelessWidget {
               if (hasPermissionDetails) ...[
                 if (hasDescription) const SizedBox(height: Spaces.medium),
                 _XswdMinimalPermissionSection(
-                  request: permissionRequest!,
                   review: permissionReview!,
                   loc: loc,
                   onAssetTap: onAssetTap,
@@ -880,13 +916,11 @@ class _XswdMoreDetailsAccordion extends StatelessWidget {
 
 class _XswdMinimalPermissionSection extends StatelessWidget {
   const _XswdMinimalPermissionSection({
-    required this.request,
     required this.review,
     required this.loc,
     required this.onAssetTap,
   });
 
-  final PermissionRpcRequest request;
   final XswdPermissionReview review;
   final AppLocalizations loc;
   final ValueChanged<String> onAssetTap;
@@ -894,7 +928,7 @@ class _XswdMinimalPermissionSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final muted = context.theme.colors.mutedForeground;
-    final hasParams = request.params != null && request.params!.isNotEmpty;
+    final hasParams = review.parameters?.isNotEmpty == true;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -904,7 +938,7 @@ class _XswdMinimalPermissionSection extends StatelessWidget {
           style: context.bodyMedium?.copyWith(color: muted),
         ),
         const SizedBox(height: Spaces.small),
-        _XswdMinimalBadge(label: request.method),
+        _XswdMinimalBadge(label: review.method),
         if (hasParams) ...[
           const SizedBox(height: Spaces.small),
           Text(
@@ -925,16 +959,35 @@ class _XswdMinimalPermissionSection extends StatelessWidget {
 
 class _XswdMinimalPrefetchDetailsSection extends StatelessWidget {
   const _XswdMinimalPrefetchDetailsSection({
+    super.key,
     required this.request,
+    required this.currentPermissions,
+    required this.selectedMethods,
     required this.loc,
+    required this.onSelectionChanged,
   });
 
-  final PrefetchPermissionsRequest request;
+  final XelisXswdPrefetchPermissionsRequest request;
+  final Map<String, XelisXswdPermissionPolicy> currentPermissions;
+  final Set<String> selectedMethods;
   final AppLocalizations loc;
+  final ValueChanged<Set<String>> onSelectionChanged;
 
   @override
   Widget build(BuildContext context) {
-    final muted = context.theme.colors.mutedForeground;
+    final selectable = <XswdMethodEffect, List<String>>{};
+    final fixed = <String>[];
+    for (final method in request.permissions) {
+      final policy = tryXswdMethodPolicyForKey(method);
+      final current =
+          currentPermissions[method] ?? XelisXswdPermissionPolicy.ask;
+      if (policy?.canPrefetch == true &&
+          current != XelisXswdPermissionPolicy.accept) {
+        selectable.putIfAbsent(policy!.effect, () => []).add(method);
+      } else {
+        fixed.add(method);
+      }
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -943,40 +996,143 @@ class _XswdMinimalPrefetchDetailsSection extends StatelessWidget {
           XswdReviewText(label: loc.reason, value: request.reason!, loc: loc),
           const SizedBox(height: Spaces.medium),
         ],
-        Text(
-          loc.permissions.capitalize(),
-          style: context.bodyMedium?.copyWith(color: muted),
-        ),
-        const SizedBox(height: Spaces.small),
-        Wrap(
-          spacing: Spaces.small,
-          runSpacing: Spaces.small,
-          children: request.permissions
-              .map((permission) => _XswdMinimalBadge(label: permission))
-              .toList(),
-        ),
-        for (final impact in _prefetchImpacts(request, loc)) ...[
-          const SizedBox(height: Spaces.small),
-          Text(impact, style: context.bodyMedium),
+        Text(loc.xswd_prefetch_selection_description),
+        for (final group in selectable.entries) ...[
+          const SizedBox(height: Spaces.medium),
+          FSelectGroup<String>(
+            key: ValueKey('xswd-prefetch-${group.key.name}'),
+            label: Text(xswdPermissionEffectTitle(group.key, loc)),
+            description: Text(xswdPermissionImpact(group.key, loc)),
+            control: .managed(
+              initial: selectedMethods.intersection(group.value.toSet()),
+              onChange: (values) {
+                final next = {...selectedMethods}..removeAll(group.value);
+                next.addAll(values);
+                onSelectionChanged(Set.unmodifiable(next));
+              },
+            ),
+            children: [
+              for (final method in group.value)
+                .checkbox(
+                  value: method,
+                  label: Text(
+                    xswdPermissionCopy(
+                      method,
+                      tryXswdMethodPolicyForKey(method),
+                      loc,
+                    ).title,
+                  ),
+                  description: _XswdPrefetchMethodDescription(
+                    method: method,
+                    description: xswdPermissionCopy(
+                      method,
+                      tryXswdMethodPolicyForKey(method),
+                      loc,
+                    ).description,
+                    status:
+                        currentPermissions[method] ==
+                            XelisXswdPermissionPolicy.reject
+                        ? loc.xswd_prefetch_previously_blocked
+                        : null,
+                  ),
+                  semanticsLabel: method,
+                ),
+            ],
+          ),
         ],
-        const SizedBox(height: Spaces.small),
-        Text(loc.xswd_permission_persistent_impact, style: context.bodyMedium),
+        if (fixed.isNotEmpty) ...[
+          const SizedBox(height: Spaces.medium),
+          FTileGroup(
+            label: Text(loc.xswd_prefetch_existing_rules),
+            children: [
+              for (final method in fixed)
+                _XswdPrefetchFixedPermissionTile(
+                  method: method,
+                  currentPolicy: currentPermissions[method],
+                  loc: loc,
+                ),
+            ],
+          ),
+        ],
       ],
     );
   }
 }
 
-Set<String> _prefetchImpacts(
-  PrefetchPermissionsRequest request,
-  AppLocalizations loc,
-) {
-  final impacts = <String>{};
-  for (final permission in request.permissions) {
-    final policy = tryXswdMethodPolicyForKey(permission);
-    if (policy == null) continue;
-    impacts.add(xswdPermissionImpact(policy.effect, loc));
+class _XswdPrefetchFixedPermissionTile extends StatelessWidget with FTileMixin {
+  const _XswdPrefetchFixedPermissionTile({
+    required this.method,
+    required this.currentPolicy,
+    required this.loc,
+  });
+
+  final String method;
+  final XelisXswdPermissionPolicy? currentPolicy;
+  final AppLocalizations loc;
+
+  @override
+  Widget build(BuildContext context) {
+    final policy = tryXswdMethodPolicyForKey(method);
+    final copy = xswdPermissionCopy(method, policy, loc);
+    final label = switch ((policy, currentPolicy)) {
+      (_, XelisXswdPermissionPolicy.accept) =>
+        loc.xswd_prefetch_already_allowed,
+      (_, XelisXswdPermissionPolicy.reject) =>
+        loc.xswd_prefetch_previously_blocked,
+      (final value?, _) when value.isSupported =>
+        loc.xswd_prefetch_requires_each_time,
+      _ => loc.xswd_permission_status_unsupported,
+    };
+    return FTile(
+      title: Text(copy.title),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _XswdPrefetchMethodDescription(
+            method: method,
+            description: copy.description,
+          ),
+          const SizedBox(height: Spaces.extraSmall),
+          FBadge(variant: .outline, child: Text(label)),
+        ],
+      ),
+      semanticsLabel: '${copy.title}, $label',
+    );
   }
-  return impacts;
+}
+
+class _XswdPrefetchMethodDescription extends StatelessWidget {
+  const _XswdPrefetchMethodDescription({
+    required this.method,
+    required this.description,
+    this.status,
+  });
+
+  final String method;
+  final String description;
+  final String? status;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(description),
+        const SizedBox(height: Spaces.extraSmall),
+        Text(
+          method,
+          style: context.theme.typography.body.xs.copyWith(
+            color: context.theme.colors.mutedForeground,
+            fontFamily: 'monospace',
+          ),
+        ),
+        if (status case final label?) ...[
+          const SizedBox(height: Spaces.extraSmall),
+          FBadge(variant: .destructive, child: Text(label)),
+        ],
+      ],
+    );
+  }
 }
 
 class _XswdMinimalFuturePermissionsSection extends StatelessWidget {
@@ -1036,10 +1192,10 @@ class _XswdPermissionPayload extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final request = review.request;
+    final parameters = review.parameters;
     Widget? builderWidget;
 
-    if (request.params == null || request.params!.isEmpty) {
+    if (parameters == null || parameters.isEmpty) {
       return const SizedBox.shrink();
     }
 
@@ -1066,10 +1222,10 @@ class _XswdPermissionPayload extends StatelessWidget {
           deployContractBuilder: builder,
         );
       }
-    } else if (request.params!.length == 1 &&
-        request.params!.containsKey('asset') &&
-        request.params!['asset'] is String) {
-      final asset = request.params!['asset'] as String;
+    } else if (parameters.length == 1 &&
+        parameters.containsKey('asset') &&
+        parameters['asset'] is String) {
+      final asset = parameters['asset'] as String;
       builderWidget = Wrap(
         spacing: Spaces.small,
         runSpacing: Spaces.small,
@@ -1090,7 +1246,7 @@ class _XswdPermissionPayload extends StatelessWidget {
 
     final Widget content =
         builderWidget ??
-        XswdJsonParametersView(parameters: request.params!, loc: loc);
+        XswdJsonParametersView(parameters: parameters, loc: loc);
 
     return _PermissionContentContainer(
       child: SingleChildScrollView(child: content),
@@ -1122,7 +1278,6 @@ class _XswdActionFactory {
   List<Widget> build(BuildContext context) {
     switch (actionSet) {
       case _ActionSet.connectionDecision:
-      case _ActionSet.prefetchDecision:
         return _buildBinaryDecisionActions(
           context: context,
           busy: busy,
@@ -1131,6 +1286,9 @@ class _XswdActionFactory {
           onDeny: () => onDecision(XelisXswdDecision.reject),
           onAllow: () => onDecision(XelisXswdDecision.accept),
         );
+
+      case _ActionSet.prefetchDecision:
+        return const [];
 
       case _ActionSet.permissionDecision:
         if (!canPersistPermission) {
@@ -1246,6 +1404,49 @@ class _XswdActionFactory {
   }
 }
 
+Set<String> _initialPrefetchSelection(XswdRequestState state) {
+  final request = state.prefetchPermissionsRequest;
+  if (request == null) return const {};
+  return Set.unmodifiable(
+    request.permissions.where((method) {
+      final policy = tryXswdMethodPolicyForKey(method);
+      final current =
+          state.prefetchCurrentPermissions[method] ??
+          XelisXswdPermissionPolicy.ask;
+      return policy?.canPrefetch == true &&
+          current == XelisXswdPermissionPolicy.ask;
+    }),
+  );
+}
+
+List<Widget> _buildPrefetchDecisionActions({
+  required bool busy,
+  required bool hasSelection,
+  required AppLocalizations loc,
+  required VoidCallback onContinue,
+  required VoidCallback onAllow,
+}) {
+  return [
+    Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _XswdDecisionButton(
+          busy: busy,
+          label: loc.xswd_prefetch_continue_without_new_permissions,
+          variant: .outline,
+          onPress: onContinue,
+        ),
+        const SizedBox(height: Spaces.small),
+        _XswdDecisionButton(
+          busy: busy,
+          label: loc.xswd_prefetch_allow_selection,
+          onPress: hasSelection ? onAllow : null,
+        ),
+      ],
+    ),
+  ];
+}
+
 class _XswdDecisionButton extends StatelessWidget {
   const _XswdDecisionButton({
     required this.busy,
@@ -1257,7 +1458,7 @@ class _XswdDecisionButton extends StatelessWidget {
   final bool busy;
   final String label;
   final FButtonVariant variant;
-  final VoidCallback onPress;
+  final VoidCallback? onPress;
 
   @override
   Widget build(BuildContext context) {

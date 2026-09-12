@@ -673,5 +673,21 @@
   "password_changed_biometric_disabled": "Nowe hasło jest aktywne. Odblokowywanie biometryczne zostało wyłączone; użyj nowego hasła.",
   "password_changed_biometric_cleanup_failed": "Nowe hasło jest aktywne. Odblokowywanie biometryczne zostało wyłączone, ale nie udało się usunąć części zapisanych danych dostępu. Pozostaw dostęp biometryczny wyłączony i użyj nowego hasła.",
   "password_change_native_state_indeterminate": "Nie udało się potwierdzić aktualizacji hasła. Zachowaj stare i nowe hasło, nie próbuj ponownie i skontaktuj się z pomocą techniczną, podając ten numer referencyjny.",
-  "support_reference": "Numer referencyjny pomocy: {reference}"
+  "support_reference": "Numer referencyjny pomocy: {reference}",
+  "xswd_prefetch_selection_description": "Wybierz uprawnienia dla tego połączenia. Wcześniej dozwolone uprawnienia pozostają aktywne; zablokowane wymagają wyraźnego wyboru.",
+  "xswd_prefetch_existing_rules": "Bieżące reguły i osobna weryfikacja",
+  "xswd_prefetch_already_allowed": "Już dozwolone",
+  "xswd_prefetch_previously_blocked": "Wcześniej zablokowane",
+  "xswd_prefetch_requires_each_time": "Sprawdzaj każde żądanie",
+  "xswd_prefetch_allow_selection": "Zezwól na wybrane",
+  "xswd_prefetch_continue_without_new_permissions": "Kontynuuj bez nowych uprawnień",
+  "xswd_recent_choices_title": "Ostatnie wybory",
+  "xswd_recent_choices_empty": "Dla tego połączenia nie zapisano jeszcze żadnych wyborów.",
+  "xswd_recent_choices_disclaimer": "Te wybory opisują Twoją zgodę. Zezwolenie nie dowodzi, że żądana operacja zakończyła się powodzeniem.",
+  "xswd_recent_unchanged": "Nie zmieniono żadnej reguły uprawnień",
+  "xswd_recent_expired": "Żądanie wygasło",
+  "xswd_recent_cancelled": "Anulowano",
+  "xswd_observation_confirmed": "Reguły uprawnień odczytane z portfela",
+  "xswd_observation_timed_out": "Portfel nie potwierdził zmiany na czas. Przed ponowieniem sprawdź bieżącą regułę.",
+  "xswd_permission_edit_not_confirmed": "Portfel nie potwierdził tej zmiany. Edytor pozostaje otwarty, aby można było spróbować ponownie."
 }

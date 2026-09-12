@@ -673,5 +673,21 @@
   "password_changed_biometric_disabled": "Новый пароль активен. Биометрическая разблокировка отключена; используйте новый пароль.",
   "password_changed_biometric_cleanup_failed": "Новый пароль активен. Биометрическая разблокировка отключена, но некоторые сохранённые данные доступа удалить не удалось. Не включайте биометрический доступ и используйте новый пароль.",
   "password_change_native_state_indeterminate": "Не удалось подтвердить обновление пароля. Сохраните старый и новый пароли, не повторяйте попытку и обратитесь в службу поддержки, указав этот идентификатор.",
-  "support_reference": "Идентификатор для поддержки: {reference}"
+  "support_reference": "Идентификатор для поддержки: {reference}",
+  "xswd_prefetch_selection_description": "Выберите разрешения для этого подключения. Ранее разрешённые действия останутся разрешёнными; заблокированные нужно выбрать явно.",
+  "xswd_prefetch_existing_rules": "Текущие правила и отдельная проверка",
+  "xswd_prefetch_already_allowed": "Уже разрешено",
+  "xswd_prefetch_previously_blocked": "Ранее заблокировано",
+  "xswd_prefetch_requires_each_time": "Проверять каждый запрос",
+  "xswd_prefetch_allow_selection": "Разрешить выбранное",
+  "xswd_prefetch_continue_without_new_permissions": "Продолжить без новых разрешений",
+  "xswd_recent_choices_title": "Недавние решения",
+  "xswd_recent_choices_empty": "Для этого подключения решений пока нет.",
+  "xswd_recent_choices_disclaimer": "Эти решения описывают ваше согласие. Разрешение не доказывает, что запрошенная операция была успешно выполнена.",
+  "xswd_recent_unchanged": "Правила разрешений не изменены",
+  "xswd_recent_expired": "Срок запроса истёк",
+  "xswd_recent_cancelled": "Отменено",
+  "xswd_observation_confirmed": "Правила разрешений прочитаны из кошелька",
+  "xswd_observation_timed_out": "Кошелёк не подтвердил изменение вовремя. Перед повторной попыткой проверьте текущее правило.",
+  "xswd_permission_edit_not_confirmed": "Кошелёк не подтвердил изменение. Редактор останется открытым для повторной попытки."
 }

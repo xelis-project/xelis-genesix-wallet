@@ -6,6 +6,7 @@ import 'dart:typed_data';
 
 const _integrationTestPath = 'integration_test/xswd_web_relayer_test.dart';
 const _controlDefine = 'GENESIX_XSWD_E2E_CONTROL';
+const _reusedWebPackageEnvironment = 'GENESIX_XSWD_E2E_XWF_WEB_PKG';
 const _applicationId =
     '1111111111111111111111111111111111111111111111111111111111111111';
 const _nativeAsset =
@@ -16,7 +17,9 @@ const _aboveJavaScriptSafeInteger = '9007199254740993';
 const _wideNonce = '9007199254740995';
 const _maximumUnsigned64 = '18446744073709551615';
 const _requestIds = <String>{
-  'decline-prefetch',
+  'partial-prefetch',
+  'no-change-prefetch',
+  'get-address',
   'subscribe',
   'unsubscribe',
   'reject-transfer',
@@ -31,7 +34,8 @@ Future<void> main(List<String> arguments) async {
     stdout.writeln(
       'Build the resolved XWF Web package and run the real Genesix XSWD '
       'relay-to-review-to-decision browser test. Start a compatible ChromeDriver '
-      'on localhost:4444 first (or set CHROMEDRIVER_PORT).',
+      'on localhost:4444 first (or set CHROMEDRIVER_PORT). Set '
+      '$_reusedWebPackageEnvironment to reuse a validated XWF Web package.',
     );
     return;
   }
@@ -51,12 +55,7 @@ Future<void> main(List<String> arguments) async {
   final chromeBinary = Platform.environment['CHROME_EXECUTABLE'];
   final fixture = await _XswdRelayFixture.start();
   try {
-    await _runChecked(
-      executable: Platform.resolvedExecutable,
-      arguments: await _resolvedWebBuildArguments(),
-      failureCode: 'xwf_web_build_failed',
-      timeout: const Duration(minutes: 90),
-    );
+    await _prepareXwfWebPackage();
     final flutter = _flutterInvocation();
     await _runChecked(
       executable: flutter.executable,
@@ -83,7 +82,8 @@ Future<void> main(List<String> arguments) async {
     );
     stdout.writeln(
       'GENESIX_XSWD_WEB_E2E_PASS '
-      'prefetch_session_preserved=true subscriptions=true '
+      'partial_prefetch=true prefetched_request=true no_change_prefetch=true '
+      'request_scope=true connection_scope=true subscriptions=true '
       'relay=true review=true approve=true reject=true app_close_reject=true '
       'session_replacement=true malformed_session_closed=true '
       'amount=$_aboveJavaScriptSafeInteger '
@@ -139,6 +139,55 @@ Future<List<String>> _resolvedWebBuildArguments() async {
     '--output',
     Directory('web/pkg').absolute.path,
   ];
+}
+
+Future<void> _prepareXwfWebPackage() async {
+  final reusedPackage = Platform.environment[_reusedWebPackageEnvironment];
+  if (reusedPackage == null || reusedPackage.trim().isEmpty) {
+    await _runChecked(
+      executable: Platform.resolvedExecutable,
+      arguments: await _resolvedWebBuildArguments(),
+      failureCode: 'xwf_web_build_failed',
+      timeout: const Duration(minutes: 90),
+    );
+    return;
+  }
+
+  final source = Directory(reusedPackage).absolute;
+  final destination = Directory('web/pkg').absolute;
+  _requireWebPackage(source);
+  if (_samePath(source.path, destination.path)) return;
+
+  if (destination.existsSync()) destination.deleteSync(recursive: true);
+  destination.createSync(recursive: true);
+  await for (final entity in source.list(recursive: true, followLinks: false)) {
+    final relative = entity.path.substring(source.path.length + 1);
+    final target = '${destination.path}${Platform.pathSeparator}$relative';
+    if (entity is Directory) {
+      Directory(target).createSync(recursive: true);
+    } else if (entity is File) {
+      File(target).parent.createSync(recursive: true);
+      entity.copySync(target);
+    } else {
+      throw StateError('xwf_web_package_contains_link');
+    }
+  }
+  _requireWebPackage(destination);
+}
+
+void _requireWebPackage(Directory directory) {
+  if (!directory.existsSync() ||
+      !File('${directory.path}/xelis_wallet_flutter.js').existsSync() ||
+      !File('${directory.path}/xelis_wallet_flutter_bg.wasm').existsSync()) {
+    throw StateError('xwf_web_package_invalid');
+  }
+}
+
+bool _samePath(String left, String right) {
+  if (Platform.isWindows) {
+    return left.toLowerCase() == right.toLowerCase();
+  }
+  return left == right;
 }
 
 Future<void> _runChecked({
@@ -218,8 +267,12 @@ final class _XswdRelayFixture {
           await _acceptRelay(request);
         case ('GET', '/state'):
           await _writeState(request.response);
-        case ('GET', '/send/decline-prefetch'):
-          await _sendScenario(request.response, 'decline-prefetch');
+        case ('GET', '/send/partial-prefetch'):
+          await _sendScenario(request.response, 'partial-prefetch');
+        case ('GET', '/send/no-change-prefetch'):
+          await _sendScenario(request.response, 'no-change-prefetch');
+        case ('GET', '/send/get-address'):
+          await _sendScenario(request.response, 'get-address');
         case ('GET', '/send/subscribe'):
           await _sendScenario(request.response, 'subscribe');
         case ('GET', '/send/unsubscribe'):
@@ -318,7 +371,8 @@ final class _XswdRelayFixture {
       return;
     }
     final request = switch (id) {
-      'decline-prefetch' => _prefetchRequest(id),
+      'partial-prefetch' || 'no-change-prefetch' => _prefetchRequest(id),
+      'get-address' => _getAddressRequest(id),
       'subscribe' || 'unsubscribe' => _subscriptionRequest(id),
       'approve-invoke' => _invokeRequest(id),
       'malformed-transfer' => _malformedTransferRequest(id),
@@ -394,11 +448,18 @@ void _setCorsHeaders(HttpResponse response) {
 String _transferRequest(String id) =>
     '''{"jsonrpc":"2.0","id":"$id","method":"wallet.build_transaction","params":{"transfers":[{"asset":"$_nativeAsset","amount":$_aboveJavaScriptSafeInteger,"destination":"$_canonicalAddress","encrypt_extra_data":false}],"fee":{"fixed":$_maximumUnsigned64},"fee_limit":$_maximumUnsigned64,"nonce":$_wideNonce,"tx_version":0,"broadcast":false,"tx_as_hex":true}}''';
 
-String _prefetchRequest(String id) =>
-    '''{"jsonrpc":"2.0","id":"$id","method":"xswd.prefetch_permissions","params":{"permissions":["get_address","subscribe","build_transaction"]}}''';
+String _prefetchRequest(String id) {
+  final permissions = id == 'partial-prefetch'
+      ? '["get_address","subscribe","build_transaction"]'
+      : '["build_transaction"]';
+  return '''{"jsonrpc":"2.0","id":"$id","method":"xswd.prefetch_permissions","params":{"permissions":$permissions}}''';
+}
 
 String _subscriptionRequest(String method) =>
     '''{"jsonrpc":"2.0","id":"$method","method":"wallet.$method","params":{"notify":"balance_changed"}}''';
+
+String _getAddressRequest(String id) =>
+    '''{"jsonrpc":"2.0","id":"$id","method":"wallet.get_address"}''';
 
 String _invokeRequest(String id) =>
     // The real fixture wallet is offline. Allow must reach build_transaction,

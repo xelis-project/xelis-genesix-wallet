@@ -32,6 +32,184 @@ import '../../../helpers/xswd_test_payload.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  test(
+    'observation timeout refreshes cached rules without assuming success',
+    () async {
+      final repository = _FakeNativeWalletRepository('a');
+      final container = _connectedXswdContainer(repository);
+      addTearDown(container.dispose);
+      await container.read(xswdControllerProvider).startXSWD(repository);
+      final subscription = container.listen(
+        xswdApplicationsProvider,
+        (_, _) {},
+      );
+      addTearDown(subscription.close);
+      expect(await container.read(xswdApplicationsProvider.future), isEmpty);
+
+      repository.xswdApplications = [_application];
+      final timeout = XelisXswdApplicationStateTimedOut(_application, 1);
+      repository.callbacks!.onApplicationStateObservation!(timeout);
+
+      expect(await container.read(xswdApplicationsProvider.future), [
+        _application,
+      ]);
+      expect(
+        container.read(
+          xswdApplicationObservationsProvider,
+        )[_application.sessionReference],
+        same(timeout),
+      );
+    },
+  );
+
+  test(
+    'failed normalization closes only its origin session and prevents startup',
+    () async {
+      final repository = _FakeNativeWalletRepository('a');
+      final application = XelisXswdApplication(
+        id: 'legacy',
+        name: 'Orbit Workshop',
+        description: '',
+        url: null,
+        permissions: const {
+          'sign_data': XelisXswdPermissionPolicy.accept,
+          'build_transaction': XelisXswdPermissionPolicy.accept,
+          'get_balance': XelisXswdPermissionPolicy.accept,
+        },
+        isRelayer: false,
+      );
+      repository.xswdApplications = [application, _application];
+      repository.permissionUpdateErrorAt = 2;
+      final container = _connectedXswdContainer(repository);
+      addTearDown(container.dispose);
+      expect(
+        await container.read(xswdControllerProvider).startXSWD(repository),
+        isFalse,
+      );
+      expect(repository.callbacks, isNull);
+      expect(repository.permissionUpdates, [
+        {'sign_data': XelisXswdPermissionPolicy.ask},
+        {'build_transaction': XelisXswdPermissionPolicy.ask},
+      ]);
+      expect(repository.removedApplications, [application.sessionReference]);
+    },
+  );
+
+  for (final event in ['cancel', 'disconnect', 'wallet']) {
+    test(
+      'a $event during prefetch state read cannot install a stale approval',
+      () async {
+        final repository = _FakeNativeWalletRepository('a');
+        final container = _connectedXswdContainer(repository);
+        addTearDown(container.dispose);
+        await container.read(xswdControllerProvider).startXSWD(repository);
+        repository.xswdApplications = [_application];
+        final gate = Completer<void>();
+        repository.stateReadGate = gate;
+        if (event == 'cancel') {
+          repository.stateReadError = StateError('Cancelled read failed');
+        }
+        final effects = <WalletEffect>[];
+        container.listen(walletEffectBusProvider, (_, next) {
+          if (next != null) effects.add(next.effect);
+        });
+        final request = XelisXswdRequest(
+          kind: XelisXswdRequestKind.prefetchPermissions,
+          application: _application,
+          payload: xswdTestPayload({
+            'permissions': ['get_balance', 'build_transaction'],
+          }),
+        );
+        final callbacks = repository.callbacks!;
+        final result = callbacks.onPrefetchPermissionsReview!(
+          request.prefetchPermissionsRequest!,
+        );
+        if (event == 'wallet') {
+          container
+              .read(activeWalletSessionProvider.notifier)
+              .setSession(
+                WalletSession(
+                  name: 'b',
+                  repository: _FakeNativeWalletRepository('b'),
+                ),
+              );
+        } else {
+          final lifecycle = XelisXswdRequest(
+            kind: event == 'cancel'
+                ? XelisXswdRequestKind.cancel
+                : XelisXswdRequestKind.applicationDisconnect,
+            application: _application,
+          );
+          if (event == 'cancel') {
+            await callbacks.onCancelRequest(lifecycle);
+          } else {
+            await callbacks.onApplicationDisconnect(lifecycle);
+          }
+        }
+        gate.complete();
+        expect(await result, isA<XelisXswdPrefetchNoChange>());
+        expect(container.read(xswdRequestProvider).pending, isFalse);
+        expect(container.read(xswdRequestProvider).token, isNull);
+        expect(repository.permissionUpdates, isEmpty);
+        expect(effects.whereType<WalletFailureEffect>(), isEmpty);
+      },
+    );
+  }
+
+  test('permission edits target one method and discard completion from an old wallet', () async {
+    final repository = _FakeNativeWalletRepository('a');
+    final container = _connectedXswdContainer(repository);
+    addTearDown(container.dispose);
+    final controller = container.read(xswdControllerProvider);
+    final application = XelisXswdApplication(
+      id: 'orbit',
+      name: 'Orbit Workshop',
+      description: '',
+      url: null,
+      permissions: const {
+        'get_balance': XelisXswdPermissionPolicy.reject,
+        'subscribe': XelisXswdPermissionPolicy.accept,
+      },
+      isRelayer: false,
+    );
+    expect(
+      await controller.editXswdAppPermission(
+        application,
+        'build_transaction',
+        XelisXswdPermissionPolicy.accept,
+      ),
+      isFalse,
+    );
+    expect(repository.permissionUpdates, isEmpty);
+    expect(
+      await controller.editXswdAppPermission(
+        application,
+        'get_balance',
+        XelisXswdPermissionPolicy.reject,
+      ),
+      isTrue,
+    );
+    expect(repository.permissionUpdates, [
+      {'get_balance': XelisXswdPermissionPolicy.reject},
+    ]);
+    final gate = Completer<void>();
+    repository.permissionUpdateGate = gate;
+    final pending = controller.editXswdAppPermission(
+      application,
+      'get_balance',
+      XelisXswdPermissionPolicy.reject,
+    );
+    container
+        .read(activeWalletSessionProvider.notifier)
+        .setSession(WalletSession(name: 'replacement', repository: repository));
+    gate.complete();
+    expect(await pending, isFalse);
+    expect(
+      application.permissions['subscribe'],
+      XelisXswdPermissionPolicy.accept,
+    );
+  });
+
   for (final outcome in [
     'accept',
     'alwaysAccept',
@@ -212,9 +390,10 @@ void main() {
             .read(activeWalletSessionProvider.notifier)
             .setSession(WalletSession(name: 'a', repository: repository));
         await container.read(xswdControllerProvider).startXSWD(repository);
+        repository.xswdApplications = [_application];
         final start = talker.history.length;
-        final result = Future<XelisXswdDecision>.value(
-          repository.callbacks!.onPrefetchPermissionsRequest(
+        final result = Future<XelisXswdPrefetchDecision>.value(
+          repository.callbacks!.onPrefetchPermissionsReview!(
             XelisXswdRequest(
               kind: XelisXswdRequestKind.prefetchPermissions,
               application: _application,
@@ -223,20 +402,22 @@ void main() {
                 'reason': 'SENSITIVE_REASON',
                 'params': {'private_key': 'SENSITIVE_KEY'},
               }),
-            ),
+            ).prefetchPermissionsRequest!,
           ),
         );
         if (method == 'get_balance') {
+          await Future<void>.delayed(Duration.zero);
           final token = container.read(xswdRequestProvider).token!;
-          container
-              .read(xswdRequestProvider.notifier)
-              .resolveIfCurrent(token, XelisXswdDecision.accept);
+          container.read(xswdRequestProvider.notifier).resolvePrefetchIfCurrent(
+            token,
+            [method],
+          );
         }
         expect(
           await result,
           method == 'get_balance'
-              ? XelisXswdDecision.accept
-              : XelisXswdDecision.reject,
+              ? isA<XelisXswdPrefetchGrant>()
+              : isA<XelisXswdPrefetchNoChange>(),
         );
         final entries = talker.history.skip(start).toList();
         final diagnosticEntries = entries
@@ -298,8 +479,10 @@ void main() {
             }),
           );
           expect(
-            await repository.callbacks!.onPrefetchPermissionsRequest(invalid),
-            XelisXswdDecision.reject,
+            await repository.callbacks!.onPrefetchPermissionsReview!(
+              invalid.prefetchPermissionsRequest!,
+            ),
+            isA<XelisXswdPrefetchNoChange>(),
           );
           await repository.callbacks!.onApplicationDisconnect(
             XelisXswdRequest(
@@ -470,25 +653,17 @@ void main() {
       final preservedState = container.read(xswdRequestProvider);
       final logStart = talker.history.length;
 
-      final result = await callbacks.onPrefetchPermissionsRequest(
+      final result = await callbacks.onPrefetchPermissionsReview!(
         XelisXswdRequest(
           kind: XelisXswdRequestKind.prefetchPermissions,
           application: _application,
           payload: xswdTestPayload({
-            'permissions': [
-              'get_address',
-              'get_balance',
-              'subscribe',
-              'build_transaction',
-              'get_asset',
-              'get_assets',
-              'network_info',
-            ],
+            'permissions': ['build_transaction'],
             'reason': 'SENSITIVE_REASON',
           }),
-        ),
+        ).prefetchPermissionsRequest!,
       );
-      expect(result, XelisXswdDecision.reject);
+      expect(result, isA<XelisXswdPrefetchNoChange>());
       final effect =
           container.read(walletEffectBusProvider)!.effect as WalletInfoEffect;
       expect(effect.title, loc.xswd_prefetch_not_granted(_application.name));
@@ -514,10 +689,6 @@ void main() {
         expect(records[1]['validation'], 'passed');
         expect(records[2]['decision'], 'reject');
         expect(records[2]['disposition'], 'prefetchDeclined');
-        expect(
-          records[2]['methods'],
-          contains(equals({'name': 'subscribe', 'policy': 'supported'})),
-        );
         expect(
           records[2]['methods'],
           contains(
@@ -892,6 +1063,27 @@ void main() {
   );
 }
 
+ProviderContainer _connectedXswdContainer(
+  _FakeNativeWalletRepository repository,
+) {
+  final container = ProviderContainer(
+    overrides: [
+      appLocalizationsProvider.overrideWithValue(AppLocalizationsEn()),
+      settingsProvider.overrideWithValue(
+        const SettingsState(locale: Locale('en'), enableXswd: true),
+      ),
+      walletRuntimeProvider.overrideWithValue(_connectedRuntime),
+      xswdNotificationServiceProvider.overrideWithValue(
+        _FakeXswdNotificationService(),
+      ),
+    ],
+  );
+  container
+      .read(activeWalletSessionProvider.notifier)
+      .setSession(WalletSession(name: 'a', repository: repository));
+  return container;
+}
+
 ProviderContainer _lifecycleContainer(_FakeXswdController controller) {
   return ProviderContainer(
     overrides: [
@@ -955,6 +1147,10 @@ final class _FakeNativeWalletRepository implements NativeWalletRepository {
   final List<Map<String, XelisXswdPermissionPolicy>> permissionUpdates = [];
   Completer<void>? removeGate;
   Completer<void>? stopGate;
+  Completer<void>? stateReadGate;
+  Object? stateReadError;
+  Completer<void>? permissionUpdateGate;
+  int? permissionUpdateErrorAt;
   Object? stopError;
   int stopCalls = 0;
   int xswdStateReads = 0;
@@ -974,10 +1170,10 @@ final class _FakeNativeWalletRepository implements NativeWalletRepository {
   @override
   Future<XelisXswdState> getXswdState() async {
     xswdStateReads++;
-    return XelisXswdState(
-      isRunning: false,
-      applications: List.unmodifiable(xswdApplications),
-    );
+    final snapshot = List<XelisXswdApplication>.unmodifiable(xswdApplications);
+    await stateReadGate?.future;
+    if (stateReadError case final error?) throw error;
+    return XelisXswdState(isRunning: false, applications: snapshot);
   }
 
   @override
@@ -1006,11 +1202,17 @@ final class _FakeNativeWalletRepository implements NativeWalletRepository {
   }
 
   @override
-  Future<void> modifyXSWDAppPermissions(
-    XelisXswdApplication application,
-    Map<String, XelisXswdPermissionPolicy> permissions,
-  ) async {
-    permissionUpdates.add(Map.of(permissions));
+  Future<XelisXswdApplication> updateXswdApplicationPermission({
+    required XelisXswdApplication application,
+    required String permission,
+    required XelisXswdPermissionPolicy policy,
+  }) async {
+    permissionUpdates.add({permission: policy});
+    if (permissionUpdateErrorAt == permissionUpdates.length) {
+      throw StateError('Simulated native update failure');
+    }
+    await permissionUpdateGate?.future;
+    return application;
   }
 
   @override

@@ -673,5 +673,21 @@
   "password_changed_biometric_disabled": "A nova palavra-passe está ativa. O desbloqueio biométrico foi desativado; utilize a nova palavra-passe.",
   "password_changed_biometric_cleanup_failed": "A nova palavra-passe está ativa. O desbloqueio biométrico foi desativado, mas não foi possível remover alguns dados de acesso guardados. Mantenha o acesso biométrico desativado e utilize a nova palavra-passe.",
   "password_change_native_state_indeterminate": "Não foi possível confirmar a atualização da palavra-passe. Guarde a palavra-passe antiga e a nova, não tente novamente e contacte o suporte indicando esta referência.",
-  "support_reference": "Referência de suporte: {reference}"
+  "support_reference": "Referência de suporte: {reference}",
+  "xswd_prefetch_selection_description": "Escolha as permissões a conceder para esta conexão. As permissões já permitidas permanecem ativas; as bloqueadas exigem seleção explícita.",
+  "xswd_prefetch_existing_rules": "Regras atuais e análise individual",
+  "xswd_prefetch_already_allowed": "Já permitida",
+  "xswd_prefetch_previously_blocked": "Bloqueada anteriormente",
+  "xswd_prefetch_requires_each_time": "Analisar cada pedido",
+  "xswd_prefetch_allow_selection": "Permitir seleção",
+  "xswd_prefetch_continue_without_new_permissions": "Continuar sem novas permissões",
+  "xswd_recent_choices_title": "Escolhas recentes",
+  "xswd_recent_choices_empty": "Ainda não há escolhas registadas para esta conexão.",
+  "xswd_recent_choices_disclaimer": "Estas escolhas descrevem o seu consentimento. Uma escolha permitida não prova que a operação pedida foi executada com sucesso.",
+  "xswd_recent_unchanged": "Nenhuma regra de permissão foi alterada",
+  "xswd_recent_expired": "Pedido expirado",
+  "xswd_recent_cancelled": "Cancelado",
+  "xswd_observation_confirmed": "Regras de permissão lidas da carteira",
+  "xswd_observation_timed_out": "A carteira não confirmou a alteração a tempo. Verifique a regra atual antes de tentar novamente.",
+  "xswd_permission_edit_not_confirmed": "A carteira não confirmou esta alteração. O editor permanece aberto para poder tentar novamente."
 }

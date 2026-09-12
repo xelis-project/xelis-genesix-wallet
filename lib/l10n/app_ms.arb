@@ -673,5 +673,21 @@
   "password_changed_biometric_disabled": "Kata laluan baharu anda telah aktif. Buka kunci biometrik telah dinyahdayakan; gunakan kata laluan baharu.",
   "password_changed_biometric_cleanup_failed": "Kata laluan baharu anda telah aktif. Buka kunci biometrik telah dinyahdayakan, tetapi sesetengah data akses yang disimpan tidak dapat dipadamkan. Kekalkan akses biometrik dinyahdayakan dan gunakan kata laluan baharu.",
   "password_change_native_state_indeterminate": "Kemas kini kata laluan tidak dapat disahkan. Simpan kedua-dua kata laluan lama dan baharu, jangan cuba lagi dan hubungi sokongan dengan memberikan rujukan ini.",
-  "support_reference": "Rujukan sokongan: {reference}"
+  "support_reference": "Rujukan sokongan: {reference}",
+  "xswd_prefetch_selection_description": "Pilih kebenaran yang akan diberikan untuk sambungan ini. Kebenaran yang telah dibenarkan kekal aktif; yang disekat mesti dipilih dengan jelas.",
+  "xswd_prefetch_existing_rules": "Peraturan semasa dan semakan individu",
+  "xswd_prefetch_already_allowed": "Sudah dibenarkan",
+  "xswd_prefetch_previously_blocked": "Disekat sebelum ini",
+  "xswd_prefetch_requires_each_time": "Semak setiap permintaan",
+  "xswd_prefetch_allow_selection": "Benarkan pilihan",
+  "xswd_prefetch_continue_without_new_permissions": "Teruskan tanpa kebenaran baharu",
+  "xswd_recent_choices_title": "Pilihan terkini",
+  "xswd_recent_choices_empty": "Belum ada pilihan direkodkan untuk sambungan ini.",
+  "xswd_recent_choices_disclaimer": "Pilihan ini menerangkan persetujuan anda. Pilihan yang dibenarkan tidak membuktikan operasi berjaya dijalankan.",
+  "xswd_recent_unchanged": "Tiada peraturan kebenaran diubah",
+  "xswd_recent_expired": "Permintaan tamat tempoh",
+  "xswd_recent_cancelled": "Dibatalkan",
+  "xswd_observation_confirmed": "Peraturan kebenaran dibaca daripada dompet",
+  "xswd_observation_timed_out": "Dompet tidak mengesahkan perubahan tepat pada masanya. Semak peraturan semasa sebelum mencuba lagi.",
+  "xswd_permission_edit_not_confirmed": "Dompet tidak mengesahkan perubahan ini. Editor kekal terbuka supaya anda boleh mencuba lagi."
 }

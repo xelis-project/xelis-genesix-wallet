@@ -1,5 +1,6 @@
+import '../../../helpers/xswd_test_payload.dart';
+
 import 'package:flutter_test/flutter_test.dart';
-import 'package:genesix/features/wallet/domain/permission_rpc_request.dart';
 import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
 import 'package:genesix/features/wallet/domain/xswd_rpc_budget.dart';
 
@@ -59,11 +60,7 @@ void main() {
     ]) {
       expect(
         () => XswdPermissionReview.parse(
-          PermissionRpcRequest(
-            jsonrpc: '2.0',
-            method: 'build_transaction',
-            params: params,
-          ),
+          xswdTestPermission(method: 'build_transaction', params: params),
         ),
         throwsFormatException,
       );
@@ -73,8 +70,7 @@ void main() {
   test('invoke review applies the budget before SDK hex decoding', () {
     expect(
       () => XswdPermissionReview.parse(
-        PermissionRpcRequest(
-          jsonrpc: '2.0',
+        xswdTestPermission(
           method: 'build_transaction',
           params: {
             'invoke_contract': {

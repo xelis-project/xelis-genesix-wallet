@@ -673,5 +673,21 @@
   "password_changed_biometric_disabled": "आपका नया पासवर्ड सक्रिय है। बायोमेट्रिक अनलॉक अक्षम कर दिया गया है; नए पासवर्ड का उपयोग करें।",
   "password_changed_biometric_cleanup_failed": "आपका नया पासवर्ड सक्रिय है। बायोमेट्रिक अनलॉक अक्षम कर दिया गया है, लेकिन सहेजे गए कुछ एक्सेस डेटा को हटाया नहीं जा सका। बायोमेट्रिक एक्सेस अक्षम रखें और नए पासवर्ड का उपयोग करें।",
   "password_change_native_state_indeterminate": "पासवर्ड अपडेट की पुष्टि नहीं हो सकी। पुराना और नया दोनों पासवर्ड सुरक्षित रखें, दोबारा प्रयास न करें और यह संदर्भ देकर सहायता से संपर्क करें।",
-  "support_reference": "सहायता संदर्भ: {reference}"
+  "support_reference": "सहायता संदर्भ: {reference}",
+  "xswd_prefetch_selection_description": "इस कनेक्शन के लिए अनुमतियाँ चुनें। पहले से अनुमत चीज़ें सक्रिय रहेंगी; ब्लॉक की गई अनुमति को स्पष्ट रूप से चुनना होगा।",
+  "xswd_prefetch_existing_rules": "मौजूदा नियम और व्यक्तिगत समीक्षा",
+  "xswd_prefetch_already_allowed": "पहले से अनुमत",
+  "xswd_prefetch_previously_blocked": "पहले ब्लॉक किया गया",
+  "xswd_prefetch_requires_each_time": "हर अनुरोध की समीक्षा करें",
+  "xswd_prefetch_allow_selection": "चुने हुए को अनुमति दें",
+  "xswd_prefetch_continue_without_new_permissions": "नई अनुमति के बिना जारी रखें",
+  "xswd_recent_choices_title": "हाल के चुनाव",
+  "xswd_recent_choices_empty": "इस कनेक्शन के लिए अभी कोई चुनाव दर्ज नहीं है।",
+  "xswd_recent_choices_disclaimer": "ये चुनाव आपकी सहमति बताते हैं। अनुमति देना यह साबित नहीं करता कि अनुरोधित कार्रवाई सफल हुई।",
+  "xswd_recent_unchanged": "किसी अनुमति नियम में बदलाव नहीं हुआ",
+  "xswd_recent_expired": "अनुरोध की समय सीमा समाप्त",
+  "xswd_recent_cancelled": "रद्द किया गया",
+  "xswd_observation_confirmed": "अनुमति नियम वॉलेट से पढ़े गए",
+  "xswd_observation_timed_out": "वॉलेट ने समय पर बदलाव की पुष्टि नहीं की। फिर से प्रयास करने से पहले मौजूदा नियम जाँचें।",
+  "xswd_permission_edit_not_confirmed": "वॉलेट ने इस बदलाव की पुष्टि नहीं की। दोबारा प्रयास करने के लिए संपादक खुला रहेगा।"
 }
