@@ -10,6 +10,7 @@ import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/presentation/xswd/components/xswd_full_value_view.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_dialog.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_dialog_host.dart';
+import 'package:genesix/features/wallet/presentation/xswd/xswd_permission_copy.dart';
 import 'package:genesix/shared/theme/theme.dart';
 import 'package:genesix/src/generated/l10n/app_localizations_en.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
@@ -31,7 +32,7 @@ void main() {
     (method: 'unsubscribe', event: 'new_transaction'),
   ]) {
     final method = reviewCase.method;
-    testWidgets('$method explains and binds remembered approval', (
+    testWidgets('$method explains explicit connection-scoped approval', (
       tester,
     ) async {
       final loc = AppLocalizationsEn();
@@ -63,26 +64,35 @@ void main() {
           ),
         ),
       );
-      final impact = switch (method) {
-        'get_balance' => loc.xswd_permission_wallet_data_impact,
-        'store' => loc.xswd_permission_app_storage_impact,
-        'subscribe' => loc.xswd_permission_subscription_impact,
-        'unsubscribe' => loc.xswd_permission_unsubscription_impact,
-        _ => loc.xswd_permission_public_impact,
-      };
-      expect(find.text(impact).hitTestable(), findsOneWidget);
+      final review = container.read(xswdRequestProvider).permissionReview!;
+      final copy = xswdPermissionCopy(method, review.policy, loc);
+      expect(find.text(copy.title).hitTestable(), findsOneWidget);
+      expect(find.text(copy.description).hitTestable(), findsOneWidget);
       if (reviewCase.event case final event?) {
-        expect(find.text(event).hitTestable(), findsOneWidget);
+        expect(
+          find
+              .text(xswdWalletEventLabel(WalletEvent.fromStr(event), loc))
+              .hitTestable(),
+          findsOneWidget,
+        );
+        await tester.ensureVisible(
+          find.text(loc.xswd_subscription_connection_scope),
+        );
+        expect(
+          find.text(loc.xswd_subscription_connection_scope).hitTestable(),
+          findsOneWidget,
+        );
       }
-      expect(find.text(loc.xswd_permission_persistent_impact), findsNothing);
       expect(container.read(xswdRequestProvider).pending, isTrue);
-      final remember = find.text(loc.remember_my_decision);
-      await tester.ensureVisible(remember);
-      await tester.tap(remember);
+      expect(find.text(loc.xswd_allow_once), findsOneWidget);
+      expect(find.text(loc.xswd_deny_once), findsOneWidget);
+      final connectionScope = find.text(loc.xswd_scope_connection);
+      await tester.ensureVisible(connectionScope);
+      await tester.tap(connectionScope);
       await tester.pump(const Duration(milliseconds: 150));
-      expect(find.text(loc.xswd_permission_persistent_impact), findsOneWidget);
       expect(container.read(xswdRequestProvider).pending, isTrue);
-      final allow = find.text(loc.allow);
+      expect(find.text(loc.xswd_block_for_connection), findsOneWidget);
+      final allow = find.text(loc.xswd_allow_for_connection);
       await tester.ensureVisible(allow);
       await tester.tap(allow);
       await tester.pump(const Duration(milliseconds: 150));
@@ -572,10 +582,10 @@ void main() {
       );
 
       expect(presentedTokens.single, same(firstToken));
-      await tester.tap(find.text(loc.remember_my_decision));
+      await tester.tap(find.text(loc.xswd_scope_connection));
       await tester.pump(const Duration(milliseconds: 150));
       final oldAllowButton = tester.widget<FButton>(
-        find.widgetWithText(FButton, loc.allow),
+        find.widgetWithText(FButton, loc.xswd_allow_for_connection),
       );
       oldAllowButton.onPress?.call();
       await tester.pump();
@@ -589,7 +599,22 @@ void main() {
       await tester.pump();
 
       expect(presentedTokens.last, same(secondToken));
-      expect(tester.widget<FSwitch>(find.byType(FSwitch)).value, isFalse);
+      expect(find.text(loc.xswd_scope_once), findsOneWidget);
+      expect(find.text(loc.xswd_allow_once), findsOneWidget);
+      expect(
+        tester
+            .widget<FRadio>(find.widgetWithText(FRadio, loc.xswd_scope_once))
+            .value,
+        isTrue,
+      );
+      expect(
+        tester
+            .widget<FRadio>(
+              find.widgetWithText(FRadio, loc.xswd_scope_connection),
+            )
+            .value,
+        isFalse,
+      );
       expect(container.read(xswdRequestProvider).suppressXswdToast, isFalse);
 
       oldAllowButton.onPress?.call();

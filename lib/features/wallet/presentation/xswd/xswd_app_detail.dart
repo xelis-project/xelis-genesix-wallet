@@ -38,7 +38,7 @@ class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
 
     return FScaffold(
       header: FHeader.nested(
-        title: Text('${loc.applications} ${loc.details}'),
+        title: Text(loc.xswd_app_details_title),
         prefixes: [
           Padding(
             padding: const EdgeInsets.all(Spaces.small),
@@ -259,21 +259,21 @@ class _XswdAppDetailContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _XswdAppInfoCard(app: app, loc: loc, onOpenUrl: onOpenUrl),
-              const SizedBox(height: Spaces.large),
-              _XswdPermissionsSection(
-                app: app,
-                loc: loc,
-                onPermissionChange: onPermissionChange,
-              ),
-              const SizedBox(height: Spaces.large),
-              SizedBox(
-                width: double.infinity,
+              _XswdAppSummary(app: app, loc: loc, onOpenUrl: onOpenUrl),
+              const SizedBox(height: Spaces.small),
+              Align(
+                alignment: Alignment.centerRight,
                 child: FButton(
                   variant: .destructive,
                   onPress: onDisconnect,
                   child: Text(loc.disconnect),
                 ),
+              ),
+              const SizedBox(height: Spaces.large),
+              _XswdPermissionsSection(
+                app: app,
+                loc: loc,
+                onPermissionChange: onPermissionChange,
               ),
             ],
           ),
@@ -283,8 +283,8 @@ class _XswdAppDetailContent extends StatelessWidget {
   }
 }
 
-class _XswdAppInfoCard extends StatelessWidget {
-  const _XswdAppInfoCard({
+class _XswdAppSummary extends StatelessWidget {
+  const _XswdAppSummary({
     required this.app,
     required this.loc,
     required this.onOpenUrl,
@@ -296,85 +296,67 @@ class _XswdAppInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final muted = context.theme.colors.mutedForeground;
-
-    return AppCard(
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(app.name, style: context.theme.typography.display.xl),
-          if (app.url != null && app.url!.isNotEmpty) ...[
-            const SizedBox(height: Spaces.small),
-            Row(
-              children: [
-                Icon(FLucideIcons.link, size: 16, color: muted),
-                const SizedBox(width: Spaces.extraSmall),
-                Expanded(
-                  child: FTappable(
-                    semanticsTooltip: loc.open_button,
-                    onPress: () => onOpenUrl(app.url!),
-                    builder: (context, states, child) => DecoratedBox(
-                      decoration: BoxDecoration(
-                        color:
-                            states.contains(FTappableVariant.hovered) ||
-                                states.contains(FTappableVariant.pressed)
-                            ? context.theme.colors.secondary
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: child,
-                    ),
-                    child: Text(
-                      app.url!,
-                      style: context.theme.typography.body.sm.copyWith(
-                        color: context.theme.colors.primary,
-                        decoration: TextDecoration.underline,
-                        decorationColor: context.theme.colors.primary,
-                      ),
+    final url = app.url?.trim();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        FTileGroup(
+          label: Text(app.name),
+          children: [
+            FTile(
+              prefix: const Icon(FLucideIcons.activity),
+              title: Text(loc.status),
+              details: FBadge(child: Text(loc.xswd_connection_active)),
+            ),
+            if (url != null && url.isNotEmpty)
+              FTile(
+                prefix: const Icon(FLucideIcons.link),
+                title: Text(url),
+                subtitle: Text(loc.xswd_declared_origin),
+                suffix: const Icon(FLucideIcons.externalLink),
+                semanticsTooltip: loc.open_button,
+                onPress: () => onOpenUrl(url),
+              ),
+          ],
+        ),
+        const SizedBox(height: Spaces.small),
+        FAccordion(
+          children: [
+            FAccordionItem(
+              title: Text(loc.xswd_application_technical_details),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    loc.id,
+                    style: context.theme.typography.body.xs.copyWith(
+                      color: context.theme.colors.mutedForeground,
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
-          const SizedBox(height: Spaces.medium),
-          Text(
-            '${loc.applications} ${loc.id}',
-            style: context.theme.typography.body.xs.copyWith(
-              color: muted,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: Spaces.extraSmall),
-          SelectableText(
-            app.id,
-            style: context.theme.typography.body.sm.copyWith(
-              fontFamily: 'monospace',
-            ),
-          ),
-          if (app.description.isNotEmpty) ...[
-            const SizedBox(height: Spaces.small),
-            FDivider(
-              style: .delta(
-                padding: .value(.symmetric(vertical: Spaces.extraSmall)),
-                color: context.theme.colors.primary,
-                width: 1,
+                  const SizedBox(height: Spaces.extraSmall),
+                  SelectableText(
+                    app.id,
+                    style: context.theme.typography.body.sm.copyWith(
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                  if (app.description.isNotEmpty) ...[
+                    const SizedBox(height: Spaces.medium),
+                    Text(
+                      loc.description,
+                      style: context.theme.typography.body.xs.copyWith(
+                        color: context.theme.colors.mutedForeground,
+                      ),
+                    ),
+                    const SizedBox(height: Spaces.extraSmall),
+                    Text(app.description),
+                  ],
+                ],
               ),
             ),
-            const SizedBox(height: Spaces.small),
-            Text(
-              loc.description,
-              style: context.theme.typography.body.xs.copyWith(
-                color: muted,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: Spaces.extraSmall),
-            Text(app.description, style: context.theme.typography.body.sm),
           ],
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -403,17 +385,6 @@ class _XswdPermissionsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                loc.permissions,
-                style: context.theme.typography.display.lg,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: Spaces.medium),
         if (sortedPermissions.isEmpty)
           AppCard(
             clipBehavior: Clip.antiAlias,
@@ -425,24 +396,27 @@ class _XswdPermissionsSection extends StatelessWidget {
             ),
           )
         else
-          ...sortedPermissions.map(
-            (entry) => Padding(
-              padding: const EdgeInsets.only(bottom: Spaces.small),
-              child: _XswdPermissionCard(
-                permissionName: entry.key,
-                currentPolicy: entry.value,
-                loc: loc,
-                onChange: onPermissionChange,
-              ),
-            ),
+          FTileGroup(
+            label: Text(loc.permissions),
+            description: Text(loc.xswd_permissions_connection_scope),
+            children: sortedPermissions
+                .map(
+                  (entry) => _XswdPermissionTile(
+                    permissionName: entry.key,
+                    currentPolicy: entry.value,
+                    loc: loc,
+                    onChange: onPermissionChange,
+                  ),
+                )
+                .toList(),
           ),
       ],
     );
   }
 }
 
-class _XswdPermissionCard extends StatelessWidget {
-  const _XswdPermissionCard({
+class _XswdPermissionTile extends StatelessWidget with FTileMixin {
+  const _XswdPermissionTile({
     required this.permissionName,
     required this.currentPolicy,
     required this.loc,
@@ -462,145 +436,219 @@ class _XswdPermissionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final policy = tryXswdMethodPolicyForKey(permissionName);
     final allowAccept = policy?.canPersist ?? false;
-    final impact = policy == null || !policy.isSupported
-        ? loc.xswd_permission_unsupported_impact
-        : xswdPermissionImpact(policy.effect, loc);
+    final supported = policy?.isSupported ?? false;
+    final copy = xswdPermissionCopy(permissionName, policy, loc);
     final effectivePolicy =
         !allowAccept && currentPolicy == XelisXswdPermissionPolicy.accept
         ? XelisXswdPermissionPolicy.ask
         : currentPolicy;
+    final status = _xswdPolicyLabel(effectivePolicy, loc);
+    final statusVariant = _xswdPolicyBadgeVariant(effectivePolicy);
 
-    return FCard(
-      clipBehavior: Clip.antiAlias,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(Spaces.small),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: context.theme.colors.primary.withValues(alpha: 0.5),
-            width: 1,
-          ),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  FLucideIcons.squareCode,
-                  size: 16,
-                  color: context.theme.colors.mutedForeground,
-                ),
-                const SizedBox(width: Spaces.small),
-                Expanded(
-                  child: Text(
-                    permissionName,
-                    style: context.theme.typography.body.sm.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
+    return FTile(
+      prefix: Icon(
+        supported ? FLucideIcons.shieldCheck : FLucideIcons.shieldAlert,
+      ),
+      title: Text(copy.title),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (!supported) Text(loc.xswd_permission_status_unsupported),
+          Text(copy.description),
+          const SizedBox(height: Spaces.extraSmall),
+          Text(
+            permissionName,
+            style: context.theme.typography.body.xs.copyWith(
+              color: context.theme.colors.mutedForeground,
+              fontFamily: 'monospace',
             ),
-            if (impact != null) ...[
-              const SizedBox(height: Spaces.small),
-              Text(impact, style: context.theme.typography.body.sm),
-            ],
-            if (allowAccept) ...[
-              const SizedBox(height: Spaces.small),
-              Text(
-                '${loc.allow}: ${loc.xswd_permission_persistent_impact}',
-                style: context.theme.typography.body.sm,
-              ),
-            ],
-            const SizedBox(height: Spaces.small),
-            _XswdPolicySelector(
-              loc: loc,
+          ),
+        ],
+      ),
+      details: FBadge(variant: statusVariant, child: Text(status)),
+      suffix: const Icon(FLucideIcons.chevronRight),
+      semanticsLabel: '${copy.title}, $status',
+      semanticsTooltip: loc.xswd_edit_permission,
+      onPress: () {
+        showAppDialog<void>(
+          context: context,
+          builder: (dialogContext, style, animation) {
+            return _XswdPermissionEditDialog(
+              permissionName: permissionName,
+              copy: copy,
               currentPolicy: effectivePolicy,
               allowAccept: allowAccept,
-              onChange: (policy) => onChange(permissionName, policy),
-            ),
-          ],
-        ),
-      ),
+              supported: supported,
+              loc: loc,
+              style: style,
+              animation: animation,
+              onChange: onChange,
+            );
+          },
+        );
+      },
     );
   }
 }
 
-class _XswdPolicySelector extends StatelessWidget {
-  const _XswdPolicySelector({
-    required this.loc,
+String _xswdPolicyLabel(
+  XelisXswdPermissionPolicy policy,
+  AppLocalizations loc,
+) => switch (policy) {
+  XelisXswdPermissionPolicy.reject => loc.xswd_permission_status_blocked,
+  XelisXswdPermissionPolicy.ask => loc.xswd_permission_status_ask,
+  XelisXswdPermissionPolicy.accept => loc.xswd_permission_status_allowed,
+};
+
+FBadgeVariant _xswdPolicyBadgeVariant(XelisXswdPermissionPolicy policy) =>
+    switch (policy) {
+      XelisXswdPermissionPolicy.reject => FBadgeVariant.destructive,
+      XelisXswdPermissionPolicy.ask => FBadgeVariant.outline,
+      XelisXswdPermissionPolicy.accept => FBadgeVariant.primary,
+    };
+
+class _XswdPermissionEditDialog extends StatefulWidget {
+  const _XswdPermissionEditDialog({
+    required this.permissionName,
+    required this.copy,
     required this.currentPolicy,
     required this.allowAccept,
+    required this.supported,
+    required this.loc,
+    required this.style,
+    required this.animation,
     required this.onChange,
   });
 
-  final AppLocalizations loc;
+  final String permissionName;
+  final XswdPermissionCopy copy;
   final XelisXswdPermissionPolicy currentPolicy;
   final bool allowAccept;
-  final ValueChanged<XelisXswdPermissionPolicy> onChange;
+  final bool supported;
+  final AppLocalizations loc;
+  final FDialogStyle style;
+  final Animation<double> animation;
+  final Future<void> Function(
+    String permission,
+    XelisXswdPermissionPolicy policy,
+  )
+  onChange;
+
+  @override
+  State<_XswdPermissionEditDialog> createState() =>
+      _XswdPermissionEditDialogState();
+}
+
+class _XswdPermissionEditDialogState extends State<_XswdPermissionEditDialog> {
+  late XelisXswdPermissionPolicy _selectedPolicy;
+  bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedPolicy = widget.currentPolicy;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: Spaces.extraSmall,
-      runSpacing: Spaces.extraSmall,
-      children: [
-        _XswdPolicyButton(
-          policy: XelisXswdPermissionPolicy.reject,
-          currentPolicy: currentPolicy,
-          label: loc.deny,
-          onPress: onChange,
-        ),
-        _XswdPolicyButton(
-          policy: XelisXswdPermissionPolicy.ask,
-          currentPolicy: currentPolicy,
-          label: loc.ask,
-          onPress: onChange,
-        ),
-        if (allowAccept)
-          _XswdPolicyButton(
-            policy: XelisXswdPermissionPolicy.accept,
-            currentPolicy: currentPolicy,
-            label: loc.allow,
-            onPress: onChange,
+    final loc = widget.loc;
+    return AppDialog(
+      style: widget.style,
+      clipBehavior: Clip.antiAlias,
+      animation: widget.animation,
+      constraints: const BoxConstraints(maxWidth: 560),
+      title: Text(loc.xswd_edit_permission_title(widget.copy.title)),
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(widget.copy.description),
+          const SizedBox(height: Spaces.small),
+          Text(
+            widget.permissionName,
+            style: context.theme.typography.body.xs.copyWith(
+              color: context.theme.colors.mutedForeground,
+              fontFamily: 'monospace',
+            ),
           ),
+          const SizedBox(height: Spaces.medium),
+          FSelectGroup<XelisXswdPermissionPolicy>(
+            enabled: !_busy,
+            control: .managedRadio(
+              initial: _selectedPolicy,
+              onChange: (values) {
+                if (values.length == 1) {
+                  setState(() => _selectedPolicy = values.single);
+                }
+              },
+            ),
+            children: [
+              .radio(
+                value: XelisXswdPermissionPolicy.reject,
+                label: Text(loc.xswd_permission_status_blocked),
+                description: Text(loc.xswd_permission_blocked_description),
+              ),
+              .radio(
+                value: XelisXswdPermissionPolicy.ask,
+                label: Text(loc.xswd_permission_status_ask),
+                description: Text(
+                  widget.supported
+                      ? loc.xswd_permission_ask_description
+                      : loc.xswd_permission_unsupported_impact,
+                ),
+              ),
+              if (widget.allowAccept)
+                .radio(
+                  value: XelisXswdPermissionPolicy.accept,
+                  label: Text(loc.xswd_permission_status_allowed),
+                  description: Text(loc.xswd_permission_allowed_description),
+                ),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final stack = constraints.maxWidth < 360;
+            final cancel = FButton(
+              variant: .outline,
+              onPress: _busy ? null : () => context.pop(),
+              child: Text(loc.cancel_button),
+            );
+            final save = FButton(
+              onPress: _busy || _selectedPolicy == widget.currentPolicy
+                  ? null
+                  : _save,
+              prefix: _busy ? const FCircularProgress.loader() : null,
+              child: Text(loc.save),
+            );
+            return stack
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      cancel,
+                      const SizedBox(height: Spaces.small),
+                      save,
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Expanded(child: cancel),
+                      const SizedBox(width: Spaces.small),
+                      Expanded(child: save),
+                    ],
+                  );
+          },
+        ),
       ],
     );
   }
-}
 
-class _XswdPolicyButton extends StatelessWidget {
-  const _XswdPolicyButton({
-    required this.policy,
-    required this.currentPolicy,
-    required this.label,
-    required this.onPress,
-  });
-
-  final XelisXswdPermissionPolicy policy;
-  final XelisXswdPermissionPolicy currentPolicy;
-  final String label;
-  final ValueChanged<XelisXswdPermissionPolicy> onPress;
-
-  @override
-  Widget build(BuildContext context) {
-    final isSelected = currentPolicy == policy;
-    final styleVariant = switch (policy) {
-      XelisXswdPermissionPolicy.reject =>
-        isSelected ? FButtonVariant.destructive : FButtonVariant.outline,
-      XelisXswdPermissionPolicy.ask =>
-        isSelected ? FButtonVariant.secondary : FButtonVariant.outline,
-      XelisXswdPermissionPolicy.accept =>
-        isSelected ? FButtonVariant.primary : FButtonVariant.outline,
-    };
-
-    return FButton(
-      variant: styleVariant,
-      onPress: isSelected ? null : () => onPress(policy),
-      child: Text(label),
-    );
+  Future<void> _save() async {
+    setState(() => _busy = true);
+    await widget.onChange(widget.permissionName, _selectedPolicy);
+    if (mounted) context.pop();
   }
 }
 

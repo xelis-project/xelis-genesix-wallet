@@ -47,6 +47,8 @@ enum _ActionSet {
   prefetchDecision, // Allow / Deny
 }
 
+enum _PermissionDecisionScope { once, connection }
+
 class _XswdDialogState extends ConsumerState<XswdDialog> {
   static const int _requestLifetime = 60000;
   static const Duration _rapidFireWindow = Duration(milliseconds: 500);
@@ -63,7 +65,8 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
   late final ScrollController _scrollController;
 
   bool _timerShouldRun = false;
-  bool _rememberDecision = false;
+  _PermissionDecisionScope _permissionDecisionScope =
+      _PermissionDecisionScope.once;
   bool _detailsExpanded = false;
 
   late final XswdRequest _xswdRequestNotifier;
@@ -423,14 +426,15 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
         },
       ),
       actions: _XswdActionFactory(
+        requestToken: token,
         actionSet: actionSet,
         busy: _awaitingNextRequest,
-        rememberDecision: _rememberDecision,
+        permissionDecisionScope: _permissionDecisionScope,
         canPersistPermission: xswdState.permissionReview?.canPersist ?? true,
         loc: loc,
-        onRememberChanged: (value) {
+        onPermissionDecisionScopeChanged: (scope) {
           setState(() {
-            _rememberDecision = value;
+            _permissionDecisionScope = scope;
           });
         },
         onDecision: (decision) => _handleDecision(
@@ -450,7 +454,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     _awaitingNextRequest = false;
     _millisecondsLeft = _requestLifetime;
     _progress = 1.0;
-    _rememberDecision = false;
+    _permissionDecisionScope = _PermissionDecisionScope.once;
     _detailsExpanded = false;
     _setSuppress(false, previousToken);
     _presentedRequestToken = nextToken;
@@ -589,26 +593,38 @@ class _XswdPermissionImpactSection extends StatelessWidget {
   final AppLocalizations loc;
 
   @override
-  Widget build(BuildContext context) => Column(
-    key: const ValueKey('xswd-permission-impact'),
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Wrap(
-        spacing: Spaces.small,
-        runSpacing: Spaces.small,
-        children: [
-          _XswdMinimalBadge(label: review.method),
-          if (review.subscriptionEvent case final event?)
-            _XswdMinimalBadge(label: event.jsonKey),
-        ],
-      ),
-      if (xswdPermissionImpact(review.policy.effect, loc)
-          case final impact?) ...[
+  Widget build(BuildContext context) {
+    final copy = xswdPermissionCopy(review.method, review.policy, loc);
+
+    return Column(
+      key: const ValueKey('xswd-permission-impact'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(copy.title, style: context.titleMedium),
+        const SizedBox(height: Spaces.extraSmall),
+        Text(copy.description, style: context.bodyMedium),
         const SizedBox(height: Spaces.small),
-        Text(impact, style: context.bodyMedium),
+        Wrap(
+          spacing: Spaces.small,
+          runSpacing: Spaces.small,
+          children: [
+            _XswdMinimalBadge(label: review.method),
+            if (review.subscriptionEvent case final event?)
+              _XswdMinimalBadge(label: xswdWalletEventLabel(event, loc)),
+          ],
+        ),
+        if (review.subscriptionEvent != null) ...[
+          const SizedBox(height: Spaces.small),
+          Text(
+            loc.xswd_subscription_connection_scope,
+            style: context.bodySmall?.copyWith(
+              color: context.theme.colors.mutedForeground,
+            ),
+          ),
+        ],
       ],
-    ],
-  );
+    );
+  }
 }
 
 class _XswdApplicationInfoSection extends StatelessWidget {
@@ -958,8 +974,7 @@ Set<String> _prefetchImpacts(
   for (final permission in request.permissions) {
     final policy = tryXswdMethodPolicyForKey(permission);
     if (policy == null) continue;
-    final impact = xswdPermissionImpact(policy.effect, loc);
-    if (impact != null) impacts.add(impact);
+    impacts.add(xswdPermissionImpact(policy.effect, loc));
   }
   return impacts;
 }
@@ -1085,21 +1100,23 @@ class _XswdPermissionPayload extends StatelessWidget {
 
 class _XswdActionFactory {
   const _XswdActionFactory({
+    required this.requestToken,
     required this.actionSet,
     required this.busy,
-    required this.rememberDecision,
+    required this.permissionDecisionScope,
     required this.canPersistPermission,
     required this.loc,
-    required this.onRememberChanged,
+    required this.onPermissionDecisionScopeChanged,
     required this.onDecision,
   });
 
+  final Object requestToken;
   final _ActionSet actionSet;
   final bool busy;
-  final bool rememberDecision;
+  final _PermissionDecisionScope permissionDecisionScope;
   final bool canPersistPermission;
   final AppLocalizations loc;
-  final ValueChanged<bool> onRememberChanged;
+  final ValueChanged<_PermissionDecisionScope> onPermissionDecisionScopeChanged;
   final ValueChanged<XelisXswdDecision> onDecision;
 
   List<Widget> build(BuildContext context) {
@@ -1120,37 +1137,58 @@ class _XswdActionFactory {
           return _buildBinaryDecisionActions(
             context: context,
             busy: busy,
-            denyLabel: loc.deny,
+            denyLabel: loc.xswd_deny_once,
             allowLabel: loc.xswd_allow_once,
             onDeny: () => onDecision(XelisXswdDecision.reject),
             onAllow: () => onDecision(XelisXswdDecision.accept),
           );
         }
+        final forConnection =
+            permissionDecisionScope == _PermissionDecisionScope.connection;
         return [
-          FSwitch(
-            label: Text(loc.remember_my_decision),
-            value: rememberDecision,
-            onChange: busy ? null : onRememberChanged,
-          ),
-          if (rememberDecision)
-            Text(
-              loc.xswd_permission_persistent_impact,
-              style: context.bodySmall,
+          FSelectGroup<_PermissionDecisionScope>(
+            key: ValueKey(requestToken),
+            enabled: !busy,
+            label: Text(loc.xswd_decision_scope),
+            control: .managedRadio(
+              initial: permissionDecisionScope,
+              onChange: (values) {
+                if (values.length == 1) {
+                  onPermissionDecisionScopeChanged(values.single);
+                }
+              },
             ),
+            children: [
+              .radio(
+                value: _PermissionDecisionScope.once,
+                label: Text(loc.xswd_scope_once),
+                description: Text(loc.xswd_scope_once_description),
+              ),
+              .radio(
+                value: _PermissionDecisionScope.connection,
+                label: Text(loc.xswd_scope_connection),
+                description: Text(loc.xswd_scope_connection_description),
+              ),
+            ],
+          ),
           const SizedBox(height: Spaces.extraSmall),
           ..._buildBinaryDecisionActions(
             context: context,
             busy: busy,
-            denyLabel: loc.deny,
-            allowLabel: loc.allow,
+            denyLabel: forConnection
+                ? loc.xswd_block_for_connection
+                : loc.xswd_deny_once,
+            allowLabel: forConnection
+                ? loc.xswd_allow_for_connection
+                : loc.xswd_allow_once,
             onDeny: () {
-              final decision = rememberDecision
+              final decision = forConnection
                   ? XelisXswdDecision.alwaysReject
                   : XelisXswdDecision.reject;
               onDecision(decision);
             },
             onAllow: () {
-              final decision = rememberDecision
+              final decision = forConnection
                   ? XelisXswdDecision.alwaysAccept
                   : XelisXswdDecision.accept;
               onDecision(decision);

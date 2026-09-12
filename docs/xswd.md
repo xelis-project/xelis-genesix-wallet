@@ -72,6 +72,13 @@ non-persistable and unknown methods are normalized to `Ask` before XSWD activati
 edited. Adding an SDK method must update this exhaustive classification before
 analysis can pass.
 
+Permission rules belong to the current application connection; reconnecting
+does not retain them. Individual consent defaults to this request only and
+offers a connection-wide choice only for methods that support it. Allowing or
+refusing once does not change the future rule. Application details show those
+rules as explicit Allowed, Ask or Blocked states; editing a rule is a separate
+action. Transactions offer Ask or Blocked, never automatic approval.
+
 Review parsing is also resource-bounded before the SDK or UI walks untrusted
 structures. Genesix rejects payloads above 3 MiB of cumulative text characters,
 individual strings above 2 MiB, typed structures deeper than 64 levels or larger than
