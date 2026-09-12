@@ -13,6 +13,9 @@
   "xswd_permission_wallet_data_impact": "De walletgegevens lezen waarop deze toestemming betrekking heeft.",
   "xswd_permission_app_storage_impact": "De opslag voor deze applicatie lezen en wijzigen.",
   "xswd_permission_persistent_impact": "Staat toekomstige verzoeken voor deze toestemming toe zonder opnieuw te vragen.",
+  "xswd_permission_subscription_impact": "Privé-walletgebeurtenissen over activiteit en saldowijzigingen ontvangen. Het onthouden of gebundeld verlenen van deze toestemming geldt voor alle gebeurtenissen, niet alleen voor de getoonde.",
+  "xswd_permission_unsubscription_impact": "Geen walletgebeurtenissen meer ontvangen. Het onthouden van deze toestemming geldt voor alle gebeurtenissen die via de afzonderlijke methode unsubscribe worden aangevraagd.",
+  "xswd_prefetch_not_granted": "{appName} blijft verbonden. Er is geen nieuwe gebundelde toestemming verleend.",
   "@multisig_setup_participant_count": {
     "placeholders": {
       "count": {"type": "int"}

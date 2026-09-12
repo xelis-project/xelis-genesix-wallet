@@ -13,6 +13,9 @@
   "xswd_permission_wallet_data_impact": "Ler os dados da carteira abrangidos por esta permissão.",
   "xswd_permission_app_storage_impact": "Ler e alterar o armazenamento reservado a esta aplicação.",
   "xswd_permission_persistent_impact": "Permite pedidos futuros desta permissão sem nova confirmação.",
+  "xswd_permission_subscription_impact": "Receber eventos privados da carteira sobre atividade e alterações de saldo. Memorizar ou conceder em lote esta permissão aplica-se a todos os eventos, não apenas ao apresentado.",
+  "xswd_permission_unsubscription_impact": "Deixar de receber eventos da carteira. Memorizar esta permissão aplica-se a todos os eventos pedidos através do método separado unsubscribe.",
+  "xswd_prefetch_not_granted": "{appName} permanece ligada. Não foi concedida nenhuma nova permissão em lote.",
   "@multisig_setup_participant_count": {
     "placeholders": {
       "count": {"type": "int"}

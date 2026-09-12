@@ -593,7 +593,15 @@ class _XswdPermissionImpactSection extends StatelessWidget {
     key: const ValueKey('xswd-permission-impact'),
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      _XswdMinimalBadge(label: review.method.jsonKey),
+      Wrap(
+        spacing: Spaces.small,
+        runSpacing: Spaces.small,
+        children: [
+          _XswdMinimalBadge(label: review.method),
+          if (review.subscriptionEvent case final event?)
+            _XswdMinimalBadge(label: event.jsonKey),
+        ],
+      ),
       if (xswdPermissionImpact(review.policy.effect, loc)
           case final impact?) ...[
         const SizedBox(height: Spaces.small),

@@ -29,7 +29,7 @@ void main() {
       ) as Map<String, dynamic>;
       expect(record['methods'], [
         {'name': 'get_balance', 'policy': 'supported'},
-        {'name': 'subscribe', 'policy': 'unknown'},
+        {'name': 'subscribe', 'policy': 'supported'},
         {'name': 'wallet.get_balance', 'policy': 'unknown'},
         {'name': 'build_transaction', 'policy': 'notPrefetchable'},
       ]);

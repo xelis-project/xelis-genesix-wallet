@@ -152,12 +152,23 @@ void main() {
     }
   });
 
-  test('resolves only exact unprefixed SDK method keys', () {
-    expect(
-      tryXswdMethodPolicyForKey(WalletMethod.getBalance.jsonKey),
-      same(xswdMethodPolicy(WalletMethod.getBalance)),
-    );
-    expect(tryXswdMethodPolicyForKey('wallet.get_balance'), isNull);
-    expect(tryXswdMethodPolicyForKey('future_method'), isNull);
-  });
+  test(
+    'resolves exact RPC and subscription keys with one policy catalogue',
+    () {
+      expect(
+        tryXswdMethodPolicyForKey(WalletMethod.getBalance.jsonKey),
+        same(xswdMethodPolicy(WalletMethod.getBalance)),
+      );
+      expect(tryXswdMethodPolicyForKey('wallet.get_balance'), isNull);
+      expect(tryXswdMethodPolicyForKey('future_method'), isNull);
+      expect(xswdMethodCount, WalletMethod.values.length + 2);
+      for (final method in ['subscribe', 'unsubscribe']) {
+        final policy = tryXswdMethodPolicyForKey(method)!;
+        expect(policy.isSupported, isTrue);
+        expect(policy.canPrefetch, isTrue);
+        expect(policy.canPersist, isTrue);
+        expect(tryXswdMethodPolicyForKey('wallet.$method'), isNull);
+      }
+    },
+  );
 }

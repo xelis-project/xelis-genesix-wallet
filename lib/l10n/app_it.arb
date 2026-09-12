@@ -13,6 +13,9 @@
   "xswd_permission_wallet_data_impact": "Leggere i dati del portafoglio coperti da questa autorizzazione.",
   "xswd_permission_app_storage_impact": "Leggere e modificare lo spazio di archiviazione riservato a questa applicazione.",
   "xswd_permission_persistent_impact": "Consente richieste future per questa autorizzazione senza chiedere di nuovo.",
+  "xswd_permission_subscription_impact": "Ricevere eventi privati del portafoglio relativi all’attività e alle variazioni del saldo. Memorizzare o concedere in gruppo questa autorizzazione vale per tutti gli eventi, non solo per quello mostrato.",
+  "xswd_permission_unsubscription_impact": "Interrompere la ricezione degli eventi del portafoglio. Memorizzare questa autorizzazione vale per tutti gli eventi richiesti tramite il metodo separato unsubscribe.",
+  "xswd_prefetch_not_granted": "{appName} resta connessa. Non è stata concessa alcuna nuova autorizzazione di gruppo.",
   "@multisig_setup_participant_count": {
     "placeholders": {
       "count": {"type": "int"}

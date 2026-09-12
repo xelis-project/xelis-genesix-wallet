@@ -94,9 +94,13 @@ class XswdRequest extends _$XswdRequest {
     required XelisXswdRequest xswdEventSummary,
     required String message,
     required NativeWalletRepository repository,
+    XswdPrefetchPreflight? preflight,
   }) {
     if (!identical(ref.read(activeWalletRepositoryProvider), repository)) {
       return Future.value(XelisXswdDecision.reject);
+    }
+    if (preflight != null && !xswdEventSummary.isPrefetchPermissionsRequest) {
+      throw StateError('Unexpected XSWD prefetch review.');
     }
     PermissionRpcRequest? permissionRequest;
     XswdPermissionReview? permissionReview;
@@ -110,9 +114,13 @@ class XswdRequest extends _$XswdRequest {
       permissionRequest = PermissionRpcRequest.fromJson(data);
       permissionReview = XswdPermissionReview.parse(permissionRequest);
     } else if (xswdEventSummary.isPrefetchPermissionsRequest) {
-      final data = decodeXswdPayload(xswdEventSummary.payload);
-      prefetchRequest = PrefetchPermissionsRequest.fromJson(data);
-      resolveXswdPrefetchPermissions(prefetchRequest);
+      final checked =
+          preflight ?? XswdPrefetchPreflight.parse(xswdEventSummary);
+      if (!identical(checked.source, xswdEventSummary) ||
+          checked.disposition != XswdPrefetchDisposition.grantable) {
+        throw StateError('Expected a grantable review for this XSWD request.');
+      }
+      prefetchRequest = checked.request;
     } else if (!xswdEventSummary.isApplicationRequest) {
       throw const FormatException('Expected an XSWD approval request.');
     }

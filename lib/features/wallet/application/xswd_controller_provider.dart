@@ -484,12 +484,32 @@ class XswdController {
     late final Future<XelisXswdDecision> decision;
     XswdPermissionReview? permissionReview;
     try {
+      final preflight = request.isPrefetchPermissionsRequest
+          ? XswdPrefetchPreflight.parse(request)
+          : null;
+      if (preflight?.disposition == XswdPrefetchDisposition.declined) {
+        diagnostic?.record(
+          XswdDiagnosticEvent.validation,
+          validation: XswdDiagnosticValidation.passed,
+        );
+        diagnostic?.record(
+          XswdDiagnosticEvent.decision,
+          validation: XswdDiagnosticValidation.passed,
+          decision: XelisXswdDecision.reject,
+          disposition: XswdDiagnosticDisposition.prefetchDeclined,
+        );
+        _emitInfo(
+          title: loc.xswd_prefetch_not_granted(request.application.name),
+        );
+        return XelisXswdDecision.reject;
+      }
       decision = ref
           .read(xswdRequestProvider.notifier)
           .newRequest(
             xswdEventSummary: request,
             message: message,
             repository: repository,
+            preflight: preflight,
           );
       permissionReview = ref.read(xswdRequestProvider).permissionReview;
       diagnostic?.record(

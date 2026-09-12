@@ -13,6 +13,9 @@
   "xswd_permission_wallet_data_impact": "इस अनुमति के अंतर्गत आने वाला वॉलेट डेटा पढ़ना।",
   "xswd_permission_app_storage_impact": "इस ऐप के लिए आरक्षित स्टोरेज को पढ़ना और अपडेट करना।",
   "xswd_permission_persistent_impact": "इस अनुमति के भविष्य के अनुरोधों को दोबारा पूछे बिना स्वीकार करता है।",
+  "xswd_permission_subscription_impact": "गतिविधि और बैलेंस में बदलाव से जुड़े निजी वॉलेट इवेंट प्राप्त करना। इस अनुमति को याद रखने या समूह में देने पर यह केवल दिखाए गए इवेंट पर नहीं, बल्कि सभी इवेंट पर लागू होती है।",
+  "xswd_permission_unsubscription_impact": "वॉलेट इवेंट प्राप्त करना बंद करना। इस अनुमति को याद रखने पर यह अलग unsubscribe विधि से अनुरोध किए गए सभी इवेंट पर लागू होती है।",
+  "xswd_prefetch_not_granted": "{appName} कनेक्टेड रहता है। कोई नई समूह अनुमति नहीं दी गई।",
   "@multisig_setup_participant_count": {
     "placeholders": {
       "count": {"type": "int"}

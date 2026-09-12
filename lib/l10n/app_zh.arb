@@ -13,6 +13,9 @@
   "xswd_permission_wallet_data_impact": "读取此权限涵盖的钱包数据。",
   "xswd_permission_app_storage_impact": "读取和更新为此应用保留的存储空间。",
   "xswd_permission_persistent_impact": "允许今后对此权限的请求，无需再次确认。",
+  "xswd_permission_subscription_impact": "接收与活动和余额变化有关的私密钱包事件。记住或批量授予此权限会应用于所有事件，而不只是当前显示的事件。",
+  "xswd_permission_unsubscription_impact": "停止接收钱包事件。记住此权限会应用于通过单独的 unsubscribe 方法请求的所有事件。",
+  "xswd_prefetch_not_granted": "{appName} 保持连接。未授予任何新的批量权限。",
   "@multisig_setup_participant_count": {
     "placeholders": {
       "count": {"type": "int"}

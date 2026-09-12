@@ -13,6 +13,9 @@
   "xswd_permission_wallet_data_impact": "Bu iznin kapsadığı cüzdan verilerini okur.",
   "xswd_permission_app_storage_impact": "Bu uygulamaya ayrılmış depolama alanını okur ve günceller.",
   "xswd_permission_persistent_impact": "Bu izin için gelecekteki isteklere tekrar sormadan izin verir.",
+  "xswd_permission_subscription_impact": "Etkinlik ve bakiye değişiklikleriyle ilgili özel cüzdan olaylarını alır. Bu izni hatırlamak veya toplu vermek yalnızca gösterilen olay için değil, tüm olaylar için geçerlidir.",
+  "xswd_permission_unsubscription_impact": "Cüzdan olaylarını almayı durdurur. Bu izni hatırlamak, ayrı unsubscribe yöntemiyle istenen tüm olaylar için geçerlidir.",
+  "xswd_prefetch_not_granted": "{appName} bağlı kalır. Yeni bir toplu izin verilmedi.",
   "@multisig_setup_participant_count": {
     "placeholders": {
       "count": {"type": "int"}

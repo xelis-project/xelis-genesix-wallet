@@ -4,7 +4,10 @@ import 'package:genesix/features/authentication/application/wallet_session_provi
 import 'package:genesix/features/authentication/domain/wallet_session.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
+import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
 import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
+
+import '../../../helpers/xswd_test_payload.dart';
 
 void main() {
   test(
@@ -114,6 +117,45 @@ void main() {
     );
     expect(container.read(xswdRequestProvider).token, same(token));
     expect(container.read(xswdRequestProvider).pending, isTrue);
+    final source = XelisXswdRequest(
+      kind: XelisXswdRequestKind.prefetchPermissions,
+      application: _request().application,
+      payload: xswdTestPayload({
+        'permissions': ['subscribe'],
+      }),
+    );
+    final mismatched = XelisXswdRequest(
+      kind: source.kind,
+      application: source.application,
+      payload: source.payload,
+    );
+    final preflight = XswdPrefetchPreflight.parse(source);
+    expect(
+      () => notifier.newRequest(
+        xswdEventSummary: mismatched,
+        message: '',
+        repository: repository,
+        preflight: preflight,
+      ),
+      throwsStateError,
+    );
+    final declined = XelisXswdRequest(
+      kind: source.kind,
+      application: source.application,
+      payload: xswdTestPayload({
+        'permissions': ['build_transaction'],
+      }),
+    );
+    expect(
+      () => notifier.newRequest(
+        xswdEventSummary: declined,
+        message: '',
+        repository: repository,
+        preflight: XswdPrefetchPreflight.parse(declined),
+      ),
+      throwsStateError,
+    );
+    expect(container.read(xswdRequestProvider).token, same(token));
     expect(notifier.rejectIfCurrent(token), isTrue);
     expect(await decision, XelisXswdDecision.reject);
   });

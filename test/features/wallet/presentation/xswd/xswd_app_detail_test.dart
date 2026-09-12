@@ -12,7 +12,14 @@ import 'package:genesix/src/generated/l10n/app_localizations_en.dart';
 import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 void main() {
-  for (final method in ['get_balance', 'network_info', 'store', 'sign_data']) {
+  for (final method in [
+    'get_balance',
+    'network_info',
+    'store',
+    'subscribe',
+    'unsubscribe',
+    'sign_data',
+  ]) {
     for (final width in [320.0, 800.0]) {
       testWidgets('$method permission consent at ${width}px', (tester) async {
         tester.view.physicalSize = Size(width, 1200);
@@ -80,9 +87,12 @@ void main() {
             findsNothing,
           );
         } else {
-          final impact = method == 'store'
-              ? loc.xswd_permission_app_storage_impact
-              : loc.xswd_permission_wallet_data_impact;
+          final impact = switch (method) {
+            'store' => loc.xswd_permission_app_storage_impact,
+            'subscribe' => loc.xswd_permission_subscription_impact,
+            'unsubscribe' => loc.xswd_permission_unsubscription_impact,
+            _ => loc.xswd_permission_wallet_data_impact,
+          };
           expect(find.text(impact), findsOneWidget);
           expect(
             find.text('${loc.allow}: ${loc.xswd_permission_persistent_impact}'),

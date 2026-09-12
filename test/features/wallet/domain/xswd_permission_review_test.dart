@@ -23,6 +23,33 @@ void main() {
       expect(review.policy.effect, XswdMethodEffect.walletData);
     });
 
+    test('subscriptions validate their event without narrowing remembered authority', () {
+      for (final method in ['subscribe', 'unsubscribe']) {
+        final review = XswdPermissionReview.parse(
+          _request(method: method, params: {'notify': 'balance_changed'}),
+        );
+        expect(review.method, method);
+        expect(review.subscriptionEvent, WalletEvent.balanceChanged);
+        expect(review.canPersist, isTrue);
+        expect(review.policy.canPrefetch, isTrue);
+        for (final params in <Map<String, dynamic>?>[
+          null,
+          {},
+          {'notify': 1},
+          {'notify': 'future_event'},
+          {'notify': 'wallet.balance_changed'},
+          {'notify': 'balance_changed', 'extra': 'SENSITIVE'},
+        ]) {
+          expect(
+            () => XswdPermissionReview.parse(
+              _request(method: method, params: params),
+            ),
+            throwsFormatException,
+          );
+        }
+      }
+    });
+
     const unsupportedMethods = {
       WalletMethod.rescan,
       WalletMethod.buildTransactionOffline,
@@ -666,21 +693,26 @@ void main() {
     });
   });
 
-  group('resolveXswdPrefetchPermissions', () {
+  group('classifyXswdPrefetchPermissions', () {
     test('accepts known non-signing permissions', () {
-      final methods = resolveXswdPrefetchPermissions(
+      final methods = classifyXswdPrefetchPermissions(
         const PrefetchPermissionsRequest(
-          permissions: ['get_balance', 'get_address'],
+          permissions: [
+            'get_balance',
+            'get_address',
+            'subscribe',
+            'unsubscribe',
+          ],
         ),
       );
 
-      expect(methods, [WalletMethod.getBalance, WalletMethod.getAddress]);
+      expect(methods, XswdPrefetchDisposition.grantable);
     });
 
     test('rejects duplicate permissions before building consent widgets', () {
-      for (final count in [2, WalletMethod.values.length + 1, 4096]) {
+      for (final count in [2, xswdMethodCount + 1, 4096]) {
         expect(
-          () => resolveXswdPrefetchPermissions(
+          () => classifyXswdPrefetchPermissions(
             PrefetchPermissionsRequest(
               permissions: List.filled(count, 'get_balance'),
             ),
@@ -693,17 +725,31 @@ void main() {
     for (final permissions in <List<String>>[
       const [],
       const ['future_method'],
+      const ['build_transaction', 'future_method'],
+      const ['wallet.subscribe'],
       ...WalletMethod.values
           .where((method) => !xswdMethodPolicy(method).canPrefetch)
           .map((method) => [method.jsonKey]),
     ]) {
       test('fails closed for prefetch $permissions', () {
-        expect(
-          () => resolveXswdPrefetchPermissions(
-            PrefetchPermissionsRequest(permissions: permissions),
-          ),
-          throwsA(isA<FormatException>()),
-        );
+        if (permissions.isNotEmpty &&
+            permissions.every(
+              (method) => tryXswdMethodPolicyForKey(method) != null,
+            )) {
+          expect(
+            classifyXswdPrefetchPermissions(
+              PrefetchPermissionsRequest(permissions: permissions),
+            ),
+            XswdPrefetchDisposition.declined,
+          );
+        } else {
+          expect(
+            () => classifyXswdPrefetchPermissions(
+              PrefetchPermissionsRequest(permissions: permissions),
+            ),
+            throwsFormatException,
+          );
+        }
       });
     }
   });

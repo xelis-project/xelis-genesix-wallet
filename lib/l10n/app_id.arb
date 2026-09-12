@@ -13,6 +13,9 @@
   "xswd_permission_wallet_data_impact": "Membaca data dompet yang dicakup oleh izin ini.",
   "xswd_permission_app_storage_impact": "Membaca dan memperbarui penyimpanan yang disediakan untuk aplikasi ini.",
   "xswd_permission_persistent_impact": "Mengizinkan permintaan berikutnya untuk izin ini tanpa bertanya lagi.",
+  "xswd_permission_subscription_impact": "Menerima peristiwa dompet privat tentang aktivitas dan perubahan saldo. Mengingat atau memberikan izin ini secara berkelompok berlaku untuk semua peristiwa, bukan hanya yang ditampilkan.",
+  "xswd_permission_unsubscription_impact": "Berhenti menerima peristiwa dompet. Mengingat izin ini berlaku untuk semua peristiwa yang diminta melalui metode unsubscribe yang terpisah.",
+  "xswd_prefetch_not_granted": "{appName} tetap terhubung. Tidak ada izin berkelompok baru yang diberikan.",
   "@multisig_setup_participant_count": {
     "placeholders": {
       "count": {"type": "int"}

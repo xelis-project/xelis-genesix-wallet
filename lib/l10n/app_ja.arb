@@ -13,6 +13,9 @@
   "xswd_permission_wallet_data_impact": "この権限の対象となるウォレットデータを読み取ります。",
   "xswd_permission_app_storage_impact": "このアプリ専用のストレージを読み取り、更新します。",
   "xswd_permission_persistent_impact": "この権限の今後のリクエストを、再確認せずに許可します。",
+  "xswd_permission_subscription_impact": "アクティビティや残高変更に関する非公開のウォレットイベントを受信します。この権限の記憶または一括許可は、表示中のイベントだけでなく、すべてのイベントに適用されます。",
+  "xswd_permission_unsubscription_impact": "ウォレットイベントの受信を停止します。この権限の記憶は、独立した unsubscribe メソッドで要求されるすべてのイベントに適用されます。",
+  "xswd_prefetch_not_granted": "{appName} は接続されたままです。新しい一括権限は付与されませんでした。",
   "@multisig_setup_participant_count": {
     "placeholders": {
       "count": {"type": "int"}

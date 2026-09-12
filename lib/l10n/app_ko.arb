@@ -13,6 +13,9 @@
   "xswd_permission_wallet_data_impact": "이 권한에 해당하는 지갑 데이터를 읽습니다.",
   "xswd_permission_app_storage_impact": "이 앱 전용 저장소를 읽고 업데이트합니다.",
   "xswd_permission_persistent_impact": "이 권한에 대한 향후 요청을 다시 묻지 않고 허용합니다.",
+  "xswd_permission_subscription_impact": "활동 및 잔액 변경에 관한 비공개 지갑 이벤트를 수신합니다. 이 권한을 기억하거나 일괄 허용하면 표시된 이벤트뿐 아니라 모든 이벤트에 적용됩니다.",
+  "xswd_permission_unsubscription_impact": "지갑 이벤트 수신을 중지합니다. 이 권한을 기억하면 별도의 unsubscribe 메서드로 요청되는 모든 이벤트에 적용됩니다.",
+  "xswd_prefetch_not_granted": "{appName} 앱은 연결된 상태로 유지됩니다. 새 일괄 권한은 부여되지 않았습니다.",
   "@multisig_setup_participant_count": {
     "placeholders": {
       "count": {"type": "int"}

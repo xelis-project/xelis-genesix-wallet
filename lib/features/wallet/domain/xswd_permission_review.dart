@@ -1,6 +1,7 @@
 import 'package:genesix/features/wallet/domain/permission_rpc_request.dart';
 import 'package:genesix/features/wallet/domain/prefetch_permissions_rpc_request.dart';
 import 'package:genesix/features/wallet/domain/xswd_method_policy.dart';
+import 'package:genesix/features/wallet/domain/xswd_payload.dart';
 import 'package:genesix/features/wallet/domain/xswd_rpc_budget.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
@@ -17,14 +18,15 @@ final class XswdPermissionReview {
     required this.request,
     required this.method,
     required this.policy,
+    this.subscriptionEvent,
     this.buildTransactionParams,
     this.parsedInvokeParameters = const [],
     this.transferDestinations = const [],
   });
 
   factory XswdPermissionReview.parse(PermissionRpcRequest request) {
-    final method = _resolveWalletMethod(request.method);
-    final policy = xswdMethodPolicy(method);
+    final method = request.method;
+    final policy = _resolveMethodPolicy(method);
     switch (policy.support) {
       case XswdMethodSupport.unsupported:
         throw const FormatException(
@@ -35,11 +37,12 @@ final class XswdPermissionReview {
           request: request,
           method: method,
           policy: policy,
+          subscriptionEvent: _resolveSubscriptionEvent(request),
         );
       case XswdMethodSupport.dedicatedTransactionReview:
         break;
     }
-    if (method != WalletMethod.buildTransaction) {
+    if (method != WalletMethod.buildTransaction.jsonKey) {
       throw StateError('Invalid dedicated XSWD review policy.');
     }
 
@@ -137,15 +140,32 @@ final class XswdPermissionReview {
   }
 
   final PermissionRpcRequest request;
-  final WalletMethod method;
+  final String method;
   final XswdMethodPolicy policy;
+  final WalletEvent? subscriptionEvent;
   final BuildTransactionParams? buildTransactionParams;
   final List<RpcValueCell> parsedInvokeParameters;
   final List<XelisAddressDescriptor> transferDestinations;
 
   bool get canPersist => policy.canPersist;
 
-  bool get isBuildTransaction => method == WalletMethod.buildTransaction;
+  bool get isBuildTransaction =>
+      method == WalletMethod.buildTransaction.jsonKey;
+}
+
+WalletEvent? _resolveSubscriptionEvent(PermissionRpcRequest request) {
+  if (request.method != 'subscribe' && request.method != 'unsubscribe') {
+    return null;
+  }
+  final params = request.params;
+  if (params == null || params.length != 1 || params['notify'] is! String) {
+    throw const FormatException('Invalid XSWD subscription parameters.');
+  }
+  final event = WalletEvent.tryFromStr(params['notify'] as String);
+  if (event == null) {
+    throw const FormatException('Unknown XSWD wallet event.');
+  }
+  return event;
 }
 
 List<XelisAddressDescriptor> _parseTransferDestinations(
@@ -174,31 +194,56 @@ List<XelisAddressDescriptor> _parseTransferDestinations(
   return descriptors;
 }
 
-List<WalletMethod> resolveXswdPrefetchPermissions(
+enum XswdPrefetchDisposition { grantable, declined }
+
+/// Validated once and bound to the exact immutable request received from XWF.
+final class XswdPrefetchPreflight {
+  const XswdPrefetchPreflight._(this.source, this.request, this.disposition);
+
+  factory XswdPrefetchPreflight.parse(XelisXswdRequest source) {
+    if (!source.isPrefetchPermissionsRequest) {
+      throw const FormatException('Expected an XSWD prefetch request.');
+    }
+    final request = PrefetchPermissionsRequest.fromJson(
+      decodeXswdPayload(source.payload),
+    );
+    return XswdPrefetchPreflight._(
+      source,
+      request,
+      classifyXswdPrefetchPermissions(request),
+    );
+  }
+
+  final XelisXswdRequest source;
+  final PrefetchPermissionsRequest request;
+  final XswdPrefetchDisposition disposition;
+}
+
+XswdPrefetchDisposition classifyXswdPrefetchPermissions(
   PrefetchPermissionsRequest request,
 ) {
   if (request.permissions.isEmpty ||
-      request.permissions.length > WalletMethod.values.length) {
+      request.permissions.length > xswdMethodCount) {
     throw const FormatException('Invalid prefetch permission count.');
   }
   if (request.permissions.toSet().length != request.permissions.length) {
     throw const FormatException('Duplicate prefetch permission.');
   }
 
-  final methods = request.permissions
-      .map(_resolveWalletMethod)
-      .toList(growable: false);
-  if (methods.any((method) => !xswdMethodPolicy(method).canPrefetch)) {
-    throw const FormatException(
-      'Unsupported XSWD permission cannot be prefetched.',
-    );
+  var grantable = true;
+  for (final method in request.permissions) {
+    // Resolve every entry before returning a policy refusal: a later unknown
+    // method must still fail validation, regardless of list order.
+    final policy = _resolveMethodPolicy(method);
+    grantable &= policy.canPrefetch;
   }
-
-  return List.unmodifiable(methods);
+  return grantable
+      ? XswdPrefetchDisposition.grantable
+      : XswdPrefetchDisposition.declined;
 }
 
-WalletMethod _resolveWalletMethod(String jsonKey) {
-  return tryResolveXswdWalletMethod(jsonKey) ??
+XswdMethodPolicy _resolveMethodPolicy(String jsonKey) {
+  return tryXswdMethodPolicyForKey(jsonKey) ??
       (throw const FormatException('Unknown XSWD wallet method.'));
 }
 

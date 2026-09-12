@@ -6,6 +6,10 @@ String? xswdPermissionImpact(XswdMethodEffect effect, AppLocalizations loc) =>
       XswdMethodEffect.publicInformation => loc.xswd_permission_public_impact,
       XswdMethodEffect.walletData => loc.xswd_permission_wallet_data_impact,
       XswdMethodEffect.appStorage => loc.xswd_permission_app_storage_impact,
+      XswdMethodEffect.walletSubscription =>
+        loc.xswd_permission_subscription_impact,
+      XswdMethodEffect.walletUnsubscription =>
+        loc.xswd_permission_unsubscription_impact,
       // Transactions have their dedicated review; unsupported methods never
       // reach the generic permission approval surface.
       XswdMethodEffect.transaction ||

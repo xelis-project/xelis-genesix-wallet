@@ -13,6 +13,9 @@
   "xswd_permission_wallet_data_impact": "قراءة بيانات المحفظة التي يشملها هذا الإذن.",
   "xswd_permission_app_storage_impact": "قراءة وتحديث مساحة التخزين المخصصة لهذا التطبيق.",
   "xswd_permission_persistent_impact": "يسمح بالطلبات المستقبلية لهذا الإذن دون السؤال مرة أخرى.",
+  "xswd_permission_subscription_impact": "تلقي أحداث المحفظة الخاصة المتعلقة بالنشاط وتغييرات الرصيد. ينطبق تذكّر هذا الإذن أو منحه مجمّعًا على جميع الأحداث، وليس الحدث المعروض فقط.",
+  "xswd_permission_unsubscription_impact": "إيقاف تلقي أحداث المحفظة. ينطبق تذكّر هذا الإذن على جميع الأحداث المطلوبة عبر طريقة unsubscribe المنفصلة.",
+  "xswd_prefetch_not_granted": "يظل تطبيق {appName} متصلاً. لم يُمنح أي إذن مجمّع جديد.",
   "@multisig_setup_participant_count": {
     "placeholders": {
       "count": {"type": "int"}

@@ -54,7 +54,7 @@ it again against the current wallet's application list.
 | Public information, verification, and estimates | Supported by the standard permission review. They may be prefetched and persisted after explicit approval. Permission names are the unprefixed `WalletMethod.jsonKey` values, such as `get_version`. |
 | Private wallet data | Balance, address, nonce, asset, transaction, and `network_info` reads are supported by the standard permission review. The latter includes the connected daemon endpoint, which is not necessarily public. These methods may be prefetched and persisted only after the UI identifies their wallet-data effect. |
 | Application storage | The XSWD application's isolated database reads and writes are supported, prefetchable, and persistable after explicit approval. |
-| Wallet event subscriptions | `subscribe` / `unsubscribe` are valid upstream XSWD methods, but Genesix currently rejects them because its review catalogue covers only SDK `WalletMethod` entries. This is a consumer compatibility gap, not an invalid protocol request. |
+| Wallet event subscriptions | `subscribe` and `unsubscribe` are supported, prefetchable and persistable after explicit consent. A one-time request identifies its wallet event; persistent consent covers all events for that method, including private wallet activity. The two methods remain separate native permissions. |
 | `build_transaction` | A one-time, structured, lossless review only. It cannot be prefetched or persisted as `Accept`; legacy persisted `Accept` policies are normalized to `Ask`. |
 | Supported builders | Transfer, burn, multisig, contract invocation, and contract deployment, only when every field is rendered and validated. |
 | Unsupported builders/fields | Blob builder, explicit signers, and non-`NoInterContractPermission` permissions are rejected. |
@@ -65,9 +65,10 @@ as `BigInt`. The review must render the exact typed values, including
 `FeeBuilder`, `BaseFeeMode`, and `feeLimit`. An unknown RPC cell, primitive,
 permission, fee mode, or builder is a refusal, never a permissive fallback.
 
-Every SDK `WalletMethod` has one explicit support, persistence, prefetch, and
-effect classification. Stored `Accept` policies for non-persistable and unknown
-methods are normalized to `Ask` before XSWD activation and when permissions are
+Every SDK `WalletMethod`, plus the two event methods, has one explicit support,
+persistence, prefetch, and effect classification. Subscription requests validate
+`notify` against the SDK's exact `WalletEvent` keys. Stored `Accept` policies for
+non-persistable and unknown methods are normalized to `Ask` before XSWD activation and when permissions are
 edited. Adding an SDK method must update this exhaustive classification before
 analysis can pass.
 
@@ -80,7 +81,7 @@ opaque addresses to validate. These conservative limits are fail-closed DoS
 controls derived from XELIS 1.25's 1 MiB transaction, 256 KiB contract-parameter,
 and 255-transfer bounds; changing them requires protocol evidence and boundary
 tests. Prefetch permission lists must contain unique methods and cannot exceed
-the number of methods in the SDK catalogue. Both initial consent and permission
+the combined RPC/event catalogue. Both initial consent and permission
 editing explain the effect and the absence of future prompts for persistent
 approval.
 
@@ -145,12 +146,14 @@ state for each request. Temporary notification suppression must not strand an
 unseen successor. Cancellation and disconnection messages are independent,
 expiring notices; only the matching session can terminate an active approval.
 
-Accepting admission approves the connection, not future permissions. Each
-request still needs validation and review. A validation failure currently
-rejects the request and closes its exact session with a localized explanation;
-the support reference created for that failure reaches the toast unchanged.
-This includes unsupported prefetch batches. Rejecting preauthorization while
-retaining `Ask` and keeping the session open is not yet implemented.
+Accepting admission approves the connection, not future permissions. Malformed
+requests and unknown methods are rejected and close their exact session with a
+localized explanation and a support reference. A known prefetch batch containing
+a non-prefetchable method instead leaves the session and permissions unchanged,
+with an information notice. XWF 0.3 returns an empty policy update for this
+refusal: new permissions stay `Ask`, so later supported transactions require
+their own review. No partial grant is simulated. The immutable preflight is bound
+to its exact XWF request; a declined batch leaves any active approval untouched.
 
 ## Lossless Web transaction review
 

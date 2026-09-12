@@ -17,6 +17,8 @@ void main() {
       WalletMethod.getBalance.jsonKey: XelisXswdPermissionPolicy.accept,
       'future_method': XelisXswdPermissionPolicy.accept,
       'future_rejected_method': XelisXswdPermissionPolicy.reject,
+      'subscribe': XelisXswdPermissionPolicy.accept,
+      'unsubscribe': XelisXswdPermissionPolicy.reject,
     });
 
     for (final method in nonPersistableMethods) {
@@ -31,6 +33,8 @@ void main() {
       XelisXswdPermissionPolicy.accept,
     );
     expect(normalized['future_method'], XelisXswdPermissionPolicy.ask);
+    expect(normalized['subscribe'], XelisXswdPermissionPolicy.accept);
+    expect(normalized['unsubscribe'], XelisXswdPermissionPolicy.reject);
     expect(
       normalized['future_rejected_method'],
       XelisXswdPermissionPolicy.reject,

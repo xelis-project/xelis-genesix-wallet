@@ -16,6 +16,8 @@ enum XswdMethodSupport {
 enum XswdMethodEffect {
   publicInformation,
   walletData,
+  walletSubscription,
+  walletUnsubscription,
   transaction,
   walletControl,
   decryption,
@@ -61,6 +63,23 @@ const _transactionReviewPolicy = XswdMethodPolicy(
   canPersist: false,
   canPrefetch: false,
 );
+
+const _eventPolicies = {
+  'subscribe': XswdMethodPolicy(
+    support: XswdMethodSupport.standardReview,
+    effect: XswdMethodEffect.walletSubscription,
+    canPersist: true,
+    canPrefetch: true,
+  ),
+  'unsubscribe': XswdMethodPolicy(
+    support: XswdMethodSupport.standardReview,
+    effect: XswdMethodEffect.walletUnsubscription,
+    canPersist: true,
+    canPrefetch: true,
+  ),
+};
+
+int get xswdMethodCount => WalletMethod.values.length + _eventPolicies.length;
 
 const _unsupportedTransactionPolicy = XswdMethodPolicy(
   support: XswdMethodSupport.unsupported,
@@ -167,6 +186,8 @@ WalletMethod? tryResolveXswdWalletMethod(String jsonKey) {
 }
 
 XswdMethodPolicy? tryXswdMethodPolicyForKey(String jsonKey) {
+  final eventPolicy = _eventPolicies[jsonKey];
+  if (eventPolicy != null) return eventPolicy;
   final method = tryResolveXswdWalletMethod(jsonKey);
   return method == null ? null : xswdMethodPolicy(method);
 }

@@ -16,6 +16,9 @@ const _aboveJavaScriptSafeInteger = '9007199254740993';
 const _wideNonce = '9007199254740995';
 const _maximumUnsigned64 = '18446744073709551615';
 const _requestIds = <String>{
+  'decline-prefetch',
+  'subscribe',
+  'unsubscribe',
   'reject-transfer',
   'approve-invoke',
   'replace-session',
@@ -80,6 +83,7 @@ Future<void> main(List<String> arguments) async {
     );
     stdout.writeln(
       'GENESIX_XSWD_WEB_E2E_PASS '
+      'prefetch_session_preserved=true subscriptions=true '
       'relay=true review=true approve=true reject=true app_close_reject=true '
       'session_replacement=true malformed_session_closed=true '
       'amount=$_aboveJavaScriptSafeInteger '
@@ -214,6 +218,12 @@ final class _XswdRelayFixture {
           await _acceptRelay(request);
         case ('GET', '/state'):
           await _writeState(request.response);
+        case ('GET', '/send/decline-prefetch'):
+          await _sendScenario(request.response, 'decline-prefetch');
+        case ('GET', '/send/subscribe'):
+          await _sendScenario(request.response, 'subscribe');
+        case ('GET', '/send/unsubscribe'):
+          await _sendScenario(request.response, 'unsubscribe');
         case ('GET', '/send/reject-transfer'):
           await _sendScenario(request.response, 'reject-transfer');
         case ('GET', '/send/approve-invoke'):
@@ -308,6 +318,8 @@ final class _XswdRelayFixture {
       return;
     }
     final request = switch (id) {
+      'decline-prefetch' => _prefetchRequest(id),
+      'subscribe' || 'unsubscribe' => _subscriptionRequest(id),
       'approve-invoke' => _invokeRequest(id),
       'malformed-transfer' => _malformedTransferRequest(id),
       _ => _transferRequest(id),
@@ -381,6 +393,12 @@ void _setCorsHeaders(HttpResponse response) {
 
 String _transferRequest(String id) =>
     '''{"jsonrpc":"2.0","id":"$id","method":"wallet.build_transaction","params":{"transfers":[{"asset":"$_nativeAsset","amount":$_aboveJavaScriptSafeInteger,"destination":"$_canonicalAddress","encrypt_extra_data":false}],"fee":{"fixed":$_maximumUnsigned64},"fee_limit":$_maximumUnsigned64,"nonce":$_wideNonce,"tx_version":0,"broadcast":false,"tx_as_hex":true}}''';
+
+String _prefetchRequest(String id) =>
+    '''{"jsonrpc":"2.0","id":"$id","method":"xswd.prefetch_permissions","params":{"permissions":["get_address","subscribe","build_transaction"]}}''';
+
+String _subscriptionRequest(String method) =>
+    '''{"jsonrpc":"2.0","id":"$method","method":"wallet.$method","params":{"notify":"balance_changed"}}''';
 
 String _invokeRequest(String id) =>
     // The real fixture wallet is offline. Allow must reach build_transaction,

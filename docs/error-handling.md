@@ -156,8 +156,10 @@ unchanged to the UI.
 Only top-level typed `method` or `permissions` fields are inspected. Exact
 policy lookup classifies methods as `unknown`, `unsupported` or `notPrefetchable`;
 this describes Genesix support, not protocol validity or an inferred exception
-cause. Each record is limited to 8 KiB of JSON and 64 method entries, with an
-omitted count. Names must match `[a-z][a-z0-9_.]*` and contain 1–64 ASCII
+cause. A valid batch refused by policy records `validation=passed`, `reject` and
+`prefetchDeclined`; it emits an information notice, not an `AppFailure`, and
+leaves the session open. Each record is limited to 8 KiB of JSON and 64 method
+entries, with an omitted count. Names must match `[a-z][a-z0-9_.]*` and contain 1–64 ASCII
 characters; others become `[invalid-method]`. Parameters, payloads, free-form
 reasons, application names, URLs, opaque references and `diagnosticMessage` are
 excluded, even in debug.

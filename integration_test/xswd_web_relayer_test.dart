@@ -103,6 +103,39 @@ void main() {
       expect(await connectedA, isTrue);
       await control.waitUntilRegistered(tester);
 
+      binding.reportData!['phase'] = 'decline_prefetch_without_closing';
+      await control.send('decline-prefetch');
+      final prefetch = await control.waitForResponse(
+        tester,
+        'decline-prefetch',
+      );
+      expect(prefetch.hasResult, isTrue);
+      expect(prefetch.hasError, isFalse);
+      final postPrefetchApps = (await repositoryA.getXswdState()).applications;
+      expect(postPrefetchApps.single.permissions, {
+        'get_address': XelisXswdPermissionPolicy.ask,
+        'subscribe': XelisXswdPermissionPolicy.ask,
+        'unsubscribe': XelisXswdPermissionPolicy.ask,
+        'build_transaction': XelisXswdPermissionPolicy.ask,
+      });
+
+      for (final method in ['subscribe', 'unsubscribe']) {
+        binding.reportData!['phase'] = method;
+        await control.send(method);
+        await _waitForRequest(
+          tester,
+          container,
+          XelisXswdRequestKind.permission,
+        );
+        final review = container.read(xswdRequestProvider).permissionReview!;
+        expect(review.method, method);
+        expect(review.subscriptionEvent, WalletEvent.balanceChanged);
+        await _decide(tester, container, label: loc.allow);
+        final response = await control.waitForResponse(tester, method);
+        expect(response.hasResult, isTrue);
+        expect(response.hasError, isFalse);
+      }
+
       await control.send('reject-transfer');
       final rejectedReview = await _waitForBuildTransaction(tester, container);
       _expectTransferReview(rejectedReview);
@@ -276,7 +309,12 @@ XelisXswdRelayer _relayer(String url) => XelisXswdRelayer(
   name: _applicationName,
   description: 'Ephemeral loopback integration fixture',
   url: null,
-  permissions: const ['build_transaction'],
+  permissions: const [
+    'get_address',
+    'subscribe',
+    'unsubscribe',
+    'build_transaction',
+  ],
   relayer: url,
 );
 
@@ -287,8 +325,9 @@ Future<void> _waitForRequest(
 ) async {
   for (var attempt = 0; attempt < 200; attempt++) {
     await _waitForExternalEvents(tester, const Duration(milliseconds: 50));
-    final request = container.read(xswdRequestProvider).xswdEventSummary;
-    if (request?.kind == kind) {
+    final state = container.read(xswdRequestProvider);
+    final request = state.xswdEventSummary;
+    if (state.pending && request?.kind == kind) {
       expect(request!.application.id, _applicationId);
       expect(request.application.name, _applicationName);
       return;

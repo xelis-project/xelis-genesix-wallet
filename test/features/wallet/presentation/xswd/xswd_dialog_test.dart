@@ -23,7 +23,14 @@ const _canonicalAddress =
 void main() {
   setUpAll(XelisWalletFlutter.initialize);
 
-  for (final method in ['get_balance', 'get_version', 'store']) {
+  for (final reviewCase in <({String method, String? event})>[
+    (method: 'get_balance', event: null),
+    (method: 'get_version', event: null),
+    (method: 'store', event: null),
+    (method: 'subscribe', event: 'balance_changed'),
+    (method: 'unsubscribe', event: 'new_transaction'),
+  ]) {
+    final method = reviewCase.method;
     testWidgets('$method explains and binds remembered approval', (
       tester,
     ) async {
@@ -39,6 +46,7 @@ void main() {
             'id': 1,
             'jsonrpc': '2.0',
             'method': method,
+            if (reviewCase.event case final event?) 'params': {'notify': event},
           }),
         ),
       );
@@ -58,9 +66,14 @@ void main() {
       final impact = switch (method) {
         'get_balance' => loc.xswd_permission_wallet_data_impact,
         'store' => loc.xswd_permission_app_storage_impact,
+        'subscribe' => loc.xswd_permission_subscription_impact,
+        'unsubscribe' => loc.xswd_permission_unsubscription_impact,
         _ => loc.xswd_permission_public_impact,
       };
       expect(find.text(impact).hitTestable(), findsOneWidget);
+      if (reviewCase.event case final event?) {
+        expect(find.text(event).hitTestable(), findsOneWidget);
+      }
       expect(find.text(loc.xswd_permission_persistent_impact), findsNothing);
       expect(container.read(xswdRequestProvider).pending, isTrue);
       final remember = find.text(loc.remember_my_decision);
@@ -485,7 +498,7 @@ void main() {
         application: _application,
         payload: xswdTestPayload({
           'reason': 'Show balances',
-          'permissions': ['get_balance'],
+          'permissions': ['get_balance', 'subscribe', 'unsubscribe'],
         }),
       ),
     );
@@ -505,8 +518,15 @@ void main() {
     );
 
     expect(find.text('get_balance').hitTestable(), findsOneWidget);
+    expect(find.text('subscribe').hitTestable(), findsOneWidget);
+    expect(find.text('unsubscribe').hitTestable(), findsOneWidget);
     final loc = AppLocalizationsEn();
     expect(find.text(loc.xswd_permission_wallet_data_impact), findsOneWidget);
+    expect(find.text(loc.xswd_permission_subscription_impact), findsOneWidget);
+    expect(
+      find.text(loc.xswd_permission_unsubscription_impact),
+      findsOneWidget,
+    );
     expect(find.text(loc.xswd_permission_persistent_impact), findsOneWidget);
     expect(find.text('Allow').hitTestable(), findsOneWidget);
     expect(

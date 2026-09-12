@@ -13,6 +13,12 @@
   "xswd_permission_wallet_data_impact": "Read the wallet data covered by this permission.",
   "xswd_permission_app_storage_impact": "Read and update storage reserved for this application.",
   "xswd_permission_persistent_impact": "Allows future requests for this permission without asking again.",
+  "xswd_permission_subscription_impact": "Receive private wallet events about activity and balance changes. Remembering or batching this permission applies to all wallet events, not only the event shown.",
+  "xswd_permission_unsubscription_impact": "Stop receiving wallet events. Remembering this permission applies to every event requested through the separate unsubscribe method.",
+  "xswd_prefetch_not_granted": "{appName} remains connected. No new batched permission was granted.",
+  "@xswd_prefetch_not_granted": {
+    "placeholders": {"appName": {"type": "String"}}
+  },
   "node_url_hint": "https://node.xelis.io",
   "node_name_hint": "My Node",
   "node_name": "Node Name",

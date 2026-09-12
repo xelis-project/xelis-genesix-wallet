@@ -13,6 +13,9 @@
   "xswd_permission_wallet_data_impact": "Odczyt danych portfela objętych tym uprawnieniem.",
   "xswd_permission_app_storage_impact": "Odczyt i zmiana danych w pamięci zarezerwowanej dla tej aplikacji.",
   "xswd_permission_persistent_impact": "Zezwala na przyszłe żądania tego uprawnienia bez ponownego pytania.",
+  "xswd_permission_subscription_impact": "Odbieranie prywatnych zdarzeń portfela dotyczących aktywności i zmian salda. Zapamiętanie lub zbiorcze przyznanie tego uprawnienia dotyczy wszystkich zdarzeń, nie tylko wyświetlonego.",
+  "xswd_permission_unsubscription_impact": "Zatrzymanie odbierania zdarzeń portfela. Zapamiętanie tego uprawnienia dotyczy wszystkich zdarzeń żądanych przez oddzielną metodę unsubscribe.",
+  "xswd_prefetch_not_granted": "{appName} pozostaje połączona. Nie przyznano żadnego nowego uprawnienia zbiorczego.",
   "@multisig_setup_participant_count": {
     "placeholders": {
       "count": {"type": "int"}

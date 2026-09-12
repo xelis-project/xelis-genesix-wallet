@@ -13,6 +13,9 @@
   "xswd_permission_wallet_data_impact": "Die von dieser Berechtigung erfassten Wallet-Daten lesen.",
   "xswd_permission_app_storage_impact": "Den für diese Anwendung reservierten Speicher lesen und ändern.",
   "xswd_permission_persistent_impact": "Erlaubt zukünftige Anfragen für diese Berechtigung ohne erneute Bestätigung.",
+  "xswd_permission_subscription_impact": "Private Wallet-Ereignisse zu Aktivitäten und Kontostandsänderungen empfangen. Das Speichern oder gebündelte Erteilen dieser Berechtigung gilt für alle Ereignisse, nicht nur für das angezeigte.",
+  "xswd_permission_unsubscription_impact": "Den Empfang von Wallet-Ereignissen beenden. Das Speichern dieser Berechtigung gilt für alle über die separate Methode unsubscribe angeforderten Ereignisse.",
+  "xswd_prefetch_not_granted": "{appName} bleibt verbunden. Es wurde keine neue gebündelte Berechtigung erteilt.",
   "@multisig_setup_participant_count": {
     "placeholders": {
       "count": {"type": "int"}
