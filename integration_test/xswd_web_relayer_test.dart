@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:forui/forui.dart';
 import 'package:genesix/shared/theme/genesix_theme.dart';
 import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/authentication/domain/wallet_session.dart';
@@ -20,6 +21,7 @@ import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/wallet_runtime_state.dart';
 import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_dialog.dart';
+import 'package:genesix/features/wallet/presentation/xswd/xswd_permission_copy.dart';
 import 'package:genesix/shared/theme/theme.dart';
 import 'package:genesix/src/generated/l10n/app_localizations_en.dart';
 import 'package:go_router/go_router.dart';
@@ -141,12 +143,23 @@ void main() {
         'build_transaction',
       ]);
       await _pumpDialog(tester, container);
-      expect(find.bySemanticsLabel('get_address'), findsOneWidget);
-      expect(find.bySemanticsLabel('subscribe'), findsOneWidget);
-      expect(find.text(loc.xswd_prefetch_requires_each_time), findsOneWidget);
-      await tester.tap(find.bySemanticsLabel('subscribe'));
+      expect(
+        find.widgetWithText(
+          FCheckbox,
+          xswdPermissionActionLabel('get_address', loc),
+        ),
+        findsOneWidget,
+      );
+      final subscription = find.widgetWithText(
+        FCheckbox,
+        xswdPermissionActionLabel('subscribe', loc),
+      );
+      expect(subscription, findsOneWidget);
+      expect(find.text(loc.xswd_transaction_each_time), findsOneWidget);
+      await tester.ensureVisible(subscription);
+      await tester.tap(subscription);
       await tester.pump();
-      await _tapDecision(tester, loc.xswd_prefetch_allow_selection);
+      await _tapDecision(tester, loc.xswd_prefetch_allow_count(1));
       final prefetch = await control.waitForResponse(
         tester,
         'partial-prefetch',

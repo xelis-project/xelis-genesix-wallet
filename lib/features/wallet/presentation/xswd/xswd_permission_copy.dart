@@ -150,6 +150,30 @@ XswdPermissionCopy xswdPermissionCopy(
   return XswdPermissionCopy(title: title, description: description);
 }
 
+/// Short action labels for consent; detailed explanations belong to review.
+String xswdPermissionActionLabel(String method, AppLocalizations loc) =>
+    switch (method) {
+      'get_address' => loc.xswd_action_read_address,
+      'get_balance' => loc.xswd_action_read_balance,
+      'get_asset' => loc.xswd_action_read_asset,
+      'get_assets' => loc.xswd_action_read_assets,
+      'network_info' => loc.xswd_action_read_network,
+      _ => xswdPermissionCopy(
+        method,
+        tryXswdMethodPolicyForKey(method),
+        loc,
+      ).title,
+    };
+
+/// Consequences that must remain visible before a selection is approved.
+String? xswdPermissionConsentNote(String method, AppLocalizations loc) =>
+    switch (method) {
+      'subscribe' => loc.xswd_subscription_connection_notice,
+      'unsubscribe' => loc.xswd_unsubscription_connection_notice,
+      'network_info' => loc.xswd_network_private_notice,
+      _ => null,
+    };
+
 String xswdPermissionImpact(XswdMethodEffect effect, AppLocalizations loc) =>
     switch (effect) {
       XswdMethodEffect.publicInformation => loc.xswd_permission_public_impact,

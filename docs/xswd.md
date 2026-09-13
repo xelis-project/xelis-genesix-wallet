@@ -96,8 +96,10 @@ wait for its own permissions to appear in native state.
 
 The **Recent choices** tab retains at most 20 decisions in memory across the
 wallet, filtered by the exact connection. It records method names, choice,
-scope and selected batch grants, without parameters, amounts, payloads or
-reasons. A one-time choice does not alter the native rule and an allowed choice
+scope, selected batch grants and the validated wallet-event enum for a
+subscription, without parameters, amounts, payloads or reasons. It describes
+each choice in words; batch selections and unchanged permissions are expandable.
+A one-time choice does not alter the native rule and an allowed choice
 does not prove RPC execution. Closing a connection purges its entries; closing
 or replacing the wallet purges all entries. Nothing is persisted or restored.
 
@@ -185,6 +187,13 @@ XWF's optional typed callback grants only the selected, requested methods;
 omissions remain unchanged. Rust validates the whole result before mutation,
 including uniqueness, subset membership and active callback/session identity.
 Genesix alone decides which methods may be prefetched.
+
+Consent shows short action labels and the connection scope. Private-event and
+node-address consequences remain visible; exact RPC names, full explanations
+and the application's declared reason are available in details for the current
+request. Application details group native rules by Allowed, Ask and Blocked,
+with unavailable methods separate. Rule editing retains its native confirmation;
+normal successful observations do not require a persistent status banner.
 
 Continuing without new grants returns `noChange` and preserves the connection.
 A known batch with no new grantable method also returns `noChange`, without

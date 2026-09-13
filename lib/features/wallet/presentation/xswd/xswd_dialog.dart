@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -52,7 +51,6 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
   static const Duration _rapidFireWindow = Duration(milliseconds: 500);
 
   int _millisecondsLeft = _requestLifetime;
-  double _progress = 1.0;
   Timer? _timer;
 
   Timer? _closeDelayTimer;
@@ -85,7 +83,6 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     _timer?.cancel();
     _timerRequestToken = token;
     _millisecondsLeft = _requestLifetime;
-    _progress = 1.0;
 
     _timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
       if (!mounted) {
@@ -104,7 +101,6 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
 
       setState(() {
         _millisecondsLeft -= 100;
-        _progress = _millisecondsLeft / _requestLifetime;
       });
 
       if (_millisecondsLeft <= 0) {
@@ -296,63 +292,88 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
             ? loc.xswd_transaction_review_title
             : loc.permission_request.capitalize();
       case XelisXswdRequestKind.prefetchPermissions:
-        title = loc.prefetch_permissions_request.capitalize();
+        title = loc.xswd_requested_permissions;
       case XelisXswdRequestKind.cancel:
         title = loc.unknown_request.capitalize();
       case XelisXswdRequestKind.applicationDisconnect:
         title = loc.unknown_request.capitalize();
     }
 
+    final compact =
+        MediaQuery.sizeOf(context).width < context.theme.breakpoints.sm;
     return AppDialog(
       clipBehavior: Clip.antiAlias,
       animation: widget.animation,
+      style: compact
+          ? const .delta(insetPadding: .value(EdgeInsets.all(8)))
+          : const .context(),
       constraints: const BoxConstraints(maxWidth: 700),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final maxBodyHeight = constraints.maxHeight.isFinite
-              ? constraints.maxHeight * 0.82
+              ? constraints.maxHeight
               : 620.0;
 
           return ConstrainedBox(
             constraints: BoxConstraints(maxHeight: maxBodyHeight),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(Spaces.extraSmall),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      _XswdCountdownIndicator(
+                if (!compact)
+                  Padding(
+                    padding: const EdgeInsets.all(Spaces.extraSmall),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Text(title, style: context.headlineSmall),
+                        ),
+                        const SizedBox(width: Spaces.medium),
+                        FTooltip(
+                          tipBuilder: (context, controller) => Text(loc.close),
+                          child: FButton.icon(
+                            variant: .ghost,
+                            semanticsTooltip: loc.close,
+                            onPress: () => _rejectAndClose(token),
+                            child: const Icon(FLucideIcons.x, size: 22),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _XswdCountdownIndicator(
                         awaitingNextRequest: _awaitingNextRequest,
                         millisecondsLeft: _millisecondsLeft,
-                        progress: _progress,
+                        loc: loc,
                       ),
-                      const SizedBox(width: Spaces.medium),
-                      Expanded(
-                        child: Text(
-                          title,
-                          style: context.headlineSmall,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
+                    ),
+                    if (compact)
+                      FButton.icon(
+                        variant: .ghost,
+                        semanticsTooltip: loc.close,
+                        onPress: () => _rejectAndClose(token),
+                        child: const Icon(FLucideIcons.x, size: 22),
                       ),
-                      const SizedBox(width: Spaces.medium),
-                      FTooltip(
-                        tipBuilder: (context, controller) => Text(loc.close),
-                        child: FButton.icon(
-                          variant: .ghost,
-                          semanticsTooltip: loc.close,
-                          onPress: () => _rejectAndClose(token),
-                          child: const Icon(FLucideIcons.x, size: 22),
-                        ),
-                      ),
-                    ],
-                  ),
+                  ],
                 ),
-                const SizedBox(height: Spaces.small),
+                if (!compact) ...[
+                  const SizedBox(height: Spaces.small),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: Spaces.small,
+                    ),
+                    child: _XswdApplicationInfoSection(
+                      appInfo: summary.application,
+                      loc: loc,
+                    ),
+                  ),
+                  const SizedBox(height: Spaces.medium),
+                ],
                 Flexible(
                   child: FadedScroll(
                     controller: _scrollController,
@@ -364,7 +385,9 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (transactionReview == null) ...[
+                          if (compact) ...[
+                            Text(title, style: context.headlineSmall),
+                            const SizedBox(height: Spaces.small),
                             _XswdApplicationInfoSection(
                               appInfo: summary.application,
                               loc: loc,
@@ -384,6 +407,9 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                               _XswdPermissionImpactSection(
                                 review: review,
                                 loc: loc,
+                                forConnection:
+                                    _permissionDecisionScope ==
+                                    _PermissionDecisionScope.connection,
                               ),
                               const SizedBox(height: Spaces.medium),
                             ],
@@ -410,7 +436,8 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                           _XswdMoreDetailsAccordion(
                             expanded: _detailsExpanded,
                             appInfo: summary.application,
-                            includeApplicationInfo: transactionReview != null,
+                            prefetchRequest:
+                                xswdState.prefetchPermissionsRequest,
                             permissionReview: transactionReview == null
                                 ? xswdState.permissionReview
                                 : null,
@@ -437,7 +464,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
       actions: actionSet == _ActionSet.prefetchDecision
           ? _buildPrefetchDecisionActions(
               busy: _awaitingNextRequest,
-              hasSelection: _selectedPrefetchMethods.isNotEmpty,
+              selectionCount: _selectedPrefetchMethods.length,
               loc: loc,
               onContinue: () => _handlePrefetchDecision(
                 token: token,
@@ -479,7 +506,6 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     _timerShouldRun = false;
     _awaitingNextRequest = false;
     _millisecondsLeft = _requestLifetime;
-    _progress = 1.0;
     _permissionDecisionScope = _PermissionDecisionScope.once;
     _selectedPrefetchMethods = const {};
     _detailsExpanded = false;
@@ -626,43 +652,52 @@ class _XswdInfoRow extends StatelessWidget {
 }
 
 class _XswdPermissionImpactSection extends StatelessWidget {
-  const _XswdPermissionImpactSection({required this.review, required this.loc});
+  const _XswdPermissionImpactSection({
+    required this.review,
+    required this.loc,
+    required this.forConnection,
+  });
 
   final XswdPermissionReview review;
   final AppLocalizations loc;
+  final bool forConnection;
 
   @override
   Widget build(BuildContext context) {
-    final copy = xswdPermissionCopy(review.method, review.policy, loc);
-
     return Column(
       key: const ValueKey('xswd-permission-impact'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(copy.title, style: context.titleMedium),
-        const SizedBox(height: Spaces.extraSmall),
-        Text(copy.description, style: context.bodyMedium),
-        const SizedBox(height: Spaces.small),
-        Wrap(
-          spacing: Spaces.small,
-          runSpacing: Spaces.small,
-          children: [
-            _XswdMinimalBadge(label: review.method),
-            if (review.subscriptionEvent case final event?)
-              _XswdMinimalBadge(label: xswdWalletEventLabel(event, loc)),
-          ],
+        Text(
+          xswdPermissionActionLabel(review.method, loc),
+          style: context.titleMedium,
         ),
-        if (review.subscriptionEvent != null) ...[
+        const SizedBox(height: Spaces.extraSmall),
+        if (review.subscriptionEvent case final event?)
+          Text(loc.xswd_recent_event(xswdWalletEventLabel(event, loc))),
+        if (_consentNote case final note?) Text(note),
+        if (review.policy.canPersist) ...[
           const SizedBox(height: Spaces.small),
           Text(
-            loc.xswd_subscription_connection_scope,
-            style: context.bodySmall?.copyWith(
-              color: context.theme.colors.mutedForeground,
-            ),
+            forConnection
+                ? loc.xswd_scope_connection_description
+                : loc.xswd_scope_once_description,
           ),
         ],
       ],
     );
+  }
+
+  String? get _consentNote {
+    if (review.subscriptionEvent != null && !forConnection) {
+      return review.method == 'subscribe'
+          ? loc.xswd_subscription_once_notice
+          : null;
+    }
+    return xswdPermissionConsentNote(review.method, loc) ??
+        (review.policy.effect == XswdMethodEffect.appStorage
+            ? xswdPermissionCopy(review.method, review.policy, loc).description
+            : null);
   }
 }
 
@@ -675,49 +710,25 @@ class _XswdApplicationInfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final url = appInfo.url?.trim();
-    final displayUrl = (url != null && url.isNotEmpty) ? url : '-';
-
-    return Container(
-      padding: const EdgeInsets.all(Spaces.medium),
-      decoration: BoxDecoration(
-        color: context.theme.colors.secondary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final compactLayout = constraints.maxWidth < 520;
-
-          if (compactLayout) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _XswdInfoRow(label: loc.name.capitalize(), value: appInfo.name),
-                const SizedBox(height: Spaces.medium),
-                _XswdInfoRow(label: loc.url.capitalize(), value: displayUrl),
-              ],
-            );
-          }
-
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: _XswdInfoRow(
-                  label: loc.name.capitalize(),
-                  value: appInfo.name,
-                ),
-              ),
-              const SizedBox(width: Spaces.medium),
-              Expanded(
-                child: _XswdInfoRow(
-                  label: loc.url.capitalize(),
-                  value: displayUrl,
-                ),
-              ),
-            ],
-          );
-        },
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          appInfo.name,
+          style: context.titleMedium,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+        if (url != null && url.isNotEmpty)
+          Text(
+            '${loc.xswd_declared_origin}: $url',
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: context.bodySmall?.copyWith(
+              color: context.theme.colors.mutedForeground,
+            ),
+          ),
+      ],
     );
   }
 }
@@ -857,7 +868,7 @@ class _XswdMoreDetailsAccordion extends StatelessWidget {
   const _XswdMoreDetailsAccordion({
     required this.expanded,
     required this.appInfo,
-    required this.includeApplicationInfo,
+    required this.prefetchRequest,
     required this.permissionReview,
     required this.loc,
     required this.onExpandedChange,
@@ -866,7 +877,7 @@ class _XswdMoreDetailsAccordion extends StatelessWidget {
 
   final bool expanded;
   final XelisXswdApplication appInfo;
-  final bool includeApplicationInfo;
+  final XelisXswdPrefetchPermissionsRequest? prefetchRequest;
   final XswdPermissionReview? permissionReview;
   final AppLocalizations loc;
   final ValueChanged<bool> onExpandedChange;
@@ -875,15 +886,8 @@ class _XswdMoreDetailsAccordion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasDescription = appInfo.description.isNotEmpty;
+    final hasOrigin = appInfo.url?.isNotEmpty == true;
     final hasPermissionDetails = permissionReview != null;
-    final hasFuturePermissions = appInfo.permissions.isNotEmpty;
-
-    if (!includeApplicationInfo &&
-        !hasDescription &&
-        !hasPermissionDetails &&
-        !hasFuturePermissions) {
-      return const SizedBox.shrink();
-    }
 
     return FAccordion(
       control: FAccordionControl.lifted(
@@ -900,33 +904,36 @@ class _XswdMoreDetailsAccordion extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (includeApplicationInfo) ...[
-                _XswdApplicationInfoSection(appInfo: appInfo, loc: loc),
-                if (hasDescription ||
-                    hasPermissionDetails ||
-                    hasFuturePermissions)
-                  const SizedBox(height: Spaces.medium),
+              if (appInfo.url case final url? when url.isNotEmpty) ...[
+                const SizedBox(height: Spaces.small),
+                _XswdInfoRow(label: loc.xswd_declared_origin, value: url),
               ],
-              if (hasDescription)
+              if (hasDescription) ...[
+                if (hasOrigin) const SizedBox(height: Spaces.medium),
                 _XswdInfoRow(
                   label: loc.description.capitalize(),
                   value: appInfo.description,
                 ),
+              ],
               if (hasPermissionDetails) ...[
-                if (hasDescription) const SizedBox(height: Spaces.medium),
+                if (hasDescription || hasOrigin)
+                  const SizedBox(height: Spaces.medium),
                 _XswdMinimalPermissionSection(
                   review: permissionReview!,
                   loc: loc,
                   onAssetTap: onAssetTap,
                 ),
               ],
-              if (hasFuturePermissions) ...[
-                if (hasDescription || hasPermissionDetails)
+              if (prefetchRequest case final prefetch?) ...[
+                if (prefetch.reason case final reason?
+                    when reason.isNotEmpty) ...[
                   const SizedBox(height: Spaces.medium),
-                _XswdMinimalFuturePermissionsSection(
-                  permissions: appInfo.permissions.keys,
-                  loc: loc,
-                ),
+                  XswdReviewText(label: loc.reason, value: reason, loc: loc),
+                ],
+                for (final method in prefetch.permissions) ...[
+                  const SizedBox(height: Spaces.medium),
+                  _XswdPermissionExplanation(method: method, loc: loc),
+                ],
               ],
             ],
           ),
@@ -955,12 +962,7 @@ class _XswdMinimalPermissionSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          loc.permissions.capitalize(),
-          style: context.bodyMedium?.copyWith(color: muted),
-        ),
-        const SizedBox(height: Spaces.small),
-        _XswdMinimalBadge(label: review.method),
+        _XswdPermissionExplanation(method: review.method, loc: loc),
         if (hasParams) ...[
           const SizedBox(height: Spaces.small),
           Text(
@@ -999,13 +1001,17 @@ class _XswdMinimalPrefetchDetailsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final selectable = <XswdMethodEffect, List<String>>{};
     final fixed = <String>[];
+    final allowed = <String>[];
     for (final method in request.permissions) {
       final policy = tryXswdMethodPolicyForKey(method);
       final current =
           currentPermissions[method] ?? XelisXswdPermissionPolicy.ask;
-      if (policy?.canPrefetch == true &&
-          current != XelisXswdPermissionPolicy.accept) {
-        selectable.putIfAbsent(policy!.effect, () => []).add(method);
+      if (policy?.canPrefetch == true) {
+        if (current == XelisXswdPermissionPolicy.accept) {
+          allowed.add(method);
+        } else {
+          selectable.putIfAbsent(policy!.effect, () => []).add(method);
+        }
       } else {
         fixed.add(method);
       }
@@ -1014,17 +1020,14 @@ class _XswdMinimalPrefetchDetailsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (request.reason != null && request.reason!.isNotEmpty) ...[
-          XswdReviewText(label: loc.reason, value: request.reason!, loc: loc),
-          const SizedBox(height: Spaces.medium),
-        ],
-        Text(loc.xswd_prefetch_selection_description),
+        Text(loc.xswd_permissions_connection_scope),
         for (final group in selectable.entries) ...[
           const SizedBox(height: Spaces.medium),
           FSelectGroup<String>(
             key: ValueKey('xswd-prefetch-${group.key.name}'),
-            label: Text(xswdPermissionEffectTitle(group.key, loc)),
-            description: Text(xswdPermissionImpact(group.key, loc)),
+            label: group.value.length > 1
+                ? Text(xswdPermissionEffectTitle(group.key, loc))
+                : null,
             control: .managed(
               initial: selectedMethods.intersection(group.value.toSet()),
               onChange: (values) {
@@ -1037,43 +1040,49 @@ class _XswdMinimalPrefetchDetailsSection extends StatelessWidget {
               for (final method in group.value)
                 .checkbox(
                   value: method,
-                  label: Text(
-                    xswdPermissionCopy(
-                      method,
-                      tryXswdMethodPolicyForKey(method),
-                      loc,
-                    ).title,
-                  ),
-                  description: _XswdPrefetchMethodDescription(
-                    method: method,
-                    description: xswdPermissionCopy(
-                      method,
-                      tryXswdMethodPolicyForKey(method),
-                      loc,
-                    ).description,
-                    status:
-                        currentPermissions[method] ==
-                            XelisXswdPermissionPolicy.reject
-                        ? loc.xswd_prefetch_previously_blocked
-                        : null,
-                  ),
-                  semanticsLabel: method,
+                  label: Text(xswdPermissionActionLabel(method, loc)),
+                  description:
+                      xswdPermissionConsentNote(method, loc) == null &&
+                          currentPermissions[method] !=
+                              XelisXswdPermissionPolicy.reject
+                      ? null
+                      : _XswdConsentNote(
+                          note: xswdPermissionConsentNote(method, loc),
+                          blocked:
+                              currentPermissions[method] ==
+                              XelisXswdPermissionPolicy.reject,
+                          loc: loc,
+                        ),
+                  semanticsLabel: xswdPermissionActionLabel(method, loc),
                 ),
             ],
           ),
         ],
-        if (fixed.isNotEmpty) ...[
+        if (allowed.isNotEmpty) ...[
           const SizedBox(height: Spaces.medium),
-          FTileGroup(
-            label: Text(loc.xswd_prefetch_existing_rules),
+          FAccordion(
             children: [
-              for (final method in fixed)
-                _XswdPrefetchFixedPermissionTile(
-                  method: method,
-                  currentPolicy: currentPermissions[method],
-                  loc: loc,
+              FAccordionItem(
+                title: Text(
+                  loc.xswd_prefetch_already_allowed_count(allowed.length),
                 ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (final method in allowed)
+                      Text(xswdPermissionActionLabel(method, loc)),
+                  ],
+                ),
+              ),
             ],
+          ),
+        ],
+        for (final method in fixed) ...[
+          const SizedBox(height: Spaces.medium),
+          _XswdPrefetchFixedPermissionRule(
+            method: method,
+            currentPolicy: currentPermissions[method],
+            loc: loc,
           ),
         ],
       ],
@@ -1081,8 +1090,8 @@ class _XswdMinimalPrefetchDetailsSection extends StatelessWidget {
   }
 }
 
-class _XswdPrefetchFixedPermissionTile extends StatelessWidget with FTileMixin {
-  const _XswdPrefetchFixedPermissionTile({
+class _XswdPrefetchFixedPermissionRule extends StatelessWidget {
+  const _XswdPrefetchFixedPermissionRule({
     required this.method,
     required this.currentPolicy,
     required this.loc,
@@ -1097,93 +1106,72 @@ class _XswdPrefetchFixedPermissionTile extends StatelessWidget with FTileMixin {
     final policy = tryXswdMethodPolicyForKey(method);
     final copy = xswdPermissionCopy(method, policy, loc);
     final label = switch ((policy, currentPolicy)) {
-      (_, XelisXswdPermissionPolicy.accept) =>
-        loc.xswd_prefetch_already_allowed,
+      (final value?, _) when !value.isSupported =>
+        loc.xswd_permission_status_unsupported,
       (_, XelisXswdPermissionPolicy.reject) =>
-        loc.xswd_prefetch_previously_blocked,
+        loc.xswd_permission_status_blocked,
       (final value?, _) when value.isSupported =>
-        loc.xswd_prefetch_requires_each_time,
+        loc.xswd_transaction_each_time,
       _ => loc.xswd_permission_status_unsupported,
     };
-    return FTile(
-      title: Text(copy.title),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _XswdPrefetchMethodDescription(
-            method: method,
-            description: copy.description,
-          ),
-          const SizedBox(height: Spaces.extraSmall),
-          FBadge(variant: .outline, child: Text(label)),
-        ],
-      ),
-      semanticsLabel: '${copy.title}, $label',
+    return Text(
+      policy?.isSupported == true &&
+              currentPolicy != XelisXswdPermissionPolicy.reject
+          ? label
+          : '${copy.title} — $label',
     );
   }
 }
 
-class _XswdPrefetchMethodDescription extends StatelessWidget {
-  const _XswdPrefetchMethodDescription({
-    required this.method,
-    required this.description,
-    this.status,
+class _XswdConsentNote extends StatelessWidget {
+  const _XswdConsentNote({
+    required this.note,
+    required this.blocked,
+    required this.loc,
   });
 
-  final String method;
-  final String description;
-  final String? status;
+  final String? note;
+  final bool blocked;
+  final AppLocalizations loc;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(description),
-        const SizedBox(height: Spaces.extraSmall),
-        Text(
-          method,
-          style: context.theme.typography.body.xs.copyWith(
-            color: context.theme.colors.mutedForeground,
-            fontFamily: 'monospace',
-          ),
-        ),
-        if (status case final label?) ...[
-          const SizedBox(height: Spaces.extraSmall),
-          FBadge(variant: .destructive, child: Text(label)),
-        ],
+        if (note case final value?) Text(value),
+        if (blocked) Text(loc.xswd_prefetch_previously_blocked),
       ],
     );
   }
 }
 
-class _XswdMinimalFuturePermissionsSection extends StatelessWidget {
-  const _XswdMinimalFuturePermissionsSection({
-    required this.permissions,
-    required this.loc,
-  });
+class _XswdPermissionExplanation extends StatelessWidget {
+  const _XswdPermissionExplanation({required this.method, required this.loc});
 
-  final Iterable<String> permissions;
+  final String method;
   final AppLocalizations loc;
 
   @override
   Widget build(BuildContext context) {
     final muted = context.theme.colors.mutedForeground;
+    final copy = xswdPermissionCopy(
+      method,
+      tryXswdMethodPolicyForKey(method),
+      loc,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          loc.future_permissions.capitalize(),
-          style: context.bodyMedium?.copyWith(color: muted),
-        ),
-        const SizedBox(height: Spaces.small),
-        Wrap(
-          spacing: Spaces.small,
-          runSpacing: Spaces.small,
-          children: permissions
-              .map((permission) => _XswdMinimalBadge(label: permission))
-              .toList(),
+        Text(copy.title, style: context.titleSmall),
+        Text(copy.description),
+        SelectableText(
+          method,
+          style: context.bodySmall?.copyWith(
+            color: muted,
+            fontFamily: 'monospace',
+          ),
         ),
       ],
     );
@@ -1343,12 +1331,10 @@ class _XswdActionFactory {
               .radio(
                 value: _PermissionDecisionScope.once,
                 label: Text(loc.xswd_scope_once),
-                description: Text(loc.xswd_scope_once_description),
               ),
               .radio(
                 value: _PermissionDecisionScope.connection,
                 label: Text(loc.xswd_scope_connection),
-                description: Text(loc.xswd_scope_connection_description),
               ),
             ],
           ),
@@ -1444,7 +1430,7 @@ Set<String> _initialPrefetchSelection(XswdRequestState state) {
 
 List<Widget> _buildPrefetchDecisionActions({
   required bool busy,
-  required bool hasSelection,
+  required int selectionCount,
   required AppLocalizations loc,
   required VoidCallback onContinue,
   required VoidCallback onAllow,
@@ -1462,8 +1448,8 @@ List<Widget> _buildPrefetchDecisionActions({
         const SizedBox(height: Spaces.small),
         _XswdDecisionButton(
           busy: busy,
-          label: loc.xswd_prefetch_allow_selection,
-          onPress: hasSelection ? onAllow : null,
+          label: loc.xswd_prefetch_allow_count(selectionCount),
+          onPress: selectionCount > 0 ? onAllow : null,
         ),
       ],
     ),
@@ -1488,7 +1474,7 @@ class _XswdDecisionButton extends StatelessWidget {
     return FButton(
       variant: variant,
       onPress: busy ? null : onPress,
-      child: Text(label),
+      child: Flexible(child: Text(label, textAlign: TextAlign.center)),
     );
   }
 }
@@ -1497,45 +1483,37 @@ class _XswdCountdownIndicator extends StatelessWidget {
   const _XswdCountdownIndicator({
     required this.awaitingNextRequest,
     required this.millisecondsLeft,
-    required this.progress,
+    required this.loc,
   });
 
   final bool awaitingNextRequest;
   final int millisecondsLeft;
-  final double progress;
+  final AppLocalizations loc;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.theme.colors;
-    final secondsLeft = (millisecondsLeft / 1000).ceil();
-    final clampedProgress = progress.clamp(0.0, 1.0).toDouble();
-
-    return SizedBox(
-      width: 40,
-      height: 40,
-      child: Stack(
-        alignment: Alignment.center,
+    final secondsLeft = (millisecondsLeft / 1000).ceil().clamp(0, 180);
+    final time =
+        '${secondsLeft ~/ 60}:${(secondsLeft % 60).toString().padLeft(2, '0')}';
+    final urgent = !awaitingNextRequest && secondsLeft <= 30;
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          CustomPaint(
-            size: const Size.square(40),
-            painter: _CountdownRingPainter(
-              progress: awaitingNextRequest ? null : clampedProgress,
-              trackColor: colors.border,
-              activeColor: colors.primary,
+          // The live-region label changes once, not at every timer tick.
+          Semantics(
+            liveRegion: true,
+            label: urgent ? loc.xswd_expiring_soon : '',
+            child: const SizedBox.shrink(),
+          ),
+          Text(
+            awaitingNextRequest ? loc.loading : loc.xswd_expires_in(time),
+            style: context.bodySmall?.copyWith(
+              color: urgent ? colors.destructive : colors.mutedForeground,
             ),
           ),
-          if (awaitingNextRequest)
-            FInheritedCircularProgressStyle(
-              style: FCircularProgressStyle(
-                iconStyle: IconThemeData(size: 16, color: colors.primary),
-              ),
-              child: const FCircularProgress.loader(),
-            )
-          else
-            Text(
-              '$secondsLeft',
-              style: context.bodySmall?.copyWith(fontWeight: FontWeight.bold),
-            ),
         ],
       ),
     );
@@ -1660,64 +1638,5 @@ class _PermissionContentContainer extends StatelessWidget {
       ),
       child: child,
     );
-  }
-}
-
-class _CountdownRingPainter extends CustomPainter {
-  const _CountdownRingPainter({
-    required this.progress,
-    required this.trackColor,
-    required this.activeColor,
-  });
-
-  final double? progress;
-  final Color trackColor;
-  final Color activeColor;
-  static const double _strokeWidth = 3;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
-    final radius = (math.min(size.width, size.height) - _strokeWidth) / 2;
-
-    final track = Paint()
-      ..color = trackColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = _strokeWidth
-      ..strokeCap = StrokeCap.round;
-
-    canvas.drawCircle(center, radius, track);
-
-    final value = progress;
-    if (value == null) {
-      return;
-    }
-
-    final clamped = value.clamp(0.0, 1.0).toDouble();
-    final sweep = 2 * math.pi * clamped;
-    if (sweep <= 0) {
-      return;
-    }
-
-    final arc = Paint()
-      ..color = activeColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = _strokeWidth
-      ..strokeCap = StrokeCap.round;
-
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      -math.pi / 2,
-      sweep,
-      false,
-      arc,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _CountdownRingPainter oldDelegate) {
-    return oldDelegate.progress != progress ||
-        oldDelegate.trackColor != trackColor ||
-        oldDelegate.activeColor != activeColor;
   }
 }

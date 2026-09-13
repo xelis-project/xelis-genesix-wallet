@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
 import 'package:genesix/features/wallet/domain/xswd_notice.dart';
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' show WalletEvent;
 import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 part 'xswd_request_state.freezed.dart';
@@ -32,6 +33,7 @@ final class XswdRecentChoice {
     required this.kind,
     required this.outcome,
     required this.scope,
+    this.subscriptionEvent,
     Iterable<String> methods = const [],
     Iterable<String> grantedMethods = const [],
   }) : methods = List.unmodifiable(methods),
@@ -41,6 +43,7 @@ final class XswdRecentChoice {
   final XswdNoticeKind kind;
   final XswdChoiceOutcome outcome;
   final XswdChoiceScope scope;
+  final WalletEvent? subscriptionEvent;
   final List<String> methods;
   final List<String> grantedMethods;
 

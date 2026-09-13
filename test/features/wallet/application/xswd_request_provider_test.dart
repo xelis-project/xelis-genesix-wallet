@@ -6,6 +6,7 @@ import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
 import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' show WalletEvent;
 import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 import '../../../helpers/xswd_test_payload.dart';
@@ -159,6 +160,56 @@ void main() {
     }
     expect(container.read(xswdRecentChoicesProvider), hasLength(2));
   });
+
+  test(
+    'recent subscriptions retain only the validated event identity',
+    () async {
+      final repository = _Repository();
+      final container = _container(repository);
+      addTearDown(container.dispose);
+      final notifier = container.read(xswdRequestProvider.notifier);
+      final application = _request().application;
+      for (final event in [
+        WalletEvent.balanceChanged,
+        WalletEvent.newTransaction,
+      ]) {
+        final pending = notifier.newRequest(
+          xswdEventSummary: XelisXswdRequest(
+            kind: XelisXswdRequestKind.permission,
+            application: application,
+            payload: xswdTestPayload({
+              'id': 1,
+              'jsonrpc': '2.0',
+              'method': 'subscribe',
+              'params': {
+                'notify': event == WalletEvent.balanceChanged
+                    ? 'balance_changed'
+                    : 'new_transaction',
+              },
+            }),
+          ),
+          message: '',
+          repository: repository,
+        );
+        final token = container.read(xswdRequestProvider).token!;
+        expect(
+          notifier.resolveIfCurrent(token, XelisXswdDecision.accept),
+          isTrue,
+        );
+        expect(await pending, XelisXswdDecision.accept);
+        expect(
+          container.read(xswdRecentChoicesProvider).first.subscriptionEvent,
+          event,
+        );
+      }
+      expect(
+        container
+            .read(xswdRecentChoicesProvider)
+            .map((choice) => choice.subscriptionEvent),
+        [WalletEvent.newTransaction, WalletEvent.balanceChanged],
+      );
+    },
+  );
 
   test(
     'recent choices are bounded, session scoped and cleared with the wallet',

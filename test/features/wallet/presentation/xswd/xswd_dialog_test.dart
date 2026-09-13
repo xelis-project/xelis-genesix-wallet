@@ -75,21 +75,20 @@ void main() {
         ),
       );
       final review = container.read(xswdRequestProvider).permissionReview!;
-      final copy = xswdPermissionCopy(method, review.policy, loc);
-      expect(find.text(copy.title).hitTestable(), findsOneWidget);
-      expect(find.text(copy.description).hitTestable(), findsOneWidget);
+      expect(
+        find.text(xswdPermissionActionLabel(method, loc)).hitTestable(),
+        findsOneWidget,
+      );
+      expect(find.text(method).hitTestable(), findsNothing);
       if (reviewCase.event case final event?) {
         expect(
           find
-              .text(xswdWalletEventLabel(WalletEvent.fromStr(event), loc))
+              .text(
+                loc.xswd_recent_event(
+                  xswdWalletEventLabel(WalletEvent.fromStr(event), loc),
+                ),
+              )
               .hitTestable(),
-          findsOneWidget,
-        );
-        await tester.ensureVisible(
-          find.text(loc.xswd_subscription_connection_scope),
-        );
-        expect(
-          find.text(loc.xswd_subscription_connection_scope).hitTestable(),
           findsOneWidget,
         );
       }
@@ -100,6 +99,11 @@ void main() {
       await tester.ensureVisible(connectionScope);
       await tester.tap(connectionScope);
       await tester.pump(const Duration(milliseconds: 150));
+      if (review.subscriptionEvent != null) {
+        final note = xswdPermissionConsentNote(method, loc)!;
+        await tester.ensureVisible(find.text(note));
+        expect(find.text(note).hitTestable(), findsOneWidget);
+      }
       expect(container.read(xswdRequestProvider).pending, isTrue);
       expect(find.text(loc.xswd_block_for_connection), findsOneWidget);
       final allow = find.text(loc.xswd_allow_for_connection);
@@ -867,11 +871,15 @@ void main() {
     );
     expect(tester.takeException(), isNull);
 
-    expect(find.text('get_balance'), findsOneWidget);
     final loc = AppLocalizationsEn();
-    expect(find.text(loc.xswd_prefetch_already_allowed), findsOneWidget);
-    expect(find.text(loc.xswd_prefetch_requires_each_time), findsOneWidget);
-    expect(find.text(loc.xswd_prefetch_allow_selection), findsOneWidget);
+    expect(find.text('get_balance').hitTestable(), findsNothing);
+    expect(find.text('Show balances').hitTestable(), findsNothing);
+    expect(
+      find.text(loc.xswd_prefetch_already_allowed_count(1)),
+      findsOneWidget,
+    );
+    expect(find.text(loc.xswd_transaction_each_time), findsOneWidget);
+    expect(find.text(loc.xswd_prefetch_allow_count(1)), findsOneWidget);
     expect(
       find.text(loc.xswd_prefetch_continue_without_new_permissions),
       findsOneWidget,
@@ -881,13 +889,14 @@ void main() {
       tryXswdMethodPolicyForKey('store'),
       loc,
     );
-    await tester.ensureVisible(find.text(rejectedCopy.title));
-    await tester.tap(find.text(rejectedCopy.title));
+    final blockedCheckbox = find.widgetWithText(FCheckbox, rejectedCopy.title);
+    await tester.ensureVisible(blockedCheckbox);
+    await tester.tap(blockedCheckbox);
     await tester.pump(const Duration(milliseconds: 150));
-    final allow = find.text(loc.xswd_prefetch_allow_selection);
+    final allow = find.text(loc.xswd_prefetch_allow_count(2));
     await tester.ensureVisible(allow);
     expect(
-      tester.getTopLeft(find.text('get_balance')).dy,
+      tester.getTopLeft(find.text(loc.xswd_action_read_balance)).dy,
       lessThan(tester.getTopLeft(allow).dy),
     );
     await tester.tap(allow);
@@ -903,6 +912,80 @@ void main() {
     container.read(xswdRequestProvider.notifier).clearRequest();
     await tester.pumpWidget(const SizedBox.shrink());
   });
+
+  for (final loc in [AppLocalizationsEn(), AppLocalizationsFr()]) {
+    testWidgets(
+      'large batch remains readable at 320px with double text (${loc.localeName})',
+      (tester) async {
+        tester.view.physicalSize = const Size(320, 700);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        final harness = _XswdTestHarness(loc);
+        final container = harness.container;
+        addTearDown(container.dispose);
+        final methods = [
+          'subscribe',
+          ...WalletMethod.values
+              .map((method) => method.jsonKey)
+              .where(
+                (method) =>
+                    tryXswdMethodPolicyForKey(method)?.canPrefetch == true,
+              )
+              .take(18),
+        ];
+        final decision = harness.newPrefetchRequest(
+          _prefetchRequest(permissions: methods),
+          currentPermissions: const {},
+        );
+        final theme = greenDark(touch: true);
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: MaterialApp(
+              theme: theme.toApproximateMaterialTheme(),
+              builder: (context, child) => MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  textScaler: const TextScaler.linear(2),
+                  disableAnimations: true,
+                ),
+                child: child!,
+              ),
+              home: GenesixTheme(
+                data: theme,
+                child: const Scaffold(
+                  body: XswdDialog(kAlwaysCompleteAnimation),
+                ),
+              ),
+            ),
+          ),
+        );
+        expect(tester.takeException(), isNull);
+        expect(
+          find.text(loc.xswd_requested_permissions).hitTestable(),
+          findsOneWidget,
+        );
+        expect(
+          find
+              .text(loc.xswd_prefetch_allow_count(methods.length))
+              .hitTestable(),
+          findsOneWidget,
+        );
+        final privacy = find.text(loc.xswd_subscription_connection_notice);
+        await tester.ensureVisible(privacy);
+        expect(privacy.hitTestable(at: Alignment.topCenter), findsOneWidget);
+        expect(find.text('subscribe').hitTestable(), findsNothing);
+        await tester.tap(
+          find.text(loc.xswd_prefetch_continue_without_new_permissions),
+        );
+        await tester.pump(const Duration(milliseconds: 200));
+        expect(await decision, isA<XelisXswdPrefetchNoChange>());
+        container.read(xswdRequestProvider.notifier).clearRequest();
+        await tester.pumpWidget(const SizedBox.shrink());
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 
   testWidgets('a replacement batch resets selection for the captured rules', (
     tester,

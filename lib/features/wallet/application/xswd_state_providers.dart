@@ -336,6 +336,7 @@ class XswdRequest extends _$XswdRequest {
                 ? [method]
                 : prefetch?.permissions ?? const [],
             grantedMethods: grantedMethods,
+            subscriptionEvent: state.permissionReview?.subscriptionEvent,
           ),
         );
   }
