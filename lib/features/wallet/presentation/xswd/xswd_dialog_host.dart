@@ -43,8 +43,11 @@ class _XswdDialogHostState extends ConsumerState<XswdDialogHost> {
 
   void _onRequestChanged(XswdRequestState? previous, XswdRequestState next) {
     _currentToken = next.token;
-    if (next.token != null || _lastPresentedToken == null) return;
     final route = _dialogRoute;
+    if (next.token == null && route != null) _closeIfNoRequest(route);
+  }
+
+  void _closeIfNoRequest(ModalRoute<void> route) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted ||
           _currentToken != null ||
@@ -94,7 +97,10 @@ class _XswdDialogHostState extends ConsumerState<XswdDialogHost> {
         context: navigatorContext,
         builder: (context, _, animation) {
           final route = ModalRoute.of<void>(context);
-          if (route?.isActive == true) _dialogRoute = route;
+          if (route?.isActive == true) {
+            _dialogRoute = route;
+            if (_currentToken == null) _closeIfNoRequest(route!);
+          }
           return XswdDialog(
             animation,
             onRequestPresented: (token) {

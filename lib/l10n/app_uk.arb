@@ -32,7 +32,6 @@
   "xswd_expires_in": "Минає через {time}",
   "xswd_expiring_soon": "Термін цього запиту мине через 30 секунд.",
   "xswd_app_details_title": "Відомості про підключений застосунок",
-  "xswd_application_technical_details": "Технічні відомості про застосунок",
   "xswd_connection_active": "Підключено",
   "xswd_declared_origin": "Заявлене джерело",
   "xswd_edit_permission": "Змінити дозвіл",

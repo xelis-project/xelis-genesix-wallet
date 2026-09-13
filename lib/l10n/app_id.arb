@@ -32,7 +32,6 @@
   "xswd_expires_in": "Kedaluwarsa dalam {time}",
   "xswd_expiring_soon": "Permintaan ini kedaluwarsa dalam 30 detik.",
   "xswd_app_details_title": "Detail aplikasi terhubung",
-  "xswd_application_technical_details": "Detail teknis aplikasi",
   "xswd_connection_active": "Terhubung",
   "xswd_declared_origin": "Asal yang dinyatakan",
   "xswd_edit_permission": "Edit izin",

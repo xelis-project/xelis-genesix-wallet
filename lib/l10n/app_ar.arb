@@ -32,7 +32,6 @@
   "xswd_expires_in": "تنتهي الصلاحية خلال {time}",
   "xswd_expiring_soon": "تنتهي صلاحية هذا الطلب خلال 30 ثانية.",
   "xswd_app_details_title": "تفاصيل التطبيق المتصل",
-  "xswd_application_technical_details": "التفاصيل التقنية للتطبيق",
   "xswd_connection_active": "متصل",
   "xswd_declared_origin": "المصدر المعلن",
   "xswd_edit_permission": "تعديل الإذن",

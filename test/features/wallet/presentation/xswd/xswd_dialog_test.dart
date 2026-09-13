@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +9,8 @@ import 'package:genesix/shared/theme/genesix_theme.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
+import 'package:genesix/features/wallet/application/xswd_decision_timing.dart';
+import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/xswd_method_policy.dart';
 import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
@@ -1161,6 +1165,152 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('late opening and reopening preserve the three-minute budget', (
+    tester,
+  ) async {
+    final loc = AppLocalizationsEn();
+    final clock = _WidgetDecisionClock(tester.binding.clock.now);
+    final harness = _XswdTestHarness(loc, clock: clock);
+    final container = harness.container;
+    addTearDown(container.dispose);
+    final decision = harness.newRequest(
+      _permissionRequest(id: 1, method: 'get_address'),
+    );
+    await tester.pump(const Duration(seconds: 75));
+    await tester.pumpWidget(_budgetTestApp(container));
+    expect(find.text(loc.xswd_expires_in('1:45')), findsOneWidget);
+    expect(container.read(xswdRequestProvider).pending, isTrue);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 15));
+    await tester.pumpWidget(_budgetTestApp(container));
+    expect(find.text(loc.xswd_expires_in('1:30')), findsOneWidget);
+    await tester.tap(find.text(loc.xswd_allow_once));
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(await decision, XelisXswdDecision.accept);
+    container.read(xswdRequestProvider.notifier).clearRequest();
+    await tester.pumpWidget(const SizedBox.shrink());
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'resume refreshes the deadline and expired actions cannot reach a successor',
+    (tester) async {
+      final loc = AppLocalizationsEn();
+      final clock = _WidgetDecisionClock(tester.binding.clock.now);
+      final harness = _XswdTestHarness(loc, clock: clock);
+      final container = harness.container;
+      addTearDown(container.dispose);
+      final first = harness.newRequest(
+        _permissionRequest(id: 1, method: 'get_address'),
+      );
+      await tester.pumpWidget(_budgetTestApp(container));
+      final oldAllow = tester.widget<FButton>(
+        find.widgetWithText(FButton, loc.xswd_allow_once),
+      );
+      _setTestPaused(tester, true);
+      clock.jump(const Duration(seconds: 151));
+      _setTestPaused(tester, false);
+      await tester.pump();
+      expect(find.text(loc.xswd_expires_in('0:29')), findsOneWidget);
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics &&
+              widget.properties.liveRegion == true &&
+              widget.properties.label == loc.xswd_expiring_soon,
+        ),
+        findsOneWidget,
+      );
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text(loc.xswd_expires_in('0:28')), findsOneWidget);
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics &&
+              widget.properties.liveRegion == true &&
+              widget.properties.label == loc.xswd_expiring_soon,
+        ),
+        findsOneWidget,
+      );
+      _setTestPaused(tester, true);
+      clock.jump(const Duration(seconds: 29));
+      _setTestPaused(tester, false);
+      await tester.pump();
+      expect(await first, XelisXswdDecision.reject);
+      expect(
+        container.read(xswdRecentChoicesProvider).single.outcome,
+        XswdChoiceOutcome.expired,
+      );
+      final next = harness.newRequest(
+        _permissionRequest(id: 2, method: 'get_balance'),
+      );
+      final nextToken = container.read(xswdRequestProvider).token;
+      await tester.pump();
+      expect(find.text(loc.xswd_expires_in('3:00')), findsOneWidget);
+      oldAllow.onPress?.call();
+      await tester.pump();
+      expect(container.read(xswdRequestProvider).pending, isTrue);
+      expect(container.read(xswdRequestProvider).token, same(nextToken));
+      container.read(xswdRequestProvider.notifier).clearRequest();
+      expect(await next, XelisXswdDecision.reject);
+      await tester.pumpWidget(const SizedBox.shrink());
+      expect(tester.takeException(), isNull);
+    },
+  );
+}
+
+Widget _budgetTestApp(ProviderContainer container) {
+  final theme = greenDark(touch: false);
+  return UncontrolledProviderScope(
+    container: container,
+    child: MaterialApp(
+      theme: theme.toApproximateMaterialTheme(),
+      home: GenesixTheme(
+        data: theme,
+        child: const Scaffold(body: XswdDialog(kAlwaysCompleteAnimation)),
+      ),
+    ),
+  );
+}
+
+void _setTestPaused(WidgetTester tester, bool paused) {
+  for (final state
+      in paused
+          ? [
+              AppLifecycleState.inactive,
+              AppLifecycleState.hidden,
+              AppLifecycleState.paused,
+            ]
+          : [
+              AppLifecycleState.hidden,
+              AppLifecycleState.inactive,
+              AppLifecycleState.resumed,
+            ]) {
+    tester.binding.handleAppLifecycleStateChanged(state);
+  }
+}
+
+final class _WidgetDecisionClock implements XswdDecisionClock {
+  _WidgetDecisionClock(this._now) : _start = _now();
+  final DateTime Function() _now;
+  final DateTime _start;
+  Duration _offset = Duration.zero;
+  @override
+  Duration now() => _now().difference(_start) + _offset;
+  void jump(Duration elapsed) => _offset += elapsed;
+  @override
+  XswdScheduledTask schedule(Duration delay, void Function() callback) =>
+      _WidgetScheduledTask(Timer(delay, callback));
+}
+
+final class _WidgetScheduledTask implements XswdScheduledTask {
+  _WidgetScheduledTask(this.timer);
+  final Timer timer;
+  @override
+  bool get isActive => timer.isActive;
+  @override
+  void cancel() => timer.cancel();
 }
 
 XelisXswdRequest _permissionRequest({required int id, required String method}) {
@@ -1249,12 +1399,13 @@ final _application = XelisXswdApplication(
 );
 
 final class _XswdTestHarness {
-  factory _XswdTestHarness(AppLocalizations loc) {
+  factory _XswdTestHarness(AppLocalizations loc, {XswdDecisionClock? clock}) {
     final repository = _FakeNativeWalletRepository();
     return _XswdTestHarness._(
       repository,
       ProviderContainer(
         overrides: [
+          if (clock != null) xswdDecisionClockProvider.overrideWithValue(clock),
           appLocalizationsProvider.overrideWithValue(loc),
           activeWalletRepositoryProvider.overrideWithValue(repository),
         ],

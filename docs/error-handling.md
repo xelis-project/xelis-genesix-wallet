@@ -337,6 +337,13 @@ support references, analytics, crash reports, or toasts. Callback failures and
 timeouts fail closed with static package errors; arbitrary Dart exception
 messages never cross into Rust or native diagnostics.
 
+The normal 180-second Genesix review deadline is an expected refusal, recorded
+as an expired choice without an `AppFailure` or new permission. The separate
+185-second XWF safety timeout still reports the existing structured package
+failure if a decision callback cannot finish. Cancellation/disconnection
+notifications have a separate 10-second timeout. These budgets do not change
+the native permission-observation deadline or diagnostic exclusions.
+
 Permission review, prefetch, persistence and editing use the single method
 policy defined in [`xswd.md`](xswd.md), alongside the support matrix and deferred
 capabilities. Diagnostic logging never changes that policy.

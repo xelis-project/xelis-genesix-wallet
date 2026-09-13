@@ -10,6 +10,7 @@ import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
 import 'package:genesix/features/wallet/domain/xswd_method_policy.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_effect_bus_provider.dart';
+import 'package:genesix/features/wallet/application/xswd_decision_timing.dart';
 import 'package:genesix/features/wallet/domain/wallet_effect.dart';
 import 'package:genesix/shared/errors/app_failure_reporter.dart';
 import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
@@ -93,12 +94,14 @@ class XswdRequest extends _$XswdRequest {
     required XelisXswdRequest xswdEventSummary,
     required String message,
     required NativeWalletRepository repository,
+    Duration? decisionDeadline,
     XswdPrefetchPreflight? preflight,
     Map<String, XelisXswdPermissionPolicy> currentPermissions = const {},
   }) => _newRequest(
     xswdEventSummary: xswdEventSummary,
     message: message,
     repository: repository,
+    decisionDeadline: decisionDeadline,
     preflight: preflight,
     currentPermissions: currentPermissions,
   ).then((result) => result.decision);
@@ -108,11 +111,13 @@ class XswdRequest extends _$XswdRequest {
     required String message,
     required NativeWalletRepository repository,
     required Map<String, XelisXswdPermissionPolicy> currentPermissions,
+    Duration? decisionDeadline,
   }) =>
       _newRequest(
         xswdEventSummary: preflight.source,
         message: message,
         repository: repository,
+        decisionDeadline: decisionDeadline,
         preflight: preflight,
         currentPermissions: currentPermissions,
       ).then(
@@ -125,6 +130,7 @@ class XswdRequest extends _$XswdRequest {
     required XelisXswdRequest xswdEventSummary,
     required String message,
     required NativeWalletRepository repository,
+    Duration? decisionDeadline,
     XswdPrefetchPreflight? preflight,
     required Map<String, XelisXswdPermissionPolicy> currentPermissions,
   }) {
@@ -154,6 +160,20 @@ class XswdRequest extends _$XswdRequest {
       throw const FormatException('Expected an XSWD approval request.');
     }
 
+    final clock = ref.read(xswdDecisionClockProvider);
+    final effectiveDeadline =
+        decisionDeadline ?? clock.now() + xswdUserDecisionBudget;
+    if (xswdDecisionExpired(deadline: effectiveDeadline, clock: clock)) {
+      recordExpiredRequest(
+        xswdEventSummary: xswdEventSummary,
+        permissionReview: permissionReview,
+        prefetchRequest: prefetchRequest,
+      );
+      return Future.value(
+        const _XswdApprovalDecision(XelisXswdDecision.reject),
+      );
+    }
+
     // Validate before replacing an unrelated, already reviewable request.
     _completePendingDecision();
     final request = _OwnedXswdRequest(
@@ -171,11 +191,13 @@ class XswdRequest extends _$XswdRequest {
       repository: repository,
       walletSession: ref.read(activeWalletSessionProvider),
       sessionReference: xswdEventSummary.application.sessionReference,
+      decisionDeadline: effectiveDeadline,
     );
     _request = request;
     state = XswdRequestState(
       token: request.token,
       pending: true,
+      decisionDeadline: effectiveDeadline,
       xswdEventSummary: xswdEventSummary,
       message: message,
       permissionReview: permissionReview,
@@ -183,6 +205,7 @@ class XswdRequest extends _$XswdRequest {
       prefetchCurrentPermissions: Map.unmodifiable(currentPermissions),
       suppressXswdToast: state.suppressXswdToast,
     );
+    _scheduleExpiry(request);
     return request.decision.future;
   }
 
@@ -205,13 +228,13 @@ class XswdRequest extends _$XswdRequest {
   }
 
   bool requestOpenIfCurrent(Object token) {
-    if (!isCurrent(token) || !state.pending) return false;
+    if (!isCurrent(token) || !state.pending || checkExpiry(token)) return false;
     ref.read(xswdDialogCoordinatorProvider.notifier).requestOpen(token);
     return true;
   }
 
   bool resolveIfCurrent(Object token, XelisXswdDecision decision) {
-    if (!isCurrent(token) || !state.pending) return false;
+    if (!isCurrent(token) || !state.pending || checkExpiry(token)) return false;
     // A batch must carry its explicit selection. The binary legacy command
     // can only leave permissions unchanged, never imply a full grant.
     if (state.prefetchPermissionsRequest != null) {
@@ -221,6 +244,7 @@ class XswdRequest extends _$XswdRequest {
         decision == XelisXswdDecision.alwaysAccept) {
       decision = XelisXswdDecision.accept;
     }
+    _cancelExpiry(_request!);
     _request!.decision.complete(_XswdApprovalDecision(decision));
     state = state.copyWith(pending: false);
     _recordChoice(
@@ -234,7 +258,7 @@ class XswdRequest extends _$XswdRequest {
   }
 
   bool resolvePrefetchIfCurrent(Object token, Iterable<String> permissions) {
-    if (!isCurrent(token) || !state.pending) return false;
+    if (!isCurrent(token) || !state.pending || checkExpiry(token)) return false;
     final prefetch = state.prefetchPermissionsRequest;
     if (prefetch == null) return false;
     final granted = <String>[];
@@ -252,6 +276,7 @@ class XswdRequest extends _$XswdRequest {
     final decision = immutable.isEmpty
         ? XelisXswdDecision.reject
         : XelisXswdDecision.accept;
+    _cancelExpiry(_request!);
     _request!.decision.complete(_XswdApprovalDecision(decision, immutable));
     state = state.copyWith(pending: false);
     _recordChoice(
@@ -264,11 +289,11 @@ class XswdRequest extends _$XswdRequest {
     return true;
   }
 
-  bool rejectIfCurrent(Object token, {bool expired = false}) {
-    if (!isCurrent(token) || !state.pending) return false;
-    _completePendingDecision(
-      outcome: expired ? XswdChoiceOutcome.expired : XswdChoiceOutcome.refused,
-    );
+  bool rejectIfCurrent(Object token) {
+    if (!isCurrent(token) || !state.pending || checkExpiry(token)) {
+      return false;
+    }
+    _completePendingDecision(outcome: XswdChoiceOutcome.refused);
     return clearIfCurrent(token);
   }
 
@@ -276,6 +301,31 @@ class XswdRequest extends _$XswdRequest {
     if (!isCurrent(token)) return false;
     clearRequest();
     return true;
+  }
+
+  Duration remainingIfCurrent(Object token) {
+    if (!isCurrent(token) || !state.pending) return Duration.zero;
+    return xswdDecisionRemaining(
+      deadline: _request!.decisionDeadline,
+      clock: ref.read(xswdDecisionClockProvider),
+    );
+  }
+
+  /// Expires only the request identified by [token]. A callback scheduled for
+  /// an older request cannot reject its successor, even within one session.
+  bool checkExpiry(Object token) {
+    if (!isCurrent(token) || !state.pending) return false;
+    final request = _request!;
+    final clock = ref.read(xswdDecisionClockProvider);
+    if (!xswdDecisionExpired(
+      deadline: request.decisionDeadline,
+      clock: clock,
+    )) {
+      if (request.expiryTask?.isActive != true) _scheduleExpiry(request);
+      return false;
+    }
+    _completePendingDecision(outcome: XswdChoiceOutcome.expired);
+    return clearIfCurrent(token);
   }
 
   void setSuppressXswdToast(bool value, {required Object token}) {
@@ -298,12 +348,59 @@ class XswdRequest extends _$XswdRequest {
     bool recordChoice = true,
     XswdChoiceOutcome outcome = XswdChoiceOutcome.cancelled,
   }) {
-    final decision = _request?.decision;
+    final request = _request;
+    if (request != null) _cancelExpiry(request);
+    final decision = request?.decision;
     if (decision != null && !decision.isCompleted) {
       // Dependency reads can synchronously re-enter teardown on wallet change.
       decision.complete(const _XswdApprovalDecision(XelisXswdDecision.reject));
       if (recordChoice) _recordChoice(outcome);
     }
+  }
+
+  void _scheduleExpiry(_OwnedXswdRequest request) {
+    _cancelExpiry(request);
+    final clock = ref.read(xswdDecisionClockProvider);
+    final remaining = xswdDecisionRemaining(
+      deadline: request.decisionDeadline,
+      clock: clock,
+    );
+    request.expiryTask = clock.schedule(
+      remaining,
+      () => checkExpiry(request.token),
+    );
+  }
+
+  void _cancelExpiry(_OwnedXswdRequest request) {
+    request.expiryTask?.cancel();
+    request.expiryTask = null;
+  }
+
+  /// Records a validated request that exhausted its budget before it could be
+  /// installed. This never reads or mutates the currently owned approval.
+  void recordExpiredRequest({
+    required XelisXswdRequest xswdEventSummary,
+    required XswdPermissionReview? permissionReview,
+    required XelisXswdPrefetchPermissionsRequest? prefetchRequest,
+  }) {
+    ref
+        .read(xswdRecentChoicesProvider.notifier)
+        .record(
+          XswdRecentChoice(
+            sessionReference: xswdEventSummary.application.sessionReference,
+            kind: xswdEventSummary.isPermissionRequest
+                ? XswdNoticeKind.permission
+                : xswdEventSummary.isPrefetchPermissionsRequest
+                ? XswdNoticeKind.prefetch
+                : XswdNoticeKind.application,
+            outcome: XswdChoiceOutcome.expired,
+            scope: XswdChoiceScope.request,
+            methods: permissionReview == null
+                ? prefetchRequest?.permissions ?? const []
+                : [permissionReview.method],
+            subscriptionEvent: permissionReview?.subscriptionEvent,
+          ),
+        );
   }
 
   void _recordChoice(
@@ -348,6 +445,7 @@ final class _OwnedXswdRequest {
     required this.repository,
     required this.walletSession,
     required this.sessionReference,
+    required this.decisionDeadline,
   });
 
   final XswdNotice notice;
@@ -355,6 +453,8 @@ final class _OwnedXswdRequest {
   final NativeWalletRepository repository;
   final Object? walletSession;
   final XelisXswdSessionReference sessionReference;
+  final Duration decisionDeadline;
+  XswdScheduledTask? expiryTask;
   final Completer<_XswdApprovalDecision> decision =
       Completer<_XswdApprovalDecision>();
 }

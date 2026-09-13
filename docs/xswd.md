@@ -169,10 +169,20 @@ presented; stale actions cannot affect a successor, even in the same session.
 Wallet replacement and teardown reject pending decisions. Request authority is
 never serialized in notifications or routes.
 
+Each decision gets 180 seconds from callback entry, including preparatory
+reads but excluding time queued inside XWF. An injectable monotonic clock and
+application-owned timer enforce the deadline even without a mounted dialog.
+Reopening does not reset it; resuming the app and submitting a decision check
+the same deadline. Expiration records an expired choice and returns rejection
+or prefetch `noChange`, without granting permissions or touching another request.
+Cancellation and wallet/session replacement invalidate pending reads and timers.
+Genesix configures XWF's decision safety timeout at 185 seconds and notification
+timeout at 10 seconds; native observation retains its separate two-second budget.
+
 The persistent card has **Open** and **Deny**, with no implicit rejection by
 dismissal or swipe. It disappears only after the corresponding dialog opens;
 an unavailable navigator leaves it available for another attempt. The dialog
-briefly waits for a following request after acceptance, resetting its local
+waits 500 ms for a following request after acceptance, resetting its local
 state for each request. Temporary notification suppression must not strand an
 unseen successor. Cancellation and disconnection messages are independent,
 expiring notices; only the matching session can terminate an active approval.

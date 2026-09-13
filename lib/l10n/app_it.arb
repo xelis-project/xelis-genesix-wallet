@@ -32,7 +32,6 @@
   "xswd_expires_in": "Scade tra {time}",
   "xswd_expiring_soon": "Questa richiesta scade tra 30 secondi.",
   "xswd_app_details_title": "Dettagli dell’app connessa",
-  "xswd_application_technical_details": "Dettagli tecnici dell’app",
   "xswd_connection_active": "Connessa",
   "xswd_declared_origin": "Origine dichiarata",
   "xswd_edit_permission": "Modifica autorizzazione",

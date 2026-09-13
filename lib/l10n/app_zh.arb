@@ -32,7 +32,6 @@
   "xswd_expires_in": "将在 {time} 后过期",
   "xswd_expiring_soon": "此请求将在 30 秒后过期。",
   "xswd_app_details_title": "已连接应用详情",
-  "xswd_application_technical_details": "应用技术详情",
   "xswd_connection_active": "已连接",
   "xswd_declared_origin": "声明的来源",
   "xswd_edit_permission": "编辑权限",

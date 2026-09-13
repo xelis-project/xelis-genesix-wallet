@@ -8,6 +8,7 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 import 'package:genesix/features/settings/application/settings_state_provider.dart';
 import 'package:genesix/features/settings/domain/settings_state.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
+import 'package:genesix/features/wallet/application/xswd_decision_timing.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_dialog.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_dialog_host.dart';
@@ -21,6 +22,36 @@ import 'package:go_router/go_router.dart';
 import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 void main() {
+  testWidgets(
+    'expiry after route push but before presentation closes the empty dialog',
+    (tester) async {
+      final clock = _OpeningExpiryClock();
+      late _Harness harness;
+      final observer = _ApprovalPushObserver(() {
+        clock.elapsed = xswdUserDecisionBudget;
+        final notifier = harness.container.read(xswdRequestProvider.notifier);
+        notifier.checkExpiry(
+          harness.container.read(xswdRequestProvider).token!,
+        );
+      });
+      harness = await _pumpApp(tester, clock: clock, observer: observer);
+      final decision = harness.begin('Fictional vault');
+      await tester.pumpAndSettle();
+      clock.elapsed = const Duration(seconds: 179);
+      await tester.tap(find.byKey(const ValueKey('xswd-toast-open')));
+      await tester.pumpAndSettle();
+      expect(await decision, XelisXswdDecision.reject);
+      expect(
+        harness.container.read(xswdDialogCoordinatorProvider).presentedToken,
+        isNull,
+      );
+      expect(find.byType(XswdDialog), findsNothing);
+      expect(routerKey.currentState!.canPop(), isFalse);
+      await tester.pumpWidget(const SizedBox.shrink());
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   for (final reducedMotion in [false, true]) {
     testWidgets(
       'opens a real dialog and preserves an unseen successor after back (reduced motion: $reducedMotion)',
@@ -107,11 +138,14 @@ void main() {
 Future<_Harness> _pumpApp(
   WidgetTester tester, {
   bool reducedMotion = false,
+  XswdDecisionClock? clock,
+  NavigatorObserver? observer,
 }) async {
   final repository = _Repository();
   final loc = AppLocalizationsEn();
   final container = ProviderContainer(
     overrides: [
+      if (clock != null) xswdDecisionClockProvider.overrideWithValue(clock),
       appLocalizationsProvider.overrideWithValue(loc),
       settingsProvider.overrideWithValue(
         const SettingsState(locale: Locale('en')),
@@ -124,6 +158,7 @@ Future<_Harness> _pumpApp(
       .setSession(WalletSession(name: 'test', repository: repository));
   final router = GoRouter(
     navigatorKey: routerKey,
+    observers: [?observer],
     routes: [
       GoRoute(path: '/', builder: (context, state) => const SizedBox.expand()),
     ],
@@ -183,4 +218,23 @@ class _Harness {
 class _Repository implements NativeWalletRepository {
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+final class _OpeningExpiryClock implements XswdDecisionClock {
+  Duration elapsed = Duration.zero;
+  final _scheduler = SystemXswdDecisionClock();
+  @override
+  Duration now() => elapsed;
+  @override
+  XswdScheduledTask schedule(Duration delay, void Function() callback) =>
+      _scheduler.schedule(delay, callback);
+}
+
+final class _ApprovalPushObserver extends NavigatorObserver {
+  _ApprovalPushObserver(this.onPush);
+  final VoidCallback onPush;
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    if (route is PopupRoute) onPush();
+  }
 }

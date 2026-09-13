@@ -32,7 +32,6 @@
   "xswd_expires_in": "Изтича след {time}",
   "xswd_expiring_soon": "Тази заявка изтича след 30 секунди.",
   "xswd_app_details_title": "Подробности за свързаното приложение",
-  "xswd_application_technical_details": "Технически подробности за приложението",
   "xswd_connection_active": "Свързано",
   "xswd_declared_origin": "Деклариран произход",
   "xswd_edit_permission": "Редактиране на разрешение",

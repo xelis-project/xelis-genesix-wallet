@@ -32,7 +32,6 @@
   "xswd_expires_in": "Истекает через {time}",
   "xswd_expiring_soon": "Срок этого запроса истекает через 30 секунд.",
   "xswd_app_details_title": "Сведения о подключённом приложении",
-  "xswd_application_technical_details": "Технические сведения о приложении",
   "xswd_connection_active": "Подключено",
   "xswd_declared_origin": "Заявленный источник",
   "xswd_edit_permission": "Изменить разрешение",

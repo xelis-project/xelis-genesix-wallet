@@ -32,7 +32,6 @@
   "xswd_expires_in": "Expira em {time}",
   "xswd_expiring_soon": "Este pedido expira em 30 segundos.",
   "xswd_app_details_title": "Detalhes da aplicação ligada",
-  "xswd_application_technical_details": "Detalhes técnicos da aplicação",
   "xswd_connection_active": "Ligada",
   "xswd_declared_origin": "Origem declarada",
   "xswd_edit_permission": "Editar permissão",

@@ -32,7 +32,6 @@
   "xswd_expires_in": "Läuft in {time} ab",
   "xswd_expiring_soon": "Diese Anfrage läuft in 30 Sekunden ab.",
   "xswd_app_details_title": "Details der verbundenen App",
-  "xswd_application_technical_details": "Technische App-Details",
   "xswd_connection_active": "Verbunden",
   "xswd_declared_origin": "Angegebener Ursprung",
   "xswd_edit_permission": "Berechtigung bearbeiten",

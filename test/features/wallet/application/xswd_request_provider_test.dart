@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genesix/features/authentication/application/wallet_session_providers.dart';
 import 'package:genesix/features/authentication/domain/wallet_session.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
+import 'package:genesix/features/wallet/application/xswd_decision_timing.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/xswd_permission_review.dart';
 import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
@@ -12,6 +13,86 @@ import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 import '../../../helpers/xswd_test_payload.dart';
 
 void main() {
+  test(
+    'the application expires an unmounted review after three minutes',
+    () async {
+      final repository = _Repository();
+      final clock = _FakeXswdDecisionClock();
+      final container = _container(repository, clock: clock);
+      addTearDown(container.dispose);
+      final notifier = container.read(xswdRequestProvider.notifier);
+      final pending = notifier.newRequest(
+        xswdEventSummary: _request(),
+        message: '',
+        repository: repository,
+      );
+      final state = container.read(xswdRequestProvider);
+
+      expect(state.decisionDeadline, xswdUserDecisionBudget);
+      expect(notifier.remainingIfCurrent(state.token!), xswdUserDecisionBudget);
+      clock.advance(const Duration(minutes: 3));
+
+      expect(await pending, XelisXswdDecision.reject);
+      expect(container.read(xswdRequestProvider).pending, isFalse);
+      expect(container.read(xswdRequestProvider).token, isNull);
+      expect(
+        container.read(xswdRecentChoicesProvider).single.outcome,
+        XswdChoiceOutcome.expired,
+      );
+    },
+  );
+
+  test('a decision remains valid after sixty seconds', () async {
+    final repository = _Repository();
+    final clock = _FakeXswdDecisionClock();
+    final container = _container(repository, clock: clock);
+    addTearDown(container.dispose);
+    final notifier = container.read(xswdRequestProvider.notifier);
+    final pending = notifier.newRequest(
+      xswdEventSummary: _request(),
+      message: '',
+      repository: repository,
+    );
+    final token = container.read(xswdRequestProvider).token!;
+
+    clock.advance(const Duration(minutes: 1));
+    expect(notifier.remainingIfCurrent(token), const Duration(minutes: 2));
+    expect(notifier.resolveIfCurrent(token, XelisXswdDecision.accept), isTrue);
+    expect(await pending, XelisXswdDecision.accept);
+  });
+
+  test('an old expiry callback cannot reject its successor', () async {
+    final repository = _Repository();
+    final clock = _FakeXswdDecisionClock();
+    final container = _container(repository, clock: clock);
+    addTearDown(container.dispose);
+    final notifier = container.read(xswdRequestProvider.notifier);
+    final first = notifier.newRequest(
+      xswdEventSummary: _request(),
+      message: '',
+      repository: repository,
+    );
+    final firstTask = clock.tasks.single;
+    clock.advance(const Duration(minutes: 1));
+    final second = notifier.newRequest(
+      xswdEventSummary: _request(),
+      message: '',
+      repository: repository,
+    );
+    final secondToken = container.read(xswdRequestProvider).token!;
+
+    expect(await first, XelisXswdDecision.reject);
+    firstTask.invokeEvenIfCancelled();
+    expect(container.read(xswdRequestProvider).token, same(secondToken));
+    expect(container.read(xswdRequestProvider).pending, isTrue);
+    expect(
+      notifier.remainingIfCurrent(secondToken),
+      const Duration(minutes: 3),
+    );
+    notifier.rejectIfCurrent(secondToken);
+    expect(await second, XelisXswdDecision.reject);
+  });
+
   test(
     'partial grants capture only the reviewed selection across handover',
     () async {
@@ -215,7 +296,8 @@ void main() {
     'recent choices are bounded, session scoped and cleared with the wallet',
     () async {
       final repository = _Repository();
-      final container = _container(repository);
+      final clock = _FakeXswdDecisionClock();
+      final container = _container(repository, clock: clock);
       addTearDown(container.dispose);
       final notifier = container.read(xswdRequestProvider.notifier);
       final first = _request();
@@ -227,7 +309,11 @@ void main() {
           repository: repository,
         );
         final token = container.read(xswdRequestProvider).token!;
-        notifier.rejectIfCurrent(token, expired: index == 23);
+        if (index == 23) {
+          clock.advance(xswdUserDecisionBudget);
+        } else {
+          notifier.rejectIfCurrent(token);
+        }
         expect(await pending, XelisXswdDecision.reject);
       }
       final choices = container.read(xswdRecentChoicesProvider);
@@ -421,12 +507,65 @@ void main() {
   });
 }
 
-ProviderContainer _container(NativeWalletRepository repository) {
-  final container = ProviderContainer();
+ProviderContainer _container(
+  NativeWalletRepository repository, {
+  XswdDecisionClock? clock,
+}) {
+  final container = ProviderContainer(
+    overrides: [
+      if (clock != null) xswdDecisionClockProvider.overrideWithValue(clock),
+    ],
+  );
   container
       .read(activeWalletSessionProvider.notifier)
       .setSession(WalletSession(name: 'wallet', repository: repository));
   return container;
+}
+
+final class _FakeXswdDecisionClock implements XswdDecisionClock {
+  Duration _now = Duration.zero;
+  final List<_FakeXswdScheduledTask> tasks = [];
+
+  @override
+  Duration now() => _now;
+
+  @override
+  XswdScheduledTask schedule(Duration delay, void Function() callback) {
+    final task = _FakeXswdScheduledTask(_now + delay, callback);
+    tasks.add(task);
+    return task;
+  }
+
+  void advance(Duration duration) {
+    _now += duration;
+    for (final task in List<_FakeXswdScheduledTask>.of(tasks)) {
+      if (!task.cancelled && !task.fired && task.deadline <= _now) {
+        task.fire();
+      }
+    }
+  }
+}
+
+final class _FakeXswdScheduledTask implements XswdScheduledTask {
+  _FakeXswdScheduledTask(this.deadline, this._callback);
+
+  final Duration deadline;
+  final void Function() _callback;
+  bool cancelled = false;
+  bool fired = false;
+
+  @override
+  bool get isActive => !cancelled && !fired;
+
+  @override
+  void cancel() => cancelled = true;
+
+  void fire() {
+    fired = true;
+    _callback();
+  }
+
+  void invokeEvenIfCancelled() => _callback();
 }
 
 XelisXswdRequest _request() => XelisXswdRequest(

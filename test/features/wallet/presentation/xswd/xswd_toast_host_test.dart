@@ -6,6 +6,7 @@ import 'package:genesix/features/authentication/application/wallet_session_provi
 import 'package:genesix/features/authentication/domain/wallet_session.dart';
 import 'package:genesix/features/settings/application/app_localizations_provider.dart';
 import 'package:genesix/features/wallet/application/wallet_effect_bus_provider.dart';
+import 'package:genesix/features/wallet/application/xswd_decision_timing.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/wallet_effect.dart';
@@ -230,7 +231,12 @@ Future<_HostHarness> _pumpHost(
   final localizations = AppLocalizationsEn();
   final repository = _FakeNativeWalletRepository();
   final container = ProviderContainer(
-    overrides: [appLocalizationsProvider.overrideWithValue(localizations)],
+    overrides: [
+      appLocalizationsProvider.overrideWithValue(localizations),
+      xswdDecisionClockProvider.overrideWithValue(
+        const _InertXswdDecisionClock(),
+      ),
+    ],
   );
   addTearDown(container.dispose);
   container
@@ -254,6 +260,28 @@ Future<_HostHarness> _pumpHost(
     repository: repository,
     theme: theme,
   );
+}
+
+final class _InertXswdDecisionClock implements XswdDecisionClock {
+  const _InertXswdDecisionClock();
+
+  @override
+  Duration now() => Duration.zero;
+
+  @override
+  XswdScheduledTask schedule(Duration delay, void Function() callback) {
+    return _InertXswdScheduledTask();
+  }
+}
+
+final class _InertXswdScheduledTask implements XswdScheduledTask {
+  bool _active = true;
+
+  @override
+  bool get isActive => _active;
+
+  @override
+  void cancel() => _active = false;
 }
 
 Widget _buildApp({

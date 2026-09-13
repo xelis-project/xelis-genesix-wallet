@@ -9,6 +9,7 @@ import 'package:genesix/features/wallet/application/wallet_effect_bus_provider.d
 import 'package:genesix/features/wallet/application/wallet_node_action_guard.dart';
 import 'package:genesix/features/wallet/application/xswd_notification_service.dart';
 import 'package:genesix/features/wallet/application/xswd_diagnostics.dart';
+import 'package:genesix/features/wallet/application/xswd_decision_timing.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/wallet_effect.dart';
@@ -25,6 +26,14 @@ typedef _XswdCallbackDecision = ({
   XelisXswdPrefetchDecision prefetch,
 });
 
+typedef _XswdStateReadResult = ({
+  XelisXswdState? state,
+  Object? error,
+  StackTrace? stackTrace,
+  bool cancelled,
+  bool expired,
+});
+
 const _rejectedXswdCallbackDecision = (
   decision: XelisXswdDecision.reject,
   prefetch: XelisXswdPrefetchDecision.noChange(),
@@ -32,7 +41,15 @@ const _rejectedXswdCallbackDecision = (
 
 @Riverpod(keepAlive: true)
 XswdController xswdController(Ref ref) {
-  return XswdController(ref);
+  final controller = XswdController(ref);
+  ref.onDispose(controller._cancelAllPrefetchReads);
+  ref.listen(activeWalletSessionProvider, (previous, next) {
+    if (!identical(previous, next)) controller._cancelAllPrefetchReads();
+  });
+  ref.listen(activeWalletRepositoryProvider, (previous, next) {
+    if (!identical(previous, next)) controller._cancelAllPrefetchReads();
+  });
+  return controller;
 }
 
 class XswdController {
@@ -45,7 +62,8 @@ class XswdController {
   XswdDiagnosticRequest? _diagnosticRequest;
   XelisXswdSessionReference? _diagnosticSession;
   int _callbackGeneration = 0;
-  final _prefetchReads = <XelisXswdSessionReference, XelisXswdRequest>{};
+  final _prefetchReads =
+      <XelisXswdSessionReference, _XswdPendingPrefetchRead>{};
   final _closingApplicationOperations =
       Map<
         NativeWalletRepository,
@@ -118,7 +136,7 @@ class XswdController {
     required XelisXswdApplication application,
     required bool malformed,
   }) {
-    _prefetchReads.remove(application.sessionReference);
+    _cancelPrefetchRead(application.sessionReference);
     final stopping = _stoppingOperations[repository];
     if (stopping != null) {
       return _closeXswdApplicationAfterStop(
@@ -361,12 +379,15 @@ class XswdController {
       _callbackRepository = repository;
       _callbackSession = session;
       _callbackGeneration++;
-      _prefetchReads.clear();
+      _cancelAllPrefetchReads();
     }
     final generation = _callbackGeneration;
     final loc = ref.read(appLocalizationsProvider);
+    final decisionClock = ref.read(xswdDecisionClockProvider);
 
     return XelisXswdCallbacks(
+      decisionTimeout: xswdDecisionSafetyTimeout,
+      notificationTimeout: xswdNotificationTimeout,
       onCancelRequest: (request) async {
         if (!_isXswdCallbackCurrent(repository, generation)) {
           return;
@@ -386,6 +407,7 @@ class XswdController {
         }
       },
       onApplicationRequest: (request) {
+        final decisionDeadline = decisionClock.now() + xswdUserDecisionBudget;
         if (!_isXswdCallbackCurrent(repository, generation)) {
           return Future.value(XelisXswdDecision.reject);
         }
@@ -398,9 +420,11 @@ class XswdController {
           generation: generation,
           message: message,
           notificationBody: loc.connection_request,
+          decisionDeadline: decisionDeadline,
         ).then((result) => result.decision);
       },
       onPermissionRequest: (request) {
+        final decisionDeadline = decisionClock.now() + xswdUserDecisionBudget;
         if (!_isXswdCallbackCurrent(repository, generation)) {
           return Future.value(XelisXswdDecision.reject);
         }
@@ -413,12 +437,14 @@ class XswdController {
           generation: generation,
           message: message,
           notificationBody: loc.permission_request,
+          decisionDeadline: decisionDeadline,
         ).then((result) => result.decision);
       },
       // XWF prioritizes the typed partial-grant callback. The compatibility
       // callback cannot accidentally grant the whole batch.
       onPrefetchPermissionsRequest: (_) => XelisXswdDecision.reject,
       onPrefetchPermissionsReview: (review) {
+        final decisionDeadline = decisionClock.now() + xswdUserDecisionBudget;
         if (!_isXswdCallbackCurrent(repository, generation)) {
           return Future.value(const XelisXswdPrefetchDecision.noChange());
         }
@@ -432,6 +458,7 @@ class XswdController {
           generation: generation,
           message: message,
           notificationBody: loc.prefetch_permissions_request,
+          decisionDeadline: decisionDeadline,
         ).then((result) => result.prefetch);
       },
       onApplicationStateObservation: (observation) {
@@ -497,7 +524,7 @@ class XswdController {
   }
 
   Object? _clearSessionRequest(XelisXswdRequest lifecycleRequest) {
-    _prefetchReads.remove(lifecycleRequest.application.sessionReference);
+    _cancelPrefetchRead(lifecycleRequest.application.sessionReference);
     final pending = ref.read(xswdRequestProvider);
     final token = pending.token;
     if (token == null ||
@@ -516,7 +543,9 @@ class XswdController {
     required int generation,
     required String message,
     required String notificationBody,
+    required Duration decisionDeadline,
   }) async {
+    final decisionClock = ref.read(xswdDecisionClockProvider);
     final diagnostic = diagnosticLoggingEnabled
         ? XswdDiagnosticRequest.inspect(request)
         : null;
@@ -559,9 +588,13 @@ class XswdController {
               xswdEventSummary: request,
               message: message,
               repository: repository,
+              decisionDeadline: decisionDeadline,
             )
             .then(_xswdBinaryCallbackDecision);
-        permissionReview = ref.read(xswdRequestProvider).permissionReview;
+        final pending = ref.read(xswdRequestProvider);
+        if (identical(pending.xswdEventSummary, request)) {
+          permissionReview = pending.permissionReview;
+        }
       }
       diagnostic?.record(
         XswdDiagnosticEvent.validation,
@@ -601,15 +634,48 @@ class XswdController {
     if (preflight != null) {
       final Map<String, XelisXswdPermissionPolicy> currentPermissions;
       final sessionReference = request.application.sessionReference;
-      _prefetchReads[sessionReference] = request;
+      _cancelPrefetchRead(sessionReference);
+      final pendingRead = _XswdPendingPrefetchRead();
+      _prefetchReads[sessionReference] = pendingRead;
       try {
-        final applications = (await repository.getXswdState()).applications;
+        final read = await _readXswdStateBeforeDeadline(
+          repository: repository,
+          deadline: decisionDeadline,
+          clock: decisionClock,
+          cancelled: pendingRead.cancelled,
+        );
         if (!_isXswdCallbackCurrent(repository, generation) ||
-            !identical(_prefetchReads[sessionReference], request) ||
+            !identical(_prefetchReads[sessionReference], pendingRead) ||
             (_closingApplicationOperations[repository]?.containsKey(
                   request.application.sessionReference,
                 ) ??
                 false)) {
+          return _rejectedXswdCallbackDecision;
+        }
+        if (read.cancelled) return _rejectedXswdCallbackDecision;
+        if (read.expired) {
+          _recordExpiredPrefetch(request, preflight, diagnostic);
+          return _rejectedXswdCallbackDecision;
+        }
+        if (read.error case final error?) {
+          if (_isXswdCallbackCurrent(repository, generation) &&
+              identical(_prefetchReads[sessionReference], pendingRead)) {
+            _emitFailure(
+              title: loc.error_loading_applications,
+              operation: 'xswd.state.read',
+              applicationCode: 'xswd_state_read_failed',
+              error: error,
+              stackTrace: read.stackTrace ?? StackTrace.current,
+            );
+          }
+          return _rejectedXswdCallbackDecision;
+        }
+        final applications = read.state!.applications;
+        if (xswdDecisionExpired(
+          deadline: decisionDeadline,
+          clock: decisionClock,
+        )) {
+          _recordExpiredPrefetch(request, preflight, diagnostic);
           return _rejectedXswdCallbackDecision;
         }
         final current = applications
@@ -620,22 +686,11 @@ class XswdController {
             .firstOrNull;
         if (current == null) return _rejectedXswdCallbackDecision;
         currentPermissions = current.permissions;
-      } catch (error, stackTrace) {
-        if (_isXswdCallbackCurrent(repository, generation) &&
-            identical(_prefetchReads[sessionReference], request)) {
-          _emitFailure(
-            title: loc.error_loading_applications,
-            operation: 'xswd.state.read',
-            applicationCode: 'xswd_state_read_failed',
-            error: error,
-            stackTrace: stackTrace,
-          );
-        }
-        return _rejectedXswdCallbackDecision;
       } finally {
-        if (identical(_prefetchReads[sessionReference], request)) {
+        if (identical(_prefetchReads[sessionReference], pendingRead)) {
           _prefetchReads.remove(sessionReference);
         }
+        pendingRead.cancel();
       }
       final hasNewGrant = preflight.request.permissions.any(
         (method) =>
@@ -661,10 +716,14 @@ class XswdController {
             repository: repository,
             message: message,
             currentPermissions: currentPermissions,
+            decisionDeadline: decisionDeadline,
           )
           .then(_xswdPrefetchCallbackDecision);
     }
 
+    if (!identical(ref.read(xswdRequestProvider).xswdEventSummary, request)) {
+      return _rejectedXswdCallbackDecision;
+    }
     final notice = ref.read(xswdRequestProvider.notifier).currentNotice;
     if (notice == null) return _rejectedXswdCallbackDecision;
     if (!_isXswdToastSuppressed()) {
@@ -713,6 +772,114 @@ class XswdController {
       unawaited(
         notificationService.clearPendingApproval(owner: notificationOwner),
       );
+    }
+  }
+
+  Future<_XswdStateReadResult> _readXswdStateBeforeDeadline({
+    required NativeWalletRepository repository,
+    required Duration deadline,
+    required XswdDecisionClock clock,
+    required Future<void> cancelled,
+  }) async {
+    if (xswdDecisionExpired(deadline: deadline, clock: clock)) {
+      return (
+        state: null,
+        error: null,
+        stackTrace: null,
+        cancelled: false,
+        expired: true,
+      );
+    }
+    final completion = Completer<_XswdStateReadResult>();
+    final expiryTask = clock.schedule(
+      xswdDecisionRemaining(deadline: deadline, clock: clock),
+      () {
+        if (!completion.isCompleted) {
+          completion.complete((
+            state: null,
+            error: null,
+            stackTrace: null,
+            cancelled: false,
+            expired: true,
+          ));
+        }
+      },
+    );
+    unawaited(
+      repository.getXswdState().then(
+        (state) {
+          if (!completion.isCompleted) {
+            completion.complete((
+              state: state,
+              error: null,
+              stackTrace: null,
+              cancelled: false,
+              expired: false,
+            ));
+          }
+        },
+        onError: (Object error, StackTrace stackTrace) {
+          if (!completion.isCompleted) {
+            completion.complete((
+              state: null,
+              error: error,
+              stackTrace: stackTrace,
+              cancelled: false,
+              expired: false,
+            ));
+          }
+        },
+      ),
+    );
+    unawaited(
+      cancelled.then((_) {
+        if (!completion.isCompleted) {
+          completion.complete((
+            state: null,
+            error: null,
+            stackTrace: null,
+            cancelled: true,
+            expired: false,
+          ));
+        }
+      }),
+    );
+    try {
+      return await completion.future;
+    } finally {
+      expiryTask.cancel();
+    }
+  }
+
+  void _recordExpiredPrefetch(
+    XelisXswdRequest request,
+    XswdPrefetchPreflight preflight,
+    XswdDiagnosticRequest? diagnostic,
+  ) {
+    ref
+        .read(xswdRequestProvider.notifier)
+        .recordExpiredRequest(
+          xswdEventSummary: request,
+          permissionReview: null,
+          prefetchRequest: preflight.request,
+        );
+    diagnostic?.record(
+      XswdDiagnosticEvent.decision,
+      validation: XswdDiagnosticValidation.passed,
+      decision: XelisXswdDecision.reject,
+      disposition: XswdDiagnosticDisposition.prefetchDeclined,
+    );
+  }
+
+  void _cancelPrefetchRead(XelisXswdSessionReference sessionReference) {
+    _prefetchReads.remove(sessionReference)?.cancel();
+  }
+
+  void _cancelAllPrefetchReads() {
+    final reads = _prefetchReads.values.toList(growable: false);
+    _prefetchReads.clear();
+    for (final read in reads) {
+      read.cancel();
     }
   }
 
@@ -797,7 +964,7 @@ class XswdController {
     _callbackSession = null;
     _diagnosticRequest = null;
     _diagnosticSession = null;
-    _prefetchReads.clear();
+    _cancelAllPrefetchReads();
     final notificationOwner = _notificationOwner;
     _notificationOwner = null;
     _callbackGeneration++;
@@ -925,6 +1092,16 @@ _XswdCallbackDecision _xswdPrefetchCallbackDecision(
       : XelisXswdDecision.reject,
   prefetch: decision,
 );
+
+final class _XswdPendingPrefetchRead {
+  final Completer<void> _cancellation = Completer<void>();
+
+  Future<void> get cancelled => _cancellation.future;
+
+  void cancel() {
+    if (!_cancellation.isCompleted) _cancellation.complete();
+  }
+}
 
 Map<String, XelisXswdPermissionPolicy> normalizeXswdPermissionPolicies(
   Map<String, XelisXswdPermissionPolicy> permissions,

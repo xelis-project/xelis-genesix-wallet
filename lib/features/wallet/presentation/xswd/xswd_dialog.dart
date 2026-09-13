@@ -46,11 +46,11 @@ enum _ActionSet {
 
 enum _PermissionDecisionScope { once, connection }
 
-class _XswdDialogState extends ConsumerState<XswdDialog> {
-  static const int _requestLifetime = 60000;
+class _XswdDialogState extends ConsumerState<XswdDialog>
+    with WidgetsBindingObserver {
   static const Duration _rapidFireWindow = Duration(milliseconds: 500);
 
-  int _millisecondsLeft = _requestLifetime;
+  int _millisecondsLeft = 0;
   Timer? _timer;
 
   Timer? _closeDelayTimer;
@@ -60,7 +60,6 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
 
   late final ScrollController _scrollController;
 
-  bool _timerShouldRun = false;
   _PermissionDecisionScope _permissionDecisionScope =
       _PermissionDecisionScope.once;
   Set<String> _selectedPrefetchMethods = const {};
@@ -73,6 +72,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     super.initState();
     _xswdRequestNotifier = ref.read(xswdRequestProvider.notifier);
     _scrollController = ScrollController();
+    WidgetsBinding.instance.addObserver(this);
   }
 
   void _setSuppress(bool value, Object token) {
@@ -82,32 +82,20 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
   void _startTimer(Object token) {
     _timer?.cancel();
     _timerRequestToken = token;
-    _millisecondsLeft = _requestLifetime;
-
-    _timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-      if (!_xswdRequestNotifier.isCurrent(token)) {
-        timer.cancel();
-        if (identical(_timerRequestToken, token)) {
-          _timer = null;
-          _timerRequestToken = null;
-          _timerShouldRun = false;
-        }
-        return;
-      }
-
-      setState(() {
-        _millisecondsLeft -= 100;
-      });
-
-      if (_millisecondsLeft <= 0) {
-        timer.cancel();
-        _handleTimeout(token);
-      }
-    });
+    _millisecondsLeft = _xswdRequestNotifier
+        .remainingIfCurrent(token)
+        .inMilliseconds;
+    // Painting never owns the decision deadline. In particular, opening this
+    // dialog late or rebuilding it must not give the request a fresh budget.
+    _timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => _refreshRemaining(token),
+    );
+    if (_millisecondsLeft == 0) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _refreshRemaining(token),
+      );
+    }
   }
 
   void _stopTimer() {
@@ -116,15 +104,25 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     _timerRequestToken = null;
   }
 
-  void _handleTimeout(Object token) {
-    if (!_xswdRequestNotifier.isCurrent(token)) return;
-
-    _cancelRapidFireWait(token);
-    _xswdRequestNotifier.rejectIfCurrent(token, expired: true);
-
-    if (mounted && identical(_presentedRequestToken, token)) {
-      context.pop();
+  void _refreshRemaining(Object token) {
+    if (!mounted || !identical(_timerRequestToken, token)) return;
+    if (!_xswdRequestNotifier.isCurrent(token) ||
+        _xswdRequestNotifier.checkExpiry(token)) {
+      _stopTimer();
+      return;
     }
+    setState(
+      () => _millisecondsLeft = _xswdRequestNotifier
+          .remainingIfCurrent(token)
+          .inMilliseconds,
+    );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    final token = _timerRequestToken;
+    if (token != null) _refreshRemaining(token);
   }
 
   void _cancelRapidFireWait(Object token) {
@@ -176,25 +174,19 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
   }
 
   void _syncTimerWithState() {
-    if (_awaitingNextRequest) {
-      if (_timerShouldRun) {
-        _timerShouldRun = false;
-        _stopTimer();
-      }
+    if (_awaitingNextRequest || !ref.read(xswdRequestProvider).pending) {
+      _stopTimer();
       return;
     }
-
-    if (!_timerShouldRun) {
-      _timerShouldRun = true;
-      final token = _presentedRequestToken;
-      if (token != null) {
-        _startTimer(token);
-      }
+    final token = _presentedRequestToken;
+    if (token != null && !identical(_timerRequestToken, token)) {
+      _startTimer(token);
     }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _closeDelayTimer?.cancel();
     _timer?.cancel();
     final token = _presentedRequestToken;
@@ -503,9 +495,8 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     _closeDelayTimer?.cancel();
     _closeDelayTimer = null;
     _stopTimer();
-    _timerShouldRun = false;
     _awaitingNextRequest = false;
-    _millisecondsLeft = _requestLifetime;
+    _millisecondsLeft = 0;
     _permissionDecisionScope = _PermissionDecisionScope.once;
     _selectedPrefetchMethods = const {};
     _detailsExpanded = false;
@@ -1493,7 +1484,9 @@ class _XswdCountdownIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.theme.colors;
-    final secondsLeft = (millisecondsLeft / 1000).ceil().clamp(0, 180);
+    final secondsLeft = millisecondsLeft <= 0
+        ? 0
+        : (millisecondsLeft + 999) ~/ 1000;
     final time =
         '${secondsLeft ~/ 60}:${(secondsLeft % 60).toString().padLeft(2, '0')}';
     final urgent = !awaitingNextRequest && secondsLeft <= 30;

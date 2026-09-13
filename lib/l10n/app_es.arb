@@ -32,7 +32,6 @@
   "xswd_expires_in": "Caduca en {time}",
   "xswd_expiring_soon": "Esta solicitud caduca en 30 segundos.",
   "xswd_app_details_title": "Detalles de la aplicación conectada",
-  "xswd_application_technical_details": "Detalles técnicos de la aplicación",
   "xswd_connection_active": "Conectada",
   "xswd_declared_origin": "Origen declarado",
   "xswd_edit_permission": "Editar permiso",

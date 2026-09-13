@@ -32,7 +32,6 @@
   "xswd_expires_in": "{time} içinde sona erer",
   "xswd_expiring_soon": "Bu isteğin süresi 30 saniye içinde dolacak.",
   "xswd_app_details_title": "Bağlı uygulama ayrıntıları",
-  "xswd_application_technical_details": "Uygulamanın teknik ayrıntıları",
   "xswd_connection_active": "Bağlı",
   "xswd_declared_origin": "Bildirilen kaynak",
   "xswd_edit_permission": "İzni düzenle",

@@ -32,7 +32,6 @@
   "xswd_expires_in": "有効期限まで {time}",
   "xswd_expiring_soon": "この要求は30秒後に期限切れになります。",
   "xswd_app_details_title": "接続アプリの詳細",
-  "xswd_application_technical_details": "アプリの技術情報",
   "xswd_connection_active": "接続中",
   "xswd_declared_origin": "申告された接続元",
   "xswd_edit_permission": "権限を編集",

@@ -14,6 +14,7 @@ import 'package:genesix/features/wallet/application/wallet_effect_bus_provider.d
 import 'package:genesix/features/wallet/application/wallet_runtime_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_controller_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_diagnostics.dart';
+import 'package:genesix/features/wallet/application/xswd_decision_timing.dart';
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/wallet/application/xswd_lifecycle_provider.dart';
 import 'package:genesix/features/wallet/application/xswd_notification_service.dart';
@@ -22,6 +23,7 @@ import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/wallet_effect.dart';
 import 'package:genesix/features/wallet/domain/wallet_runtime_state.dart';
 import 'package:genesix/features/wallet/domain/xswd_lifecycle_state.dart';
+import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
 import 'package:genesix/src/generated/l10n/app_localizations_en.dart';
 import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart'
@@ -31,6 +33,67 @@ import '../../../helpers/xswd_test_payload.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  test('callbacks use separate safety budgets and preflight expiry preserves another approval', () async {
+    final repository = _FakeNativeWalletRepository('a');
+    final clock = _FakeXswdDecisionClock();
+    final container = _connectedXswdContainer(repository, clock: clock);
+    addTearDown(container.dispose);
+    await container.read(xswdControllerProvider).startXSWD(repository);
+    final callbacks = repository.callbacks!;
+    expect(callbacks.decisionTimeout, xswdDecisionSafetyTimeout);
+    expect(callbacks.notificationTimeout, xswdNotificationTimeout);
+
+    final otherApplication = XelisXswdApplication(
+      id: 'other-app',
+      name: 'Other example app',
+      description: '',
+      url: null,
+      permissions: const {},
+      isRelayer: true,
+    );
+    final otherDecision = container
+        .read(xswdRequestProvider.notifier)
+        .newRequest(
+          xswdEventSummary: XelisXswdRequest(
+            kind: XelisXswdRequestKind.application,
+            application: otherApplication,
+          ),
+          message: '',
+          repository: repository,
+          decisionDeadline: const Duration(minutes: 10),
+        );
+    final preserved = container.read(xswdRequestProvider);
+
+    repository.xswdApplications = [_application];
+    final gate = Completer<void>();
+    repository.stateReadGate = gate;
+    final prefetch = callbacks.onPrefetchPermissionsReview!(
+      XelisXswdRequest(
+        kind: XelisXswdRequestKind.prefetchPermissions,
+        application: _application,
+        payload: xswdTestPayload({
+          'permissions': ['get_balance', 'build_transaction'],
+        }),
+      ).prefetchPermissionsRequest!,
+    );
+
+    clock.advance(xswdUserDecisionBudget);
+    expect(await prefetch, isA<XelisXswdPrefetchNoChange>());
+    expect(container.read(xswdRequestProvider), same(preserved));
+    expect(container.read(xswdRequestProvider).pending, isTrue);
+    expect(
+      container.read(xswdRecentChoicesProvider).single.outcome,
+      XswdChoiceOutcome.expired,
+    );
+
+    gate.complete();
+    repository.stateReadGate = null;
+    container
+        .read(xswdRequestProvider.notifier)
+        .rejectIfCurrent(preserved.token!);
+    expect(await otherDecision, XelisXswdDecision.reject);
+  });
 
   test(
     'observation timeout refreshes cached rules without assuming success',
@@ -95,18 +158,19 @@ void main() {
     },
   );
 
-  for (final event in ['cancel', 'disconnect', 'wallet']) {
+  for (final event in ['cancel', 'disconnect', 'wallet', 'dispose']) {
     test(
       'a $event during prefetch state read cannot install a stale approval',
       () async {
         final repository = _FakeNativeWalletRepository('a');
-        final container = _connectedXswdContainer(repository);
-        addTearDown(container.dispose);
+        final clock = _FakeXswdDecisionClock();
+        final container = _connectedXswdContainer(repository, clock: clock);
+        if (event != 'dispose') addTearDown(container.dispose);
         await container.read(xswdControllerProvider).startXSWD(repository);
         repository.xswdApplications = [_application];
         final gate = Completer<void>();
         repository.stateReadGate = gate;
-        if (event == 'cancel') {
+        if (event == 'cancel' || event == 'dispose') {
           repository.stateReadError = StateError('Cancelled read failed');
         }
         final effects = <WalletEffect>[];
@@ -124,7 +188,9 @@ void main() {
         final result = callbacks.onPrefetchPermissionsReview!(
           request.prefetchPermissionsRequest!,
         );
-        if (event == 'wallet') {
+        if (event == 'dispose') {
+          container.dispose();
+        } else if (event == 'wallet') {
           container
               .read(activeWalletSessionProvider.notifier)
               .setSession(
@@ -146,10 +212,14 @@ void main() {
             await callbacks.onApplicationDisconnect(lifecycle);
           }
         }
-        gate.complete();
         expect(await result, isA<XelisXswdPrefetchNoChange>());
-        expect(container.read(xswdRequestProvider).pending, isFalse);
-        expect(container.read(xswdRequestProvider).token, isNull);
+        expect(clock._tasks.any((task) => task.isActive), isFalse);
+        gate.complete();
+        await Future<void>.delayed(Duration.zero);
+        if (event != 'dispose') {
+          expect(container.read(xswdRequestProvider).pending, isFalse);
+          expect(container.read(xswdRequestProvider).token, isNull);
+        }
         expect(repository.permissionUpdates, isEmpty);
         expect(effects.whereType<WalletFailureEffect>(), isEmpty);
       },
@@ -1064,8 +1134,9 @@ void main() {
 }
 
 ProviderContainer _connectedXswdContainer(
-  _FakeNativeWalletRepository repository,
-) {
+  _FakeNativeWalletRepository repository, {
+  XswdDecisionClock? clock,
+}) {
   final container = ProviderContainer(
     overrides: [
       appLocalizationsProvider.overrideWithValue(AppLocalizationsEn()),
@@ -1076,12 +1147,55 @@ ProviderContainer _connectedXswdContainer(
       xswdNotificationServiceProvider.overrideWithValue(
         _FakeXswdNotificationService(),
       ),
+      if (clock != null) xswdDecisionClockProvider.overrideWithValue(clock),
     ],
   );
   container
       .read(activeWalletSessionProvider.notifier)
       .setSession(WalletSession(name: 'a', repository: repository));
   return container;
+}
+
+final class _FakeXswdDecisionClock implements XswdDecisionClock {
+  Duration _now = Duration.zero;
+  final List<_FakeXswdScheduledTask> _tasks = [];
+
+  @override
+  Duration now() => _now;
+
+  @override
+  XswdScheduledTask schedule(Duration delay, void Function() callback) {
+    final task = _FakeXswdScheduledTask(_now + delay, callback);
+    _tasks.add(task);
+    return task;
+  }
+
+  void advance(Duration duration) {
+    _now += duration;
+    for (final task in List<_FakeXswdScheduledTask>.of(_tasks)) {
+      if (!task.cancelled && !task.fired && task.deadline <= _now) task.fire();
+    }
+  }
+}
+
+final class _FakeXswdScheduledTask implements XswdScheduledTask {
+  _FakeXswdScheduledTask(this.deadline, this._callback);
+
+  final Duration deadline;
+  final void Function() _callback;
+  bool cancelled = false;
+  bool fired = false;
+
+  @override
+  bool get isActive => !cancelled && !fired;
+
+  @override
+  void cancel() => cancelled = true;
+
+  void fire() {
+    fired = true;
+    _callback();
+  }
 }
 
 ProviderContainer _lifecycleContainer(_FakeXswdController controller) {

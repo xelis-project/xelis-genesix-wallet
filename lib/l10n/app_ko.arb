@@ -32,7 +32,6 @@
   "xswd_expires_in": "{time} 후 만료",
   "xswd_expiring_soon": "이 요청은 30초 후 만료됩니다.",
   "xswd_app_details_title": "연결된 앱 세부 정보",
-  "xswd_application_technical_details": "앱 기술 정보",
   "xswd_connection_active": "연결됨",
   "xswd_declared_origin": "신고된 출처",
   "xswd_edit_permission": "권한 편집",

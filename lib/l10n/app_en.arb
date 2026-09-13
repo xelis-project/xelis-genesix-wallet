@@ -41,7 +41,6 @@
   "@xswd_expires_in": {"placeholders": {"time": {"type": "String"}}},
   "xswd_expiring_soon": "This request expires in 30 seconds.",
   "xswd_app_details_title": "Connected app details",
-  "xswd_application_technical_details": "Technical application details",
   "xswd_connection_active": "Connected",
   "xswd_declared_origin": "Declared origin",
   "xswd_edit_permission": "Edit permission",

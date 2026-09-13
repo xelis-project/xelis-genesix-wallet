@@ -12,6 +12,7 @@ abstract class XswdRequestState with _$XswdRequestState {
     XelisXswdRequest? xswdEventSummary,
     Object? token,
     @Default(false) bool pending,
+    Duration? decisionDeadline,
     XswdPermissionReview? permissionReview,
     XelisXswdPrefetchPermissionsRequest? prefetchPermissionsRequest,
     @Default({})

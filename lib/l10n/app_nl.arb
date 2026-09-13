@@ -32,7 +32,6 @@
   "xswd_expires_in": "Verloopt over {time}",
   "xswd_expiring_soon": "Dit verzoek verloopt over 30 seconden.",
   "xswd_app_details_title": "Details van verbonden app",
-  "xswd_application_technical_details": "Technische appdetails",
   "xswd_connection_active": "Verbonden",
   "xswd_declared_origin": "Opgegeven herkomst",
   "xswd_edit_permission": "Toestemming bewerken",

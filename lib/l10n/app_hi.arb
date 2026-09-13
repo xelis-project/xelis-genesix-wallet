@@ -32,7 +32,6 @@
   "xswd_expires_in": "{time} में समय-सीमा समाप्त होगी",
   "xswd_expiring_soon": "इस अनुरोध की समय-सीमा 30 सेकंड में समाप्त होगी।",
   "xswd_app_details_title": "कनेक्टेड ऐप का विवरण",
-  "xswd_application_technical_details": "ऐप का तकनीकी विवरण",
   "xswd_connection_active": "कनेक्टेड",
   "xswd_declared_origin": "घोषित स्रोत",
   "xswd_edit_permission": "अनुमति संपादित करें",
