@@ -71,6 +71,7 @@ class _ExportButtonState extends ConsumerState<ExportButton> {
         limit: null, // Export all transactions
         assetHash: filterState.asset,
         address: filterState.address,
+        contract: filterState.contract,
         minTopoheight: null,
         maxTopoheight: null,
         acceptIncoming: filterState.showIncoming,

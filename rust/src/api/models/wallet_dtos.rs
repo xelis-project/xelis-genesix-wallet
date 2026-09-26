@@ -65,6 +65,7 @@ pub struct HistoryPageFilter {
     pub limit: Option<usize>,
     pub asset_hash: Option<String>,
     pub address: Option<String>,
+    pub contract: Option<String>,
     pub min_topoheight: Option<u64>,
     pub max_topoheight: Option<u64>,
     pub accept_incoming: bool,
@@ -93,9 +94,17 @@ impl HistoryPageFilter {
             None => None,
         };
 
+        let contract = match self.contract.as_ref() {
+            Some(contract) => Some(Cow::Owned(
+                Hash::from_hex(contract).context("Invalid contract hash")?,
+            )),
+            None => None,
+        };
+
         Ok(TransactionFilterOptions {
             address,
             asset,
+            contract,
             min_topoheight: self.min_topoheight,
             max_topoheight: self.max_topoheight,
             accept_incoming: self.accept_incoming,

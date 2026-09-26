@@ -34,6 +34,7 @@ Future<List<TransactionEntry>> history(Ref ref, int page) async {
       limit: BigInt.from(pageSize),
       assetHash: historyFilterState.asset,
       address: historyFilterState.address,
+      contract: historyFilterState.contract,
       minTimestamp: historyFilterState.minTimestamp != null
           ? BigInt.from(historyFilterState.minTimestamp!.millisecondsSinceEpoch)
           : null,

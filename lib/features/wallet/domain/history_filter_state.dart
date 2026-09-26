@@ -18,6 +18,7 @@ abstract class HistoryFilterState with _$HistoryFilterState {
     @JsonKey(name: 'show_blob') @Default(true) bool showBlob,
     @JsonKey(name: 'asset') String? asset,
     @JsonKey(name: 'address') String? address,
+    @JsonKey(name: 'contract') String? contract,
     @JsonKey(name: 'min_timestamp') DateTime? minTimestamp,
     @JsonKey(name: 'max_timestamp') DateTime? maxTimestamp,
   }) = _HistoryFilterState;

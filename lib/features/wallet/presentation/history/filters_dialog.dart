@@ -44,6 +44,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
   late Set<TransactionCategory> _categoriesSelected;
   late final FSelectController<MapEntry<String, AssetData>> _assetController;
   late final FSelectController<ContactDetails> _contactController;
+  late final TextEditingController _contractController;
   final _scrollController = ScrollController();
   late bool _hideExtraData;
   late bool _hideZeroBalance;
@@ -82,6 +83,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
     _contactController = FSelectController<ContactDetails>(
       value: initialContact,
     );
+    _contractController = TextEditingController(text: filterState.contract);
     _hideExtraData = filterState.hideExtraData;
     _hideZeroBalance = filterState.hideZeroTransfer;
     _minTimestamp = filterState.minTimestamp;
@@ -92,6 +94,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
   void dispose() {
     _assetController.dispose();
     _contactController.dispose();
+    _contractController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -222,6 +225,22 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
                           .toList();
                     },
                   ),
+                  FTextFormField(
+                    control: .managed(controller: _contractController),
+                    label: Text(loc.contract),
+                    hint: loc.hash,
+                    autocorrect: false,
+                    keyboardType: TextInputType.text,
+                    maxLines: 1,
+                    clearable: (value) => value.text.isNotEmpty,
+                    validator: (value) {
+                      final contract = value?.trim() ?? '';
+                      if (contract.isEmpty) return null;
+                      return _isValidHash(contract)
+                          ? null
+                          : loc.sign_transaction_formfield_error;
+                    },
+                  ),
                   AppCard(
                     clipBehavior: Clip.antiAlias,
                     child: Column(
@@ -335,6 +354,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
       };
       _assetController.value = null;
       _contactController.value = null;
+      _contractController.clear();
       _hideExtraData = false;
       _hideZeroBalance = false;
       _minTimestamp = null;
@@ -347,6 +367,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
     if (_formKey.currentState?.validate() ?? false) {
       final assetEntry = _assetController.value;
       final contact = _contactController.value;
+      final contract = _contractController.text.trim();
 
       final newFilterState = HistoryFilterState(
         hideExtraData: _hideExtraData,
@@ -364,6 +385,7 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
         showBlob: _categoriesSelected.contains(TransactionCategory.blob),
         asset: assetEntry?.key,
         address: contact?.address,
+        contract: contract.isEmpty ? null : contract,
         minTimestamp: _minTimestamp,
         maxTimestamp: _maxTimestamp,
       );
@@ -417,3 +439,5 @@ class _FiltersDialogState extends ConsumerState<FiltersDialog>
     return DateTime(value.year, value.month, value.day, 23, 59, 59, 999);
   }
 }
+
+bool _isValidHash(String value) => RegExp(r'^[0-9a-fA-F]{64}$').hasMatch(value);
