@@ -8,8 +8,10 @@ import 'package:genesix/features/settings/application/app_localizations_provider
 
 import 'package:genesix/features/logger/logger.dart';
 import 'package:genesix/features/wallet/application/xswd_state_providers.dart';
+import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
 import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
+import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
 
 import 'xswd_relayer.dart';
 import 'package:genesix/features/wallet/application/xswd_controller_provider.dart';
@@ -30,12 +32,18 @@ class _XswdPasteConnectionDialogState
   final _controller = TextEditingController();
   bool _isProcessing = false;
   bool _hasInput = false;
+  bool _hasHandedOff = false;
   String? _inputError;
+  String? _pendingRelayerAppId;
 
   @override
   void initState() {
     super.initState();
     _controller.addListener(_onInputChanged);
+    ref.listenManual<XswdRequestState>(
+      xswdRequestProvider,
+      _onXswdRequestChanged,
+    );
   }
 
   @override
@@ -53,6 +61,36 @@ class _XswdPasteConnectionDialogState
       _hasInput = hasInput;
       _inputError = null;
     });
+  }
+
+  void _onXswdRequestChanged(
+    XswdRequestState? previous,
+    XswdRequestState next,
+  ) {
+    if (!_isProcessing ||
+        _hasHandedOff ||
+        _pendingRelayerAppId == null ||
+        next.decision == null ||
+        previous?.decision == next.decision ||
+        next.xswdEventSummary?.applicationInfo.id != _pendingRelayerAppId) {
+      return;
+    }
+
+    if (_closeDialogIfCurrent()) {
+      // The relay may reuse the local server's callbacks. Open from the
+      // matching input handoff so both handler paths behave the same way.
+      ref.read(xswdRequestProvider.notifier).requestOpenDialog();
+    }
+  }
+
+  bool _closeDialogIfCurrent() {
+    if (_hasHandedOff || !(ModalRoute.of(context)?.isCurrent ?? false)) {
+      return false;
+    }
+
+    _hasHandedOff = true;
+    widget.close();
+    return true;
   }
 
   @override
@@ -152,46 +190,12 @@ class _XswdPasteConnectionDialogState
       _inputError = null;
     });
 
+    late final ApplicationDataRelayer relayerData;
     try {
       final json = jsonDecode(raw) as Map<String, dynamic>;
-      final session = RelaySessionData.fromJson(json);
-
-      final relayerData = session.toApplicationDataRelayer();
-
-      talker.info('=== XSWD PASTE CONNECT ===');
-      talker.info('Relayer WS URL: ${relayerData.relayer}');
-      talker.info('App name: ${relayerData.name}');
-      talker.info('Permissions: ${relayerData.permissions}');
-
-      final connected = await ref
-          .read(xswdControllerProvider)
-          .addXswdRelayer(relayerData);
-      if (!connected) {
-        if (!mounted) return;
-        setState(() {
-          _isProcessing = false;
-        });
-        return;
-      }
-
-      // Wait for all XSWD permission dialogs to fully complete
-      final waitDeadline = DateTime.now().add(const Duration(seconds: 12));
-      while (mounted && ref.read(xswdRequestProvider).decision != null) {
-        if (DateTime.now().isAfter(waitDeadline)) {
-          break;
-        }
-        await Future<void>.delayed(const Duration(milliseconds: 50));
-      }
-
-      if (!mounted) return;
-
-      widget.close();
-
-      ref
-          .read(toastProvider.notifier)
-          .showEvent(description: loc.app_connected_title(relayerData.name));
-    } catch (e, st) {
-      talker.error('XSWD paste processing failed', e, st);
+      relayerData = RelaySessionData.fromJson(json).toApplicationDataRelayer();
+    } catch (error) {
+      talker.error('XSWD paste payload parsing failed (${error.runtimeType})');
 
       if (!mounted) return;
 
@@ -201,6 +205,39 @@ class _XswdPasteConnectionDialogState
       setState(() {
         _isProcessing = false;
       });
+      return;
+    }
+
+    _pendingRelayerAppId = relayerData.id;
+    final toastNotifier = ref.read(toastProvider.notifier);
+    try {
+      final connected = await ref
+          .read(xswdControllerProvider)
+          .addXswdRelayer(relayerData);
+      if (!connected) {
+        if (!mounted) return;
+        setState(() {
+          _isProcessing = false;
+          _pendingRelayerAppId = null;
+        });
+        return;
+      }
+
+      if (!_hasHandedOff) {
+        if (mounted) {
+          _closeDialogIfCurrent();
+        }
+        toastNotifier.showEvent(
+          description: loc.app_connected_title(relayerData.name),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+          _pendingRelayerAppId = null;
+        });
+      }
     }
   }
 }

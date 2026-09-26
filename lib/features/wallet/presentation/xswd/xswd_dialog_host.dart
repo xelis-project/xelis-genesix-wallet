@@ -54,9 +54,13 @@ class _XswdDialogHostState extends ConsumerState<XswdDialogHost> {
       if (navigatorContext == null) return;
 
       _isDialogOpen = true;
+      var displayedRequest = ref.read(xswdRequestProvider);
       showAppDialog<void>(
         context: navigatorContext,
-        builder: (context, _, animation) => XswdDialog(animation),
+        builder: (context, _, animation) => XswdDialog(
+          animation,
+          onRequestDisplayed: (request) => displayedRequest = request,
+        ),
       ).whenComplete(() {
         if (!mounted) return;
 
@@ -64,6 +68,14 @@ class _XswdDialogHostState extends ConsumerState<XswdDialogHost> {
 
         final xswdState = ref.read(xswdRequestProvider);
         final decision = xswdState.decision;
+        // A request arriving after this route starts closing belongs to the
+        // next dialog. Never reject it as cleanup for the previous request.
+        if (decision != null &&
+            !decision.isCompleted &&
+            !identical(decision, displayedRequest.decision)) {
+          _openDialog();
+          return;
+        }
         if (decision != null && !decision.isCompleted) {
           decision.complete(UserPermissionDecision.reject);
         }

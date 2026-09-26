@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
@@ -26,6 +28,7 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
   FToasterEntry? _xswdToastEntry;
   final ValueNotifier<int> _visibleXswdToastGeneration = ValueNotifier(0);
   int _nextXswdToastGeneration = 0;
+  Completer<UserPermissionDecision>? _openedXswdDecision;
 
   bool _showStandardDismiss(ToastContent toast) =>
       toast.dismissible &&
@@ -43,12 +46,16 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
 
   void _onDialogOpenSignal(int? previous, int next) {
     if (previous != next) {
+      _openedXswdDecision = ref.read(xswdRequestProvider).decision;
       _dismissXswdToastForDialog();
     }
   }
 
   void _onToastChanged(ToastContent? prev, ToastContent? next) {
     if (next == null) return;
+    final requestDecision = next.isXswd
+        ? ref.read(xswdRequestProvider).decision
+        : null;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) {
@@ -61,12 +68,27 @@ class _ToasterWidgetState extends ConsumerState<ToasterWidget> {
       }
 
       if (next.isXswd) {
-        _showXswdToast(toastCtx, next);
+        // Opening may precede either toast emission or this deferred render.
+        // Never show an "Open" prompt for an already opened or stale request.
+        final staleOpenPrompt =
+            next.actions.isNotEmpty &&
+            (requestDecision == null ||
+                requestDecision.isCompleted ||
+                identical(requestDecision, _openedXswdDecision) ||
+                !identical(
+                  requestDecision,
+                  ref.read(xswdRequestProvider).decision,
+                ));
+        if (!staleOpenPrompt) {
+          _showXswdToast(toastCtx, next);
+        }
       } else {
         _showStandardToast(toastCtx, next);
       }
 
-      ref.read(toastProvider.notifier).clear();
+      if (identical(ref.read(toastProvider), next)) {
+        ref.read(toastProvider.notifier).clear();
+      }
     });
   }
 

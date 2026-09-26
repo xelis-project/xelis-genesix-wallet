@@ -20,7 +20,6 @@ import 'package:genesix/features/wallet/presentation/xswd/components/multisig_bu
 import 'package:genesix/features/wallet/presentation/xswd/components/transfer_builder_widget.dart';
 import 'package:genesix/shared/theme/build_context_extensions.dart';
 import 'package:genesix/shared/theme/constants.dart';
-import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/utils/utils.dart';
 import 'package:genesix/shared/widgets/components/faded_scroll.dart';
 import 'package:genesix/src/generated/rust_bridge/api/models/xswd_dtos.dart';
@@ -28,9 +27,10 @@ import 'package:go_router/go_router.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 class XswdDialog extends ConsumerStatefulWidget {
-  const XswdDialog(this.animation, {super.key});
+  const XswdDialog(this.animation, {this.onRequestDisplayed, super.key});
 
   final Animation<double> animation;
+  final ValueChanged<XswdRequestState>? onRequestDisplayed;
 
   @override
   ConsumerState createState() => _XswdDialogState();
@@ -53,13 +53,13 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
 
   Timer? _closeDelayTimer;
   bool _awaitingNextRequest = false;
-  int? _awaitingRequestHash;
+  Completer<UserPermissionDecision>? _awaitingDecision;
 
   late final ScrollController _scrollController;
+  final ScrollController _permissionsScrollController = ScrollController();
 
   bool _timerShouldRun = false;
   bool _rememberDecision = false;
-  bool _detailsExpanded = false;
 
   late final XswdRequest _xswdRequestNotifier;
 
@@ -126,35 +126,30 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     _setSuppress(false);
 
     _awaitingNextRequest = false;
-    _awaitingRequestHash = null;
+    _awaitingDecision = null;
   }
 
-  void _beginRapidFireWait({required int currentRequestHash}) {
+  void _beginRapidFireWait({
+    required Completer<UserPermissionDecision> currentDecision,
+  }) {
     _closeDelayTimer?.cancel();
 
     _setSuppress(true);
 
     setState(() {
       _awaitingNextRequest = true;
-      _awaitingRequestHash = currentRequestHash;
+      _awaitingDecision = currentDecision;
     });
 
     _closeDelayTimer = Timer(_rapidFireWindow, () {
       if (!mounted) return;
 
-      final latestHash = ref
-          .read(xswdRequestProvider)
-          .xswdEventSummary
-          ?.hashCode;
+      final latestDecision = ref.read(xswdRequestProvider).decision;
 
-      if (latestHash != null &&
-          _awaitingRequestHash != null &&
-          latestHash != _awaitingRequestHash) {
-        setState(() {
-          _awaitingNextRequest = false;
-          _awaitingRequestHash = null;
-        });
-        _setSuppress(false);
+      if (_awaitingDecision != null &&
+          !identical(latestDecision, _awaitingDecision)) {
+        // Let build perform the complete transition to the new request.
+        setState(() {});
         return;
       }
 
@@ -225,6 +220,7 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     });
 
     _scrollController.dispose();
+    _permissionsScrollController.dispose();
 
     super.dispose();
   }
@@ -233,11 +229,13 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
   Widget build(BuildContext context) {
     final loc = ref.watch(appLocalizationsProvider);
     final xswdState = ref.watch(xswdRequestProvider);
+    if (ModalRoute.of(context)?.isCurrent ?? false) {
+      widget.onRequestDisplayed?.call(xswdState);
+    }
 
     if (xswdState.xswdEventSummary == null) {
       _cancelRapidFireWait();
       _syncTimerWithState(_ActionSet.okOnly);
-      _detailsExpanded = false;
 
       return AppDialog(
         clipBehavior: Clip.antiAlias,
@@ -267,16 +265,15 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     }
 
     final summary = xswdState.xswdEventSummary!;
-    final currentHash = summary.hashCode;
-
     if (_awaitingNextRequest &&
-        _awaitingRequestHash != null &&
-        currentHash != _awaitingRequestHash) {
+        _awaitingDecision != null &&
+        !identical(xswdState.decision, _awaitingDecision)) {
       _closeDelayTimer?.cancel();
       _closeDelayTimer = null;
       _awaitingNextRequest = false;
-      _awaitingRequestHash = null;
-      _detailsExpanded = false;
+      _awaitingDecision = null;
+      // Each request requires its own explicit decision.
+      _rememberDecision = false;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _setSuppress(false);
@@ -398,21 +395,57 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
                             loc: loc,
                           ),
                           const SizedBox(height: Spaces.medium),
-                          _XswdMoreDetailsAccordion(
-                            expanded: _detailsExpanded,
-                            appInfo: summary.applicationInfo,
-                            permissionRequest: xswdState.permissionRpcRequest,
-                            prefetchRequest:
-                                xswdState.prefetchPermissionsRequest,
-                            loc: loc,
-                            onExpandedChange: (expanded) {
-                              setState(() {
-                                _detailsExpanded = expanded;
-                              });
-                            },
-                            onAssetTap: (asset) =>
-                                _showAssetDetails(context, loc, asset),
-                          ),
+                          Text(switch (eventType) {
+                            XswdRequestType_Application() =>
+                              loc.connection_request_from(
+                                summary.applicationInfo.name,
+                              ),
+                            XswdRequestType_Permission() =>
+                              loc.permission_request_from(
+                                summary.applicationInfo.name,
+                              ),
+                            XswdRequestType_PrefetchPermissions() =>
+                              loc.prefetch_permissions_request_from(
+                                summary.applicationInfo.name,
+                              ),
+                            XswdRequestType_CancelRequest() =>
+                              loc.request_cancelled_from(
+                                summary.applicationInfo.name,
+                              ),
+                            XswdRequestType_AppDisconnect() =>
+                              loc.app_disconnected_title(
+                                summary.applicationInfo.name,
+                              ),
+                          }, style: context.bodyLarge),
+                          if (summary.isPermissionRequest() &&
+                              xswdState.permissionRpcRequest != null) ...[
+                            const SizedBox(height: Spaces.small),
+                            _XswdMinimalPermissionSection(
+                              request: xswdState.permissionRpcRequest!,
+                              loc: loc,
+                            ),
+                          ],
+                          if (summary.isPrefetchPermissionsRequest() &&
+                              xswdState.prefetchPermissionsRequest != null) ...[
+                            const SizedBox(height: Spaces.small),
+                            _XswdMinimalPrefetchDetailsSection(
+                              request: xswdState.prefetchPermissionsRequest!,
+                              loc: loc,
+                            ),
+                          ],
+                          if (summary.isApplicationRequest() &&
+                              summary
+                                  .applicationInfo
+                                  .permissions
+                                  .isNotEmpty) ...[
+                            const SizedBox(height: Spaces.small),
+                            _XswdConnectionPermissionsSection(
+                              permissions:
+                                  summary.applicationInfo.permissions.keys,
+                              controller: _permissionsScrollController,
+                              loc: loc,
+                            ),
+                          ],
                           const SizedBox(height: Spaces.small),
                         ],
                       ),
@@ -439,49 +472,6 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
     );
   }
 
-  void _showAssetDetails(
-    BuildContext context,
-    AppLocalizations loc,
-    String asset,
-  ) {
-    showAppDialog<void>(
-      context: context,
-      builder: (context, style, animation) => AppDialog(
-        clipBehavior: Clip.antiAlias,
-        style: style,
-        animation: animation,
-        direction: Axis.horizontal,
-        title: Row(
-          children: [
-            const Icon(FLucideIcons.coins),
-            const SizedBox(width: Spaces.small),
-            Expanded(child: Text(loc.details.capitalize())),
-          ],
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                loc.asset,
-                style: context.bodySmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: context.theme.colors.mutedForeground,
-                ),
-              ),
-              const SizedBox(height: Spaces.extraSmall),
-              SelectableText(asset, style: context.bodySmall),
-            ],
-          ),
-        ),
-        actions: [
-          FButton(onPress: () => context.pop(), child: Text(loc.close)),
-        ],
-      ),
-    );
-  }
-
   void _handleDecision(UserPermissionDecision decision) {
     _stopTimer();
 
@@ -502,9 +492,8 @@ class _XswdDialogState extends ConsumerState<XswdDialog> {
       return;
     }
 
-    final currentHash = xswdState.xswdEventSummary?.hashCode;
-    if (currentHash != null) {
-      _beginRapidFireWait(currentRequestHash: currentHash);
+    if (decisionCompleter != null) {
+      _beginRapidFireWait(currentDecision: decisionCompleter);
       return;
     }
 
@@ -577,33 +566,38 @@ class _XswdApplicationInfoSection extends StatelessWidget {
         builder: (context, constraints) {
           final compactLayout = constraints.maxWidth < 520;
 
-          if (compactLayout) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _XswdInfoRow(label: loc.name.capitalize(), value: appInfo.name),
-                const SizedBox(height: Spaces.medium),
-                _XswdInfoRow(label: loc.url.capitalize(), value: displayUrl),
-              ],
-            );
-          }
+          final name = _XswdInfoRow(
+            label: loc.name.capitalize(),
+            value: appInfo.name,
+          );
+          final url = _XswdInfoRow(
+            label: loc.url.capitalize(),
+            value: displayUrl,
+          );
 
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                child: _XswdInfoRow(
-                  label: loc.name.capitalize(),
-                  value: appInfo.name,
+              if (compactLayout) ...[
+                name,
+                const SizedBox(height: Spaces.medium),
+                url,
+              ] else
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: name),
+                    const SizedBox(width: Spaces.medium),
+                    Expanded(child: url),
+                  ],
                 ),
-              ),
-              const SizedBox(width: Spaces.medium),
-              Expanded(
-                child: _XswdInfoRow(
-                  label: loc.url.capitalize(),
-                  value: displayUrl,
+              if (appInfo.description.isNotEmpty) ...[
+                const SizedBox(height: Spaces.medium),
+                _XswdInfoRow(
+                  label: loc.description.capitalize(),
+                  value: appInfo.description,
                 ),
-              ),
+              ],
             ],
           );
         },
@@ -612,86 +606,58 @@ class _XswdApplicationInfoSection extends StatelessWidget {
   }
 }
 
-class _XswdMoreDetailsAccordion extends StatelessWidget {
-  const _XswdMoreDetailsAccordion({
-    required this.expanded,
-    required this.appInfo,
-    required this.permissionRequest,
-    required this.prefetchRequest,
+class _XswdConnectionPermissionsSection extends StatelessWidget {
+  const _XswdConnectionPermissionsSection({
+    required this.permissions,
+    required this.controller,
     required this.loc,
-    required this.onExpandedChange,
-    required this.onAssetTap,
   });
 
-  final bool expanded;
-  final AppInfo appInfo;
-  final PermissionRpcRequest? permissionRequest;
-  final PrefetchPermissionsRequest? prefetchRequest;
+  final Iterable<String> permissions;
+  final ScrollController controller;
   final AppLocalizations loc;
-  final ValueChanged<bool> onExpandedChange;
-  final ValueChanged<String> onAssetTap;
 
   @override
   Widget build(BuildContext context) {
-    final hasDescription = appInfo.description.isNotEmpty;
-    final hasPermissionDetails = permissionRequest != null;
-    final hasPrefetchDetails = prefetchRequest != null;
-    final hasFuturePermissions = appInfo.permissions.isNotEmpty;
+    final badgeStyle = context.theme.badgeStyles.resolve({
+      FBadgeVariant.outline,
+      context.platformVariant,
+    });
+    final textScaler = MediaQuery.textScalerOf(context);
+    final direction = Directionality.of(context);
+    // Include badge padding and row gaps in the three-row viewport.
+    final measurement = TextPainter(
+      text: TextSpan(text: 'M', style: badgeStyle.labelTextStyle),
+      textDirection: direction,
+      textScaler: textScaler,
+    )..layout();
+    final rowHeight =
+        measurement.height + badgeStyle.padding.resolve(direction).vertical;
+    final maxHeight = rowHeight * 3 + Spaces.small * 2;
+    measurement.dispose();
 
-    if (!hasDescription &&
-        !hasPermissionDetails &&
-        !hasPrefetchDetails &&
-        !hasFuturePermissions) {
-      return const SizedBox.shrink();
-    }
-
-    return FAccordion(
-      control: FAccordionControl.lifted(
-        expanded: (index) => index == 0 && expanded,
-        onChange: (index, nextExpanded) {
-          if (index == 0) {
-            onExpandedChange(nextExpanded);
-          }
-        },
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        FAccordionItem(
-          title: Text(loc.more_details),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (hasDescription)
-                _XswdInfoRow(
-                  label: loc.description.capitalize(),
-                  value: appInfo.description,
-                ),
-              if (hasPermissionDetails) ...[
-                if (hasDescription) const SizedBox(height: Spaces.medium),
-                _XswdMinimalPermissionSection(
-                  request: permissionRequest!,
-                  loc: loc,
-                  onAssetTap: onAssetTap,
-                ),
-              ],
-              if (hasPrefetchDetails) ...[
-                if (hasDescription || hasPermissionDetails)
-                  const SizedBox(height: Spaces.medium),
-                _XswdMinimalPrefetchDetailsSection(
-                  request: prefetchRequest!,
-                  loc: loc,
-                ),
-              ],
-              if (hasFuturePermissions) ...[
-                if (hasDescription ||
-                    hasPermissionDetails ||
-                    hasPrefetchDetails)
-                  const SizedBox(height: Spaces.medium),
-                _XswdMinimalFuturePermissionsSection(
-                  permissions: appInfo.permissions.keys,
-                  loc: loc,
-                ),
-              ],
-            ],
+        Text(loc.permissions.capitalize(), style: context.bodyMedium),
+        const SizedBox(height: Spaces.small),
+        ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: maxHeight),
+          child: Scrollbar(
+            controller: controller,
+            thumbVisibility: true,
+            child: SingleChildScrollView(
+              controller: controller,
+              primary: false,
+              padding: const EdgeInsetsDirectional.only(end: Spaces.medium),
+              child: Wrap(
+                spacing: Spaces.small,
+                runSpacing: Spaces.small,
+                children: permissions
+                    .map((permission) => _XswdMinimalBadge(label: permission))
+                    .toList(),
+              ),
+            ),
           ),
         ),
       ],
@@ -703,12 +669,10 @@ class _XswdMinimalPermissionSection extends StatelessWidget {
   const _XswdMinimalPermissionSection({
     required this.request,
     required this.loc,
-    required this.onAssetTap,
   });
 
   final PermissionRpcRequest request;
   final AppLocalizations loc;
-  final ValueChanged<String> onAssetTap;
 
   @override
   Widget build(BuildContext context) {
@@ -731,11 +695,7 @@ class _XswdMinimalPermissionSection extends StatelessWidget {
             style: context.bodySmall?.copyWith(color: muted),
           ),
           const SizedBox(height: Spaces.extraSmall),
-          _XswdPermissionPayload(
-            request: request,
-            loc: loc,
-            onAssetTap: onAssetTap,
-          ),
+          _XswdPermissionPayload(request: request, loc: loc),
         ],
       ],
     );
@@ -779,39 +739,6 @@ class _XswdMinimalPrefetchDetailsSection extends StatelessWidget {
   }
 }
 
-class _XswdMinimalFuturePermissionsSection extends StatelessWidget {
-  const _XswdMinimalFuturePermissionsSection({
-    required this.permissions,
-    required this.loc,
-  });
-
-  final Iterable<String> permissions;
-  final AppLocalizations loc;
-
-  @override
-  Widget build(BuildContext context) {
-    final muted = context.theme.colors.mutedForeground;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          loc.future_permissions.capitalize(),
-          style: context.bodyMedium?.copyWith(color: muted),
-        ),
-        const SizedBox(height: Spaces.small),
-        Wrap(
-          spacing: Spaces.small,
-          runSpacing: Spaces.small,
-          children: permissions
-              .map((permission) => _XswdMinimalBadge(label: permission))
-              .toList(),
-        ),
-      ],
-    );
-  }
-}
-
 class _XswdMinimalBadge extends StatelessWidget {
   const _XswdMinimalBadge({required this.label});
 
@@ -824,15 +751,10 @@ class _XswdMinimalBadge extends StatelessWidget {
 }
 
 class _XswdPermissionPayload extends StatelessWidget {
-  const _XswdPermissionPayload({
-    required this.request,
-    required this.loc,
-    required this.onAssetTap,
-  });
+  const _XswdPermissionPayload({required this.request, required this.loc});
 
   final PermissionRpcRequest request;
   final AppLocalizations loc;
-  final ValueChanged<String> onAssetTap;
 
   @override
   Widget build(BuildContext context) {
@@ -865,16 +787,10 @@ class _XswdPermissionPayload extends StatelessWidget {
         request.params!.containsKey('asset') &&
         request.params!['asset'] is String) {
       final asset = request.params!['asset'] as String;
-      builderWidget = Wrap(
-        spacing: Spaces.small,
-        runSpacing: Spaces.small,
-        children: [
-          _AssetPermissionBadge(
-            asset: asset,
-            assetLabel: loc.asset,
-            onTap: () => onAssetTap(asset),
-          ),
-        ],
+      builderWidget = _XswdAssetPermissionDetails(
+        asset: asset,
+        tracking: request.method == 'track_asset',
+        loc: loc,
       );
     }
 
@@ -1058,83 +974,47 @@ class _XswdCountdownIndicator extends StatelessWidget {
   }
 }
 
-class _XswdIconBadge extends StatelessWidget {
-  const _XswdIconBadge({
-    this.variant = FBadgeVariant.primary,
-    required this.icon,
-    required this.child,
-  });
-
-  final FBadgeVariant variant;
-  final IconData icon;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return FBadge(
-      variant: variant,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: context.theme.colors.mutedForeground),
-          const SizedBox(width: Spaces.extraSmall),
-          child,
-        ],
-      ),
-    );
-  }
-}
-
-class _AssetPermissionBadge extends StatelessWidget {
-  const _AssetPermissionBadge({
+class _XswdAssetPermissionDetails extends StatelessWidget {
+  const _XswdAssetPermissionDetails({
     required this.asset,
-    required this.assetLabel,
-    required this.onTap,
+    required this.tracking,
+    required this.loc,
   });
 
   final String asset;
-  final String assetLabel;
-  final VoidCallback onTap;
+  final bool tracking;
+  final AppLocalizations loc;
 
   @override
   Widget build(BuildContext context) {
-    final truncated = asset.length > 16
-        ? '${asset.substring(0, 8)}...${asset.substring(asset.length - 6)}'
-        : asset;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: _XswdIconBadge(
-        variant: .outline,
-        icon: FLucideIcons.coins,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  assetLabel,
-                  style: context.bodySmall?.copyWith(
-                    color: context.theme.colors.mutedForeground,
-                    fontSize: 11,
-                  ),
-                ),
-                Text(truncated, style: context.bodySmall),
-              ],
-            ),
-            if (asset.length > 16) ...[
-              const SizedBox(width: Spaces.extraSmall),
-              Icon(
-                FLucideIcons.circleQuestionMark,
-                size: 14,
-                color: context.theme.colors.mutedForeground,
-              ),
-            ],
+            const Icon(FLucideIcons.coins, size: 18),
+            const SizedBox(width: Spaces.small),
+            Expanded(child: Text(loc.asset, style: context.titleSmall)),
           ],
         ),
-      ),
+        if (tracking) ...[
+          const SizedBox(height: Spaces.small),
+          Text(loc.track_asset_dialog_message, style: context.bodyMedium),
+        ],
+        const SizedBox(height: Spaces.medium),
+        Text(
+          loc.hash,
+          style: context.bodySmall?.copyWith(
+            color: context.theme.colors.mutedForeground,
+          ),
+        ),
+        const SizedBox(height: Spaces.extraSmall),
+        SelectableText(
+          asset,
+          style: context.bodyMedium?.copyWith(fontFamily: 'monospace'),
+        ),
+      ],
     );
   }
 }
@@ -1147,6 +1027,7 @@ class _PermissionContentContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
       constraints: const BoxConstraints(maxHeight: 300),
       padding: const EdgeInsets.all(Spaces.medium),
       decoration: BoxDecoration(

@@ -132,17 +132,17 @@ class XswdController {
       await ref
           .read(xswdNotificationServiceProvider)
           .sync(active: true, title: loc.connected_apps);
-      talker.info('XSWD relay connection added: ${relayerData.name}');
+      talker.info('XSWD relay connection added');
       return true;
     } on AnyhowException catch (error) {
-      talker.error('Cannot add XSWD relay connection: $error');
+      talker.error('Cannot add XSWD relay connection');
       _emitError(
         title: loc.cannot_add_xswd_relayer,
         description: _extractXelisMessage(error),
       );
       rethrow;
     } catch (error) {
-      talker.error('Cannot add XSWD relay connection: $error');
+      talker.error('Cannot add XSWD relay connection (${error.runtimeType})');
       _emitError(
         title: loc.cannot_add_xswd_relayer,
         description: error.toString(),
