@@ -53,7 +53,7 @@ it again against the current wallet's application list.
 | --- | --- |
 | Desktop and Android | Local XSWD server and relayed application sessions are supported. |
 | iOS | Local XSWD server is unavailable; relayed sessions are supported. |
-| Web | Local XSWD server is unavailable; relayed sessions and lossless `build_transaction` review are supported through XWF 0.3. |
+| Web | Local XSWD server is unavailable; relayed sessions and lossless `build_transaction` review are supported through XWF 0.4. |
 | Public information, verification, and estimates | Supported by the standard permission review. They may be prefetched and persisted after explicit approval. Permission names are the unprefixed `WalletMethod.jsonKey` values, such as `get_version`. |
 | Private wallet data | Balance, address, nonce, asset, transaction, and `network_info` reads are supported by the standard permission review. The latter includes the connected daemon endpoint, which is not necessarily public. These methods may be prefetched and persisted only after the UI identifies their wallet-data effect. |
 | Application storage | The XSWD application's isolated database reads and writes are supported, prefetchable, and persistable after explicit approval. |
@@ -240,7 +240,7 @@ still uses its original request and needs individual confirmation.
 
 ## Lossless Web transaction review
 
-XWF 0.3 provides an immutable typed XSWD tree with exact `BigInt` integers.
+XWF 0.4 provides an immutable typed XSWD tree with exact `BigInt` integers.
 Genesix adapts this tree directly to SDK 0.36, without JSON reparsing, so Web
 review must preserve exact numeric values above `2^53 - 1` through `u64::MAX`.
 

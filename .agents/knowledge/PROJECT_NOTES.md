@@ -62,7 +62,7 @@ Invalidation:
 
 ### 2026-09-05 - Lossless XSWD transaction review on Web
 
-XWF 0.3 delivers an immutable typed XSWD tree with exact `BigInt` integers.
+XWF 0.4 delivers an immutable typed XSWD tree with exact `BigInt` integers.
 Genesix adapts it directly to SDK 0.36 without `jsonEncode`/`jsonDecode`.
 Do not introduce ordinary JSON decoding between these layers: on Web it can
 round wide numeric tokens before SDK parsing. The canonical policy, regression
@@ -113,24 +113,19 @@ capability and must remain attached to the Genesix review state; its hash is not
 sufficient authority to broadcast or discard it. Broadcast recovery and the
 five package outcomes are documented in `docs/error-handling.md`.
 
-### 2026-08-02 - Apple lock regeneration
+### 2026-09-14 - Apple SwiftPM validation pending
 
-Genesix no longer owns a Rust crate or Flutter Rust Bridge codegen. Native
-wallet code, generated bindings, and native build tooling are owned by
-`xelis_wallet_flutter`.
-
-The existing iOS and macOS `Podfile.lock` files still contain the historical
-`rust_builder` pod. Do not hand-edit CocoaPods checksums. Regenerate both locks
-with `pod install` on macOS after `flutter pub get`, then verify that they no
-longer contain `rust_builder` before the next Apple distribution. XWF 0.3 uses
-Native Assets, not a CocoaPods FFI plugin: do not require an
-`xelis_wallet_flutter` pod or add one manually. Verify its native library in a
-real Apple consumer build instead.
+Apple plugins use Swift Package Manager and XWF 0.4 builds its Rust library
+through Native Assets. The CocoaPods files and Xcode references are gone; do not
+restore an XWF pod or `rust_builder`. The cleanup was prepared on Windows, so
+the first Mac CLI build, Apple compilation, plugin behavior and packaged wallet
+loading remain unverified. macOS uses local ad-hoc signing by default;
+distribution requires separate signing.
 
 Invalidation:
 
-- Remove this entry after both Apple locks have been regenerated and validated
-  on macOS.
+- Update this entry after Apple build/runtime validation or a dependency change
+  affecting SwiftPM or Native Assets.
 
 ## Secure Storage
 

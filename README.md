@@ -25,15 +25,16 @@ It reuses the same [`xelis_wallet`](https://github.com/xelis-project/xelis-block
 | Android | Yes | Yes |
 | Windows | Yes | Yes |
 | Linux | Yes | Yes |
-| macOS | Yes (Apple lock regeneration required; see below) | Not in current release draft pipeline |
-| iOS 14+ | Yes (Apple lock regeneration required; see below) | Not in current release draft pipeline |
+| macOS 14.6+ | SwiftPM setup ready for testing on Mac | Not in current release draft pipeline |
+| iOS 14+ | SwiftPM setup ready for testing on Mac | Not in current release draft pipeline |
 | Web | Yes (special build flow) | No |
 
 Download prebuilt artifacts from the [GitHub Releases page](https://github.com/xelis-project/xelis-genesix-wallet/releases).
 
 Platform support is not evidence that the current Genesix revision has passed
 release validation. See [Native release validation](#native-release-validation)
-for packaging checks and the outstanding Apple lock regeneration.
+for packaging checks; macOS/iOS compilation and packaging still require
+verification on a Mac.
 
 ## Quick Start (Developers)
 
@@ -42,7 +43,7 @@ for packaging checks and the outstanding Apple lock regeneration.
 - [Flutter SDK](https://docs.flutter.dev/get-started/install) 3.47 or later,
   with Dart 3.13 or later, within the constraints in `pubspec.yaml`.
 - [Rustup](https://www.rust-lang.org/tools/install) to install the Rust
-  toolchain selected by the resolved wallet package (Rust 1.94.1 for XWF 0.3).
+  toolchain selected by the resolved wallet package (Rust 1.94.1 for XWF 0.4).
 - For Android: JDK 21. Set `JAVA_HOME` and your IDE's Gradle runtime to the same
   JDK, then run `flutter config --jdk-dir="<jdk-21-home>"`.
 
@@ -136,12 +137,10 @@ artifact, including its packaged wallet library. Dependency resolution and XWF's
 own consumer checks do not prove Genesix packaging; this also applies to Linux
 and Apple targets.
 
-The iOS and macOS `Podfile.lock` files still reference the historical
-`rust_builder` pod. On macOS, run `flutter pub get`, then `pod install` in each
-of `ios/` and `macos/`. Review the regenerated locks and confirm that
-`rust_builder` is absent before building and validating both Apple targets.
-Do not hand-edit CocoaPods checksums or add a replacement XWF pod: XWF 0.3 uses
-Native Assets. Keep this warning until both locks and Apple builds are validated.
+Apple plugins use Swift Package Manager; XWF builds the wallet library through
+Flutter Native Assets. The CocoaPods integration has been removed. The first
+Apple build and the resulting wallet-library packaging still need verification
+on macOS, where local development uses ad-hoc signing by default.
 
 ## Optional `just` Helpers
 
