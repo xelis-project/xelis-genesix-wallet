@@ -19,6 +19,10 @@ void main() {
             'subscribe',
             'wallet.get_balance',
             'build_transaction',
+            'get_tracked_assets',
+            'track_asset',
+            'untrack_asset',
+            'sign_data',
           ],
           'reason': 'SENSITIVE_REASON',
           'params': {'method': 'SENSITIVE_PARAMETER'},
@@ -32,6 +36,10 @@ void main() {
         {'name': 'subscribe', 'policy': 'supported'},
         {'name': 'wallet.get_balance', 'policy': 'unknown'},
         {'name': 'build_transaction', 'policy': 'notPrefetchable'},
+        {'name': 'get_tracked_assets', 'policy': 'supported'},
+        {'name': 'track_asset', 'policy': 'unsupported'},
+        {'name': 'untrack_asset', 'policy': 'unsupported'},
+        {'name': 'sign_data', 'policy': 'unsupported'},
       ]);
       expect(record.containsKey('validation'), isFalse);
       expect(record.containsKey('decision'), isFalse);

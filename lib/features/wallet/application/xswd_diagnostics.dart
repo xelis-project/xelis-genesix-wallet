@@ -164,10 +164,10 @@ final class XswdDiagnosticRequest {
     name: name,
     policy: policy == null
         ? 'unknown'
-        : prefetch && !policy.canPrefetch
-        ? 'notPrefetchable'
         : !policy.isSupported
         ? 'unsupported'
+        : prefetch && !policy.canPrefetch
+        ? 'notPrefetchable'
         : 'supported',
   );
 }
