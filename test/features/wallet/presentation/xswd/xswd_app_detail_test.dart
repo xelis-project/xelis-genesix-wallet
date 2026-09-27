@@ -88,6 +88,10 @@ void main() {
         final actionLabel = xswdPermissionActionLabel(method, loc);
         expect(find.text(actionLabel), findsOneWidget);
         expect(find.text(copy.description), findsNothing);
+        if (xswdIsEventMethod(method)) {
+          expect(find.text(loc.xswd_permission_events_title), findsOneWidget);
+          expect(find.text(loc.xswd_event_permissions_notice), findsOneWidget);
+        }
         expect(find.text('Same-ID decoy'), findsNothing);
         if (method == 'sign_data') {
           expect(

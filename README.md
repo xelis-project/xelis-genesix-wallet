@@ -176,7 +176,7 @@ local checkouts until their released versions are adopted.
 - Multisig request and cosigning flow: [`docs/multisig-signing.md`](docs/multisig-signing.md)
 - Error, logging, localization, and support-reference flow: [`docs/error-handling.md`](docs/error-handling.md)
 - Typed wallet runtime and business-event lifecycles: [`docs/runtime-events.md`](docs/runtime-events.md)
-- XSWD support, security policy, and deferred-work register: [`docs/xswd.md`](docs/xswd.md)
+- XSWD architecture, permissions, and supported capabilities: [`docs/xswd.md`](docs/xswd.md)
 
 ## Security Notes
 

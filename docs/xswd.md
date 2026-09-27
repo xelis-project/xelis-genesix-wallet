@@ -1,291 +1,143 @@
-# XSWD policy and support matrix
+# XSWD in Genesix
 
-This document is the canonical Genesix policy for XSWD (XELIS Secure WebSocket
-DApp) connections, permission requests, transaction review, and
-deferred XSWD capabilities. It describes the behaviour that the application
-must enforce; it is not a protocol specification or a product roadmap.
+XSWD (XELIS Secure WebSocket DApp) lets an external application request access
+and wallet operations through Genesix. This document defines the architecture,
+consent rules, and supported capabilities. Read it before changing XSWD
+connections, permissions, or transaction review.
 
-Read it before changing XSWD callbacks, permission policy, review UI, relayer
-handling, or the `xelis_dart_sdk` / `xelis_wallet_flutter` XSWD contract.
+## Architecture
 
-## Architecture and trust boundaries
+Genesix supports local connections through the wallet's XSWD server and remote
+connections through a relayer, established using a QR code, pasted link, or deep
+link. Both follow the same consent and validation rules.
 
-An XSWD local server accepts local application sessions. A relayed connection
-uses a QR, paste, or deep-link payload to establish an application session
-through a relayer. In both cases, a session is untrusted until Genesix has
-validated the request and obtained the user's decision.
+Responsibilities are split between three components:
 
-Responsibilities are deliberately split:
+- `xelis_wallet_flutter` (XWF) owns transport, live sessions, callbacks, and the
+  native wallet boundary.
+- `xelis_dart_sdk` defines the RPC and event catalogue and their typed models.
+- Genesix decides which operations are supported, validates and presents
+  requests, and collects the user's decision.
 
-- `xelis_wallet_flutter` (XWF) owns the native transport, callback lifecycle,
-  structural request projections, structured XSWD failures, and the native
-  wallet boundary.
-- `xelis_dart_sdk` owns the canonical RPC/subscription catalogue, public RPC
-  models and typed deserialization. Genesix uses exact catalogue resolution;
-  manifest compatibility rules do not normalize live permission requests.
-- Genesix owns platform policy, permission normalization, fail-closed request
-  validation, review presentation, and the user decision.
+Applications and their requests are untrusted. Malformed, unknown, unsupported,
+or incompletely reviewable operations are rejected.
+Sensitive connection and request payloads must stay out of logs, analytics,
+crash reports, navigation state, and support messages.
 
-XSWD QR, paste, deep-link, request, encryption-key, and transaction payloads
-are sensitive. They must not be placed in ordinary logs, support references,
-analytics, crash reports, route state, or user-facing errors. A request that is
-malformed, unsupported, or not fully and losslessly reviewable is rejected;
-the callback/session then follows the XWF lifecycle and failure policy.
+## Connections
 
-The application ID is persisted identity metadata, not authority over a live
-connection. Genesix closes and edits a session only with the opaque
-`XelisXswdSessionReference` attached by XWF to the exact application projection.
-This keeps simultaneous local and relayed instances distinct even when their
-application IDs collide, and makes stale, reconstructed, reconnected, or
-other-wallet projections fail closed.
+Accepting a connection allows an application to communicate with Genesix; it
+neither grants its requested permissions nor authorizes a transaction.
 
-Application-detail navigation carries only that opaque reference in memory.
-Its GoRouter codec serializes a constant non-restorable sentinel: no native
-token, application ID, name, URL, permission, or request data enters route
-restoration or diagnostics. A restored route receives a detached reference and
-shows the disconnected/not-found state; it never falls back to application-ID
-lookup. Ordinary imperative navigation retains the live reference and resolves
-it again against the current wallet's application list.
+Each connection has its own identity and permission rules. An application ID
+is descriptive metadata, not authority to act on a session. Genesix uses the
+live session reference supplied by XWF, so simultaneous local and relayed
+connections remain independent even if they share an application ID. Restoring
+a screen or reconnecting cannot restore the authority of an earlier session.
 
-## Current support matrix
+Every approval belongs to its originating request, connection, and wallet.
+Closing that connection cancels its pending approval and prevents new requests;
+a cancellation from another connection must not interfere. Closing or replacing
+the wallet invalidates its pending approvals. Delayed actions must never apply
+to a newer request or session.
 
-| Surface | Current policy |
+A pending decision expires after three minutes. Reopening its review does not
+restart the deadline, and expiration grants no permission. A notification is
+only an entry point to the decision; it is not proof that an operation or
+connection shutdown has completed. Peer disconnection detection may be delayed
+while a permission request is awaiting a decision.
+
+## Permissions
+
+Permission rules are **Allowed**, **Ask every time**, or
+**Blocked**. A decision defaults to the current request only. For eligible
+methods, the user may instead remember a rule for the current connection.
+One-time approval or refusal does not change that rule, and reconnecting does
+not retain it. Unsupported methods remain unavailable even under **Ask**.
+
+Genesix explains the operation and its scope before consent, including access
+to private wallet activity or the connected node's address. Editing a rule
+changes that method alone, without replacing other permission choices.
+
+An application may request several permissions in advance through
+`xswd.prefetch_permissions`. Genesix grants only the eligible methods selected
+by the user; omitted methods keep their existing rules. A blocked method needs
+explicit reselection. Continuing without new permissions preserves the
+connection and grants nothing. A batch cannot preauthorize transactions or
+other operations that require dedicated review.
+
+`subscribe` and `unsubscribe` are separate permissions. Each actual call names
+one wallet event in `params.notify`. A one-time decision covers that call;
+connection-wide approval covers future calls for any supported event, including
+private wallet activity. Preauthorizing either method does not itself start or
+stop subscriptions, and permission rules are not a list of active subscriptions.
+
+Recent choices are temporary, connection-scoped records of consent, not proof
+that the requested operations ran. They contain no sensitive request payloads,
+are not persisted, and are cleared when the connection or wallet closes.
+
+## Transaction review
+
+Every `build_transaction` request requires its own explicit confirmation and
+must remain bound to the original request. It cannot be approved through a
+permission batch or an automatic **Allowed** rule. Existing rules that would
+bypass mandatory review are reset to **Ask**.
+
+Genesix must review the complete supported transaction without dropping,
+rounding, or substituting fields. Amounts, fees, gas, nonces, and limits retain
+their exact integer values, including on Web. XWF's typed values pass directly
+to the SDK without ordinary JSON reparsing that could lose precision.
+
+For contract invocations, the review includes the entry contract and function,
+deposits, parameters, fee and gas limits, and the requested inter-contract
+permission. That permission must be explicit and is preserved exactly:
+
+- `none` permits no inter-contract calls under that permission model.
+- `all` permits calls to any contract.
+- `specific` permits only the listed contract/function combinations.
+- `exclude` permits everything outside those combinations; nested selectors
+  are negated as a whole. An empty `specific` list permits no external calls,
+  while an empty `exclude` list permits all.
+
+Broad permissions can affect assets or existing positions beyond the deposits
+shown. `all` and `exclude` require a warning, and `none` is not a guarantee of
+safety or absence of delegated code execution. Genesix does not simulate
+contracts, predict economic outcomes, or narrow permissions on the user's
+behalf. These permissions apply only to the transaction being reviewed.
+
+## Capabilities and limits
+
+| Platform | Connections |
 | --- | --- |
-| Desktop and Android | Local XSWD server and relayed application sessions are supported. |
-| iOS | Local XSWD server is unavailable; relayed sessions are supported. |
-| Web | Local XSWD server is unavailable; relayed sessions and lossless `build_transaction` review are supported through XWF 0.4. |
-| Public information, verification, and estimates | Supported by the standard permission review. They may be prefetched and persisted after explicit approval. Permission names are the unprefixed `WalletMethod.jsonKey` values, such as `get_version`. |
-| Private wallet data | Balance, address, nonce, asset, transaction, and `network_info` reads are supported by the standard permission review. The latter includes the connected daemon endpoint, which is not necessarily public. These methods may be prefetched and persisted only after the UI identifies their wallet-data effect. |
-| Application storage | The XSWD application's isolated database reads and writes are supported, prefetchable, and persistable after explicit approval. |
-| Wallet event subscriptions | `subscribe` and `unsubscribe` are supported, prefetchable and persistable after explicit consent. A one-time request identifies its wallet event; persistent consent covers all events for that method, including private wallet activity. The two methods remain separate native permissions. |
-| `build_transaction` | A one-time, structured, lossless review only. It cannot be prefetched or persisted as `Accept`; legacy persisted `Accept` policies are normalized to `Ask`. |
-| Supported builders | Transfer, burn, multisig, contract invocation, and contract deployment, only when every field is rendered and validated. |
-| Inter-contract permissions | `none`, `all`, `specific` and `exclude` are reviewed explicitly for each invocation, including nested function selectors. They never authorize later transactions. |
-| Unsupported builders/fields | Blob builder, explicit signers, and unknown or lossy fields are rejected. |
-| Unsupported wallet methods | Offline/unsigned transaction stages, signing, proofs, decryption, rescan/cache operations, network-mode changes, and asset tracking mutations are rejected because Genesix has no dedicated orchestration and review for their effects. They cannot be prefetched or persisted as `Accept`. |
+| Desktop and Android | Local XSWD server and relayed connections. |
+| iOS and Web | Relayed connections only. |
 
-For `build_transaction`, all amounts, fees, gas values, nonces, and limits stay
-as `BigInt`. The review must render the exact typed values, including
-`FeeBuilder`, `BaseFeeMode`, and `feeLimit`. An unknown RPC cell, primitive,
-permission, fee mode, or builder is a refusal, never a permissive fallback.
+| Capability | Policy |
+| --- | --- |
+| Public information, verification, and estimates | Supported; may be preauthorized for the connection. |
+| Private wallet data | Supported with explicit consent, including disclosure of private node information where applicable. May be preauthorized. |
+| Application storage | Reads and writes to the application's isolated storage may be preauthorized. |
+| Wallet events | Subscription and unsubscription may be preauthorized independently. |
+| Transactions | Transfer, burn, multisig, contract invocation, and deployment are supported with individual, complete review. This also applies on Web. |
+| Offline/unsigned transaction stages and signing | Unavailable without dedicated orchestration and review. |
+| Proofs, decryption, rescan/cache operations, network-mode changes, and asset tracking mutations | Unavailable without dedicated orchestration and review. |
+| Blob transactions, explicit signers, and unknown or lossy transaction fields | Rejected. |
 
-Every SDK `WalletMethod`, plus the two event methods, has one explicit support,
-persistence, prefetch, and effect classification. Subscription requests validate
-`notify` against the SDK's exact `WalletEvent` keys. Stored `Accept` policies for
-non-persistable and unknown methods are normalized to `Ask` before XSWD activation and when permissions are
-edited. Adding an SDK method must update this exhaustive classification before
-analysis can pass.
-If normalization fails, admission stops and Genesix attempts to close that
-exact connection; a native closure failure keeps its support reference.
+Unavailable capabilities stay rejected until their validation, consent, and
+execution flows are supported. Changing dependencies alone does not enable them.
 
-Permission rules belong to the current application connection; reconnecting
-does not retain them. Individual consent defaults to this request only and
-offers a connection-wide choice only for methods that support it. Allowing or
-refusing once does not change the future rule. Application details show those
-rules as explicit Allowed, Ask or Blocked states; editing a rule is a separate
-action. Transactions offer Ask or Blocked, never automatic approval.
+Validation limits the size and complexity of untrusted requests before decoding
+or display. Oversized or invalid data is rejected; native wallet validation
+remains authoritative. Full sensitive details are revealed only through an
+explicit user action. Malformed requests and unknown methods also close their
+originating connection without affecting other sessions.
 
-Permission edits target one method through XWF and return a fresh projection
-of the same opaque session. They never replace a complete map derived from an
-older Dart snapshot. XWF also observes admission and permission-changing
-decisions after their callbacks return, coalescing reads by session for at most
-two seconds. This is an observation, not an atomic protocol acknowledgement.
-Genesix ignores older observation sequences and distinguishes observed state,
-supersession, timeout and structured read failures. A decision callback must not
-wait for its own permissions to appear in native state.
+Keep this support matrix, method policies, and regression tests aligned when
+XWF or the SDK changes. Web review changes need both
+[review tests](../test/xswd_web_permission_review_test.dart) and
+[real relayer integration](../integration_test/xswd_web_relayer_test.dart);
+unit tests alone do not verify the complete Web boundary.
 
-The **Recent choices** tab retains at most 20 decisions in memory across the
-wallet, filtered by the exact connection. It records method names, choice,
-scope, selected batch grants and the validated wallet-event enum for a
-subscription, without parameters, amounts, payloads or reasons. It describes
-each choice in words; batch selections and unchanged permissions are expandable.
-A one-time choice does not alter the native rule and an allowed choice
-does not prove RPC execution. Closing a connection purges its entries; closing
-or replacing the wallet purges all entries. Nothing is persisted or restored.
-
-Review parsing is also resource-bounded before the SDK or UI walks untrusted
-structures. Genesix rejects reviewed parameter trees above 3 MiB of cumulative text characters,
-individual strings above 2 MiB, typed structures deeper than 64 levels or larger than
-300,000 nodes, transaction collections above the protocol's 255-entry bound,
-typed RPC graphs above 4,096 value cells, and requests containing more than 64
-opaque addresses to validate. These conservative limits are fail-closed DoS
-controls derived from XELIS 1.25's 1 MiB transaction, 256 KiB contract-parameter,
-and 255-transfer bounds; changing them requires protocol evidence and boundary
-tests. Prefetch permission lists must contain unique methods and cannot exceed
-the combined RPC/event catalogue. Both initial consent and permission
-editing explain the effect and the absence of future prompts for persistent
-approval.
-
-Before SDK integer or hexadecimal decoding, unsigned decimal strings must be
-canonical and fit their declared width (at most 20 digits for u64, 39 for u128,
-and 78 for u256). Invocation parameters share a 256 KiB scalar-content budget:
-decoded byte lengths, UTF-8 text lengths, and fixed-width primitive storage.
-This is a pre-decoding application defence, not a reproduction of the complete
-native `data_size_in_bytes` verifier; native validation remains authoritative.
-Long prefetch reasons use a bounded preview and reveal the exact full text in
-a segmented view only after explicit action. Standard permission parameters
-follow the same disclosure rule: passive rendering inspects only a bounded
-prefix of the validated tree, while complete, exact `BigInt`-preserving JSON is
-serialized and rendered in segments only after explicit action. Unsupported
-permissions in the application detail explicitly explain that requests are
-rejected even under `Ask`.
-
-Closing one application rejects its pending approval before awaiting native
-transport shutdown. New requests from that application are rejected while the
-close is pending; another application's approval is preserved. A completed
-close from a replaced wallet session cannot update the new session's UI.
-Stopping XSWD waits for exact application closes already in progress. A close
-requested during that stop follows its result: successful stop already revokes
-the session, while a failed stop retries only the requested opaque session.
-These comparisons use the opaque session reference, so an ID collision cannot
-clear, edit, or close the other connection. A cancel or disconnect callback
-for another opaque session may refresh application state, but it never replaces
-or rejects the active review and never clears that review's notification.
-XWF performs native cancellation and invalidation before diagnostic Dart
-notifications. An exact-session cancellation preempts its active decision;
-an unrelated session's notification can be deferred or omitted under overload.
-Do not use notification delivery as acknowledgement of native cleanup.
-
-The application-request callback is an admission proposal, not yet a live
-session capability. Genesix can review and accept or reject it, but close and
-permission editing require the same reference to appear in a fresh XSWD state
-read after admission. This preserves callback-to-list identity without treating
-an application that upstream has not inserted yet as operable.
-If a permission payload cannot be parsed, Genesix returns `Reject` first, then
-performs that fresh state read and closes only the matching opaque session.
-An absent match is treated as an already disconnected session; application ID
-is never used as a fallback authority.
-
-## Approval notifications and dialog identity
-
-`XswdToastHost` owns the approval card; `ToasterWidget` owns ordinary messages
-and structured failures. Approval text comes from an immutable request snapshot,
-without a native application, session capability, or payload.
-
-Every request has a fresh in-memory token bound to its active wallet and opaque
-XSWD session. Only its notifier can complete the decision. Buttons, system
-notification clicks, timers and dialog closure act on the request actually
-presented; stale actions cannot affect a successor, even in the same session.
-Wallet replacement and teardown reject pending decisions. Request authority is
-never serialized in notifications or routes.
-
-Each decision gets 180 seconds from callback entry, including preparatory
-reads but excluding time queued inside XWF. An injectable monotonic clock and
-application-owned timer enforce the deadline even without a mounted dialog.
-Reopening does not reset it; resuming the app and submitting a decision check
-the same deadline. Expiration records an expired choice and returns rejection
-or prefetch `noChange`, without granting permissions or touching another request.
-Cancellation and wallet/session replacement invalidate pending reads and timers.
-Genesix configures XWF's decision safety timeout at 185 seconds and notification
-timeout at 10 seconds; native observation retains its separate two-second budget.
-
-The persistent card has **Open** and **Deny**, with no implicit rejection by
-dismissal or swipe. It disappears only after the corresponding dialog opens;
-an unavailable navigator leaves it available for another attempt. The dialog
-waits 500 ms for a following request after acceptance, resetting its local
-state for each request. Temporary notification suppression must not strand an
-unseen successor. Cancellation and disconnection messages are independent,
-expiring notices; only the matching session can terminate an active approval.
-
-Accepting admission approves the connection, not future permissions. Malformed
-requests and unknown methods are rejected and close their exact session with a
-localized explanation and a support reference. A known batch is reviewed once,
-grouped by effect. Prefetchable `Ask` entries start selected; existing `Accept`
-entries are identified and `Reject` entries require explicit reselection.
-Transactions and other non-prefetchable methods retain their applicable rule.
-XWF's optional typed callback grants only the selected, requested methods;
-omissions remain unchanged. Rust validates the whole result before mutation,
-including uniqueness, subset membership and active callback/session identity.
-Genesix alone decides which methods may be prefetched.
-
-Consent shows short action labels and the connection scope. Private-event and
-node-address consequences remain visible; exact RPC names, full explanations
-and the application's declared reason are available in details for the current
-request. Application details group native rules by Allowed, Ask and Blocked,
-with unavailable methods separate. Rule editing retains its native confirmation;
-normal successful observations do not require a persistent status banner.
-
-Continuing without new grants returns `noChange` and preserves the connection.
-A known batch with no new grantable method also returns `noChange`, without
-replacing a foreign approval. The immutable preflight remains bound to its XWF
-source; a cancellation, disconnect or wallet change during the native state
-read prevents installation of a stale review. Every later transaction still
-requires its own confirmation.
-
-## Inter-contract transaction review
-
-The invocation review preserves the requested permission exactly. The entry
-contract and every listed contract must be 64 hexadecimal characters; duplicate
-hashes are compared by value, independent of case. Contract lists and nested
-function lists are bounded to 255 entries, function IDs to `u16`, and duplicate
-functions or unknown fields are rejected before SDK decoding. The `permission`
-field is mandatory in the XWF-pinned native contract (`b149b57`); Genesix never
-substitutes the SDK's default when the field is absent.
-
-The confirmation shows the entry contract/function, deposits, parameters,
-fee/gas limits and permission scope. `specific` permits only the listed
-contract/function combinations. `exclude` permits everything outside those
-combinations; its nested selector is negated as a whole. Thus `specific([])`
-permits no external calls, `exclude([])` permits all, and a nested `exclude`
-under outer `exclude` permits only the listed functions for that contract.
-The UI states this effective scope and makes full hashes and function IDs
-accessible without expanding every rule at once.
-
-`all` and `exclude` display a warning before confirmation: this transaction can
-call other contracts and affect assets or existing positions according to their
-logic, beyond any new deposits. `none` is not a guarantee of safety or absence
-of delegated code execution. Genesix neither narrows permissions automatically
-nor simulates contracts or predicts their economic effects. Every invocation
-still uses its original request and needs individual confirmation.
-
-## Lossless Web transaction review
-
-XWF 0.4 provides an immutable typed XSWD tree with exact `BigInt` integers.
-Genesix adapts this tree directly to SDK 0.36, without JSON reparsing, so Web
-review must preserve exact numeric values above `2^53 - 1` through `u64::MAX`.
-
-Regression coverage combines the [Chrome review tests](../test/xswd_web_permission_review_test.dart)
-with the [real relayer integration](../integration_test/xswd_web_relayer_test.dart).
-Keep the latter in validation after XWF, SDK, FRB or Flutter changes affecting
-numeric projection, review binding or lifecycle; typed DTO tests alone do not
-exercise the Rust/WASM-to-review boundary. See the [test instructions](../README.md#test).
-
-The integration uses offline, unfunded wallets and covers Flutter Web JavaScript
-plus Rust/WASM in Chrome, not network broadcast, Flutter `--wasm`, or every
-browser. Malformed-session cleanup does not guarantee delivery of the rejection
-response to the relayer before transport closure.
-
-Immediate peer-only socket close detection is not guaranteed: upstream can
-defer reading that close while a permission callback is pending. XWF bounds
-callback waits and closes the exact transport on application-requested shutdown;
-completion of that operation, not the initial click, is the transport-closed
-guarantee.
-
-## Deferred work register
-
-Every deferred item remains fail-closed. “Owner” identifies the layer that
-must change first; it does not assign a delivery date.
-
-| Item | Current fail-closed behaviour and risk avoided | Owner and prerequisites | Required evidence / exit signal |
-| --- | --- | --- | --- |
-| Local server on Web/iOS | Do not start a local server; avoids unsupported transport/platform behaviour. | XWF/upstream must support the platform transport; Genesix needs a network security review. | Platform integration tests and a reviewed transport threat model. |
-| Offline, unsigned, and finalization flows | Reject `build_transaction_offline`, unsigned build/finalize/sign requests; avoids approving disconnected stages that are not bound to a final payload. | SDK/XWF contract and Genesix need a step-by-step review model with exact payload binding. | Tests that tamper with every stage plus end-to-end approve/reject/cancel coverage. |
-| Data signing | Reject `sign_data`; avoids blind signatures without a canonical domain, content, and context presentation. | SDK/XWF must expose a canonical signing envelope; Genesix needs a dedicated signing UX and threat review. | Domain-separation, hostile-content, approve/reject, and no-sensitive-log tests. |
-| Blob transactions | Reject `BlobBuilder`; avoids approving content whose size, commitment, meaning, and consequences cannot be reviewed. | SDK/XWF must expose review-safe metadata and binding; Genesix needs a dedicated blob review. | Boundary-size, commitment mismatch, and full review-to-broadcast tests. |
-| Explicit signers | Reject non-empty signers; avoids revealing or handling structures that can contain private-key material. | Upstream must provide a public, non-secret signer projection; Genesix needs a documented authority model. | Fixtures proving no private material reaches UI/logs plus signer-authority tests. |
-| Persistent non-standard authorization | Normalize stored `Accept` to `Ask` and deny prefetch for dedicated-review, unsupported, and unknown methods; avoids durable or silent approval without matching review semantics. | Intentional product/security decision, new threat model, revocation and migration design. | Explicitly approved security design and regression tests; this is not a routine TODO. |
-
-Native packaging and Apple lock regeneration are tracked in the
-[native release validation instructions](../README.md#native-release-validation),
-not as deferred XSWD capabilities.
-
-## Maintenance
-
-- Revisit this document whenever XWF, the SDK, or `WalletMethod` changes.
-- Keep the support matrix, the code allowlists, and negative tests aligned in
-  the same change.
-- Keep detailed failure ownership in [error-handling.md](error-handling.md)
-  and runtime stream lifecycle in [runtime-events.md](runtime-events.md); do
-  not duplicate their full policies here.
-- The deferred-work register is canonical. Other documents should link here
-  rather than copy it.
+Detailed failure handling belongs in [error-handling.md](error-handling.md),
+wallet runtime lifecycle in [runtime-events.md](runtime-events.md), and build
+and test procedures in the [README](../README.md#test).

@@ -1001,7 +1001,12 @@ class _XswdMinimalPrefetchDetailsSection extends StatelessWidget {
         if (current == XelisXswdPermissionPolicy.accept) {
           allowed.add(method);
         } else {
-          selectable.putIfAbsent(policy!.effect, () => []).add(method);
+          selectable
+              .putIfAbsent(
+                xswdPermissionPresentationEffect(policy!.effect),
+                () => [],
+              )
+              .add(method);
         }
       } else {
         fixed.add(method);
@@ -1012,13 +1017,15 @@ class _XswdMinimalPrefetchDetailsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(loc.xswd_permissions_connection_scope),
+        if (request.permissions.any(xswdIsEventMethod)) ...[
+          const SizedBox(height: Spaces.extraSmall),
+          Text(loc.xswd_event_permissions_notice),
+        ],
         for (final group in selectable.entries) ...[
           const SizedBox(height: Spaces.medium),
           FSelectGroup<String>(
             key: ValueKey('xswd-prefetch-${group.key.name}'),
-            label: group.value.length > 1
-                ? Text(xswdPermissionEffectTitle(group.key, loc))
-                : null,
+            label: Text(xswdPermissionEffectTitle(group.key, loc)),
             control: .managed(
               initial: selectedMethods.intersection(group.value.toSet()),
               onChange: (values) {

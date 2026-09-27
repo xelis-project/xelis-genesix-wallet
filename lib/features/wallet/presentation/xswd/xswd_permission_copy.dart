@@ -9,6 +9,15 @@ final class XswdPermissionCopy {
   final String description;
 }
 
+bool xswdIsEventMethod(String method) =>
+    method == 'subscribe' || method == 'unsubscribe';
+
+/// Groups event controls visually without merging their permission rules.
+XswdMethodEffect xswdPermissionPresentationEffect(XswdMethodEffect effect) =>
+    effect == XswdMethodEffect.walletUnsubscription
+    ? XswdMethodEffect.walletSubscription
+    : effect;
+
 XswdPermissionCopy xswdPermissionCopy(
   String method,
   XswdMethodPolicy? policy,
@@ -197,9 +206,8 @@ String xswdPermissionEffectTitle(
   XswdMethodEffect.publicInformation => loc.xswd_permission_public_title,
   XswdMethodEffect.walletData => loc.xswd_permission_wallet_data_title,
   XswdMethodEffect.appStorage => loc.xswd_permission_app_storage_title,
-  XswdMethodEffect.walletSubscription => loc.xswd_permission_subscribe_title,
-  XswdMethodEffect.walletUnsubscription =>
-    loc.xswd_permission_unsubscribe_title,
+  XswdMethodEffect.walletSubscription ||
+  XswdMethodEffect.walletUnsubscription => loc.xswd_permission_events_title,
   XswdMethodEffect.transaction => loc.xswd_permission_transaction_title,
   XswdMethodEffect.walletControl ||
   XswdMethodEffect.decryption ||

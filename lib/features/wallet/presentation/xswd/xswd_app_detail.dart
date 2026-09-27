@@ -526,6 +526,13 @@ class _XswdPermissionsSection extends StatelessWidget {
           loc.xswd_permissions_connection_scope,
           style: context.theme.typography.body.sm.copyWith(color: muted),
         ),
+        if (app.permissions.keys.any(xswdIsEventMethod)) ...[
+          const SizedBox(height: Spaces.extraSmall),
+          Text(
+            loc.xswd_event_permissions_notice,
+            style: context.theme.typography.body.sm.copyWith(color: muted),
+          ),
+        ],
         const SizedBox(height: Spaces.medium),
         if (observation case XelisXswdApplicationStateTimedOut()) ...[
           _XswdObservationNotice(
@@ -624,18 +631,43 @@ class _XswdPermissionGroup extends StatelessWidget {
   onChange;
 
   @override
-  Widget build(BuildContext context) => FTileGroup(
-    label: Text('$label (${entries.length})'),
-    children: [
-      for (final entry in entries)
-        _XswdPermissionTile(
-          permissionName: entry.key,
-          currentPolicy: entry.value,
-          loc: loc,
-          focusNode: permissionFocusNode(entry.key),
-          onChange: onChange,
+  Widget build(BuildContext context) {
+    final methods = entries.where((entry) => !xswdIsEventMethod(entry.key));
+    final events = entries.where((entry) => xswdIsEventMethod(entry.key));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          header: true,
+          child: Text(
+            '$label (${entries.length})',
+            style: context.theme.typography.body.sm.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
-    ],
+        const SizedBox(height: Spaces.small),
+        if (methods.isNotEmpty)
+          FTileGroup(children: [for (final entry in methods) _tile(entry)]),
+        if (events.isNotEmpty) ...[
+          if (methods.isNotEmpty) const SizedBox(height: Spaces.small),
+          FTileGroup(
+            label: Text(loc.xswd_permission_events_title),
+            children: [for (final entry in events) _tile(entry)],
+          ),
+        ],
+      ],
+    );
+  }
+
+  _XswdPermissionTile _tile(
+    MapEntry<String, XelisXswdPermissionPolicy> entry,
+  ) => _XswdPermissionTile(
+    permissionName: entry.key,
+    currentPolicy: entry.value,
+    loc: loc,
+    focusNode: permissionFocusNode(entry.key),
+    onChange: onChange,
   );
 }
 

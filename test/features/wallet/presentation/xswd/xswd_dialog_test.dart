@@ -917,6 +917,75 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
+  testWidgets('event permissions share a heading but grant independently', (
+    tester,
+  ) async {
+    final loc = AppLocalizationsEn();
+    final harness = _XswdTestHarness(loc);
+    final container = harness.container;
+    addTearDown(container.dispose);
+    final decision = harness.newPrefetchRequest(
+      _prefetchRequest(permissions: const ['subscribe', 'unsubscribe']),
+      currentPermissions: const {},
+    );
+    final theme = greenDark(touch: false);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          theme: theme.toApproximateMaterialTheme(),
+          home: GenesixTheme(
+            data: theme,
+            child: const Scaffold(body: XswdDialog(kAlwaysCompleteAnimation)),
+          ),
+        ),
+      ),
+    );
+    expect(find.text(loc.xswd_permission_events_title), findsOneWidget);
+    expect(find.text(loc.xswd_event_permissions_notice), findsOneWidget);
+    final eventGroup = find.byKey(
+      const ValueKey('xswd-prefetch-walletSubscription'),
+    );
+    expect(
+      find.descendant(of: eventGroup, matching: find.byType(FCheckbox)),
+      findsNWidgets(2),
+    );
+    final unsubscribe = find.widgetWithText(
+      FCheckbox,
+      loc.xswd_permission_unsubscribe_title,
+    );
+    await tester.ensureVisible(unsubscribe);
+    await tester.tap(unsubscribe);
+    await tester.pump();
+    await tester.tap(find.text(loc.xswd_prefetch_allow_count(1)));
+    await tester.pump(const Duration(milliseconds: 150));
+    expect((await decision as XelisXswdPrefetchGrant).permissions, [
+      'subscribe',
+    ]);
+    final alreadyAllowed = harness.newPrefetchRequest(
+      _prefetchRequest(permissions: const ['subscribe', 'unsubscribe']),
+      currentPermissions: const {
+        'subscribe': XelisXswdPermissionPolicy.accept,
+        'unsubscribe': XelisXswdPermissionPolicy.accept,
+      },
+    );
+    await tester.pump();
+    expect(eventGroup, findsNothing);
+    expect(find.text(loc.xswd_event_permissions_notice), findsOneWidget);
+    expect(
+      find.text(loc.xswd_prefetch_already_allowed_count(2)),
+      findsOneWidget,
+    );
+    await tester.tap(
+      find.text(loc.xswd_prefetch_continue_without_new_permissions),
+    );
+    await tester.pump(const Duration(milliseconds: 150));
+    expect(await alreadyAllowed, isA<XelisXswdPrefetchNoChange>());
+    container.read(xswdRequestProvider.notifier).clearRequest();
+    await tester.pumpWidget(const SizedBox.shrink());
+    expect(tester.takeException(), isNull);
+  });
+
   for (final loc in [AppLocalizationsEn(), AppLocalizationsFr()]) {
     testWidgets(
       'large batch remains readable at 320px with double text (${loc.localeName})',
@@ -930,6 +999,7 @@ void main() {
         addTearDown(container.dispose);
         final methods = [
           'subscribe',
+          'unsubscribe',
           ...WalletMethod.values
               .map((method) => method.jsonKey)
               .where(
