@@ -1,11 +1,12 @@
 ---
 name: wallet-security-review
-description: Review wallet and application security risks in Genesix. Use when touching wallet lifecycle, session state, key material, storage, signing, transaction construction, Rust FFI, XSWD, logs, clipboard, QR/deep links, networking, permissions, dependencies, or error handling around sensitive data.
+description: Review wallet and application security risks in Genesix. Useful when touching wallet lifecycle, session state, key material, storage, signing, transaction construction, Rust FFI, XSWD, logs, clipboard, QR/deep links, networking, permissions, dependencies, or error handling around sensitive data.
 ---
 
 # Wallet Security Review
 
-Use this skill for security-sensitive planning, implementation review, and threat modeling.
+Use this guidance for relevant sensitive boundaries. Match review depth to the
+actual change; independent review is optional when its value justifies it.
 
 ## Sensitive Surfaces
 
@@ -18,16 +19,18 @@ Use this skill for security-sensitive planning, implementation review, and threa
 - Logs, analytics, crash reports, debug output, and user-visible error details.
 - Platform permissions, storage backends, web/native differences, and dependency changes.
 
-## Review Workflow
+## Review Prompts
+
+Select the checks relevant to the changed boundary.
 
 1. Identify the trust boundary and what input is untrusted.
 2. Identify what sensitive data can be read, written, logged, cached, copied, serialized, or displayed.
-3. Evaluate the security tradeoff: benefit, new attack surface, complexity, regression risk, and safer alternatives.
+3. Explain meaningful security tradeoffs or new attack surface, if present.
 4. Check lifecycle ordering for wallet/session open, close, cancellation, and disposal races.
 5. Verify failures are explicit and do not silently continue with unsafe fallback state.
 6. Check Rust FFI paths for panics, opaque errors, invalid assumptions, and generated-code impact.
 7. Check dependency APIs against `pubspec.yaml` or `Cargo.toml` before relying on security behavior.
-8. Recommend validation from `AGENTS.md` plus targeted tests for sensitive behavior when feasible.
+8. Choose proportionate validation from `AGENTS.md`, including targeted tests for sensitive behavior where useful.
 
 ## High-Risk Wallet Checks
 
@@ -51,4 +54,4 @@ Use this skill for security-sensitive planning, implementation review, and threa
 
 ## Output
 
-Return findings with severity, affected surface, concrete file references, and a specific fix direction. If no issue is found, state the residual risk and validation gaps.
+Return findings with severity, affected surface, concrete file references, and a specific fix direction. If no issue is found, say so briefly and mention material validation gaps, if any.

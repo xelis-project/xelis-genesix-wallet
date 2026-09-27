@@ -11,5 +11,5 @@ Use `AGENTS.md` at the repository root as the canonical project guidance.
   - `.github/skills/**/SKILL.md` for project skills.
   - `.agents/skills/**/SKILL.md` for cross-tool project skills.
   - `.github/agents/*.agent.md` for custom Copilot agents.
-- For complex prompts, ask Copilot to read `AGENTS.md` first and select the relevant skill or custom agent.
-- Do not edit generated files directly; follow the validation matrix in `AGENTS.md`.
+- Select skills or custom agents when useful; direct work is the default.
+- Do not edit generated files directly; choose proportionate validation from `AGENTS.md`.

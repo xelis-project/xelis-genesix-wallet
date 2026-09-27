@@ -35,6 +35,12 @@ live session reference supplied by XWF, so simultaneous local and relayed
 connections remain independent even if they share an application ID. Restoring
 a screen or reconnecting cannot restore the authority of an earlier session.
 
+Permission changes, cancellation, and connection closure resolve the current
+XWF application for that exact opaque session and originating wallet; never
+fall back to an application-ID match. Navigation may carry the live reference
+in memory, but route serialization discards its authority and restores only a
+detached, non-operable reference.
+
 Every approval belongs to its originating request, connection, and wallet.
 Closing that connection cancels its pending approval and prevents new requests;
 a cancellation from another connection must not interfere. Closing or replacing

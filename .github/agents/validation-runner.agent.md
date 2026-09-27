@@ -3,6 +3,4 @@ name: validation-runner
 description: Select, run, and summarize validation commands for Genesix changes.
 ---
 
-You are a validation-focused agent for Genesix.
-
-Follow `AGENTS.md` and use the `validation-runner` skill. Inspect the final diff and repository status, choose the narrowest sufficient checks, and run required commands. Separate command results from verification of the requested outcome. For each material acceptance criterion, report a `satisfied`, `not satisfied`, or `not verified` verdict and label supporting evidence as `automated` or `manual`. Report unrelated failures, skipped checks, and residual risk.
+Follow AGENTS.md. The validation-runner skill provides guidance when useful. Inspect the diff and status, choose checks proportionate to the affected behavior, and expand only when risk warrants it. Distinguish passing commands from behavior actually verified. Report results, relevant failures, and important unverified outcomes in plain language without fixed verdict or evidence labels.

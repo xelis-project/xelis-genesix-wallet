@@ -273,20 +273,21 @@ request object.
 
 ## Attached-data disclosure
 
-Home/history lists, route codecs, and passive wallet events retain only
+Home/history/pending lists, route codecs, and passive wallet events retain only
 attached-data presence, encryption/flag metadata, and a safe top-level kind.
 They never retain the value. While a transaction detail is mounted, Genesix may
 read that exact confirmed or pending transaction by hash with detailed
 disclosure and present its lossless `XelisDataElement` after user interaction.
-The value must not enter navigation restoration, analytics, crash reports,
-support references, or ordinary logs.
+The value must not be persisted in providers or enter navigation restoration,
+analytics, crash reports, support references, or ordinary logs.
 
 An integrated address is different from a decrypted transaction payload: its
 data is visible to anyone holding the address and has no
 `XelisWalletExtraDataFlag`. UI code must not fabricate a transaction flag merely
 to reuse a widget. A prepared transfer is different again: its payload can be
-read only through the exact prepared-object capability and transfer index. A
-legacy review without that capability remains metadata-only.
+read only through `inspectPreparedTransferExtraData` with the exact prepared
+object and transfer index after an explicit user action. Passive reviews remain
+metadata-only, including legacy reviews without that capability.
 
 AddressBook identity follows the complete destination. History association may
 name a contact only after an exact base-plus-`DataElement` match. Base-only and

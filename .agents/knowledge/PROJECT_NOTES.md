@@ -10,8 +10,8 @@ workflow rules in `AGENTS.md` or the relevant skill.
 
 ## How To Use
 
-- Read this file when onboarding or before dependency, storage, security,
-  platform, or migration work.
+- Consult the entries relevant to the changed platform, storage, dependency,
+  or wallet behavior; this is not a general reading checklist.
 - Keep entries short, dated, and tied to concrete files or packages.
 - Prefer facts, constraints, and migration warnings over meeting-style notes.
 - Add an entry only when rediscovering the fact would be costly or risky.
@@ -85,8 +85,11 @@ transfer screen resolves the complete destination in memory. Do not place the
 complete integrated address in router extras, route arguments, or URLs because
 restoration and debug observers may serialize or log it.
 
-History lists and passive events expose attached-data metadata only. A contact
-history filter passes the parsed complete destination so native Rust compares
+Parse standard and integrated destinations through
+`XelisWalletFlutter.parseAddress`, retaining the complete
+`XelisAddressDescriptor`. History lists and passive events expose attached-data
+metadata only. A contact history filter passes the parsed complete destination
+so native Rust compares
 base plus canonical `DataElement` before pagination. A transaction detail may
 then fetch its typed payload by hash and use only an exact AddressBook match.
 Base-only and ambiguous results must not silently name or replace a destination.

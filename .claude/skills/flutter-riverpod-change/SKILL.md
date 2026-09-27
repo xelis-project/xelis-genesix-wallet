@@ -1,28 +1,22 @@
 ---
 name: flutter-riverpod-change
-description: Guide Genesix Dart and Flutter application-behavior changes across state, Riverpod providers, routing, repositories, models, serializers, generated annotations, and behavior-bearing widgets. Use when changing these surfaces under lib/features or lib/shared; pair with flutter-forui-ux-design only when user-facing workflow, layout, or interaction also changes.
+description: Guide Genesix Dart and Flutter application-behavior changes across state, Riverpod providers, routing, repositories, models, serializers, generated annotations, and behavior-bearing widgets. Useful when changing these surfaces under lib/features or lib/shared; UI guidance may also help when workflow, layout, or interaction changes.
 ---
 
 # Flutter Riverpod Change
 
-Use this skill before changing Flutter application code.
+Use this guidance for application behavior changes when helpful.
 
-## Workflow
+- Inspect affected local state, provider, routing, repository, model, or widget paths.
+- Reuse existing feature patterns and shared helpers. Prefer `@riverpod`, typed
+  routes, and immutable models where they fit the feature and installed versions.
+- Keep widgets presentation-focused and business decisions in the appropriate layer.
+- Prefer the existing state-management approach; avoid incidental migrations.
+- Verify third-party APIs against the installed version when relying on them.
+- Preserve route extras and codecs when changing transfer objects.
+- Regenerate affected annotations with `dart run build_runner build`; never
+  manually patch generated `*.g.dart` or `*.freezed.dart` files.
 
-1. Read relevant local files and neighboring patterns.
-2. Identify the affected state, provider, routing, repository, model, serializer, and widget boundaries.
-3. Check `pubspec.yaml` before using third-party package APIs.
-4. Identify whether annotations require `dart run build_runner build`.
-5. Reuse patterns aligned with the target architecture; treat nearby legacy providers or Material-era code as behavior evidence, not automatic precedent.
-6. Keep widgets presentation-focused; move business decisions out of UI.
-
-## Rules
-
-- Prefer `@riverpod` generator patterns when they match the feature and installed version.
-- Do not introduce Hook-based or alternate state management unless already used or requested.
-- Reuse shared widgets and utilities before creating new ones.
-- Never manually edit generated `*.g.dart` or `*.freezed.dart` files; change the source annotations or models and regenerate the affected output.
-
-## Validation
-
-Run checks from `AGENTS.md` based on the changed surface. Use `dart run build_runner build` before `dart analyze` when generator annotations changed.
+Analyze the affected scope and verify changed behavior using the proportionate
+validation guidance in `AGENTS.md`. Consult UI guidance when layout or interaction
+also needs design work, without requiring a second workflow for every widget edit.

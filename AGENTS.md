@@ -1,361 +1,129 @@
 # Genesix AI Agent Guidelines
 
-This file is the canonical AI guidance for this repository. It is intentionally the central source for Codex, Claude, GitHub Copilot, and compatible coding agents.
-
-## Instruction Priority
-
-1. Direct system, developer, and user instructions.
-2. This root `AGENTS.md`.
-3. Tool adapters such as `CLAUDE.md` and `.github/copilot-instructions.md`.
-4. More specific nested instruction files, when present, as long as they do not conflict with this file.
-
-If any tool adapter conflicts with this file, follow `AGENTS.md` and update the stale adapter when the task is about AI guidelines.
+Canonical repository guidance for Codex, Claude, GitHub Copilot, and compatible agents.
+Direct system, developer, and user instructions take precedence, followed by this
+file, tool adapters, and compatible nested instructions.
 
 ## Repository Context
 
-- Genesix is a Flutter wallet application consuming the native wallet through
-  the `xelis_wallet_flutter` package.
-- Flutter feature code lives under `lib/features/<feature>/...`.
-- Shared services, storage adapters, utilities, and reusable UI primitives live under `lib/shared/...`.
-- Main integration points:
-  - Flutter entrypoint: `lib/main.dart`
-  - Routing: `lib/features/router/routes.dart`, `lib/features/router/router.dart`
-  - Native wallet repository: `lib/features/wallet/data/native_wallet_repository.dart`
-- Source of truth for dependency versions:
-  - Dart/Flutter: `pubspec.yaml`
-  - Shared native wallet package: the resolved `xelis_wallet_flutter`
-    dependency; its Rust, generated bridge, and public-contract sources belong
-    to that package repository.
-- Application failure ownership, stable identifier authoring, support logging,
-  and UI policy live in `docs/error-handling.md`. Read it before changing a
-  catch boundary, `AppFailure`, `recordAppFailure`, or failure presentation.
-- Typed wallet event ownership, connection rotation, lag reconciliation, and
-  stream termination policy live in `docs/runtime-events.md`. Read it before
-  changing wallet runtime events or connection lifecycle behavior.
-- XSWD platform support, permission review, Web restrictions, and deferred
-  capability policy live in `docs/xswd.md`. Read it before changing XSWD
-  callbacks, permission policy, review UI, relayer handling, or its package
-  contract.
-- Generated files must be regenerated, not patched manually:
-  - `**/*.g.dart`
-  - `**/*.freezed.dart`
-  - `lib/src/generated/l10n/**`
-- Genesix must not contain or regenerate a local Rust crate or Flutter Rust
-  Bridge output. Make Rust/FFI changes in `xelis-wallet-flutter`, follow that
-  repository's `AGENTS.md`, regenerate there, then validate Genesix as a
-  consumer through the package's authored public API.
-- Stable domain terminology for agents lives in
-  `.agents/knowledge/DOMAIN_VOCABULARY.md`. Read it when a task crosses layers
-  or uses ambiguous wallet, runtime, node, daemon, storage, transaction, FFI,
-  or XSWD terms.
-- Exceptional durable constraints and migration warnings live in
-  `.agents/knowledge/PROJECT_NOTES.md`. Read them before dependency, storage,
-  security, platform, or migration work.
+- Genesix is a Flutter wallet consuming the authored `xelis_wallet_flutter` API.
+- Features live under `lib/features`; shared services and UI under `lib/shared`.
+- Entry point: `lib/main.dart`; routing: `lib/features/router`; native adapter:
+  `lib/features/wallet/data/native_wallet_repository.dart`.
+- Check `pubspec.yaml` and the resolved package source for dependency APIs.
+  Rust, Cargo, and bridge sources belong to the wallet package repository.
 
-## Engineering Rules
+## Working Principles
 
-- Keep changes tightly scoped to the user request.
-- Reuse local architecture, helpers, providers, widgets, and patterns before adding new abstractions.
-- Do not introduce broad refactors unless explicitly requested.
-- Do not invent APIs, symbols, file paths, or dependency behavior; verify them from source first.
-- Preserve backward compatibility unless the task explicitly allows a breaking change.
-- Update documentation when behavior, workflow, architecture, or AI guidance changes.
-- Preserve `XelisWalletException` source, operation, code, and support ID
-  unchanged. For unrelated application failures, author the fallback operation
-  and code at the boundary that owns recovery: use a stable dot-delimited action
-  for the operation and a stable lower-snake-case cause/result for the code.
-  Reuse existing identifiers when the semantics match; never derive either
-  identifier from exception text, exception type names, routes, or localized UI
-  copy. New or changed identifiers require focused contract tests.
-- Treat the typed `xelis-wallet-flutter` runtime subscription as the sole
-  authority for connection, synchronization, topoheight, rescan, and history
-  lifecycle events. Treat its separate typed business subscription as the sole
-  event authority for transactions, pending transactions, balances, and assets.
-  Never reintroduce the removed JSON event stream or local event union.
-- Preserve authored Rust `u64` values as `BigInt`. Standard transfer and burn
-  amounts and fees stay atomic `BigInt` values from input parsing through
-  preparation, review, and presentation; fee multipliers use integer basis
-  points. Never pass a `BigInt` directly to the pinned `intl 0.20.3` `NumberFormat`,
-  which throws at runtime, and never convert values beyond JavaScript's safe
-  integer range to `int`. Use `parseAtomicAmount` for decimal input and the
-  shared `formatBigInt` helper for localized UI grouping, and revalidate this
-  rule when `intl` is upgraded.
-- Rotate runtime subscriptions in this order: invalidate the consumer, cancel
-  and await the old subscription, await `setOffline`, listen to a fresh
-  subscription, then call `setOnline`. Recheck repository, request, subscription,
-  and generation after every asynchronous boundary.
-- Treat runtime and business lag as non-terminal and coalesce authoritative
-  reconciliation per channel. Runtime close is connection-terminal; business
-  close must preserve its XWF reference without changing network phase.
-  Deduplicate each typed close, stream error, and completion. Expected
-  cancellation must stay silent.
-- Keep the business subscription session-scoped and active across connect,
-  reconnect, disconnect, and offline mode. Cancel and await it only when the
-  wallet session is replaced, cleared, disposed, or prepared for close.
-- Keep session replacement and network transitions on separate monotonic
-  identities. A newer session may supersede older cleanup, but clear,
-  `prepareForClose`, and disposal must block reconnect, disconnect, offline-mode,
-  and automatic-retry intents until a newer session is installed.
-- Do not declare named functions inside other functions in Dart or Rust. Use private file-level helpers, private methods, or small private widgets/classes instead.
-- Anonymous closures are acceptable only for short callback glue. Extract non-trivial or reused logic.
-- Before using a third-party package or crate API, read the installed version from `pubspec.yaml` or `Cargo.toml` and use compatible APIs.
-- If a requested solution requires a dependency upgrade, migration, or generated output refresh, state that explicitly.
-- `justfile` targets are developer shortcuts only. They are not the authoritative workflow for agents.
+- Work directly by default. Use a plan, skill, or subagent when it helps with
+  complexity, uncertainty, or an independent review; none is a routine prerequisite.
+- Inspect the relevant source and existing changes. Preserve unrelated work,
+  stay within the request, and avoid incidental refactors or formatting churn.
+- Prefer the simplest coherent change using existing helpers and local patterns.
+  Preserve compatibility unless the requested change allows otherwise.
+- Explain meaningful tradeoffs, dependency upgrades, and migrations. Routine
+  implementation choices do not need a formal impact assessment.
+- For bugs, establish a supported cause and use the smallest reliable reproduction
+  or check. Investigate uncertain failures more deeply; reassess when attempts fail.
+  A diagnosis-only request does not authorize a fix.
+- Prefer feature-local Riverpod patterns, typed GoRouter routes, lean widgets,
+  and immutable models where they fit. Keep route extras and codecs consistent.
+- Prefer Forui and shared components for UI changes; existing Material surfaces
+  can remain. Use `package:material_ui/material_ui.dart` for Material widgets
+  and `package:flutter/widgets.dart` for shared primitives.
+- Prefer readable functions and small widgets. Local functions and closures are
+  fine when clear; extract complex or reused logic when that improves readability.
+- Preserve responsive behavior and use APIs compatible with installed versions.
+- Consult the resources below for the subject being changed. Update documentation
+  when a durable behavior or developer procedure changes; no routine guidance report.
+- Summarize the change, checks performed, and important limitations. Distinguish
+  passing checks from behavior actually verified; no fixed verdict format is needed.
+- Commit only when authorized, using a concise Conventional Commit message.
+  Push only when requested.
 
-## Net Impact Discipline
+## Essential Protections
 
-- Before a non-trivial code change, evaluate the tradeoff: expected benefit, negative impact, complexity cost, regression risk, and simpler alternatives.
-- Proceed only when the change has a clearly positive net impact for the requested goal.
-- For small mechanical fixes, this evaluation may stay implicit.
-- For architectural, security-sensitive, UX, dependency, lifecycle, storage, FFI, generated-code, or public API changes, state the tradeoff explicitly before or during implementation.
-- If the tradeoff is unclear or negative, prefer a smaller change, a reversible step, or a plan/question before editing.
+- Never expose secrets or sensitive wallet payloads in logs, analytics, crash
+  reports, navigation persistence, or support messages. Treat external input as untrusted.
+- Consume only the package-root authored wallet API; never import
+  `xelis_wallet_flutter/src/**` or add a local Rust crate or FRB copy.
+  Make package changes in its own repository under its guidance.
+- Preserve `XelisWalletException` metadata unchanged. Application failures use
+  stable identifiers owned by the recovery boundary; see the error contract below.
+- Preserve Rust `u64` values as `BigInt`. Transfer/burn amounts and fees remain
+  atomic through parsing, preparation, review, and display; fee multipliers use
+  integer basis points. Use `parseAtomicAmount` and `formatBigInt`.
+  Do not pass `BigInt` to pinned `intl 0.20.3` `NumberFormat` or narrow values
+  beyond JavaScript's safe integer range; recheck this on an `intl` upgrade.
+- Keep runtime and business events on their separate authored typed subscriptions.
+  Preserve session ownership, cancellation ordering, and stale-consumer checks;
+  do not recreate the removed JSON stream or local event union.
+- Bind XSWD actions to the originating wallet and exact opaque session reference,
+  never an application ID. Restored routes cannot regain live session authority.
+- Keep the exact prepared transaction from preparation through authenticated
+  confirmation, broadcast, or discard. A hash alone never grants authority.
+- Use the complete canonical destination for send/copy and the opaque AddressBook
+  entry ID for state and navigation. Base-address matches are not contact identity.
+- Keep passive reads metadata-only and reveal attached data only on explicit
+  user action through the appropriate authored capability.
+- Regenerate `*.g.dart`, `*.freezed.dart`, and `lib/src/generated/l10n/**`;
+  do not patch generated output manually. Regenerate package bridges in their owner.
+- Update every locale ARB when localization keys change and preserve key parity.
+- In wallet copy, use “attached data” for the embedded value and “integrated
+  address” for the complete destination; use “payment ID” only for a proven schema.
 
-## Dart And Flutter
+## Proportionate Validation
 
-- Follow the feature-first structure under `lib/features`.
-- Keep widgets lean; move business and persistence decisions into application, domain, or data layers.
-- Reuse Riverpod patterns already established in the touched feature.
-- Prefer `riverpod_generator` with `@riverpod` when it fits the local pattern and installed version.
-- Do not introduce a second state-management style inside a feature.
-- Prefer immutable typed models and Freezed-style unions when they improve correctness and match local code.
-- When model, provider, serializer, or route annotations change, regenerate builders and verify call sites.
-- Use typed GoRouter patterns already defined under `lib/features/router/**`.
-- Keep route extras and codecs consistent when adding transfer objects.
-- Prefer Forui and current shared wrappers for new or materially refactored UI. Keep UI migrations scoped to the request; existing Material widgets may remain until their surface is migrated.
-- Use `package:material_ui/material_ui.dart` for Material widgets and `package:flutter/widgets.dart` for shared Flutter primitives. Temporary third-party compatibility and localization constraints live in `.agents/knowledge/PROJECT_NOTES.md`.
-- For Forui API details and migration work, use the local-only snapshots under `.agents/references/forui/`.
-- Do not commit `.agents/references/forui/**`; these files are an ignored local cache of upstream Forui documentation.
-- Before any Forui dependency migration, review the [official Forui changelog](https://pub.dev/packages/forui/changelog) for breaking changes and migration notes.
-- After resolving a Forui dependency change, run `dart run tool/sync_forui_docs.dart`, then consult the refreshed snapshots.
-- When Forui API behavior is unclear, run `dart run tool/sync_forui_docs.dart` before relying on local snapshots; if network access is unavailable, state that and fall back to installed package source plus official changelog.
-- Reuse `lib/shared` components and utilities before creating variants.
-- When adding, renaming, modifying, or removing localization keys in `lib/l10n/*.arb`, update every locale ARB in the same change and keep key parity across all locales. Do not rely on generated fallback strings for missing locales.
-- In user-facing wallet copy, call the value embedded in or attached through a
-  XELIS address “attached data”. Use “integrated address” only for the complete
-  protocol destination. Do not call arbitrary attached data a payment ID unless
-  its application schema proves that meaning.
-- Preserve responsive behavior across desktop, mobile, web, and native targets.
-- Use modern Dart and Flutter idioms when they improve clarity and are supported by the installed SDK and package versions.
+Choose checks for the changed behavior and its risk, rather than a fixed matrix.
 
-## Shared Wallet Package And FFI
+- Documentation: inspect links, consistency, and the diff. For AI guidance run
+  `dart tool/validate_ai_guidelines.dart` to check entrypoints, profiles, and mirrors.
+- Dart: analyze the affected scope and format touched files. Use broader
+  `dart analyze` when changes span shared code or multiple features.
+- Behavior fixes: use a focused test or reliable reproduction where possible.
+- Changed generator annotations: run `dart run build_runner build`; changed ARBs:
+  run `flutter gen-l10n`. Inspect generated output and relevant call sites.
+- Shared or sensitive changes: expand tests based on actual risks to signing,
+  session lifecycle, storage, permissions, or other affected behavior.
+- Native contract changes: follow the owning package's generation and validation
+  requirements, then verify affected Genesix consumers. Consumer-only edits do
+  not automatically require the package suite, full Flutter suite, or a build.
+- Use a full suite or platform build when the affected behavior warrants it.
+  Report important unverified outcomes without cataloguing every omitted command.
+- Before delivery, inspect the final diff and status for unintended changes.
 
-- Treat the authored `xelis_wallet_flutter` public API as the only supported
-  native-wallet boundary in Genesix.
-- Never import `xelis_wallet_flutter/src/**` or introduce a local Rust/FRB copy.
-  Consume every native-wallet feature through the package-root authored API.
-- Verify the resolved package source and version before relying on its API.
-- Preserve native/Web constraints and authored `XelisWalletException`
-  metadata across repository and provider boundaries.
-- Bind XSWD permission changes, cancellation, and connection closure to the
-  package-owned opaque session reference and the originating wallet. An
-  application ID is metadata, never session authority: local and relayed
-  connections may share it. Resolve the current authored application for that
-  exact session before acting; never fall back to an ID match. Navigation may
-  carry the opaque reference in memory, but route serialization must discard
-  its authority and restore only a detached, non-operable reference.
-- Standard transfer and burn flows must retain the exact authored
-  `XelisWalletPreparedTransaction` instance from preparation through review.
-  After authentication, require the same prepared object, the same hash, and
-  an active confirmation before broadcasting. The hash is metadata for review
-  and support, not authority to recover or reconstruct the capability.
-- Treat a saved destination's complete canonical address as the sole send/copy
-  authority. Its base address is lookup metadata only. AddressBook state is
-  keyed by the package-owned opaque entry ID; several integrated destinations
-  may share one base and must never be merged or substituted by list order.
-- Do not pass a complete integrated destination through `GoRouter.extra`, URL
-  parameters, or `RouteSettings.arguments`: router restoration and debug route
-  observers may serialize or log it. Navigate with the opaque AddressBook entry
-  ID and resolve the complete destination in memory at the transfer boundary.
-- Parse standard and integrated destinations through
-  `XelisWalletFlutter.parseAddress`. Contact-history filters must pass the
-  resulting full `XelisAddressDescriptor` so Rust compares base plus exact
-  `DataElement` before pagination. Only an exact AddressBook match may replace
-  an address with a contact identity; base-only and ambiguous matches are hints,
-  never identity.
-- Keep history, pending, home-card, and passive-event reads metadata-only.
-  Fetch a detailed transaction by hash only while its detail/reveal surface is
-  mounted. Do not persist typed payloads in route codecs, providers, analytics,
-  crash reports, or ordinary logs.
-- Reveal a prepared transfer's attached data only through
-  `inspectPreparedTransferExtraData` using the exact prepared object and transfer
-  index after an explicit user action. Keep passive reviews metadata-only and do
-  not synthesize transaction flags for integrated-address data.
-- Broadcast or discard a prepared transaction only through its exact authored
-  object. Follow the five-outcome recovery contract in `docs/error-handling.md`.
-- Make Rust, Cargo, generated bridge, and package public-contract changes in
-  the package repository, then run its validation matrix before consumer
-  validation here.
+## Resources
 
-## Workflow
+Read the relevant contract when changing its behavior; these are not a general
+reading checklist.
 
-### Before Coding
+| Subject | Reference |
+| --- | --- |
+| Failures, logging, prepared transaction recovery and disclosure | [Error handling](docs/error-handling.md) |
+| Typed events, connection rotation, lag and session lifecycle | [Runtime events](docs/runtime-events.md) |
+| XSWD session authority, permissions and platform capabilities | [XSWD](docs/xswd.md) |
+| Integrated destinations and platform/storage constraints | [Project notes](.agents/knowledge/PROJECT_NOTES.md) |
+| Ambiguous domain terms | [Domain vocabulary](.agents/knowledge/DOMAIN_VOCABULARY.md) |
 
-- Confirm target files and current behavior from source.
-- Evaluate the net impact of non-trivial changes using the rules above.
-- For architecture, workflow, or public contract changes, assess AI-guidance impact and record whether `AGENTS.md`, skills, or knowledge documents need an update.
-- Inspect whether generated output is impacted.
-- Inspect relevant dependency versions when external package or crate APIs are involved.
-- Check for existing user changes and do not revert unrelated work.
+Skills live in `.agents/skills`; identical mirrors live in `.claude/skills` and
+`.github/skills`. Select only those useful to the task:
 
-### During Coding
+- `repo-onboarding`: targeted repository orientation.
+- `implementation-planning`: complex or ambiguous implementation planning.
+- `systematic-diagnosis`: evidence-based bug investigation.
+- `flutter-riverpod-change`: state, routing, models, and application behavior.
+- `flutter-forui-ux-design`: UI workflows, Forui APIs, and responsive design.
+- `wallet-security-review`: sensitive wallet boundaries and security review.
+- `rust-ffi-change`: shared wallet contracts and consumer integration.
+- `validation-runner`: choosing checks and reporting their limits.
+- `code-review`: concrete correctness and regression findings.
+- `ai-guidelines-maintenance`: canonical guidance and mirror consistency.
 
-- Keep the change set logically coherent.
-- Avoid unrelated formatting churn.
-- Keep public methods, providers, DTOs, models, and route contracts explicit and consistent across layers.
-- Use the simplest implementation that fits the current feature and architecture.
+Optional profiles are available in `.codex/agents`, `.claude/agents`, and
+`.github/agents`: `codebase-explorer`, `quick-implementer`, `implementation-worker`,
+`ui-ux-designer`, `security-reviewer`, `validation-runner`, `code-reviewer`, and
+`guidelines-maintainer`. Keep their names and behavior aligned across tools.
 
-### Validation Matrix
-
-| Change Surface | Must Inspect | Required Validation | Should Run |
-| --- | --- | --- | --- |
-| Dart/Flutter UI, state, repository, routing without generated output impact | Affected files and package versions if external APIs are involved; for Forui API questions, refreshed local Forui docs when network is available | `dart analyze` | `dart format .` |
-| Localization ARB changes | Every `lib/l10n/*.arb` file for key parity and generated localization output impact | `flutter gen-l10n`, `dart analyze` | A focused key-parity check across all ARB files |
-| Riverpod generators, Freezed models, JSON/build_runner annotations | Affected annotations, generated output impact, package versions | `dart run build_runner build`, `dart analyze` | `dart format .` |
-| Shared wallet consumer integration | Resolved `xelis_wallet_flutter` contract and affected Dart call sites | `dart analyze`, `flutter test` | A relevant native or Web consumer build |
-| Cross-repository shared wallet contract change | Package `AGENTS.md`, Rust/API surface, generated bridge impact, and Genesix call sites | Package generation/checks/tests, then Genesix `dart analyze` and `flutter test` | Native and Web consumer builds |
-| Dependency version changes | Manifests, impacted docs, affected call sites; for Forui changes, run `dart run tool/sync_forui_docs.dart` and keep `.agents/references/forui/**` uncommitted | Relevant analyze/check/build command for impacted area | Formatting commands |
-| Security-sensitive wallet changes | Trust boundaries, sensitive-data handling, lifecycle ordering, storage/signing/FFI/XSWD/logging impact | Relevant analyze/check/build command for impacted area and the `wallet-security-review` workflow | Focused tests or security review subagent when risk justifies it |
-| AI guideline/docs-only changes | Instruction entrypoints and links | `dart tool/validate_ai_guidelines.dart` plus Markdown/readability review | No Dart/Rust checks unless code changed |
-
-### Delivery Notes
-
-- Summarize what changed and why.
-- Inspect the final diff and repository status, and confirm that only the intended scope changed.
-- List validation commands run and outcomes.
-- Distinguish successful checks from verification of the user-requested outcome; one does not prove the other.
-- For each material acceptance criterion, record the verdict as `satisfied`, `not satisfied`, or `not verified`, and label supporting evidence as `automated` or `manual` when available.
-- Call out skipped checks, unrelated or pre-existing failures, unverified outcomes, and residual risk.
-- Mention dependency/version assumptions when they materially affect the solution.
-
-### Commit Messages
-
-- When creating commits, use Conventional Commits (`type(scope): summary`).
-- Prefer a single-line summary that reads like a concise sentence; it should be short, specific, and focused on the essential change without becoming cryptic.
-- Use a commit body only when the motivation, tradeoff, or follow-up risk is not obvious from the diff.
-
-## Agent Workflows
-
-### Feature Or Change
-
-1. Use `codebase-explorer` for non-blocking research when multiple areas need inspection.
-2. Use `implementation-planning` before broad or multi-layer changes.
-3. Implement directly when coordination overhead would outweigh delegation; otherwise use `quick-implementer` for a small mechanical change limited to one or two files, or `implementation-worker` for a bounded feature or bugfix slice.
-4. Implement in the smallest coherent slice.
-5. Use `validation-runner` to select and run checks.
-6. Use `code-reviewer` before delivery when the diff is non-trivial.
-
-### Bugfix
-
-1. Use the `systematic-diagnosis` skill for unresolved bugs, regressions, flaky behavior, or runtime-only failures.
-2. Record the observed behavior, expected behavior, relevant environment, and the tightest available reproduction signal.
-3. Trace the actual data and control path across local state, generated output, cache, remote sources, networking, FFI, and platform boundaries as applicable.
-4. Rank falsifiable hypotheses from the evidence and test one discriminating variable at a time.
-5. Isolate the root cause before corrective editing, or state the remaining uncertainty and the next evidence needed. Narrow diagnostic instrumentation is allowed when evidence cannot otherwise be obtained.
-6. If a fix is requested, apply the smallest change that addresses the root cause. A diagnosis-only request does not authorize a fix.
-7. Add or update focused tests when appropriate and in scope, then validate the changed surface and replay the original failure signal.
-8. Remove temporary diagnostic instrumentation before delivery and never expose secrets or sensitive wallet data in logs.
-9. After three failed interventions, stop patching and reassess the assumptions, data path, and architecture before trying again.
-
-### Review
-
-- Lead with findings ordered by severity.
-- Reference concrete files and lines.
-- Review both compliance with the request and acceptance criteria, and engineering quality of the implementation.
-- Focus on omitted scope, incorrect behavior, bugs, regressions, security, correctness, missing validation, and maintainability risk.
-- If no issues are found, say so and mention residual risk, unverified outcomes, or test gaps.
-
-### Dart/Flutter Application Behavior
-
-- Use the `flutter-riverpod-change` skill when changing providers, state, routing, repositories, models, serializers, generated annotations, or behavior-bearing widgets.
-- Inspect local provider, widget, and repository patterns first.
-- Prefer existing shared UI and feature-local conventions.
-- Regenerate builders when annotated Dart changes require it.
-- For UI design or review without state, routing, or data-flow changes, use `flutter-forui-ux-design` without adding `flutter-riverpod-change`.
-
-### Flutter UX/UI Design
-
-- Use the `flutter-forui-ux-design` skill.
-- Treat Forui as the primary component library when it fits the task.
-- Start from the user workflow and information hierarchy before styling.
-- Preserve mobile, desktop, web, and native ergonomics.
-- Pair with `flutter-riverpod-change` only when the UI work also changes state, providers, routing, repositories, models, or data flow.
-- Use the `ui-ux-designer` subagent for design critique, UI audits, or non-blocking exploration of complex screens.
-
-### Security-Sensitive Change
-
-- Use the `wallet-security-review` skill.
-- Use the `security-reviewer` subagent for independent review of sensitive diffs or threat-modeling work.
-- Treat wallet lifecycle, session state, key material, storage, signing, FFI, XSWD, logs, clipboard, QR/deep links, networking, and dependency changes as sensitive surfaces.
-- Prefer explicit failures and conservative defaults over silent fallback in security-sensitive paths.
-
-### Rust FFI
-
-- Use the `rust-ffi-change` skill.
-- Treat public Rust API and bridge signatures as cross-language contracts.
-- Make and regenerate Rust/bridge changes only in `xelis-wallet-flutter`, then
-  verify Genesix call sites through the authored package API.
-
-### AI Guidelines Maintenance
-
-- Use the `ai-guidelines-maintenance` skill.
-- Keep `AGENTS.md` canonical.
-- Keep Claude, Codex, and Copilot adapters short and non-conflicting.
-- Prefer skills for reusable workflows and subagents for isolated or parallel work.
-- Treat new durable agent knowledge as a reviewable proposal, never as a silent self-update. Promote only source-backed, reusable facts with a clear scope and invalidation condition.
-- Update mirrors when canonical skills change.
-
-## Skills
-
-Project skills are workflow playbooks. The canonical cross-tool source is `.agents/skills/**/SKILL.md`.
-
-Mirror policy:
-
-- `.agents/skills` is the canonical repo skill location.
-- `.claude/skills` mirrors skills for Claude Code.
-- `.github/skills` mirrors skills for GitHub Copilot.
-- Keep mirrored `SKILL.md` files identical unless a tool requires a small compatibility note.
-
-Project skills:
-
-- `repo-onboarding`: understand repository shape, dependencies, and validation entrypoints.
-- `implementation-planning`: produce decision-complete implementation plans.
-- `systematic-diagnosis`: investigate bugs and unexplained behavior through evidence, tracing, and falsifiable hypotheses before corrective changes.
-- `flutter-riverpod-change`: guide Dart/Flutter application behavior, Riverpod, routing, repository, model, serializer, and state changes.
-- `flutter-forui-ux-design`: guide UX/UI design for Flutter screens using Forui as the primary UI library.
-- `wallet-security-review`: review wallet, storage, signing, FFI, XSWD, logging, input, and dependency security risk.
-- `rust-ffi-change`: guide Rust, FFI, and bridge regeneration changes.
-- `validation-runner`: choose and run relevant checks.
-- `code-review`: perform risk-first code review.
-- `ai-guidelines-maintenance`: maintain this AI guidance system.
-
-## Subagents
-
-Use subagents when work benefits from isolated context, parallel research, tool restrictions, or concise summaries from noisy tasks. Keep tightly coupled implementation in the main thread unless delegation is explicitly useful.
-
-Native project profiles:
-
-- Claude: `.claude/agents/*.md`
-- Codex: `.codex/agents/*.toml`
-- Copilot: `.github/agents/*.agent.md`
-
-Project profiles:
-
-- `codebase-explorer`: read-only repository exploration and source mapping.
-- `quick-implementer`: small, well-defined implementation work limited to one or two files.
-- `implementation-worker`: bounded implementation work in assigned files.
-- `ui-ux-designer`: UX/UI critique and design guidance for Flutter/Forui screens.
-- `security-reviewer`: independent wallet/application security review and threat modeling.
-- `validation-runner`: checks, test failure triage, and concise validation summaries.
-- `code-reviewer`: risk-first review of diffs and changed behavior.
-- `guidelines-maintainer`: maintenance of `AGENTS.md`, adapters, skills, and agent profiles.
-
-Subagent rules:
-
-- Give each subagent a concrete, bounded task.
-- Avoid duplicate work between the main agent and subagents.
-- Keep delegation root-orchestrated by default: subagents report to the main agent, which launches reviewers and validators as independent sibling agents when needed.
-- Do not request recursive delegation unless the user explicitly asks for it and the task has independently executable nested work that justifies the extra cost.
-- For implementation subagents, define file ownership and remind them not to revert unrelated changes.
-- Prefer read-only explorers for broad inspection.
-- Use validation subagents for noisy checks when they can run independently.
-- Consolidate results before editing or delivering.
+When delegating, assign a bounded task and file ownership, preserve others' edits,
+and consolidate results. Keep tightly coupled work together and avoid redundant
+or recursive delegation unless explicitly useful and requested.
