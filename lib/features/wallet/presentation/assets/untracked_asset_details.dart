@@ -154,7 +154,7 @@ class _UntrackedAssetDetailsState extends ConsumerState<UntrackedAssetDetails> {
                     Text('Tracking...'),
                   ],
                 )
-              : Text('Tracking'),
+              : Text('Track Asset'),
         ),
       ],
     );

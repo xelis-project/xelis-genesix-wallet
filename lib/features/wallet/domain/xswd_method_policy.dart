@@ -80,7 +80,8 @@ XswdMethodPolicy _subscriptionPolicy(XelisSubscription method) =>
       ),
     };
 
-int get xswdMethodCount => XswdWalletMethodCatalog.values.length;
+int get xswdMethodCount =>
+    WalletMethod.values.length + XelisSubscription.values.length;
 
 const _unsupportedTransactionPolicy = XswdMethodPolicy(
   support: XswdMethodSupport.unsupported,
@@ -180,14 +181,19 @@ XswdMethodPolicy xswdMethodPolicy(WalletMethod method) => switch (method) {
 };
 
 WalletMethod? tryResolveXswdWalletMethod(String jsonKey) {
-  final method = XswdWalletMethodCatalog.tryFromStr(jsonKey);
-  return method is WalletMethod ? method : null;
+  for (final method in WalletMethod.values) {
+    if (method.jsonKey == jsonKey) return method;
+  }
+  return null;
 }
 
 XswdMethodPolicy? tryXswdMethodPolicyForKey(String jsonKey) {
-  return switch (XswdWalletMethodCatalog.tryFromStr(jsonKey)) {
-    WalletMethod method => xswdMethodPolicy(method),
-    XelisSubscription method => _subscriptionPolicy(method),
-    _ => null,
-  };
+  final method = tryResolveXswdWalletMethod(jsonKey);
+  if (method != null) return xswdMethodPolicy(method);
+  for (final subscription in XelisSubscription.values) {
+    if (subscription.jsonKey == jsonKey) {
+      return _subscriptionPolicy(subscription);
+    }
+  }
+  return null;
 }

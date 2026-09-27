@@ -3,6 +3,28 @@ import 'package:genesix/features/wallet/domain/xswd_method_policy.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
 void main() {
+  test('resolves only exact wallet RPC keys', () {
+    for (final method in WalletMethod.values) {
+      expect(tryResolveXswdWalletMethod(method.jsonKey), method);
+      expect(
+        tryXswdMethodPolicyForKey(method.jsonKey),
+        same(xswdMethodPolicy(method)),
+      );
+      for (final invalidKey in [
+        'wallet.${method.jsonKey}',
+        ' ${method.jsonKey}',
+        '${method.jsonKey} ',
+        method.jsonKey.toUpperCase(),
+      ]) {
+        expect(tryResolveXswdWalletMethod(invalidKey), isNull);
+        expect(tryXswdMethodPolicyForKey(invalidKey), isNull);
+      }
+    }
+    for (final key in ['', 'future_method', 'subscribe', 'unsubscribe']) {
+      expect(tryResolveXswdWalletMethod(key), isNull);
+    }
+  });
+
   test('classifies every SDK wallet method explicitly', () {
     final expected =
         <
