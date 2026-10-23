@@ -45,7 +45,7 @@ void main() {
                     as InvokeContractBuilder;
             expect(builder.permission.toJson(), raw);
             expect(review.request, same(request));
-            expect(review.canPersist, isFalse);
+            expect(review.canAllowForConnection, isFalse);
           }
         }
         for (final raw in <Object>[
@@ -280,7 +280,7 @@ void main() {
       );
 
       expect(review.isBuildTransaction, isFalse);
-      expect(review.canPersist, isTrue);
+      expect(review.canAllowForConnection, isTrue);
       expect(review.policy.effect, XswdMethodEffect.walletData);
     });
 
@@ -291,7 +291,7 @@ void main() {
         );
         expect(review.method, method);
         expect(review.subscriptionEvent, WalletEvent.balanceChanged);
-        expect(review.canPersist, isTrue);
+        expect(review.canAllowForConnection, isTrue);
         expect(review.policy.canPrefetch, isTrue);
         for (final params in <Map<String, dynamic>?>[
           null,
@@ -311,20 +311,113 @@ void main() {
       }
     });
 
+    for (final method in ['track_asset', 'untrack_asset']) {
+      test(
+        '$method reviews an exact asset hash and permits connection approval',
+        () {
+          final asset = 'ab' * 32;
+          final review = XswdPermissionReview.parse(
+            _request(method: method, params: {'asset': asset}),
+          );
+          expect(review.parameters, {'asset': asset});
+          expect(review.canAllowForConnection, isTrue);
+          expect(review.policy.canPrefetch, isTrue);
+        },
+      );
+      test(
+        '$method rejects missing, malformed and ambiguous asset parameters',
+        () {
+          for (final params in <Map<String, dynamic>?>[
+            null,
+            {},
+            {'asset': 1},
+            {'asset': 'ab'},
+            {'asset': 'gg' * 32},
+            {'asset': '${'ab' * 32}\n'},
+            {'asset': 'ab' * 32, 'extra': true},
+          ]) {
+            expect(
+              () => XswdPermissionReview.parse(
+                _request(method: method, params: params),
+              ),
+              throwsFormatException,
+            );
+          }
+        },
+      );
+    }
+
+    test(
+      'sign_data reviews scalars, blobs and nested data without numeric loss',
+      () {
+        for (final data in <Object>[
+          'A message',
+          true,
+          BigInt.parse('18446744073709551615'),
+          [],
+          <String, Object>{},
+          [BigInt.one, 'text'],
+          List.filled(256, BigInt.one),
+          {
+            'message': 'Confirm login',
+            'nonce': BigInt.parse('9007199254740993'),
+          },
+          'a' * 255,
+        ]) {
+          final request = xswdTestPermission(method: 'sign_data', params: data);
+          final review = XswdPermissionReview.parse(request);
+          expect(review.signingData, data);
+          expect(review.request, same(request));
+          expect(review.isSignData, isTrue);
+          expect(review.canAllowForConnection, isFalse);
+          expect(review.policy.canPrefetch, isFalse);
+        }
+      },
+    );
+    test('sign_data rejects values the native serializer cannot preserve', () {
+      for (final data in <Object?>[
+        null,
+        -1,
+        1.5,
+        BigInt.one << 64,
+        'a' * 256,
+        '\u00e9' * 128,
+        {'nested': null},
+        {'x' * 256: true},
+        List.filled(256, 'text'),
+        List.filled(65536, BigInt.one),
+        {for (var i = 0; i < 256; i++) '$i': true},
+      ]) {
+        expect(
+          () => XswdPermissionReview.parse(
+            xswdTestPermission(method: 'sign_data', params: data),
+          ),
+          throwsFormatException,
+        );
+      }
+      Object deep = 'leaf';
+      for (var i = 0; i < 66; i++) {
+        deep = [deep];
+      }
+      expect(
+        () => XswdPermissionReview.parse(
+          xswdTestPermission(method: 'sign_data', params: deep),
+        ),
+        throwsFormatException,
+      );
+    });
+
     const unsupportedMethods = {
       WalletMethod.rescan,
       WalletMethod.buildTransactionOffline,
       WalletMethod.buildUnsignedTransaction,
       WalletMethod.finalizeUnsignedTransaction,
       WalletMethod.signUnsignedTransaction,
-      WalletMethod.signData,
       WalletMethod.clearTxCache,
       WalletMethod.decryptExtraData,
       WalletMethod.decryptCiphertext,
       WalletMethod.setOnlineMode,
       WalletMethod.setOfflineMode,
-      WalletMethod.trackAsset,
-      WalletMethod.untrackAsset,
       WalletMethod.createOwnershipProof,
       WalletMethod.createBalanceProof,
     };
@@ -333,7 +426,7 @@ void main() {
       test('rejects ${method.jsonKey} without a dedicated review', () {
         expect(
           () => XswdPermissionReview.parse(_request(method: method.jsonKey)),
-          throwsA(isA<FormatException>()),
+          throwsA(isA<XswdMethodUnavailable>()),
         );
       });
     }
@@ -363,7 +456,7 @@ void main() {
       );
 
       expect(review.isBuildTransaction, isTrue);
-      expect(review.canPersist, isFalse);
+      expect(review.canAllowForConnection, isFalse);
       final params = review.buildTransactionParams!;
       final builder = params.transactionTypeBuilder as TransfersBuilder;
       expect(builder.transfers.single.encryptExtraData, isFalse);
@@ -961,6 +1054,19 @@ void main() {
       );
 
       expect(methods, XswdPrefetchDisposition.grantable);
+    });
+
+    test('asset tracking remains grantable alongside unavailable methods', () {
+      for (final method in ['track_asset', 'untrack_asset']) {
+        expect(
+          classifyXswdPrefetchPermissions(
+            xswdTestPrefetch(
+              permissions: [method, 'sign_data', 'build_transaction'],
+            ),
+          ),
+          XswdPrefetchDisposition.grantable,
+        );
+      }
     });
 
     test('rejects duplicate permissions before building consent widgets', () {

@@ -280,7 +280,9 @@ class _XswdDialogState extends ConsumerState<XswdDialog>
       case XelisXswdRequestKind.application:
         title = loc.connection_request.capitalize();
       case XelisXswdRequestKind.permission:
-        title = transactionReview != null
+        title = xswdState.permissionReview?.isSignData == true
+            ? loc.xswd_method_sign_data_title
+            : transactionReview != null
             ? loc.xswd_transaction_review_title
             : loc.permission_request.capitalize();
       case XelisXswdRequestKind.prefetchPermissions:
@@ -393,7 +395,23 @@ class _XswdDialogState extends ConsumerState<XswdDialog>
                             ),
                             const SizedBox(height: Spaces.medium),
                           ],
-                          if (transactionReview == null)
+                          if (xswdState.permissionReview case final review?
+                              when review.isSignData) ...[
+                            Text(loc.xswd_sign_data_description),
+                            const SizedBox(height: Spaces.small),
+                            Text(
+                              loc.xswd_data_to_sign,
+                              style: context.titleMedium,
+                            ),
+                            const SizedBox(height: Spaces.small),
+                            XswdJsonParametersView(
+                              parameters: review.signingData,
+                              loc: loc,
+                            ),
+                            const SizedBox(height: Spaces.medium),
+                          ],
+                          if (transactionReview == null &&
+                              xswdState.permissionReview?.isSignData != true)
                             if (xswdState.permissionReview
                                 case final review?) ...[
                               _XswdPermissionImpactSection(
@@ -474,8 +492,9 @@ class _XswdDialogState extends ConsumerState<XswdDialog>
               actionSet: actionSet,
               busy: _awaitingNextRequest,
               permissionDecisionScope: _permissionDecisionScope,
-              canPersistPermission:
-                  xswdState.permissionReview?.canPersist ?? true,
+              isSignData: xswdState.permissionReview?.isSignData == true,
+              canAllowForConnection:
+                  xswdState.permissionReview?.canAllowForConnection ?? true,
               loc: loc,
               onPermissionDecisionScopeChanged: (scope) {
                 setState(() {
@@ -667,14 +686,6 @@ class _XswdPermissionImpactSection extends StatelessWidget {
         if (review.subscriptionEvent case final event?)
           Text(loc.xswd_recent_event(xswdWalletEventLabel(event, loc))),
         if (_consentNote case final note?) Text(note),
-        if (review.policy.canPersist) ...[
-          const SizedBox(height: Spaces.small),
-          Text(
-            forConnection
-                ? loc.xswd_scope_connection_description
-                : loc.xswd_scope_once_description,
-          ),
-        ],
       ],
     );
   }
@@ -684,6 +695,16 @@ class _XswdPermissionImpactSection extends StatelessWidget {
       return review.method == 'subscribe'
           ? loc.xswd_subscription_once_notice
           : null;
+    }
+    if (review.method == 'track_asset' || review.method == 'untrack_asset') {
+      final description = xswdPermissionCopy(
+        review.method,
+        review.policy,
+        loc,
+      ).description;
+      return forConnection
+          ? '$description ${loc.xswd_asset_tracking_connection_notice}'
+          : description;
     }
     return xswdPermissionConsentNote(review.method, loc) ??
         (review.policy.effect == XswdMethodEffect.appStorage
@@ -1016,7 +1037,6 @@ class _XswdMinimalPrefetchDetailsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(loc.xswd_permissions_connection_scope),
         if (request.permissions.any(xswdIsEventMethod)) ...[
           const SizedBox(height: Spaces.extraSmall),
           Text(loc.xswd_event_permissions_notice),
@@ -1108,12 +1128,15 @@ class _XswdPrefetchFixedPermissionRule extends StatelessWidget {
         loc.xswd_permission_status_unsupported,
       (_, XelisXswdPermissionPolicy.reject) =>
         loc.xswd_permission_status_blocked,
+      (final value?, _) when value.reviewKind == XswdReviewKind.dataSignature =>
+        loc.xswd_permission_status_ask,
       (final value?, _) when value.isSupported =>
         loc.xswd_transaction_each_time,
       _ => loc.xswd_permission_status_unsupported,
     };
     return Text(
       policy?.isSupported == true &&
+              policy?.reviewKind != XswdReviewKind.dataSignature &&
               currentPolicy != XelisXswdPermissionPolicy.reject
           ? label
           : '${copy.title} — $label',
@@ -1269,7 +1292,8 @@ class _XswdActionFactory {
     required this.actionSet,
     required this.busy,
     required this.permissionDecisionScope,
-    required this.canPersistPermission,
+    required this.canAllowForConnection,
+    required this.isSignData,
     required this.loc,
     required this.onPermissionDecisionScopeChanged,
     required this.onDecision,
@@ -1279,7 +1303,8 @@ class _XswdActionFactory {
   final _ActionSet actionSet;
   final bool busy;
   final _PermissionDecisionScope permissionDecisionScope;
-  final bool canPersistPermission;
+  final bool canAllowForConnection;
+  final bool isSignData;
   final AppLocalizations loc;
   final ValueChanged<_PermissionDecisionScope> onPermissionDecisionScopeChanged;
   final ValueChanged<XelisXswdDecision> onDecision;
@@ -1300,15 +1325,24 @@ class _XswdActionFactory {
         return const [];
 
       case _ActionSet.permissionDecision:
-        if (!canPersistPermission) {
-          return _buildBinaryDecisionActions(
-            context: context,
-            busy: busy,
-            denyLabel: loc.xswd_deny_once,
-            allowLabel: loc.xswd_allow_once,
-            onDeny: () => onDecision(XelisXswdDecision.reject),
-            onAllow: () => onDecision(XelisXswdDecision.accept),
-          );
+        if (!canAllowForConnection) {
+          return [
+            ..._buildBinaryDecisionActions(
+              context: context,
+              busy: busy,
+              denyLabel: loc.xswd_deny_once,
+              allowLabel: isSignData ? loc.xswd_sign_once : loc.xswd_allow_once,
+              onDeny: () => onDecision(XelisXswdDecision.reject),
+              onAllow: () => onDecision(XelisXswdDecision.accept),
+            ),
+            const SizedBox(height: Spaces.extraSmall),
+            _XswdDecisionButton(
+              busy: busy,
+              label: loc.xswd_block_for_connection,
+              variant: .outline,
+              onPress: () => onDecision(XelisXswdDecision.alwaysReject),
+            ),
+          ];
         }
         final forConnection =
             permissionDecisionScope == _PermissionDecisionScope.connection;

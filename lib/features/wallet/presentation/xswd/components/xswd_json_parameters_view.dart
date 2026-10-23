@@ -55,7 +55,7 @@ class XswdJsonParametersView extends StatelessWidget {
     super.key,
   });
 
-  final Map<String, dynamic> parameters;
+  final Object? parameters;
   final AppLocalizations loc;
 
   @override

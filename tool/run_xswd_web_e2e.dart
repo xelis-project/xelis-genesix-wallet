@@ -19,6 +19,21 @@ const _aboveJavaScriptSafeInteger = '9007199254740993';
 const _wideNonce = '9007199254740995';
 const _maximumUnsigned64 = '18446744073709551615';
 const _requestIds = <String>{
+  'sign-text',
+  'sign-text-again',
+  'sign-number',
+  'sign-array',
+  'sign-object',
+  'sign-bool',
+  'sign-blob',
+  'sign-block',
+  'sign-blocked',
+  'unavailable-method',
+  'track-asset',
+  'track-asset-again',
+  'untrack-asset',
+  'track-asset-new-wallet',
+  'track-asset-reconnected',
   'partial-prefetch',
   'no-change-prefetch',
   'get-address',
@@ -274,6 +289,36 @@ final class _XswdRelayFixture {
           await _acceptRelay(request);
         case ('GET', '/state'):
           await _writeState(request.response);
+        case ('GET', '/send/sign-text'):
+          await _sendScenario(request.response, 'sign-text');
+        case ('GET', '/send/sign-text-again'):
+          await _sendScenario(request.response, 'sign-text-again');
+        case ('GET', '/send/sign-number'):
+          await _sendScenario(request.response, 'sign-number');
+        case ('GET', '/send/sign-array'):
+          await _sendScenario(request.response, 'sign-array');
+        case ('GET', '/send/sign-object'):
+          await _sendScenario(request.response, 'sign-object');
+        case ('GET', '/send/sign-bool'):
+          await _sendScenario(request.response, 'sign-bool');
+        case ('GET', '/send/sign-blob'):
+          await _sendScenario(request.response, 'sign-blob');
+        case ('GET', '/send/sign-block'):
+          await _sendScenario(request.response, 'sign-block');
+        case ('GET', '/send/sign-blocked'):
+          await _sendScenario(request.response, 'sign-blocked');
+        case ('GET', '/send/unavailable-method'):
+          await _sendScenario(request.response, 'unavailable-method');
+        case ('GET', '/send/track-asset'):
+          await _sendScenario(request.response, 'track-asset');
+        case ('GET', '/send/track-asset-again'):
+          await _sendScenario(request.response, 'track-asset-again');
+        case ('GET', '/send/untrack-asset'):
+          await _sendScenario(request.response, 'untrack-asset');
+        case ('GET', '/send/track-asset-new-wallet'):
+          await _sendScenario(request.response, 'track-asset-new-wallet');
+        case ('GET', '/send/track-asset-reconnected'):
+          await _sendScenario(request.response, 'track-asset-reconnected');
         case ('GET', '/send/partial-prefetch'):
           await _sendScenario(request.response, 'partial-prefetch');
         case ('GET', '/send/no-change-prefetch'):
@@ -362,6 +407,10 @@ final class _XswdRelayFixture {
       }
       final error = decoded['error'];
       _responses[id] = _SanitizedRpcResponse(
+        hasSignature:
+            id.startsWith('sign-') &&
+            result is String &&
+            RegExp(r'^[0-9a-fA-F]{128}$').hasMatch(result),
         hasResult: decoded.containsKey('result'),
         hasError: error is Map<String, dynamic>,
         errorCode: error is Map<String, dynamic> ? error['code'] : null,
@@ -386,6 +435,25 @@ final class _XswdRelayFixture {
     final request = switch (id) {
       'partial-prefetch' || 'no-change-prefetch' => _prefetchRequest(id),
       'get-address' => _getAddressRequest(id),
+      final value when value.startsWith('sign-') => _signDataRequest(id),
+      'unavailable-method' => jsonEncode({
+        'jsonrpc': '2.0',
+        'id': id,
+        'method': 'wallet.rescan',
+        'params': {'data': 'fixture'},
+      }),
+      'track-asset' ||
+      'track-asset-again' ||
+      'track-asset-new-wallet' ||
+      'track-asset-reconnected' ||
+      'untrack-asset' => jsonEncode({
+        'jsonrpc': '2.0',
+        'id': id,
+        'method': id == 'untrack-asset'
+            ? 'wallet.untrack_asset'
+            : 'wallet.track_asset',
+        'params': {'asset': _secondaryContract},
+      }),
       'subscribe' || 'unsubscribe' => _subscriptionRequest(id),
       final value when value.startsWith('approve-invoke') => _invokeRequest(id),
       'malformed-transfer' => _malformedTransferRequest(id),
@@ -429,12 +497,14 @@ final class _XswdRelayFixture {
 
 final class _SanitizedRpcResponse {
   const _SanitizedRpcResponse({
+    required this.hasSignature,
     required this.hasResult,
     required this.hasError,
     required this.errorCode,
     required this.errorKind,
   });
 
+  final bool hasSignature;
   final bool hasResult;
   final bool hasError;
   final Object? errorCode;
@@ -442,6 +512,7 @@ final class _SanitizedRpcResponse {
 
   Map<String, Object?> toJson() => {
     'received': true,
+    'has_signature': hasSignature,
     'has_result': hasResult,
     'has_error': hasError,
     if (errorCode is int || errorCode is String) 'error_code': errorCode,
@@ -473,6 +544,19 @@ String _subscriptionRequest(String method) =>
 
 String _getAddressRequest(String id) =>
     '''{"jsonrpc":"2.0","id":"$id","method":"wallet.get_address"}''';
+
+String _signDataRequest(String id) {
+  final data = switch (id) {
+    'sign-number' => _maximumUnsigned64,
+    'sign-array' => '[true,"Fixture",$_aboveJavaScriptSafeInteger]',
+    'sign-object' =>
+      '{"message":"Fixture","nonce":$_aboveJavaScriptSafeInteger}',
+    'sign-bool' => 'true',
+    'sign-blob' => '[1,2,255]',
+    _ => '"Fixture sign-in challenge"',
+  };
+  return '{"jsonrpc":"2.0","id":"$id","method":"wallet.sign_data","params":$data}';
+}
 
 String _invokeRequest(String id) =>
     // The real fixture wallet is offline. Allow must reach build_transaction,

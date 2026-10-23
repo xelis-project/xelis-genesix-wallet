@@ -12,8 +12,12 @@ Map<String, dynamic> decodeXswdPayload(XelisXswdValue? payload) {
   if (payload is! XelisXswdObjectValue) {
     throw const FormatException('Invalid XSWD payload root.');
   }
-  return _XswdPayloadDecoder().decode(payload, 0) as Map<String, dynamic>;
+  return decodeXswdValue(payload) as Map<String, dynamic>;
 }
+
+/// Decodes any JSON value using the same lossless, bounded projection as RPCs.
+Object? decodeXswdValue(XelisXswdValue payload) =>
+    _XswdPayloadDecoder().decode(payload, 0);
 
 /// The SDK still authors these protocol-bounded fields as Dart int, and the
 /// upstream fee multiplier as f64. All other integer fields stay BigInt.

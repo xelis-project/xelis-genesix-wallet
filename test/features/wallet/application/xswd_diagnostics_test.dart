@@ -37,9 +37,9 @@ void main() {
         {'name': 'wallet.get_balance', 'policy': 'unknown'},
         {'name': 'build_transaction', 'policy': 'notPrefetchable'},
         {'name': 'get_tracked_assets', 'policy': 'supported'},
-        {'name': 'track_asset', 'policy': 'unsupported'},
-        {'name': 'untrack_asset', 'policy': 'unsupported'},
-        {'name': 'sign_data', 'policy': 'unsupported'},
+        {'name': 'track_asset', 'policy': 'supported'},
+        {'name': 'untrack_asset', 'policy': 'supported'},
+        {'name': 'sign_data', 'policy': 'notPrefetchable'},
       ]);
       expect(record.containsKey('validation'), isFalse);
       expect(record.containsKey('decision'), isFalse);

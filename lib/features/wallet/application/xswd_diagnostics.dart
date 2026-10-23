@@ -28,6 +28,7 @@ enum XswdDiagnosticDisposition {
   completed,
   validationFailed,
   prefetchDeclined,
+  methodUnavailable,
   sessionClosing,
   superseded,
 }

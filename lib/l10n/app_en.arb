@@ -1,4 +1,11 @@
 {
+  "xswd_sign_once": "Sign once",
+  "xswd_data_to_sign": "Data to sign",
+  "xswd_sign_data_description": "Review the data before signing with your wallet. The app may use the signature to authenticate you. Each request requires confirmation.",
+  "xswd_track_asset_description": "Follow this asset in your wallet. This may scan its activity when the wallet is online.",
+  "xswd_untrack_asset_description": "Stop following this asset in your wallet.",
+  "xswd_asset_tracking_connection_notice": "For this connection, this permission applies to any asset. Tracking and untracking require separate permissions.",
+  "xswd_method_unavailable_notice": "This XSWD method is unavailable. The request was refused; the connection remains open.",
   "xswd_requested_permissions": "Requested permissions",
   "xswd_action_read_address": "Read your address",
   "xswd_action_read_balance": "View your balances",
@@ -49,16 +56,13 @@
   "@xswd_edit_permission_title": {
     "placeholders": {"permission": {"type": "String"}}
   },
-  "xswd_permissions_connection_scope": "For this connection only.",
   "xswd_permission_status_allowed": "Allowed",
   "xswd_permission_status_ask": "Ask every time",
   "xswd_permission_status_blocked": "Blocked",
   "xswd_permission_status_unsupported": "Unsupported",
   "xswd_decision_scope": "Decision scope",
   "xswd_scope_once": "This request only",
-  "xswd_scope_once_description": "Allow or deny only the request currently shown.",
   "xswd_scope_connection": "For this connection",
-  "xswd_scope_connection_description": "Remember this rule until the app disconnects.",
   "xswd_allow_for_connection": "Allow for connection",
   "xswd_block_for_connection": "Block for connection",
   "xswd_deny_once": "Deny once",

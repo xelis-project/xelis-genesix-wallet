@@ -1,16 +1,10 @@
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart';
 
-/// How Genesix can review one wallet method requested through XSWD.
-enum XswdMethodSupport {
-  /// The generic permission review is sufficient for this method.
-  standardReview,
+/// Presentation used when asking for one XSWD permission.
+enum XswdReviewKind { generic, transaction, dataSignature }
 
-  /// The method has a dedicated, request-bound review.
-  dedicatedTransactionReview,
-
-  /// Genesix cannot currently review this method safely.
-  unsupported,
-}
+/// Whether approval can cover subsequent calls on the same live connection.
+enum XswdApprovalMode { connection, individual, unavailable }
 
 /// The user-visible effect category of an XSWD wallet method.
 enum XswdMethodEffect {
@@ -29,54 +23,44 @@ enum XswdMethodEffect {
 /// Genesix's exhaustive policy for one SDK-owned wallet method.
 final class XswdMethodPolicy {
   const XswdMethodPolicy({
-    required this.support,
+    this.reviewKind = XswdReviewKind.generic,
+    required this.approvalMode,
     required this.effect,
-    required this.canPersist,
-    required this.canPrefetch,
   });
 
-  final XswdMethodSupport support;
+  final XswdReviewKind reviewKind;
+  final XswdApprovalMode approvalMode;
   final XswdMethodEffect effect;
-  final bool canPersist;
-  final bool canPrefetch;
-
-  bool get isSupported => support != XswdMethodSupport.unsupported;
+  bool get isSupported => approvalMode != XswdApprovalMode.unavailable;
+  bool get canAllowForConnection => approvalMode == XswdApprovalMode.connection;
+  bool get canPrefetch => canAllowForConnection;
 }
 
 const _publicInformationPolicy = XswdMethodPolicy(
-  support: XswdMethodSupport.standardReview,
+  approvalMode: XswdApprovalMode.connection,
   effect: XswdMethodEffect.publicInformation,
-  canPersist: true,
-  canPrefetch: true,
 );
 
 const _walletDataPolicy = XswdMethodPolicy(
-  support: XswdMethodSupport.standardReview,
+  approvalMode: XswdApprovalMode.connection,
   effect: XswdMethodEffect.walletData,
-  canPersist: true,
-  canPrefetch: true,
 );
 
 const _transactionReviewPolicy = XswdMethodPolicy(
-  support: XswdMethodSupport.dedicatedTransactionReview,
+  reviewKind: XswdReviewKind.transaction,
+  approvalMode: XswdApprovalMode.individual,
   effect: XswdMethodEffect.transaction,
-  canPersist: false,
-  canPrefetch: false,
 );
 
 XswdMethodPolicy _subscriptionPolicy(XelisSubscription method) =>
     switch (method) {
       XelisSubscription.subscribe => const XswdMethodPolicy(
-        support: XswdMethodSupport.standardReview,
+        approvalMode: XswdApprovalMode.connection,
         effect: XswdMethodEffect.walletSubscription,
-        canPersist: true,
-        canPrefetch: true,
       ),
       XelisSubscription.unsubscribe => const XswdMethodPolicy(
-        support: XswdMethodSupport.standardReview,
+        approvalMode: XswdApprovalMode.connection,
         effect: XswdMethodEffect.walletUnsubscription,
-        canPersist: true,
-        canPrefetch: true,
       ),
     };
 
@@ -84,45 +68,44 @@ int get xswdMethodCount =>
     WalletMethod.values.length + XelisSubscription.values.length;
 
 const _unsupportedTransactionPolicy = XswdMethodPolicy(
-  support: XswdMethodSupport.unsupported,
+  approvalMode: XswdApprovalMode.unavailable,
   effect: XswdMethodEffect.transaction,
-  canPersist: false,
-  canPrefetch: false,
 );
 
 const _unsupportedWalletControlPolicy = XswdMethodPolicy(
-  support: XswdMethodSupport.unsupported,
+  approvalMode: XswdApprovalMode.unavailable,
   effect: XswdMethodEffect.walletControl,
-  canPersist: false,
-  canPrefetch: false,
 );
 
 const _unsupportedDecryptionPolicy = XswdMethodPolicy(
-  support: XswdMethodSupport.unsupported,
+  approvalMode: XswdApprovalMode.unavailable,
   effect: XswdMethodEffect.decryption,
-  canPersist: false,
-  canPrefetch: false,
+);
+
+const _dataSignaturePolicy = XswdMethodPolicy(
+  reviewKind: XswdReviewKind.dataSignature,
+  approvalMode: XswdApprovalMode.individual,
+  effect: XswdMethodEffect.signing,
 );
 
 const _unsupportedSigningPolicy = XswdMethodPolicy(
-  support: XswdMethodSupport.unsupported,
+  approvalMode: XswdApprovalMode.unavailable,
   effect: XswdMethodEffect.signing,
-  canPersist: false,
-  canPrefetch: false,
 );
 
 const _unsupportedProofPolicy = XswdMethodPolicy(
-  support: XswdMethodSupport.unsupported,
+  approvalMode: XswdApprovalMode.unavailable,
   effect: XswdMethodEffect.proof,
-  canPersist: false,
-  canPrefetch: false,
+);
+
+const _assetTrackingPolicy = XswdMethodPolicy(
+  approvalMode: XswdApprovalMode.connection,
+  effect: XswdMethodEffect.walletControl,
 );
 
 const _appStoragePolicy = XswdMethodPolicy(
-  support: XswdMethodSupport.standardReview,
+  approvalMode: XswdApprovalMode.connection,
   effect: XswdMethodEffect.appStorage,
-  canPersist: true,
-  canPrefetch: true,
 );
 
 /// Returns the explicitly authored Genesix policy for every SDK wallet method.
@@ -158,14 +141,13 @@ XswdMethodPolicy xswdMethodPolicy(WalletMethod method) => switch (method) {
   WalletMethod.buildTransactionOffline ||
   WalletMethod.buildUnsignedTransaction ||
   WalletMethod.finalizeUnsignedTransaction => _unsupportedTransactionPolicy,
-  WalletMethod.signUnsignedTransaction ||
-  WalletMethod.signData => _unsupportedSigningPolicy,
+  WalletMethod.signUnsignedTransaction => _unsupportedSigningPolicy,
+  WalletMethod.signData => _dataSignaturePolicy,
   WalletMethod.rescan ||
   WalletMethod.clearTxCache ||
   WalletMethod.setOnlineMode ||
-  WalletMethod.setOfflineMode ||
-  WalletMethod.trackAsset ||
-  WalletMethod.untrackAsset => _unsupportedWalletControlPolicy,
+  WalletMethod.setOfflineMode => _unsupportedWalletControlPolicy,
+  WalletMethod.trackAsset || WalletMethod.untrackAsset => _assetTrackingPolicy,
   WalletMethod.decryptExtraData ||
   WalletMethod.decryptCiphertext => _unsupportedDecryptionPolicy,
   WalletMethod.createOwnershipProof ||

@@ -149,6 +149,6 @@ void main() {
     );
     expect(review.buildTransactionParams!.nonce, max);
     expect((review.buildTransactionParams!.fee as FixedFeeBuilder).amount, max);
-    expect(review.canPersist, isFalse);
+    expect(review.canAllowForConnection, isFalse);
   }, testOn: 'vm');
 }

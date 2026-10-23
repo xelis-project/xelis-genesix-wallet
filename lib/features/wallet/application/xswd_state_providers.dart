@@ -240,7 +240,7 @@ class XswdRequest extends _$XswdRequest {
     if (state.prefetchPermissionsRequest != null) {
       return resolvePrefetchIfCurrent(token, const []);
     }
-    if (state.permissionReview?.canPersist == false &&
+    if (state.permissionReview?.canAllowForConnection == false &&
         decision == XelisXswdDecision.alwaysAccept) {
       decision = XelisXswdDecision.accept;
     }

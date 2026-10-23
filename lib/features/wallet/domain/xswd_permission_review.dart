@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:genesix/features/wallet/domain/xswd_inter_contract_permission.dart';
 import 'package:genesix/features/wallet/domain/xswd_method_policy.dart';
 import 'package:genesix/features/wallet/domain/xswd_payload.dart';
@@ -12,12 +14,19 @@ const _maxXswdRpcValueCells = 4096;
 const _maxXswdOpaqueAddresses = 64;
 final _maxU64 = (BigInt.one << 64) - BigInt.one;
 
+/// A known capability that Genesix does not currently offer for consent.
+/// This is a policy refusal, not a malformed request or a session failure.
+final class XswdMethodUnavailable implements Exception {
+  const XswdMethodUnavailable();
+}
+
 final class XswdPermissionReview {
   const XswdPermissionReview({
     required this.request,
     required this.method,
     required this.policy,
     this.parameters,
+    this.signingData,
     this.subscriptionEvent,
     this.buildTransactionParams,
     this.parsedInvokeParameters = const [],
@@ -27,25 +36,42 @@ final class XswdPermissionReview {
   factory XswdPermissionReview.parse(XelisXswdPermissionRequest request) {
     final method = request.method;
     final policy = _resolveMethodPolicy(method);
+    if (policy.reviewKind == XswdReviewKind.dataSignature) {
+      final raw = request.parameters;
+      if (raw == null) throw const FormatException('Missing signing data.');
+      final data = decodeXswdValue(raw);
+      _validateSigningData(data);
+      return XswdPermissionReview(
+        request: request,
+        method: method,
+        policy: policy,
+        signingData: data,
+      );
+    }
     final params = request.parameters == null
         ? null
         : decodeXswdPayload(request.parameters);
     normalizeXswdBuildTransactionFields({'method': method, 'params': params});
-    switch (policy.support) {
-      case XswdMethodSupport.unsupported:
-        throw const FormatException(
-          'Unsupported XSWD permission without dedicated review.',
-        );
-      case XswdMethodSupport.standardReview:
-        return XswdPermissionReview(
-          request: request,
-          method: method,
-          policy: policy,
-          parameters: params,
-          subscriptionEvent: _resolveSubscriptionEvent(method, params),
-        );
-      case XswdMethodSupport.dedicatedTransactionReview:
-        break;
+    if (!policy.isSupported) throw const XswdMethodUnavailable();
+    if (policy.reviewKind == XswdReviewKind.generic) {
+      if (method == 'track_asset' || method == 'untrack_asset') {
+        if (params == null ||
+            params.length != 1 ||
+            params['asset'] is! String ||
+            (params['asset'] as String).length != 64 ||
+            !RegExp(r'^[0-9a-fA-F]{64}$').hasMatch(params['asset'] as String)) {
+          throw const FormatException(
+            'Invalid XSWD asset tracking parameters.',
+          );
+        }
+      }
+      return XswdPermissionReview(
+        request: request,
+        method: method,
+        policy: policy,
+        parameters: params,
+        subscriptionEvent: _resolveSubscriptionEvent(method, params),
+      );
     }
     if (method != WalletMethod.buildTransaction.jsonKey) {
       throw StateError('Invalid dedicated XSWD review policy.');
@@ -142,6 +168,7 @@ final class XswdPermissionReview {
 
   final XelisXswdPermissionRequest request;
   final Map<String, dynamic>? parameters;
+  final Object? signingData;
   final String method;
   final XswdMethodPolicy policy;
   final WalletEvent? subscriptionEvent;
@@ -149,10 +176,44 @@ final class XswdPermissionReview {
   final List<RpcValueCell> parsedInvokeParameters;
   final List<XelisAddressDescriptor> transferDestinations;
 
-  bool get canPersist => policy.canPersist;
+  bool get canAllowForConnection => policy.canAllowForConnection;
+
+  bool get isSignData => policy.reviewKind == XswdReviewKind.dataSignature;
 
   bool get isBuildTransaction =>
       method == WalletMethod.buildTransaction.jsonKey;
+}
+
+// Match the native DataElement serializer limits, not the broader JSON model.
+// Strings truncate at 255 UTF-8 bytes; collection lengths use u8, except byte
+// arrays, which serde selects as DataValue::Blob and encodes with a u16 length.
+void _validateSigningData(Object? data) {
+  switch (data) {
+    case bool():
+      return;
+    case String():
+      if (utf8.encode(data).length <= 255) return;
+    case BigInt():
+      if (_isU64(data)) return;
+    case List<dynamic>():
+      final isBlob = data.every(
+        (item) =>
+            item is BigInt && item >= BigInt.zero && item <= BigInt.from(255),
+      );
+      if (data.length > (isBlob ? 65535 : 255)) break;
+      for (final item in data) {
+        _validateSigningData(item);
+      }
+      return;
+    case Map<String, dynamic>():
+      if (data.length > 255) break;
+      for (final entry in data.entries) {
+        _validateSigningData(entry.key);
+        _validateSigningData(entry.value);
+      }
+      return;
+  }
+  throw const FormatException('Signing data cannot be represented losslessly.');
 }
 
 WalletEvent? _resolveSubscriptionEvent(

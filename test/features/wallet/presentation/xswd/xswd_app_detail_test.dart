@@ -24,10 +24,13 @@ void main() {
     'get_balance',
     'network_info',
     'store',
+    'track_asset',
+    'untrack_asset',
     'subscribe',
     'unsubscribe',
     'build_transaction',
     'sign_data',
+    'rescan',
   ]) {
     for (final width in [320.0, 800.0]) {
       testWidgets('$method permission consent at ${width}px', (tester) async {
@@ -93,16 +96,13 @@ void main() {
           expect(find.text(loc.xswd_event_permissions_notice), findsOneWidget);
         }
         expect(find.text('Same-ID decoy'), findsNothing);
-        if (method == 'sign_data') {
+        if (method == 'rescan') {
           expect(
-            find.text('${loc.xswd_permission_group_unsupported} (1)'),
+            find.text(loc.xswd_permission_group_unsupported),
             findsOneWidget,
           );
         } else {
-          expect(
-            find.text('${loc.xswd_permission_group_ask} (1)'),
-            findsOneWidget,
-          );
+          expect(find.text(loc.xswd_permission_group_ask), findsOneWidget);
         }
 
         final permissionTile = find.ancestor(
@@ -120,13 +120,15 @@ void main() {
         expect(find.text(copy.description), findsOneWidget);
         expect(find.text(method).hitTestable(), findsNothing);
         expect(find.text(loc.xswd_permission_status_blocked), findsOneWidget);
-        if (method == 'sign_data') {
+        if (method == 'rescan') {
           expect(find.text(loc.xswd_permission_status_allowed), findsNothing);
         } else {
           expect(find.text(loc.xswd_permission_status_ask), findsWidgets);
           expect(
             find.text(loc.xswd_permission_status_allowed),
-            method == 'build_transaction' ? findsNothing : findsOneWidget,
+            method == 'build_transaction' || method == 'sign_data'
+                ? findsNothing
+                : findsOneWidget,
           );
         }
         await tester.tap(
@@ -176,7 +178,7 @@ void main() {
         'get_address': XelisXswdPermissionPolicy.accept,
         'get_balance': XelisXswdPermissionPolicy.ask,
         'get_assets': XelisXswdPermissionPolicy.reject,
-        'sign_data': XelisXswdPermissionPolicy.ask,
+        'rescan': XelisXswdPermissionPolicy.ask,
       },
       isRelayer: false,
     );
@@ -217,19 +219,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(
-      find.text('${loc.xswd_permission_group_allowed} (1)'),
-      findsOneWidget,
-    );
-    expect(find.text('${loc.xswd_permission_group_ask} (1)'), findsOneWidget);
-    expect(
-      find.text('${loc.xswd_permission_group_blocked} (1)'),
-      findsOneWidget,
-    );
-    expect(
-      find.text('${loc.xswd_permission_group_unsupported} (1)'),
-      findsOneWidget,
-    );
+    expect(find.text(loc.xswd_permission_group_allowed), findsOneWidget);
+    expect(find.text(loc.xswd_permission_group_ask), findsOneWidget);
+    expect(find.text(loc.xswd_permission_group_blocked), findsOneWidget);
+    expect(find.text(loc.xswd_permission_group_unsupported), findsOneWidget);
     for (final groupKey in const [
       'xswd-permission-group-allowed',
       'xswd-permission-group-ask',
@@ -247,8 +240,16 @@ void main() {
     expect(tester.getTopLeft(find.text(application.name)).dy, lessThan(200));
     expect(
       tester.getSize(find.widgetWithText(FButton, loc.disconnect)).width,
-      lessThan(240),
+      tester.getSize(find.widgetWithText(FTile, application.name)).width,
     );
+    expect(
+      tester
+          .widget<FTile>(find.widgetWithText(FTile, application.name))
+          .onPress,
+      isNull,
+    );
+    expect(find.byIcon(FLucideIcons.externalLink), findsNothing);
+    expect(find.text(loc.xswd_declared_origin), findsNothing);
     expect(
       find.byKey(const ValueKey('xswd-observation-warning')),
       findsNothing,
@@ -259,6 +260,7 @@ void main() {
     final fullOrigin = find.byKey(const ValueKey('xswd-app-full-origin'));
     expect(fullOrigin, findsOneWidget);
     expect(tester.widget<SelectableText>(fullOrigin).data, longUrl);
+    expect(find.text(loc.xswd_declared_origin), findsNothing);
 
     final actionLabel = xswdPermissionActionLabel('get_address', loc);
     final permissionTile = find.byKey(

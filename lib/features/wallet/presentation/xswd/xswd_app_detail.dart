@@ -11,14 +11,12 @@ import 'package:genesix/features/wallet/domain/xswd_method_policy.dart';
 import 'package:genesix/features/wallet/domain/xswd_notice.dart';
 import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_permission_copy.dart';
-import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/constants.dart';
 import 'package:genesix/shared/theme/dialog_style.dart';
 import 'package:genesix/shared/widgets/components/body_layout_builder.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
 import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class XswdAppDetail extends ConsumerStatefulWidget {
   const XswdAppDetail({required this.sessionReference, super.key});
@@ -94,7 +92,6 @@ class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
                   recentChoices: recentChoices,
                   observation: observation,
                   permissionFocusNode: _permissionFocusNode,
-                  onOpenUrl: (url) => _launchAppUrl(ref, url),
                   onPermissionChange: (permissionName, policy) {
                     return _handlePermissionChange(
                       ref,
@@ -177,24 +174,6 @@ class _XswdAppDetailState extends ConsumerState<XswdAppDetail> {
     if (confirmed != true) return;
     if (context.mounted) {
       context.pop(true);
-    }
-  }
-
-  Future<void> _launchAppUrl(WidgetRef ref, String rawUrl) async {
-    final uri = Uri.tryParse(rawUrl);
-    final loc = ref.read(appLocalizationsProvider);
-
-    if (uri == null || !uri.hasScheme) {
-      ref
-          .read(toastProvider.notifier)
-          .showError(description: '${loc.launch_url_error} $rawUrl');
-      return;
-    }
-
-    if (!await launchUrl(uri)) {
-      ref
-          .read(toastProvider.notifier)
-          .showError(description: '${loc.launch_url_error} $rawUrl');
     }
   }
 }
@@ -291,7 +270,6 @@ class _XswdAppDetailContent extends StatelessWidget {
     required this.recentChoices,
     required this.observation,
     required this.permissionFocusNode,
-    required this.onOpenUrl,
     required this.onPermissionChange,
     required this.onDisconnect,
   });
@@ -301,7 +279,6 @@ class _XswdAppDetailContent extends StatelessWidget {
   final List<XswdRecentChoice> recentChoices;
   final XelisXswdApplicationStateObservation? observation;
   final FocusNode Function(String permissionName) permissionFocusNode;
-  final ValueChanged<String> onOpenUrl;
   final Future<bool> Function(
     String permission,
     XelisXswdPermissionPolicy policy,
@@ -321,13 +298,12 @@ class _XswdAppDetailContent extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _XswdAppSummary(app: app, loc: loc, onOpenUrl: onOpenUrl),
+                _XswdAppSummary(app: app, loc: loc),
                 const SizedBox(height: Spaces.small),
-                Align(
-                  alignment: Alignment.centerRight,
+                SizedBox(
+                  width: double.infinity,
                   child: FButton(
                     variant: .destructive,
-                    mainAxisSize: MainAxisSize.min,
                     onPress: onDisconnect,
                     child: Flexible(child: Text(loc.disconnect)),
                   ),
@@ -374,15 +350,10 @@ class _XswdAppDetailContent extends StatelessWidget {
 }
 
 class _XswdAppSummary extends StatelessWidget {
-  const _XswdAppSummary({
-    required this.app,
-    required this.loc,
-    required this.onOpenUrl,
-  });
+  const _XswdAppSummary({required this.app, required this.loc});
 
   final XelisXswdApplication app;
   final AppLocalizations loc;
-  final ValueChanged<String> onOpenUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -395,26 +366,11 @@ class _XswdAppSummary extends StatelessWidget {
             FTile(
               prefix: const Icon(FLucideIcons.activity),
               title: Text(app.name),
-              subtitle: url != null && url.isNotEmpty
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [Text(url), Text(loc.xswd_declared_origin)],
-                    )
-                  : null,
+              subtitle: url != null && url.isNotEmpty ? Text(url) : null,
               details: FBadge(child: Text(loc.xswd_connection_active)),
-              suffix: url != null && url.isNotEmpty
-                  ? const Icon(FLucideIcons.externalLink)
-                  : null,
               semanticsLabel: url != null && url.isNotEmpty
-                  ? '${app.name}, ${loc.xswd_connection_active}, '
-                        '${loc.xswd_declared_origin}, $url'
+                  ? '${app.name}, ${loc.xswd_connection_active}, $url'
                   : '${app.name}, ${loc.xswd_connection_active}',
-              semanticsTooltip: url != null && url.isNotEmpty
-                  ? loc.open_button
-                  : null,
-              onPress: url != null && url.isNotEmpty
-                  ? () => onOpenUrl(url)
-                  : null,
             ),
           ],
         ),
@@ -442,7 +398,7 @@ class _XswdAppSummary extends StatelessWidget {
                   if (url != null && url.isNotEmpty) ...[
                     const SizedBox(height: Spaces.medium),
                     Text(
-                      loc.xswd_declared_origin,
+                      loc.url.toUpperCase(),
                       style: context.theme.typography.body.xs.copyWith(
                         color: context.theme.colors.mutedForeground,
                       ),
@@ -522,10 +478,6 @@ class _XswdPermissionsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          loc.xswd_permissions_connection_scope,
-          style: context.theme.typography.body.sm.copyWith(color: muted),
-        ),
         if (app.permissions.keys.any(xswdIsEventMethod)) ...[
           const SizedBox(height: Spaces.extraSmall),
           Text(
@@ -640,7 +592,7 @@ class _XswdPermissionGroup extends StatelessWidget {
         Semantics(
           header: true,
           child: Text(
-            '$label (${entries.length})',
+            label,
             style: context.theme.typography.body.sm.copyWith(
               fontWeight: FontWeight.w600,
             ),
@@ -914,7 +866,7 @@ class _XswdPermissionTile extends StatelessWidget with FTileMixin {
   @override
   Widget build(BuildContext context) {
     final policy = tryXswdMethodPolicyForKey(permissionName);
-    final allowAccept = policy?.canPersist ?? false;
+    final allowAccept = policy?.canAllowForConnection ?? false;
     final supported = policy?.isSupported ?? false;
     final copy = xswdPermissionCopy(permissionName, policy, loc);
     final effectivePolicy = _effectiveXswdPolicy(permissionName, currentPolicy);
@@ -956,9 +908,10 @@ XelisXswdPermissionPolicy _effectiveXswdPolicy(
   String permissionName,
   XelisXswdPermissionPolicy currentPolicy,
 ) {
-  final canPersist =
-      tryXswdMethodPolicyForKey(permissionName)?.canPersist ?? false;
-  return !canPersist && currentPolicy == XelisXswdPermissionPolicy.accept
+  final canAllowForConnection =
+      tryXswdMethodPolicyForKey(permissionName)?.canAllowForConnection ?? false;
+  return !canAllowForConnection &&
+          currentPolicy == XelisXswdPermissionPolicy.accept
       ? XelisXswdPermissionPolicy.ask
       : currentPolicy;
 }
@@ -1028,13 +981,6 @@ class _XswdPermissionEditDialogState extends State<_XswdPermissionEditDialog> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(widget.copy.description),
-            const SizedBox(height: Spaces.small),
-            Text(
-              loc.xswd_permissions_connection_scope,
-              style: context.theme.typography.body.sm.copyWith(
-                color: context.theme.colors.mutedForeground,
-              ),
-            ),
             const SizedBox(height: Spaces.medium),
             FSelectGroup<XelisXswdPermissionPolicy>(
               enabled: !_busy,

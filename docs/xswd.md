@@ -20,7 +20,8 @@ Responsibilities are split between three components:
   requests, and collects the user's decision.
 
 Applications and their requests are untrusted. Malformed, unknown, unsupported,
-or incompletely reviewable operations are rejected.
+or incompletely reviewable operations are rejected. A known unavailable method
+is refused without a consent dialog or connection closure, with a brief notice.
 Sensitive connection and request payloads must stay out of logs, analytics,
 crash reports, navigation state, and support messages.
 
@@ -58,6 +59,8 @@ while a permission request is awaiting a decision.
 Permission rules are **Allowed**, **Ask every time**, or
 **Blocked**. A decision defaults to the current request only. For eligible
 methods, the user may instead remember a rule for the current connection.
+Blocking a method for the connection is also available directly from transaction
+requests; this does not enable automatic transaction approval.
 One-time approval or refusal does not change that rule, and reconnecting does
 not retain it. Unsupported methods remain unavailable even under **Ask**.
 
@@ -111,6 +114,20 @@ safety or absence of delegated code execution. Genesix does not simulate
 contracts, predict economic outcomes, or narrow permissions on the user's
 behalf. These permissions apply only to the transaction being reviewed.
 
+## Data signature review
+
+`sign_data` signs the native serialization of the supplied data with the wallet
+key. Genesix displays its exact JSON values before confirmation, preserving
+integer precision; long structured content can be revealed in full. The original
+request remains authoritative and is never reconstructed from the displayed data.
+
+Review accepts booleans, strings, unsigned JSON integers through `u64`, arrays,
+and objects. It rejects null, floating-point and negative values, and data that
+would exceed the native encoding: 255 UTF-8 bytes per string or key, 255 entries
+per object or general array, or 65535 entries for a byte array. Existing payload
+size and depth budgets also apply. These limits prevent confirming content that
+native serialization would truncate or encode with an overflowing length.
+
 ## Capabilities and limits
 
 | Platform | Connections |
@@ -125,8 +142,10 @@ behalf. These permissions apply only to the transaction being reviewed.
 | Application storage | Reads and writes to the application's isolated storage may be preauthorized. |
 | Wallet events | Subscription and unsubscription may be preauthorized independently. |
 | Transactions | Transfer, burn, multisig, contract invocation, and deployment are supported with individual, complete review. This also applies on Web. |
-| Offline/unsigned transaction stages and signing | Unavailable without dedicated orchestration and review. |
-| Proofs, decryption, rescan/cache operations, network-mode changes, and asset tracking mutations | Unavailable without dedicated orchestration and review. |
+| Data signing | `sign_data` requires a dedicated review and confirmation for every request. It cannot be preauthorized; it can be blocked for the connection. |
+| Offline/unsigned transaction stages and transaction signing | Unavailable without dedicated orchestration and review. |
+| Asset tracking | `track_asset` and `untrack_asset` may be preauthorized separately for any asset on the connection. Tracking may scan asset activity while online. |
+| Proofs, decryption, rescan/cache operations, and network-mode changes | Unavailable without dedicated orchestration and review. |
 | Blob transactions, explicit signers, and unknown or lossy transaction fields | Rejected. |
 
 Unavailable capabilities stay rejected until their validation, consent, and

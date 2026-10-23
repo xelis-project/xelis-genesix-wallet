@@ -34,6 +34,78 @@ import '../../../helpers/xswd_test_payload.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  test('unavailable methods preserve another approval and leave their connection usable', () async {
+    final repository = _FakeNativeWalletRepository('a');
+    final container = _connectedXswdContainer(repository);
+    addTearDown(container.dispose);
+    await container.read(xswdControllerProvider).startXSWD(repository);
+    repository.xswdApplications = [_application];
+    final effects = <WalletEffect>[];
+    final subscription = container.listen(walletEffectBusProvider, (_, next) {
+      if (next != null) effects.add(next.effect);
+    });
+    addTearDown(subscription.close);
+    final callbacks = repository.callbacks!;
+    final other = XelisXswdApplication(
+      id: 'other',
+      name: 'Other',
+      description: '',
+      url: null,
+      permissions: const {},
+      isRelayer: true,
+    );
+    final notifier = container.read(xswdRequestProvider.notifier);
+    final pending = notifier.newRequest(
+      xswdEventSummary: XelisXswdRequest(
+        kind: XelisXswdRequestKind.application,
+        application: other,
+      ),
+      message: '',
+      repository: repository,
+    );
+    final token = container.read(xswdRequestProvider).token!;
+    expect(
+      await callbacks.onPermissionRequest(
+        XelisXswdRequest(
+          kind: XelisXswdRequestKind.permission,
+          application: _application,
+          payload: xswdTestPayload({
+            'jsonrpc': '2.0',
+            'id': 1,
+            'method': 'rescan',
+          }),
+        ),
+      ),
+      XelisXswdDecision.reject,
+    );
+    await Future<void>.delayed(Duration.zero);
+    expect(repository.removedApplications, isEmpty);
+    expect(effects.last, isA<WalletInfoEffect>());
+    expect(container.read(xswdRequestProvider).token, same(token));
+    expect(container.read(xswdRequestProvider).pending, isTrue);
+    notifier.resolveIfCurrent(token, XelisXswdDecision.accept);
+    expect(await pending, XelisXswdDecision.accept);
+    final next = Future<XelisXswdDecision>.value(
+      callbacks.onPermissionRequest(
+        XelisXswdRequest(
+          kind: XelisXswdRequestKind.permission,
+          application: _application,
+          payload: xswdTestPayload({
+            'jsonrpc': '2.0',
+            'id': 2,
+            'method': 'get_address',
+          }),
+        ),
+      ),
+    );
+    final nextToken = container.read(xswdRequestProvider).token!;
+    expect(container.read(xswdRequestProvider).pending, isTrue);
+    notifier.resolveIfCurrent(nextToken, XelisXswdDecision.accept);
+    expect(await next, XelisXswdDecision.accept);
+    expect(repository.removedApplications, isEmpty);
+    notifier.clearRequest();
+  });
+
   test('callbacks use separate safety budgets and preflight expiry preserves another approval', () async {
     final repository = _FakeNativeWalletRepository('a');
     final clock = _FakeXswdDecisionClock();
@@ -791,7 +863,7 @@ void main() {
       final transactionState = container.read(xswdRequestProvider);
       expect(transactionState.pending, isTrue);
       expect(transactionState.permissionReview!.isBuildTransaction, isTrue);
-      expect(transactionState.permissionReview!.canPersist, isFalse);
+      expect(transactionState.permissionReview!.canAllowForConnection, isFalse);
       container
           .read(xswdRequestProvider.notifier)
           .resolveIfCurrent(

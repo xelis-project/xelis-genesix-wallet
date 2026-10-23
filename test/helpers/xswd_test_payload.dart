@@ -2,7 +2,7 @@ import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 XelisXswdPermissionRequest xswdTestPermission({
   required String method,
-  Map<String, dynamic>? params,
+  Object? params,
   Object? id,
 }) => XelisXswdRequest(
   kind: XelisXswdRequestKind.permission,

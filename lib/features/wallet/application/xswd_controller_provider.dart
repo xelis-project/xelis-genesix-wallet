@@ -333,7 +333,8 @@ class XswdController {
     final session = ref.read(activeWalletSessionProvider);
     if (repository == null ||
         (policy == XelisXswdPermissionPolicy.accept &&
-            tryXswdMethodPolicyForKey(permission)?.canPersist != true)) {
+            tryXswdMethodPolicyForKey(permission)?.canAllowForConnection !=
+                true)) {
       return false;
     }
 
@@ -600,6 +601,14 @@ class XswdController {
         XswdDiagnosticEvent.validation,
         validation: XswdDiagnosticValidation.passed,
       );
+    } on XswdMethodUnavailable {
+      diagnostic?.record(
+        XswdDiagnosticEvent.decision,
+        decision: XelisXswdDecision.reject,
+        disposition: XswdDiagnosticDisposition.methodUnavailable,
+      );
+      _emitInfo(title: loc.xswd_method_unavailable_notice);
+      return _rejectedXswdCallbackDecision;
     } catch (error, stackTrace) {
       diagnostic?.record(
         XswdDiagnosticEvent.validation,
@@ -1110,7 +1119,7 @@ Map<String, XelisXswdPermissionPolicy> normalizeXswdPermissionPolicies(
   for (final entry in normalized.entries.toList(growable: false)) {
     final policy = tryXswdMethodPolicyForKey(entry.key);
     if (entry.value == XelisXswdPermissionPolicy.accept &&
-        (policy == null || !policy.canPersist)) {
+        (policy == null || !policy.canAllowForConnection)) {
       normalized[entry.key] = XelisXswdPermissionPolicy.ask;
     }
   }
@@ -1121,7 +1130,7 @@ XelisXswdDecision normalizeXswdDecision(
   XelisXswdDecision decision,
   XswdPermissionReview? review,
 ) {
-  if (review?.canPersist == false &&
+  if (review?.canAllowForConnection == false &&
       decision == XelisXswdDecision.alwaysAccept) {
     return XelisXswdDecision.accept;
   }

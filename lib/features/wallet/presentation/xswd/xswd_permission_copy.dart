@@ -24,6 +24,9 @@ XswdPermissionCopy xswdPermissionCopy(
   AppLocalizations loc,
 ) {
   final description = switch (method) {
+    'sign_data' => loc.xswd_sign_data_description,
+    'track_asset' => loc.xswd_track_asset_description,
+    'untrack_asset' => loc.xswd_untrack_asset_description,
     'get_version' => loc.xswd_public_read_description(
       loc.xswd_method_wallet_version_title,
     ),
@@ -149,9 +152,9 @@ XswdPermissionCopy xswdPermissionCopy(
       XswdMethodEffect.walletUnsubscription =>
         loc.xswd_permission_unsubscribe_title,
       XswdMethodEffect.transaction => loc.xswd_permission_transaction_title,
-      XswdMethodEffect.walletControl ||
+      XswdMethodEffect.walletControl => loc.assets,
+      XswdMethodEffect.signing => loc.xswd_method_sign_data_title,
       XswdMethodEffect.decryption ||
-      XswdMethodEffect.signing ||
       XswdMethodEffect.proof => loc.xswd_permission_unsupported_title,
     },
   };
@@ -180,6 +183,8 @@ String? xswdPermissionConsentNote(String method, AppLocalizations loc) =>
       'subscribe' => loc.xswd_subscription_connection_notice,
       'unsubscribe' => loc.xswd_unsubscription_connection_notice,
       'network_info' => loc.xswd_network_private_notice,
+      'track_asset' ||
+      'untrack_asset' => loc.xswd_asset_tracking_connection_notice,
       _ => null,
     };
 
@@ -193,9 +198,10 @@ String xswdPermissionImpact(XswdMethodEffect effect, AppLocalizations loc) =>
       XswdMethodEffect.walletUnsubscription =>
         loc.xswd_permission_unsubscription_impact,
       XswdMethodEffect.transaction => loc.xswd_transaction_review_warning,
-      XswdMethodEffect.walletControl ||
+      XswdMethodEffect.walletControl =>
+        loc.xswd_asset_tracking_connection_notice,
+      XswdMethodEffect.signing => loc.xswd_method_sign_data_title,
       XswdMethodEffect.decryption ||
-      XswdMethodEffect.signing ||
       XswdMethodEffect.proof => loc.xswd_permission_unsupported_impact,
     };
 
@@ -209,9 +215,9 @@ String xswdPermissionEffectTitle(
   XswdMethodEffect.walletSubscription ||
   XswdMethodEffect.walletUnsubscription => loc.xswd_permission_events_title,
   XswdMethodEffect.transaction => loc.xswd_permission_transaction_title,
-  XswdMethodEffect.walletControl ||
+  XswdMethodEffect.walletControl => loc.assets,
+  XswdMethodEffect.signing => loc.xswd_method_sign_data_title,
   XswdMethodEffect.decryption ||
-  XswdMethodEffect.signing ||
   XswdMethodEffect.proof => loc.xswd_permission_unsupported_title,
 };
 

@@ -127,6 +127,39 @@ void main() {
       expect(await connectedA, isTrue);
       await control.waitUntilRegistered(tester);
 
+      binding.reportData!['phase'] = 'unavailable_and_asset_tracking';
+      await control.send('unavailable-method');
+      final unavailable = await control.waitForResponse(
+        tester,
+        'unavailable-method',
+      );
+      expect(unavailable.errorKind, 'PERMISSION_DENIED');
+      expect(container.read(xswdRequestProvider).pending, isFalse);
+      await control.send('track-asset');
+      await _waitForRequest(tester, container, XelisXswdRequestKind.permission);
+      await _pumpDialog(tester, container);
+      await tester.ensureVisible(find.text(loc.xswd_scope_connection));
+      await tester.tap(find.text(loc.xswd_scope_connection));
+      await tester.pump();
+      await _tapDecision(tester, loc.xswd_allow_for_connection);
+      expect(
+        (await control.waitForResponse(tester, 'track-asset')).hasResult,
+        isTrue,
+      );
+      await control.send('track-asset-again');
+      expect(
+        (await control.waitForResponse(tester, 'track-asset-again')).hasResult,
+        isTrue,
+      );
+      expect(container.read(xswdRequestProvider).pending, isFalse);
+      await control.send('untrack-asset');
+      await _waitForRequest(tester, container, XelisXswdRequestKind.permission);
+      await _decide(tester, container, label: loc.xswd_deny_once);
+      expect(
+        (await control.waitForResponse(tester, 'untrack-asset')).errorKind,
+        'PERMISSION_DENIED',
+      );
+
       binding.reportData!['phase'] = 'grant_partial_prefetch';
       await control.send('partial-prefetch');
       await _waitForRequest(
@@ -168,6 +201,10 @@ void main() {
       expect(prefetch.hasError, isFalse);
       final postPrefetchApps = (await repositoryA.getXswdState()).applications;
       expect(postPrefetchApps.single.permissions, {
+        'sign_data': XelisXswdPermissionPolicy.ask,
+        'rescan': XelisXswdPermissionPolicy.ask,
+        'track_asset': XelisXswdPermissionPolicy.accept,
+        'untrack_asset': XelisXswdPermissionPolicy.ask,
         'get_address': XelisXswdPermissionPolicy.accept,
         'subscribe': XelisXswdPermissionPolicy.ask,
         'unsubscribe': XelisXswdPermissionPolicy.ask,
@@ -282,6 +319,52 @@ void main() {
         );
       }
 
+      binding.reportData!['phase'] = 'individual_data_signatures';
+      for (final scenario in [
+        'sign-text',
+        'sign-text-again',
+        'sign-number',
+        'sign-array',
+        'sign-object',
+        'sign-bool',
+        'sign-blob',
+      ]) {
+        await control.send(scenario);
+        await _waitForRequest(
+          tester,
+          container,
+          XelisXswdRequestKind.permission,
+        );
+        final review = container.read(xswdRequestProvider).permissionReview!;
+        expect(review.isSignData, isTrue);
+        expect(review.canAllowForConnection, isFalse);
+        await _pumpDialog(tester, container);
+        expect(find.text(loc.xswd_data_to_sign), findsOneWidget);
+        expect(find.text(loc.xswd_allow_for_connection), findsNothing);
+        await _tapDecision(tester, loc.xswd_sign_once);
+        final signed = await control.waitForResponse(tester, scenario);
+        expect(signed.hasError, isFalse, reason: scenario);
+        expect(signed.hasSignature, isTrue, reason: scenario);
+        final applications = (await repositoryA.getXswdState()).applications;
+        expect(
+          applications.single.permissions['sign_data'],
+          XelisXswdPermissionPolicy.ask,
+        );
+      }
+      await control.send('sign-block');
+      await _waitForRequest(tester, container, XelisXswdRequestKind.permission);
+      await _decide(tester, container, label: loc.xswd_block_for_connection);
+      expect(
+        (await control.waitForResponse(tester, 'sign-block')).errorKind,
+        'PERMISSION_DENIED',
+      );
+      await control.send('sign-blocked');
+      expect(
+        (await control.waitForResponse(tester, 'sign-blocked')).errorKind,
+        'PERMISSION_DENIED',
+      );
+      expect(container.read(xswdRequestProvider).pending, isFalse);
+
       await control.send('replace-session');
       binding.reportData!['phase'] = 'replace_session';
       await _waitForBuildTransaction(tester, container);
@@ -313,6 +396,22 @@ void main() {
       await _decide(tester, container, label: loc.allow);
       expect(await connectedB, isTrue);
       await control.waitUntilRegistered(tester);
+
+      // Changing wallets must not reuse the old wallet's method approval.
+      await control.send('track-asset-new-wallet');
+      await _waitForRequest(tester, container, XelisXswdRequestKind.permission);
+      await _pumpDialog(tester, container);
+      await tester.ensureVisible(find.text(loc.xswd_scope_connection));
+      await tester.tap(find.text(loc.xswd_scope_connection));
+      await tester.pump();
+      await _tapDecision(tester, loc.xswd_allow_for_connection);
+      expect(
+        (await control.waitForResponse(
+          tester,
+          'track-asset-new-wallet',
+        )).hasResult,
+        isTrue,
+      );
 
       // Resolve the exact admitted connection from native state.
       final applications = await container
@@ -356,6 +455,16 @@ void main() {
       await _decide(tester, container, label: loc.allow);
       expect(await connectedC, isTrue);
       await control.waitUntilRegistered(tester);
+      await control.send('track-asset-reconnected');
+      await _waitForRequest(tester, container, XelisXswdRequestKind.permission);
+      await _decide(tester, container, label: loc.xswd_deny_once);
+      expect(
+        (await control.waitForResponse(
+          tester,
+          'track-asset-reconnected',
+        )).errorKind,
+        'PERMISSION_DENIED',
+      );
       await control.send('malformed-transfer');
       await control.waitUntilDisconnected(tester);
       expect(container.read(xswdRequestProvider).token, isNull);
@@ -426,6 +535,10 @@ XelisXswdRelayer _relayer(String url) => XelisXswdRelayer(
   description: 'Ephemeral loopback integration fixture',
   url: null,
   permissions: const [
+    'sign_data',
+    'rescan',
+    'track_asset',
+    'untrack_asset',
     'get_address',
     'subscribe',
     'unsubscribe',
@@ -462,7 +575,7 @@ Future<XswdPermissionReview> _waitForBuildTransaction(
   final review = state.permissionReview;
   expect(review, isNotNull);
   expect(review!.isBuildTransaction, isTrue);
-  expect(review.canPersist, isFalse);
+  expect(review.canAllowForConnection, isFalse);
   return review;
 }
 
@@ -611,6 +724,7 @@ final class _XswdFixtureControl {
       final response = responses[id];
       if (response is Map<String, dynamic>) {
         return _RpcResponseState(
+          hasSignature: response['has_signature'] == true,
           hasResult: response['has_result'] == true,
           hasError: response['has_error'] == true,
           errorCode: response['error_code'],
@@ -656,12 +770,14 @@ final class _XswdFixtureControl {
 
 final class _RpcResponseState {
   const _RpcResponseState({
+    required this.hasSignature,
     required this.hasResult,
     required this.hasError,
     required this.errorCode,
     required this.errorKind,
   });
 
+  final bool hasSignature;
   final bool hasResult;
   final bool hasError;
   final Object? errorCode;

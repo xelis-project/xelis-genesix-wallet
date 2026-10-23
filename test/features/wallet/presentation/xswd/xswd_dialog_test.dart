@@ -1,3 +1,5 @@
+import 'package:go_router/go_router.dart';
+
 import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
@@ -42,6 +44,8 @@ void main() {
     (method: 'get_balance', event: null),
     (method: 'get_version', event: null),
     (method: 'store', event: null),
+    (method: 'track_asset', event: null),
+    (method: 'untrack_asset', event: null),
     (method: 'subscribe', event: 'balance_changed'),
     (method: 'unsubscribe', event: 'new_transaction'),
   ]) {
@@ -62,6 +66,8 @@ void main() {
             'jsonrpc': '2.0',
             'method': method,
             if (reviewCase.event case final event?) 'params': {'notify': event},
+            if (method == 'track_asset' || method == 'untrack_asset')
+              'params': {'asset': _contractHash},
           }),
         ),
       );
@@ -121,6 +127,85 @@ void main() {
     });
   }
 
+  for (final choice in [
+    XelisXswdDecision.accept,
+    XelisXswdDecision.reject,
+    XelisXswdDecision.alwaysReject,
+  ]) {
+    testWidgets('sign_data shows exact data before $choice', (tester) async {
+      tester.view.physicalSize = const Size(320, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final loc = AppLocalizationsEn();
+      final harness = _XswdTestHarness(loc);
+      final container = harness.container;
+      addTearDown(container.dispose);
+      final decision = harness.newRequest(
+        XelisXswdRequest(
+          kind: XelisXswdRequestKind.permission,
+          application: _application,
+          payload: xswdTestPayload({
+            'jsonrpc': '2.0',
+            'id': 1,
+            'method': 'sign_data',
+            'params': {
+              'message': 'Sign-in challenge',
+              'nonce': BigInt.parse('9007199254740993'),
+            },
+          }),
+        ),
+      );
+      final theme = greenDark(touch: true);
+      final router = GoRouter(
+        initialLocation: '/review',
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (_, _) => const SizedBox.shrink(),
+            routes: [
+              GoRoute(
+                path: 'review',
+                builder: (_, _) =>
+                    const Scaffold(body: XswdDialog(kAlwaysCompleteAnimation)),
+              ),
+            ],
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp.router(
+            routerConfig: router,
+            theme: theme.toApproximateMaterialTheme(),
+            builder: (_, child) => GenesixTheme(data: theme, child: child!),
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(find.text(loc.xswd_data_to_sign), findsOneWidget);
+      expect(find.textContaining('9007199254740993'), findsOneWidget);
+      expect(find.textContaining('Sign-in challenge'), findsOneWidget);
+      expect(find.text(loc.xswd_scope_connection), findsNothing);
+      expect(find.text(loc.xswd_allow_for_connection), findsNothing);
+      final button = find.text(switch (choice) {
+        XelisXswdDecision.accept => loc.xswd_sign_once,
+        XelisXswdDecision.reject => loc.xswd_deny_once,
+        _ => loc.xswd_block_for_connection,
+      });
+      await tester.ensureVisible(button);
+      await tester.tap(button);
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(await decision, choice);
+      container.read(xswdRequestProvider.notifier).clearRequest();
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   for (final viewport in <({Size size, double textScale})>[
     (size: const Size(320, 700), textScale: 1),
     (size: const Size(700, 900), textScale: 1),
@@ -137,7 +222,7 @@ void main() {
       final harness = _XswdTestHarness(AppLocalizationsEn());
       final container = harness.container;
       addTearDown(container.dispose);
-      harness.newRequest(
+      final decision = harness.newRequest(
         XelisXswdRequest(
           kind: XelisXswdRequestKind.permission,
           application: _application,
@@ -165,23 +250,38 @@ void main() {
       );
       final theme = greenDark(touch: viewport.size.width < 600);
 
+      final router = GoRouter(
+        initialLocation: '/review',
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (_, _) => const SizedBox.shrink(),
+            routes: [
+              GoRoute(
+                path: 'review',
+                builder: (_, _) =>
+                    const Scaffold(body: XswdDialog(kAlwaysCompleteAnimation)),
+              ),
+            ],
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: MaterialApp(
+          child: MaterialApp.router(
+            routerConfig: router,
+            theme: theme.toApproximateMaterialTheme(),
             builder: (context, child) => MediaQuery(
               data: MediaQuery.of(context)
                   .copyWith(textScaler: TextScaler.linear(viewport.textScale)),
-              child: child!,
-            ),
-            theme: theme.toApproximateMaterialTheme(),
-            home: GenesixTheme(
-              data: theme,
-              child: const Scaffold(body: XswdDialog(kAlwaysCompleteAnimation)),
+              child: GenesixTheme(data: theme, child: child!),
             ),
           ),
         ),
       );
+      await tester.pump();
 
       expect(
         find.byKey(const ValueKey('xswd-transaction-review')),
@@ -224,8 +324,18 @@ void main() {
       await tester.pump(const Duration(milliseconds: 150));
       expect(tester.takeException(), isNull);
 
+      expect(
+        find.text(AppLocalizationsEn().xswd_allow_for_connection),
+        findsNothing,
+      );
+      final block = find.text(AppLocalizationsEn().xswd_block_for_connection);
+      await tester.ensureVisible(block);
+      await tester.tap(block);
+      await tester.pumpAndSettle();
+      expect(await decision, XelisXswdDecision.alwaysReject);
       container.read(xswdRequestProvider.notifier).clearRequest();
       await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(milliseconds: 200));
     });
   }
 
@@ -916,6 +1026,54 @@ void main() {
     container.read(xswdRequestProvider.notifier).clearRequest();
     await tester.pumpWidget(const SizedBox.shrink());
   });
+
+  testWidgets(
+    'asset prefetch grants only the selected method in a mixed batch',
+    (tester) async {
+      final loc = AppLocalizationsEn();
+      final harness = _XswdTestHarness(loc);
+      final container = harness.container;
+      addTearDown(container.dispose);
+      final decision = harness.newPrefetchRequest(
+        _prefetchRequest(
+          permissions: const ['track_asset', 'untrack_asset', 'sign_data'],
+        ),
+        currentPermissions: const {},
+      );
+      final theme = greenDark(touch: false);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            theme: theme.toApproximateMaterialTheme(),
+            home: GenesixTheme(
+              data: theme,
+              child: const Scaffold(body: XswdDialog(kAlwaysCompleteAnimation)),
+            ),
+          ),
+        ),
+      );
+      expect(find.byType(FCheckbox), findsNWidgets(2));
+      expect(
+        find.text(loc.xswd_asset_tracking_connection_notice),
+        findsWidgets,
+      );
+      final untrack = find.widgetWithText(FCheckbox, loc.untrack);
+      await tester.ensureVisible(untrack);
+      await tester.tap(untrack);
+      await tester.pump();
+      final allow = find.text(loc.xswd_prefetch_allow_count(1));
+      await tester.ensureVisible(allow);
+      await tester.tap(allow);
+      await tester.pump(const Duration(milliseconds: 150));
+      expect((await decision as XelisXswdPrefetchGrant).permissions, [
+        'track_asset',
+      ]);
+      container.read(xswdRequestProvider.notifier).clearRequest();
+      await tester.pumpWidget(const SizedBox.shrink());
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('event permissions share a heading but grant independently', (
     tester,

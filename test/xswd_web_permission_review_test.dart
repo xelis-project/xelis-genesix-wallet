@@ -15,6 +15,44 @@ const _contractA =
     'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
 void main() {
+  test('Web reviews asset tracking and separates unavailable methods from invalid input', () {
+    for (final method in ['track_asset', 'untrack_asset']) {
+      final review = XswdPermissionReview.parse(
+        xswdTestPermission(method: method, params: {'asset': _contractA}),
+      );
+      expect(review.parameters, {'asset': _contractA});
+      expect(review.canAllowForConnection, isTrue);
+      expect(review.policy.canPrefetch, isTrue);
+      expect(
+        () => XswdPermissionReview.parse(
+          xswdTestPermission(method: method, params: {'asset': 'invalid'}),
+        ),
+        throwsFormatException,
+      );
+    }
+    expect(
+      () => XswdPermissionReview.parse(xswdTestPermission(method: 'rescan')),
+      throwsA(isA<XswdMethodUnavailable>()),
+    );
+  });
+
+  test('Web sign_data keeps nested integers exact and requires individual approval', () {
+    for (final data in <Object>[
+      'message',
+      true,
+      _maximum,
+      [_wide, 'text'],
+      {'nonce': _maximum},
+    ]) {
+      final review = XswdPermissionReview.parse(
+        xswdTestPermission(method: 'sign_data', params: data),
+      );
+      expect(review.signingData, data);
+      expect(review.canAllowForConnection, isFalse);
+      expect(review.policy.canPrefetch, isFalse);
+    }
+  });
+
   test('Web retains exact burn amount, fee, limit and nonce', () {
     final params = _review({
       'burn': {'asset': 'asset-hash', 'amount': _wide},

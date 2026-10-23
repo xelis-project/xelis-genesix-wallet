@@ -30,9 +30,9 @@ void main() {
         <
           WalletMethod,
           ({
-            XswdMethodSupport support,
+            XswdApprovalMode approvalMode,
             XswdMethodEffect effect,
-            bool canPersist,
+            bool canAllowForConnection,
             bool canPrefetch,
           })
         >{
@@ -49,9 +49,9 @@ void main() {
             WalletMethod.verifyHumanReadableProof,
           ])
             method: (
-              support: XswdMethodSupport.standardReview,
+              approvalMode: XswdApprovalMode.connection,
               effect: XswdMethodEffect.publicInformation,
-              canPersist: true,
+              canAllowForConnection: true,
               canPrefetch: true,
             ),
           for (final method in const [
@@ -71,15 +71,31 @@ void main() {
             WalletMethod.searchTransaction,
           ])
             method: (
-              support: XswdMethodSupport.standardReview,
+              approvalMode: XswdApprovalMode.connection,
               effect: XswdMethodEffect.walletData,
-              canPersist: true,
+              canAllowForConnection: true,
               canPrefetch: true,
             ),
+          for (final method in [
+            WalletMethod.trackAsset,
+            WalletMethod.untrackAsset,
+          ])
+            method: (
+              approvalMode: XswdApprovalMode.connection,
+              effect: XswdMethodEffect.walletControl,
+              canAllowForConnection: true,
+              canPrefetch: true,
+            ),
+          WalletMethod.signData: (
+            approvalMode: XswdApprovalMode.individual,
+            effect: XswdMethodEffect.signing,
+            canAllowForConnection: false,
+            canPrefetch: false,
+          ),
           WalletMethod.buildTransaction: (
-            support: XswdMethodSupport.dedicatedTransactionReview,
+            approvalMode: XswdApprovalMode.individual,
             effect: XswdMethodEffect.transaction,
-            canPersist: false,
+            canAllowForConnection: false,
             canPrefetch: false,
           ),
           for (final method in const [
@@ -88,19 +104,16 @@ void main() {
             WalletMethod.finalizeUnsignedTransaction,
           ])
             method: (
-              support: XswdMethodSupport.unsupported,
+              approvalMode: XswdApprovalMode.unavailable,
               effect: XswdMethodEffect.transaction,
-              canPersist: false,
+              canAllowForConnection: false,
               canPrefetch: false,
             ),
-          for (final method in const [
-            WalletMethod.signUnsignedTransaction,
-            WalletMethod.signData,
-          ])
+          for (final method in const [WalletMethod.signUnsignedTransaction])
             method: (
-              support: XswdMethodSupport.unsupported,
+              approvalMode: XswdApprovalMode.unavailable,
               effect: XswdMethodEffect.signing,
-              canPersist: false,
+              canAllowForConnection: false,
               canPrefetch: false,
             ),
           for (final method in const [
@@ -108,13 +121,11 @@ void main() {
             WalletMethod.clearTxCache,
             WalletMethod.setOnlineMode,
             WalletMethod.setOfflineMode,
-            WalletMethod.trackAsset,
-            WalletMethod.untrackAsset,
           ])
             method: (
-              support: XswdMethodSupport.unsupported,
+              approvalMode: XswdApprovalMode.unavailable,
               effect: XswdMethodEffect.walletControl,
-              canPersist: false,
+              canAllowForConnection: false,
               canPrefetch: false,
             ),
           for (final method in const [
@@ -122,9 +133,9 @@ void main() {
             WalletMethod.decryptCiphertext,
           ])
             method: (
-              support: XswdMethodSupport.unsupported,
+              approvalMode: XswdApprovalMode.unavailable,
               effect: XswdMethodEffect.decryption,
-              canPersist: false,
+              canAllowForConnection: false,
               canPrefetch: false,
             ),
           for (final method in const [
@@ -132,9 +143,9 @@ void main() {
             WalletMethod.createBalanceProof,
           ])
             method: (
-              support: XswdMethodSupport.unsupported,
+              approvalMode: XswdApprovalMode.unavailable,
               effect: XswdMethodEffect.proof,
-              canPersist: false,
+              canAllowForConnection: false,
               canPrefetch: false,
             ),
           for (final method in const [
@@ -148,9 +159,9 @@ void main() {
             WalletMethod.queryDB,
           ])
             method: (
-              support: XswdMethodSupport.standardReview,
+              approvalMode: XswdApprovalMode.connection,
               effect: XswdMethodEffect.appStorage,
-              canPersist: true,
+              canAllowForConnection: true,
               canPrefetch: true,
             ),
         };
@@ -159,11 +170,23 @@ void main() {
     for (final method in WalletMethod.values) {
       final policy = xswdMethodPolicy(method);
       final expectedPolicy = expected[method]!;
-      expect(policy.support, expectedPolicy.support, reason: method.jsonKey);
+      expect(
+        policy.reviewKind,
+        method == WalletMethod.buildTransaction
+            ? XswdReviewKind.transaction
+            : method == WalletMethod.signData
+            ? XswdReviewKind.dataSignature
+            : XswdReviewKind.generic,
+      );
+      expect(
+        policy.approvalMode,
+        expectedPolicy.approvalMode,
+        reason: method.jsonKey,
+      );
       expect(policy.effect, expectedPolicy.effect, reason: method.jsonKey);
       expect(
-        policy.canPersist,
-        expectedPolicy.canPersist,
+        policy.canAllowForConnection,
+        expectedPolicy.canAllowForConnection,
         reason: method.jsonKey,
       );
       expect(
@@ -188,7 +211,7 @@ void main() {
         final policy = tryXswdMethodPolicyForKey(method)!;
         expect(policy.isSupported, isTrue);
         expect(policy.canPrefetch, isTrue);
-        expect(policy.canPersist, isTrue);
+        expect(policy.canAllowForConnection, isTrue);
         expect(tryXswdMethodPolicyForKey('wallet.$method'), isNull);
       }
     },
