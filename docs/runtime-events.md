@@ -100,6 +100,12 @@ given a `BigInt` directly, while converting values beyond JavaScript's safe
 integer range to `int` would make the Web representation lossy. Revalidate
 this constraint when `intl` is upgraded.
 
+Mounted transaction details also watch the history refresh signal. A route opened
+from a pending entry resolves confirmed storage first and uses pending storage
+only on the SDK's `notFound` result. Confirmation therefore updates the status and
+topoheight without requiring the user to close and reopen the detail screen.
+Detailed payload reads remain scoped to the mounted transaction detail.
+
 Runtime lag reconciliation reloads balances, known assets, multisig state,
 daemon topoheight, history, and synchronization status. Business lag reloads
 wallet-owned balances, assets, multisig, and history without reading daemon

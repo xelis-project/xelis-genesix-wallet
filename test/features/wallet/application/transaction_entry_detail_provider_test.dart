@@ -7,6 +7,7 @@ import 'package:genesix/features/authentication/domain/wallet_session.dart';
 import 'package:genesix/features/wallet/application/last_transactions_provider.dart';
 import 'package:genesix/features/wallet/application/pending_transactions_provider.dart';
 import 'package:genesix/features/wallet/application/transaction_entry_detail_provider.dart';
+import 'package:genesix/features/wallet/application/wallet_history_refresh_signal_provider.dart';
 import 'package:genesix/features/wallet/data/native_wallet_repository.dart';
 import 'package:genesix/features/wallet/domain/transfer_entry_row.dart';
 import 'package:genesix/features/wallet/domain/transaction_entry_detail.dart';
@@ -58,6 +59,114 @@ void main() {
       XelisWalletExtraDataDisclosure.detailed,
     ]);
   });
+
+  test('pending deployment becomes confirmed on history refresh', () async {
+    final repository = _FakeNativeWalletRepository(
+      pending: _pendingDeployment(),
+    );
+    final container = _container(repository);
+    addTearDown(container.dispose);
+    final provider = transactionEntryDetailProvider((
+      hash: 'deploy-hash',
+      isPending: true,
+    ));
+    final subscription = container.listen(provider, (_, _) {});
+    addTearDown(subscription.close);
+
+    expect((await container.read(provider.future)).isPending, isTrue);
+    repository.confirmed = _confirmedDeployment();
+    repository.pending = null;
+    container.read(walletHistoryRefreshSignalProvider.notifier).bump();
+
+    final detail = await container.read(provider.future);
+    expect(detail.isPending, isFalse);
+    expect(detail.topoheight, BigInt.from(42));
+    expect(detail.entry, isA<XelisWalletDeployContractEntry>());
+    expect(repository.pendingHashes, ['deploy-hash']);
+    expect(
+      repository.confirmedDisclosures,
+      everyElement(XelisWalletExtraDataDisclosure.detailed),
+    );
+  });
+
+  test(
+    'reopening a pending deployment route prefers confirmed storage',
+    () async {
+      final repository = _FakeNativeWalletRepository(
+        confirmed: _confirmedDeployment(),
+        pending: _pendingDeployment(),
+      );
+      final container = _container(repository);
+      addTearDown(container.dispose);
+      final detail = await container.read(
+        transactionEntryDetailProvider((hash: 'deploy-hash', isPending: true))
+            .future,
+      );
+      expect(detail.isPending, isFalse);
+      expect(repository.pendingHashes, isEmpty);
+    },
+  );
+
+  test(
+    'confirmation between confirmed and pending reads is recovered',
+    () async {
+      final repository = _FakeNativeWalletRepository();
+      repository.beforePendingRead = () =>
+          repository.confirmed = _confirmedDeployment();
+      final container = _container(repository);
+      addTearDown(container.dispose);
+      final detail = await container.read(
+        transactionEntryDetailProvider((hash: 'deploy-hash', isPending: true))
+            .future,
+      );
+      expect(detail.isPending, isFalse);
+      expect(repository.confirmedHashes, ['deploy-hash', 'deploy-hash']);
+      expect(repository.pendingHashes, ['deploy-hash']);
+    },
+  );
+
+  test(
+    'confirmed read failures are preserved instead of masked as pending',
+    () async {
+      const failure = XelisWalletOperationException(
+        source: XelisWalletErrorSource.xelisWallet,
+        operation: XelisWalletOperation.walletHistoryTransactionRead,
+        code: XelisWalletErrorCode.invalidInput,
+        supportId: 'XWF-1111-2222-3333-4444-5555',
+      );
+      final repository = _FakeNativeWalletRepository(
+        pending: _pendingDeployment(),
+      )..confirmedError = failure;
+      final container = _container(repository);
+      addTearDown(container.dispose);
+      await expectLater(
+        container.read(
+          transactionEntryDetailProvider((hash: 'deploy-hash', isPending: true))
+              .future,
+        ),
+        throwsA(same(failure)),
+      );
+      expect(repository.pendingHashes, isEmpty);
+    },
+  );
+
+  test(
+    'a confirmed record for another hash cannot replace pending detail',
+    () async {
+      final repository = _FakeNativeWalletRepository()
+        ..nextConfirmed = (Completer<XelisWalletTransactionEntry>()
+          ..complete(_confirmedTransaction()));
+      final container = _container(repository);
+      addTearDown(container.dispose);
+      await expectLater(
+        container.read(
+          transactionEntryDetailProvider((hash: 'deploy-hash', isPending: true))
+              .future,
+        ),
+        throwsStateError,
+      );
+    },
+  );
 
   test('a detail from a replaced wallet is never published', () async {
     final repositoryA = _FakeNativeWalletRepository();
@@ -230,6 +339,7 @@ void main() {
 
 ProviderContainer _container(NativeWalletRepository repository) =>
     ProviderContainer(
+      retry: (retryCount, error) => null,
       overrides: [activeWalletRepositoryProvider.overrideWithValue(repository)],
     );
 
@@ -317,8 +427,8 @@ final class _FakeNativeWalletRepository implements NativeWalletRepository {
     this.matches = const {},
   });
 
-  final XelisWalletTransactionEntry? confirmed;
-  final XelisWalletPendingTransaction? pending;
+  XelisWalletTransactionEntry? confirmed;
+  XelisWalletPendingTransaction? pending;
   final Map<String, XelisAddressBookMatch> matches;
   final List<String> confirmedHashes = [];
   final List<String> pendingHashes = [];
@@ -328,6 +438,8 @@ final class _FakeNativeWalletRepository implements NativeWalletRepository {
   final List<XelisWalletExtraDataDisclosure> pendingListDisclosures = [];
   final List<_MatchCall> matchCalls = [];
   Completer<XelisWalletTransactionEntry>? nextConfirmed;
+  Object? confirmedError;
+  void Function()? beforePendingRead;
 
   @override
   Future<XelisWalletTransactionEntry> transactionByHash({
@@ -339,7 +451,11 @@ final class _FakeNativeWalletRepository implements NativeWalletRepository {
     confirmedDisclosures.add(extraDataDisclosure);
     final gate = nextConfirmed;
     nextConfirmed = null;
-    return gate?.future ?? confirmed ?? _confirmedTransaction();
+    if (confirmedError case final error?) throw error;
+    if (gate != null) return gate.future;
+    final transaction = confirmed ?? _confirmedTransaction();
+    if (transaction.hash != hash) throw _notFound;
+    return transaction;
   }
 
   @override
@@ -350,7 +466,10 @@ final class _FakeNativeWalletRepository implements NativeWalletRepository {
   }) async {
     pendingHashes.add(hash);
     pendingDetailDisclosures.add(extraDataDisclosure);
-    return pending ?? _pendingTransaction();
+    beforePendingRead?.call();
+    final transaction = pending;
+    if (transaction == null && beforePendingRead != null) throw _notFound;
+    return transaction ?? _pendingTransaction();
   }
 
   @override
@@ -384,3 +503,28 @@ final class _FakeNativeWalletRepository implements NativeWalletRepository {
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
+
+const _notFound = XelisWalletOperationException(
+  source: XelisWalletErrorSource.xelisWallet,
+  operation: XelisWalletOperation.walletHistoryRead,
+  code: XelisWalletErrorCode.notFound,
+  supportId: 'XWF-1111-2222-3333-4444-5555',
+);
+
+XelisWalletDeployContractEntry _deploymentEntry() =>
+    XelisWalletDeployContractEntry(fee: BigInt.one, nonce: BigInt.one);
+
+XelisWalletPendingTransaction _pendingDeployment() =>
+    XelisWalletPendingTransaction(
+      hash: 'deploy-hash',
+      timestampMillis: BigInt.from(20),
+      entry: _deploymentEntry(),
+    );
+
+XelisWalletTransactionEntry _confirmedDeployment() =>
+    XelisWalletTransactionEntry(
+      hash: 'deploy-hash',
+      timestampMillis: BigInt.from(20),
+      topoheight: BigInt.from(42),
+      entry: _deploymentEntry(),
+    );
