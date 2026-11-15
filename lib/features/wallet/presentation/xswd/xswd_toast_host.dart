@@ -426,20 +426,20 @@ class _XswdApprovalCard extends StatelessWidget {
     );
     final actions = <Widget>[
       FButton(
-        key: const ValueKey('xswd-toast-open'),
-        size: .sm,
-        mainAxisSize: MainAxisSize.min,
-        onPress: onOpen,
-        child: Text(loc.open_button),
-      ),
-      const SizedBox(width: 2),
-      FButton(
         key: const ValueKey('xswd-toast-deny'),
         variant: .ghost,
         size: .sm,
         mainAxisSize: MainAxisSize.min,
         onPress: onDeny,
         child: Text(loc.deny),
+      ),
+      const SizedBox(width: 2),
+      FButton(
+        key: const ValueKey('xswd-toast-open'),
+        size: .sm,
+        mainAxisSize: MainAxisSize.min,
+        onPress: onOpen,
+        child: Text(loc.open_button),
       ),
     ];
     return LayoutBuilder(

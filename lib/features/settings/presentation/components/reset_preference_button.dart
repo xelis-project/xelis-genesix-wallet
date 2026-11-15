@@ -68,13 +68,13 @@ class _ResetPreferenceButtonState extends ConsumerState<ResetPreferenceButton> {
           body: Text(loc.reset_preferences_dialog),
           actions: [
             FButton(
-              onPress: () => _confirmResetPreferences(context),
-              child: Text(loc.confirm_button),
-            ),
-            FButton(
               variant: .outline,
               onPress: () => context.pop(),
               child: Text(loc.cancel_button),
+            ),
+            FButton(
+              onPress: () => _confirmResetPreferences(context),
+              child: Text(loc.confirm_button),
             ),
           ],
         );

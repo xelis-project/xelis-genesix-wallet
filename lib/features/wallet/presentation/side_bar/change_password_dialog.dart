@@ -120,15 +120,15 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
           ),
         ),
         actions: [
-          AsyncFButton(
-            isLoading: _isSaving,
-            onPress: _onSave,
-            child: Text(loc.save),
-          ),
           FButton(
             variant: .outline,
             onPress: _isSaving ? null : () => context.pop(),
             child: Text(loc.cancel_button),
+          ),
+          AsyncFButton(
+            isLoading: _isSaving,
+            onPress: _onSave,
+            child: Text(loc.save),
           ),
         ],
       ),

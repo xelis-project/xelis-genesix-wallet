@@ -137,15 +137,15 @@ class _PasswordDialogState extends ConsumerState<PasswordDialog> {
         ],
       ),
       actions: [
-        AsyncFButton(
-          isLoading: _isSubmitting,
-          onPress: () => _submit(_password),
-          child: Text(loc.continue_button),
-        ),
         FButton(
           variant: .outline,
           onPress: _isSubmitting ? null : () => context.pop(),
           child: Text(loc.cancel_button),
+        ),
+        AsyncFButton(
+          isLoading: _isSubmitting,
+          onPress: () => _submit(_password),
+          child: Text(loc.continue_button),
         ),
       ],
     );

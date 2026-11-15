@@ -39,6 +39,8 @@ class AppDialog extends StatelessWidget {
   final Widget? image;
   final Widget? title;
   final Widget? body;
+
+  /// Put Cancel/Deny before the primary action: left in rows, first in columns.
   final List<Widget> actions;
   final Axis direction;
   final FDialogStyleDelta style;
