@@ -11,7 +11,7 @@ import 'package:genesix/features/wallet/domain/xswd_request_state.dart';
 import 'package:genesix/shared/theme/more_colors.dart';
 import 'package:genesix/src/generated/l10n/app_localizations.dart';
 
-/// Presents the single persistent XSWD approval entry below the app toaster.
+/// Presents the persistent XSWD approval separately from wallet notifications.
 class XswdToastHost extends ConsumerStatefulWidget {
   const XswdToastHost({required this.child, super.key});
 
@@ -134,6 +134,9 @@ class _XswdToastHostState extends ConsumerState<XswdToastHost> {
     _entry = showRawFToast(
       context: toastContext,
       style: style,
+      // A separate alignment gives approvals their own Forui stack. Ordinary
+      // wallet events must not cover their actions or count toward its limit.
+      alignment: FToastAlignment.bottomCenter,
       duration: null,
       swipeToDismiss: const [],
       builder: (context, entry) => _XswdEntryVisibility(

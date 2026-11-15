@@ -96,6 +96,10 @@ void main() {
     expect(find.text('Application A cancelled'), findsOneWidget);
     expect(find.text('Application B'), findsOneWidget);
     expect(
+      find.byKey(const ValueKey('xswd-toast-open')).hitTestable(),
+      findsOneWidget,
+    );
+    expect(
       identical(
         harness.container.read(xswdRequestProvider).token,
         notice.token,
@@ -105,6 +109,41 @@ void main() {
     expect(harness.container.read(xswdRequestProvider).pending, isTrue);
     expect(tester.takeException(), isNull);
   });
+
+  for (final size in [const Size(1000, 800), const Size(320, 480)]) {
+    testWidgets('reward burst keeps approval actions reachable at $size', (
+      tester,
+    ) async {
+      final harness = await _pumpHost(tester, size: size);
+      final notice = _beginRequest(harness, 'Mining dApp');
+      await tester.pumpAndSettle();
+
+      for (var i = 0; i < 4; i++) {
+        harness.container
+            .read(toastProvider.notifier)
+            .showInformation(title: 'Mining reward $i');
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+      }
+      await tester.pumpAndSettle();
+      final open = find.byKey(const ValueKey('xswd-toast-open'));
+      final deny = find.byKey(const ValueKey('xswd-toast-deny'));
+      expect(open.hitTestable(), findsOneWidget);
+      expect(deny.hitTestable(), findsOneWidget);
+      await tester.tap(open);
+      await tester.pumpAndSettle();
+      expect(
+        harness.container.read(xswdDialogCoordinatorProvider).intent?.token,
+        same(notice.token),
+      );
+      expect(harness.container.read(xswdRequestProvider).pending, isTrue);
+      await tester.tap(deny);
+      await tester.pumpAndSettle();
+      expect(harness.container.read(xswdRequestProvider).pending, isFalse);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+  }
 
   testWidgets('coalesces requests emitted before the next frame', (
     tester,

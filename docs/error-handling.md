@@ -241,6 +241,10 @@ Before a standard broadcast, the UI authenticates the user and then rereads the
 current review. It proceeds only while confirmation is still active and both
 the prepared-object identity and transaction hash match what the user reviewed.
 
+Multisig setup likewise captures the exact prepared object and wallet session
+before authentication and checks both again before broadcast. Setup keeps its
+review when discarding fails so the user can retry discarding the same capability.
+
 The package returns one of five exhaustive value outcomes. Genesix applies the
 following ownership and recovery policy:
 

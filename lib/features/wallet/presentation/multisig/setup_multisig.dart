@@ -34,7 +34,12 @@ class _SetupMultisigState extends ConsumerState<SetupMultisig> {
   bool _confirmed = false;
   bool _isPreparing = false;
   bool _isBroadcasting = false;
+  bool _isAuthenticating = false;
+  bool _isDiscarding = false;
   bool _isComplete = false;
+
+  bool get _isBusy =>
+      _isPreparing || _isBroadcasting || _isAuthenticating || _isDiscarding;
 
   @override
   Widget build(BuildContext context) {
@@ -68,14 +73,10 @@ class _SetupMultisigState extends ConsumerState<SetupMultisig> {
         threshold: _threshold,
         participants: _participants,
         confirmed: _confirmed,
-        isBroadcasting: _isBroadcasting,
+        isBroadcasting: _isBusy,
         onConfirmationChanged: (value) => setState(() => _confirmed = value),
         onEdit: _editConfiguration,
-        onActivate: () => startWithBiometricAuth(
-          ref,
-          callback: _broadcast,
-          reason: loc.please_authenticate_tx,
-        ),
+        onActivate: _authenticateAndBroadcast,
       );
     } else {
       content = MultisigSetupConfiguration(
@@ -94,7 +95,7 @@ class _SetupMultisigState extends ConsumerState<SetupMultisig> {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop && !_isPreparing && !_isBroadcasting) {
+        if (!didPop && !_isBusy) {
           _handleBack();
         }
       },
@@ -104,9 +105,7 @@ class _SetupMultisigState extends ConsumerState<SetupMultisig> {
           prefixes: [
             Padding(
               padding: const EdgeInsets.all(Spaces.small),
-              child: FHeaderAction.back(
-                onPress: _isPreparing || _isBroadcasting ? null : _handleBack,
-              ),
+              child: FHeaderAction.back(onPress: _isBusy ? null : _handleBack),
             ),
           ],
         ),
@@ -203,12 +202,38 @@ class _SetupMultisigState extends ConsumerState<SetupMultisig> {
     }
   }
 
-  Future<void> _broadcast(WidgetRef ref) async {
+  Future<void> _authenticateAndBroadcast() async {
     final transaction = _transaction;
     final sessionIdentity = _transactionSessionIdentity;
-    if (_isBroadcasting ||
+    if (_isBusy ||
         transaction == null ||
         sessionIdentity == null ||
+        !_confirmed) {
+      return;
+    }
+    final loc = ref.read(appLocalizationsProvider);
+    setState(() => _isAuthenticating = true);
+    try {
+      await startWithBiometricAuth(
+        ref,
+        callback: (authenticatedRef) =>
+            _broadcast(authenticatedRef, transaction, sessionIdentity),
+        reason: loc.please_authenticate_tx,
+      );
+    } finally {
+      if (mounted) setState(() => _isAuthenticating = false);
+    }
+  }
+
+  Future<void> _broadcast(
+    WidgetRef ref,
+    XelisWalletPreparedTransaction transaction,
+    Object sessionIdentity,
+  ) async {
+    if (_isBroadcasting ||
+        !identical(_transaction, transaction) ||
+        !identical(_transactionSessionIdentity, sessionIdentity) ||
+        !identical(ref.read(activeWalletRepositoryProvider), sessionIdentity) ||
         !_confirmed) {
       return;
     }
@@ -223,6 +248,10 @@ class _SetupMultisigState extends ConsumerState<SetupMultisig> {
       if (!mounted ||
           broadcasted == null ||
           !identical(_transaction, transaction) ||
+          !identical(
+            ref.read(activeWalletRepositoryProvider),
+            sessionIdentity,
+          ) ||
           !_confirmed) {
         return;
       }
@@ -278,25 +307,33 @@ class _SetupMultisigState extends ConsumerState<SetupMultisig> {
   }
 
   Future<void> _editConfiguration() async {
+    if (_isBusy) return;
     final transaction = _transaction;
     final sessionIdentity = _transactionSessionIdentity;
-    if (transaction != null && sessionIdentity != null) {
-      await ref
-          .read(walletCommandsProvider)
-          .cancelPreparedTransaction(
-            transaction: transaction,
-            sessionIdentity: sessionIdentity,
-          );
+    setState(() => _isDiscarding = true);
+    try {
+      if (transaction != null && sessionIdentity != null) {
+        final discarded = await ref
+            .read(walletCommandsProvider)
+            .cancelPreparedTransaction(
+              transaction: transaction,
+              sessionIdentity: sessionIdentity,
+            );
+        if (!discarded) return;
+      }
+      if (!mounted) return;
+      setState(() {
+        _transaction = null;
+        _transactionSessionIdentity = null;
+        _confirmed = false;
+      });
+    } finally {
+      if (mounted) setState(() => _isDiscarding = false);
     }
-    if (!mounted) return;
-    setState(() {
-      _transaction = null;
-      _transactionSessionIdentity = null;
-      _confirmed = false;
-    });
   }
 
   Future<void> _handleBack() async {
+    if (_isBusy) return;
     if (_transaction != null && !_isComplete) {
       await _editConfiguration();
       return;

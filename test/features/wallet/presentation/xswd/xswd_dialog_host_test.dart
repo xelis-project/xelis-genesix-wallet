@@ -14,6 +14,7 @@ import 'package:genesix/features/wallet/presentation/xswd/xswd_dialog.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_dialog_host.dart';
 import 'package:genesix/features/wallet/presentation/xswd/xswd_toast_host.dart';
 import 'package:genesix/shared/resources/localizations.dart';
+import 'package:genesix/shared/providers/toast_provider.dart';
 import 'package:genesix/shared/theme/genesix_theme.dart';
 import 'package:genesix/shared/theme/theme.dart';
 import 'package:genesix/shared/widgets/components/toaster_widget.dart';
@@ -22,6 +23,43 @@ import 'package:go_router/go_router.dart';
 import 'package:xelis_wallet_flutter/xelis_wallet_flutter.dart';
 
 void main() {
+  testWidgets(
+    'mining reward notifications preserve the open approval and its request',
+    (tester) async {
+      final harness = await _pumpApp(tester);
+      final decision = harness.begin('Mining wallet');
+      var resolved = false;
+      decision.then((_) => resolved = true);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('xswd-toast-open')));
+      await tester.pumpAndSettle();
+      final token = harness.container.read(xswdRequestProvider).token!;
+      final dialogState = tester.state(find.byType(XswdDialog));
+
+      harness.container
+          .read(toastProvider.notifier)
+          .showInformation(title: 'New mining reward: +1 XEL');
+      await tester.pumpAndSettle();
+      expect(find.text('New mining reward: +1 XEL'), findsOneWidget);
+      expect(find.byType(XswdDialog), findsOneWidget);
+      expect(tester.state(find.byType(XswdDialog)), same(dialogState));
+      expect(harness.container.read(xswdRequestProvider).token, same(token));
+      expect(resolved, isFalse);
+      await tester.pump(const Duration(seconds: 6));
+      await tester.pumpAndSettle();
+      expect(find.byType(XswdDialog), findsOneWidget);
+      expect(resolved, isFalse);
+
+      harness.container
+          .read(xswdRequestProvider.notifier)
+          .rejectIfCurrent(token);
+      await tester.pumpAndSettle();
+      expect(await decision, XelisXswdDecision.reject);
+      await tester.pumpWidget(const SizedBox.shrink());
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets(
     'expiry after route push but before presentation closes the empty dialog',
     (tester) async {

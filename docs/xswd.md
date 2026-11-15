@@ -54,6 +54,10 @@ only an entry point to the decision; it is not proof that an operation or
 connection shutdown has completed. Peer disconnection detection may be delayed
 while a permission request is awaiting a decision.
 
+Pending approval notifications stay at the bottom of the window, separate from
+ordinary wallet notifications at the top. Mining rewards and other wallet events
+must not cover or displace the approval actions.
+
 ## Permissions
 
 Permission rules are **Allowed**, **Ask every time**, or
