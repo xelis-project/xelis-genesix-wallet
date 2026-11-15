@@ -78,9 +78,14 @@ class _TrackedAssetDetailsState extends ConsumerState<TrackedAssetDetails> {
                       ),
                       child: child,
                     ),
-                    child: Text(
-                      widget.hash,
-                      style: context.theme.typography.body.md,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        widget.hash,
+                        maxLines: 1,
+                        softWrap: false,
+                        style: context.theme.typography.body.md,
+                      ),
                     ),
                   ),
                 ),
